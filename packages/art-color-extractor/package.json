@@ -11,7 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "q": "^1.4.1",
+    "p-promise": "^0.5.0",
     "quantize": "^1.0.1"
   }
 }

@@ -1,6 +1,6 @@
 /* @flow weak */
 var events = require('events'),
-    Q = require('q'),
+    defer = require('p-promise').defer
     CanvasImage = require('./canvas_image');
 
 
@@ -22,7 +22,7 @@ ColorExtractor.prototype.checkOutWorker = function() {
     return Promise.resolve(worker);
   }
   else {
-    var deferred = Q.defer();
+    var deferred = defer();
     this.workerRequests.push(deferred);
     return deferred.promise;
   }
@@ -52,7 +52,7 @@ ColorExtractor.prototype.extract = function(imageSource) {
   return this.checkOutWorker().then(function(worker) {
     var imageDataBuffer = new CanvasImage(imageSource, 100, 100).getImageData().data.buffer;
 
-    var deferredExtraction = Q.defer();
+    var deferredExtraction = defer();
     worker.postMessage({command: 'extract', imageDataBuffer: imageDataBuffer}, [imageDataBuffer]);
     worker.onmessage = function(e) {
       this.checkInWorker(worker);

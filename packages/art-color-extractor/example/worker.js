@@ -719,10 +719,10 @@ Grad.prototype.getQuads = function(colors) {
         // If close enough, increment color's quad score.
         xq = (Math.floor(((j/4)%this.width)/ (this.height / 2)));
         yq = (Math.round((j/4)/(this.width * this.height)));
-        if (!quad[i][yq]) {
-          console.error('unable to find quad[%i][%i]', i, yq);
-          console.error('quad is', quad);
-        }
+        // if (!quad[i][yq]) {
+        //   console.error('unable to find quad[%i][%i]', i, yq);
+        //   console.error('quad is', quad);
+        // }
 
         quad[i][yq][xq] += 1;
       }
@@ -807,7 +807,7 @@ Grad.prototype.getColors = function(colors) {
       bws = this.BWSensitivity;
     }
   }
-  console.log("gradify selectedColors", selectedColors);
+  // console.log("gradify selectedColors", selectedColors);
   this.getQuads(selectedColors);
   //this.createCSS(selectedColors);
 }
@@ -840,8 +840,8 @@ Grad.prototype.handleData = function() {
     return second[1] - first[1];
   });
   this.colMap = colorMap;
-  console.log("gradify colormap", colorMap);
-  console.log("gradify \"items\"", items);
+  // console.log("gradify colormap", colorMap);
+  // console.log("gradify \"items\"", items);
   this.getColors(items)
 }
 
@@ -1001,7 +1001,7 @@ Vibrant = (function() {
       i = i + quality;
     }
     cmap = this.quantize(allPixels, colorCount);
-    console.log('vibrant cmap', cmap.vboxes.debug());
+    // console.log('vibrant cmap', cmap.vboxes.debug());
     this._swatches = cmap.vboxes.map((function(_this) {
       return function(vbox) {
         return new Swatch(vbox.color, vbox.vbox.count());

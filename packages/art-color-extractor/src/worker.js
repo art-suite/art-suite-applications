@@ -1,4 +1,3 @@
-// Gradify = require('./gradify');
 ColorThief = require('./color_thief'),
    Vibrant = require('./vibrant'),
    Gradify = require('./gradify');
@@ -32,6 +31,4 @@ onmessage = function(msg) {
   var imageData = new Uint8ClampedArray(msg.data.imageDataBuffer);
   var colorInfo = extract(imageData);
   postMessage(colorInfo);
-  // console.log(imageData);
-  // console.log(self);
 }

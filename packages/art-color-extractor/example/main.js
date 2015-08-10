@@ -193,7 +193,7 @@ var App = React.createClass({
     return {
       colorInfo: {},
       extractions: {},
-      extractor: new ColorExtractor(4),
+      extractor: new ColorExtractor('worker.js', 4),
       medias: [],
       totalMediaCount: undefined,
       loaded: false,

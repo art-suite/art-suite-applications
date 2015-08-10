@@ -151,7 +151,6 @@ Vibrant = (function() {
       i = i + quality;
     }
     cmap = this.quantize(allPixels, colorCount);
-    // console.log('vibrant cmap', cmap.vboxes.debug());
     this._swatches = cmap.vboxes.map((function(_this) {
       return function(vbox) {
         return new Swatch(vbox.color, vbox.vbox.count());
