@@ -1,0 +1,17 @@
+{
+  "name": "color-info",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "parallel ::: \"watchify example/main.js -o example/bundle.js -t reactify\" \"watchify src/worker.js -o example/worker.js\" \"php -S localhost:3000 -t example\"",
+    "build": "parallel ::: \"browserify src/index.js -o dist/index.js\" \"browserify src/worker.js -o dist/worker.js\"",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "q": "^1.4.1",
+    "quantize": "^1.0.1"
+  }
+}
