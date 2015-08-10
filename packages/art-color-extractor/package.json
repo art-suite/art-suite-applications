@@ -13,5 +13,10 @@
   "dependencies": {
     "p-promise": "^0.5.0",
     "quantize": "^1.0.1"
+  },
+  "devDependencies": {
+    "browserify": "^11.0.1",
+    "reactify": "^1.1.1",
+    "watchify": "^3.3.1"
   }
 }

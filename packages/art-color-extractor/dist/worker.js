@@ -597,7 +597,6 @@ module.exports = ColorThief;
  *   - Removed css generation stuff
  */
 var Grad = function(pixelData, optNumColors) {
-  // console.log("imageData =", imageData.length);
   this.pixelData = pixelData;
 
   // Colors which do not catch the eye
@@ -719,10 +718,6 @@ Grad.prototype.getQuads = function(colors) {
         // If close enough, increment color's quad score.
         xq = (Math.floor(((j/4)%this.width)/ (this.height / 2)));
         yq = (Math.round((j/4)/(this.width * this.height)));
-        // if (!quad[i][yq]) {
-        //   console.error('unable to find quad[%i][%i]', i, yq);
-        //   console.error('quad is', quad);
-        // }
 
         quad[i][yq][xq] += 1;
       }
@@ -807,7 +802,6 @@ Grad.prototype.getColors = function(colors) {
       bws = this.BWSensitivity;
     }
   }
-  // console.log("gradify selectedColors", selectedColors);
   this.getQuads(selectedColors);
   //this.createCSS(selectedColors);
 }
@@ -840,8 +834,6 @@ Grad.prototype.handleData = function() {
     return second[1] - first[1];
   });
   this.colMap = colorMap;
-  // console.log("gradify colormap", colorMap);
-  // console.log("gradify \"items\"", items);
   this.getColors(items)
 }
 
@@ -1001,7 +993,6 @@ Vibrant = (function() {
       i = i + quality;
     }
     cmap = this.quantize(allPixels, colorCount);
-    // console.log('vibrant cmap', cmap.vboxes.debug());
     this._swatches = cmap.vboxes.map((function(_this) {
       return function(vbox) {
         return new Swatch(vbox.color, vbox.vbox.count());
@@ -1182,7 +1173,6 @@ Vibrant = (function() {
 module.exports = Vibrant;
 
 },{"quantize":1}],5:[function(require,module,exports){
-// Gradify = require('./gradify');
 ColorThief = require('./color_thief'),
    Vibrant = require('./vibrant'),
    Gradify = require('./gradify');
@@ -1216,8 +1206,6 @@ onmessage = function(msg) {
   var imageData = new Uint8ClampedArray(msg.data.imageDataBuffer);
   var colorInfo = extract(imageData);
   postMessage(colorInfo);
-  // console.log(imageData);
-  // console.log(self);
 }
 
 },{"./color_thief":2,"./gradify":3,"./vibrant":4}]},{},[5]);

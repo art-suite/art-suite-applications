@@ -1336,8 +1336,10 @@ ColorExtractor.prototype.extract = function(imageSource) {
 }
 
 
-
-if (typeof exports === "object" && typeof module === "object") {
+if (typeof define === "function" && define.amd) {
+  define(function() { return ColorExtractor });
+}
+else if (typeof exports === "object" && typeof module === "object") {
   module.exports = ColorExtractor;
 }
 else if (typeof window !== "undefined") {
