@@ -63,5 +63,9 @@ ColorExtractor.prototype.extract = function(imageSource) {
 
 
 
-
-module.exports = ColorExtractor;
+if (typeof exports === "object" && typeof module === "object") {
+  module.exports = ColorExtractor;
+}
+else if (typeof window !== "undefined") {
+  window.ColorExtractor = ColorExtractor;
+}
