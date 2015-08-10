@@ -3,11 +3,9 @@ var events = require('events'),
     Q = require('q'),
     CanvasImage = require('./canvas_image');
 
-/**
- * @param imageSource - Any CanvasImageSource - https://developer.mozilla.org/en-US/docs/Web/API/CanvasImageSource
- * @returns
- */
-function ColorExtractor(maxWorkers) {
+
+function ColorExtractor(workerPath, maxWorkers) {
+  this.workerPath = workerPath || 'worker.js';
   this.maxWorkers = maxWorkers || 4;
   events.EventEmitter.call(this);
   this.idleWorkers = [];
@@ -19,7 +17,7 @@ ColorExtractor.prototype.checkOutWorker = function() {
   var worker = this.idleWorkers.shift();
   if (!worker && this.activeWorkers.length < this.maxWorkers) {
     // Make a new worker
-    worker = new Worker('worker.js');
+    worker = new Worker(this.workerPath);
     this.activeWorkers.push(worker);
     return Promise.resolve(worker);
   }
@@ -47,6 +45,9 @@ ColorExtractor.prototype.checkInWorker = function(worker) {
   }
 }
 
+/**
+ * @param imageSource - Any CanvasImageSource - https://developer.mozilla.org/en-US/docs/Web/API/CanvasImageSource
+ */
 ColorExtractor.prototype.extract = function(imageSource) {
   return this.checkOutWorker().then(function(worker) {
     var imageDataBuffer = new CanvasImage(imageSource, 100, 100).getImageData().data.buffer;
