@@ -1,20 +1,16 @@
-define [
-  'art.foundation'
-  "./namespace"
-  './color'
-  './matrix'
-  './point'
-  './rectangle'
-  './perimeter'
-  ], (Foundation, Atomic, Color, Matrix, Point, Rectangle, Perimeter) ->
-    {createAllClass, select} = Foundation
+Foundation = require 'art.foundation'
+Atomic     = require "./namespace"
+Color      = require './color'
+Matrix     = require './matrix'
+Point      = require './point'
+Rectangle  = require './rectangle'
+Perimeter  = require './perimeter'
 
-    createAllClass Atomic,
-      select Perimeter, "perimeter", "perimeter0"
-      select Point, "point", "point0", "point1", "isPoint"
-      select Color, "color", "hslColor", "colorNames", "colorNamesMap"
-      select Matrix, "matrix", "identityMatrix"
-      select Rectangle, "rect", "nothing", "everything"
+{createAllClass, select} = Foundation
 
-    class All extends Atomic
-
+createAllClass Atomic,
+  select Perimeter, "perimeter", "perimeter0"
+  select Point, "point", "point0", "point1", "isPoint"
+  select Color, "color", "hslColor", "colorNames", "colorNamesMap"
+  select Matrix, "matrix", "identityMatrix"
+  select Rectangle, "rect", "nothing", "everything"
