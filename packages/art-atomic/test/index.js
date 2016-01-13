@@ -8,4 +8,4 @@ global.teardown = after
 global.suiteTeardown = afterEach
 global.test = it
 require('coffee-script/register');
-require('./tests/art/atomic/color');
+require('./tests/art/atomic');
