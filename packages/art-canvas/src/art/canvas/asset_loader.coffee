@@ -6,7 +6,6 @@ define [
   EncodedImage = Binary.EncodedImage
 
   assetHandle = (src) ->
-    log src:src
     src.split(".")[0].split("@")[0]
 
   class AssetLoader extends BatchLoader

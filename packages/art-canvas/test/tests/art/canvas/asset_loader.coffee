@@ -1,4 +1,3 @@
-console.log __dirname:__dirname
 define [
   'art.foundation/src/art/dev_tools/test/art_chai'
   'art.foundation'
@@ -36,7 +35,6 @@ define [
     test "loading with implicit extensions", (done)->
       al = new AssetLoader assetRoot: assetRoot
       al.load ["image1", "image2"], (a, b, c) ->
-        log bee:b, a:a, zero:a[b[0]], one:a[b[1]]
         assert.eq a.image1.classPathName, BitmapClassPathName
         assert.eq a.image2.classPathName, BitmapClassPathName
         done()

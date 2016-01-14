@@ -17,7 +17,7 @@
     "webpack-dev-server": "^1.12.0"
   },
   "scripts": {
-    "test": "webpack-dev-server 'mocha!./test' --hot --inline -d --output-filename test.js"
+    "test": "webpack-dev-server -d"
   },
   "author": "Shane Brinkman-Davis Delamore",
   "license": "MIT"
