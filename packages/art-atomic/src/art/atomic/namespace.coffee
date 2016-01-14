@@ -6,3 +6,5 @@ module.exports = Art.Atomic ||
 class Art.Atomic extends Neptune.Base
   @namespace: Art
   @namespacePath: "Neptune.Art.Atomic"
+
+Art.addNamespace Art.Atomic

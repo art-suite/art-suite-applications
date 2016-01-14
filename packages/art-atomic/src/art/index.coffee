@@ -6,5 +6,4 @@ Art        = require './namespace'
 Art.Atomic = require './atomic'
 Art.finishLoad(
   []
-  ["Atomic"]
 )

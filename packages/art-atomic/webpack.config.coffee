@@ -14,4 +14,4 @@ module.exports =
       { test: /\.(coffee\.md|litcoffee)$/, loader: "coffee-loader?literate" }
     ]
 
-  # devtool: "#cheap-module-eval-source-map"
+  devtool: "#source-map"

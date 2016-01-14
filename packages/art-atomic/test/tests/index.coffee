@@ -6,5 +6,4 @@ Tests     = require './namespace'
 Tests.Art = require './art'
 Tests.finishLoad(
   []
-  ["Art"]
 )

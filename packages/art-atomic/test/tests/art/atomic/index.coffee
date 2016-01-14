@@ -10,5 +10,4 @@ Atomic.Point     = require './point'
 Atomic.Rectangle = require './rectangle'
 Atomic.finishLoad(
   ["Color","Matrix","Perimeter","Point","Rectangle"]
-  []
 )
