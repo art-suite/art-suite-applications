@@ -10,12 +10,11 @@ for textual, have two areas:
 
 ###
 define [
-  "./namespace"
-  "../foundation"
-  "../atomic"
-  "../canvas"
-  "./text_layout_fragment"
-], (text, Foundation, Atomic, Canvas, TextLayoutFragment) ->
+  'art.foundation'
+  'art.atomic'
+  'art.canvas'
+  './text_layout_fragment'
+], (Foundation, Atomic, Canvas, TextLayoutFragment) ->
 
   {point, rect, point0, Rectangle} = Atomic
   {log, logL, inspect, max, min, isObject, isString, allIndexes, eachMatch, clone} = Foundation

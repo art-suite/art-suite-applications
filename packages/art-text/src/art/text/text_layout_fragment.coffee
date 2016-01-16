@@ -10,11 +10,10 @@ for textual, have two areas:
 
 ###
 define [
-  "./namespace"
-  "../foundation"
-  "../atomic"
-  "../canvas"
-], (text, Foundation, Atomic, Canvas) ->
+  'art.foundation'
+  'art.atomic'
+  'art.canvas'
+], (Foundation, Atomic, Canvas) ->
 
   {point, rect, point0} = Atomic
   {log, BaseObject, inspect} = Foundation
