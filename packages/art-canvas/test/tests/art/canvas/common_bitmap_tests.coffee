@@ -95,7 +95,7 @@ define [
         diff = Math.abs(d2-d1)
         assert.ok diff <= factor, "data at index #{i} differs by #{diff} (d1:#{d1}, d2:#{d2}) #{comment}\ndata1: #{inspect data1}\ndata2: #{inspect data2}\n"
 
-    suite "#{bitmapClassName} common bitmap tests", ->
+    suite "Art.#{bitmapClassName} common bitmap tests", ->
       test "#{bitmapClassName} newBitmap", ->
         bitmap = bitmapFactory.newBitmap point 2, 2
         assert.eq bitmap.size, point 2, 2
