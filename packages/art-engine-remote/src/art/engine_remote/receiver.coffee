@@ -3,11 +3,11 @@
 } = require 'art.foundation'
 
 {
-    Core: {
-      ElementBase: {getElementByInstanceId}
-      ElementFactory: {elementFactory}
-      GlobalEpochCycle: {globalEpochCycle}
-    }
+  Core: {
+    ElementBase: {getElementByInstanceId}
+    ElementFactory: {elementFactory}
+    GlobalEpochCycle: {globalEpochCycle}
+  }
 } = require 'art.engine'
 
 module.exports = class Receiver extends BaseObject

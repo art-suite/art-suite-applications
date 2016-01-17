@@ -2,9 +2,9 @@
 # this file: test/tests/art/engine_remote/index.coffee
 
 module.exports =
-EngineRemote                = require './namespace'
-EngineRemote.Remote         = require './remote'
-EngineRemote.RemoteReceiver = require './remote_receiver'
+EngineRemote          = require './namespace'
+EngineRemote.Receiver = require './receiver'
+EngineRemote.Remote   = require './remote'
 EngineRemote.finishLoad(
-  ["Remote","RemoteReceiver"]
+  ["Receiver","Remote"]
 )
