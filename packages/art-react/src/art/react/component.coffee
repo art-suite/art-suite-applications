@@ -95,7 +95,8 @@ define [
 
       createWithPostCreate componentClass
 
-    @postCreate: -> @toComponentFactory()
+    @postCreate: ->
+      @toComponentFactory()
 
     nonBindingFunctions = "getInitialState
       componentWillReceiveProps
@@ -106,20 +107,40 @@ define [
       componentDidUpdate
       render".split /\s+/
 
+    @getBindList: ->
+        if @hasOwnProperty "_bindList"
+          @_bindList
+        else
+          @_bindList = @detectBindList()
+
     @detectBindList = ->
       prototype = @::
       k for k, v of prototype when k != "constructor" && isFunction(v) && prototype.hasOwnProperty(k) && k not in nonBindingFunctions
 
     @toComponentFactory: ->
-      bindList = @detectBindList()
       VirtualNode.factoryFactory (props, children) =>
         props.children = children if children.length > 0
 
         instance = new @ props
         instance._validateChildren props?.children # TODO: only in dev mode!
 
-        instance[k] = fastBind instance[k], instance for k in bindList
         instance
+
+    _bindFunctions: ->
+      oldBindList = @_bindList
+      newBindList = @class.getBindList()
+
+      # console.error "no bindlist for class", @class unless newBindList
+      # log "@class.newBindList", newBindList, oldBindList
+
+      if oldBindList
+        delete @[k] for k in oldBindList when k not in newBindList
+
+      for k in newBindList
+        @[k] = fastBind @class.prototype[k], @
+
+      # log bound: (k for k in Object.keys @ when isFunction @[k])
+      @_bindList = newBindList
 
     @createdComponents: null
     @pushCreatedComponent: (c)->
@@ -137,9 +158,9 @@ define [
       @_pendingState = null
       @_virtualAimBranch = null
       @_mounted = false
+      @_bindList = null
       @_applyingPendingState = false
       Component.pushCreatedComponent @
-
 
     instantiateAsTopComponent: (bindToElementOrNewCanvasElementProps) ->
       Component.topComponentInstances.push @
@@ -375,6 +396,7 @@ define [
     _instantiate: (parentComponent, bindToElementOrNewCanvasElementProps) ->
       super
       globalCount "ReactComponent_Instantiated"
+      @_bindFunctions()
 
       @props = @_preprocessProps @props
 
