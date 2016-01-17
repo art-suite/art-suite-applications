@@ -6,6 +6,7 @@
   Rectangle
   TextElement
 } = require "art.react"
+{point} = require "art.atomic"
 
 module.exports = ->
   createAndInstantiateTopComponent
@@ -31,8 +32,8 @@ module.exports = ->
         TextElement
           key: text
           location: ps: .5
-          addedAnimation: from: opacity: 0
-          removedAnimation: to: opacity: 0
+          addedAnimation: from: opacity: 0, axis: point 1, .5
+          removedAnimation: to: opacity: 0, axis: point 0, .5
           axis:     .5
           text:     text
           color:    "white"
