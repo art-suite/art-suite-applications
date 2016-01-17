@@ -3,6 +3,7 @@ module.exports =
   entry:
     index: ["./index.coffee"]
     test: ["./test"]
+    web_worker: ["./web_worker"]
     # must wrap source in array due to bug in webpack:
     # https://github.com/webpack/webpack/issues/300
 
