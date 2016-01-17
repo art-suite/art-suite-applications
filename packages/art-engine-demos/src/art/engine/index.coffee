@@ -2,8 +2,9 @@
 # this file: src/art/engine/index.coffee
 
 module.exports =
-Engine       = require './namespace'
-Engine.Demos = require './demos'
+Engine        = require './namespace'
+Engine.Demos  = require './demos'
+Engine.Loader = require './loader'
 Engine.finishLoad(
-  []
+  ["Loader"]
 )

@@ -2,8 +2,7 @@
 {point, rect, color} = require "art.atomic"
 {CanvasElement, Rectangle} = require("art.engine").Elements
 
-require "art.engine/full_screen_app"
-.then ->
+module.exports = ->
   downColor = "#d44"
   upColor = "#dd4"
 
