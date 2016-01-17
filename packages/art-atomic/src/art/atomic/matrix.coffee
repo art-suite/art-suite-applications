@@ -363,6 +363,23 @@ module.exports = class Matrix extends AtomicBase
     @tx  > m.tx  and
     @ty  > m.ty
 
+
+  lte: (m) ->
+    @sx  <= m.sx  and
+    @sy  <= m.sy  and
+    @shx <= m.shx and
+    @shy <= m.shy and
+    @tx  <= m.tx  and
+    @ty  <= m.ty
+
+  gte: (m) ->
+    @sx  >= m.sx  and
+    @sy  >= m.sy  and
+    @shx >= m.shx and
+    @shy >= m.shy and
+    @tx  >= m.tx  and
+    @ty  >= m.ty
+
   add: (m, into) ->
     unless into
       # log "add new Matrix"
