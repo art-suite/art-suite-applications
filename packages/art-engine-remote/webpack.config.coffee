@@ -1,8 +1,10 @@
 path = require "path"
 module.exports =
   entry:
-    index: ["./index.coffee"]
+    remote: ["./remote.coffee"]
+    receiver: ["./receiver.coffee"]
     test: ["./test"]
+    worker_for_remote_tests: ["./test/worker_for_remote_tests"]
     # must wrap source in array due to bug in webpack:
     # https://github.com/webpack/webpack/issues/300
 

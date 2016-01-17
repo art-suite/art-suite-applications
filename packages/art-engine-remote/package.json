@@ -1,7 +1,7 @@
 {
-  "name": "art.engine.remote",
+  "name": "art.engine_remote",
   "version": "0.0.1",
-  "description": "art.engine.remote",
+  "description": "art.engine_remote",
   "main": "index.coffee",
   "dependencies": {
     "coffee-loader": "^0.7.2",
