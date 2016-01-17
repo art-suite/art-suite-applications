@@ -28,21 +28,26 @@ reactHotReload module.hot, ->
   createComponentFactory class MyComponent extends Component
     ...
 
+I think it should be pretty streight forward now... All data is bound in modulePersistantState.
+All I have to do to is make sure that all components created in the passed-in function get access
+to the same modulePersistantState.
 ###
-prototypesToUpdate = module.hot.data?.prototypesToUpdate || {}
 if module.hot
   console.log "HOT DEMO"
+  module.hot.data ||= modulePersistantState:
+    prototypesToUpdate: {}
+    hotInstances: []
+
   module.hot.accept()
   module.hot.dispose (data)->
-    data.prototypesToUpdate = prototypesToUpdate
-    console.log "dispose! #{__dirname}"
+    data.modulePersistantState = module.hot.data.modulePersistantState
 else
   console.log "COLD DEMO"
 
 MyComponent = createComponentFactory class MyComponent extends Component
 
     @postCreate: ->
-      if (oldPrototype = module.hot.data?.prototypesToUpdate?[@name]) && oldPrototype != @prototype
+      if module.hot && (oldPrototype = module.hot.data?.modulePersistantState.prototypesToUpdate?[@name]) && oldPrototype != @prototype
         # add/update new properties
         for k, v of @prototype when @prototype.hasOwnProperty k
           oldPrototype[k] = v
@@ -53,13 +58,12 @@ MyComponent = createComponentFactory class MyComponent extends Component
 
         console.log "updating instance bindings and hotReload them"
         # update all instances
-        if hotInstances = self.hotInstances
-          for instance in hotInstances
-            instance._bindFunctions()
-            try instance.componentDidHotReload()
+        for instance in module.hot.data.modulePersistantState.hotInstances
+          instance._bindFunctions()
+          try instance.componentDidHotReload()
         console.log "updating instance bindings done"
 
-      prototypesToUpdate[@name] = oldPrototype || @prototype
+      module.hot.data.modulePersistantState.prototypesToUpdate[@name] = oldPrototype || @prototype
 
       Component.postCreate.call @
 
@@ -70,12 +74,15 @@ MyComponent = createComponentFactory class MyComponent extends Component
       @setState _hotModuleReloadCount: count
 
     componentWillMount: ->
-      self.hotInstances ||= []
-      self.hotInstances.push @
+      if module.hot
+        {hotInstances} = module.hot.data.modulePersistantState
+        hotInstances.push @
 
     componentWillUnmount: ->
-      if 0 <= index = self.hotInstances.indexof @
-        self.hotInstances = arrayWithout self.hotInstances index
+      if module.hot
+        {hotInstances} = module.hot.data.modulePersistantState
+        if 0 <= index = hotInstances.indexof @
+          module.hot.data.modulePersistantState.hotInstances = arrayWithout hotInstances index
 
     getInitialState: ->
       mode: "love"
