@@ -1,10 +1,8 @@
 define [
-  'extlib/chai'
   'art.foundation'
   'art.engine'
-  'lib/art/react'
-], (chai, Foundation, Engine, React) ->
-  {assert} = chai
+  'art.react'
+], (Foundation, Engine, React) ->
   {log} = Foundation
 
   {createComponentFactory, VirtualNode, VirtualElement, Component, ReactArtEngineEpoch, Element} = React

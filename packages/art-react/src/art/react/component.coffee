@@ -2,9 +2,7 @@ define [
   'art.foundation'
   './virtual_node'
   './react_art_engine_epoch'
-  'art.engine' unless self.isWebWorker
-  'lib/art/engine_remote/remote' if self.isWebWorker
-], (Foundation, VirtualNode, ReactArtEngineEpoch, Engine, EngineRemote) ->
+], (Foundation, VirtualNode, ReactArtEngineEpoch) ->
   {
     log, merge, mergeInto, clone, shallowClone
     inspect, compactFlatten, keepIfRubyTrue, BaseObject, fastBind
@@ -22,15 +20,15 @@ define [
   {reactArtEngineEpoch} = ReactArtEngineEpoch
 
   # starts the remote
-  EngineRemote.getRemote() if EngineRemote
 
-  if Engine
-    {StateEpoch, GlobalEpochCycle} = Engine.Core
+  if ArtEngineCore = Neptune.Art.Engine.Core
+    {StateEpoch, GlobalEpochCycle} = ArtEngineCore
     {stateEpoch} = StateEpoch
     {globalEpochCycle} = GlobalEpochCycle
     onNextStateEpochReady = (f) -> stateEpoch.onNextReady f
     timePerformance = (name, f) -> globalEpochCycle.timePerformance name, f
   else
+    Neptune.Art.Engine.Remote.getRemote()
     onNextStateEpochReady = (f) -> reactArtEngineEpoch.onNextReady f
     timePerformance = (name, f) -> f()
 

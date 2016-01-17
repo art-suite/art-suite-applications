@@ -15,13 +15,9 @@ define [
   CanvasElement = null
   Element = null
   Rectangle = "Rectangle"
-  unless isWebWorker
-    require [
-      'lib/art/engine/elements/shapes'
-      'lib/art/engine/core'
-    ], (EngineShapes, EngineCore) ->
-      {Rectangle} = EngineShapes
-      {CanvasElement, Element} = EngineCore
+  if ArtEngineCore = Neptune.Art.Engine.Core
+    {Shapes:{Rectangle}} = Neptune.Art.Engine.Elements
+    {CanvasElement, Element} = ArtEngineCore
 
   errorElementProps = key:"ART_REACT_ERROR_CREATING_CHILD_PLACEHOLDER", color:"orange"
 

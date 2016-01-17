@@ -1,13 +1,12 @@
 define [
   'art.foundation'
   './virtual_element'
-  'art.engine' unless self.isWebWorker
-], (Foundation, VirtualElement, Engine) ->
+], (Foundation, VirtualElement) ->
   {log} = Foundation
 
   {createVirtualElementFactory} = VirtualElement
-  classForElement = if Engine
-    {elementFactory} = Engine.Core.ElementFactory
+  classForElement = if ArtEngineCore = Neptune.Art.Engine.Core
+    {elementFactory} = ArtEngineCore.ElementFactory
     (e) ->
       unless klass = elementFactory.classForElement e
         console.error "Could not find Class for Element: #{e}"

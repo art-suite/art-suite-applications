@@ -1,10 +1,8 @@
 define [
-  'extlib/chai'
   'art.foundation'
   'art.engine'
-  'lib/art/react'
-], (chai, Foundation, Engine, React) ->
-  {assert} = chai
+  'art.react'
+], (Foundation, Engine, React) ->
   {log, merge} = Foundation
 
   {StateEpoch} = Engine.Core

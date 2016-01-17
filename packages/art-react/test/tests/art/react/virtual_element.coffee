@@ -1,11 +1,9 @@
 define [
-  'extlib/chai'
   'art.foundation'
-  'lib/art/atomic'
+  'art.atomic'
   'art.engine'
-  'lib/art/react'
-], (chai, Foundation, Atomic, Engine, React) ->
-  assert = chai.assert
+  'art.react'
+], (Foundation, Atomic, Engine, React) ->
   {log} = Foundation
   {point} = Atomic
   {StateEpoch} = Engine.Core
