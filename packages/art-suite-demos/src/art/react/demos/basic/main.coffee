@@ -91,7 +91,6 @@ MyComponent = createComponentFactory class MyComponent extends Component
         pointerUp:   => @setState mode: "love"
 
     render: ->
-      console.log "render Love and War 1"
       {handlers, mode, _hotModuleReloadCount} = @state
       {clr, text} = if mode == "love"
         text: "Love",     clr: "pink"
