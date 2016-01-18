@@ -2,7 +2,7 @@ define [
   'art.foundation'
   'art.flux'
 ], (Foundation, Flux) ->
-  {log, isString, Join, BaseObject, Epoch} = Foundation
+  {log, isString, Promise, BaseObject, Epoch} = Foundation
 
   {FluxModel, fluxStore, ModelRegistry} = Flux
 
@@ -37,26 +37,22 @@ define [
         done()
       assert.eq res, status: 404, key: "123", modelName: "myBasicModel"
 
-    test "model with custom load", (done) ->
+    test "model with custom load", ->
       reset()
       class MyBasicModel extends FluxModel
         @register()
 
         load: (key, callback) -> fluxStore.update @_name, key, status: 200, data: theKeyIs:key
 
-      joiner = new Join
-      joiner.do (done) ->
+      new Promise (resolve) ->
         fluxStore.subscribe "myBasicModel", "123", (fluxRecord) ->
           assert.eq fluxRecord, status: 200, key: "123", modelName: "myBasicModel", data: theKeyIs:"123"
-          done()
-
-      joiner.do (done) ->
-        fluxStore.subscribe "myBasicModel", "456", (fluxRecord) ->
-          assert.eq fluxRecord, status: 200, key: "456", modelName: "myBasicModel", data: theKeyIs:"456"
-          done()
-
-      joiner.join ->
-        done()
+          resolve()
+      .then ->
+        new Promise (resolve) ->
+          fluxStore.subscribe "myBasicModel", "456", (fluxRecord) ->
+            assert.eq fluxRecord, status: 200, key: "456", modelName: "myBasicModel", data: theKeyIs:"456"
+            resolve()
 
     test "two simultantious FluxModel requests on the same key only triggers one store request", (done) ->
       reset()

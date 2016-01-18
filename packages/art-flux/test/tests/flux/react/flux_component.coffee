@@ -3,7 +3,7 @@ define [
   'art.flux'
   'art.react'
 ], (Foundation, Flux, ReactArtEngine) ->
-  {log, Join, timeout, createWithPostCreate} = Foundation
+  {log, Promise, timeout, createWithPostCreate} = Foundation
 
   {FluxStore, ModelRegistry, FluxModel} = Flux.Core
   {FluxComponent} = Flux.React
@@ -370,14 +370,15 @@ define [
 
         render: -> Element {}
 
-      joiner = new Join
+      promises = []
       for k, user of {
         a: name:"fred", email:"fred@gmail.com"
         b: name:"garry", email:"garry@yahoo.com"
         c: name:"frank", email:"frank@msn.com"
       }
-        do (user) -> joiner.do (done) -> ModelRegistry.models.user.post user, (statusRecord) ->
+        do (user) -> promises.push new Promise (done) -> ModelRegistry.models.user.post user, (statusRecord) ->
           done() if statusRecord.status != "pending"
 
-      joiner.join (results) ->
+      Promise.all promises
+      .then (results) ->
         (myComponent = MyComponent())._instantiate()

@@ -2,7 +2,7 @@ define [
   'art.foundation'
   'art.flux'
 ], (Foundation, Flux) ->
-  {log, isString, Join, isArray, merge} = Foundation
+  {log, isString, Promise, isArray, merge} = Foundation
 
   {FluxDbModelBase} = Flux.Db
   {ModelRegistry, FluxStore} = Flux.Core
@@ -283,12 +283,13 @@ define [
       class User extends VolatileModel
         @fields name: @fieldTypes.trimmedString
 
-      joiner = new Join
+      promises = []
       for name in ["fred", "garry", "frank"]
-        do (name) -> joiner.do (done) -> ModelRegistry.models.user.post name:name, (statusRecord) ->
+        do (name) -> promises.push new Promise (done) -> ModelRegistry.models.user.post name:name, (statusRecord) ->
           done name if statusRecord.status != "pending"
 
-      joiner.join (results) ->
+      Promise.all promises
+      .then (results) ->
         fluxStore.subscribe "user", "", (statusRecord) ->
           return unless statusRecord.status != "pending" && Object.keys(statusRecord.data).length == 3
           assert.eq statusRecord.data,
@@ -305,16 +306,17 @@ define [
           email: @fieldTypes.email
         @query "email"
 
-      joiner = new Join
+      promises = []
       for k, user of {
         a: name:"fred", email:"fred@gmail.com"
         b: name:"garry", email:"garry@yahoo.com"
         c: name:"frank", email:"frank@msn.com"
       }
-        do (user) -> joiner.do (done) -> ModelRegistry.models.user.post user, (statusRecord) ->
+        do (user) -> promises.push new Promise (done) -> ModelRegistry.models.user.post user, (statusRecord) ->
           done() if statusRecord.status != "pending"
 
-      joiner.join (results) ->
+      Promise.all promises
+      .then (results)->
         fluxStore.subscribe "usersByEmail", "garry@yahoo.com", (statusRecord) ->
           return unless statusRecord.status != "pending"
           assert.eq statusRecord.data, [name:"garry", email:"garry@yahoo.com", id: "1"]
