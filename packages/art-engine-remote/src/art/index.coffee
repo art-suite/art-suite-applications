@@ -2,8 +2,8 @@
 # this file: src/art/index.coffee
 
 module.exports =
-Art              = require './namespace'
-Art.EngineRemote = require './engine_remote'
+Art        = require './namespace'
+Art.Engine = require './engine'
 Art.finishLoad(
   []
 )

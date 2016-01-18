@@ -1,8 +1,8 @@
 {inspect, nextTick, eq, log, Browser, startWorkerFromFunction} = require 'art.foundation'
 {point} = require 'art.atomic'
 {Core:{Element}} = require 'art.engine'
-{receiver} = require 'art.engine_remote/receiver'
-{remote} = require 'art.engine_remote/remote'
+{receiver} = require 'art.engine.remote/receiver'
+{remote} = require 'art.engine.remote/remote'
 
 suite "Art.EngineRemote.Remote", ->
   suite "with worker", ->

@@ -1,7 +1,7 @@
 Foundation = require 'art.foundation'
 {point} = require 'art.atomic'
 {Core:{CanvasElement, Element}} = require 'art.engine'
-{receiver} = require 'art.engine_remote/receiver'
+{receiver} = require 'art.engine.remote/receiver'
 
 suite "Art.EngineRemote.Receiver", ->
   uniqueIdCounter = 0
