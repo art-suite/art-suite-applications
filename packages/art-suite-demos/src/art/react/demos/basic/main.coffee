@@ -1,4 +1,3 @@
-console.log "HI THERE"
 {log} = Foundation = require "art.foundation"
 {
   createComponentFactory
@@ -32,86 +31,90 @@ I think it should be pretty streight forward now... All data is bound in moduleP
 All I have to do to is make sure that all components created in the passed-in function get access
 to the same modulePersistantState.
 ###
-if module.hot
-  console.log "HOT DEMO"
-  module.hot.data ||= modulePersistantState:
-    prototypesToUpdate: {}
-    hotInstances: []
+# if module.hot
+#   console.log "HOT DEMO"
+#   module.hot.data ||= modulePersistantState:
+#     prototypesToUpdate: {}
+#     hotInstances: []
 
-  module.hot.accept()
-  module.hot.dispose (data)->
-    data.modulePersistantState = module.hot.data.modulePersistantState
-else
-  console.log "COLD DEMO"
+#   module.hot.accept()
+#   module.hot.dispose (data)->
+#     data.modulePersistantState = module.hot.data.modulePersistantState
+# else
+#   console.log "COLD DEMO"
 
-MyComponent = createComponentFactory class MyComponent extends Component
+{BaseObject} = require "art.foundation"
 
-    @postCreate: ->
-      if module.hot && (oldPrototype = module.hot.data?.modulePersistantState.prototypesToUpdate?[@name]) && oldPrototype != @prototype
-        # add/update new properties
-        for k, v of @prototype when @prototype.hasOwnProperty k
-          oldPrototype[k] = v
+{HotLoader:{getModuleState, runHot}} = require 'art.foundation/dev_tools/webpack'
 
-        # delete removed properties
-        for k, v of oldPrototype when !@prototype.hasOwnProperty(k) && oldPrototype.hasOwnProperty k
-          delete oldPrototype[k]
+MyComponent = runHot module, ->
 
-        console.log "updating instance bindings and hotReload them"
-        # update all instances
-        for instance in module.hot.data.modulePersistantState.hotInstances
-          instance._bindFunctions()
-          try instance.componentDidHotReload()
-        console.log "updating instance bindings done"
+  createComponentFactory class MyComponent extends Component
 
-      module.hot.data.modulePersistantState.prototypesToUpdate[@name] = oldPrototype || @prototype
+      @postCreate: ->
+        if @_moduleState = moduleState = getModuleState()
+          if (oldPrototype = moduleState.prototypesToUpdate?[@name]) && oldPrototype != @prototype
+            # add/update new properties
+            for k, v of @prototype when @prototype.hasOwnProperty k
+              oldPrototype[k] = v
 
-      Component.postCreate.call @
+            # delete removed properties
+            for k, v of oldPrototype when !@prototype.hasOwnProperty(k) && oldPrototype.hasOwnProperty k
+              delete oldPrototype[k]
 
-    componentDidHotReload: ->
-      console.log "componentDidHotReload !!!!!!!!!!!!!!!! HOT"
-      @setState mode: "love"
-      count = (@state._hotModuleReloadCount || 0) + 1
-      @setState _hotModuleReloadCount: count
+            console.log "updating instance bindings and hotReload them"
+            # update all instances
+            for instance in moduleState.hotInstances || []
+              instance._bindFunctions()
+              try instance.componentDidHotReload()
+            console.log "updating instance bindings done"
 
-    componentWillMount: ->
-      if module.hot
-        {hotInstances} = module.hot.data.modulePersistantState
-        hotInstances.push @
+          (moduleState.prototypesToUpdate||={})[@name] = oldPrototype || @prototype
 
-    componentWillUnmount: ->
-      if module.hot
-        {hotInstances} = module.hot.data.modulePersistantState
-        if 0 <= index = hotInstances.indexof @
-          module.hot.data.modulePersistantState.hotInstances = arrayWithout hotInstances index
+        Component.postCreate.call @
 
-    getInitialState: ->
-      mode: "love"
-      handlers:
-        pointerDown: => @setState mode: "war"
-        pointerUp:   => @setState mode: "love"
+      componentDidHotReload: ->
+        count = (@state._hotModuleReloadCount || 0) + 1
+        @setState _hotModuleReloadCount: count
 
-    render: ->
-      {handlers, mode, _hotModuleReloadCount} = @state
-      {clr, text} = if mode == "love"
-        text: "Love",     clr: "pink"
-      else
-        text: "and War",  clr: "red"
+      componentWillMount: ->
+        if moduleState = @class._moduleState
+          (moduleState.hotInstances ||= []).push @
 
-      CanvasElement
-        canvasId: "artCanvas"
-        on:       handlers
+      componentWillUnmount: ->
+        if moduleState = @class._moduleState
+          {hotInstances} = moduleState
+          if hotInstances && 0 <= index = hotInstances.indexof @
+            moduleState.hotInstances = arrayWithout hotInstances index
 
-        Rectangle color: "pink", animate: to: color: clr
+      getInitialState: ->
+        mode: "love"
+        handlers:
+          pointerDown: => @setState mode: "war"
+          pointerUp:   => @setState mode: "love"
 
-        TextElement
-          key: text
-          location: ps: .5
-          addedAnimation: from: opacity: 0, axis: point 1, .5
-          removedAnimation: to: opacity: 0, axis: point 0, .5
-          axis:     .5
-          text:     text + " #{_hotModuleReloadCount}"
-          color:    "white"
-          fontSize: 50
+      render: ->
+        {handlers, mode, _hotModuleReloadCount} = @state
+        {clr, text} = if mode == "love"
+          text: "Love",     clr: "pink"
+        else
+          text: "and War",  clr: "red"
+
+        CanvasElement
+          canvasId: "artCanvas"
+          on:       handlers
+
+          Rectangle color: "pink", animate: to: color: clr
+
+          TextElement
+            key: text
+            location: ps: .5
+            addedAnimation: from: opacity: 0, axis: point 1, .5
+            removedAnimation: to: opacity: 0, axis: point 0, .5
+            axis:     .5
+            text:     text + " #{_hotModuleReloadCount || ""}"
+            color:    "white"
+            fontSize: 50
 
 module.exports = ->
   MyComponent.instantiateAsTopComponent()

@@ -16,7 +16,8 @@
     "webpack-dev-server": "^1.12.0"
   },
   "scripts": {
-    "test": "webpack-dev-server -d"
+    "run": "webpack-dev-server -d",
+    "run-hot": "webpack-dev-server --hot --inline"
   },
   "author": "Shane Brinkman-Davis Delamore",
   "license": "MIT"
