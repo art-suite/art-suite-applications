@@ -10,7 +10,7 @@
 } = require "art.react"
 {point} = require "art.atomic"
 
-MyComponent = createComponentFactory class MyComponent extends Component
+module.exports = createComponentFactory class MyComponent extends Component
   @hotModule: module
 
   getInitialState: -> toggled: false
@@ -28,8 +28,7 @@ MyComponent = createComponentFactory class MyComponent extends Component
     else
       "edit hot_basic/main.coffee, save, and watch the magic!"
 
-    CanvasElement
-      canvasId: "artCanvas"
+    Element
       on:
         pointerDown: @toggle
         pointerUp:   @toggle
@@ -55,6 +54,3 @@ MyComponent = createComponentFactory class MyComponent extends Component
         text:     hotText
         color:    "white"
         fontSize: 20
-
-module.exports = ->
-  MyComponent.instantiateAsTopComponent()

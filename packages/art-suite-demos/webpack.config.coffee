@@ -1,7 +1,7 @@
 path = require "path"
 module.exports =
   entry:
-    index: ["./index.coffee"]
+    index: ["./src/art"]
 
   resolve:
     extensions: ["", ".webpack.js", ".web.js", ".js", ".coffee"]

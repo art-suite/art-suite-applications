@@ -10,7 +10,7 @@
 } = require "art.react"
 {point} = require "art.atomic"
 
-MyComponent = createComponentFactory class MyComponent extends Component
+module.exports = createComponentFactory class MyComponent extends Component
 
   getInitialState: -> toggled: false
   toggle: -> @setState toggled: !@state.toggled
@@ -22,8 +22,7 @@ MyComponent = createComponentFactory class MyComponent extends Component
     else
       ["Love", "pink"]
 
-    CanvasElement
-      canvasId: "artCanvas"
+    Element
       on:
         pointerDown: @toggle
         pointerUp:   @toggle
@@ -39,6 +38,3 @@ MyComponent = createComponentFactory class MyComponent extends Component
         text:     text
         color:    "white"
         fontSize: 50
-
-module.exports = ->
-  MyComponent.instantiateAsTopComponent()
