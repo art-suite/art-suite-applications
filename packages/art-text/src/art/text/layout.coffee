@@ -39,7 +39,7 @@ module.exports = class Layout extends BaseObject
 
   wordStringToHash = (wordString) ->
     ret = {}
-    for word in log wordString.split /\s+/
+    for word in wordString.split /\s+/
       ret[word] = true
     ret
 
