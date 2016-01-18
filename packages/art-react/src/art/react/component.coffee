@@ -16,6 +16,7 @@ define [
     stackTime
     countStep
     createWithPostCreate
+    arrayWithout
   } = Foundation
   {reactArtEngineEpoch} = ReactArtEngineEpoch
 
@@ -91,6 +92,7 @@ define [
       else if spec?.constructor == Object
         throw new Error "Component must have a render function." unless isFunction spec.render
         class AnonymousComponent extends Component
+          @hotModule: spec.hotModule
           for k, v of spec
             @::[k] = v
       else
@@ -434,8 +436,8 @@ define [
     _removeHotInstance: ->
       if moduleState = @class._moduleState
         {hotInstances} = moduleState
-        if hotInstances && 0 <= index = hotInstances.indexof @
-          moduleState.hotInstances = arrayWithout hotInstances index
+        if hotInstances && 0 <= index = hotInstances.indexOf @
+          moduleState.hotInstances = arrayWithout hotInstances, index
 
     _instantiate: (parentComponent, bindToElementOrNewCanvasElementProps) ->
       super
