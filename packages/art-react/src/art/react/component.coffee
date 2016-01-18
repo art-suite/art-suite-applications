@@ -19,6 +19,9 @@ define [
   } = Foundation
   {reactArtEngineEpoch} = ReactArtEngineEpoch
 
+  {HotLoader} = require 'art.foundation/dev_tools/webpack'
+  {getModuleState, runHot} = HotLoader
+
   # starts the remote
 
   if ArtEngineCore = Neptune.Art.Engine.Core
@@ -95,7 +98,29 @@ define [
 
       createWithPostCreate componentClass
 
+    @hotReload: ->
+      runHot @hotModule, (@_moduleState)=>
+        if @_moduleState
+          if (oldPrototype = @_moduleState.prototypesToUpdate?[@name]) && oldPrototype != @prototype
+            # add/update new properties
+            for k, v of @prototype when @prototype.hasOwnProperty k
+              oldPrototype[k] = v
+
+            # delete removed properties
+            for k, v of oldPrototype when !@prototype.hasOwnProperty(k) && oldPrototype.hasOwnProperty k
+              delete oldPrototype[k]
+
+            console.log "updating instance bindings and hotReload them"
+            # update all instances
+            for instance in @_moduleState.hotInstances || []
+              instance._bindFunctions()
+              try instance.componentDidHotReload()
+            console.log "updating instance bindings done"
+
+          (@_moduleState.prototypesToUpdate||={})[@name] = oldPrototype || @prototype
+
     @postCreate: ->
+      @hotReload()
       @toComponentFactory()
 
     nonBindingFunctions = "getInitialState
@@ -226,6 +251,14 @@ define [
     ################################################
     # Component LifeCycle
     ################################################
+
+    # called each time webpack hot-reloads a module.
+    # it is important that this change the components state to trigger a rerender.
+    # make sure you add @hotModule: module to your component definition or
+    # run your definition in a runHot module, -> function
+    componentDidHotReload: ->
+      count = (@state._hotModuleReloadCount || 0) + 1
+      @setState _hotModuleReloadCount: count
 
     # Invoked when a component is receiving new props. This method is not called
     # for the initial render.
@@ -388,10 +421,21 @@ define [
       @_pendingState || @_setPendingState @state
 
     _unmount: ->
+      @_removeHotInstance()
       @_componentWillUnmount()
 
       @_virtualAimBranch?._unmount()
       @_mounted = false
+
+    _addHotInstance: ->
+      if moduleState = @class._moduleState
+        (moduleState.hotInstances ||= []).push @
+
+    _removeHotInstance: ->
+      if moduleState = @class._moduleState
+        {hotInstances} = moduleState
+        if hotInstances && 0 <= index = hotInstances.indexof @
+          moduleState.hotInstances = arrayWithout hotInstances index
 
     _instantiate: (parentComponent, bindToElementOrNewCanvasElementProps) ->
       super
@@ -401,6 +445,8 @@ define [
       @props = @_preprocessProps @props
 
       # globalCount "ReactComponent _instantiate", stackTime =>
+
+      @_addHotInstance()
       @_componentWillMount()
 
       @setState @_preprocessState @getInitialState()
