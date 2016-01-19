@@ -5,7 +5,7 @@
   "main": "index.coffee",
   "dependencies": {
     "art-engine": "git://github.com/Imikimi-LLC/art-engine.git",
-    "art-engine.remote": "git://github.com/Imikimi-LLC/art-engine.remote.git"
+    "art-engine-remote": "git://github.com/Imikimi-LLC/art-engine-remote.git"
   },
   "devDependencies": {
   },
