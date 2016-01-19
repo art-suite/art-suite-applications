@@ -1,11 +1,11 @@
 {
-  "name": "art.react",
+  "name": "art-react",
   "version": "0.0.1",
-  "description": "art.react",
+  "description": "art-react",
   "main": "index.coffee",
   "dependencies": {
-    "art.engine": "git://github.com/Imikimi-LLC/art.engine.git",
-    "art.engine.remote": "git://github.com/Imikimi-LLC/art.engine.remote.git"
+    "art-engine": "git://github.com/Imikimi-LLC/art-engine.git",
+    "art-engine.remote": "git://github.com/Imikimi-LLC/art-engine.remote.git"
   },
   "devDependencies": {
   },

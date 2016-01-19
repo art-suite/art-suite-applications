@@ -1,7 +1,7 @@
 define [
-  'art.foundation'
-  'art.engine'
-  'art.react'
+  'art-foundation'
+  'art-engine'
+  'art-react'
 ], (Foundation, Engine, React) ->
   {log, merge} = Foundation
 

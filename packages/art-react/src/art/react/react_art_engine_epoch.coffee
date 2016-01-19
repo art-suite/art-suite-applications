@@ -1,4 +1,4 @@
-Foundation = require 'art.foundation'
+Foundation = require 'art-foundation'
 {log, merge, clone, peek, inspect, timeout, BaseObject, Epoch, globalCount, stackTime, isWebWorker, timeout} = Foundation
 
 module.exports = class ReactArtEngineEpoch extends Epoch

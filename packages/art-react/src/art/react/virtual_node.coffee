@@ -1,5 +1,5 @@
 define [
-  'art.foundation'
+  'art-foundation'
   './react_art_engine_epoch'
 ], (Foundation, ReactArtEngineEpoch) ->
   {

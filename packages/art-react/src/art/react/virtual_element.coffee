@@ -1,5 +1,5 @@
 define [
-  'art.foundation'
+  'art-foundation'
   './virtual_node'
 ], (Foundation, VirtualNode) ->
   {

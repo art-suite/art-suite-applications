@@ -1,5 +1,5 @@
 define [
-  'art.foundation'
+  'art-foundation'
   './namespace'
   './component'
   './react_art_engine_epoch'

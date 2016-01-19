@@ -1,5 +1,5 @@
 define [
-  'art.foundation'
+  'art-foundation'
   './virtual_element'
 ], (Foundation, VirtualElement) ->
   {log} = Foundation

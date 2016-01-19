@@ -1,5 +1,5 @@
 define [
-  'art.foundation'
+  'art-foundation'
   './virtual_node'
   './react_art_engine_epoch'
 ], (Foundation, VirtualNode, ReactArtEngineEpoch) ->
@@ -20,7 +20,7 @@ define [
   } = Foundation
   {reactArtEngineEpoch} = ReactArtEngineEpoch
 
-  {HotLoader} = require 'art.foundation/dev_tools/webpack'
+  {HotLoader} = require 'art-foundation/dev_tools/webpack'
   {getModuleState, runHot} = HotLoader
 
   # starts the remote

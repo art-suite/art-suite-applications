@@ -1,8 +1,8 @@
 define [
-  'art.foundation'
-  'art.atomic'
-  'art.engine'
-  'art.react'
+  'art-foundation'
+  'art-atomic'
+  'art-engine'
+  'art-react'
 ], (Foundation, Atomic, Engine, React) ->
   {log} = Foundation
   {point} = Atomic
