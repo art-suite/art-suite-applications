@@ -1,6 +1,6 @@
 {
   inspect, log, BaseObject, isString, isPlainArray, merge, WorkerRpc, select, toPlainStructure
-} = require 'art.foundation'
+} = require 'art-foundation'
 
 {
   Core: {
@@ -8,7 +8,7 @@
     ElementFactory: {elementFactory}
     GlobalEpochCycle: {globalEpochCycle}
   }
-} = require 'art.engine'
+} = require 'art-engine'
 
 module.exports = class Receiver extends BaseObject
   @singletonClass()

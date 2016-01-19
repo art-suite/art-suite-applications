@@ -3,7 +3,7 @@
   WorkerRpc: {workerRpc}
   merge
   deepMap
-} =  require 'art.foundation'
+} =  require 'art-foundation'
 
 module.exports = class Remote extends BaseObject
   @singletonClass()

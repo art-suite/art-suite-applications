@@ -1,5 +1,5 @@
-{log, WorkerRpc: {workerRpc}} = require "art.foundation"
-{remote} = require "art.engine.remote/remote"
+{log, WorkerRpc: {workerRpc}} = require "art-foundation"
+{remote} = require "art-engine-remote/remote"
 
 self.log = log
 self.remote = remote
