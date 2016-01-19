@@ -1,5 +1,5 @@
-{log, max, modulo, round} = require 'art.foundation'
-{hslColor} = require 'art.atomic'
+{log, max, modulo, round} = require 'art-foundation'
+{hslColor} = require 'art-atomic'
 {
   Component, createComponentFactory, createAndInstantiateTopComponent
   CanvasElement
@@ -7,7 +7,7 @@
   Rectangle
   PagingScrollElement
   TextElement
-} = require 'art.react'
+} = require 'art-react'
 
 ColorElement = createComponentFactory
 

@@ -1,11 +1,11 @@
-{log, bound} = require 'art.foundation'
-{color} = require 'art.atomic'
+{log, bound} = require 'art-foundation'
+{color} = require 'art-atomic'
 ColorPreview = require './color_preview'
 ColorPicker1d = require './color_picker_1d'
 {
   Component, createComponentFactory
   Element, Rectangle, TextElement, Outline, CanvasElement
-} = require 'art.react'
+} = require 'art-react'
 
 module.exports = createComponentFactory class ColorPicker extends Component
   @hotModule: module

@@ -1,5 +1,5 @@
-{log} = require 'art.foundation'
-{Element, Rectangle, Component, createComponentFactory} = require 'art.react'
+{log} = require 'art-foundation'
+{Element, Rectangle, Component, createComponentFactory} = require 'art-react'
 
 module.exports = createComponentFactory class ColorPicker1D extends Component
   @hotModule: module

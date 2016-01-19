@@ -1,10 +1,10 @@
 {
-  "name": "art.react.demos",
+  "name": "art-react-demos",
   "version": "0.0.1",
-  "description": "art.react.demos",
+  "description": "art-react-demos",
   "main": "index.coffee",
   "dependencies": {
-    "art.react": "git://github.com/Imikimi-LLC/art.react.git"
+    "art-react": "git://github.com/Imikimi-LLC/art-react-git"
   },
   "devDependencies": {
   },

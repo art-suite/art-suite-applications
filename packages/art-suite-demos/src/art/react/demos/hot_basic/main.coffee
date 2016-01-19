@@ -1,4 +1,4 @@
-{log, pluralize} = Foundation = require "art.foundation"
+{log, pluralize} = Foundation = require "art-foundation"
 {
   createComponentFactory
   Component
@@ -7,8 +7,8 @@
   Rectangle
   TextElement
   arrayWithout
-} = require "art.react"
-{point} = require "art.atomic"
+} = require "art-react"
+{point} = require "art-atomic"
 
 module.exports = createComponentFactory class MyComponent extends Component
   @hotModule: module

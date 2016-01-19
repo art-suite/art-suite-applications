@@ -1,4 +1,4 @@
-{upperCamelCase, lowerCamelCase} = Foundation = require "art.foundation"
+{upperCamelCase, lowerCamelCase} = Foundation = require "art-foundation"
 {
   Component, createComponentFactory, createAndInstantiateTopComponent
   CanvasElement
@@ -6,12 +6,12 @@
   Rectangle
   PagingScrollElement
   TextElement
-} = require 'art.react'
-{point} = require 'art.atomic'
+} = require 'art-react'
+{point} = require 'art-atomic'
 
 Demos = require "./demos"
 
-require "art.engine/full_screen_app"
+require "art-engine/full_screen_app"
 .then ->
   query = Foundation.Browser.Parse.query()
   demo = Demos[upperCamelCase query.demo || ""]
@@ -70,7 +70,7 @@ require "art.engine/full_screen_app"
 
           TextElement
             color:    "#fffc"
-            text:     if selectedDemo then selectedDemo else "art.react.demos"
+            text:     if selectedDemo then selectedDemo else "art-react-demos"
             fontSize: 20
             fontFamily: "Helvetica"
             margin: 10
