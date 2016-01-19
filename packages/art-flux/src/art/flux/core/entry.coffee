@@ -1,7 +1,7 @@
 {
   log, BaseObject, merge, removeFirstMatch, pushIfNotPresent
   Epoch, shallowClone, inspect, Unique, clone
-} = require 'art.foundation'
+} = require 'art-foundation'
 
 module.exports = class Entry extends BaseObject
   @warnCantSetField: warnCantSetField = (newFluxRecord, oldFluxRecord, field) ->

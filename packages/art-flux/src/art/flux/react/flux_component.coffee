@@ -5,7 +5,7 @@ FluxComponentBase = require './flux_component_base'
   globalCount
   rubyTrue
   rubyFalse
-} = require 'art.foundation'
+} = require 'art-foundation'
 
 ###
 FluxComponent

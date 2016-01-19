@@ -1,5 +1,5 @@
 define [
-  'art.foundation'
+  'art-foundation'
   '../core'
 ], (Foundation, FluxCore) ->
   {BaseObject, log, isString, isPlainObject, merge, plainObjectsDeepEq, mergeInto} = Foundation

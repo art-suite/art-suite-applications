@@ -5,7 +5,7 @@
   time
   globalCount
   compactFlatten
-} = require "art.foundation"
+} = require "art-foundation"
 {fluxStore} = require "./flux_store"
 ModelRegistry = require './model_registry'
 

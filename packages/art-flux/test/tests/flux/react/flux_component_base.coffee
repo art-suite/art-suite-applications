@@ -1,8 +1,8 @@
 define [
-  'art.foundation'
-  'art.flux'
-  'art.react'
-  'art.engine'
+  'art-foundation'
+  'art-flux'
+  'art-react'
+  'art-engine'
 ], (Foundation, Flux, ReactArtEngine, Engine) ->
   {log} = Foundation
 

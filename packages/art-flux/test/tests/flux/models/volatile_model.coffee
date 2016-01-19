@@ -1,6 +1,6 @@
 define [
-  'art.foundation'
-  'art.flux'
+  'art-foundation'
+  'art-flux'
 ], (Foundation, Flux) ->
   {log, isString, Promise, isArray, merge} = Foundation
 

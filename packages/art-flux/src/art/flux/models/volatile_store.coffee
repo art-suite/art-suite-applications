@@ -1,5 +1,5 @@
 define [
-  'art.foundation'
+  'art-foundation'
   '../core/flux_store'
 ], (Foundation, FluxStore) ->
   {BaseObject, mergeInfo, log, clone, slice, merge, arrayWithOne} = Foundation

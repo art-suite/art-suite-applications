@@ -1,5 +1,5 @@
-{log, merge, createWithPostCreate} = require 'art.foundation'
-{Core:{FluxStore, FluxModel, ModelRegistry}} = require 'art.flux'
+{log, merge, createWithPostCreate} = require 'art-foundation'
+{Core:{FluxStore, FluxModel, ModelRegistry}} = require 'art-flux'
 {fluxStore} = FluxStore
 
 reset = ->

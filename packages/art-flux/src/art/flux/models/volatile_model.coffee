@@ -1,5 +1,5 @@
 define [
-  'art.foundation'
+  'art-foundation'
   '../core'
   './volatile_store'
   './volatile_query_model'

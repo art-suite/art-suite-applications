@@ -1,4 +1,4 @@
-{log, BaseObject, nextTick, mergeInfo, capitalize, globalCount, time} = require 'art.foundation'
+{log, BaseObject, nextTick, mergeInfo, capitalize, globalCount, time} = require 'art-foundation'
 {fluxStore} = require '../core/flux_store'
 ModelRegistry = require '../core/model_registry'
 

@@ -8,7 +8,7 @@
   globalCount
   time
   inspect
-} = require 'art.foundation'
+} = require 'art-foundation'
 Entry = require './entry'
 ModelRegistry = require './model_registry'
 

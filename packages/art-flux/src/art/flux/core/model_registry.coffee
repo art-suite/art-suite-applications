@@ -1,4 +1,4 @@
-{log, BaseObject, decapitalize, isClass, inspect} = require "art.foundation"
+{log, BaseObject, decapitalize, isClass, inspect} = require "art-foundation"
 
 module.exports = class ModelRegistry extends BaseObject
   @models: models = {}

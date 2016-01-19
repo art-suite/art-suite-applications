@@ -1,7 +1,7 @@
 define [
-  'art.foundation'
-  'art.flux'
-  'art.react'
+  'art-foundation'
+  'art-flux'
+  'art-react'
 ], (Foundation, Flux, ReactArtEngine) ->
   {log, Promise, timeout, createWithPostCreate} = Foundation
 

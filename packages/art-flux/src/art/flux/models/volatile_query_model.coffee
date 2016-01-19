@@ -1,5 +1,5 @@
 define [
-  'art.foundation'
+  'art-foundation'
   '../db/flux_db_query_model'
 ], (Foundation, FluxDbQueryModel) ->
   {log, BaseObject, decapitalize, pluralize, pureMerge, shallowClone, isString,

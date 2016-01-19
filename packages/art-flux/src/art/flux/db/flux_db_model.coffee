@@ -1,5 +1,5 @@
 define [
-  'art.foundation'
+  'art-foundation'
   '../core'
   './flux_db_model_base'
 ], (Foundation, {FluxStore, ModelRegistry, FluxModel}, FluxDbModelBase) ->

@@ -1,10 +1,10 @@
 {
-  "name": "art.flux",
+  "name": "art-flux",
   "version": "0.0.1",
-  "description": "art.flux",
+  "description": "art-flux",
   "main": "index.coffee",
   "dependencies": {
-    "art.react": "git://github.com/Imikimi-LLC/art.react.git"
+    "art-react": "git://github.com/Imikimi-LLC/art-react.git"
   },
   "devDependencies": {
   },
