@@ -1,7 +1,7 @@
-{upperCamelCase} = Foundation = require "art.foundation"
+{upperCamelCase} = Foundation = require "art-foundation"
 Demos = require "./demos"
 
-require "art.engine/full_screen_app"
+require "art-engine/full_screen_app"
 .then ->
   query = Foundation.Browser.Parse.query()
   demo = Demos[upperCamelCase query.demo || ""]

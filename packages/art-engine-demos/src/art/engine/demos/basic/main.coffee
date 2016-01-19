@@ -1,6 +1,6 @@
-{inspect, log} = require "art.foundation"
-{point, rect, color} = require "art.atomic"
-{CanvasElement, Rectangle} = require("art.engine").Elements
+{inspect, log} = require "art-foundation"
+{point, rect, color} = require "art-atomic"
+{CanvasElement, Rectangle} = require("art-engine").Elements
 
 module.exports = ->
   downColor = "#d44"

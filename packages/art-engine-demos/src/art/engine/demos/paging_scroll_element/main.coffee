@@ -1,8 +1,8 @@
 
 module.exports = ->
-  Foundation = require 'art.foundation'
-  Atomic = require 'art.atomic'
-  Engine = require 'art.engine'
+  Foundation = require 'art-foundation'
+  Atomic = require 'art-atomic'
+  Engine = require 'art-engine'
   {hslColor} = Atomic
   {log, Browser, inspect, bound, min, max, abs, round, modulo} = Foundation
   {Rectangle, TextElement, CanvasElement, Element, PagingScrollElement} = Engine.Elements

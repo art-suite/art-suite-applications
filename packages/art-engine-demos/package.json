@@ -1,12 +1,12 @@
 {
-  "name": "art.engine.demos",
+  "name": "art-engine-demos",
   "version": "0.0.1",
-  "description": "art.engine.demos",
+  "description": "art-engine-demos",
   "main": "index.coffee",
   "dependencies": {
     "coffee-loader": "^0.7.2",
     "neptune-namespaces": "^0.0.1",
-    "art.foundation": "^0.0.1"
+    "art-foundation": "^0.0.1"
   },
   "devDependencies": {
     "mocha": "^2.3.4",
