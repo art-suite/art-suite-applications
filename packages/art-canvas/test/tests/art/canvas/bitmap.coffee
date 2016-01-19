@@ -1,8 +1,8 @@
 define [
-  'art.foundation/src/art/dev_tools/test/art_chai'
-  'art.atomic'
-  'art.foundation'
-  'art.canvas'
+  'art-foundation/src/art/dev_tools/test/art_chai'
+  'art-atomic'
+  'art-foundation'
+  'art-canvas'
   './common_bitmap_tests'
 ], (chai, Atomic, Foundation, Canvas, commonBitmapTests) ->
   assert = chai.assert

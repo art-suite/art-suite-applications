@@ -1,6 +1,6 @@
 define [
-  'art.foundation'
-  'art.atomic'
+  'art-foundation'
+  'art-atomic'
   './namespace'
   './shader_renderer_colored'
   './shader_renderer_textured'

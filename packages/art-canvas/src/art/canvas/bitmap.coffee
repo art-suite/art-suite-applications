@@ -15,8 +15,8 @@
 # Otherwise there are some "optimized" pure javascript solutions:
 #   http://creativejs.com/2011/12/day-5-blur-that-canvas/
 define [
-  "art.atomic"
-  "art.foundation"
+  "art-atomic"
+  "art-foundation"
   "./gradient_fill_style"
   "./bitmap_base"
   "./paths"

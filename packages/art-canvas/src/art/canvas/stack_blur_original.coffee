@@ -40,8 +40,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 ###
 
 define [
-  'art.foundation'
-  'art.atomic'
+  'art-foundation'
+  'art-atomic'
   './namespace'
   './original_stack_blur'
   './bitmap_base'

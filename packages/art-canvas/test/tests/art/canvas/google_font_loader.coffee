@@ -1,7 +1,7 @@
 define [
-  'art.foundation/src/art/dev_tools/test/art_chai'
-  'art.foundation'
-  'art.canvas'
+  'art-foundation/src/art/dev_tools/test/art_chai'
+  'art-foundation'
+  'art-canvas'
 ], (chai, Foundation, Canvas) ->
   assert = chai.assert
   {log} = Foundation

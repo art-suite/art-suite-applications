@@ -1,8 +1,8 @@
 define [
-  'art.foundation/src/art/dev_tools/test/art_chai'
-  'art.foundation'
-  'art.atomic'
-  'art.canvas'
+  'art-foundation/src/art/dev_tools/test/art_chai'
+  'art-foundation'
+  'art-atomic'
+  'art-canvas'
   ], (chai, Foundation, Atomic, Canvas) ->
   assert = chai.assert
   {point} = Atomic

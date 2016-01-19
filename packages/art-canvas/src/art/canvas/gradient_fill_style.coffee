@@ -2,8 +2,8 @@
 # https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D
 # http://www.html5canvastutorials.com/tutorials/html5-canvas-linear-gradients/
 define [
-  'art.atomic'
-  'art.foundation'
+  'art-atomic'
+  'art-foundation'
   ], (Atomic, Foundation) ->
   {point, color, point1} = Atomic
   {inspect, shallowClone, flatten, isPlainObject, log, isNumber, isString, isPlainArray} = Foundation

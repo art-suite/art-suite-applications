@@ -1,9 +1,9 @@
 define [
-  'art.foundation/src/art/dev_tools/test/art_chai'
-  'art.foundation'
-  'art.atomic'
-  'art.canvas'
-  'art.canvas/webgl'
+  'art-foundation/src/art/dev_tools/test/art_chai'
+  'art-foundation'
+  'art-atomic'
+  'art-canvas'
+  'art-canvas/webgl'
 ], (chai, Foundation, Atomic, Canvas, Webgl) ->
   assert = chai.assert
 

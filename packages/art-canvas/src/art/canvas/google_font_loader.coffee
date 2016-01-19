@@ -1,7 +1,7 @@
 # http://www.google.com/fonts/
 # https://github.com/typekit/webfontloader
 define [
-  'art.foundation'
+  'art-foundation'
   '../extlib/webfont'
 ], (Foundation) ->
   {inspect, log, BatchLoader} = Foundation

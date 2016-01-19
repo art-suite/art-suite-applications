@@ -1,4 +1,4 @@
-# art.canvas npm
+# art-canvas npm
 2D api extensions for easy use of HTML Canvas
 
 * 2d canvas support

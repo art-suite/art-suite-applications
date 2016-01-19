@@ -1,6 +1,6 @@
 define [
-  'art.foundation'
-  'art.atomic'
+  'art-foundation'
+  'art-atomic'
   './namespace'
 ], (Foundation, Atomic, Webgl) ->
   rawErrorLog = Foundation.Log.rawErrorLog

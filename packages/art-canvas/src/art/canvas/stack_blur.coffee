@@ -70,8 +70,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 define [
   "./namespace"
-  'art.atomic'
-  'art.foundation'
+  'art-atomic'
+  'art-foundation'
   "./bitmap_base"
   ], (Canvas, Atomic, Foundation) ->
   {point, matrix, rect, color} = Atomic

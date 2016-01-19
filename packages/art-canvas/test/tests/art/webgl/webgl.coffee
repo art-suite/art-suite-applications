@@ -1,8 +1,8 @@
 define [
-  'art.foundation/src/art/dev_tools/test/art_chai'
-  'art.foundation'
-  'art.canvas'
-  'art.atomic'
+  'art-foundation/src/art/dev_tools/test/art_chai'
+  'art-foundation'
+  'art-canvas'
+  'art-atomic'
   '../../../../src/art/webgl'
   '../canvas/common_bitmap_tests'
   # 'extlib/webgl-debug'

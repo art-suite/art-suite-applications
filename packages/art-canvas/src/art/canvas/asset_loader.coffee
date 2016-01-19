@@ -1,5 +1,5 @@
 define [
-  'art.foundation'
+  'art-foundation'
   "./bitmap"
 ], (Foundation, Bitmap) ->
   {Binary, inspect, log, slice, BatchLoader} = Foundation

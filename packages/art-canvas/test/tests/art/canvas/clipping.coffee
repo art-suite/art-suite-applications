@@ -1,8 +1,8 @@
 define [
-  'art.foundation/src/art/dev_tools/test/art_chai'
-  'art.atomic'
-  'art.foundation'
-  'art.canvas'
+  'art-foundation/src/art/dev_tools/test/art_chai'
+  'art-atomic'
+  'art-foundation'
+  'art-canvas'
 ], (chai, Atomic, Foundation, Canvas) ->
   {assert} = chai
   {log} = Foundation

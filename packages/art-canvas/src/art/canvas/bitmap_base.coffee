@@ -7,8 +7,8 @@
 # Canvas Spec: http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html
 # http://dev.w3.org/fxtf/compositing-1/#porterduffcompositingoperators_srcover
 define [
-  'art.foundation'
-  'art.atomic'
+  'art-foundation'
+  'art-atomic'
   ], (Foundation, Atomic) ->
 
   {point, Point, rect, Rectangle, matrix, Matrix, color, Color} = Atomic

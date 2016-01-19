@@ -1,6 +1,6 @@
 define [
   './namespace'
-  'art.foundation'
+  'art-foundation'
 ], (Webgl, Foundation) ->
 
   helpMessage = "This web browser does not support Webgl, or it is disabled. We recommend using Chrome (http://www.google.com/chrome) or Firefox (http://www.mozilla.org/firefox). You might also try updating your video driver."
