@@ -4,10 +4,10 @@
   "description": "atomic data-types such as Color, Point, Rectangle and Matrix",
   "main": "index.coffee",
   "dependencies": {
-    "art.foundation": "^0.0.1",
+    "art.foundation": "git://github.com/Imikimi-LLC/art.foundation.git",
     "coffee-loader": "^0.7.2",
     "coffee-script": "^1.10.0",
-    "neptune-namespaces": "^0.0.1"
+    "neptune-namespaces": "git://github.com/Imikimi-LLC/neptune-namespaces.git"
   },
   "devDependencies": {
     "mocha": "^2.3.4",
