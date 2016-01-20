@@ -10,9 +10,9 @@ for textual, have two areas:
 
 ###
 define [
-  'art.foundation'
-  'art.atomic'
-  'art.canvas'
+  'art-foundation'
+  'art-atomic'
+  'art-canvas'
   './text_layout_fragment'
 ], (Foundation, Atomic, Canvas, TextLayoutFragment) ->
 

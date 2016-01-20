@@ -10,9 +10,9 @@ for textual, have two areas:
 
 ###
 define [
-  'art.foundation'
-  'art.atomic'
-  'art.canvas'
+  'art-foundation'
+  'art-atomic'
+  'art-canvas'
 ], (Foundation, Atomic, Canvas) ->
 
   {point, rect, point0} = Atomic

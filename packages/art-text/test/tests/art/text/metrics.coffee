@@ -1,7 +1,7 @@
-Text = require 'art.text'
-Foundation = require 'art.foundation'
-Atomic = require 'art.atomic'
-# GoogleFontLoader = require 'art.canvas/google_font_loader'
+Text = require 'art-text'
+Foundation = require 'art-foundation'
+Atomic = require 'art-atomic'
+# GoogleFontLoader = require 'art-canvas/google_font_loader'
 
 {point, rect} = Atomic
 {inspect, eq, merge, select, log, isString, selectAll, isNumber} = Foundation

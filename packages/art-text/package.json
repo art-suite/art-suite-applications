@@ -1,10 +1,10 @@
 {
-  "name": "art.text",
+  "name": "art-text",
   "version": "0.0.1",
-  "description": "art.text",
+  "description": "art-text",
   "main": "index.coffee",
   "dependencies": {
-    "art.canvas": "git://github.com/Imikimi-LLC/art.canvas.git"
+    "art-canvas": "git://github.com/Imikimi-LLC/art-canvas.git"
   },
   "devDependencies": {
   },

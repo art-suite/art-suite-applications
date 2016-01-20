@@ -1,6 +1,6 @@
-Atomic = require 'art.atomic'
-Foundation = require 'art.foundation'
-Text = require 'art.text'
+Atomic = require 'art-atomic'
+Foundation = require 'art-foundation'
+Text = require 'art-text'
 
 {point, rect} = Atomic
 {inspect, eq, log, isString} = Foundation
