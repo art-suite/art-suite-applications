@@ -1,4 +1,4 @@
-Foundation  = require 'art.foundation'
+Foundation  = require 'art-foundation'
 Atomic      = require './namespace' # required so we can break the circular dependency between Matrix and Rectangle
 AtomicBase  = require './base'
 Point       = require './point'

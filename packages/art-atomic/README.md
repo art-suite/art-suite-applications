@@ -1,5 +1,5 @@
-# art.atomic npm
-atomic classes for 2D user interfaces: 
+# art-atomic npm
+atomic classes for 2D user interfaces:
 
 * Point
 * Color

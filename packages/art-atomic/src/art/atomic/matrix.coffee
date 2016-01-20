@@ -53,7 +53,7 @@ NOTE! the order of the fields in the float32array for Webgl uniformMatrix3fv sho
   @values[5] = @ty
 ###
 
-Foundation = require 'art.foundation'
+Foundation = require 'art-foundation'
 AtomicBase = require "./base"
 Point      = require "./point"
 Rectangle  = require "./rectangle"

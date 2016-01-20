@@ -1,6 +1,6 @@
-{assert} = require 'art.foundation/src/art/dev_tools/test/art_chai'
-{inspect} = Foundation = require 'art.foundation'
-{point, Point} = Atomic = require 'art.atomic'
+{assert} = require 'art-foundation/src/art/dev_tools/test/art_chai'
+{inspect} = Foundation = require 'art-foundation'
+{point, Point} = Atomic = require 'art-atomic'
 
 suite "Art.Atomic.Point", ->
   test "allocate point", ->

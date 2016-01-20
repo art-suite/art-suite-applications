@@ -3,7 +3,7 @@
   isNumber, isPlainObject, isPlainArray, isString, isFunction
   stringToNumberArray
   BaseObject
-} = require 'art.foundation'
+} = require 'art-foundation'
 
 module.exports = class Base extends BaseObject
 

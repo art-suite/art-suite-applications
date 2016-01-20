@@ -1,5 +1,5 @@
-{assert} = require 'art.foundation/src/art/dev_tools/test/art_chai'
-{color, hslColor, Color} = Atomic = require 'art.atomic'
+{assert} = require 'art-foundation/src/art/dev_tools/test/art_chai'
+{color, hslColor, Color} = Atomic = require 'art-atomic'
 
 suite "Art.Atomic.Color", ->
   test "red", ->

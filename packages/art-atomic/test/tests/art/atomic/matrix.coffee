@@ -1,6 +1,6 @@
-{assert} = require 'art.foundation/src/art/dev_tools/test/art_chai'
-Foundation = require 'art.foundation'
-Atomic = require 'art.atomic'
+{assert} = require 'art-foundation/src/art/dev_tools/test/art_chai'
+Foundation = require 'art-foundation'
+Atomic = require 'art-atomic'
 {point, rect, matrix, Matrix, identityMatrix} = Atomic
 {log, floatEq} = Foundation
 

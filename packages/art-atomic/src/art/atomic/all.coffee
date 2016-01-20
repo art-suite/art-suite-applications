@@ -1,4 +1,4 @@
-Foundation = require 'art.foundation'
+Foundation = require 'art-foundation'
 Atomic     = require "./namespace"
 Color      = require './color'
 Matrix     = require './matrix'
