@@ -147,6 +147,8 @@ module.exports = class Matrix extends AtomicBase
     @ty  = ty
     @
 
+  getScale: -> return getS()
+
   @getter
     t:   -> point @tx, @ty   # returns the current location
     s:   -> point @sx, @sy   # returns the current scale
@@ -156,6 +158,10 @@ module.exports = class Matrix extends AtomicBase
     exactScale: -> @_exactScale ||= point @xsv.magnitude, @ysv.magnitude
     exactScaler: -> @_exactScaler ||= @exactScale.average()
     inv: -> @invert()
+    locationX: -> @tx
+    locationY: -> @ty
+    scaleX: -> @sx
+    scaleY: -> @sy
     location: -> point @tx, @ty
     withRoundedTranslation: ->
       if @translationIsIntegral then @
