@@ -369,7 +369,7 @@ define [
       @_setFillStyle   options.fillStyle || options.color || @defaultColorString
 
     _setupDraw: (where, options, stroke) ->
-      {compositeMode, shadow, opacity, shadow} = options
+      {compositeMode, shadow, opacity} = options
       stroke ||= options.stroke
       opacity = 1 unless isNumber opacity
 
