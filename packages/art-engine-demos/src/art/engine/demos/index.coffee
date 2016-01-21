@@ -5,6 +5,7 @@ module.exports =
 Demos                     = require './namespace'
 Demos.Basic               = require './basic'
 Demos.Clipping            = require './clipping'
+Demos.Form                = require './form'
 Demos.PagingScrollElement = require './paging_scroll_element'
 Demos.finishLoad(
   []
