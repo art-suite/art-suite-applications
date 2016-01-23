@@ -92,7 +92,7 @@ define [
       else if spec?.constructor == Object
         throw new Error "Component must have a render function." unless isFunction spec.render
         class AnonymousComponent extends Component
-          @hotModule: spec.hotModule
+          hotModule: spec.hotModule
           for k, v of spec
             @::[k] = v
       else
@@ -101,7 +101,7 @@ define [
       createWithPostCreate componentClass
 
     @hotReload: ->
-      runHot @hotModule, (@_moduleState)=>
+      runHot @::hotModule, (@_moduleState)=>
         if @_moduleState
           if (oldPrototype = @_moduleState.prototypesToUpdate?[@name]) && oldPrototype != @prototype
             # add/update new properties
