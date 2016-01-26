@@ -1,9 +1,11 @@
+Foundation = require 'art-foundation'
+
 {
   log, BaseObject, isWebWorker, isPlainArray, isPlainObject, isFunction, isString, inspect,
   WorkerRpc: {workerRpc}
   merge
   deepMap
-} =  require 'art-foundation'
+} = Foundation
 
 module.exports = class Remote extends BaseObject
   @singletonClass()
