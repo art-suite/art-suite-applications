@@ -3,8 +3,6 @@ module.exports =
   entry:
     index: ["./index.coffee"]
     test: ["./test"]
-    # must wrap source in array due to bug in webpack:
-    # https://github.com/webpack/webpack/issues/300
 
   resolve:
     extensions: ["", ".webpack.js", ".web.js", ".js", ".coffee"]
