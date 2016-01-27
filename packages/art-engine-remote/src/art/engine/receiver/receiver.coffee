@@ -1,5 +1,6 @@
 Foundation = require 'art-foundation'
 Engine = require 'art-engine'
+Namespace = require './namespace'
 
 {
   inspect, log, BaseObject, isString, isPlainArray, merge, WorkerRpc, select, toPlainStructure
@@ -38,7 +39,7 @@ module.exports = class Receiver extends BaseObject
       bind: merge remoteDelegates,
         ArtEngineRemote: ["event", "unregistered"]
 
-  @startWorker: (workerUrl) -> RemoteReceiver.singleton.startWorker workerUrl
+  @startWorker: (workerUrl) -> Receiver.singleton.startWorker workerUrl
 
   # attachToWorker: (worker) ->
   #   worker.onmessage (m) => @_onmessage m
@@ -200,3 +201,6 @@ module.exports = class Receiver extends BaseObject
           objectId: element.objectId
 
     @_reportUpdateErrorBasic message, info
+
+Namespace.receiver = Receiver.receiver
+

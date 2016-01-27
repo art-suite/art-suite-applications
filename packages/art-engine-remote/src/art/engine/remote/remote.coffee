@@ -1,4 +1,5 @@
 Foundation = require 'art-foundation'
+Namespace = require './namespace'
 
 {
   log, BaseObject, isWebWorker, isPlainArray, isPlainObject, isFunction, isString, inspect,
@@ -194,4 +195,4 @@ module.exports = class Remote extends BaseObject
         else
           v
 
-
+Namespace.remote = Remote.remote

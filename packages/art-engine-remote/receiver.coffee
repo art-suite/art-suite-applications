@@ -1,1 +1,1 @@
-module.exports = require "./src/art/engine/remote/receiver"
+module.exports = require "./src/art/engine/receiver"

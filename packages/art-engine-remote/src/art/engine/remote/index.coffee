@@ -2,9 +2,8 @@
 # this file: src/art/engine/remote/index.coffee
 
 module.exports =
-Remote          = require './namespace'
-Remote.Receiver = require './receiver'
-Remote.Remote   = require './remote'
+Remote        = require './namespace'
+Remote.Remote = require './remote'
 Remote.finishLoad(
-  ["Receiver","Remote"]
+  ["Remote"]
 )
