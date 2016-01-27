@@ -23,7 +23,6 @@ define [
   {HotLoader} = require 'art-foundation/dev_tools/webpack'
   {getModuleState, runHot} = HotLoader
 
-  # starts the remote
 
   if ArtEngineCore = Neptune.Art.Engine.Core
     {StateEpoch, GlobalEpochCycle} = ArtEngineCore
@@ -32,7 +31,6 @@ define [
     onNextStateEpochReady = (f) -> stateEpoch.onNextReady f
     timePerformance = (name, f) -> globalEpochCycle.timePerformance name, f
   else
-    Neptune.Art.Engine.Remote.getRemote()
     onNextStateEpochReady = (f) -> reactArtEngineEpoch.onNextReady f
     timePerformance = (name, f) -> f()
 
