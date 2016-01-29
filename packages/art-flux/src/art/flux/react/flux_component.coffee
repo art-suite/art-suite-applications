@@ -205,7 +205,7 @@ module.exports = class FluxComponent extends FluxComponentBase
 
     if isPlainObject options = params
       {model, key} = options
-      key ||= stateField
+      key = stateField unless key?
     else
       key = params
       model = stateField
