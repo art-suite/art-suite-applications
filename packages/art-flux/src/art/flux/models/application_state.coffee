@@ -49,7 +49,6 @@ define [
       @_stateFields = mergeInto @_stateFields, fields
       for field, initialValue of fields
         do (field) =>
-          log stateFields:field:field
           @_addSetter @::, field, (v) -> @setState field, v
           @_addGetter @::, field, -> @state[field]
 

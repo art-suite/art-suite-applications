@@ -13,7 +13,6 @@ module.exports = class ModelRegistry extends BaseObject
       modelClassOrInstance
 
     _aliases && for alias in _aliases
-      log alias:alias, model: newSingleton
       models[alias] = newSingleton
 
     models[newSingleton.name] = newSingleton

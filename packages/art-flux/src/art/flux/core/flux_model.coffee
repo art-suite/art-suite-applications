@@ -17,8 +17,28 @@ module.exports = class FluxModel extends BaseObject
     @register()
     klass
 
+  ###
+  INPUT: zero or more strings or arrays of strings
+    - arbitrary nesting of arrays is OK
+    - nulls are OK, they are ignored
+  OUTPUT: null
+
+  NOTE: @aliases can be called multiple times.
+
+  example:
+    class Post extends FluxModel
+      @aliases "chapterPost"
+
+  purpose:
+    - declare alternative names to access this model.
+    - allows you to use the shortest form of FluxComponent subscriptions for each alias:
+        @subscriptions "chapterPost"
+      in addition to the model's class name:
+        @subscriptions "post"
+  ###
   @aliases: ->
-    @_aliases = compactFlatten arguments
+    @_aliases = compactFlatten arguments, @_aliases
+    null
 
   onNextReady: (f) -> fluxStore.onNextReady f
 
