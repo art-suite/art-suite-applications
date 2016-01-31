@@ -35,8 +35,8 @@ module.exports = class Remote extends BaseObject
             delete @_handlersByRemoteId[remoteId]
             # console.log "Remote unregistered: #{remoteId} after", @_handlersByRemoteId
 
-      workerRpc.bind
-        ArtEngineRemoteReceiver: ["applyUpdates"]
+      workerRpc.bind             ArtEngineRemoteReceiver: ["applyUpdates"]
+      workerRpc.bindWithPromises ArtEngineRemoteReceiver: ["evalWithElement"]
 
   getHandlersForRemoteId: (remoteId) -> @_handlersByRemoteId[remoteId]
 
@@ -99,6 +99,9 @@ module.exports = class Remote extends BaseObject
 
     @_remoteQueue = []
     null
+
+  evalWithElement: (remoteId, f) ->
+    workerRpc.ArtEngineRemoteReceiver.evalWithElement remoteId, "(#{f})"
 
   #######################
   # PRIVATE

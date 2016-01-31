@@ -36,6 +36,7 @@ module.exports = class Receiver extends BaseObject
       register: merge delegates,
         ArtEngineRemoteReceiver:
           applyUpdates: (updates) => @applyUpdates WorkerRpc.lastMessageReceivedFrom, updates
+          evalWithElement: (remoteId, fString) => @_evalWithElement remoteId, fString
       bind: merge remoteDelegates,
         ArtEngineRemote: ["event", "unregistered"]
 
@@ -114,6 +115,12 @@ module.exports = class Receiver extends BaseObject
         workerRpc.ArtEngineRemote.unregistered e.target?.remoteId
 
     props
+
+  _evalWithElement: (elementRemoteId, fString) ->
+    unless element = getElementByInstanceId(elementRemoteId) || transitoryRegistry[elementRemoteId]
+      return console.error "_evalWithElement: No element matches the elementRemoteId provided (#{inspect elementRemoteId}). fString: #{fString}"
+
+    eval(fString) element
 
   _applyUpdateCommand: (workerRpc, updateCommand, transitoryRegistry) ->
     [_, elementRemoteId, setProps, resetProps] = updateCommand
