@@ -9,6 +9,7 @@ define [
     objectDiff
     Browser
     merge
+    Promise
   } = Foundation
   {propsEq} = VirtualNode
 
@@ -47,6 +48,13 @@ define [
       element.creator = @
       element
 
+    ###
+    execute the function 'f' on the Art.Engine Element associated with this VirtualElement.
+    IN: f = (Art.Engine.Core.Element) -> x
+    OUT: Promise returning x
+    ###
+    withElement: (f) -> new Promise (resolve) -> resolve f @element
+
   class VirtualElementRemoteBase extends VirtualNode
 
     constructor: ->
@@ -81,6 +89,19 @@ define [
         @onNextReady =>
           remote.sendRemoteQueue()
           @_sendRemoteQueuePending = false
+
+    ###
+    execute the function 'f' on the Art.Engine Element associated with this VirtualElement.
+    NOTE: runs in the main thread. 'f' is serialized, so it loses all closure state.
+    IN: f = (Art.Engine.Core.Element) -> x
+    OUT: Promise returning x
+
+    TODO: we could allow additional arguments to be passed which would in turn be
+    passed to 'f' on when invoked on the main thread:
+
+      withElement: (f, args...) -> remote.evalWithElement @element, f, args
+    ###
+    withElement: (f) -> remote.evalWithElement @element, f
 
   class VirtualElement extends (if isWebWorker then VirtualElementRemoteBase else VirtualElementLocalBase)
     @created = 0
