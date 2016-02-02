@@ -9,7 +9,7 @@
   "devDependencies": {
   },
   "scripts": {
-    "test": "webpack-dev-server -d"
+    "test": "webpack-dev-server -d --progress"
   },
   "author": "Shane Brinkman-Davis Delamore",
   "license": "MIT"
