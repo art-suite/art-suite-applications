@@ -4,6 +4,7 @@ Namespace = require './namespace'
 
 {
   inspect, log, BaseObject, isString, isPlainArray, merge, WorkerRpc, select, toPlainStructure
+  toJsonStructure
 } = Foundation
 
 {
@@ -62,15 +63,15 @@ module.exports = class Receiver extends BaseObject
   that only effects tests - which we could just stop using and do full webworker tests only.
   ###
   defaultPreprocessor = (e) ->
-    target: e.target && toPlainStructure select e.target, "key", "remoteId"
+    target: e.target && select e.target, "key", "remoteId"
     timeStamp: e.timeStamp
+    props: toJsonStructure e.props
 
   defaultPointerPreprocessor = (e) ->
     merge(
       defaultPreprocessor e
       toPlainStructure select e, "location", "delta"
       pointer: stayedWithinDeadzone: e.pointer.stayedWithinDeadzone
-
     )
 
   standardPreprocessors =
