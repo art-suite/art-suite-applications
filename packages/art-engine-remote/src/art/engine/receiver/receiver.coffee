@@ -4,7 +4,7 @@ Namespace = require './namespace'
 
 {
   inspect, log, BaseObject, isString, isPlainArray, merge, WorkerRpc, select, toPlainStructure
-  toJsonStructure
+  toPostMessageStructure
 } = Foundation
 
 {
@@ -65,7 +65,7 @@ module.exports = class Receiver extends BaseObject
   defaultPreprocessor = (e) ->
     target: e.target && select e.target, "key", "remoteId"
     timeStamp: e.timeStamp
-    props: toJsonStructure e.props
+    props: toPostMessageStructure e.props
 
   defaultPointerPreprocessor = (e) ->
     merge(
