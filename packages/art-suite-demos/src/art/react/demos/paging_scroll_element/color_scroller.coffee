@@ -40,7 +40,8 @@ ColorScrollerContents = createComponentFactory
     pageSpread: 0
     handlers:
       preprocess:
-        scrollUpdate: ({focusedPage, currentGeometry}) ->
+        scrollUpdate: ({props}) ->
+          {focusedPage, currentGeometry} = props
           focusedPageIndex: focusedPage.key | 0
           pageSpread:       currentGeometry.suggestedPageSpread
       scrollUpdate:   (stateUpdate) => @setState stateUpdate

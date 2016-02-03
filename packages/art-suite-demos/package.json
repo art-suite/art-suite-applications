@@ -9,8 +9,8 @@
   "devDependencies": {
   },
   "scripts": {
-    "run": "webpack-dev-server -d",
-    "run-hot": "webpack-dev-server --hot --inline"
+    "dev": "webpack-dev-server -d --progress",
+    "hot": "webpack-dev-server --hot --inline --progress"
   },
   "author": "Shane Brinkman-Davis Delamore",
   "license": "MIT"

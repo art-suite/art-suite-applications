@@ -1,4 +1,10 @@
-{upperCamelCase, lowerCamelCase} = Foundation = require "art-foundation"
+Foundation = require "art-foundation"
+Engine = require 'art-engine'
+React = require 'art-react'
+Atomic = require 'art-atomic'
+
+{upperCamelCase, lowerCamelCase} = Foundation
+{point} = Atomic
 {
   Component, createComponentFactory, createAndInstantiateTopComponent
   CanvasElement
@@ -6,12 +12,12 @@
   Rectangle
   PagingScrollElement
   TextElement
-} = require 'art-react'
-{point} = require 'art-atomic'
+} = React
+
 
 Demos = require "./demos"
 
-require "art-engine/full_screen_app"
+Engine.FullScreenApp.init()
 .then ->
   query = Foundation.Browser.Parse.query()
   demo = Demos[upperCamelCase query.demo || ""]
