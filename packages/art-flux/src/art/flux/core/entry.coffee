@@ -32,7 +32,7 @@ module.exports = class Entry extends BaseObject
     key: -> @_fluxRecord.key
     modelName: -> @_fluxRecord.modelName
 
-  @propGetter "fluxRecord", "subscribers"
+  @getter "fluxRecord subscribers"
 
   @setter
     fluxRecord: (newFluxRecord)->

@@ -55,7 +55,7 @@ module.exports = class FluxModel extends BaseObject
     fluxStore: -> fluxStore
     singlesModel: -> @_singlesModel || @
 
-  @propGetter "name"
+  @getter "name"
 
   ###
   load the requested data for the given key and update the fluxStore

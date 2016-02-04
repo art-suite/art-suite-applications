@@ -26,7 +26,7 @@ module.exports = class FluxStore extends Epoch
     super
     @_reset()
 
-  @propGetter "length"
+  @getter "length"
 
   get:               (modelName, key) -> @_getEntry(modelName, key)?.fluxRecord
   getSubscribers:    (modelName, key) -> @_getEntry(modelName, key)?.subscribers
