@@ -73,9 +73,7 @@ module.exports = class Layout extends BaseObject
 
     @_left = @_right = @_top = @_bottom = 0
 
-  @propGetter "text",
-    "align"
-    "leading"
+  @getter "text align leading"
 
   @getter
     fontStyle:      -> @_fontOptions.fontStyle
