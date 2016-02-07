@@ -47,7 +47,7 @@ module.exports = ->
       padding: 5
       scroll: scroll
       on:
-        scrollUpdate: ({target, focusedPage, currentGeometry}) ->
+        scrollUpdate: ({target, props:{focusedPage, currentGeometry}}) ->
           target.setChildren generateChildren focusedPage.key | 0, currentGeometry.suggestedPageSpread
 
       generateChildren 0
