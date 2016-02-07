@@ -2,7 +2,7 @@ define [
   'art-foundation'
   'art-flux'
 ], (Foundation, Flux) ->
-  {log, isString, Promise, BaseObject, Epoch} = Foundation
+  {log, isString, Promise, BaseObject, Epoch, timeout} = Foundation
 
   {FluxModel, fluxStore, ModelRegistry} = Flux
 
@@ -16,10 +16,12 @@ define [
         @register()
 
         load: (key) ->
-          fluxStore.onNextReady => fluxStore.update @_name, key, status: 404
-          null
+          timeout 100
+          # fluxStore.onNextReady()
+          .then -> status: 404
 
       res = fluxStore.subscribe "myBasicModel", "123", (fluxRecord) ->
+        log "subscription update", fluxRecord
         return unless fluxRecord.status != "pending"
         assert.eq fluxRecord, status: 404, key: "123", modelName: "myBasicModel"
         done()

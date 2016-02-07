@@ -2,8 +2,8 @@
 # this file: test/tests/index.coffee
 
 module.exports =
-Tests      = require './namespace'
-Tests.Flux = require './flux'
+Tests     = require './namespace'
+Tests.Art = require './art'
 Tests.finishLoad(
   []
 )
