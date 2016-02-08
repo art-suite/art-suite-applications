@@ -16,9 +16,8 @@ define [
         @register()
 
         load: (key) ->
-          timeout 100
-          # fluxStore.onNextReady()
-          .then -> status: 404
+          fluxStore.onNextReady => fluxStore.update @_name, key, status: 404
+          null
 
       res = fluxStore.subscribe "myBasicModel", "123", (fluxRecord) ->
         log "subscription update", fluxRecord
