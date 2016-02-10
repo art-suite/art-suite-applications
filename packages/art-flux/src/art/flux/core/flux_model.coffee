@@ -98,12 +98,36 @@ module.exports = class FluxModel extends BaseObject
     NOTE: load can return null or fluxRecord as it chooses. The client shouldn't
       rely on the fact that it returned a fluxRecord with a set of inputs, it might not
       the next time.
+
+  Optionally, you can implement one of to altenative load functions with Promise support:
+
+    loadData: (key) -> Promise -> data
+    loadFluxRecord: (key) -> Promise -> fluxRecord
+
+    @load will take care of updating FluxStore.
+
   ###
   load: (key) ->
     # ensure fluxStore is updated in case this is not beind called from the fluxStore itself
     # returns {status: missing} since updateFluxStore returns the last argument,
     #   this makes the results immediately available to subscribers.
-    @updateFluxStore key, status: missing
+
+    if @loadData
+      @loadData key
+      .then (data) => @updateFluxStore key, status: success, data: data
+      , (error)    => @updateFluxStore key, status: failure, error: error
+      null
+    else if @loadFluxRecord
+      log "use loadFluxRecord": key
+      @loadFluxRecord key
+      .then (fluxRecord) =>
+        log loadFluxRecord:
+          key:key
+          fluxRecord:fluxRecord
+        @updateFluxStore key, fluxRecord
+      null
+    else
+      @updateFluxStore key, status: missing
 
   # load is not required to updateFluxStore
   # reload guarantees fluxStore is updated
