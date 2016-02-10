@@ -204,6 +204,8 @@ module.exports = class Color extends AtomicBase
     return clr if isString(a) && clr = colorNamesMap[a] || parseCache[a]
     new Color a, b, c, d
 
+  @newColor: color
+
   @hslColor: hslColor = (h, s, l, a = 1) ->
     return h if h instanceof Color
 

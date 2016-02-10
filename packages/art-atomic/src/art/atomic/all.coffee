@@ -11,6 +11,6 @@ Perimeter  = require './perimeter'
 createAllClass Atomic,
   select Perimeter, "perimeter", "perimeter0"
   select Point, "point", "point0", "point1", "isPoint"
-  select Color, "color", "hslColor", "colorNames", "colorNamesMap"
+  select Color, "newColor", "color", "hslColor", "colorNames", "colorNamesMap"
   select Matrix, "matrix", "identityMatrix"
   select Rectangle, "rect", "nothing", "everything"
