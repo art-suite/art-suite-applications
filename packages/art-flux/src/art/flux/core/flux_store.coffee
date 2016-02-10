@@ -1,3 +1,8 @@
+Foundation = require 'art-foundation'
+Entry = require './entry'
+ModelRegistry = require './model_registry'
+{success, pending, missing, failure} = require './flux_status'
+
 {
   BaseObject, merge, removeFirstMatch
   pushIfNotPresent, removeFirstMatch, Epoch, log, isFunction, Unique, clone
@@ -8,9 +13,7 @@
   globalCount
   time
   inspect
-} = require 'art-foundation'
-Entry = require './entry'
-ModelRegistry = require './model_registry'
+} = Foundation
 
 # FluxStore:
 #   a key-fields store
@@ -52,7 +55,7 @@ module.exports = class FluxStore extends Epoch
       as the initial value instead of the calling "load" on the model.
 
   side effects:
-    vivifies a new entry with fluxRecord = {status: "pending"} if one isn't present
+    vivifies a new entry with fluxRecord = {status: pending} if one isn't present
     calls ModelRegistry[modelName].load key if vivification occured
     Notifies all subscribers.
 
@@ -184,7 +187,7 @@ module.exports = class FluxStore extends Epoch
     retryDelay = 250 # ms
     if model = ModelRegistry.models[modelName]
       loadRetryCallback = (loadInfo) =>
-        if loadInfo.status != "pending" && loadInfo.status != 200 && loadInfo.status != 404
+        if loadInfo.status != pending && loadInfo.status != success && loadInfo.status != missing
           if @_getEntry modelName, key
             retryDelay *= 2 if retryDelay < 60 * 1000 # max is 1 minute
             console.warn "FluxStore retry is disabled"
@@ -204,7 +207,7 @@ module.exports = class FluxStore extends Epoch
       if fluxRecord = model.load key, loadRetryCallback
         entry.setFluxRecord fluxRecord
     else
-      console.warn "ArtFlux: there is no model registered with the name: #{modelName}. Entry for #{modelName}:#{key} will forever be status:'pending'."
+      console.warn "ArtFlux: there is no model registered with the name: #{modelName}. Entry for #{modelName}:#{key} will forever be status: pending."
 
 
   # ensures the entry exists

@@ -5,8 +5,9 @@ module.exports =
 Core               = require './namespace'
 Core.Entry         = require './entry'
 Core.FluxModel     = require './flux_model'
+Core.FluxStatus    = require './flux_status'
 Core.FluxStore     = require './flux_store'
 Core.ModelRegistry = require './model_registry'
 Core.finishLoad(
-  ["Entry","FluxModel","FluxStore","ModelRegistry"]
+  ["Entry","FluxModel","FluxStatus","FluxStore","ModelRegistry"]
 )

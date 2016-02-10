@@ -1,11 +1,17 @@
-{ModelRegistry, FluxStore:{fluxStore}} = require '../core'
+Foundation = require 'art-foundation'
+FluxCore = require '../core'
 FluxComponentBase = require './flux_component_base'
+
 {Component} = Neptune.Art.React
+
 {BaseObject, nextTick, mergeInfo, log, isPlainObject, isString, isFunction, inspect, time
   globalCount
   rubyTrue
   rubyFalse
-} = require 'art-foundation'
+} = Foundation
+
+{ModelRegistry, FluxStatus} = FluxCore
+{pending, success} = FluxStatus
 
 ###
 FluxComponent
@@ -255,12 +261,12 @@ module.exports = class FluxComponent extends FluxComponentBase
       if rubyTrue fluxKey
         @setState stateField + "Reload", -> model.load fluxKey
         @subscribe model, fluxKey, stateField, if initialData = props[stateField]
-          status: 200
+          status: success
           data: initialData
 
       else
         # clear state fields previously set
-        @setStateFromFluxRecord stateField, status: 200
+        @setStateFromFluxRecord stateField, status: success
 
       true
 

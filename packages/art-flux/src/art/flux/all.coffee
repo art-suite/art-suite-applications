@@ -3,7 +3,7 @@ define [
   "./namespace"
   "./core"
   "./react"
-], (Foundation, Flux, {FluxStore, ModelRegistry, FluxModel}, {FluxComponent}) ->
+], (Foundation, Flux, {FluxStore, ModelRegistry, FluxModel, FluxStatus}, {FluxComponent}) ->
   {BaseObject, select} = Foundation
   {createAllClass} = BaseObject
   {fluxStore} = FluxStore
@@ -12,8 +12,11 @@ define [
     select ModelRegistry, "models"
     FluxStore: FluxStore
     FluxModel: FluxModel
+    ModelRegistry: ModelRegistry
     FluxComponent: FluxComponent
     fluxStore: fluxStore
+    FluxStatus
+
 
     # used only for testing
   Flux._reset = ->

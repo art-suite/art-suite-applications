@@ -3,8 +3,9 @@ define [
   '../core'
 ], (Foundation, FluxCore) ->
   {BaseObject, log, isString, isPlainObject, merge, plainObjectsDeepEq, mergeInto} = Foundation
-  {FluxStore, FluxModel} = FluxCore
+  {FluxStore, FluxModel, FluxStatus} = FluxCore
   {fluxStore} = FluxStore
+  {pending, success, failure, missing} = FluxStatus
   propsEq = plainObjectsDeepEq
 
   ###
@@ -89,9 +90,9 @@ define [
     # there should be no need to call this directly. call setState.
     load: (key, callback) ->
       fluxRecord = if @state.hasOwnProperty key
-        status: 200, data: @state[key]
+        status: success, data: @state[key]
       else
-        status: 404
+        status: missing
 
       fluxStore.update @_name, key, fluxRecord
       callback && fluxStore.onNextReady -> callback fluxRecord

@@ -1,7 +1,10 @@
+Foundation = require 'art-foundation'
+{pending, success, failure} = require './flux_status'
+
 {
   log, BaseObject, merge, removeFirstMatch, pushIfNotPresent
   Epoch, shallowClone, inspect, Unique, clone
-} = require 'art-foundation'
+} = Foundation
 
 module.exports = class Entry extends BaseObject
   @warnCantSetField: warnCantSetField = (newFluxRecord, oldFluxRecord, field) ->
@@ -19,7 +22,7 @@ module.exports = class Entry extends BaseObject
   constructor: (modelName, key)->
     super
     @_fluxRecord =
-      status: "pending"
+      status: pending
       key: key
       modelName: modelName
 

@@ -1,3 +1,8 @@
+Foundation = require "art-foundation"
+{missing, success, pending} = require './flux_status'
+{fluxStore} = require "./flux_store"
+ModelRegistry = require './model_registry'
+
 {
   log, BaseObject, decapitalize, pluralize, pureMerge, shallowClone, isString,
   emailRegexp, urlRegexp, isNumber, nextTick, capitalize, inspect, isFunction, pureMerge
@@ -5,9 +10,7 @@
   time
   globalCount
   compactFlatten
-} = require "art-foundation"
-{fluxStore} = require "./flux_store"
-ModelRegistry = require './model_registry'
+} = Foundation
 
 module.exports = class FluxModel extends BaseObject
   # must call register to make model accessable to RestComponents
@@ -88,7 +91,7 @@ module.exports = class FluxModel extends BaseObject
 
   side effects:
     expected to call fluxStore.update @_name, key, fluxRecord
-      - when fluxRecord.status is no longer "pending"
+      - when fluxRecord.status is no longer pending
       - optionally as progress is made loading the fluxRecord.data
 
   returns: null OR fluxRecord if the value is immediately available
@@ -98,9 +101,9 @@ module.exports = class FluxModel extends BaseObject
   ###
   load: (key) ->
     # ensure fluxStore is updated in case this is not beind called from the fluxStore itself
-    # returns {status: 404} since updateFluxStore returns the last argument,
+    # returns {status: missing} since updateFluxStore returns the last argument,
     #   this makes the results immediately available to subscribers.
-    @updateFluxStore key, status: 404
+    @updateFluxStore key, status: missing
 
   # load is not required to updateFluxStore
   # reload guarantees fluxStore is updated
