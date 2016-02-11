@@ -20,7 +20,6 @@ define [
     Outline
     Blur
     Shadow
-    ScrollElement
     Bitmap
     Fill
     CustomShapeElement
