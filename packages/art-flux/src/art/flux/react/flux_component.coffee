@@ -2,7 +2,7 @@ Foundation = require 'art-foundation'
 FluxCore = require '../core'
 FluxComponentBase = require './flux_component_base'
 
-{Component} = Neptune.Art.React
+{Component, createComponentFactory} = Neptune.Art.React
 
 {BaseObject, nextTick, mergeInfo, log, isPlainObject, isString, isFunction, inspect, time
   globalCount
@@ -23,6 +23,10 @@ TODO: _prepareSubscription should be triggered via createWithPostCreate rather t
 ###
 
 module.exports = class FluxComponent extends FluxComponentBase
+
+  @createFluxComponentFactory: (spec) ->
+    log createFluxComponentFactory:spec
+    createComponentFactory spec, FluxComponent
 
   constructor: ->
     super
@@ -232,6 +236,7 @@ module.exports = class FluxComponent extends FluxComponentBase
         -> key
 
   @postCreate: ->
+    @subscriptions @::subscriptions if @::subscriptions
     @_prepareSubscriptions()
     super
 

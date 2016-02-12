@@ -5,10 +5,8 @@ define [
 ], (Foundation, Flux, ReactArtEngine) ->
   {log, Promise, timeout, createWithPostCreate} = Foundation
 
-  {FluxStore, ModelRegistry, FluxModel} = Flux.Core
-  {FluxComponent} = Flux.React
+  {FluxStore, ModelRegistry, FluxModel, FluxComponent, createFluxComponentFactory, fluxStore} = Flux
   {VolatileModel, VolatileStore} = Flux.Models
-  {fluxStore} = FluxStore
   {volatileStore} = VolatileStore
 
   {createComponentFactory, Aim} = ReactArtEngine
@@ -26,8 +24,8 @@ define [
       class User extends VolatileModel
         @fields name: {}
 
-      MyComponent = createComponentFactory class MyComponent extends FluxComponent
-        @subscriptions
+      MyComponent = createFluxComponentFactory
+        subscriptions:
           user: 'abc123'
 
         componentWillUpdate: (newProps, newState)->
