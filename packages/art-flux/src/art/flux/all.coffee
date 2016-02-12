@@ -1,26 +1,29 @@
-define [
-  'art-foundation'
-  "./namespace"
-  "./core"
-  "./react"
-], (Foundation, Flux, {FluxStore, ModelRegistry, FluxModel, FluxStatus}, {FluxComponent}) ->
-  {BaseObject, select} = Foundation
-  {createAllClass} = BaseObject
-  {fluxStore} = FluxStore
+Foundation = require 'art-foundation'
+Flux = require "./namespace"
+FluxCore = require "./core"
+FluxReact = require "./react"
+ApplicationState = require './models/application_state'
 
-  createAllClass Flux,
-    select ModelRegistry, "models"
-    FluxStore: FluxStore
-    FluxModel: FluxModel
-    ModelRegistry: ModelRegistry
-    FluxComponent: FluxComponent
-    fluxStore: fluxStore
-    FluxStatus
+{FluxStore, ModelRegistry, FluxModel, FluxStatus} = FluxCore
+{FluxComponent} = FluxReact
+{BaseObject, select} = Foundation
+{createAllClass} = BaseObject
+{fluxStore} = FluxStore
 
+createAllClass Flux,
+  FluxStatus
 
-    # used only for testing
-  Flux._reset = ->
-      fluxStore._reset()
-      ModelRegistry._reset()
+  FluxStore:                  FluxStore
+  FluxModel:                  FluxModel
+  ModelRegistry:              ModelRegistry
+  FluxComponent:              FluxComponent
+  ApplicationState:           ApplicationState
 
-  Flux
+  models:                     ModelRegistry.models
+  createFluxComponentFactory: FluxComponent.createFluxComponentFactory
+  fluxStore:                  fluxStore
+
+# used only for testing
+Flux._reset = ->
+    fluxStore._reset()
+    ModelRegistry._reset()
