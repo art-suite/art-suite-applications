@@ -84,12 +84,12 @@ define [
     @createAndInstantiateTopComponent: (spec) ->
       Component.createComponentFactory(spec).instantiateAsTopComponent()
 
-    @createComponentFactory: (spec) ->
+    @createComponentFactory: (spec, BaseClass = Component) ->
       componentClass = if spec?.prototype instanceof Component
         spec
       else if spec?.constructor == Object
         throw new Error "Component must have a render function." unless isFunction spec.render
-        class AnonymousComponent extends Component
+        class AnonymousComponent extends BaseClass
           hotModule: spec.hotModule
           for k, v of spec
             @::[k] = v
