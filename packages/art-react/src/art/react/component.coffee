@@ -151,21 +151,12 @@ define [
 
         instance
 
-    _bindFunctions: ->
-      oldBindList = @_bindList
-      newBindList = @class.getBindList()
-
-      # console.error "no bindlist for class", @class unless newBindList
-      # log "@class.newBindList", newBindList, oldBindList
-
-      if oldBindList
-        delete @[k] for k in oldBindList when k not in newBindList
-
-      for k in newBindList
-        @[k] = fastBind @class.prototype[k], @
-
-      # log bound: (k for k in Object.keys @ when isFunction @[k])
-      @_bindList = newBindList
+    @stateFields: (fields) ->
+      @_stateFields = mergeInto @_stateFields, fields
+      for field, initialValue of fields
+        do (field) =>
+          @_addSetter @::, field, (v) -> @setState field, v
+          @_addGetter @::, field, -> @state[field]
 
     @createdComponents: null
     @pushCreatedComponent: (c)->
@@ -249,7 +240,7 @@ define [
     render: -> throw new Error "render must be overridden in component: #{@className}"
 
     ################################################
-    # Component LifeCycle
+    # Component LifeCycle based on Facebook React
     ################################################
 
     # called each time webpack hot-reloads a module.
@@ -268,65 +259,6 @@ define [
     # be accessed via this.props. Calling this.setState() within this function
     # will not trigger an additional render.
     componentWillReceiveProps: defaultComponentWillReceiveProps = (newProps) ->
-
-    ###
-    Function:     preprocessProps
-
-    When:         Called on component instantiation and any time props are updated
-
-    Inputs:
-      newProps:   The props received from the render call which created/updated this component
-
-    Return:       plain Object
-
-    Requirements:
-      Must return a plain Object
-      Must not modify newProps passed in.
-      Shouldn't have any side effects.
-      Shouldn't read any external state.
-
-    Description:
-      Either return exactly newProps which were passed in OR create a new, plain object.
-      The returned object can contain anything you want.
-      These are the props the component will see in any subsequent lifecycle calls.
-
-    NOTE: Unique to Art.React. Not in Facebook's React.
-
-    NOTES RE Facebook.React:
-      Why add this? Well, often you want to apply a transformation to @props whenever its set OR it changes.
-      With Facebook.React there is no one lifecycle place for this. Component instantiation/mounting
-      and component updating are kept separate. I have found it is very error-prone to implement
-      this common functionality manually on each component that needs it.
-
-    ###
-    preprocessProps: defaultPreprocessProps = (newProps) -> newProps
-
-    ###
-    preprocessState is called:
-      immediatly after getInitialState
-      after preprocessProps
-      after componentWillUpdate
-      before rendering
-
-    Your code will never see a @state that hasen't been preprocessed.
-
-    NOTES RE Facebook.React:
-      Why add this? Well, often you want to apply a transformation to @state whenever it is initialized OR it changes.
-      With Facebook.React there is no one lifecycle place for this. Component instantiation/mounting
-      and component updating are kept separate. I have found it is very error-prone to implement
-      this common functionality manually on each component that needs it.
-
-      An example of this is FluxComponents. They alter state implicitly as the subscription data comes in, and
-      and component instantiation. preprocessState makes it easy to transform any data written via FluxComponents
-      into a standard form.
-
-    SBD NOTES TO SELF:
-      I think:
-        - it is OK to directly mutate newState.
-        - calls to @setState will be applied next epoch.
-        - could make getInitialState obsolete, but I think we'll keep it around for convenience and consistency
-    ###
-    preprocessState: defaultPreprocessState = (newState) -> newState
 
     # Invoked once, both on the client and server, immediately before the initial
     # rendering occurs. If you call setState within this method, render() will see
@@ -364,9 +296,81 @@ define [
     # NOTE: So far this seems unnecessary since we control the whole stack.
     # shouldComponentUpdate(newProps, newState) -> boolean
 
+    ################################################
+    # Component LifeCycle - ArtReact extensions
+    ################################################
+
+    ###
+    Function:     preprocessProps
+
+    When:         Called on component instantiation and any time props are updated
+
+    IN:           newProps - The props received from the render call which created/updated this component
+
+    OUT:          plain Object - becomes @props. Can be newProps, based on newProps or entirely new.
+
+    Guarantee:    @props will allways be passed through preprocessProps before it is set.
+                  i.e. Your code will never see a @props that hasen't been preprocessed.
+
+    Requirements:
+      Must return a plain Object
+      Must not modify newProps passed in.
+      Shouldn't have any side effects.   (SBD - why?)
+      Shouldn't read any external state. (SBD - why?)
+
+    Description:
+      Either return exactly newProps which were passed in OR create a new, plain object.
+      The returned object can contain anything you want.
+      These are the props the component will see in any subsequent lifecycle calls.
+
+    NOTE: Unique to Art.React. Not in Facebook's React.
+
+    NOTES RE Facebook.React:
+      Why add this? Well, often you want to apply a transformation to @props whenever its set OR it changes.
+      With Facebook.React there is no one lifecycle place for this. Component instantiation/mounting
+      and component updating are kept separate. I have found it is very error-prone to implement
+      this common functionality manually on each component that needs it.
+
+    ###
+    preprocessProps: defaultPreprocessProps = (newProps) -> newProps
+
+    ###
+    Function:     preprocessState
+
+    When:         preprocessState is called:
+                    immediatly after getInitialState
+                    after preprocessProps
+                    after componentWillUpdate
+                    before rendering
+
+    IN:           newState - the state which is proposed to become @state
+    OUT:          object which will become @state. Can be newState, be based on newState or completely new.
+
+    Guarantees:   @state will allways be passed through preprocessState before it is set.
+                  i.e. Your code will never see a @state that hasen't been preprocessed.
+
+    NOTES RE Facebook.React:
+      Why add this? Well, often you want to apply a transformation to @state whenever it is initialized
+      OR it changes. With Facebook.React there is no one lifecycle place for this. Component
+      instantiation/mounting and component updating are kept separate. I have found it is very
+      error-prone to implement this common functionality manually on each component that needs it.
+
+      An example of this is FluxComponents. They alter state implicitly as the subscription data comes in, and
+      and component instantiation. preprocessState makes it easy to transform any data written via FluxComponents
+      into a standard form.
+
+    SBD NOTES TO SELF:
+      I think:
+        - it is OK to directly mutate newState, can we declare this offically part of the API?
+        - calls to @setState in preprocessState will be applied NEXT epoch.
+        - could make getInitialState obsolete, but I think we'll keep it around for convenience and consistency
+    ###
+    preprocessState: defaultPreprocessState = (newState) -> newState
+
     ######################
     # ART REACT EXTENSIONS
     ######################
+
     # findAll: t/f  # by default find won't return children of matching Elements, set to true to return all matches
     # verbose: t/f  # log useful information on found objects
     find: (pattern, {findAll, verbose} = {}, matches = [], path) ->
@@ -399,6 +403,12 @@ define [
       @_virtualAimBranch.toCoffeescript indent
 
     getPendingState: -> @_pendingState || @state
+
+    onNextReady: (f) ->
+      if stateEpoch
+        stateEpoch?.onNextReady f
+      else
+        super
 
     ######################
     # PRIVATE
@@ -449,7 +459,7 @@ define [
       @_addHotInstance()
       @_componentWillMount()
 
-      @setState @_preprocessState @getInitialState()
+      @setState @_preprocessState merge @class._stateFields, @getInitialState()
 
       @_virtualAimBranch = @_renderCaptureRefs()
 
@@ -559,9 +569,28 @@ define [
 
       @_componentDidUpdate oldProps, oldState
 
+    _bindFunctions: ->
+      oldBindList = @_bindList
+      newBindList = @class.getBindList()
+
+      # console.error "no bindlist for class", @class unless newBindList
+      # log "@class.newBindList", newBindList, oldBindList
+
+      if oldBindList
+        delete @[k] for k in oldBindList when k not in newBindList
+
+      for k in newBindList
+        @[k] = fastBind @class.prototype[k], @
+
+      # log bound: (k for k in Object.keys @ when isFunction @[k])
+      @_bindList = newBindList
+
+
     ########################
+    # PRIVATE
     # LifeCycle Management
     ########################
+
     # NOTE: The reason for defaultComponent* values instead of making the defaults NULL
     #   is so inheritors can call "super" safely.
     # IDEA: We could make createComponentFactory gather up all custom life-cycle functions,
@@ -610,10 +639,3 @@ define [
       @onNextReady =>
         timePerformance "reactLC", =>
           @componentDidUpdate oldProps, oldState
-
-    onNextReady: (f) ->
-      if stateEpoch
-        stateEpoch?.onNextReady f
-      else
-        super
-
