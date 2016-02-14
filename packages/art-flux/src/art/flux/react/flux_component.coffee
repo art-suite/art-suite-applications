@@ -8,6 +8,7 @@ FluxComponentBase = require './flux_component_base'
   globalCount
   rubyTrue
   rubyFalse
+  compactFlatten
 } = Foundation
 
 {ModelRegistry, FluxStatus} = FluxCore
@@ -164,7 +165,7 @@ module.exports = class FluxComponent extends FluxComponentBase
   @subscriptions: ->
     subscriptionProperties = @_getSubscriptionProperties()
 
-    for arg in arguments
+    for arg in compactFlatten arguments
       if isPlainObject subscriptionMap = arg
 
         for stateField, value of subscriptionMap
@@ -173,9 +174,10 @@ module.exports = class FluxComponent extends FluxComponentBase
               stateField: stateField
               params: value
 
-      else if isString subscriptionName = arg
-        do (subscriptionName) ->
-
+      else if isString subscriptionNames = arg
+        for subscriptionName in subscriptionNames.match /[_a-zA-Z][._a-zA-Z0-9]*/g
+          log subscriptionName:subscriptionName
+          do (subscriptionName) ->
             if matches = subscriptionName.match /([a-zA-Z0-9]+)\.([a-zA-Z0-9]+)/
               [_, modelName, field] = matches
 
