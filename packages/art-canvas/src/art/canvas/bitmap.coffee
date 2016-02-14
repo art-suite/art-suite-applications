@@ -25,6 +25,7 @@ StackBlur = require "./stack_blur"
   inspect, log, min, max, Binary, isFunction, isPlainObject, eq, currentSecond, round, isNumber, floatEq0
   Promise
 } = Foundation
+{EncodedImage} = Binary
 
 emptyOptions = {}
 
@@ -62,14 +63,8 @@ module.exports = class Bitmap extends BitmapBase
     htmlElement:      -> @_htmlImageElement || @_canvas
 
   @get: (url, callBack, errorBack = null) ->
-    new Promise (resolve, reject) ->
-      Binary.EncodedImage.get(url, (image) ->
-        resolve bitmap = new Bitmap image
-        callBack? bitmap
-      , (error) ->
-        reject error
-        errorBack? error
-      )
+    EncodedImage.get url
+    .then (image) -> new Bitmap image
 
   ###
   Uses the browser's file-request dialog to have the user select a local image file.
@@ -82,10 +77,10 @@ module.exports = class Bitmap extends BitmapBase
   @requestImage: ->
     Foundation.Browser.File.request accept:"image/*"
     .then ([file]) =>
-      Binary.EncodedImage.toImage file
-    .then (image) =>
-      bitmap: new Canvas.Bitmap image
-      file:   file
+      EncodedImage.toImage file
+      .then (image) =>
+        bitmap: new Bitmap image
+        file:   file
 
   initFromImage: (image) ->
     # log "Canvas.Bitmap: initFromImage - keep it an HTMLImageElement"
