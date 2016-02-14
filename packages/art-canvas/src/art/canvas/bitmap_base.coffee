@@ -14,6 +14,7 @@ define [
   {point, Point, rect, Rectangle, matrix, Matrix, color, Color} = Atomic
   {inspect, nextTick, BaseObject, Binary, pureMerge, isString, isNumber, log} = Foundation
   {round, floor} = Math
+  {BinaryString} = Binary
 
   toChannelNumberMap = 0:0, 1:1, 2:2, 3:3, r:0, g:1, b:2, a:3, red:0, green:1, blue:2, alpha:3
 
@@ -194,38 +195,45 @@ define [
         v for v in data # convert to array
 
     toPngUri: (callback) ->
-      throw new Error "callback required" unless callback
-      nextTick => # use nextTick to ensure all pending draw commands complete before we extract the pixel data
-        callback @toMemoryBitmap().canvas.toDataURL()
+      throw new Error "Bitmap.toPngUri: callback is no longer supported; use returned Promise" if callback
+      nextTick()
+      .then => # use nextTick to ensure all pending draw commands complete before we extract the pixel data
+        @toMemoryBitmap().canvas.toDataURL()
 
     toJpgUri: (quality=.95, callback) ->
-      throw new Error "callback required" unless callback
-      nextTick => # use nextTick to ensure all pending draw commands complete before we extract the pixel data
-        callback @toMemoryBitmap().canvas.toDataURL "image/jpeg", quality
+      throw new Error "Bitmap.toJpgUri: callback is no longer supported; use returned Promise" if callback
+      nextTick()
+      .then => # use nextTick to ensure all pending draw commands complete before we extract the pixel data
+        @toMemoryBitmap().canvas.toDataURL "image/jpeg", quality
 
-    # results in Binary.String
+    # results in BinaryString
     toPng: (callback) ->
-      @toPngUri (dataURI) ->
-        callback Binary.String.fromDataURI dataURI
+      throw new Error "Bitmap.toPng: callback is no longer supported; use returned Promise" if callback
+      @toPngUri()
+      .then (dataURI) ->
+        BinaryString.fromDataUri dataURI
 
-    # results in Binary.String
+    # results in BinaryString
     toJpg: (quality, callback) ->
-      @toJpgUri quality, (dataURI) ->
-        callback Binary.String.fromDataURI dataURI
+      throw new Error "Bitmap.toJpg: callback is no longer supported; use returned Promise" if callback
+      @toJpgUri quality
+      .then (dataURI) ->
+        BinaryString.fromDataUri dataURI
 
-    toImage: (callback, errorback = null)->
-      throw new Error "callback required" unless callback
-      nextTick => # use nextTick to ensure all pending draw commands complete before we extract the pixel data
+    toImage: (callback) ->
+      throw new Error "Bitmap.toImage: callback is no longer supported; use returned Promise" if callback
+      nextTick()
+      .then => # use nextTick to ensure all pending draw commands complete before we extract the pixel data
         if @_htmlImageElement
-          callback @_htmlImageElement
+          @_htmlImageElement
         else
           url = @toMemoryBitmap().canvas.toDataURL()
-          Binary.EncodedImage.toImage url, (image) =>
-            size = @pointSize
-            image.width  = size.w
-            image.height = size.h
-            callback image
-          , errorback
+          Binary.EncodedImage.toImage url
+          .then (image) =>
+            {w, h} = @pointSize
+            image.width  = w
+            image.height = h
+            image
 
     ################################
     # new bitmap macros

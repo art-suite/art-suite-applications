@@ -13,7 +13,6 @@ define [
   {EncodedImage} = Binary
   {BitmapBase, Bitmap, GradientFillStyle} = Canvas
 
-
   (bitmapFactory, bitmapClassName) ->
 
     compositeModes = [
@@ -468,11 +467,12 @@ define [
       testStretch "drawStretchedBorderBitmap borders too big",
         matrix(), rect(10, 10, 3, 4)
 
-      test "load image", (done)->
+      test "load image", ->
         bitmap1 = bitmapFactory.newBitmap point 3
         bitmap1.clear "#777"
 
-        EncodedImage.get "#{testAssetRoot}/array_buffer_image_test/sample.jpg", (image) ->
+        EncodedImage.get "#{testAssetRoot}/array_buffer_image_test/sample.jpg"
+        .then (image) ->
           bitmap2 = bitmapFactory.newBitmap image
           assert.eq bitmap2.size, point 256, 256
           bitmap1.drawBitmap null, bitmap2
@@ -486,9 +486,6 @@ define [
             # SAFARI = ok
           else
             assert.eq data, [74, 115, 154, 255, 72, 113, 151, 255, 75, 117, 149, 255, 56, 100, 141, 255, 38, 85, 125, 255, 34, 82, 118, 255, 30, 79, 125, 255, 21, 73, 116, 255, 42, 90, 127, 255]
-
-
-          done()
 
       test "compositing target_alphmask is alphamask in the other order", ->
         a = bitmapFactory.newBitmap point 3
@@ -696,32 +693,36 @@ define [
         res = bitmap.blur 1, true
         assert.neq res, bitmap
 
-      test "png encoded", (done)->
+      test "png encoded", ->
         bitmap = bitmapFactory.newBitmap point 16
         drawCheckers bitmap, point(4), "red", "white"
 
         log bitmap
-        bitmap.toPng (binaryEncoding) ->
-          binaryEncoding.toDataURI (dataURI) ->
-            Binary.EncodedImage.toImage dataURI, (img) ->
-              bitmap2 = bitmapFactory.newBitmap img
-              log bitmap2
-              assert.eq bitmap.getImageDataArray(), bitmap2.getImageDataArray()
-              done()
+        bitmap.toPng()
+        .then (binaryEncoding) ->
+          binaryEncoding.toDataUri()
+        .then (dataURI) ->
+          Binary.EncodedImage.toImage dataURI
+        .then (img) ->
+          bitmap2 = bitmapFactory.newBitmap img
+          log bitmap2
+          assert.eq bitmap.getImageDataArray(), bitmap2.getImageDataArray()
 
-      test "jpg encoded", (done)->
+      test "jpg encoded", ->
         bitmap = bitmapFactory.newBitmap point 4
         drawCheckers bitmap, point(2), "blue", "white"
 
         log bitmap
-        bitmap.toJpg 1, (binaryEncoding) ->
-          binaryEncoding.toDataURI (dataURI) ->
-            Binary.EncodedImage.toImage dataURI, (img) ->
-              bitmap2 = bitmapFactory.newBitmap img
-              log bitmap2
-              a=reducedRange bitmap.getImageDataArray()
-              b=reducedRange bitmap2.getImageDataArray()
-              assert.eq a, b
-              done()
+        bitmap.toJpg 1
+        .then (binaryEncoding) ->
+          binaryEncoding.toDataUri()
+        .then (dataURI) ->
+          Binary.EncodedImage.toImage dataURI
+        .then (img) ->
+          bitmap2 = bitmapFactory.newBitmap img
+          log bitmap2
+          a=reducedRange bitmap.getImageDataArray()
+          b=reducedRange bitmap2.getImageDataArray()
+          assert.eq a, b
 
 

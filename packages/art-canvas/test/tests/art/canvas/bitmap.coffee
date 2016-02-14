@@ -287,23 +287,23 @@ define [
         log bitmap
 
     suite "toImage", ->
-      test "pixelsPerPoint=2", (done)->
+      test "pixelsPerPoint=2", ->
         bitmap = new Canvas.Bitmap point 100, 80
         bitmap.clear "orange"
         bitmap.pixelsPerPoint = 2
         log bitmap:bitmap
-        bitmap.toImage (img) ->
+        bitmap.toImage()
+        .then (img) ->
           log img:img
           assert.eq img.width, 50
           assert.eq img.height, 40
-          done()
 
-      test "basic", (done)->
+      test "basic", ->
         bitmap = new Canvas.Bitmap point 100, 80
         bitmap.clear "orange"
         log bitmap:bitmap
-        bitmap.toImage (img) ->
+        bitmap.toImage()
+        .then (img) ->
           log img:img
           assert.eq img.width, 100
           assert.eq img.height, 80
-          done()
