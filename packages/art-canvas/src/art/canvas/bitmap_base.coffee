@@ -56,7 +56,9 @@ define [
       @pixelSnap && (
         (!where) ||
         (where instanceof Point) ||
-        where.isTranslateAndScaleOnly
+        where.isTranslateAndPositiveScaleOnly
+        # NOTE: we could switch back to just isTranslateAndScaleOnly, but then we would need a draw matrix
+        # for negative scales
       )
 
     pixelSnapWhere: (where) ->
