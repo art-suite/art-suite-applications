@@ -26,7 +26,6 @@ TODO: _prepareSubscription should be triggered via createWithPostCreate rather t
 module.exports = class FluxComponent extends FluxComponentBase
 
   @createFluxComponentFactory: (spec) ->
-    log createFluxComponentFactory:spec
     createComponentFactory spec, FluxComponent
 
   constructor: ->
