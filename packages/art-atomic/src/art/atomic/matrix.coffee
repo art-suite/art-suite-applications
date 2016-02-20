@@ -60,7 +60,7 @@ Rectangle  = require "./rectangle"
 
 {point} = Point
 {rect} = Rectangle
-{inspect, simplifyNum, float32Eq, compact} = Foundation
+{inspect, simplifyNum, float32Eq, compact, log} = Foundation
 
 module.exports = class Matrix extends AtomicBase
   @matrix: matrix = (a, b, c, d, e, f) ->
@@ -203,6 +203,12 @@ module.exports = class Matrix extends AtomicBase
       float32Eq(@shx, 0) &&
       float32Eq(@shy, 0)
 
+    isTranslateAndPositiveScaleOnly: ->
+      @sx > 0 &&
+      @sy > 0 &&
+      float32Eq(@shx, 0) &&
+      float32Eq(@shy, 0)
+
   fillFloat32Array: (a) ->
       a[0] = @sx
       a[1] = @shx
@@ -296,7 +302,6 @@ module.exports = class Matrix extends AtomicBase
   rotate: (radians) ->
     cr   = Math.cos radians
     sr   = Math.sin radians
-    # log "rotateB new Matrix"
     new Matrix(
       @sx  * cr - @shy * sr
       @shx * sr + @sy  * cr
