@@ -84,12 +84,20 @@ module.exports = class Component extends VirtualNode
   @createAndInstantiateTopComponent: (spec) ->
     Component.createComponentFactory(spec).instantiateAsTopComponent()
 
+  unknownModule = {}
   @createComponentFactory: (spec, BaseClass = Component) ->
     componentClass = if spec?.prototype instanceof Component
       spec
     else if spec?.constructor == Object
+      _module = getModule(spec) || unknownModule
+      _module.uniqueComponentNameId ||= 1
+
+      anonymousComponentName = "Anonymous#{BaseClass.getClassName()}"
+      anonymousComponentName += "_#{_module.uniqueComponentNameId++}"
+      anonymousComponentName += if _module.id then "_Module#{_module.id}" else '_ModuleUnknown'
+
       class AnonymousComponent extends BaseClass
-        @_name: "Anonymous#{BaseClass.getClassName()}#{if moduleId = getModule(spec)?.id then "_Module#{moduleId}" else '_ModuleUnknown'}"
+        @_name: anonymousComponentName
 
         for k, v of spec
           @::[k] = v
@@ -129,20 +137,18 @@ module.exports = class Component extends VirtualNode
 
   @allComponents: {}
   @postCreate: ->
-    @initUniqueName()
+    @guaranteeNameIsUnique()
     log "Component defined: #{@getClassName()}" + if @getCanHotReload() then " (HOT)" else ""
 
     @hotReload()
     @toComponentFactory()
 
-  unknownModule = {}
-  @initUniqueName: ->
+  uniqueComponentNameId = 1
+  @guaranteeNameIsUnique: ->
     @_name ||= @name
     if @allComponents[@_name]
-      _module = @getModule() || unknownModule
-      _module.uniqueComponentNameId ||= 1
       {_name} = @
-      @_name = "#{_name}_#{_module.uniqueComponentNameId++}" while @allComponents[@_name]
+      @_name = "#{_name}_#{uniqueComponentNameId++}" while @allComponents[@_name]
 
     @allComponents[@_name] = @
     @_name
