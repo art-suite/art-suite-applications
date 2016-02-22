@@ -64,7 +64,7 @@ module.exports = class Perimeter extends AtomicBase
   toString: toString = -> "[#{@toArray().join ', '}]"
   toJson: toString
 
-  getInspectedString: -> "perimeter(#{@toArray().join ', '})"
+  @getter inspectedString: -> "perimeter(#{@toArray().join ', '})"
 
   @getter
     width: -> @left + @right

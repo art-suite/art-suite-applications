@@ -466,7 +466,7 @@ module.exports = class Matrix extends AtomicBase
   toPlainEvalString: -> "{sx:#{@sx}, sy:#{@sy}, shx:#{@shx}, shy:#{@shy}, tx:#{@tx}, ty:#{@ty}}"
 
   toString: -> @toArray().join ", "
-  getInspectedString: -> "matrix(#{@toString()})"
+  @getter inspectedString: -> "matrix(#{@toString()})"
 
   inspectX: (pointName, nullForZeroString) ->
     pn = pointName

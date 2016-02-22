@@ -443,7 +443,7 @@ module.exports = class Color extends AtomicBase
   lte: (r) -> @r <= r.r and @b <= r.b and @c <= r.c and @a <= r.a
   gte: (r) -> @r >= r.r and @b >= r.b and @c >= r.c and @a >= r.a
 
-  getInspectedString: ->
+  @getter inspectedString: ->
     a = if colorFloatEq(1, @a) then @hexString else @rgbaHexString
     "color('#{a}')"
 
