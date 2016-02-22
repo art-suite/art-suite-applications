@@ -44,6 +44,15 @@ Example:
 module.exports = class ApplicationState extends FluxModel
   @classProperty "persistant"
 
+  ###
+  Declare state fields you intend to use.
+  IN: fields
+    map from field names to initial values
+
+  EFFECTS:
+    initializes @state
+    declares @getters and @setters for each field
+  ###
   @stateFields: (fields) ->
     @_stateFields = mergeInto @_stateFields, fields
     for field, initialValue of fields
@@ -51,28 +60,28 @@ module.exports = class ApplicationState extends FluxModel
         @_addSetter @::, field, (v) -> @setState field, v
         @_addGetter @::, field, -> @state[field]
 
-  loadFromLocalStorage: ->
-    if @class.persistant
-      data = localStorage.getItem @name
-      v = JSON.parse data if data
-      log loadFromLocalStorage:v
-      v
-
-  saveToLocalStorage: (state = @state)->
-    if @class.persistant
-      localStorage.setItem @name, v = JSON.stringify state
-      log saveToLocalStorage:v
-
   constructor: ->
     super
-    @state = merge @getInitialState(), @class._stateFields, try @loadFromLocalStorage()
+    @state = merge @getInitialState(), @class._stateFields, try @_loadFromLocalStorage()
 
-  # override
+  ###
+  provided for consistency with React Components
+  To use: override
+  But, using @stateFields works just as well and also declares field getter / setters.
+  ###
   getInitialState: -> {}
 
-  # signatures:
-  #   (map from keys to values) ->  # set many states. => map
-  #   (key, value) ->               # set one state. => key
+  ###
+  option 1:
+    IN: plainObject state-map
+    AFFECT: set many states
+    OUT: state-map
+
+  option 2:
+    IN: key, value
+    AFFECT: set one state
+    OUT: key
+  ###
   setState: (key, value) ->
     if isPlainObject map = key
       for k, v of map when !propsEq @state[k], v
@@ -82,16 +91,65 @@ module.exports = class ApplicationState extends FluxModel
       @state[key] = value
       @load key
 
-    @saveToLocalStorage()
+    @_saveToLocalStorage()
     key
 
+  # remove one key-value pair
+  removeState: (key) ->
+    @_removeFromFluxStore key
+    ret = @state[key]
+    delete @state[key]
+    ret
+
+  ###
+  Removes all values in @state.
+  All entries currently in FluxStore become: state: missing
+  ###
+  clearState: ->
+    for k, v of @state
+      @_removeFromFluxStore k
+
+    @state = {}
+
+  ###
+  Replace all state with newState.
+  Logically equivelent to:
+    @clearState()
+    @setState newState
+  ###
+  replaceState: (newState) ->
+    for k, v of @state when !newState.hasOwnProperty k
+      @_removeFromFluxStore k
+      delete @state[k]
+
+    @setState newState
+
+  #################
+  # PRIVATE
+  #################
   # there should be no need to call this directly. call setState.
+  # overrides FluxModel#load
   load: (key, callback) ->
     fluxRecord = if @state.hasOwnProperty key
       status: success, data: @state[key]
     else
       status: missing
 
-    fluxStore.update @_name, key, fluxRecord
+    @updateFluxStore key, fluxRecord
     callback && fluxStore.onNextReady -> callback fluxRecord
     fluxRecord
+
+  _removeFromFluxStore: (key) ->
+    @updateFluxStore key, status: missing
+
+  _loadFromLocalStorage: ->
+    if @class.persistant
+      data = localStorage.getItem @name
+      v = JSON.parse data if data
+      log _loadFromLocalStorage:v
+      v
+
+  _saveToLocalStorage: (state = @state)->
+    if @class.persistant
+      localStorage.setItem @name, v = JSON.stringify state
+      log _saveToLocalStorage:v
