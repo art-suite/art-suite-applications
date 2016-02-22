@@ -11,7 +11,7 @@ module.exports = class Base extends BaseObject
     @_init stringToNumberArray(string)...
 
   inspect: (inspector)->
-    if inspector.put
+    if inspector?.put
       inspector.put @getInspectedString()
     else
       @getInspectedString()

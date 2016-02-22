@@ -181,7 +181,8 @@ module.exports = class Point extends AtomicBase
   toPlainStructure: ->  x: @x, y: @y
   toPlainEvalString: -> "{x:#{@x}, y:#{@y}}"
 
-  getInspectedString: -> "point(#{@x}, #{@y})"
+  @getter
+    inspectedString: -> "point(#{@x}, #{@y})"
 
   floor: -> @with floor(@x), floor(@y)
   ceil:  -> @with ceil(@x),  ceil(@y)
@@ -212,6 +213,39 @@ module.exports = class Point extends AtomicBase
   round: (m = 1) -> @with round(@x / m) * m, round(@y / m) * m
 
   roundOut: -> @ceil()
+
+  ###
+  Return same-aspect-ratio point-area that just 'fits' into's area
+  OUT: result is point with
+      # same aspect ratio
+      (result.x / result.y) == @x / @y
+    and
+      # result <= into
+      result.x <= into.x and
+      result.y <= into.y
+    and
+      # result.x or y is the same as into
+      result.x == into.x or
+      result.y == into.y
+  ###
+  fitInto: (into) ->
+    xr = into.x / @x
+    yr = into.y / @y
+    @mul min xr, yr
+
+  ###
+  Return same-aspect-ratio point-area that just 'fills' into's area
+  Same as 'fitInto' except:
+      # result >= into
+      result.x >= into.x and
+      result.y >= into.y
+
+  KEYWORD: I used to call this 'zoom'
+  ###
+  fill: (into) ->
+    xr = into.x / @x
+    yr = into.y / @y
+    @mul max xr, yr
 
   # named points
   point0       = Object.freeze new Point 0

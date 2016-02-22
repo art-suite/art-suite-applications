@@ -239,3 +239,38 @@ suite "Art.Atomic.Point", ->
     assert.eq p1.interpolate(p2, 0), p1
     assert.eq p1.interpolate(p2, 1), p2
     assert.eq p1.interpolate(p2, .5), point 2, 4
+
+suite "Art.Atomic.Point.fitInto", ->
+  fitIntoTest = (p, into) ->
+
+    test "#{p.inspect()}.fitInto #{into.inspect()} => #{(p.fitInto into).inspectedString}", ->
+      res = p.fitInto into
+      assert.ok res.lte into
+      assert.ok (res.x == into.x || res.y == into.y)
+      assert.eq res.aspectRatio, p.aspectRatio
+
+  fitIntoTest point(1, 2),  point 2, 1
+  fitIntoTest point(2, 1),  point 2, 1
+  fitIntoTest point(2, 1),  point 1, 2
+  fitIntoTest point(1, 1),  point 1, 2
+  fitIntoTest point(1, 1),  point 2, 1
+  fitIntoTest point(100, 100),  point 2, 1
+  fitIntoTest point(1, 1),  point 200, 100
+
+suite "Art.Atomic.Point.fill", ->
+  fillTest = (p, into) ->
+
+    test "#{p.inspect()}.fill #{into.inspect()} => #{(p.fill into).inspectedString}", ->
+      res = p.fill into
+      assert.ok res.gte into
+      assert.ok (res.x == into.x || res.y == into.y)
+      assert.eq res.aspectRatio, p.aspectRatio
+
+  fillTest point(1, 2),  point 2, 1
+  fillTest point(2, 1),  point 2, 1
+  fillTest point(2, 1),  point 1, 2
+  fillTest point(1, 1),  point 1, 2
+  fillTest point(1, 1),  point 2, 1
+  fillTest point(100, 100),  point 2, 1
+  fillTest point(1, 1),  point 200, 100
+
