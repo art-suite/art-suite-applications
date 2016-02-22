@@ -76,6 +76,26 @@ I think I want to add a "lifecycle" method that Facebook.React doesn't have:
 This will allow us to apply default props and normalize props instead of the current
 method of storing normalized props in the state object. The current method is really awkward since
 you have to do this in two places - will receive props and getInitialState.
+
+QUESTIONS
+---------
+
+I just discovered it is possible, and useful, for a component to be rendered
+after it is unmounted. I don't think this is consistent with Facebook-React.
+
+Possible: if @setState is called after it is unmounted, it will trigger a
+render. This can happen in FluxComponents when a subscription updates.
+
+Useful: Why does this even make sense? Well, with Art.Engine we have
+removedAnimations. That means the element still exists even though it has been
+"removed." It exists until the animation completes. It is therefor useful to
+continue to receive updates from React, where appropriate, during that "sunset"
+time.
+
+Thoughts: I think this is OK, though this changes what "unmounted" means. I just
+fixed a bug where @state got altered without going through preprocessState first
+when state changes after the component was unmounted. How should I TEST this???
+
 ###
 module.exports = class Component extends VirtualNode
   @created: 0
@@ -193,6 +213,7 @@ module.exports = class Component extends VirtualNode
     @_pendingState = null
     @_virtualAimBranch = null
     @_mounted = false
+    @_wasMounted = false
     @_bindList = null
     @_applyingPendingState = false
     Component.pushCreatedComponent @
@@ -435,7 +456,7 @@ module.exports = class Component extends VirtualNode
   # PRIVATE
   ######################
   _getStateToSet: ->
-    if @_mounted then @_getPendingState() else @state
+    if @_wasMounted then @_getPendingState() else @state
 
   _setSingleState: (stateKey, stateValue, callback) ->
     @onNextReady callback
@@ -488,7 +509,7 @@ module.exports = class Component extends VirtualNode
     @element = @_virtualAimBranch.element
 
     @_componentDidMount()
-    @_mounted = true
+    @_wasMounted = @_mounted = true
     @
 
   emptyArray = []
