@@ -58,6 +58,9 @@ module.exports = class FluxModel extends BaseObject
     fluxStore: -> fluxStore
     singlesModel: -> @_singlesModel || @
 
+  subscribe: (fluxKey, subscriptionFunction) ->
+    fluxStore.subscribe @_name, fluxKey, subscriptionFunction
+
   @getter "name"
 
   ###
