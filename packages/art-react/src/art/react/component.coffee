@@ -137,21 +137,10 @@ module.exports = class Component extends VirtualNode
 
   @allComponents: {}
   @postCreate: ->
-    @guaranteeNameIsUnique()
     log "Component defined: #{@getClassName()}" + if @getCanHotReload() then " (HOT)" else ""
 
     @hotReload()
     @toComponentFactory()
-
-  uniqueComponentNameId = 1
-  @guaranteeNameIsUnique: ->
-    @_name ||= @name
-    if @allComponents[@_name]
-      {_name} = @
-      @_name = "#{_name}_#{uniqueComponentNameId++}" while @allComponents[@_name]
-
-    @allComponents[@_name] = @
-    @_name
 
   nonBindingFunctions = "getInitialState
     componentWillReceiveProps
