@@ -62,7 +62,7 @@ module.exports = class ApplicationState extends FluxModel
 
   constructor: ->
     super
-    @state = merge @getInitialState(), @class._stateFields, try @_loadFromLocalStorage()
+    @state = @_getInitialState()
 
   ###
   provided for consistency with React Components
@@ -111,6 +111,9 @@ module.exports = class ApplicationState extends FluxModel
 
     @state = {}
 
+  resetState: ->
+    @replaceState @_getInitialState()
+
   ###
   Replace all state with newState.
   Logically equivelent to:
@@ -153,3 +156,6 @@ module.exports = class ApplicationState extends FluxModel
     if @class.persistant
       localStorage.setItem @name, v = JSON.stringify state
       log _saveToLocalStorage:v
+
+  _getInitialState: ->
+    merge @getInitialState(), @class._stateFields, try @_loadFromLocalStorage()
