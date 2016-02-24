@@ -157,7 +157,7 @@ module.exports = class Component extends VirtualNode
 
   @allComponents: {}
   @postCreate: ->
-    log "Component defined: #{@getClassName()}" + if @getCanHotReload() then " (HOT)" else ""
+    # log "Component defined: #{@getClassName()}" + if @getCanHotReload() then " (HOT)" else ""
 
     @hotReload()
     @toComponentFactory()
