@@ -205,6 +205,7 @@ module.exports = class Color extends AtomicBase
     new Color a, b, c, d
 
   @newColor: color
+  @rgbColor: color
 
   @hslColor: hslColor = (h, s, l, a = 1) ->
     return h if h instanceof Color
