@@ -62,7 +62,7 @@ module.exports = class Bitmap extends BitmapBase
     htmlImageElement: -> @_htmlImageElement
     htmlElement:      -> @_htmlImageElement || @_canvas
 
-  @get: (url, callBack, errorBack = null) ->
+  @get: (url) ->
     EncodedImage.get url
     .then (image) -> new Bitmap image
 
