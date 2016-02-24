@@ -307,10 +307,6 @@ module.exports = class Color extends AtomicBase
       @r = @g = @b = a - 0
       @a = 1 - 0
     else if c?
-      if a > 1 || b > 1 || c > 1
-        a /= 255
-        b /= 255
-        c /= 255
       @r = a - 0
       @g = b - 0
       @b = c - 0

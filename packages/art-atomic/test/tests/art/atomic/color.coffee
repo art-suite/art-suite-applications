@@ -14,7 +14,7 @@ suite "Art.Atomic.Color", ->
     assert.eq color(1/255, 2/255, 3/255, 4/255).rgbaString, "color(1/255, 2/255, 3/255, 4/255)"
 
   test "toString on unclamped", ->
-    assert.eq color(255, 128, 12, 1).toString(), "#ff800c"
+    assert.eq color(1, 3, 4, 5).toString(), "rgba(255, 255, 255, 1)"
     assert.eq color(-1, -3, -4, -5).toString(), "rgba(0, 0, 0, 0)"
 
   test "withAlpha", ->
