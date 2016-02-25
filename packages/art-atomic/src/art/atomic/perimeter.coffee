@@ -69,6 +69,8 @@ module.exports = class Perimeter extends AtomicBase
   @getter
     width: -> @left + @right
     height: -> @top + @bottom
+    w: -> @left + @right
+    h: -> @top + @bottom
 
   toObject: ->
     left:   @left
