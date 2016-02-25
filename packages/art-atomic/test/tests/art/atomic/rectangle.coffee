@@ -205,3 +205,12 @@ suite "Art.Atomic.Rectangle", ->
     assert.eq r1.interpolate(r2, 0), r1
     assert.eq r1.interpolate(r2, 1), r2
     assert.eq r1.interpolate(r2, .5), new Rectangle 2, 4, 6, 8
+
+  test "add 1", ->
+    assert.eq rect(2,3,4,5), rect(1, 2, 3, 4).add 1
+
+  test "add point", ->
+    assert.eq rect(11,22,13,24), rect(1, 2, 3, 4).add point 10, 20
+
+  test "add rect", ->
+    assert.eq rect(11,22,33,44), rect(1, 2, 3, 4).add rect(10, 20, 30, 40)

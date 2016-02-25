@@ -3,7 +3,12 @@ Atomic      = require './namespace' # required so we can break the circular depe
 AtomicBase  = require './base'
 Point       = require './point'
 
-{max, min, bound, round, floatEq, floor, ceil, round, log, isNumber, isArray, isString, isFunction, stringToNumberArray} = Foundation
+{
+  max, min, bound,
+  round, floatEq, floor, ceil, round, log,
+  isNumber, isArray, isString, isFunction
+  stringToNumberArray
+} = Foundation
 {point} = Point
 
 # Rectangle supported constructor input signatures:
@@ -125,10 +130,10 @@ module.exports = class Rectangle extends AtomicBase
       ]
 
   # can do math with a scaler or another rectangle
-  add: (b) -> if b instanceof Rectangle then new Rectangle(@x + b.x, @y + b.y, @w + b.w, @h + b.h) else new Rectangle(@x + b, @y + b, @w + b, @h + b)
-  sub: (b) -> if b instanceof Rectangle then new Rectangle(@x - b.x, @y - b.y, @w - b.w, @h - b.h) else new Rectangle(@x - b, @y - b, @w - b, @h - b)
-  mul: (b) -> if b instanceof Rectangle then new Rectangle(@x * b.x, @y * b.y, @w * b.w, @h * b.h) else new Rectangle(@x * b, @y * b, @w * b, @h * b)
-  div: (b) -> if b instanceof Rectangle then new Rectangle(@x / b.x, @y / b.y, @w / b.w, @h / b.h) else new Rectangle(@x / b, @y / b, @w / b, @h / b)
+  add: (b) -> (if isNumber b then x = y = w = h = b else {x, y, w, h} = b); @with @x + x, @y + y, @w + w, @h + h
+  sub: (b) -> (if isNumber b then x = y = w = h = b else {x, y, w, h} = b); @with @x - x, @y - y, @w - w, @h - h
+  mul: (b) -> (if isNumber b then x = y = w = h = b else {x, y, w, h} = b); @with @x * x, @y * y, @w * w, @h * h
+  div: (b) -> (if isNumber b then x = y = w = h = b else {x, y, w, h} = b); @with @x / x, @y / y, @w / w, @h / h
 
   lt: (b)  -> @x < b.x && @y < b.y && @w < b.w && @h < b.h
   gt: (b)  -> @x > b.x && @y > b.y && @w > b.w && @h > b.h
