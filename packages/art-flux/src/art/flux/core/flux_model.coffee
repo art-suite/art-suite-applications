@@ -104,8 +104,8 @@ module.exports = class FluxModel extends BaseObject
 
   Optionally, you can implement one of to altenative load functions with Promise support:
 
-    loadData: (key) -> Promise -> data
-    loadFluxRecord: (key) -> Promise -> fluxRecord
+    loadData:       (key) -> promise.then (data) ->
+    loadFluxRecord: (key) -> promise.then (fluxRecord) ->
 
     @load will take care of updating FluxStore.
 

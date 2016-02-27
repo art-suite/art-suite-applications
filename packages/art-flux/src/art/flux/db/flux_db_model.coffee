@@ -8,6 +8,7 @@ FluxDbModelBase = require './flux_db_model_base'
   objectWithout
   isPlainObject
   isPlainArray
+  compact
 } = Foundation
 
 {FluxStore, ModelRegistry, FluxModel, FluxStatus}  = FluxCore
@@ -19,6 +20,7 @@ idRegExpStr = "[a-z0-9]+"
 isId = (v) -> isString(v) && v.match ///^#{idRegExpStr}$///i
 isHexColor = (v) -> isString(v) && v.match /^#([a-f0-9]{3})|([a-f0-9]{6})/i
 
+
 ###
 FluxDbModel
 
@@ -27,6 +29,9 @@ Adds declarative API:
   @query - declare/create a model for each query
 ###
 module.exports = class FluxDbModel extends FluxDbModelBase
+  @normalizeUrl: normalizeUrl = (url) ->
+    match = url.match urlRegexp
+    "#{match[1].toLowerCase()}#{match[2]}#{match[3].toLowerCase()}#{match.slice(4).join ''}"
 
   ##############################
   # FIELDS
