@@ -219,6 +219,7 @@ module.exports = class Point extends AtomicBase
     out.aspectRatio == @aspectRatio
     out <= into
     out.x == into.x or out.y == into.y
+  proposed rename: scaledJustLte
   ###
   fitInto: (into) ->
     xr = into.x / @x
@@ -232,6 +233,7 @@ module.exports = class Point extends AtomicBase
     out.x == into.x or out.y == into.y
 
   KEYWORD: I used to call this 'zoom'
+  proposed rename: scaledJustGte
   ###
   fill: (into) ->
     xr = into.x / @x
