@@ -215,18 +215,10 @@ module.exports = class Point extends AtomicBase
   roundOut: -> @ceil()
 
   ###
-  Return same-aspect-ratio point-area that just 'fits' into's area
-  OUT: result is point with
-      # same aspect ratio
-      (result.x / result.y) == @x / @y
-    and
-      # result <= into
-      result.x <= into.x and
-      result.y <= into.y
-    and
-      # result.x or y is the same as into
-      result.x == into.x or
-      result.y == into.y
+  OUT:
+    out.aspectRatio == @aspectRatio
+    out <= into
+    out.x == into.x or out.y == into.y
   ###
   fitInto: (into) ->
     xr = into.x / @x
@@ -234,11 +226,10 @@ module.exports = class Point extends AtomicBase
     @mul min xr, yr
 
   ###
-  Return same-aspect-ratio point-area that just 'fills' into's area
-  Same as 'fitInto' except:
-      # result >= into
-      result.x >= into.x and
-      result.y >= into.y
+  OUT:
+    out.aspectRatio == @aspectRatio
+    out >= into
+    out.x == into.x or out.y == into.y
 
   KEYWORD: I used to call this 'zoom'
   ###
@@ -246,6 +237,14 @@ module.exports = class Point extends AtomicBase
     xr = into.x / @x
     yr = into.y / @y
     @mul max xr, yr
+
+  ###
+  OUT:
+    out.aspectRatio == @aspectRatio
+    out.area == p.area
+  ###
+  withSameAreaAs: (p) ->
+    @mul Math.sqrt p.area / @area
 
   # named points
   point0       = Object.freeze new Point 0

@@ -257,6 +257,24 @@ suite "Art.Atomic.Point.fitInto", ->
   fitIntoTest point(100, 100),  point 2, 1
   fitIntoTest point(1, 1),  point 200, 100
 
+suite "Art.Atomic.Point.withSameAreaAs", ->
+  fitIntoTest = (p, into) ->
+
+    test "#{p.inspect()}.withSameAreaAs #{into.inspect()} => #{(p.withSameAreaAs into).inspectedString}", ->
+      res = p.withSameAreaAs into
+      assert.floatEq res.area, into.area
+      assert.floatEq res.aspectRatio, p.aspectRatio
+
+  fitIntoTest point(1, 2),  point 2, 1
+  fitIntoTest point(1, 2),  point 4, 2
+  fitIntoTest point(1, 2),  point 4, 4
+  fitIntoTest point(2, 1),  point 2, 1
+  fitIntoTest point(2, 1),  point 1, 2
+  fitIntoTest point(1, 1),  point 1, 2
+  fitIntoTest point(1, 1),  point 2, 1
+  fitIntoTest point(100, 100),  point 2, 1
+  fitIntoTest point(1, 1),  point 200, 100
+
 suite "Art.Atomic.Point.fill", ->
   fillTest = (p, into) ->
 
