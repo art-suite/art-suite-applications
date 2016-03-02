@@ -11,7 +11,7 @@
 {point} = require "art-atomic"
 
 module.exports = createComponentFactory class MyComponent extends Component
-  @hotModule: module
+  module: module
 
   getInitialState: -> toggled: false
   toggle: -> @setState toggled: !@state.toggled
