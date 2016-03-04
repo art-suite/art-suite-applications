@@ -21,7 +21,7 @@ ReactArtEngineEpoch = require './react_art_engine_epoch'
 {reactArtEngineEpoch} = ReactArtEngineEpoch
 
 {HotLoader} = require 'art-foundation/dev_tools/webpack'
-{getModuleState, runHot} = HotLoader
+{runHot} = HotLoader
 
 
 if ArtEngineCore = Neptune.Art.Engine.Core
@@ -100,6 +100,14 @@ when state changes after the component was unmounted. How should I TEST this???
 module.exports = class Component extends VirtualNode
   @created: 0
   @topComponentInstances: []
+  @rerenderAll: ->
+    for component in @topComponentInstances
+      component.rerenderAll()
+
+  rerenderAll: ->
+    @_queueRerender()
+    for component in @subComponents
+      component.rerenderAll()
 
   @createAndInstantiateTopComponent: (spec) ->
     Component.createComponentFactory(spec).instantiateAsTopComponent()
@@ -464,6 +472,9 @@ module.exports = class Component extends VirtualNode
       @_getStateToSet()[stateKey] = stateValue
 
     stateValue
+
+  _queueRerender: ->
+    @_getPendingState()
 
   _setPendingState: (state) ->
     reactArtEngineEpoch.addChangingComponent @ unless @_pendingState || @_applyingPendingState
