@@ -32,12 +32,20 @@ emptyOptions = {}
 canvasBlenders =
   add: "lighter"
   normal: "source-over"
+
+  # old, HTML-canvas compatible names
   target_alphamask: "source-in"
   alphamask: "destination-in"
   destover: "destination-over"
   sourcein: "source-atop"
-  replace: "copy"
   inverse_alphamask: "destination-out"
+
+  # lowerCamelCase names
+  targetAlphamask: "source-in"
+  destOver: "destination-over"
+  sourceIn: "source-atop"
+  replace: "copy"
+  inverseAlphamask: "destination-out"
 
 module.exports = class Bitmap extends BitmapBase
   @supportedCompositeModes: (k for k, v of canvasBlenders)
@@ -64,7 +72,12 @@ module.exports = class Bitmap extends BitmapBase
 
   @get: (url) ->
     EncodedImage.get url
-    .then (image) -> new Bitmap image
+    .then (image) ->
+      bitmap = new Bitmap image
+      if match = url.match /@([2-9])x\.[a-zA-Z]+$/
+        [_, resolution] = match
+        bitmap.pixelsPerPoint = resolution | 0
+      bitmap
 
   ###
   Uses the browser's file-request dialog to have the user select a local image file.
