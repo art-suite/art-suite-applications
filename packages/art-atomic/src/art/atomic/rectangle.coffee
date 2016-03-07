@@ -195,10 +195,10 @@ module.exports = class Rectangle extends AtomicBase
     return false unless val?
     if val instanceof Point then @contains val
     else if val instanceof Rectangle
-      val.bottom > @x &&
-      val.right > @y &&
-      @bottom > val.left &&
-      @right > val.top
+      val.getRight()   > @getLeft()  &&
+      val.getBottom()  > @getTop()   &&
+      val.getLeft()    < @getRight() &&
+      val.getTop()     < @getBottom()
     else throw new Error("Invalid arguments for 'overlaps'. Expecting Point or Rectangle. Got: #{val}.")
 
   contains: (val) ->
