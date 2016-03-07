@@ -60,7 +60,7 @@ Rectangle  = require "./rectangle"
 
 {point} = Point
 {rect} = Rectangle
-{inspect, simplifyNum, float32Eq, compact, log} = Foundation
+{inspect, simplifyNum, float32Eq, compact, log, isNumber} = Foundation
 
 module.exports = class Matrix extends AtomicBase
   @matrix: matrix = (a, b, c, d, e, f) ->
@@ -83,13 +83,12 @@ module.exports = class Matrix extends AtomicBase
   #   super
   #   console.error "new Matrix", arguments
 
-  @translate: (x, y) ->
-    if x && (typeof x.x is "number")
-      y = x.y
-      x = x.x
+  @translate: (a, b) ->
+    if isNumber a
+      x = a
+      y = if b? then b else x
     else
-      x = 0 unless typeof x is "number"
-      y = x unless typeof y is "number"
+      {x, y} = a
 
     if x == 0 && y == 0
       identityMatrix
@@ -210,35 +209,13 @@ module.exports = class Matrix extends AtomicBase
       float32Eq(@shy, 0)
 
   fillFloat32Array: (a) ->
-      a[0] = @sx
-      a[1] = @shx
-      a[2] = @tx
-      a[3] = @shy
-      a[4] = @sy
-      a[5] = @ty
-      a
-
-
-  #*********************************************
-  # <internal use>
-  #*********************************************
-  _initFromMatrix: (m) ->
-    @sx  = m.sx
-    @sy  = m.sy
-    @shx = m.shx
-    @shy = m.shy
-    @tx  = m.tx
-    @ty  = m.ty
-    @
-
-  _initFromPoint: (p) ->
-    @tx = p.x
-    @ty = p.y
-    @
-
-  #*********************************************
-  # </internal use>
-  #*********************************************
+    a[0] = @sx
+    a[1] = @shx
+    a[2] = @tx
+    a[3] = @shy
+    a[4] = @sy
+    a[5] = @ty
+    a
 
   simplify: ->
     # log "simplify new Matrix"
@@ -256,24 +233,22 @@ module.exports = class Matrix extends AtomicBase
   withAngle: (a) -> @rotate a - @angle
 
   # returns new matrix where .s == point a, b
-  withScale: (x, y) ->
-    if x && (typeof x.x is "number")
-      y = x.y
-      x = x.x
+  withScale: (a, b) ->
+    if isNumber a
+      x = a
+      y = if b? then b else x
     else
-      x = 0 unless typeof x is "number"
-      y = x unless typeof y is "number"
+      {x, y} = a
 
     @scale x / @sx, y / @sy
 
   # returns new matrix where .location == point a, b
-  withLocation: (x, y) ->
-    if x && (typeof x.x is "number")
-      y = x.y
-      x = x.x
+  withLocation: (a, b) ->
+    if isNumber a
+      x = a
+      y = if b? then b else x
     else
-      x = 0 unless typeof x is "number"
-      y = x unless typeof y is "number"
+      {x, y} = a
 
     if x == @tx && y == @ty
       @
@@ -288,13 +263,12 @@ module.exports = class Matrix extends AtomicBase
       # log "withLocationXY new Matrix"
       new Matrix @sx, @sy, @shx, @shy, x, y
 
-  translate: (x, y) ->
-    if x && (typeof x.x is "number")
-      y = x.y
-      x = x.x
+  translate: (a, b) ->
+    if isNumber a
+      x = a
+      y = if b? then b else x
     else
-      x = 0 unless typeof x is "number"
-      y = x unless typeof y is "number"
+      {x, y} = a
 
     # log "translateB new Matrix"
     new Matrix @sx, @sy, @shx, @shy, @tx + x, @ty + y
@@ -312,13 +286,12 @@ module.exports = class Matrix extends AtomicBase
     )
 
   # s can be a point or number
-  scale: (x, y) ->
-    if x && (typeof x.x is "number")
-      y = x.y
-      x = x.x
+  scale: (a, b) ->
+    if isNumber a
+      x = a
+      y = if b? then b else x
     else
-      x = 0 unless typeof x is "number"
-      y = x unless typeof y is "number"
+      {x, y} = a
 
     # log "scaleB new Matrix"
     new Matrix(
@@ -330,15 +303,14 @@ module.exports = class Matrix extends AtomicBase
       @ty  * y
     )
 
-  determinantReciprocal: ->
-    1.0 / (@sx * @sy - @shy * @shx)
+  @getter
+    determinantReciprocal: ->
+      1.0 / (@sx * @sy - @shy * @shx)
 
   invert: (into)->
-    unless into
-      # log "invert new Matrix"
-      into = new Matrix
+    into ||= new Matrix
 
-    d = @determinantReciprocal()
+    d = @getDeterminantReciprocal()
     into._setAll(
       d *  @sy
       d *  @sx
@@ -421,7 +393,7 @@ module.exports = class Matrix extends AtomicBase
     unless into
       # log "mul new Matrix"
       into = new Matrix
-    if typeof m == "number"
+    if isNumber m
       into._setAll(
         @sx  * m
         @sy  * m
@@ -490,26 +462,48 @@ module.exports = class Matrix extends AtomicBase
 
   inspectBoth: (pointName) -> "(#{@inspectX pointName}, #{@inspectY pointName})"
 
-  # input options:
-  #   Point
-  #   Rectangle => forwards to @transformBoundingRect
-  #   x = Number, y = Number
-  #   null => x = 0, y = 0
-  transform: (x, y) ->
-    if x && (typeof x.x is "number")
-      y = x.y
-      x = x.x
+  transform1D = (x, y, sx, shx, tx) -> x * sx + y * shx + tx
+
+  ###
+  IN: a: Point or any object where .x and .y are numbers
+  IN: a: x (number; required), b: y (number, default: x)
+  ###
+  transform: (a, b) ->
+    if isNumber a
+      x = a
+      y = if b? then b else x
     else
-      x = 0 unless typeof x is "number"
-      y = x unless typeof y is "number"
+      {x, y} = a
 
     new Point(
-      x * @sx + y * @shx + @tx
-      y * @sy + x * @shy + @ty
+      transform1D x, y, @sx, @shx, @tx
+      transform1D y, x, @sy, @shy, @ty
     )
 
-  transformX:        (x, y) -> x * @sx + y * @shx + @tx
-  transformY:        (x, y) -> y * @sy + x * @shy + @ty
+  transformX:        (x, y) -> transform1D x, y, @sx, @shx, @tx
+  transformY:        (x, y) -> transform1D y, x, @sy, @shy, @ty
+
+  # equivalent to @inv.transform x, y
+  inverseTransform: (a, b) ->
+    if isNumber a
+      x = a
+      y = if b? then b else x
+    else
+      {x, y} = a
+
+    d = @getDeterminantReciprocal()
+    sx  = d *  @sy
+    sy  = d *  @sx
+    shx = d * -@shx
+    shy = d * -@shy
+    tx  = d * (-@tx * @sy  + @ty * @shx)
+    ty  = d * ( @tx * @shy - @ty * @sx )
+
+    new Point(
+      transform1D x, y, sx, shx, tx
+      transform1D y, x, sy, shy, ty
+    )
+
 
   # assumpting the vector is the difference between two points in space: p1.sub p2
   # returns @transform(p1).sub @transform(p2)
@@ -588,3 +582,20 @@ module.exports = class Matrix extends AtomicBase
   @identityMatrix: identityMatrix = new Matrix
   @matrix0: new Matrix 0, 0, 0, 0, 0, 0
   intermediatResultMatrix = new Matrix
+
+  #*********************************************
+  # PRIVATE
+  #*********************************************
+  _initFromMatrix: (m) ->
+    @sx  = m.sx
+    @sy  = m.sy
+    @shx = m.shx
+    @shy = m.shy
+    @tx  = m.tx
+    @ty  = m.ty
+    @
+
+  _initFromPoint: (p) ->
+    @tx = p.x
+    @ty = p.y
+    @

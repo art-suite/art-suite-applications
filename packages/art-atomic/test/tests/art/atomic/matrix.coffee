@@ -1,10 +1,10 @@
 {assert} = require 'art-foundation/src/art/dev_tools/test/art_chai'
 Foundation = require 'art-foundation'
 Atomic = require 'art-atomic'
-{point, rect, matrix, Matrix, identityMatrix} = Atomic
+{point, rect, matrix, Matrix, identityMatrix, Point} = Atomic
 {log, floatEq} = Foundation
 
-suite "Art.Atomic.Matrix", ->
+suite "Art.Atomic.Matrix.basic", ->
   test "0-arg creation", ->
     assert.equal matrix().toString(), '1, 1, 0, 0, 0, 0'
     assert.equal (new Matrix).toString(), '1, 1, 0, 0, 0, 0'
@@ -181,3 +181,18 @@ suite "Art.Atomic.Matrix", ->
     assert.eq m1.interpolate(m2, 0), m1
     assert.eq m1.interpolate(m2, 1), m2
     assert.eq m1.interpolate(m2, .5), new Matrix 2, 3, 3, 4, 5, 6
+
+suite "Art.Atomic.Matrix.inverseTransform", ->
+  testInverseTransform = (matrix) ->
+    test "#{matrix}", ->
+      for k, p of Point.namedPoints
+        assert.eq matrix.inv.transform(p), matrix.inverseTransform(p), "point: #{p}"
+
+  testInverseTransform identityMatrix
+  testInverseTransform Matrix.translate 10
+  testInverseTransform Matrix.translate -10
+  testInverseTransform Matrix.translate 10, -10
+  testInverseTransform Matrix.rotate Math.PI/4
+  testInverseTransform Matrix.scale 10
+  testInverseTransform Matrix.scale 1/10
+  testInverseTransform Matrix.scale(1/10).rotate(Math.PI/4).translate 10, -10
