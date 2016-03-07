@@ -112,7 +112,7 @@ suite "Art.Flux.Core.FluxModel", ->
       assert.eq counts, load: 2, sub1: 1, sub2: 1
       done()
 
-  test "@aliases addes aliases to the model registry", ->
+  test "@aliases adds aliases to the model registry", ->
     reset()
     class User extends FluxModel
       @aliases "owner", "sister"

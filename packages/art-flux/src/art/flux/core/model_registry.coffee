@@ -7,9 +7,11 @@ module.exports = class ModelRegistry extends BaseObject
   @register: (modelClassOrInstance) ->
 
     newSingleton = if isClass modelClassOrInstance
+      console.warn "ModelRegistry.register Class (not instance) is DEPRICATED"
       {_aliases} = modelClassOrInstance
       new modelClassOrInstance
     else
+      {_aliases} = modelClassOrInstance.class
       modelClassOrInstance
 
     _aliases && for alias in _aliases
