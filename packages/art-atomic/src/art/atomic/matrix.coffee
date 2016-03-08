@@ -137,6 +137,10 @@ module.exports = class Matrix extends AtomicBase
       @tx  = e - 0 if e?
       @ty  = f - 0 if f?
 
+  _into: (into, sx, sy, shx, shy, tx, ty) ->
+    into = if into == true then @ else into || new Matrix
+    into._setAll sx, sy, shx, shy, tx, ty
+
   _setAll: (sx, sy, shx, shy, tx, ty) ->
     @sx  = sx
     @sy  = sy
@@ -263,62 +267,59 @@ module.exports = class Matrix extends AtomicBase
       # log "withLocationXY new Matrix"
       new Matrix @sx, @sy, @shx, @shy, x, y
 
-  translate: (a, b) ->
+  ###
+  IN: x:#, y:#, into: t/f
+  IN: a:point, into: t/f
+  ###
+  translate: (a, b, into) ->
     if isNumber a
       x = a
       y = if b? then b else x
     else
       {x, y} = a
 
-    # log "translateB new Matrix"
-    new Matrix @sx, @sy, @shx, @shy, @tx + x, @ty + y
+    @_into into, @sx, @sy, @shx, @shy, @tx + x, @ty + y
 
-  rotate: (radians) ->
+  rotate: (radians, into) ->
     cr   = Math.cos radians
     sr   = Math.sin radians
-    new Matrix(
+    @_into into,
       @sx  * cr - @shy * sr
       @shx * sr + @sy  * cr
       @shx * cr - @sy  * sr
       @sx  * sr + @shy * cr
       @tx  * cr - @ty  * sr
       @tx  * sr + @ty  * cr
-    )
 
   # s can be a point or number
-  scale: (a, b) ->
+  scale: (a, b, into) ->
     if isNumber a
       x = a
       y = if b? then b else x
     else
       {x, y} = a
 
-    # log "scaleB new Matrix"
-    new Matrix(
+    @_into into,
       @sx  * x
       @sy  * y
       @shx * x
       @shy * y
       @tx  * x
       @ty  * y
-    )
 
   @getter
     determinantReciprocal: ->
       1.0 / (@sx * @sy - @shy * @shx)
 
   invert: (into)->
-    into ||= new Matrix
-
     d = @getDeterminantReciprocal()
-    into._setAll(
+    @_into into,
       d *  @sy
       d *  @sx
       d * -@shx
       d * -@shy
       d * (-@tx * @sy  + @ty * @shx)
       d * ( @tx * @shy - @ty * @sx )
-    )
 
   eq: (m) ->
     return true if @ == m
@@ -364,74 +365,59 @@ module.exports = class Matrix extends AtomicBase
     @ty  >= m.ty
 
   add: (m, into) ->
-    unless into
-      # log "add new Matrix"
-      into = new Matrix
-    into._setAll(
+    into = if into == true then @ else into || new Matrix
+
+    @_into into,
       @sx  + m.sx
       @sy  + m.sy
       @shx + m.shx
       @shy + m.shy
       @tx  + m.tx
       @ty  + m.ty
-    )
 
   sub: (m, into) ->
-    unless into
-      # log "sub new Matrix"
-      into = new Matrix
-    into._setAll(
+    @_into into,
       @sx  - m.sx
       @sy  - m.sy
       @shx - m.shx
       @shy - m.shy
       @tx  - m.tx
       @ty  - m.ty
-    )
 
   mul: (m, into) ->
-    unless into
-      # log "mul new Matrix"
-      into = new Matrix
     if isNumber m
-      into._setAll(
+      @_into into,
         @sx  * m
         @sy  * m
         @shx * m
         @shy * m
         @tx  * m
         @ty  * m
-      )
     else
-      into._setAll(
+      @_into into,
         @sx  * m.sx  + @shy * m.shx
         @shx * m.shy + @sy  * m.sy
         @shx * m.sx  + @sy  * m.shx
         @sx  * m.shy + @shy * m.sy
         @tx  * m.sx  + @ty  * m.shx + m.tx
         @tx  * m.shy + @ty  * m.sy  + m.ty
-      )
 
   div: (m, into) ->
-    unless into
-      # log "div new Matrix"
-      into = new Matrix
-    m.invert intermediatResultMatrix
-    @mul intermediatResultMatrix, into
+    multipler = if isNumber m
+      1/m
+    else
+      m.invert intermediatResultMatrix
+    @mul multipler, into
 
-  interpolate: (toMatrix, p) ->
-    unless into
-      # log "interpolate new Matrix"
-      into = new Matrix
+  interpolate: (toMatrix, p, into) ->
     oneMinusP = 1 - p
-    into._setAll(
+    @_into into,
       toMatrix.sx  * p + @sx  * oneMinusP
       toMatrix.sy  * p + @sy  * oneMinusP
       toMatrix.shx * p + @shx * oneMinusP
       toMatrix.shy * p + @shy * oneMinusP
       toMatrix.tx  * p + @tx  * oneMinusP
       toMatrix.ty  * p + @ty  * oneMinusP
-    )
 
   toArray: toArray = -> [@sx, @sy, @shx, @shy, @tx, @ty]
   toPlainStructure: sx:@sx, sy:@sy, shx:@shx, shy:@shy, tx:@tx, ty:@ty

@@ -196,3 +196,31 @@ suite "Art.Atomic.Matrix.inverseTransform", ->
   testInverseTransform Matrix.scale 10
   testInverseTransform Matrix.scale 1/10
   testInverseTransform Matrix.scale(1/10).rotate(Math.PI/4).translate 10, -10
+
+suite "Art.Atomic.Matrix.into", ->
+
+  doChain = (into) ->
+    m = new Matrix
+    n = m.translate 10, 10, into
+    n = n.scale 10, 10, into
+    n = n.rotate 3, into
+    n = n.invert into
+    n = n.add identityMatrix, into
+    n = n.sub identityMatrix, into
+    n = n.mul 1, into
+    n = n.div 1, into
+    first:m, last:n
+
+  test "into = true, i.e. @, returns @", ->
+    {first, last} = doChain true
+    assert.equal first, last
+
+  test "into = false, returns new matrix", ->
+    {first, last} = doChain false
+    assert.notEqual first, last
+
+  test "into = new Matrix, returns passed in matrix", ->
+    into = new Matrix
+    {first, last} = doChain into
+    assert.notEqual first, last
+    assert.equal into, last
