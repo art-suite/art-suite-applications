@@ -79,32 +79,32 @@ module.exports = class Matrix extends AtomicBase
       s.replace(/-1([A-Za-z]+)/g, "-$1").replace(/\ \+ -/g, " - ").replace(/0\./g, ".")
     out
 
-  # constructor: ->
-  #   super
-  #   console.error "new Matrix", arguments
-
-  @translate: (a, b) ->
+  @translate: (a) ->
     if isNumber a
-      x = a
-      y = if b? then b else x
+      x = y = a
     else
       {x, y} = a
 
+    Matrix.translateXY x, y
+
+  @translateXY: (x, y) ->
     if x == 0 && y == 0
       identityMatrix
     else
-      # log "translate new Matrix"
       new Matrix 1, 1, 0, 0, x, y
 
-  @scale: (a, b) ->
-    s = point a, b
-    sx = s.x
-    sy = s.y
+  @scale: (a) ->
+    if isNumber a
+      x = y = a
+    else
+      {x, y} = a
 
+    Matrix.scaleXY x, y
+
+  @scaleXY: (sx, sy) ->
     if sx == 1 && sy == 1
       identityMatrix
     else
-      # log "scale new Matrix"
       new Matrix sx, sy, 0, 0, 0, 0
 
   @rotate: (radians) ->
@@ -268,16 +268,21 @@ module.exports = class Matrix extends AtomicBase
       new Matrix @sx, @sy, @shx, @shy, x, y
 
   ###
-  IN: x:#, y:#, into: t/f
-  IN: a:point, into: t/f
+  IN:
+    amount: point or number
+    into: t/f
   ###
-  translate: (a, b, into) ->
-    if isNumber a
-      x = a
-      y = if b? then b else x
+  translate: (amount, into) ->
+    if isNumber amount
+      x = y = amount
     else
-      {x, y} = a
+      {x, y} = amount
 
+    throw new Error "Illegal second input: number (#{into}). Use translateXY." if isNumber into
+
+    @translateXY x, y, into
+
+  translateXY: (x, y, into) ->
     @_into into, @sx, @sy, @shx, @shy, @tx + x, @ty + y
 
   rotate: (radians, into) ->
@@ -292,13 +297,15 @@ module.exports = class Matrix extends AtomicBase
       @tx  * sr + @ty  * cr
 
   # s can be a point or number
-  scale: (a, b, into) ->
+  scale: (a, into) ->
     if isNumber a
-      x = a
-      y = if b? then b else x
+      x = y = a
     else
       {x, y} = a
 
+    @scaleXY x, y, into
+
+  scaleXY: (x, y, into) ->
     @_into into,
       @sx  * x
       @sy  * y

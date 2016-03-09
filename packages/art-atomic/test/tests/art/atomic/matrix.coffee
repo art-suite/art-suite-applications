@@ -14,7 +14,7 @@ suite "Art.Atomic.Matrix.basic", ->
 
   test "scale is pure functional", ->
     m1 = matrix(1, 2, 3, 4, 5, 6)
-    m2 = m1.scale 10, 100
+    m2 = m1.scaleXY 10, 100
     assert.deepEqual m1, matrix(1,2,3,4,5,6)
 
   test "inspectX", ->
@@ -49,8 +49,8 @@ suite "Art.Atomic.Matrix.basic", ->
     assert.eq matrix(0, 0, 0, 1, 0, -1).inspectY(), "x - 1"
     assert.eq matrix(0, 1, 0, -1, 0, 0).inspectY(), "y - x"
 
-  test "scale", ->
-    assert.deepEqual matrix(1, 2, 3, 4, 5, 6).scale(10, 100), matrix(10, 200, 30, 400, 50, 600)
+  test "scaleXY", ->
+    assert.deepEqual matrix(1, 2, 3, 4, 5, 6).scaleXY(10, 100), matrix(10, 200, 30, 400, 50, 600)
 
   test "rotate is pure functional", ->
     m = matrix()
@@ -62,18 +62,19 @@ suite "Art.Atomic.Matrix.basic", ->
   test "rotate pi",      -> assert.eq Matrix.rotate(Math.PI), matrix(-1, -1, 0, 0, 0, 0)
   test "rotate 3*pi/2",  -> assert.eq Matrix.rotate(3 * Math.PI / 2), matrix(0, 0, 1, -1, 0, 0)
   test "rotate 2*pi",    -> assert.eq Matrix.rotate(2 * Math.PI), identityMatrix
-  test "translate",      -> assert.eq Matrix.translate(2, 3), matrix(1, 1, 0, 0, 2, 3)
-  test "translate by 1,0", -> assert.eq Matrix.translate(1, 0), matrix(1, 1, 0, 0, 1, 0)
-  test "translate by 0,0", -> assert.eq Matrix.translate(0, 0), identityMatrix
+  test "translate",      -> assert.eq Matrix.translateXY(2, 3), matrix(1, 1, 0, 0, 2, 3)
+  test "translate by 1,0", -> assert.eq Matrix.translateXY(1, 0), matrix(1, 1, 0, 0, 1, 0)
+  test "translate by 0,0", -> assert.eq Matrix.translateXY(0, 0), identityMatrix
   test "translate by 0",   -> assert.eq (new Matrix).translate(0), identityMatrix
 
-  test "Matrix.translate vs Matrix.translate (2 floats)", ->
-    assert.eq Matrix.translate(123, 456), Matrix.translate(123, 456)
-    assert.eq Matrix.translate(123, 456), Matrix.translate(point(123, 456))
+  test "Matrix.translate vs Matrix.translateXY", ->
+    assert.eq Matrix.translateXY(123, 456), Matrix.translateXY(123, 456)
+    assert.eq Matrix.translateXY(123, 456), Matrix.translate(point(123, 456))
     assert.eq Matrix.translate(point(123, 456)), Matrix.translate(point(123, 456))
-  test "Matrix.scale vs Matrix.scale", ->
-    assert.eq Matrix.scale(123, 456), Matrix.scale(123, 456)
-    assert.eq Matrix.scale(123, 456), Matrix.scale(point(123, 456))
+
+  test "Matrix.scale vs Matrix.scaleXY", ->
+    assert.eq Matrix.scaleXY(123, 456), Matrix.scaleXY(123, 456)
+    assert.eq Matrix.scaleXY(123, 456), Matrix.scale(point(123, 456))
     assert.eq Matrix.scale(point(123, 456)), Matrix.scale(point(123, 456))
   test "Matrix.rotate vs Matrix.rotate", -> assert.eq Matrix.rotate(1), Matrix.rotate(1)
 
@@ -96,8 +97,8 @@ suite "Art.Atomic.Matrix.basic", ->
     assert.equal "#{m2}", "2, 3, 5, 7, 11, 13"
 
   test "mul", ->
-    m1 = Matrix.scale(2, 3)
-    m2 = Matrix.translate(5, 7)
+    m1 = Matrix.scaleXY(2, 3)
+    m2 = Matrix.translateXY(5, 7)
     m3 = m1.mul(m2)
     assert.equal "#{m3}", "2, 3, 0, 0, 5, 7"
 
@@ -105,27 +106,27 @@ suite "Art.Atomic.Matrix.basic", ->
     assert.equal "#{m3}", "2, 3, 0, 0, 10, 21"
 
   test "invert & mul itself == idenity", ->
-    m = Matrix.scale(2,3)
+    m = Matrix.scaleXY 2,3
     assert.eq identityMatrix, m.inv.mul(m)
 
     m = Matrix.rotate(3*Math.PI/4)
     assert.eq identityMatrix, m.inv.mul(m)
 
-    m = Matrix.translate(7,11)
+    m = Matrix.translateXY(7,11)
     assert.eq identityMatrix, m.inv.mul(m)
 
   test "div by itself == identity", ->
-    m = Matrix.scale(2,3)
+    m = Matrix.scaleXY 2,3
     assert.eq identityMatrix, m.div m
 
     m = Matrix.rotate(3*Math.PI/4)
     assert.eq identityMatrix, m.div m
 
-    m = Matrix.translate(7,11)
+    m = Matrix.translateXY(7,11)
     assert.eq identityMatrix, m.div m
 
   test "transform", ->
-    m = Matrix.translate(5,7).scale(2,3)
+    m = Matrix.translateXY(5,7).scaleXY 2,3
     p = m.transform(2,3)
     assert.eq point("#{p}"), point 14, 30
 
@@ -134,22 +135,22 @@ suite "Art.Atomic.Matrix.basic", ->
     assert.equal "#{m}", "1, 2, 3, 4, 5, 6"
 
   test "transformBoundingRect translation", ->
-    m = Matrix.translate 100, 200
+    m = Matrix.translateXY 100, 200
     r = m.transformBoundingRect rect(10,20,45,50)
     assert.eq r, rect 110, 220, 45, 50
 
   test "transformBoundingRect scale", ->
-    m = Matrix.scale(2).translate 100, 200
+    m = Matrix.scale(2).translateXY 100, 200
     r = m.transformBoundingRect rect(10,20,45,50)
     assert.eq r, rect 120, 240, 90, 100
 
   test "transformBoundingRect rotation", ->
-    m = Matrix.translate(100,100).rotate Math.PI/4
+    m = Matrix.translateXY(100,100).rotate Math.PI/4
     r = m.transformBoundingRect rect(10,10,50,50)
     assert.eq rect("#{r.round()}"), rect -35, 156, 70, 70
 
   test "transformBoundingRect PI rotation", ->
-    m = Matrix.translate(100,100).rotate Math.PI
+    m = Matrix.translateXY(100,100).rotate Math.PI
     r = m.transformBoundingRect rect 10, 10, 50, 50
     assert.eq r.round(), rect -160, -160, 50, 50
 
@@ -168,7 +169,7 @@ suite "Art.Atomic.Matrix.basic", ->
   test "transformVector", ->
     a = point 2, 3
     b = point 5, 7
-    m = Matrix.translate(11, 13).scale(17, 19).rotate(23)
+    m = Matrix.translateXY(11, 13).scaleXY(17, 19).rotate(23)
     ta = m.transform a
     tb = m.transform b
     dControl = ta.sub tb
@@ -191,18 +192,18 @@ suite "Art.Atomic.Matrix.inverseTransform", ->
   testInverseTransform identityMatrix
   testInverseTransform Matrix.translate 10
   testInverseTransform Matrix.translate -10
-  testInverseTransform Matrix.translate 10, -10
+  testInverseTransform Matrix.translateXY 10, -10
   testInverseTransform Matrix.rotate Math.PI/4
   testInverseTransform Matrix.scale 10
   testInverseTransform Matrix.scale 1/10
-  testInverseTransform Matrix.scale(1/10).rotate(Math.PI/4).translate 10, -10
+  testInverseTransform Matrix.scale(1/10).rotate(Math.PI/4).translateXY 10, -10
 
 suite "Art.Atomic.Matrix.into", ->
 
   doChain = (into) ->
     m = new Matrix
-    n = m.translate 10, 10, into
-    n = n.scale 10, 10, into
+    n = m.translate 10, into
+    n = n.scale 10, into
     n = n.rotate 3, into
     n = n.invert into
     n = n.add identityMatrix, into
