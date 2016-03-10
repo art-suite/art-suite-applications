@@ -4,13 +4,14 @@
   "description": "art-react-demos",
   "main": "index.coffee",
   "dependencies": {
-    "art-react": "git://github.com/Imikimi-LLC/art-react-git"
+    "art-react": "git://github.com/Imikimi-LLC/art-react"
   },
   "devDependencies": {
   },
   "scripts": {
+    "hot": "webpack-dev-server --hot --inline --progress",
     "dev": "webpack-dev-server -d --progress",
-    "hot": "webpack-dev-server --hot --inline --progress"
+    "test": "webpack-dev-server -d --progress"
   },
   "author": "Shane Brinkman-Davis Delamore",
   "license": "MIT"
