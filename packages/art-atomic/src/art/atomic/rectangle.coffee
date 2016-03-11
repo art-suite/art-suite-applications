@@ -52,7 +52,7 @@ module.exports = class Rectangle extends AtomicBase
     clone: ->
       new Rectangle @x, @y, @w, @h
     location: -> new Point @x, @y
-    locationMatrix: -> Atomic.Matrix.translate @x, @y
+    locationMatrix: -> Atomic.Matrix.translateXY @x, @y
     size: -> new Point @w, @h
     # x: -> @x
     # y: -> @y

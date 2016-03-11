@@ -79,7 +79,8 @@ module.exports = class Matrix extends AtomicBase
       s.replace(/-1([A-Za-z]+)/g, "-$1").replace(/\ \+ -/g, " - ").replace(/0\./g, ".")
     out
 
-  @translate: (a) ->
+  @translate: (a, b) ->
+    throw new Error "Matrix.translate no longer accepts two numbers. Use translateXY" if isNumber b
     if isNumber a
       x = y = a
     else
