@@ -3,8 +3,8 @@
 
 module.exports =
 React        = require './namespace'
-React.Demos  = require './demos'
 React.Loader = require './loader'
+React.Demos  = require './demos'
 React.finishLoad(
   ["Loader"]
 )
