@@ -13,11 +13,11 @@ require './models'
 } = Foundation
 
 {point} = Atomic
-{Element, Rectangle, TextElement, Outline, Fill, PagingScrollElement, Component, createComponentFactory} = React
+{Element, RectangleElement, TextElement, OutlineElement, FillElement, PagingScrollElement, Component, createComponentFactory} = React
 {FluxComponent, createFluxComponentFactory} = Flux
 
-StyleProps =
-  numberStyle:
+class StyleProps
+  @numberStyle:
     fontFamily: "arial"
     fontWeight: "bold"
     fontSize: 20
@@ -25,20 +25,19 @@ StyleProps =
     size: cs: 1
     axis: .5
 
-backgroundColor = "#eee"
-colorMap=
-  red:    "#E42030"
-  green:  "#25B650"
-  yellow: "#ff4"
-  blue:   "#22489F"
-  grey: backgroundColor
+  @colorMap:
+    red:    "#E42030"
+    green:  "#25B650"
+    yellow: "#ff4"
+    blue:   "#22489F"
+    grey: @backgroundColor = "#eee"
 
-textColorMap=
-  red:    "#E42030"
-  green:  "#25B650"
-  yellow: "#cc2"
-  blue:   "#22489F"
-  grey:   "#ccc"
+  @textColorMap:
+    red:    "#E42030"
+    green:  "#25B650"
+    yellow: "#cc2"
+    blue:   "#22489F"
+    grey:   "#ccc"
 
 boardNums =
   red:    [2,3,4,5,6,7,8,9,10,11,12,"L"]
@@ -52,7 +51,7 @@ colors = Object.keys boardNums
 ColorCheckBox = createFluxComponentFactory
   toggleCheckbox: ->
     @models.quixx.toggleCheckbox @props.color, @props.index
-    # @props.boardComponent.toggleCheckbox @props.color, @props.index
+
   module: module
 
   render: ->
@@ -62,7 +61,7 @@ ColorCheckBox = createFluxComponentFactory
       cursor: "pointer"
       on: pointerClick: @toggleCheckbox
 
-      Rectangle
+      RectangleElement
 
         radius: if @props.text != "L" then 5 else 1000
         color: "white"
@@ -77,14 +76,14 @@ ColorCheckBox = createFluxComponentFactory
           removedAnimation: duration: .25, f: "easeInQuad", to: opacity: 0
           fontFamily: "arial"
           text: "╳"
-          color: textColorMap[@props.color]
+          color: StyleProps.textColorMap[@props.color]
           layoutMode: "tight"
           fontSize: 38
 
       TextElement StyleProps.numberStyle,
         angle: if @props.text != "L" then 0 else Math.PI/12
         text: @props.text
-        color: textColorMap[@props.color]
+        color: StyleProps.textColorMap[@props.color]
 
 ColorRow = createFluxComponentFactory
   module: module
@@ -96,7 +95,7 @@ ColorRow = createFluxComponentFactory
       size: ww:1, hch:1
       padding: 2
 
-      Rectangle color: colorMap[color], inFlow: false
+      RectangleElement color: StyleProps.colorMap[color], inFlow: false
 
       if color != "grey"
         TextElement
@@ -108,8 +107,8 @@ ColorRow = createFluxComponentFactory
           layoutMode: "tight"
           inFlow: false
           color: "black"
-          Outline color: backgroundColor, lineWidth:3
-          Fill()
+          OutlineElement color: StyleProps.backgroundColor, lineWidth:3
+          FillElement()
 
       Element
         location: xw:.5
@@ -120,7 +119,7 @@ ColorRow = createFluxComponentFactory
         padding: 4
         childrenLayout: "flow"
 
-        Rectangle
+        RectangleElement
           radius: 7
           padding: -1
 
@@ -166,17 +165,17 @@ ColorScore = createComponentFactory class ColorScore extends Component
       size: w: @props.width || 45, h:35
       margin: 7
 
-      Rectangle
+      RectangleElement
 
         radius: 10
-        Fill color: "white"
-        Outline
+        FillElement color: "white"
+        OutlineElement
           lineWidth: 4
-          color: textColorMap[@props.color] || @props.color
+          color: StyleProps.textColorMap[@props.color] || @props.color
 
       TextElement StyleProps.numberStyle,
         text: @state.score
-        color: textColorMap[@props.color] || @props.color
+        color: StyleProps.textColorMap[@props.color] || @props.color
 
 Logo = createComponentFactory
   module: module
@@ -185,7 +184,7 @@ Logo = createComponentFactory
       key: "logo"
       size: ww:1, h: 80
 
-      Rectangle colors: ["#002", "#369"], to: point 0, 1
+      RectangleElement colors: ["#002", "#369"], to: point 0, 1
 
       TextElement
         text: "Qwixx"
@@ -195,12 +194,12 @@ Logo = createComponentFactory
         fontWeight: "bold"
         fontFamily: "Chewy"
         fontSize: 48
-        Fill()
-        Outline
+        FillElement()
+        OutlineElement
           color: "#0247"
           lineWidth: 3
           compositeMode: "destover"
-        Outline
+        OutlineElement
           lineJoin: "round"
           color: "#48ca"
           lineWidth: 5
@@ -216,7 +215,7 @@ module.exports = createComponentFactory class Quixx extends FluxComponent
     {board, subScores, score} = @state
 
     Element null,
-      Rectangle color: backgroundColor, inFlow: false
+      RectangleElement color: StyleProps.backgroundColor, inFlow: false
 
       PagingScrollElement null,
 
@@ -243,7 +242,7 @@ module.exports = createComponentFactory class Quixx extends FluxComponent
             size: ww:1, hch:1
             childrenLayout: "flow"
 
-            Rectangle color: "#999", inFlow: false
+            RectangleElement color: "#999", inFlow: false
 
             Element
               size: ww:1, hch:1
@@ -257,7 +256,6 @@ module.exports = createComponentFactory class Quixx extends FluxComponent
                     color: "#777"
                     fontFamily: "Arial"
                     fontSize: 28
-                    Fill()
                 ]
               ColorScore width: 100, color: "black", score: score
 
@@ -268,9 +266,8 @@ module.exports = createComponentFactory class Quixx extends FluxComponent
             cursor: "pointer"
             on: pointerClick: @reset
 
-            Rectangle color: textColorMap["grey"], radius: 5
+            RectangleElement color: StyleProps.textColorMap.grey, radius: 5
 
             TextElement StyleProps.numberStyle,
               text: "reset"
-              color: colorMap["grey"]
-
+              color: StyleProps.colorMap.grey
