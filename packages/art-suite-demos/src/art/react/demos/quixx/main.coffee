@@ -72,8 +72,8 @@ ColorCheckBox = createFluxComponentFactory
           location: ps:.5
           size: cs:1
           axis: .5
-          addedAnimation:   duration: .25, f: "easeInQuad", from: opacity: 0
-          removedAnimation: duration: .25, f: "easeInQuad", to: opacity: 0
+          addedAnimation: from: opacity: 0
+          removedAnimation: to: opacity: 0
           fontFamily: "arial"
           text: "╳"
           color: StyleProps.textColorMap[@props.color]
@@ -115,7 +115,7 @@ ColorRow = createFluxComponentFactory
         size:
           hch:1
           w: (ps, cs) -> min ps.w, cs.w
-        axis: point .5, 0
+        axis: "topCenter"
         padding: 4
         childrenLayout: "flow"
 
@@ -136,6 +136,7 @@ ColorRow = createFluxComponentFactory
               checked: @props.checks[i]
               text: nums[i]
               boardComponent: @props.boardComponent
+
         Element
           size: cs: 1
           childrenLayout: "flow"
@@ -230,7 +231,7 @@ module.exports = createComponentFactory class Quixx extends FluxComponent
             key: "board"
             size: ww:1, hch:1
             padding: 10
-            childrenLayout: "flow"
+            childrenLayout: "column"
             for c, nums of board
               ColorRow
                 checks: board[c]
