@@ -1,8 +1,12 @@
 {log} = require 'art-foundation'
 {Element, RectangleElement, Component, createComponentFactory, TextElement} = require 'art-react'
+{FluxComponent} = require 'art-flux'
 
-module.exports = createComponentFactory class ColorPicker1D extends Component
+module.exports = createComponentFactory class ColorPicker1D extends FluxComponent
   module: module
+  @subscriptions "currentColor.color",
+    currentColor: ({channel}) -> channel
+
   constructor: ->
     super
     @handlers =
@@ -17,20 +21,23 @@ module.exports = createComponentFactory class ColorPicker1D extends Component
 
   @getter
     colors: ->
-      {color, channel} = @props
+      {label} = @props
+      {color} = @state
 
-      if channel == "h"
+      if label == "hue"
         color.withHue(h) for h in [0..1] by 1/6
       else
-        [color.withChannel(channel, 0), color.withChannel(channel, 1)]
+        [color.withChannel(label, 0), color.withChannel(label, 1)]
 
   setPosFromPixels: (pixels) ->
-    {setChannel, channel} = @props
+    {channel} = @props
     {currentWidth} = @state
-    setChannel channel, pixels / currentWidth
+    @models.currentColor.setChannel channel, pixels / currentWidth
 
   render: ->
-    {value, channel, fgColor, label} = @props
+    {channel, label} = @props
+    value = @state.currentColor
+
     keyPrefix = "ColorPicker1D_#{channel}_"
     Element
       on: @handlers
@@ -55,7 +62,7 @@ module.exports = createComponentFactory class ColorPicker1D extends Component
           layoutMode: "tight"
           key: "#{keyPrefix}handle"
           location: yh:.5
-          animate: to: location: xw: value, yh:.5
+          animate: duration: .1, to: location: xw: value, yh:.5
           axis: .5
 
         TextElement

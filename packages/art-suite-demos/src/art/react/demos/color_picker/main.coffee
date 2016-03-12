@@ -1,1 +1,2 @@
-module.exports = require "./color_picker"
+module.exports = require "./models"
+module.exports = require "./components/color_picker"

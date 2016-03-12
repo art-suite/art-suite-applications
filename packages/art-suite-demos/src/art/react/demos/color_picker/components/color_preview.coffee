@@ -1,10 +1,14 @@
 {log} = require 'art-foundation'
 {Element, RectangleElement, TextElement, Component, createComponentFactory} = require 'art-react'
+{FluxComponent} = require 'art-flux'
 
-module.exports = createComponentFactory class ColorPreview extends Component
+module.exports = createComponentFactory class ColorPreview extends FluxComponent
+  subscriptions: "currentColor.color"
   module: module
   render: ->
-    {color, fgColor} = @props
+    {color} = @state
+    fgColor = if color.perceptualLightness < .9 then "white" else "#0007"
+
     Element
       size: hch:1, ww:1
       childrenLayout: "row"

@@ -1,10 +1,10 @@
 Foundation = require 'art-foundation'
 Flux = require 'art-flux'
 
-{log, createWithPostCreate, shallowClone, timeout} = Foundation
+{log, createHotWithPostCreate, shallowClone, timeout} = Foundation
 {ApplicationState} = Flux
 
-createWithPostCreate class CurrentTime extends ApplicationState
+createHotWithPostCreate module, class CurrentTime extends ApplicationState
   @stateFields
     second: 0
     minute: 0
