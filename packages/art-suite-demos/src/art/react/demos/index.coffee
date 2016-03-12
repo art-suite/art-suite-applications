@@ -8,6 +8,7 @@ Demos.Buttons             = require './buttons'
 Demos.ColorPicker         = require './color_picker'
 Demos.HotBasic            = require './hot_basic'
 Demos.PagingScrollElement = require './paging_scroll_element'
+Demos.Quixx               = require './quixx'
 Demos.finishLoad(
   []
 )
