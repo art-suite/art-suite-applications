@@ -8,7 +8,7 @@ ColorPicker1d = require './color_picker_1d'
 } = require 'art-react'
 
 module.exports = createComponentFactory class ColorPicker extends Component
-  @hotModule: module
+  module: module
 
   # we maintain both the color and the individual channels
   # so we don't lose information in degenerate cases (like saturation or lightness == 0 or 1)
@@ -41,9 +41,9 @@ module.exports = createComponentFactory class ColorPicker extends Component
         padding: 10
         childrenLayout: "column"
         ColorPreview  fgColor: fgColor, color: clr
-        ColorPicker1d fgColor: fgColor, color: clr, value: @state.r, channel: "r", setChannel: @setChannel
-        ColorPicker1d fgColor: fgColor, color: clr, value: @state.g, channel: "g", setChannel: @setChannel
-        ColorPicker1d fgColor: fgColor, color: clr, value: @state.b, channel: "b", setChannel: @setChannel
-        ColorPicker1d fgColor: fgColor, color: clr, value: @state.h, channel: "h", setChannel: @setChannel
-        ColorPicker1d fgColor: fgColor, color: clr, value: @state.s, channel: "s", setChannel: @setChannel
-        ColorPicker1d fgColor: fgColor, color: clr, value: @state.l, channel: "l", setChannel: @setChannel
+        ColorPicker1d fgColor: fgColor, color: clr, value: @state.r, channel: "r", label: "red", setChannel: @setChannel
+        ColorPicker1d fgColor: fgColor, color: clr, value: @state.g, channel: "g", label: "green", setChannel: @setChannel
+        ColorPicker1d fgColor: fgColor, color: clr, value: @state.b, channel: "b", label: "blue", setChannel: @setChannel
+        ColorPicker1d fgColor: fgColor, color: clr, value: @state.h, channel: "h", label: "hue", setChannel: @setChannel
+        ColorPicker1d fgColor: fgColor, color: clr, value: @state.s, channel: "s", label: "saturation", setChannel: @setChannel
+        ColorPicker1d fgColor: fgColor, color: clr, value: @state.l, channel: "l", label: "lightness", setChannel: @setChannel

@@ -2,7 +2,7 @@
 {Element, RectangleElement, TextElement, Component, createComponentFactory} = require 'art-react'
 
 module.exports = createComponentFactory class ColorPreview extends Component
-  @hotModule: module
+  module: module
   render: ->
     {color, fgColor} = @props
     Element

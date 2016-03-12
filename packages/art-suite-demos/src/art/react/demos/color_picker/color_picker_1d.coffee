@@ -1,8 +1,8 @@
 {log} = require 'art-foundation'
-{Element, RectangleElement, Component, createComponentFactory} = require 'art-react'
+{Element, RectangleElement, Component, createComponentFactory, TextElement} = require 'art-react'
 
 module.exports = createComponentFactory class ColorPicker1D extends Component
-  @hotModule: module
+  module: module
   constructor: ->
     super
     @handlers =
@@ -30,18 +30,48 @@ module.exports = createComponentFactory class ColorPicker1D extends Component
     setChannel channel, pixels / currentWidth
 
   render: ->
-    {value, channel, fgColor} = @props
+    {value, channel, fgColor, label} = @props
     keyPrefix = "ColorPicker1D_#{channel}_"
     Element
       on: @handlers
-      size: wpw:1, h:55
+      size: wpw:1, h:46
       margin: 10
-      clip: true
-      RectangleElement key: "#{keyPrefix}background", to: "topRight", colors: @colors
+      childrenLayout: "column"
       RectangleElement
-        key: "#{keyPrefix}handle"
-        location: xpw: value, yph:.5
-        size: 20
-        axis: .5
-        radius: 100
-        color: fgColor
+        size: ww:1, h: 23
+        key: "#{keyPrefix}background"
+        to: "topRight"
+        colors: @colors
+
+      Element
+        size: ww:1, h: 23
+        RectangleElement color: "#eee"
+        clip: true
+
+        TextElement
+          text: "▲"
+          color: "#999"
+          fontSize: 20
+          layoutMode: "tight"
+          key: "#{keyPrefix}handle"
+          location: yh:.5
+          animate: to: location: xw: value, yh:.5
+          axis: .5
+
+        TextElement
+          fontFamily: "sans-serif"
+          text: label
+          size: hh:1, wcw:1
+          padding: h:4
+          align: "centerLeft"
+          color: "#777"
+
+        TextElement
+          axis: "topRight"
+          location: xw: 1
+          fontFamily: "sans-serif"
+          text: "#{value * 100 | 0}%"
+          size: hh:1, wcw:1
+          padding: h:4
+          align: "centerLeft"
+          color: "#777"

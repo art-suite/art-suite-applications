@@ -15,7 +15,7 @@ textProps =
   color: "#fffc"
 
 Button1 = createComponentFactory
-  hotModule: module
+  module: module
 
   showWillActivate: -> @setState willActivate: true
   showWontActivate: -> @setState willActivate: false
@@ -74,7 +74,7 @@ Button1 = createComponentFactory
           text: "Button #{capitalize mode}"
 
 module.exports = createComponentFactory class MyComponent extends Component
-  hotModule: module
+  module: module
 
   render: ->
 
