@@ -4,7 +4,7 @@
   Component
   CanvasElement
   Element
-  Rectangle
+  RectangleElement
   TextElement
   arrayWithout
 } = require "art-react"
@@ -66,7 +66,7 @@ Button1 = createComponentFactory
                     scale: if willActivate then point .25, 1 else 1
                   else
                     angle: if willActivate then Math.PI/12 else 0
-        Rectangle color: clr, shadow: color: "#0007", blur: 20, offsetY:5
+        RectangleElement color: clr, shadow: color: "#0007", blur: 20, offsetY:5
         TextElement textProps,
           axis: .5
           location: ps:.5
@@ -81,7 +81,7 @@ module.exports = createComponentFactory class MyComponent extends Component
     Element
       childrenLayout: "flow"
       padding: 10
-      Rectangle inFlow: false, color: "#ddd", padding: -10
+      RectangleElement inFlow: false, color: "#ddd", padding: -10
 
       Button1 mode: "angle",      clr: hslColor 3/5, .66, .6
       Button1 mode: "spin",       clr: hslColor 7/10, .66, .6

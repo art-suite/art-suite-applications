@@ -9,7 +9,7 @@ Atomic = require 'art-atomic'
   Component, createComponentFactory, createAndInstantiateTopComponent
   CanvasElement
   Element
-  Rectangle
+  RectangleElement
   PagingScrollElement
   TextElement
 } = React
@@ -59,12 +59,12 @@ Engine.FullScreenApp.init()
           size: ww:1, h:50
           childrenLayout: "row"
           childrenAlignment: "centerLeft"
-          Rectangle inFlow: false, color: "#333", padding: -10
+          RectangleElement inFlow: false, color: "#333", padding: -10
           padding: 10
           selectedDemo &&
             Element
               size: cs: 1
-              Rectangle color: "#555", radius: 5
+              RectangleElement color: "#555", radius: 5
               on: pointerClick: @deselectDemo
               TextElement
                 color:    "#fffc"
@@ -97,7 +97,7 @@ Engine.FullScreenApp.init()
               childrenLayout: "column"
               addedAnimation: from: axis: "topRight"
               removedAnimation: to: axis: "topRight"
-              Rectangle inFlow: false, color: "#eee"
+              RectangleElement inFlow: false, color: "#eee"
               for demo in Demos.namespaces
                 DemoButton name:demo.name, selectDemo:@selectDemo
 

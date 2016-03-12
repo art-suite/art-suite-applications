@@ -4,7 +4,7 @@ ColorPreview = require './color_preview'
 ColorPicker1d = require './color_picker_1d'
 {
   Component, createComponentFactory
-  Element, Rectangle, TextElement, Outline, CanvasElement
+  Element, RectangleElement, TextElement, OutlineElement, CanvasElement
 } = require 'art-react'
 
 module.exports = createComponentFactory class ColorPicker extends Component
@@ -35,7 +35,7 @@ module.exports = createComponentFactory class ColorPicker extends Component
     clr = @state.color
     fgColor = if clr.perceptualLightness < .9 then "white" else "#0007"
     Element null,
-      Rectangle color: "white"
+      RectangleElement color: "white"
 
       Element
         padding: 10

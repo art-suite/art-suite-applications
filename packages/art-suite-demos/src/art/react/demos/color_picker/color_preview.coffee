@@ -1,5 +1,5 @@
 {log} = require 'art-foundation'
-{Element, Rectangle, TextElement, Component, createComponentFactory} = require 'art-react'
+{Element, RectangleElement, TextElement, Component, createComponentFactory} = require 'art-react'
 
 module.exports = createComponentFactory class ColorPreview extends Component
   @hotModule: module
@@ -11,7 +11,7 @@ module.exports = createComponentFactory class ColorPreview extends Component
       childrenAlignment: "center"
       Element
         size: wcw:1, hch:1
-        Rectangle inFlow: false, key:"ColorPreview_background", radius: 100, color: color
+        RectangleElement inFlow: false, key:"ColorPreview_background", radius: 100, color: color
         TextElement
           padding: 20
           size: wcw:1, hch:1

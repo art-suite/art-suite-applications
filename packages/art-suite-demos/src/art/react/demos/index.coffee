@@ -5,6 +5,7 @@ module.exports =
 Demos                     = require './namespace'
 Demos.Basic               = require './basic'
 Demos.Buttons             = require './buttons'
+Demos.Clock               = require './clock'
 Demos.ColorPicker         = require './color_picker'
 Demos.HotBasic            = require './hot_basic'
 Demos.PagingScrollElement = require './paging_scroll_element'

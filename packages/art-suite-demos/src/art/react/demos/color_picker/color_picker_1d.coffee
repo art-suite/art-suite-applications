@@ -1,5 +1,5 @@
 {log} = require 'art-foundation'
-{Element, Rectangle, Component, createComponentFactory} = require 'art-react'
+{Element, RectangleElement, Component, createComponentFactory} = require 'art-react'
 
 module.exports = createComponentFactory class ColorPicker1D extends Component
   @hotModule: module
@@ -37,8 +37,8 @@ module.exports = createComponentFactory class ColorPicker1D extends Component
       size: wpw:1, h:55
       margin: 10
       clip: true
-      Rectangle key: "#{keyPrefix}background", to: "topRight", colors: @colors
-      Rectangle
+      RectangleElement key: "#{keyPrefix}background", to: "topRight", colors: @colors
+      RectangleElement
         key: "#{keyPrefix}handle"
         location: xpw: value, yph:.5
         size: 20

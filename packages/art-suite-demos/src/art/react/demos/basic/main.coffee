@@ -4,7 +4,7 @@
   Component
   CanvasElement
   Element
-  Rectangle
+  RectangleElement
   TextElement
   arrayWithout
 } = require "art-react"
@@ -27,7 +27,7 @@ module.exports = createComponentFactory class MyComponent extends Component
         pointerDown: @toggle
         pointerUp:   @toggle
 
-      Rectangle color: "pink", animate: to: color: clr
+      RectangleElement color: "pink", animate: to: color: clr
 
       TextElement
         key: text

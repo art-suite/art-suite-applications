@@ -4,7 +4,7 @@
   Component, createComponentFactory, createAndInstantiateTopComponent
   CanvasElement
   Element
-  Rectangle
+  RectangleElement
   PagingScrollElement
   TextElement
 } = require 'art-react'
@@ -25,7 +25,7 @@ ColorElement = createComponentFactory
       key:      key
       on:       pointerClick: @click
 
-      Rectangle color: hslColor hue, 1, 1
+      RectangleElement color: hslColor hue, 1, 1
       TextElement
         location: ps: .5
         axis:     .5
@@ -63,6 +63,6 @@ module.exports = createComponentFactory
   render: ->
     Element null,
 
-      Rectangle color: "#333"
+      RectangleElement color: "#333"
 
       ColorScrollerContents()
