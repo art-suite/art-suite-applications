@@ -14,6 +14,18 @@ createHotWithPostCreate module, class CurrentTime extends ApplicationState
   @getter
     total: -> @second + @minute * 60 + @hour * 3600
 
+  _update: ->
+    d = new Date
+    second = d.getSeconds() | 0
+    if second < @second
+      @minute++
+      if @minute >= 60
+        @minute = 0
+        @hour++
+    @second = second
+
+    timeout 1000, => @_update()
+
   constructor: ->
     super
     d = new Date
@@ -21,15 +33,4 @@ createHotWithPostCreate module, class CurrentTime extends ApplicationState
     @minute = d.getMinutes() | 0
     @hour = d.getHours() | 0
 
-    update = =>
-      d = new Date
-      second = d.getSeconds() | 0
-      if second < @second
-        @minute++
-        if @minute >= 60
-          @minute = 0
-          @hour++
-      @second = second
-
-      timeout 100, update
-    update()
+    @_update()

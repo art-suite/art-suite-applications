@@ -21,13 +21,13 @@ module.exports = createComponentFactory class ColorPicker1D extends FluxComponen
 
   @getter
     colors: ->
-      {label} = @props
+      {channel} = @props
       {color} = @state
 
-      if label == "hue"
+      if channel == "h"
         color.withHue(h) for h in [0..1] by 1/6
       else
-        [color.withChannel(label, 0), color.withChannel(label, 1)]
+        [color.withChannel(channel, 0), color.withChannel(channel, 1)]
 
   setPosFromPixels: (pixels) ->
     {channel} = @props

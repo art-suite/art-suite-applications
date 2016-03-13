@@ -28,3 +28,14 @@ createHotWithPostCreate module, class CurrentColor extends ApplicationState
     toSet[channel] = v
 
     @setState toSet
+
+  setColor: (color) ->
+    @setState
+      color: color
+      r: color.r
+      g: color.g
+      b: color.b
+      h: color.h
+      s: color.s
+      l: color.l
+
