@@ -336,17 +336,18 @@ module.exports = class Color extends AtomicBase
   withAlpha: (a) -> new Color @r, @g, @b, a
   withLightness: (v) -> hslColor @h, @s, v, @a
   withHue: (v) -> hslColor v, @s, @l, @a
-  withSat: (v) -> hslColor @h, v, @l, @a
+  withSat: withSat = (v) -> hslColor @h, v, @l, @a
+  withSaturation: withSat
 
   withChannel: (c, v) ->
     switch c
-      when "r" then new Color v, @g, @b, @a
-      when "g" then new Color @r, v, @b, @a
-      when "b" then new Color @r, @g, v, @a
-      when "h" then hslColor v, @s, @l, @a
-      when "s" then hslColor @h, v, @l, @a
-      when "l" then @withLightness v
-      when "a" then @withAlpha v
+      when "r", "red" then new Color v, @g, @b, @a
+      when "g", "green" then new Color @r, v, @b, @a
+      when "b", "blue" then new Color @r, @g, v, @a
+      when "h", "hue" then hslColor v, @s, @l, @a
+      when "s", "sat", "saturation" then hslColor @h, v, @l, @a
+      when "l", "lightness" then @withLightness v
+      when "a", "alpha" then @withAlpha v
       else throw new Error "invalid channel: #{inspect c}"
 
   withChannels: (c) ->
