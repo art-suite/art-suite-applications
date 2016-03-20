@@ -9,6 +9,7 @@ Demos.Clock               = require './clock'
 Demos.ColorPicker         = require './color_picker'
 Demos.HotBasic            = require './hot_basic'
 Demos.PagingScrollElement = require './paging_scroll_element'
+Demos.Physics             = require './physics'
 Demos.Quixx               = require './quixx'
 Demos.finishLoad(
   []
