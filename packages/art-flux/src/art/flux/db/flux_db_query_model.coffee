@@ -34,6 +34,6 @@ define [
 
       @_singlesModel = singlesModel
       @_parameterizedField = parameterizedField
-      @keyFromData = options.keyFromData || eval "(function(data) {return data['#{parameterizedField}'];})"
+      @keyFromData = options.keyFromData || options.toFluxKey || eval "(function(data) {return data['#{parameterizedField}'];})"
       @_options = options # used by derivative children
       @toFluxKey = options.toFluxKey if options.toFluxKey
