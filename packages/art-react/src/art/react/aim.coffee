@@ -16,7 +16,7 @@ elementClassNames = "
   BitmapElement
   BlurElement
   CanvasElement
-  CustomShapeElement
+  ShapeElement
   Element
   FillElement
   OutlineElement
