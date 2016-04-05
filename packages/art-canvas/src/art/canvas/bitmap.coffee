@@ -161,6 +161,8 @@ module.exports = class Bitmap extends BitmapBase
       @_setFillStyle clr
       @_context.fillRect 0, 0, @size.x, @size.y
 
+    @
+
   #####################
   # STROKES
   #####################
