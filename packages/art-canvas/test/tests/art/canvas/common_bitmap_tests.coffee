@@ -447,7 +447,7 @@ define [
         matrix(), rect 0, 0, 16 - 10, 16 - 8
 
       testStretch "drawStretchedBorderBitmap Matrix.translate 10",
-        Matrix.translate(10, 10), rect 0, 0, 16, 16
+        Matrix.translateXY(10, 10), rect 0, 0, 16, 16
 
       testStretch "drawStretchedBorderBitmap Matrix.scale 2",
         Matrix.scale(2), rect 0, 0, 16, 16

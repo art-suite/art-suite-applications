@@ -190,7 +190,7 @@ define [
         ]
 
       test "strokeRectangle pixelSnap=true lineWidth:1, scale:1.5,1", ->
-        bitmap = renderStrokeRectangleWithSnap Matrix.scale(1.5,1), rect(.5, 1, 3, 4), color:"red", lineWidth:1, lineJoin:"miter"
+        bitmap = renderStrokeRectangleWithSnap Matrix.scale(1.5, 1), rect(.5, 1, 3, 4), color:"red", lineWidth:1, lineJoin:"miter"
         assert.eq reducedRange(bitmap.getImageDataArray("red")), [
           0, 0, 0, 0, 0, 0
           0, 8, 8, 8, 8, 0

@@ -242,12 +242,12 @@ define [
     ################################
     hFlipped: ->
       result = @newBitmap @size
-      result.drawBitmap Matrix.translate(-@size.x/2,0).scale(-1,1).translate(@size.x/2,0), @
+      result.drawBitmap Matrix.translateXY(-@size.x/2,0).scale(-1,1).translateXY(@size.x/2,0), @
       result
 
     vFlipped: ->
       result = @newBitmap @size
-      result.drawBitmap Matrix.translate(0,-@size.y/2).scale(1,-1).translate(0,@size.y/2), @
+      result.drawBitmap Matrix.translateXY(0,-@size.y/2).scale(1,-1).translateXY(0,@size.y/2), @
       result
 
     ################################
@@ -421,25 +421,25 @@ define [
 
       # corners
       unless topLeft
-        m = Matrix.scale(sourceLeftScale, sourceTopScale).translate(targetAreaLeft, targetAreaTop)
+        m = Matrix.scale(sourceLeftScale, sourceTopScale).translateXY(targetAreaLeft, targetAreaTop)
         options.sourceArea = rect 0, 0, sourceLeftWidth, sourceTopHeight
         # log topLeft: sourceArea:options.sourceArea, matrix:m
         @drawBitmap m, bitmap, options
 
       unless topRight
-        m = Matrix.scale(sourceRightScale, sourceTopScale).translate(targetCenterAreaRight, targetAreaTop)
+        m = Matrix.scale(sourceRightScale, sourceTopScale).translateXY(targetCenterAreaRight, targetAreaTop)
         options.sourceArea = rect sourceCenterAreaRight, 0, sourceRightWidth, sourceTopHeight
         # log topRight: sourceArea:options.sourceArea, matrix:m
         @drawBitmap m, bitmap, options
 
       unless bottomLeft
-        m = Matrix.scale(sourceLeftScale, sourceBottomScale).translate(targetAreaLeft, targetCenterAreaBottom)
+        m = Matrix.scale(sourceLeftScale, sourceBottomScale).translateXY(targetAreaLeft, targetCenterAreaBottom)
         options.sourceArea = rect 0, sourceCenterAreaBottom, sourceLeftWidth, sourceBottomHeight
         # log bottomLeft: sourceArea:options.sourceArea, matrix:m
         @drawBitmap m, bitmap, options
 
       unless bottomRight
-        m = Matrix.scale(sourceRightScale, sourceBottomScale).translate(targetCenterAreaRight, targetCenterAreaBottom)
+        m = Matrix.scale(sourceRightScale, sourceBottomScale).translateXY(targetCenterAreaRight, targetCenterAreaBottom)
         options.sourceArea = rect sourceCenterAreaRight, sourceCenterAreaBottom, sourceRightWidth, sourceBottomHeight
         # log bottomRight: sourceArea:options.sourceArea, matrix:m
         @drawBitmap m, bitmap, options
@@ -447,28 +447,28 @@ define [
       # horizontal row (including center)
       if targetCenterAreaHeight > 0
         unless centerLeft
-          m = Matrix.scale(sourceLeftScale, sourceCenterHeightScale).translate(targetAreaLeft, targetCenterAreaTop)
+          m = Matrix.scale(sourceLeftScale, sourceCenterHeightScale).translateXY(targetAreaLeft, targetCenterAreaTop)
           options.sourceArea = rect 0, sourceTopHeight, sourceLeftWidth, sourceCenterAreaHeight
           @drawBitmap m, bitmap, options
 
         unless centerCenter || targetCenterAreaWidth <= 0
-          m = Matrix.scale(sourceCenterWidthScale, sourceCenterHeightScale).translate(targetCenterAreaLeft, targetCenterAreaTop)
+          m = Matrix.scale(sourceCenterWidthScale, sourceCenterHeightScale).translateXY(targetCenterAreaLeft, targetCenterAreaTop)
           options.sourceArea = rect sourceCenterAreaLeft, sourceCenterAreaTop, sourceCenterAreaWidth, sourceCenterAreaHeight
           @drawBitmap m, bitmap, options
 
         unless centerRight
-          m = Matrix.scale(sourceRightScale, sourceCenterHeightScale).translate(targetCenterAreaRight, targetCenterAreaTop)
+          m = Matrix.scale(sourceRightScale, sourceCenterHeightScale).translateXY(targetCenterAreaRight, targetCenterAreaTop)
           options.sourceArea = rect sourceCenterAreaRight, sourceTopHeight, sourceRightWidth, sourceCenterAreaHeight
           @drawBitmap m, bitmap, options
 
       # vertical colum (excluding center)
       if sourceCenterAreaWidth > 0
         unless bottomCenter
-          m = Matrix.scale(sourceCenterWidthScale, sourceBottomScale).translate(targetCenterAreaLeft, targetCenterAreaBottom)
+          m = Matrix.scale(sourceCenterWidthScale, sourceBottomScale).translateXY(targetCenterAreaLeft, targetCenterAreaBottom)
           options.sourceArea = rect sourceLeftWidth, sourceCenterAreaBottom, sourceCenterAreaWidth, sourceBottomHeight
           @drawBitmap m, bitmap, options
 
         unless topCenter
-          m = Matrix.scale(sourceCenterWidthScale, sourceTopScale).translate(targetCenterAreaLeft, targetAreaTop)
+          m = Matrix.scale(sourceCenterWidthScale, sourceTopScale).translateXY(targetCenterAreaLeft, targetAreaTop)
           options.sourceArea = rect sourceCenterAreaLeft, 0, sourceCenterAreaWidth, sourceTopHeight
           @drawBitmap m, bitmap, options
