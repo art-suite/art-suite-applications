@@ -422,7 +422,9 @@ module.exports = class Color extends AtomicBase
       pad(@b256.toString(16), 2)
 
     rgbaHexString: ->
-      "#" +
+      "#" + @getRawRgbaHexString()
+
+    rawRgbaHexString: ->
       pad(@r256.toString(16), 2) +
       pad(@g256.toString(16), 2) +
       pad(@b256.toString(16), 2) +
