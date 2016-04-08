@@ -182,8 +182,7 @@ module.exports = class Point extends AtomicBase
   toPlainStructure: ->  x: @x, y: @y
   toPlainEvalString: -> "{x:#{@x}, y:#{@y}}"
 
-  @getter
-    inspectedString: -> "point(#{@x}, #{@y})"
+  inspect: -> "point(#{@x}, #{@y})"
 
   floor: -> @with floor(@x), floor(@y)
   ceil:  -> @with ceil(@x),  ceil(@y)

@@ -10,12 +10,6 @@ module.exports = class Base extends BaseObject
   _initFromString: (string) ->
     @_init stringToNumberArray(string)...
 
-  inspect: (inspector)->
-    if inspector?.put
-      inspector.put @getInspectedString()
-    else
-      @getInspectedString()
-
   constructor: (a, b, c, d, e, f, g) ->
     super
     if isPlainArray a       then @_init a...

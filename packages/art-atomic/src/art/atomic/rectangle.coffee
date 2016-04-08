@@ -179,7 +179,7 @@ module.exports = class Rectangle extends AtomicBase
   gte: (b) -> @x >= b.x && @y >= b.y && @w >= b.w && @h >= b.h
 
   toString: -> "[#{@x}, #{@y}, #{@w}, #{@h}]"
-  @getter inspectedString: -> "rect(#{@x}, #{@y}, #{@w}, #{@h})"
+  inspect: -> "rect(#{@x}, #{@y}, #{@w}, #{@h})"
   toArray: toArray = -> [@x, @y, @w, @h]
   toPlainStructure: x: @x, y:@y, w:@w, h:@h
   toPlainEvalString: -> "{x:#{@x}, y:#{@y}, w:#{@w}, h:#{@h}}"
