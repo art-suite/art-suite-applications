@@ -179,10 +179,13 @@ module.exports = class Point extends AtomicBase
 
   toJson: toString
   toArray: toArray = -> [@x, @y]
-  toPlainStructure: ->  x: @x, y: @y
-  toPlainEvalString: -> "{x:#{@x}, y:#{@y}}"
 
-  inspect: -> "point(#{@x}, #{@y})"
+  @getter plainObjects: -> x: @x, y: @y
+
+  inspect: -> if floatEq @x, @y
+      "point(#{@x})"
+    else
+      "point(#{@x}, #{@y})"
 
   floor: -> @with floor(@x), floor(@y)
   ceil:  -> @with ceil(@x),  ceil(@y)

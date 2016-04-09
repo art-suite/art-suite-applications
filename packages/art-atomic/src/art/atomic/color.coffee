@@ -445,7 +445,7 @@ module.exports = class Color extends AtomicBase
 
   inspect: ->
     a = if colorFloatEq(1, @a) then @hexString else @rgbaHexString
-    "color('#{a}')"
+    "rgbColor('#{a}')"
 
   toString: ->
     @_htmlColorString ||=
@@ -453,8 +453,8 @@ module.exports = class Color extends AtomicBase
     else                         @getCssString()
 
   toArray: toArray = -> [@r, @g, @b, @a]
-  toPlainStructure: -> r: @r, g: @g, b: @b, a: @a
-  toPlainEvalString: -> "{r:#{@r}, g:#{@g}, b:#{@b}, a:#{@a}}"
+
+  @getter plainObjects: -> r: @r, g: @g, b: @b, a: @a
 
   # vivafy HSL on request
   @getter

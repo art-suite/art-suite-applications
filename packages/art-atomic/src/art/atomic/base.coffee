@@ -24,3 +24,7 @@ module.exports = class Base extends BaseObject
     return 1 if @gte b
     NaN
 
+  @getter plainObjects: -> @toArray()
+
+  toPlainStructure: -> @getPlainObjects()
+  toPlainEvalString: -> inspect @getPlainObjects()

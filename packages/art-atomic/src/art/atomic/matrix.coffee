@@ -428,8 +428,7 @@ module.exports = class Matrix extends AtomicBase
       toMatrix.ty  * p + @ty  * oneMinusP
 
   toArray: toArray = -> [@sx, @sy, @shx, @shy, @tx, @ty]
-  toPlainStructure: sx:@sx, sy:@sy, shx:@shx, shy:@shy, tx:@tx, ty:@ty
-  toPlainEvalString: -> "{sx:#{@sx}, sy:#{@sy}, shx:#{@shx}, shy:#{@shy}, tx:#{@tx}, ty:#{@ty}}"
+  @getter plainObjects: -> sx:@sx, sy:@sy, shx:@shx, shy:@shy, tx:@tx, ty:@ty
 
   toString: -> @toArray().join ", "
   inspect: -> "matrix(#{@toString()})"

@@ -181,8 +181,7 @@ module.exports = class Rectangle extends AtomicBase
   toString: -> "[#{@x}, #{@y}, #{@w}, #{@h}]"
   inspect: -> "rect(#{@x}, #{@y}, #{@w}, #{@h})"
   toArray: toArray = -> [@x, @y, @w, @h]
-  toPlainStructure: x: @x, y:@y, w:@w, h:@h
-  toPlainEvalString: -> "{x:#{@x}, y:#{@y}, w:#{@w}, h:#{@h}}"
+  @getter plainObjects: -> x: @x, y:@y, w:@w, h:@h
 
   nearestInsidePoint: (p) -> new Point bound(@left, p.x, @right), bound(@top, p.y, @bottom)
   largestInsideRect: (ofSize) -> # result is centered
