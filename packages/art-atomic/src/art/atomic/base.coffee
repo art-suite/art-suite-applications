@@ -3,6 +3,7 @@
   isNumber, isPlainObject, isPlainArray, isString, isFunction
   stringToNumberArray
   BaseObject
+  lowerCamelCase
 } = require 'art-foundation'
 
 module.exports = class Base extends BaseObject
@@ -24,7 +25,9 @@ module.exports = class Base extends BaseObject
     return 1 if @gte b
     NaN
 
-  @getter plainObjects: -> @toArray()
+  @getter
+    plainObjects: -> @toArray()
+    inspectObjects: -> inspect: => lowerCamelCase(@class.getName()) + "(#{@toArray().join ', '})"
 
   toPlainStructure: -> @getPlainObjects()
   toPlainEvalString: -> inspect @getPlainObjects()
