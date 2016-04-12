@@ -120,6 +120,11 @@ define [
       b.drawBitmap null, @
       b
 
+    crop: (area) ->
+      area = rect(area).intersection rect(size)
+      b = newBitmap area.size
+      newbitmap.drawBitmap Matrix.translateXY(-area.x, -area.y), @
+
     initFromCanvas: (canvas) ->
       @_canvas = canvas
       @_size = point @_canvas.width, @_canvas.height

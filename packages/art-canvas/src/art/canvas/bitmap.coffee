@@ -20,12 +20,14 @@ GradientFillStyle = require "./gradient_fill_style"
 BitmapBase = require "./bitmap_base"
 Paths = require "./paths"
 StackBlur = require "./stack_blur"
-{point, Point, rect, Rectangle, matrix, Matrix, color, Color, IdentityMatrix} = Atomic
+
+
 {
   inspect, log, min, max, Binary, isFunction, isPlainObject, eq, currentSecond, round, isNumber, floatEq0
   Promise
 } = Foundation
 {EncodedImage} = Binary
+{point, Point, rect, Rectangle, matrix, Matrix, color, Color, IdentityMatrix, point0} = Atomic
 
 emptyOptions = {}
 
@@ -41,11 +43,12 @@ canvasBlenders =
   inverse_alphamask: "destination-out"
 
   # lowerCamelCase names
-  targetAlphamask: "source-in"
+  alphaMask: "destination-in"
+  targetAlphaMask: "source-in"
+  inverseAlphaMask: "destination-out"
   destOver: "destination-over"
   sourceIn: "source-atop"
   replace: "copy"
-  inverseAlphamask: "destination-out"
 
 module.exports = class Bitmap extends BitmapBase
   @supportedCompositeModes: (k for k, v of canvasBlenders)
@@ -389,7 +392,15 @@ module.exports = class Bitmap extends BitmapBase
     @_context.miterLimit = miterLimit  || 10
 
   _setFillStyleFromOptions: (options) ->
-    @_setFillStyle   options.fillStyle || options.color || @defaultColorString
+    @_setFillStyle if options.colors
+      new GradientFillStyle(
+        options.from || point0
+        options.to || @size
+        options.colors
+      )
+    else
+      options.fillStyle || options.color || @defaultColorString
+
 
   _setupDraw: (where, options, stroke) ->
     {compositeMode, shadow, opacity} = options
