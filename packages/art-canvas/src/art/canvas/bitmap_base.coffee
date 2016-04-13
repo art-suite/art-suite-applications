@@ -190,6 +190,8 @@ define [
       @_context.putImageData imageData, location.x, location.y,
         sourceArea.x, sourceArea.y, sourceArea.w, sourceArea.h
 
+      @
+
     getImageDataArray: (channel=null) ->
       data = @getImageData().data
       if (channel = toChannelNumberMap[channel])?
