@@ -41,13 +41,9 @@ module.exports = class Point extends AtomicBase
       a.area == area
       a.aspectRatio == aspectRatio
   ###
-  @withAspectRatioAndArea: (aspectRatio, area) ->
+  @pointWithAspectRatioAndArea: (aspectRatio, area) ->
     sqrtArea = Math.sqrt area / aspectRatio
-    # log
-    #   aspectRatio: aspectRatio
-    #   area: area
-    #   sqrtArea:sqrtArea
-    new Point(
+    point(
       sqrtArea * aspectRatio
       sqrtArea
     )
@@ -142,6 +138,11 @@ module.exports = class Point extends AtomicBase
   withX: (x) -> if floatEq @x, x then @ else point x, @y
   withY: (y) -> if floatEq @y, y then @ else point @x, y
   with: (x, y) -> if @_eqParts x, y then @ else new Point x, y
+
+  # not tested:
+  # withArea: (newArea) ->
+  #   {area} = @
+  #   @mul Math.sqrt newArea / area
 
   vectorLength: 2
 

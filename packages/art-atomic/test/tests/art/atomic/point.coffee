@@ -1,6 +1,6 @@
 {assert} = require 'art-foundation/src/art/dev_tools/test/art_chai'
 {inspect, log, floatEq} = Foundation = require 'art-foundation'
-{point, Point, withAspectRatioAndArea} = Atomic = require 'art-atomic'
+{point, Point, pointWithAspectRatioAndArea} = Atomic = require 'art-atomic'
 
 suite "Art.Atomic.Point", ->
   test "allocate point", ->
@@ -292,14 +292,14 @@ suite "Art.Atomic.Point.fill", ->
   fillTest point(100, 100),  point 2, 1
   fillTest point(1, 1),  point 200, 100
 
-suite "Art.Atomic.Point.withAspectRatioAndArea", ->
+suite "Art.Atomic.Point.pointWithAspectRatioAndArea", ->
   aaTest = (aspectRatio, area) ->
     ratioString = if aspectRatio < 1
       "1:#{1/aspectRatio}"
     else
       "#{aspectRatio}:1"
     test testName = "#{ratioString} with area #{area}", ->
-      p = withAspectRatioAndArea aspectRatio, area
+      p = pointWithAspectRatioAndArea aspectRatio, area
       log "#{testName} (rounded): #{p.rounded.inspect()}"
       assert.ok floatEq(p.aspectRatio, aspectRatio), "#{p.inspect()}.aspectRatio"
       assert.ok floatEq(p.area, area), "#{p.inspect()}.area"
@@ -313,3 +313,10 @@ suite "Art.Atomic.Point.withAspectRatioAndArea", ->
   aaTest 2, 2
   aaTest 2, 200
   aaTest 2, 20000
+
+  test "with area 0", ->
+    p = pointWithAspectRatioAndArea 2, 0
+    assert.eq p.area, 0, "area"
+    assert.eq p.x, 0, "x"
+    assert.eq p.y, 0, "y"
+
