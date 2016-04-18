@@ -151,7 +151,7 @@ module.exports = class Matrix extends AtomicBase
     @ty  = ty
     @
 
-  getScale: -> return getS()
+  getScale: -> return @getS()
 
   @getter
     t:   -> point @tx, @ty   # returns the current location

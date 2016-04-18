@@ -32,6 +32,26 @@ module.exports = class Point extends AtomicBase
     # construct new Point
     new Point a, b
 
+  ###
+  IN:
+    aspectRatio: number representing: width / height
+    area: number representing the square-area desired
+  OUT:
+    point, a, with:
+      a.area == area
+      a.aspectRatio == aspectRatio
+  ###
+  @withAspectRatioAndArea: (aspectRatio, area) ->
+    sqrtArea = Math.sqrt area / aspectRatio
+    # log
+    #   aspectRatio: aspectRatio
+    #   area: area
+    #   sqrtArea:sqrtArea
+    new Point(
+      sqrtArea * aspectRatio
+      sqrtArea
+    )
+
   @parse: (string, existing) ->
     throw new Error "existing feature is no longer supported" if existing
     new Point string

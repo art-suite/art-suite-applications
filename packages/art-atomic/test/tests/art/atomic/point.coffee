@@ -1,6 +1,6 @@
 {assert} = require 'art-foundation/src/art/dev_tools/test/art_chai'
-{inspect} = Foundation = require 'art-foundation'
-{point, Point} = Atomic = require 'art-atomic'
+{inspect, log, floatEq} = Foundation = require 'art-foundation'
+{point, Point, withAspectRatioAndArea} = Atomic = require 'art-atomic'
 
 suite "Art.Atomic.Point", ->
   test "allocate point", ->
@@ -292,3 +292,24 @@ suite "Art.Atomic.Point.fill", ->
   fillTest point(100, 100),  point 2, 1
   fillTest point(1, 1),  point 200, 100
 
+suite "Art.Atomic.Point.withAspectRatioAndArea", ->
+  aaTest = (aspectRatio, area) ->
+    ratioString = if aspectRatio < 1
+      "1:#{1/aspectRatio}"
+    else
+      "#{aspectRatio}:1"
+    test testName = "#{ratioString} with area #{area}", ->
+      p = withAspectRatioAndArea aspectRatio, area
+      log "#{testName} (rounded): #{p.rounded.inspect()}"
+      assert.ok floatEq(p.aspectRatio, aspectRatio), "#{p.inspect()}.aspectRatio"
+      assert.ok floatEq(p.area, area), "#{p.inspect()}.area"
+
+  aaTest 1,   100
+  aaTest 1/2, 100
+  aaTest 2,   100
+  aaTest 1/3, 100
+  aaTest 3,   100
+
+  aaTest 2, 2
+  aaTest 2, 200
+  aaTest 2, 20000
