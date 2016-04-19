@@ -8,19 +8,58 @@ AtomicBase = require './base'
 {inspect, bound, floatEq, log, isNumber, isArray, isString, isFunction, stringToNumberArray, nearInfinity} = Foundation
 {abs, sqrt, atan, PI, floor, ceil, round, min, max} = Math
 
-# Point supported constructor arguments
-# (string / toString[able]) -> split on ',' and converted to numbers, then interperted as arguments
-# (array) -> reinterpreted as arguments
-#   0 arguments:         ()                -> (0, 0)
-#   1 number argument:   (s)               -> (s, s)
-#   2 number argument:   (x, y)            -> (x, y)
+###
+point() general point constructor
+
+IN: (p:Point)
+OUT: p
+
+IN: ()
+IN: ([])
+OUT: point 0, 0
+
+IN: (string)
+OUT: Point.namedPoints[string] || Point.parse string
+
+IN: (s:number)
+IN: ([s:number])
+OUT: new Point s, s
+
+IN: (x:number, y:number)
+IN: ([x:number, y:number])
+OUT: new Point x, y
+
+IN: ({x:number, y:number})
+OUT: new Point x || 0, y || 0
+
+IN: ({aspectRatio: number, area: number})
+  aspectRatio: number representing: width / height
+  area: number representing the square-area desired
+OUT:
+  a point, p, with:
+    p.area == o.area
+    p.aspectRatio == o.aspectRatio
+
+###
 module.exports = class Point extends AtomicBase
   @isPoint: (v) -> v instanceof Point
+
+  pointWithAspectRatioAndArea = ({aspectRatio, area}) ->
+    sqrtArea = Math.sqrt area / aspectRatio
+    point(
+      sqrtArea * aspectRatio
+      sqrtArea
+    )
+
   @point: point = (a, b) ->
     # just return if a already a Point
     return a if a instanceof Point
     if isString(a) && p = namedPoints[a]
       return p
+
+    # pointWithAspectRatioAndArea
+    if a?.aspectRatio && a.area >= 0
+      return pointWithAspectRatioAndArea a
 
     # reuse point0 and point1
     x = a || 0
@@ -31,22 +70,6 @@ module.exports = class Point extends AtomicBase
 
     # construct new Point
     new Point a, b
-
-  ###
-  IN:
-    aspectRatio: number representing: width / height
-    area: number representing the square-area desired
-  OUT:
-    point, a, with:
-      a.area == area
-      a.aspectRatio == aspectRatio
-  ###
-  @pointWithAspectRatioAndArea: (aspectRatio, area) ->
-    sqrtArea = Math.sqrt area / aspectRatio
-    point(
-      sqrtArea * aspectRatio
-      sqrtArea
-    )
 
   @parse: (string, existing) ->
     throw new Error "existing feature is no longer supported" if existing
@@ -139,10 +162,10 @@ module.exports = class Point extends AtomicBase
   withY: (y) -> if floatEq @y, y then @ else point @x, y
   with: (x, y) -> if @_eqParts x, y then @ else new Point x, y
 
-  # not tested:
-  # withArea: (newArea) ->
-  #   {area} = @
-  #   @mul Math.sqrt newArea / area
+  withArea: (newArea) ->
+    {area} = @
+    throw new Error "area must be > 0" unless area > 0 && newArea >= 0
+    @mul Math.sqrt newArea / area
 
   vectorLength: 2
 
