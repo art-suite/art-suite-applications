@@ -6,9 +6,10 @@ Canvas                   = require './namespace'
 Canvas.Bitmap            = require './bitmap'
 Canvas.Clipping          = require './clipping'
 Canvas.CommonBitmapTests = require './common_bitmap_tests'
+Canvas.DrawGradient      = require './draw_gradient'
 Canvas.GoogleFontLoader  = require './google_font_loader'
 Canvas.GradientFillStyle = require './gradient_fill_style'
 Canvas.StackBlur         = require './stack_blur'
 Canvas.finishLoad(
-  ["Bitmap","Clipping","CommonBitmapTests","GoogleFontLoader","GradientFillStyle","StackBlur"]
+  ["Bitmap","Clipping","CommonBitmapTests","DrawGradient","GoogleFontLoader","GradientFillStyle","StackBlur"]
 )
