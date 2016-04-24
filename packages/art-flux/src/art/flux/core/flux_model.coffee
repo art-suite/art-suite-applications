@@ -16,12 +16,13 @@ module.exports = class FluxModel extends BaseObject
   # must call register to make model accessable to RestComponents
   # NOTE: @fields calls register for you, so if you use @fields, you don't need to call @register
   @register: ->
+    log "FluxModel.register #{@getClassPathName()}"
     @singletonClass()
     ModelRegistry.register @getSingleton()
 
-  @postCreate: (klass) ->
-    @register()
-    klass
+  @postCreate: (hotReloaded, classModuleState, _module) ->
+    @register() unless hotReloaded
+    super
 
   ###
   INPUT: zero or more strings or arrays of strings

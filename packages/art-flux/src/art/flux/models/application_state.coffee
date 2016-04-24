@@ -1,6 +1,6 @@
 Foundation = require 'art-foundation'
 FluxCore = require '../core'
-{BaseObject, log, isString, isPlainObject, merge, plainObjectsDeepEq, mergeInto} = Foundation
+{BaseObject, log, isString, isPlainObject, merge, plainObjectsDeepEq, mergeInto, Unique} = Foundation
 {FluxStore, FluxModel, FluxStatus} = FluxCore
 {fluxStore} = FluxStore
 {pending, success, failure, missing} = FluxStatus
@@ -43,6 +43,24 @@ Example:
 
 module.exports = class ApplicationState extends FluxModel
   @classProperty "persistant"
+
+  @postCreate: (hotReloaded, classModuleState, _module) ->
+    ret = super
+
+    if hotReloaded
+      {liveClass, hotUpdatedFromClass} = classModuleState
+
+      tempInstance = new hotUpdatedFromClass
+      liveInstance = liveClass.getSingleton()
+      newDefaultState = tempInstance.state
+      currentState = liveInstance.state
+
+      log "Flux.ApplicationState: model hot-reloaded": model: liveInstance.name
+      for k, v of newDefaultState when !currentState.hasOwnProperty k
+        liveInstance.setState k, v
+        log "new state field added": field: k, value: v
+
+    ret
 
   ###
   Declare state fields you intend to use.
