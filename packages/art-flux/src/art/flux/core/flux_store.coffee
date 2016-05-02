@@ -204,8 +204,13 @@ module.exports = class FluxStore extends Epoch
               status: loadInfo.status
               aborting: "no longer have subscribers"
 
-      if fluxRecord = model.load key, loadRetryCallback
-        entry.setFluxRecord fluxRecord
+      try
+        if fluxRecord = model.load key, loadRetryCallback
+          entry.setFluxRecord fluxRecord
+      catch e
+        message = "Error loading record from model '#{modelName}' for key '#{key}'. Error: #{e}"
+        console.error message, e.stack
+        entry.setFluxRecord status: failure, errorObject: e, message: message
     else
       console.warn "ArtFlux: there is no model registered with the name: #{modelName}. Entry for #{modelName}:#{key} will forever be status: pending."
 
