@@ -71,20 +71,13 @@ suite "Art.Text.Metrics", ->
       {layoutArea: rect(0, 0, 19, 16), ascender: 12, descender: 4}
       {layoutArea: rect(0, 0, 20, 16), ascender: 12, descender: 4}
 
-    testMetrics text, fontOptions, "tight",  layoutArea: rect(0, 0, 20, 14), ascender: 12, descender: 2
-    testMetrics text, fontOptions, "tight0",
-      {layoutArea: rect(0, 0, 21, 16), ascender: 13, descender: 3},
-      {layoutArea: rect(0, 0, 22, 16), ascender: 13, descender: 3}
+    testMetrics text, fontOptions, "tight",  layoutArea: rect(0, 0, 24, 18), ascender: 14, descender: 4
 
   test "get ascender", ->
     fontOptions = fontFamily:"Times New Roman", fontSize:16
     text = "Hello"
     testMetrics text, fontOptions, "tight",
-      {layoutArea: rect(0, 0, 34, 11), ascender: 12, descender: -1}
-      {layoutArea: rect(0, 0, 34, 11), ascender: 12, descender: -1}
-    testMetrics text, fontOptions, "tight0",
-      {layoutArea: rect(0, 0, 35, 13), ascender: 13, descender: 0}
-      {layoutArea: rect(0, 0, 36, 13), ascender: 13, descender: 0}
+      {layoutArea: rect(0, 0, 38, 15), ascender: 14, descender: 1}
     testMetrics text, fontOptions, "textual",
       {layoutArea: rect(0, 0, 35, 16), ascender: 12, descender: 4}
       {layoutArea: rect(0, 0, 36, 16), ascender: 12, descender: 4}
@@ -93,11 +86,7 @@ suite "Art.Text.Metrics", ->
     fontOptions = fontFamily:"Times New Roman", fontSize:16
     text = "!@#$%^&*()|"
     testMetrics text, fontOptions, "tight",
-      {layoutArea: rect(0, 0, 87, 14), ascender: 12, descender: 2}
-      {layoutArea: rect(0, 0, 88, 14), ascender: 12, descender: 2}
-    testMetrics text, fontOptions, "tight0",
-      {layoutArea: rect(0, 0, 89, 16), ascender: 13, descender: 3}
-      {layoutArea: rect(0, 0, 90, 16), ascender: 13, descender: 3}
+      {layoutArea: rect(0, 0, 92, 18), ascender: 14, descender: 4}
     testMetrics text, fontOptions, "textual",
       {layoutArea: rect(0, 0, 90, 16), ascender: 12, descender: 4}
       {layoutArea: rect(0, 0, 92, 16), ascender: 12, descender: 4}
@@ -105,8 +94,7 @@ suite "Art.Text.Metrics", ->
   test "get large", ->
     text = "hi"
     fontOptions = fontFamily:"Impact", fontSize:64
-    testMetrics text, fontOptions, "tight",   layoutArea: rect(0, 0, 47, 51), ascender: 52, descender: -1
-    testMetrics text, fontOptions, "tight0",  layoutArea: rect(0, 0, 49, 52), ascender: 53, descender: -1
+    testMetrics text, fontOptions, "tight",   layoutArea: rect(0, 0, 51, 54), ascender: 54, descender: 0
     testMetrics text, fontOptions, "textual",
       {layoutArea: rect(0, 0, 51, 64), ascender: 48, descender: 16}
       {layoutArea: rect(0, 0, 52, 64), ascender: 48, descender: 16}
@@ -115,11 +103,7 @@ suite "Art.Text.Metrics", ->
     text = longText
     fontOptions = fontFamily:"Times New Roman", fontSize:6
     testMetrics text, fontOptions, "tight",
-      {layoutArea: rect(0, 0, 99, 4),  ascender: 5, descender: -1}
-      {layoutArea: rect(0, 0, 120, 5), ascender: 5, descender: 0}
-    testMetrics text, fontOptions, "tight0",
-      {layoutArea: rect(0, 0, 116, 7), ascender: 6, descender: 1}
-      {layoutArea: rect(0, 0, 123, 7), ascender: 6, descender: 1}
+      {layoutArea: rect(0, 0, 118, 9),  ascender: 7, descender: 3}
     testMetrics text, fontOptions, "textual",
       {layoutArea: rect(0, 0, 115, 6), ascender: 5, descender: 2}
       {layoutArea: rect(0, 0, 123, 6), ascender: 5, descender: 2}
@@ -218,13 +202,9 @@ suite "Art.Text.Metrics", ->
       tight0:  Metrics.get text, fontOptions, "tight0"
       textual: Metrics.get text, fontOptions, "textual"
 
-    assert.within metrics.tight.layoutArea, rect(0, 0, 52, 8), rect(0, 0, 54, 8)
-    assert.eq metrics.tight.ascender, 9
-    assert.eq metrics.tight.descender, -1
-
-    assert.within metrics.tight0.layoutArea, rect(0, 0, 52, 9), rect(0, 0, 54, 9)
-    assert.eq metrics.tight0.ascender, 9
-    assert.eq metrics.tight0.descender, 0
+    assert.within metrics.tight.layoutArea, rect(0, 0, 52, 8), rect(0, 0, 56, 11)
+    assert.eq metrics.tight.ascender, 10
+    assert.eq metrics.tight.descender, 1
 
     assert.within metrics.textual.layoutArea, rect(0, 0, 52, 16), rect(0, 0, 53, 16)
     assert.eq metrics.textual.ascender, 12
@@ -232,7 +212,7 @@ suite "Art.Text.Metrics", ->
 
     log textual:new Text.Layout(text, fontOptions).toBitmap()
 
-    assert.eq metrics.textual.alignedDrawArea, rect -8, -8, 67, 31
+    assert.eq metrics.textual.alignedDrawArea, rect -8, -8, 68, 32
 
   testWrap = (wordWrapWidth, string, expectedLines, maxWidth) ->
     test "testWrap: wordWrapWidth:#{wordWrapWidth} string:#{inspect string}", ->

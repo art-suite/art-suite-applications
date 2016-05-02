@@ -22,7 +22,7 @@ define [
   {log, logL, inspect, max, min, isObject, isString, allIndexes, eachMatch, clone} = Foundation
   {floor, ceil} = Math
 
-  pixelChannel = 3
+  alphaChannelOffset = 3
   pixelStep = 4
   tightThreshold = 127
 
@@ -66,7 +66,7 @@ define [
       switch layoutMode
         when null, undefined, "textual" then @_getTextualFontMetrics text, fontOptions, null, fontCss
         when "textualBaseline" then @_getTextualFontMetrics text, fontOptions, null, fontCss, false
-        when "tight"   then @_getTightFontMetrics text, 127, fontOptions, fontCss
+        when "tight"   then @_getTightFontMetrics text, 0, fontOptions, fontCss
         when "tight0"  then @_getTightFontMetrics text, 0, fontOptions, fontCss
         else throw new Error "invalid layoutMode: #{inspect layoutMode}"
 
@@ -186,6 +186,7 @@ define [
     tempRectangleToCapturePessimisticDrawArea = new Rectangle
     @_generateTightFontMetrics: (text, tightThreshold, fontOptions, fontCss)  ->
       padding = Metrics.defaultFontSizeProportionalDrawAreaPadding * 2
+      # log _generateTightFontMetrics:padding:padding
       [scratchBitmap, size, location] = @renderTextToScratchBitmap text, fontOptions, padding
       data = scratchBitmap.context.getImageData(0, 0, size.x, size.y).data
 
@@ -200,21 +201,19 @@ define [
       right       = @calculateRight  data, size, tightThreshold
       bottom      = @calculateBottom data, size, tightThreshold
 
+      top--
+      left--
+      right++
+      bottom++
+
       textOffsetX = location.x - left
       textOffsetY = location.y - top
       layoutW     = right - left + 1
       layoutH     = bottom - top + 1
       area = rect left - location.x, top - location.y, right - left + 1, bottom - top + 1
-      # @debug area, scratchBitmap, location, fontOptions
 
       ascender =   location.y - top + 1  # ascender + descender should == area.size.y
       descender =  bottom     - location.y
-
-      layoutAreaIsDrawArea = false
-      if tightThreshold == 0
-        layoutAreaIsDrawArea = true
-      else
-        @pessimisticDrawArea layoutW, fontOptions, tempRectangleToCapturePessimisticDrawArea
 
       new TextLayoutFragment(
         text
@@ -225,10 +224,10 @@ define [
         textOffsetY
         layoutW
         layoutH
-        if layoutAreaIsDrawArea then 0       else tempRectangleToCapturePessimisticDrawArea.x
-        if layoutAreaIsDrawArea then 0       else tempRectangleToCapturePessimisticDrawArea.y
-        if layoutAreaIsDrawArea then layoutW else tempRectangleToCapturePessimisticDrawArea.w
-        if layoutAreaIsDrawArea then layoutH else tempRectangleToCapturePessimisticDrawArea.h
+        0
+        0
+        layoutW
+        layoutH
       )
 
     @_getTextualFontMetrics: (text, fontOptions, alreadyComputedTextWidth, fontCss, areaIncludesDescender = true) ->
@@ -261,7 +260,7 @@ define [
     # INCLUSIVE: returns first line with pixels > tightThreshold
     @calculateTop: (data, size, tightThreshold) ->
       lineStep = size.x * pixelStep
-      pos = pixelChannel
+      pos = alphaChannelOffset
       while pos < data.length && data[pos] <= tightThreshold
         pos += pixelStep
       floor pos / lineStep
@@ -269,7 +268,7 @@ define [
     # INCLUSIVE: returns last line with pixels > tightThreshold
     @calculateBottom: (data, size, tightThreshold) ->
       lineStep = size.x * pixelStep
-      pos = data.length + pixelChannel - pixelStep # start on second to last line
+      pos = data.length + alphaChannelOffset - pixelStep # start on second to last line
       while pos > 0 && data[pos] <= tightThreshold
         pos -= pixelStep
       floor pos / lineStep
@@ -278,7 +277,7 @@ define [
     @calculateLeft: (data, size, tightThreshold) ->
       lineStep = size.x * pixelStep
       length = data.length
-      posX = pixelStep + pixelChannel # set on second column
+      posX = pixelStep + alphaChannelOffset # set on second column - SBD 2016: I think this is because we already did a parimeter check
       while posX < lineStep
         pos = posX
         while pos < length
@@ -290,7 +289,7 @@ define [
     @calculateRight: (data, size, tightThreshold) ->
       lineStep = size.x * pixelStep
       length = data.length
-      posX = lineStep - 2 * pixelStep + pixelChannel # start on second to last column
+      posX = lineStep - 2 * pixelStep + alphaChannelOffset # start on second to last column
       while posX > 0
         pos = posX
         while pos < length
@@ -300,7 +299,7 @@ define [
 
     @topAndBottomCheck: (data, size) ->
       lineStep = size.x * pixelStep
-      posX = pixelChannel
+      posX = alphaChannelOffset
       topBottomStep = (size.y-1) * lineStep
       while posX < lineStep
         return false if data[posX] || data[posX + topBottomStep]
@@ -309,7 +308,7 @@ define [
 
     @leftAndRightCheck: (data, size) ->
       lineStep = size.x * pixelStep
-      posY = pixelChannel + lineStep
+      posY = alphaChannelOffset + lineStep
       leftRightStep = lineStep - pixelStep
       while posY < data.length
         return false if data[posY] || data[posY + leftRightStep]
@@ -327,10 +326,25 @@ define [
       fontSize = fontOptions.fontSize
 
       padding = fontSize * (increasedFontSizeProportionalDrawAreaPadding or fontOptions.padding or Metrics.defaultFontSizeProportionalDrawAreaPadding)
-      x = Math.floor -padding
-      y = Math.floor -padding
-      w = Math.ceil(x + textWidth + padding * 2) - x
-      h = Math.ceil(y + fontSize  + padding * 2) - y
+
+      # log
+      #   padding: padding
+      #   textWidth: textWidth
+      #   fontSize: fontSize
+      #   increasedFontSizeProportionalDrawAreaPadding: increasedFontSizeProportionalDrawAreaPadding
+      #   "fontOptions.padding": fontOptions.padding
+      #   "Metrics.defaultFontSizeProportionalDrawAreaPadding": Metrics.defaultFontSizeProportionalDrawAreaPadding
+
+      x = Math.floor floatX = -padding
+      y = Math.floor floatY = -padding # - fontSize * 3/4
+      w = Math.ceil(floatX + textWidth + padding * 2) - x
+      h = Math.ceil(floatY + fontSize + padding * 2) - y
+
+      # old
+      # x = Math.floor -padding #* .25
+      # y = Math.floor -padding
+      # w = Math.ceil(x + textWidth + padding * 2) - x
+      # h = Math.ceil(y + fontSize + padding * 2) - y
 
       if intoRectangle
         intoRectangle.x = x
@@ -356,7 +370,12 @@ define [
       context.textAlign = 'left'
       context.textBaseline = 'alphabetic'
       context.font = toFontCss fontOptions
-      context.fillText text, x = -drawArea.x, y = -drawArea.y
+      context.fillText text, x = -drawArea.x, y = -drawArea.y + fontOptions.fontSize * 3/4
+
+      # log
+      #   renderTextToScratchBitmap: @_scratchBitmap.clone()
+      #   font:toFontCss fontOptions
+      #   drawArea:drawArea
 
       [@_scratchBitmap, size,  point x, y]
 

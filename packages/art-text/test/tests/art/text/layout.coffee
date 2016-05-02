@@ -46,20 +46,20 @@ suite "Art.Text.Layout", ->
     layout = new Text.Layout "I IZ IN YOUR KIMI\nLIKING ALL UR PHOTOS", {fontFamily:"Impact", fontSize:64}, {layoutMode:"tight"}
     bitmap = layout.toBitmap()
     log bitmap
-    assert.within bitmap.size, point(544, 133), point(546, 133)
+    assert.within bitmap.size, point(544, 133), point(550, 137)
 
   test "layoutMode:tight", ->
-    layout = new Text.Layout "song", {fontSize:64}, {layoutMode:"tight"}
+    layout = new Text.Layout "Sing!?!", {fontSize:64}, {layoutMode:"tight"}
     bitmap = layout.toBitmap()
     log bitmap
-    assert.eq bitmap.size, point 116, 44
+    assert.eq bitmap.size, point 183, 61
 
   test "layoutMode:tight areas", ->
-    layout = new Text.Layout "song", {fontSize:64}, {layoutMode:"tight"}
+    layout = new Text.Layout "Sing!?!", {fontSize:64}, {layoutMode:"tight"}
     bitmap = layout.toBitmap()
     log bitmap
-    assert.eq layout.area, rect 0, 0, 116, 44
-    assert.eq layout.drawArea, rect -29, -29, 174, 122
+    assert.eq layout.area, rect(0, 0, 183, 61), "area"
+    assert.eq layout.drawArea, rect(0, 0, 183, 61), "drawArea"
 
   test "precision", ->
     layout = new Text.Layout "hi", fontFamily:"Impact", fontSize:64, layoutMode:"tight"
@@ -142,6 +142,12 @@ suite "Art.Text.Layout", ->
     log oneWordCentered:layout.toBitmap()
     assert.within layout.size.x, 10, 15
 
+  test "layoutAreaWidth one word basic", ->
+    layout = new Text.Layout "Sing?!?"
+    bitmap = layout.toBitmap()
+    log oneWordBasic:bitmap, size: bitmap.size
+    assert.eq layout.drawArea.rounded, rect -8, -8, 65, 32
+
 
   test "leading", ->
     layout = new Text.Layout "Testing leading: 1.25 (default)\nneeds 2 lines"
@@ -153,16 +159,19 @@ suite "Art.Text.Layout", ->
 
   test "layoutAreaWidth, align:'center' and drawArea", ->
     layout = new Text.Layout "hi", {}, align: "center", 300
-    assert.eq layout.drawArea.rounded, rect 136, -8, 27, 31
+    log "layout align center":layout.toBitmap()
+    assert.eq layout.drawArea.rounded, rect 136, -8, 28, 32
 
   test "layoutAreaWidth, align:'right' and drawArea", ->
     layout = new Text.Layout "hi", {}, align: "right", 300
-    assert.eq layout.drawArea.rounded, rect 280, -8, 27, 31
+    log "layoutAreaWidth, align:'right' and drawArea":layout.toBitmap()
+    assert.eq layout.drawArea.rounded, rect 280, -8, 28, 32
 
   test "layoutAreaWidth && alignmentWidth, align:'center' and drawArea", ->
     layout = new Text.Layout "hi", {}, align: "center", 300
+    log "layoutAreaWidth && alignmentWidth, align:'center' and drawArea": layout.toBitmap()
     assert.eq layout.area.rounded.w, 12
-    assert.eq layout.drawArea.rounded, rect 136, -8, 27, 31
+    assert.eq layout.drawArea.rounded, rect 136, -8, 28, 32
 
   test "layoutAreaWidth && alignmentWidth, align:'right' and drawArea", ->
     layout = new Text.Layout "hi", {}, align: "right", 300

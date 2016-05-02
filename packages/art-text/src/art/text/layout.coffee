@@ -128,6 +128,8 @@ module.exports = class Layout extends BaseObject
 
   newBitmap: (options=emptyOptions) ->
     size = options.size || @getSize()
+    size = size.withX @_layoutAreaWidth if @_align.x > 0 && @_layoutAreaWidth < nearInfinityResult
+    size = size.withY @_layoutAreaHeight if @_align.y > 0 && @_layoutAreaHeight < nearInfinityResult
     size = size.mul scale if scale = options.scale
     new Bitmap size
 
