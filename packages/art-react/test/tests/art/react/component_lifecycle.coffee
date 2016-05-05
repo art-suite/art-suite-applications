@@ -20,7 +20,7 @@ suite "Art.React.Component.lifeCycle", ->
         done()
         Element name: "child"
 
-    MyComponent().instantiateAsTopComponent root = new Engine.Elements.Element name: "root"
+    MyComponent().instantiateAsTopComponent root = new Engine.Core.Element name: "root"
 
   test "componentDidMount", (done)->
     rendered = false
@@ -37,7 +37,7 @@ suite "Art.React.Component.lifeCycle", ->
         rendered = true
         Element name: "child"
 
-    MyComponent().instantiateAsTopComponent root = new Engine.Elements.Element name: "root"
+    MyComponent().instantiateAsTopComponent root = new Engine.Core.Element name: "root"
 
   test "componentWillUpdate", (done)->
     renderCount = 0
@@ -61,7 +61,7 @@ suite "Art.React.Component.lifeCycle", ->
         renderCount++
         Element name: @state.name
 
-    mc = MyComponent().instantiateAsTopComponent root = new Engine.Elements.Element name: "root"
+    mc = MyComponent().instantiateAsTopComponent root = new Engine.Core.Element name: "root"
     React.onNextReady -> mc.setState name: "awesome child"
 
   test "componentDidUpdate", (done)->
@@ -82,7 +82,7 @@ suite "Art.React.Component.lifeCycle", ->
         renderCount++
         Element name: @state.name
 
-    mc = MyComponent().instantiateAsTopComponent root = new Engine.Elements.Element name: "root"
+    mc = MyComponent().instantiateAsTopComponent root = new Engine.Core.Element name: "root"
     React.onNextReady -> mc.setState name: "awesome child"
 
   test "componentWillUnmount nested inside VirtualElement", (done)->
@@ -126,7 +126,7 @@ suite "Art.React.Component.lifeCycle", ->
         rendered = true
         Element name: "child"
 
-    wc = WrapperComponent().instantiateAsTopComponent root = new Engine.Elements.Element name: "root"
+    wc = WrapperComponent().instantiateAsTopComponent root = new Engine.Core.Element name: "root"
     React.onNextReady -> wc.setState includeComponent: false
 
 suite "Art.React.Component.lifeCycle.preprocessProps", ->

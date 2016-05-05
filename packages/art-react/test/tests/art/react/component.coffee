@@ -26,7 +26,7 @@ suite "Art.React.Component.instantiate", ->
       render: ->
         Element key: "child"
 
-    c = MyComponent().instantiateAsTopComponent parent = new Engine.Elements.Element name: "parent"
+    c = MyComponent().instantiateAsTopComponent parent = new Engine.Core.Element name: "parent"
     parent.onNextReady ->
       assert.eq c.element.parent, parent
       assert.eq ["child"], (child.name for child in parent.children)
@@ -40,8 +40,9 @@ suite "Art.React.Component.render", ->
 
     c = new MyComponent
     rendered = c.render()
+    log rendered:rendered
     assert.eq rendered.class, VirtualElement
-    assert.eq rendered.elementClass, Engine.Elements.Rectangle
+    assert.eq rendered.elementClass, Engine.Elements.RectangleElement
     assert.eq rendered.props, color: "red"
     assert.eq rendered.children, []
 
@@ -58,12 +59,12 @@ suite "Art.React.Component.render", ->
     assert.eq rendered.elementClass, Engine.Core.Element
     assert.eq rendered.props, {}
     assert.eq rendered.children[0].class, VirtualElement
-    assert.eq rendered.children[0].elementClass, Engine.Elements.Rectangle
+    assert.eq rendered.children[0].elementClass, Engine.Elements.RectangleElement
     assert.eq rendered.children[0].props, color: "red"
     assert.eq rendered.children[0].children, []
 
     assert.eq rendered.children[1].class, VirtualElement
-    assert.eq rendered.children[1].elementClass, Engine.Elements.Rectangle
+    assert.eq rendered.children[1].elementClass, Engine.Elements.RectangleElement
     assert.eq rendered.children[1].props, color: "blue"
     assert.eq rendered.children[1].children, []
 
