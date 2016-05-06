@@ -43,27 +43,31 @@ module.exports = class VirtualElement extends VirtualNode
           "\n#{child.toCoffeescript subIndent}"
     ]).join ''
 
-
-  #################
-  # Concrete Element Access
-  #################
+  #####################################
+  # Custom Concrete-Element Overrides
+  #####################################
   ###
-  execute the function 'f' on the Art.Engine Element associated with this VirtualElement.
-  IN: f = (Art.Engine.Core.Element) -> x
+  EFFECT: execute the function 'f' with the Concrete-Element associated with this VirtualElement.
+  IN: f = (concreteElement) -> x
   OUT: promise.then (x) ->
 
   OVERRIDE: OK
+
+  PURPOSE: This is provided for the web-worker React so you can access the concrete element even though it is
+    in another context. In that case, "f" will be serialized and any closure will be lost...
   ###
   withElement: (f) -> new Promise (resolve) -> resolve f @element
 
-  #################
-  # Custom Concrete-Element Overrides
-  #################
+  # EFFECT: @props has been updated and any prosp on the Concrete Element have been update
+  # OUT: true if props changed
   _updateElementProps: (newProps) ->
 
+  # IN: childrenElement: array of concrete elements to be all the children for this element
   _setElementChildren: (childElements) ->
 
+  # OUT: new concrete element instance
   _newElement: (elementClassName, props, childElements, bindToOrCreateNewParentElementProps)->
+    elementClassName
 
   _newErrorElement: -> null
 
