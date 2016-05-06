@@ -42,7 +42,7 @@ suite "Art.React.Component.render", ->
     rendered = c.render()
     log rendered:rendered
     assert.eq rendered.class, VirtualElement
-    assert.eq rendered.elementClass, Engine.Elements.RectangleElement
+    assert.eq rendered.elementClassName, Engine.Elements.RectangleElement.name
     assert.eq rendered.props, color: "red"
     assert.eq rendered.children, []
 
@@ -56,15 +56,15 @@ suite "Art.React.Component.render", ->
     c = new MyComponent
     rendered = c.render()
     assert.eq rendered.class, VirtualElement
-    assert.eq rendered.elementClass, Engine.Core.Element
+    assert.eq rendered.elementClassName, Engine.Core.Element.name
     assert.eq rendered.props, {}
     assert.eq rendered.children[0].class, VirtualElement
-    assert.eq rendered.children[0].elementClass, Engine.Elements.RectangleElement
+    assert.eq rendered.children[0].elementClassName, Engine.Elements.RectangleElement.name
     assert.eq rendered.children[0].props, color: "red"
     assert.eq rendered.children[0].children, []
 
     assert.eq rendered.children[1].class, VirtualElement
-    assert.eq rendered.children[1].elementClass, Engine.Elements.RectangleElement
+    assert.eq rendered.children[1].elementClassName, Engine.Elements.RectangleElement.name
     assert.eq rendered.children[1].props, color: "blue"
     assert.eq rendered.children[1].children, []
 

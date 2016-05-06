@@ -2,8 +2,9 @@
 # file: art/index.coffee
 
 module.exports =
-Art       = require './namespace'
-Art.React = require './react'
+Art                      = require './namespace'
+Art.React                = require './react'
+Art.ReactSpecializations = require './react_specializations'
 Art.finishLoad(
   []
 )

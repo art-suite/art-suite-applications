@@ -1,6 +1,6 @@
 Foundation = require 'art-foundation'
 VirtualNode = require './virtual_node'
-{Element} = require './aim'
+# {Element} = require './aim'
 ReactArtEngineEpoch = require './react_art_engine_epoch'
 {
   log, merge, mergeInto, clone, shallowClone
@@ -17,6 +17,7 @@ ReactArtEngineEpoch = require './react_art_engine_epoch'
   createWithPostCreate
   arrayWithout
   upperCamelCase
+  createObjectTreeFactory
 } = Foundation
 {reactArtEngineEpoch} = ReactArtEngineEpoch
 
@@ -190,13 +191,18 @@ module.exports = class Component extends VirtualNode
     k for k, v of prototype when k != "constructor" && isFunction(v) && prototype.hasOwnProperty(k) && k not in nonBindingFunctions
 
   @toComponentFactory: ->
-    VirtualNode.factoryFactory (props, children) =>
+    ret = createObjectTreeFactory (props, children) =>
       props.children = children if children.length > 0
 
       instance = new @ props
       instance._validateChildren props?.children # TODO: only in dev mode!
 
       instance
+
+    ret.instantiateAsTopComponent = (spec, options) ->
+      ret(spec).instantiateAsTopComponent options
+
+    ret
 
   @stateFields: (fields) ->
     @_stateFields = mergeInto @_stateFields, fields
@@ -285,7 +291,7 @@ module.exports = class Component extends VirtualNode
   # @getDefaultProps: -> {}
 
   # returns a VirtalNode instance
-  render: -> Element()
+  # render: -> Element()
 
   ################################################
   # Component LifeCycle based on Facebook React

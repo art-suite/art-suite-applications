@@ -11,13 +11,7 @@ emptyObject = {}
 module.exports = class VirtualNode extends BaseObject
   @propsEq: propsEq = plainObjectsDeepEq
 
-  onNextReady: (f) -> reactArtEngineEpoch.onNextReady f
-
-  @factoryFactory: (factory) ->
-    ret = createObjectTreeFactory factory
-    ret.instantiateAsTopComponent = (spec, options) ->
-      ret(spec).instantiateAsTopComponent options
-    ret
+  onNextReady: (f, forceEpoch = true) -> reactArtEngineEpoch.onNextReady f, forceEpoch, @
 
   @assignRefsTo: null
 

@@ -1,38 +1,5 @@
 Foundation = require 'art-foundation'
-VirtualElement = require './virtual_element'
-{log, wordsArray} = Foundation
-
-{createVirtualElementFactory} = VirtualElement
-classForElement = if ArtEngineCore = Neptune.Art.Engine.Core
-  {elementFactory} = ArtEngineCore.ElementFactory
-  (e) ->
-    unless klass = elementFactory.classForElement e
-      console.error "Could not find Class for Element: #{e}"
-    klass
-else
-  (e) -> e
-
-elementClassNames = wordsArray "
-  BitmapElement
-  BlurElement
-  CanvasElement
-  ShapeElement
-  Element
-  FillElement
-  OutlineElement
-  PagingScrollElement
-  RectangleElement
-  ShadowElement
-  TextElement
-  TextInput
-  "
-
-module.exports = class Aim
-  @addElement: (elementClassName) ->
-    Aim[elementClassName] ||= createVirtualElementFactory classForElement elementClassName
-
-Aim.addElement elementClassName for elementClassName in elementClassNames
-
+{max, min, bound} = Foundation
 ###
 SBD: I'm not sure where best to put getNextPageIndexes, so I'm putting it here for now.
 It is potentially needed by any react component using PagingScrollElement. I'd put it on the
@@ -85,28 +52,28 @@ Supports:
       gives external data requests triggered by page renders more time to complete before the page is onscreen
 
 ###
-{max, min, bound} = Foundation
-Aim.PagingScrollElement.getNextPageIndexes = (lastPageIndexes, suggestedPageSpread, focusedPageIndex, maxKeep, maxPrerender, maxPageIndex, minPageIndex = 0) ->
+module.exports = class PagingScrollElement
+  @getNextPageIndexes: (lastPageIndexes, suggestedPageSpread, focusedPageIndex, maxKeep, maxPrerender, maxPageIndex, minPageIndex = 0) ->
 
-  {firstPageIndex, lastPageIndex} = lastPageIndexes
+    {firstPageIndex, lastPageIndex} = lastPageIndexes
 
-  newFirstPageIndex = focusedPageIndex - suggestedPageSpread - maxPrerender
-  newLastPageIndex = focusedPageIndex + suggestedPageSpread + maxPrerender
+    newFirstPageIndex = focusedPageIndex - suggestedPageSpread - maxPrerender
+    newLastPageIndex = focusedPageIndex + suggestedPageSpread + maxPrerender
 
-  firstPageIndex = max minPageIndex, bound newFirstPageIndex - maxKeep, firstPageIndex, newFirstPageIndex
-  lastPageIndex  = min maxPageIndex, bound newLastPageIndex, lastPageIndex, newLastPageIndex  + maxKeep
+    firstPageIndex = max minPageIndex, bound newFirstPageIndex - maxKeep, firstPageIndex, newFirstPageIndex
+    lastPageIndex  = min maxPageIndex, bound newLastPageIndex, lastPageIndex, newLastPageIndex  + maxKeep
 
-  # log getNextPageIndexes:
-  #   suggestedPagesBeforeFocusedPage: suggestedPagesBeforeFocusedPage
-  #   suggestedPagesAfterFocusedPage: suggestedPagesAfterFocusedPage
-  #   focusedPageIndex: focusedPageIndex
-  #   newFirstPageIndex: newFirstPageIndex
-  #   newLastPageIndex: newLastPageIndex
-  #   firstPageIndex: firstPageIndex
-  #   lastPageIndex: lastPageIndex
+    # log getNextPageIndexes:
+    #   suggestedPagesBeforeFocusedPage: suggestedPagesBeforeFocusedPage
+    #   suggestedPagesAfterFocusedPage: suggestedPagesAfterFocusedPage
+    #   focusedPageIndex: focusedPageIndex
+    #   newFirstPageIndex: newFirstPageIndex
+    #   newLastPageIndex: newLastPageIndex
+    #   firstPageIndex: firstPageIndex
+    #   lastPageIndex: lastPageIndex
 
-  if firstPageIndex == lastPageIndexes.firstPageIndex && lastPageIndex == lastPageIndexes.lastPageIndex
-    null
-  else
-    firstPageIndex: firstPageIndex
-    lastPageIndex: lastPageIndex
+    if firstPageIndex == lastPageIndexes.firstPageIndex && lastPageIndex == lastPageIndexes.lastPageIndex
+      null
+    else
+      firstPageIndex: firstPageIndex
+      lastPageIndex: lastPageIndex

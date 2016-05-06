@@ -3,7 +3,6 @@
 
 module.exports =
 React                     = require './namespace'
-React.Aim                 = require './aim'
 React.All                 = require './all'
 React.Component           = require './component'
 React.HotStyleProps       = require './hot_style_props'
@@ -11,5 +10,5 @@ React.ReactArtEngineEpoch = require './react_art_engine_epoch'
 React.VirtualElement      = require './virtual_element'
 React.VirtualNode         = require './virtual_node'
 React.finishLoad(
-  ["Aim","All","Component","HotStyleProps","ReactArtEngineEpoch","VirtualElement","VirtualNode"]
+  ["All","Component","HotStyleProps","ReactArtEngineEpoch","VirtualElement","VirtualNode"]
 )

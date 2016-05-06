@@ -12,7 +12,7 @@ define [
     test "Element virtual-Aim factory", ->
       a = Element {}
       assert.eq a.class, VirtualElement
-      assert.eq a.elementClass, Engine.Core.Element
+      assert.eq a.elementClassName, "Element"
 
     test "createComponentFactory spec...", ->
       c = createComponentFactory render: ->

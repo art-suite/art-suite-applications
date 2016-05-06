@@ -1,20 +1,16 @@
-define [
-  'art-foundation'
-  './namespace'
-  './component'
-  './react_art_engine_epoch'
-  './aim'
-], (Foundation, React, Component, ReactArtEngineEpoch, Aim) ->
-  {log, createAllClass, select} = Foundation
-  {reactArtEngineEpoch} = ReactArtEngineEpoch
+Foundation = require 'art-foundation'
+Component = require './component'
+ReactArtEngineEpoch = require './react_art_engine_epoch'
 
-  createAllClass React,
-    select Component, "createAndInstantiateTopComponent", "createComponentFactory"
+{log, createAllClass, select} = Foundation
+{reactArtEngineEpoch} = ReactArtEngineEpoch
 
-    instantiateTopComponent: (componentInstance, bindToElementOrNewCanvasElementProps) ->
-      console.warn "React.instantiateTopComponent is DEPRICATED. Use: componentInstance.instantiateAsTopComponent"
-      componentInstance.instantiateAsTopComponent bindToElementOrNewCanvasElementProps
+React = require './namespace'
+.includeInNamespace null,
+  [Component, "createAndInstantiateTopComponent", "createComponentFactory"]
 
-    onNextReady: (callback) -> reactArtEngineEpoch.onNextReady callback
+  instantiateTopComponent: (componentInstance, bindToElementOrNewCanvasElementProps) ->
+    console.warn "React.instantiateTopComponent is DEPRICATED. Use: componentInstance.instantiateAsTopComponent"
+    componentInstance.instantiateAsTopComponent bindToElementOrNewCanvasElementProps
 
-    Aim
+  onNextReady: (callback) -> reactArtEngineEpoch.onNextReady callback

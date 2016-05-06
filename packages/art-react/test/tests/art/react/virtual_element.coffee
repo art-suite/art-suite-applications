@@ -15,14 +15,13 @@ define [
     test "new VirtualElement from createVirtualElementFactory()", ->
       a = Element {}
       assert.ok a instanceof VirtualElement
-      assert.eq a.elementClass, Engine.Core.Element
+      assert.eq a.elementClassName, "Element"
       assert.eq a.element, null
-      # assert.eq a.elementClass, Engine.Core.Element
 
     test "Element()", ->
       a = Element()
       assert.ok a instanceof VirtualElement
-      assert.eq a.elementClass, Engine.Core.Element
+      assert.eq a.elementClassName, "Element"
       assert.eq a.element, null
 
     test "VirtualElement with props", ->

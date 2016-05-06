@@ -16,13 +16,11 @@ Element = null
 Rectangle = "Rectangle"
 if ArtEngineCore = Neptune.Art.Engine.Core
   {Shapes:{Rectangle}} = Neptune.Art.Engine.Elements
-  {CanvasElement, Element} = ArtEngineCore
+  {CanvasElement, Element, ElementFactory} = ArtEngineCore
 
 errorElementProps = key:"ART_REACT_ERROR_CREATING_CHILD_PLACEHOLDER", color:"orange"
 
 class VirtualElementLocalBase extends VirtualNode
-  @getter
-    elementClassName: -> @elementClass.name
 
   _updateElementProps: (newProps) ->
     addedOrChanged  = (k, v) => @element.setProperty k, v
@@ -31,8 +29,8 @@ class VirtualElementLocalBase extends VirtualNode
 
   _setElementChildren: (childElements) -> @element.setChildren childElements
 
-  _newElement: (elementClass, props, childElements, bindToElementOrNewCanvasElementProps)->
-    element = new elementClass props, childElements
+  _newElement: (elementClassName, props, childElements, bindToElementOrNewCanvasElementProps)->
+    element = ElementFactory.newElement @elementClassName, props, childElements
 
     if bindToElementOrNewCanvasElementProps
       if bindToElementOrNewCanvasElementProps instanceof Element
@@ -59,15 +57,12 @@ class VirtualElementRemoteBase extends VirtualNode
     super
     @_sendRemoteQueuePending = false
 
-  @getter
-    elementClassName: -> @elementClass
-
   _setElementChildren: (childElements) ->
     remote.updateElement @element, children: childElements
     @_sendRemoteQueue()
 
-  _newElement: (elementClass, props, childElements, newCanvasElementProps) ->
-    remoteId = remote.newElement @elementClass, merge(props, children: childElements), newCanvasElementProps
+  _newElement: (elementClassName, props, childElements, newCanvasElementProps) ->
+    remoteId = remote.newElement @elementClassName, merge(props, children: childElements), newCanvasElementProps
     @_sendRemoteQueue()
     remoteId
 
@@ -105,15 +100,11 @@ module.exports = class VirtualElement extends (if isWebWorker then VirtualElemen
   @created = 0
   @instantiated = 0
 
-  @createVirtualElementFactory: (elementClass) ->
-    VirtualNode.factoryFactory (props, children) ->
-      new VirtualElement elementClass, props, children
-
   emptyProps = {}
-  constructor: (elementClass, props, children) ->
+  constructor: (elementClassName, props, children) ->
     # globalCount "ReactVirtualElement_Created"
     VirtualElement.created++
-    @elementClass = elementClass
+    @elementClassName = elementClassName
     super props || emptyProps
     @children = @_validateChildren compactFlatten children, keepIfRubyTrue
 
@@ -122,7 +113,7 @@ module.exports = class VirtualElement extends (if isWebWorker then VirtualElemen
   #################
   @getter
     inspectedName: ->
-      "<React.VirtualElement:#{@uniqueId} elementClass: #{@elementClassName}, props: #{inspect @props}>"
+      "<React.VirtualElement:#{@uniqueId} elementClassName: #{@elementClassName}, props: #{inspect @props}>"
 
   toCoffeescript: (indent = "") ->
     compactFlatten([
@@ -149,7 +140,7 @@ module.exports = class VirtualElement extends (if isWebWorker then VirtualElemen
     null
 
   _canUpdateFrom: (b)->
-    @elementClass == b.elementClass &&
+    @elementClassName == b.elementClassName &&
     @key == b.key
 
   ###
@@ -240,12 +231,12 @@ module.exports = class VirtualElement extends (if isWebWorker then VirtualElemen
             childIndex #{i}
             error: #{e}
             child: #{c}
-            elementClass: #{@elementClassName}
+            elementClassName: #{@elementClassName}
             props: #{inspect @props}
           """
         @_newErrorElement()
 
-    @element = @_newElement @elementClass, @props, childElements, bindToElementOrNewCanvasElementProps
+    @element = @_newElement @elementClassName, @props, childElements, bindToElementOrNewCanvasElementProps
 
     @
 
