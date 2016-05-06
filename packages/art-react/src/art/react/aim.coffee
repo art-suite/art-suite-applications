@@ -1,6 +1,6 @@
 Foundation = require 'art-foundation'
 VirtualElement = require './virtual_element'
-{log} = Foundation
+{log, wordsArray} = Foundation
 
 {createVirtualElementFactory} = VirtualElement
 classForElement = if ArtEngineCore = Neptune.Art.Engine.Core
@@ -12,7 +12,7 @@ classForElement = if ArtEngineCore = Neptune.Art.Engine.Core
 else
   (e) -> e
 
-elementClassNames = "
+elementClassNames = wordsArray "
   BitmapElement
   BlurElement
   CanvasElement
@@ -25,7 +25,7 @@ elementClassNames = "
   ShadowElement
   TextElement
   TextInput
-  ".split /\s+/
+  "
 
 module.exports = class Aim
   @addElement: (elementClassName) ->

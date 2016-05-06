@@ -3,7 +3,7 @@ Engine = require 'art-engine'
 React = require 'art-react'
 
 {log, merge} = Foundation
-{createComponentFactory, Component, VirtualElement, Element, Rectangle} = React
+{createComponentFactory, Component, VirtualElement, Element, RectangleElement} = React
 
 suite "Art.React.Component.lifeCycle", ->
   test "componentWillMount", (done)->

@@ -9,7 +9,7 @@ define [
   {StateEpoch} = Engine.Core
   {stateEpoch} = StateEpoch
 
-  {createComponentFactory, VirtualElement, VirtualNode, Component, Element, Rectangle} = React
+  {createComponentFactory, VirtualElement, VirtualNode, Component, Element, RectangleElement} = React
 
   suite "Art.React.VirtualElement", ->
     test "new VirtualElement from createVirtualElementFactory()", ->
@@ -66,6 +66,7 @@ define [
       assert.eq a.props, a:1, b:2
       assert.eq ["child1", "child2"], (child.props.name for child in a.children)
 
+  suite "Art.React.VirtualElement.instantiate", ->
     test "instantiate VirtualElement with props", (done)->
       a = Element size: 123
       a._instantiate {}
@@ -86,6 +87,7 @@ define [
         assert.eq ["child1", "child2"], (child.name for child in a.element.children)
         done()
 
+  suite "Art.React.VirtualElement._canUpdateFrom", ->
     test "_canUpdateFrom matching elementClasses == true", ->
       a = Element name: "foo"
       b = Element name: "bar"
@@ -93,7 +95,7 @@ define [
 
     test "_canUpdateFrom missmatched elementClasses == false", ->
       a = Element name: "foo"
-      b = Rectangle name: "bar"
+      b = RectangleElement name: "bar"
       assert.eq false, a._canUpdateFrom b
 
     test "_canUpdateFrom missmatched keys == false", ->
@@ -101,6 +103,7 @@ define [
       b = Element key: "bar"
       assert.eq false, a._canUpdateFrom b
 
+  suite "Art.React.VirtualElement._updateFrom", ->
     test "_updateFrom changed props", (done)->
       a = Element name: "foo"
       b = Element name: "bar"
@@ -201,10 +204,10 @@ define [
       a = Element
         name: "foo"
         Element name: "child1"
-        Rectangle name: "child2"
+        RectangleElement name: "child2"
       b = Element
         name: "bar"
-        Rectangle name: "child2"
+        RectangleElement name: "child2"
         Element name: "child1"
 
       a._instantiate {}

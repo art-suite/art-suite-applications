@@ -5,7 +5,7 @@ React = require 'art-react'
 
 {stateEpoch} = Engine.Core.StateEpoch
 
-{Element, Rectangle, createComponentFactory, Component, VirtualElement, ReactArtEngineEpoch} = React
+{Element, RectangleElement, createComponentFactory, Component, VirtualElement, ReactArtEngineEpoch} = React
 {reactArtEngineEpoch} = ReactArtEngineEpoch
 
 suite "Art.React.Component.instantiate", ->
@@ -36,7 +36,7 @@ suite "Art.React.Component.render", ->
   test "render", ->
     class MyComponent extends Component
       render: ->
-        Rectangle color: "red"
+        RectangleElement color: "red"
 
     c = new MyComponent
     rendered = c.render()
@@ -50,8 +50,8 @@ suite "Art.React.Component.render", ->
     class MyComponent extends Component
       render: ->
         Element {},
-          Rectangle color: "red"
-          Rectangle color: "blue"
+          RectangleElement color: "red"
+          RectangleElement color: "blue"
 
     c = new MyComponent
     rendered = c.render()
@@ -215,8 +215,8 @@ suite "Art.React.Component.refs", ->
     class MyComponent extends Component
       render: ->
         Element {},
-          rr = Rectangle key:"redRectangle", color: "red"
-          br = Rectangle key:"blueRectangle", color: "blue"
+          rr = RectangleElement key:"redRectangle", color: "red"
+          br = RectangleElement key:"blueRectangle", color: "blue"
 
     c = new MyComponent
     c._instantiate()
@@ -229,8 +229,8 @@ suite "Art.React.Component.refs", ->
     class MyComponent extends Component
       render: ->
         Element {},
-          rr = Rectangle key:"redRectangle", color: "red"
-          br = Rectangle key:"redRectangle", color: "blue"
+          rr = RectangleElement key:"redRectangle", color: "red"
+          br = RectangleElement key:"redRectangle", color: "blue"
 
     c = new MyComponent
     c._instantiate()
@@ -247,8 +247,8 @@ suite "Art.React.Component.refs", ->
     class MyComponent extends Component
       render: ->
         Wrapper {},
-          rr = Rectangle key:"redRectangle", color: "red"
-          br = Rectangle key:"blueRectangle", color: "blue"
+          rr = RectangleElement key:"redRectangle", color: "red"
+          br = RectangleElement key:"blueRectangle", color: "blue"
 
     c = new MyComponent
     c._instantiate()
@@ -271,8 +271,8 @@ suite "Art.React.Component.children prop", ->
     class MyComponent extends Component
       render: ->
         Wrapper {},
-          Rectangle color: "red"
-          Rectangle color: "blue"
+          RectangleElement color: "red"
+          RectangleElement color: "blue"
 
     c = new MyComponent
     c._instantiate()
