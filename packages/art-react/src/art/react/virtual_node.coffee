@@ -120,6 +120,6 @@ module.exports = class VirtualNode extends BaseObject
   #   Virtual-AIM sub-branch is fully generated
   #   All True-AIM elements have been created and assembled
   # returns this
-  _instantiate: (parentComponent, bindToElementOrNewCanvasElementProps) ->
+  _instantiate: (parentComponent, bindToOrCreateNewParentElementProps) ->
     @_parentComponent = parentComponent
     @

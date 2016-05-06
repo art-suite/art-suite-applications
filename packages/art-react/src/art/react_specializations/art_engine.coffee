@@ -1,3 +1,32 @@
 Engine = require 'art-engine'
-module.exports = React = require "../react"
-React.includeInNamespace require './aim'
+React = require "../react"
+{ElementFactory, Element, CanvasElement} = Engine
+module.exports = React
+
+class React.VirtualElementArtEngine extends React.VirtualElement
+
+  _updateElementProps: (newProps) ->
+    addedOrChanged  = (k, v) => @element.setProperty k, v
+    removed         = (k, v) => @element.resetProperty k
+    @_updateElementPropsHelper newProps, addedOrChanged, removed
+
+  _setElementChildren: (childElements) -> @element.setChildren childElements
+
+  _newElement: (elementClassName, props, childElements, bindToOrCreateNewParentElementProps)->
+    element = ElementFactory.newElement @elementClassName, props, childElements
+
+    if bindToOrCreateNewParentElementProps
+      if bindToOrCreateNewParentElementProps instanceof Element
+        bindToOrCreateNewParentElementProps.addChild element
+      else
+        props = merge bindToOrCreateNewParentElementProps,
+          webgl: Browser.Parse.query().webgl == "true"
+          children: [element]
+        new CanvasElement props
+
+    element.creator = @
+    element
+
+  _newErrorElement: -> @_newElement "RectangleElement", key:"ART_REACT_ERROR_CREATING_CHILD_PLACEHOLDER", color:"orange"
+
+React.includeInNamespace (require './aim').createVirtualElementFactories React.VirtualElementArtEngine

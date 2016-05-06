@@ -11,7 +11,7 @@ define [
   suite "Art.React.Main", ->
     test "Element virtual-Aim factory", ->
       a = Element {}
-      assert.eq a.class, VirtualElement
+      assert.ok a.class.constructor instanceof VirtualElement.constructor
       assert.eq a.elementClassName, "Element"
 
     test "createComponentFactory spec...", ->

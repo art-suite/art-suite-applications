@@ -232,9 +232,9 @@ module.exports = class Component extends VirtualNode
     @_applyingPendingState = false
     Component.pushCreatedComponent @
 
-  instantiateAsTopComponent: (bindToElementOrNewCanvasElementProps) ->
+  instantiateAsTopComponent: (bindToOrCreateNewParentElementProps) ->
     Component.topComponentInstances.push @
-    @_instantiate null, bindToElementOrNewCanvasElementProps
+    @_instantiate null, bindToOrCreateNewParentElementProps
 
   @getter
     inspectedName: -> "#{@className}#{if @key then "-"+@key  else ''}"
@@ -506,7 +506,7 @@ module.exports = class Component extends VirtualNode
       if hotInstances && 0 <= index = hotInstances.indexOf @
         moduleState.hotInstances = arrayWithout hotInstances, index
 
-  _instantiate: (parentComponent, bindToElementOrNewCanvasElementProps) ->
+  _instantiate: (parentComponent, bindToOrCreateNewParentElementProps) ->
     super
     globalCount "ReactComponent_Instantiated"
     @_bindFunctions()
@@ -522,7 +522,9 @@ module.exports = class Component extends VirtualNode
 
     @_virtualAimBranch = @_renderCaptureRefs()
 
-    @_virtualAimBranch._instantiate @, bindToElementOrNewCanvasElementProps
+    log _virtualAimBranch:@_virtualAimBranch
+
+    @_virtualAimBranch._instantiate @, bindToOrCreateNewParentElementProps
     @element = @_virtualAimBranch.element
 
     @_componentDidMount()

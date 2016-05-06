@@ -9,8 +9,8 @@ React = require './namespace'
 .includeInNamespace null,
   [Component, "createAndInstantiateTopComponent", "createComponentFactory"]
 
-  instantiateTopComponent: (componentInstance, bindToElementOrNewCanvasElementProps) ->
+  instantiateTopComponent: (componentInstance, bindToOrCreateNewParentElementProps) ->
     console.warn "React.instantiateTopComponent is DEPRICATED. Use: componentInstance.instantiateAsTopComponent"
-    componentInstance.instantiateAsTopComponent bindToElementOrNewCanvasElementProps
+    componentInstance.instantiateAsTopComponent bindToOrCreateNewParentElementProps
 
   onNextReady: (callback) -> reactArtEngineEpoch.onNextReady callback

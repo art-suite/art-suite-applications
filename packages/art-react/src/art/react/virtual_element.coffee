@@ -11,92 +11,7 @@ VirtualNode = require './virtual_node'
 } = Foundation
 {propsEq} = VirtualNode
 
-CanvasElement = null
-Element = null
-Rectangle = "Rectangle"
-if ArtEngineCore = Neptune.Art.Engine.Core
-  {Shapes:{Rectangle}} = Neptune.Art.Engine.Elements
-  {CanvasElement, Element, ElementFactory} = ArtEngineCore
-
-errorElementProps = key:"ART_REACT_ERROR_CREATING_CHILD_PLACEHOLDER", color:"orange"
-
-class VirtualElementLocalBase extends VirtualNode
-
-  _updateElementProps: (newProps) ->
-    addedOrChanged  = (k, v) => @element.setProperty k, v
-    removed         = (k, v) => @element.resetProperty k
-    @_updateElementPropsHelper newProps, addedOrChanged, removed
-
-  _setElementChildren: (childElements) -> @element.setChildren childElements
-
-  _newElement: (elementClassName, props, childElements, bindToElementOrNewCanvasElementProps)->
-    element = ElementFactory.newElement @elementClassName, props, childElements
-
-    if bindToElementOrNewCanvasElementProps
-      if bindToElementOrNewCanvasElementProps instanceof Element
-        bindToElementOrNewCanvasElementProps.addChild element
-      else
-        props = merge bindToElementOrNewCanvasElementProps,
-          webgl: Browser.Parse.query().webgl == "true"
-          children: [element]
-        new CanvasElement props
-
-    element.creator = @
-    element
-
-  ###
-  execute the function 'f' on the Art.Engine Element associated with this VirtualElement.
-  IN: f = (Art.Engine.Core.Element) -> x
-  OUT: Promise returning x
-  ###
-  withElement: (f) -> new Promise (resolve) -> resolve f @element
-
-class VirtualElementRemoteBase extends VirtualNode
-
-  constructor: ->
-    super
-    @_sendRemoteQueuePending = false
-
-  _setElementChildren: (childElements) ->
-    remote.updateElement @element, children: childElements
-    @_sendRemoteQueue()
-
-  _newElement: (elementClassName, props, childElements, newCanvasElementProps) ->
-    remoteId = remote.newElement @elementClassName, merge(props, children: childElements), newCanvasElementProps
-    @_sendRemoteQueue()
-    remoteId
-
-  _updateElementProps: (newProps) ->
-    setProps = {}; resetProps = []
-    addedOrChanged  = (k, v) => setProps[k] = v
-    removed         = (k, v) => resetProps.push k
-    if changed = @_updateElementPropsHelper newProps, addedOrChanged, removed
-      remote.updateElement @element, setProps, resetProps
-      @_sendRemoteQueue()
-
-    changed
-
-  _sendRemoteQueue: ->
-    unless @_sendRemoteQueuePending
-      @_sendRemoteQueuePending = true
-      @onNextReady =>
-        remote.sendRemoteQueue()
-        @_sendRemoteQueuePending = false
-
-  ###
-  execute the function 'f' on the Art.Engine Element associated with this VirtualElement.
-  NOTE: runs in the main thread. 'f' is serialized, so it loses all closure state.
-  IN: f = (Art.Engine.Core.Element) -> x
-  OUT: Promise returning x
-
-  TODO: we could allow additional arguments to be passed which would in turn be
-  passed to 'f' on when invoked on the main thread:
-
-    withElement: (f, args...) -> remote.evalWithElement @element, f, args
-  ###
-  withElement: (f) -> remote.evalWithElement @element, f
-
-module.exports = class VirtualElement extends (if isWebWorker then VirtualElementRemoteBase else VirtualElementLocalBase)
+module.exports = class VirtualElement extends VirtualNode
   @created = 0
   @instantiated = 0
 
@@ -127,6 +42,30 @@ module.exports = class VirtualElement extends (if isWebWorker then VirtualElemen
         for child in @children
           "\n#{child.toCoffeescript subIndent}"
     ]).join ''
+
+
+  #################
+  # Concrete Element Access
+  #################
+  ###
+  execute the function 'f' on the Art.Engine Element associated with this VirtualElement.
+  IN: f = (Art.Engine.Core.Element) -> x
+  OUT: promise.then (x) ->
+
+  OVERRIDE: OK
+  ###
+  withElement: (f) -> new Promise (resolve) -> resolve f @element
+
+  #################
+  # Custom Concrete-Element Overrides
+  #################
+  _updateElementProps: (newProps) ->
+
+  _setElementChildren: (childElements) ->
+
+  _newElement: (elementClassName, props, childElements, bindToOrCreateNewParentElementProps)->
+
+  _newErrorElement: -> null
 
   #################
   # Update
@@ -215,7 +154,7 @@ module.exports = class VirtualElement extends (if isWebWorker then VirtualElemen
   fully create all AIM elements
   returns this
   ###
-  _instantiate: (parentComponent, bindToElementOrNewCanvasElementProps) ->
+  _instantiate: (parentComponent, bindToOrCreateNewParentElementProps) ->
     super
     VirtualElement.instantiated++
     # globalCount "ReactVirtualElement_Instantiated"
@@ -236,15 +175,13 @@ module.exports = class VirtualElement extends (if isWebWorker then VirtualElemen
           """
         @_newErrorElement()
 
-    @element = @_newElement @elementClassName, @props, childElements, bindToElementOrNewCanvasElementProps
+    @element = @_newElement @elementClassName, @props, childElements, bindToOrCreateNewParentElementProps
 
     @
 
   ##################
   # PRIVATE
   ##################
-  _newErrorElement: -> @_newElement Rectangle, errorElementProps
-
   # returns true if props changed
   _updateElementPropsHelper: (newProps, addedOrChanged, removed) ->
     oldPropsLength = @getPropsLength()
