@@ -33,14 +33,6 @@ module.exports = class Aim
 
 Aim.addElement elementClassName for elementClassName in elementClassNames
 
-# DEPRICATED names:
-Aim.Bitmap    = Aim.BitmapElement
-Aim.Fill      = Aim.FillElement
-Aim.Outline   = Aim.OutlineElement
-Aim.Rectangle = Aim.RectangleElement
-Aim.Blur      = Aim.BlurElement
-Aim.Shadow    = Aim.ShadowElement
-
 ###
 SBD: I'm not sure where best to put getNextPageIndexes, so I'm putting it here for now.
 It is potentially needed by any react component using PagingScrollElement. I'd put it on the
