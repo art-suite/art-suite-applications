@@ -199,12 +199,12 @@ Logo = createComponentFactory
         OutlineElement
           color: "#0247"
           lineWidth: 3
-          compositeMode: "destover"
+          compositeMode: "destOver"
         OutlineElement
           lineJoin: "round"
           color: "#48ca"
           lineWidth: 5
-          compositeMode: "destover"
+          compositeMode: "destOver"
 
 module.exports = createComponentFactory class Quixx extends FluxComponent
   module: module
