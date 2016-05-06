@@ -522,8 +522,6 @@ module.exports = class Component extends VirtualNode
 
     @_virtualAimBranch = @_renderCaptureRefs()
 
-    log _virtualAimBranch:@_virtualAimBranch
-
     @_virtualAimBranch._instantiate @, bindToOrCreateNewParentElementProps
     @element = @_virtualAimBranch.element
 
