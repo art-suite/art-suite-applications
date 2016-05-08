@@ -58,7 +58,7 @@ module.exports = class VirtualElement extends VirtualNode
   ###
   withElement: (f) -> new Promise (resolve) -> resolve f @element
 
-  # EFFECT: @props has been updated and any prosp on the Concrete Element have been update
+  # EFFECT: @props has been updated and any props on the Concrete Element have been update
   # OUT: true if props changed
   _updateElementProps: (newProps) ->
 
@@ -186,7 +186,8 @@ module.exports = class VirtualElement extends VirtualNode
   ##################
   # PRIVATE
   ##################
-  # returns true if props changed
+  # EFFECT: @props has been set to the newProps if they changed
+  # OUT: true if props changed
   _updateElementPropsHelper: (newProps, addedOrChanged, removed) ->
     oldPropsLength = @getPropsLength()
     oldProps = @props

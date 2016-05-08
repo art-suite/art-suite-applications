@@ -6,7 +6,8 @@ ReactSpecializations                     = require './namespace'
 ReactSpecializations.Aim                 = require './aim'
 ReactSpecializations.ArtEngine           = require './art_engine'
 ReactSpecializations.ArtEngineRemote     = require './art_engine_remote'
+ReactSpecializations.Dom                 = require './dom'
 ReactSpecializations.PagingScrollElement = require './paging_scroll_element'
 ReactSpecializations.finishLoad(
-  ["Aim","ArtEngine","ArtEngineRemote","PagingScrollElement"]
+  ["Aim","ArtEngine","ArtEngineRemote","Dom","PagingScrollElement"]
 )
