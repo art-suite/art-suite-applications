@@ -3,8 +3,5 @@
 
 Art = require '../namespace'
 module.exports = Art.ReactSpecializations ||
-class Art.ReactSpecializations extends Neptune.Base
-  @namespace: Art
-  @namespacePath: "Neptune.Art.ReactSpecializations"
-
-Art.addNamespace Art.ReactSpecializations
+Art.addNamespace class ReactSpecializations extends Neptune.Base
+  ;
