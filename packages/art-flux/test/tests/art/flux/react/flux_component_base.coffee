@@ -9,8 +9,7 @@ define [
   {FluxStore, FluxModel, ModelRegistry} = Flux.Core
   {FluxComponentBase} = Flux.React
   {fluxStore} = FluxStore
-  {createComponentFactory, Aim} = ReactArtEngine
-  {Element} = Aim
+  {createComponentFactory, Element} = ReactArtEngine
 
   reset = ->
     fluxStore._reset()
@@ -42,7 +41,7 @@ define [
         render: ->
           Element name: @state.fluxFoo?.name || "(no name)"
 
-      mw = MyWrapper().instantiateAsTopComponent root = new Engine.Elements.Element name: "root"
+      mw = MyWrapper().instantiateAsTopComponent root = new Engine.Core.Element name: "root"
 
       fluxStore.onNextReady ->
         assert.eq true, fluxStore.getHasSubscribers "myModel", "myKey"

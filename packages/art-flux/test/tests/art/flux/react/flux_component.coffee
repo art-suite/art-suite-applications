@@ -9,8 +9,7 @@ define [
   {VolatileModel, VolatileStore} = Flux.Models
   {volatileStore} = VolatileStore
 
-  {createComponentFactory, Aim} = ReactArtEngine
-  {Element} = Aim
+  {createComponentFactory, Element} = ReactArtEngine
 
   reset = ->
     fluxStore._reset()
