@@ -3,8 +3,5 @@
 
 ColorPicker = require '../namespace'
 module.exports = ColorPicker.Components ||
-class ColorPicker.Components extends Neptune.Base
-  @namespace: ColorPicker
-  @namespacePath: "Neptune.Art.React.Demos.ColorPicker.Components"
-
-ColorPicker.addNamespace ColorPicker.Components
+ColorPicker.addNamespace class Components extends Neptune.Base
+  ;

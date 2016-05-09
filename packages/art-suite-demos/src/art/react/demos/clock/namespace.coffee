@@ -3,8 +3,5 @@
 
 Demos = require '../namespace'
 module.exports = Demos.Clock ||
-class Demos.Clock extends Neptune.Base
-  @namespace: Demos
-  @namespacePath: "Neptune.Art.React.Demos.Clock"
-
-Demos.addNamespace Demos.Clock
+Demos.addNamespace class Clock extends Neptune.Base
+  ;

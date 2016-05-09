@@ -3,8 +3,5 @@
 
 Demos = require '../namespace'
 module.exports = Demos.PagingScrollElement ||
-class Demos.PagingScrollElement extends Neptune.Base
-  @namespace: Demos
-  @namespacePath: "Neptune.Art.React.Demos.PagingScrollElement"
-
-Demos.addNamespace Demos.PagingScrollElement
+Demos.addNamespace class PagingScrollElement extends Neptune.Base
+  ;

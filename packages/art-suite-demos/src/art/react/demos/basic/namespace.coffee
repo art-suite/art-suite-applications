@@ -3,8 +3,5 @@
 
 Demos = require '../namespace'
 module.exports = Demos.Basic ||
-class Demos.Basic extends Neptune.Base
-  @namespace: Demos
-  @namespacePath: "Neptune.Art.React.Demos.Basic"
-
-Demos.addNamespace Demos.Basic
+Demos.addNamespace class Basic extends Neptune.Base
+  ;
