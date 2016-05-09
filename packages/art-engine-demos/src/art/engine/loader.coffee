@@ -3,8 +3,8 @@ Demos = require "./demos"
 Engine = require "art-engine"
 
 {log, upperCamelCase, mergeInto} = Foundation
-{FullScreenApp, Elements} = Engine
-{CanvasElement, Rectangle, Element, TextElement} = Elements
+{FullScreenApp, Elements, Element, CanvasElement} = Engine
+{RectangleElement, TextElement} = Elements
 
 class LoaderButton extends Element
   constructor: (options)->
@@ -20,7 +20,7 @@ class LoaderButton extends Element
         @mainElement = new Element
           axis: .5
           location: ps: .5
-          new Rectangle color: "yellow"
+          new RectangleElement color: "yellow"
           new TextElement
             size: ps: 1
             fontFamily: "sans-serif"
@@ -36,7 +36,7 @@ class Loader
   constructor: ->
     new CanvasElement
       canvasId: "artCanvas"
-      new Rectangle color: "#333"
+      new RectangleElement color: "#333"
       new Element
         childrenLayout: "flow"
         padding: 10

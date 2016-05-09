@@ -5,7 +5,7 @@ module.exports = ->
   Engine = require 'art-engine'
   {hslColor} = Atomic
   {log, Browser, inspect, bound, min, max, abs, round, modulo} = Foundation
-  {Rectangle, TextElement, CanvasElement, Element, PagingScrollElement} = Engine.Elements
+  {RectangleElement, TextElement, CanvasElement, Element, PagingScrollElement} = Engine
 
   scroll = ({vertical:"vertical", horizontal:"horizontal"}[Browser.Parse.query().scroll]) || "vertical"
   log
@@ -32,7 +32,7 @@ module.exports = ->
             ww:1, h:300
         key: key
         # margin: 10
-        new Rectangle color: hslColor h, 1, 1
+        new RectangleElement color: hslColor h, 1, 1
         new TextElement
           location: ps: .5
           axis: .5
@@ -42,7 +42,7 @@ module.exports = ->
 
   new CanvasElement
     canvasId: "artCanvas"
-    new Rectangle color: "#333"
+    new RectangleElement color: "#333"
     new PagingScrollElement
       padding: 5
       scroll: scroll

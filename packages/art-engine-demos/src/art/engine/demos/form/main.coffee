@@ -5,14 +5,10 @@ Canvas = require 'art-canvas'
 
 {point, color} = Atomic
 {inspect, log, timeout, nextTick, merge} = Foundation
-{Forms, Core, Elements} = Engine
+{Forms, Element, CanvasElement, TextElement, FillElement, RectangleElement} = Engine
 {TextInput} = Forms
-{Element, CanvasElement} = Core
-{TextElement, Fill, Rectangle} = Elements
 
 module.exports = ->
-
-
 
   bgColor = color "#777"
   textColor = color "white"
@@ -31,7 +27,7 @@ module.exports = ->
       cursor: "pointer"
       margin: StyleProps.standardSpacing
       on: pointerClick: click
-      new Rectangle color: "#0001", radius: 3
+      new RectangleElement color: "#0001", radius: 3
       new TextElement merge StyleProps.mediumText,
         size: if size?.wcw
           cs:1
@@ -90,7 +86,7 @@ module.exports = ->
 
   new CanvasElement
     canvasId: "artCanvas"
-    new Rectangle color: "white"
+    new RectangleElement color: "white"
     # new TextElement axis: .5, text: "background", color: "#777", location: ps:.5
 
     dialog = new Element
@@ -99,7 +95,7 @@ module.exports = ->
       axis: .5
       childrenLayout: "column"
 
-      dialogBackground = new Rectangle
+      dialogBackground = new RectangleElement
         inFlow: false
         color: "orange"
         radius:5
@@ -110,7 +106,7 @@ module.exports = ->
         cursor: "move"
         on: pointerMove: (e) =>
           dialog.location = dialog.currentLocation.add e.parentParentDelta
-        new Rectangle color: "#0001"
+        new RectangleElement color: "#0001"
         new TextElement merge StyleProps.mediumText,
           size: ww:1
           padding: 10
@@ -144,7 +140,7 @@ module.exports = ->
             value: "orange"
             align: "center"
             on: enter: (e) -> setColorFromString e.target.value
-            new Rectangle color: color 1,1,1,.75
+            new RectangleElement color: color 1,1,1,.75
 
         new Element
           size: ww:1, hch:1
