@@ -3,8 +3,5 @@
 
 Art = require '../namespace'
 module.exports = Art.Webgl ||
-class Art.Webgl extends Neptune.Base
-  @namespace: Art
-  @namespacePath: "Neptune.Art.Webgl"
-
-Art.addNamespace Art.Webgl
+Art.addNamespace class Webgl extends Neptune.Base
+  ;
