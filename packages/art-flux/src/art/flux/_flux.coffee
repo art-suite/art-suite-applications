@@ -1,29 +1,24 @@
-Foundation = require 'art-foundation'
-Flux = require "./namespace"
 FluxCore = require "./core"
-FluxReact = require "./react"
-ApplicationState = require './models/application_state'
+{FluxComponent} = require "./react"
 
 {FluxStore, ModelRegistry, FluxModel, FluxStatus} = FluxCore
-{FluxComponent} = FluxReact
-{BaseObject, select} = Foundation
-{createAllClass} = BaseObject
 {fluxStore} = FluxStore
 
-createAllClass Flux,
+module.exports = [
   FluxStatus
 
   FluxStore:                  FluxStore
   FluxModel:                  FluxModel
   ModelRegistry:              ModelRegistry
   FluxComponent:              FluxComponent
-  ApplicationState:           ApplicationState
+  ApplicationState:           require './models/application_state'
 
   models:                     ModelRegistry.models
   createFluxComponentFactory: FluxComponent.createFluxComponentFactory
   fluxStore:                  fluxStore
 
-# used only for testing
-Flux._reset = ->
+  # ONLY for testing
+  _reset: ->
     fluxStore._reset()
     ModelRegistry._reset()
+]
