@@ -1,12 +1,7 @@
-Foundation = require 'art-foundation'
 Component = require './component'
-ReactArtEngineEpoch = require './react_art_engine_epoch'
+{reactArtEngineEpoch} = require './react_art_engine_epoch'
 
-{log, createAllClass, select} = Foundation
-{reactArtEngineEpoch} = ReactArtEngineEpoch
-
-React = require './namespace'
-.includeInNamespace null,
+module.exports = [
   [Component, "createAndInstantiateTopComponent", "createComponentFactory"]
 
   instantiateTopComponent: (componentInstance, bindToOrCreateNewParentElementProps) ->
@@ -14,3 +9,4 @@ React = require './namespace'
     componentInstance.instantiateAsTopComponent bindToOrCreateNewParentElementProps
 
   onNextReady: (callback) -> reactArtEngineEpoch.onNextReady callback
+]
