@@ -40,6 +40,6 @@ VirtualElementDom = class React.VirtualElementDom extends React.VirtualElement
     element.style.backgroundColor = "orange"
     element.innerHTML = "ART_REACT_ERROR_CREATING_CHILD_PLACEHOLDER"
 
-React.includeInNamespace createObjectTreeFactories allDomElementNames, (elementClassName, props, children) ->
-  new VirtualElementDom elementClassName, props, children
+React.includeInNamespace createObjectTreeFactories allDomElementNames, (elementClassName) ->
+  (props, children) -> new VirtualElementDom elementClassName, props, children
 

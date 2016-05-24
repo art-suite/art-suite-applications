@@ -2,6 +2,12 @@ Engine = require 'art-engine'
 React = require "../react"
 {ElementFactory, Element, CanvasElement} = Engine
 module.exports = React
+Aim = require './aim'
+
+React.addElementFactories = (elementClassNames) ->
+  for k, v of factories = Aim.createVirtualElementFactories React.VirtualElementArtEngine, elementClassNames
+    React[k] ||= v
+  factories
 
 class React.VirtualElementArtEngine extends React.VirtualElement
 
@@ -29,4 +35,4 @@ class React.VirtualElementArtEngine extends React.VirtualElement
 
   _newErrorElement: -> @_newElement "RectangleElement", key:"ART_REACT_ERROR_CREATING_CHILD_PLACEHOLDER", color:"orange"
 
-React.includeInNamespace (require './aim').createVirtualElementFactories React.VirtualElementArtEngine
+React.addElementFactories()
