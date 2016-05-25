@@ -693,7 +693,9 @@ define [
         res = bitmap.blur 1, true
         assert.neq res, bitmap
 
-      test "png encoded", ->
+    suite "Art.#{bitmapClassName}.common bitmap tests.encode", ->
+
+      test "toPng", ->
         bitmap = bitmapFactory.newBitmap point 16
         drawCheckers bitmap, point(4), "red", "white"
 
@@ -708,7 +710,7 @@ define [
           log bitmap2
           assert.eq bitmap.getImageDataArray(), bitmap2.getImageDataArray()
 
-      test "jpg encoded", ->
+      test "toJpg", ->
         bitmap = bitmapFactory.newBitmap point 4
         drawCheckers bitmap, point(2), "blue", "white"
 

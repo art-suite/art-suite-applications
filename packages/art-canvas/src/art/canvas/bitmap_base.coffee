@@ -203,34 +203,29 @@ define [
       else
         v for v in data # convert to array
 
-    toPngUri: (callback) ->
-      throw new Error "Bitmap.toPngUri: callback is no longer supported; use returned Promise" if callback
+    toPngUri: ->
       nextTick()
       .then => # use nextTick to ensure all pending draw commands complete before we extract the pixel data
         @toMemoryBitmap().canvas.toDataURL()
 
-    toJpgUri: (quality=.95, callback) ->
-      throw new Error "Bitmap.toJpgUri: callback is no longer supported; use returned Promise" if callback
+    toJpgUri: (quality=.95) ->
       nextTick()
       .then => # use nextTick to ensure all pending draw commands complete before we extract the pixel data
         @toMemoryBitmap().canvas.toDataURL "image/jpeg", quality
 
     # results in BinaryString
-    toPng: (callback) ->
-      throw new Error "Bitmap.toPng: callback is no longer supported; use returned Promise" if callback
+    toPng: ->
       @toPngUri()
       .then (dataURI) ->
         BinaryString.fromDataUri dataURI
 
     # results in BinaryString
-    toJpg: (quality, callback) ->
-      throw new Error "Bitmap.toJpg: callback is no longer supported; use returned Promise" if callback
+    toJpg: (quality) ->
       @toJpgUri quality
       .then (dataURI) ->
         BinaryString.fromDataUri dataURI
 
-    toImage: (callback) ->
-      throw new Error "Bitmap.toImage: callback is no longer supported; use returned Promise" if callback
+    toImage: ->
       nextTick()
       .then => # use nextTick to ensure all pending draw commands complete before we extract the pixel data
         if @_htmlImageElement
