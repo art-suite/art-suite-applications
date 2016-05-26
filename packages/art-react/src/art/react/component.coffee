@@ -199,6 +199,7 @@ module.exports = class Component extends VirtualNode
 
       instance
 
+    # OUT: new instance
     ret.instantiateAsTopComponent = (spec, options) ->
       ret(spec).instantiateAsTopComponent options
 
@@ -232,9 +233,24 @@ module.exports = class Component extends VirtualNode
     @_applyingPendingState = false
     Component.pushCreatedComponent @
 
+  ###
+  SEE: VirtualElement#withElement for more
+  IN: f = (concreteElement) -> x
+  OUT: promise.then (x) ->
+  ###
+  withElement: (f) -> @_virtualAimBranch.withElement f
+
+  #OUT: this
   instantiateAsTopComponent: (bindToOrCreateNewParentElementProps) ->
     Component.topComponentInstances.push @
     @_instantiate null, bindToOrCreateNewParentElementProps
+
+  unbindTopComponent: ->
+    unless 0 <= index = Component.topComponentInstances.indexOf @
+      throw new Error "not a top component!"
+
+    Component.topComponentInstances = arrayWithout Component.topComponentInstances, index
+    @_unmount()
 
   @getter
     inspectedName: -> "#{@className}#{if @key then "-"+@key  else ''}"
@@ -506,6 +522,7 @@ module.exports = class Component extends VirtualNode
       if hotInstances && 0 <= index = hotInstances.indexOf @
         moduleState.hotInstances = arrayWithout hotInstances, index
 
+  #OUT: this
   _instantiate: (parentComponent, bindToOrCreateNewParentElementProps) ->
     super
     globalCount "ReactComponent_Instantiated"
