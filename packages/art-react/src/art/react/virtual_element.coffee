@@ -56,7 +56,7 @@ module.exports = class VirtualElement extends VirtualNode
   PURPOSE: This is provided for the web-worker React so you can access the concrete element even though it is
     in another context. In that case, "f" will be serialized and any closure will be lost...
   ###
-  withElement: (f) -> new Promise (resolve) -> resolve f @element
+  withElement: (f) -> new Promise (resolve) => resolve f @element
 
   # EFFECT: @props has been updated and any props on the Concrete Element have been update
   # OUT: true if props changed
