@@ -5,7 +5,8 @@
   "main": "index.coffee",
   "dependencies": {
     "art-foundation": "git://github.com/Imikimi-LLC/art-foundation.git",
-    "art-atomic": "git://github.com/Imikimi-LLC/art-atomic.git"
+    "art-atomic": "git://github.com/Imikimi-LLC/art-atomic.git",
+    "webfontloader": "^1.6.24"
   },
   "devDependencies": {
   },
