@@ -198,6 +198,7 @@ module.exports = class Component extends VirtualNode
       instance._validateChildren props?.children # TODO: only in dev mode!
 
       instance
+    , null, @getName() + "ComponentFactory"
 
     # OUT: new instance
     ret.instantiateAsTopComponent = (spec, options) ->

@@ -3,7 +3,6 @@ ReactArtEngineEpoch = require './react_art_engine_epoch'
 {
   log, compact, globalCount, flatten, BaseObject, shallowClone, inspect, objectKeyCount, isObject, deepEach, isPlainObject, keepIfRubyTrue,
   plainObjectsDeepEq
-  createObjectTreeFactory
 } = Foundation
 {reactArtEngineEpoch} = ReactArtEngineEpoch
 
