@@ -255,6 +255,7 @@ module.exports = class Bitmap extends BitmapBase
     @
 
   fillShape: (where, options, pathFunction) ->
+    {_context} = @
     if @_setupDraw where, options
       _context.beginPath()
       pathFunction _context

@@ -635,7 +635,9 @@ define [
 
         # parseInt(val/120) is used for an approximage comparison - webGL gradients aren't exactly the same (should they be?)
         log bitmap.getImageDataArray("red")
-        assert.eq bitmap.getImageDataArray("red"), [0, 48, 127, 159, 191]
+        assert.within bitmap.getImageDataArray("red"),
+          [0, 48, 118, 159, 186]
+          [6, 48, 127, 159, 191]
         # I'm pretty certain the "48" is right. It should be color(.5, 0, 0, (.5 + .25)/2)
         # Then pre-multiply it to get 0.1875 for the r channel
         # 0.1875 * 255 == 47.8125

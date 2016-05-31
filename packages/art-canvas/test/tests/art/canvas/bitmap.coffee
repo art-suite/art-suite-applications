@@ -94,8 +94,13 @@ define [
 
       test "drawLine", ->
         bitmap = new Canvas.Bitmap point 3
-        bitmap.drawLine null, point0, point(3), color: "white"
-        assert.eq (v * 8 / 255 | 0 for v in bitmap.getImageDataArray("red")), [
+        bitmap.drawLine null, point0, point(3), color: "black"
+        log bitmap, "drawLine"
+        assert.within (v * 8 / 255 | 0 for v in bitmap.getImageDataArray("alpha")), [
+          7,1,0
+          1,7,1
+          0,1,7
+        ], [
           8,0,0
           0,8,0
           0,0,8
@@ -192,12 +197,14 @@ define [
       test "strokeRectangle pixelSnap=true lineWidth:1, scale:1.5,1", ->
         bitmap = renderStrokeRectangleWithSnap Matrix.scale(1.5, 1), rect(.5, 1, 3, 4), color:"red", lineWidth:1, lineJoin:"miter"
         assert.eq reducedRange(bitmap.getImageDataArray("red")), [
-          0, 0, 0, 0, 0, 0
+          0, 0, 0, 0, 0, 0,
+          0, 0, 0, 0, 0, 0,
+          0, 8, 8, 8, 8, 0,
+          0, 8, 6, 6, 8, 0,
+          0, 8, 4, 4, 8, 0,
+          0, 8, 4, 4, 8, 0,
+          0, 8, 6, 6, 8, 0,
           0, 8, 8, 8, 8, 0
-          0, 8, 4, 4, 8, 0
-          0, 8, 4, 4, 8, 0
-          0, 8, 8, 8, 8, 0
-          0, 0, 0, 0, 0, 0
         ]
 
       test "strokeRectangle pixelSnap=true lineWidth:2", ->
