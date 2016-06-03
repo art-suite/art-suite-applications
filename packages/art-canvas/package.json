@@ -1,6 +1,6 @@
 {
   "name": "art-canvas",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "art-canvas",
   "main": "index.coffee",
   "dependencies": {
@@ -8,8 +8,7 @@
     "art-atomic": "git://github.com/Imikimi-LLC/art-atomic.git",
     "webfontloader": "^1.6.24"
   },
-  "devDependencies": {
-  },
+  "devDependencies": {},
   "scripts": {
     "test": "webpack-dev-server -d"
   },
