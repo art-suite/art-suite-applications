@@ -1,13 +1,12 @@
 {
   "name": "art-flux",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "art-flux",
   "main": "index.coffee",
   "dependencies": {
     "art-react": "git://github.com/Imikimi-LLC/art-react.git"
   },
-  "devDependencies": {
-  },
+  "devDependencies": {},
   "scripts": {
     "test": "webpack-dev-server -d"
   },
