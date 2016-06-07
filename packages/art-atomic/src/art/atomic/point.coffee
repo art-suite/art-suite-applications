@@ -227,10 +227,7 @@ module.exports = class Point extends AtomicBase
   @getter
     plainObjects: -> x: @x, y: @y
     inspectObjects: ->
-      if floatEq @x, @y
-        @x
-      else
-        inspect: => inspect @
+      inspect: => inspect @
 
   inspect: -> if floatEq @x, @y
       "point(#{@x})"
