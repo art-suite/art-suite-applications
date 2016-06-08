@@ -1,14 +1,13 @@
 {
   "name": "art-react",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "art-react",
   "main": "index.coffee",
   "dependencies": {
     "art-engine": "git://github.com/Imikimi-LLC/art-engine.git",
     "art-engine-remote": "git://github.com/Imikimi-LLC/art-engine-remote.git"
   },
-  "devDependencies": {
-  },
+  "devDependencies": {},
   "scripts": {
     "test": "webpack-dev-server -d --progress"
   },
