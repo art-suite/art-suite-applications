@@ -18,6 +18,7 @@ ReactArtEngineEpoch = require './react_art_engine_epoch'
   arrayWithout
   upperCamelCase
   createObjectTreeFactory
+  select
 } = Foundation
 {reactArtEngineEpoch} = ReactArtEngineEpoch
 
@@ -592,7 +593,19 @@ module.exports = class Component extends VirtualNode
       # TODO - this should probably NOT be an error, but it isn't easy to solve.
       # Further, this is wrapped up with the pending feature of optionally returing an array of Elements from the render function.
       # Last, this should not be special-cased if possible. VitualElement children handling code should be used to handle these updates.
-      console.error "REACT-ART-ENGINE ERROR - The render function's top-level Component/VirtualElement changed 'too much.' The VirtualNode returned by a component's render function cannot change its Type or Key.\n\nSolution: Wrap your changing VirtualNode with a non-changing VirtualElement.\n\nOffending component: #{@classPathName}"
+
+      console.error """
+        REACT-ART-ENGINE ERROR - The render function's top-level Component/VirtualElement changed 'too much.' The VirtualNode returned by a component's render function cannot change its Type or Key.
+
+        Solution: Wrap your changing VirtualNode with a non-changing VirtualElement.
+
+        Offending component: #{@classPathName}
+        Offending component assigned to: self.offendingComponent
+        """
+      console.log "CHANGED-TOO-MUCH-ERROR-DETAILS - all these properties must be the same on the oldRoot and newRoot",
+        oldRoot: select @_virtualAimBranch, "key", "elementClassName", "class"
+        newRoot: select newRenderResult, "key", "elementClassName", "class"
+      self.offendingComponent = @
       @_virtualAimBranch?._unmount()
       (@_virtualAimBranch = newRenderResult)._instantiate @
 
