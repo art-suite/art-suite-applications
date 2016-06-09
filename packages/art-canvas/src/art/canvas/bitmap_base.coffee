@@ -47,7 +47,14 @@ define [
       else                                         @initNewCanvas point a, b
 
     @getter
-      canvas: -> @_canvas
+      canvas: ->
+        unless @_canvas
+          if @_htmlImageElement
+            @initNewCanvas @size
+            @drawBitmap null, @_htmlImageElement
+          else
+            throw new Error "can't get @canvas"
+        @_canvas
       bitmapClass: -> @class # part of the bitmapFactory api
       clippingArea: -> @_clippingArea ||= rect @getSize()
       aspectRatio: -> @getSize().getAspectRatio()
