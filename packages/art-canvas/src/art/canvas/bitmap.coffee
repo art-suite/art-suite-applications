@@ -73,8 +73,8 @@ module.exports = class Bitmap extends BitmapBase
     htmlImageElement: -> @_htmlImageElement
     htmlElement:      -> @_htmlImageElement || @_canvas
 
-  @get: (url) ->
-    EncodedImage.get url
+  @get: (url, options) ->
+    EncodedImage.get url, options
     .then (image) ->
       bitmap = new Bitmap image
       if match = url.match /@([2-9])x\.[a-zA-Z]+$/
