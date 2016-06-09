@@ -1,6 +1,6 @@
 {
   "name": "art-canvas",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "description": "art-canvas",
   "main": "index.coffee",
   "dependencies": {
