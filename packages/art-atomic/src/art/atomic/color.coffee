@@ -364,6 +364,10 @@ module.exports = class Color extends AtomicBase
       a = if c.a? then c.a else @a
       new Color r, g, b, a
 
+  zeroString = "0"
+  hexString = (number, length = 2) ->
+    pad number.toString(16), length, zeroString, true
+
   @getter
     array: -> [@r, @g, @b, @a]
     arrayRGB: -> [@r, @g, @b]
@@ -405,30 +409,30 @@ module.exports = class Color extends AtomicBase
 
     hexString: ->
       "#" +
-      pad(@r256.toString(16), 2) +
-      pad(@g256.toString(16), 2) +
-      pad(@b256.toString(16), 2)
+      hexString(@r256) +
+      hexString(@g256) +
+      hexString(@b256)
 
     hex16String: ->
       "#" +
-      pad(@r16.toString(16), 1) +
-      pad(@g16.toString(16), 1) +
-      pad(@b16.toString(16), 1)
+      hexString(@r16, 1) +
+      hexString(@g16, 1) +
+      hexString(@b16, 1)
 
     hslHexString: ->
       "#" +
-      pad(@h256.toString(16), 2) +
-      pad(@s256.toString(16), 2) +
-      pad(@b256.toString(16), 2)
+      hexString(@h256) +
+      hexString(@s256) +
+      hexString(@b256)
 
     rgbaHexString: ->
       "#" + @getRawRgbaHexString()
 
     rawRgbaHexString: ->
-      pad(@r256.toString(16), 2) +
-      pad(@g256.toString(16), 2) +
-      pad(@b256.toString(16), 2) +
-      pad(@a256.toString(16), 2)
+      hexString(@r256) +
+      hexString(@g256) +
+      hexString(@b256) +
+      hexString(@a256)
 
   eq: (r) ->
     return true if @ == r
