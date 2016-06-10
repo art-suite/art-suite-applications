@@ -1,14 +1,13 @@
 {
   "name": "art-react-demos",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "art-react-demos",
   "main": "index.coffee",
   "dependencies": {
     "art-react": "git://github.com/Imikimi-LLC/art-react",
     "art-flux": "git://github.com/Imikimi-LLC/art-flux"
   },
-  "devDependencies": {
-  },
+  "devDependencies": {},
   "scripts": {
     "hot": "webpack-dev-server --hot --inline --progress",
     "dev": "webpack-dev-server -d --progress",
