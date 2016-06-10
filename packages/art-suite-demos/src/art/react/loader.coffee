@@ -14,16 +14,12 @@ Atomic = require 'art-atomic'
   TextElement
 } = React
 
-
 Demos = require "./demos"
 
 Engine.FullScreenApp.init()
 .then ->
-  query = Foundation.Browser.Parse.query()
-  demo = Demos[upperCamelCase query.demo || ""]
-
   DemoButton = createComponentFactory
-    # hotModule: module
+    module: module
 
     selectDemo: ->
       @props.selectDemo @props.name
@@ -38,7 +34,7 @@ Engine.FullScreenApp.init()
         on: pointerClick: @selectDemo
 
   createAndInstantiateTopComponent
-    hotModule: module
+    module: module
 
     selectDemo: (name)->
       @setState selectedDemo: name
@@ -52,8 +48,6 @@ Engine.FullScreenApp.init()
       CanvasElement
         canvasId: "artCanvas"
         childrenLayout: "column"
-
-        # Demos.PagingScrollElement.Main()
 
         Element
           size: ww:1, h:50
