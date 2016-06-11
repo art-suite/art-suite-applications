@@ -46,7 +46,7 @@ Engine.FullScreenApp.init()
       {selectedDemo} = @state
 
       CanvasElement
-        canvasId: "artCanvas"
+        parentHtmlElement: self.document.body
         childrenLayout: "column"
 
         Element
