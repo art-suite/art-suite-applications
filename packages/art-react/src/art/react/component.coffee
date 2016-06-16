@@ -527,6 +527,7 @@ module.exports = class Component extends VirtualNode
         moduleState.hotInstances = arrayWithout hotInstances, index
 
   #OUT: this
+  emptyState = {}
   _instantiate: (parentComponent, bindToOrCreateNewParentElementProps) ->
     super
     globalCount "ReactComponent_Instantiated"
@@ -539,7 +540,11 @@ module.exports = class Component extends VirtualNode
     @_addHotInstance()
     @_componentWillMount()
 
-    @state = @_preprocessState merge @class._stateFields, @state, @getInitialState()
+    initialState = @getInitialState()
+    __state = @state
+    @state = emptyState
+
+    @state = @_preprocessState merge @class._stateFields, __state, initialState
 
     @_virtualAimBranch = @_renderCaptureRefs()
 

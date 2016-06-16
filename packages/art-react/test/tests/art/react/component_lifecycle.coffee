@@ -168,7 +168,9 @@ suite "Art.React.Component.lifeCycle.preprocessState", ->
   test "preprocessState after preprocessProps", (done) ->
     class MyComponent extends Component
       preprocessProps: ({name})-> @setState name: name
-      preprocessState: (state) -> merge state, greeting: "Hi #{state.name}!"
+      preprocessState: (state) ->
+        assert.neq state.name, @state.name
+        merge state, greeting: "Hi #{state.name}!"
       render: ->
         assert.eq @state.greeting, "Hi Sally!"
         done()
