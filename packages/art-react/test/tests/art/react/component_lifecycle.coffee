@@ -2,7 +2,7 @@ Foundation = require 'art-foundation'
 Engine = require 'art-engine'
 React = require 'art-react'
 
-{log, merge} = Foundation
+{log, merge, clone} = Foundation
 {createComponentFactory, Component, VirtualElement, Element, RectangleElement} = React
 
 suite "Art.React.Component.lifeCycle", ->
@@ -156,6 +156,18 @@ suite "Art.React.Component.lifeCycle.preprocessState", ->
   test "instantiate with preprocessState", (done) ->
     class MyComponent extends Component
       getInitialState: -> name: @props.name
+      preprocessState: (state) -> merge state, greeting: "Hi #{state.name}!"
+      render: ->
+        assert.eq @state.greeting, "Hi Sally!"
+        done()
+        Element()
+
+    c = new MyComponent name: "Sally"
+    c._instantiate()
+
+  test "preprocessState after preprocessProps", (done) ->
+    class MyComponent extends Component
+      preprocessProps: ({name})-> @setState name: name
       preprocessState: (state) -> merge state, greeting: "Hi #{state.name}!"
       render: ->
         assert.eq @state.greeting, "Hi Sally!"

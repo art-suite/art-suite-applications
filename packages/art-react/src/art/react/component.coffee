@@ -537,7 +537,7 @@ module.exports = class Component extends VirtualNode
     @_addHotInstance()
     @_componentWillMount()
 
-    @setState @_preprocessState merge @class._stateFields, @getInitialState()
+    @state = @_preprocessState merge @class._stateFields, @state, @getInitialState()
 
     @_virtualAimBranch = @_renderCaptureRefs()
 
