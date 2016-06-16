@@ -68,17 +68,6 @@ component is updated and the new instance is discard. However, if an
 existing match doesn't exist, then the new component instance is
 "instantiated" and added to the virtual-Aim.
 
-TODO
-----
-
-I think I want to add a "lifecycle" method that Facebook.React doesn't have:
-
-  preprocessProps: (props) -> props
-
-This will allow us to apply default props and normalize props instead of the current
-method of storing normalized props in the state object. The current method is really awkward since
-you have to do this in two places - will receive props and getInitialState.
-
 QUESTIONS
 ---------
 
@@ -384,13 +373,26 @@ module.exports = class Component extends VirtualNode
   OUT:          plain Object - becomes @props. Can be newProps, based on newProps or entirely new.
 
   Guarantee:    @props will allways be passed through preprocessProps before it is set.
-                i.e. Your code will never see a @props that hasen't been preprocessed.
+                i.e. Your render code will never see a @props that hasen't been preprocessed.
 
-  Requirements:
-    Must return a plain Object
-    Must not modify newProps passed in.
-    Shouldn't have any side effects.   (SBD - why?)
-    Shouldn't read any external state. (SBD - why?)
+  Be sure your preprocessProps: (requirements)
+    - returns a plain Object
+    - doesn't modify the newProps object passed in (create and return new object to add/alter props)
+    - call super!
+
+  Examples:
+    # minimal
+    preprocessProps: ->
+      merge super, myProp: 123
+
+    # a little of everything
+    preprocessProps: ->
+      newProps = super
+      @setState foo: newProps.foo
+      merge newProps, myProp: "dude: #{newProps.foo}"
+
+  Okay:
+    you can call @setState (Art.Flux.Component does exactly this!)
 
   Description:
     Either return exactly newProps which were passed in OR create a new, plain object.
@@ -421,7 +423,7 @@ module.exports = class Component extends VirtualNode
   OUT:          object which will become @state. Can be newState, be based on newState or completely new.
 
   Guarantees:   @state will allways be passed through preprocessState before it is set.
-                i.e. Your code will never see a @state that hasen't been preprocessed.
+                i.e. Your render code will never see a @state that hasen't been preprocessed.
 
   NOTES RE Facebook.React:
     Why add this? Well, often you want to apply a transformation to @state whenever it is initialized
