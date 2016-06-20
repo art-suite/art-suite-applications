@@ -94,7 +94,8 @@ module.exports = class Matrix extends AtomicBase
     else
       new Matrix 1, 1, 0, 0, x, y
 
-  @scale: (a) ->
+  @scale: (a, b) ->
+    throw new Error "Matrix.scale no longer accepts two numbers. Use translateXY" if isNumber b
     if isNumber a
       x = y = a
     else
@@ -299,6 +300,7 @@ module.exports = class Matrix extends AtomicBase
 
   # s can be a point or number
   scale: (a, into) ->
+    throw new Error "Matrix.scale no longer accepts two numbers. Use translateXY" if isNumber into
     if isNumber a
       x = y = a
     else
