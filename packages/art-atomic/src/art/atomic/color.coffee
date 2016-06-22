@@ -7,6 +7,7 @@ AtomicBase = require './base'
   hex256ColorRegex
   rgbColorRegex
   rgbaColorRegex
+  float32Eq0
 } = Foundation
 
 colorFloatEq = float32Eq #(n1, n2) -> Math.abs(n1 - n2) < 1/256
@@ -323,13 +324,17 @@ module.exports = class Color extends AtomicBase
   div: (r, g, b, a) -> if r instanceof Color then color(@r / r.r, @g / r.g, @b / r.b, @a / r.a) else if g? then color(@r / r, @g / g, @b / b, @a / a) else color(@r / r, @g / r, @b / r, @a / r)
 
   interpolate: (toColor, p) ->
+    {r, g, b, a} = @
+    {r, g, b} = toColor if float32Eq0 a
     toColor = color toColor
+    toColor = @withAlpha 0 if float32Eq0 toColor.a
+
     oneMinusP = 1 - p
     new Color(
-      toColor.r * p + @r * oneMinusP
-      toColor.g * p + @g * oneMinusP
-      toColor.b * p + @b * oneMinusP
-      toColor.a * p + @a * oneMinusP
+      toColor.r * p + r * oneMinusP
+      toColor.g * p + g * oneMinusP
+      toColor.b * p + b * oneMinusP
+      toColor.a * p + a * oneMinusP
     )
 
   blend: (r, amount) -> r.sub(@).mul(amount).add @
