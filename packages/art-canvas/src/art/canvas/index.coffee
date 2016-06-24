@@ -2,6 +2,7 @@
 # file: art/canvas/index.coffee
 
 (module.exports = require './namespace')
+.includeInNamespace(require './_canvas')
 .addModules
   Bitmap:            require './bitmap'
   BitmapBase:        require './bitmap_base'
