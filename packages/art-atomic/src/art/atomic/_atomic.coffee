@@ -10,4 +10,7 @@ module.exports = [
   [Rectangle, "rect", "nothing", "everything"]
   [Matrix,    "matrix", "identityMatrix"]
   [Perimeter, "perimeter", "perimeter0"]
+
+  package: _package = require "art-atomic/package.json"
+  version: _package.version
 ]
