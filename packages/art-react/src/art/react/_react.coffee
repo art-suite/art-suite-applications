@@ -9,4 +9,8 @@ module.exports = [
     componentInstance.instantiateAsTopComponent bindToOrCreateNewParentElementProps
 
   onNextReady: (callback) -> reactArtEngineEpoch.onNextReady callback
+
+  package: _package = require "art-react/package.json"
+  version: _package.version
 ]
+
