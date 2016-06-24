@@ -21,4 +21,7 @@ module.exports = [
   _reset: ->
     fluxStore._reset()
     ModelRegistry._reset()
+
+  package: _package = require "art-flux/package.json"
+  version: _package.version
 ]
