@@ -2,6 +2,7 @@
 # file: art/text/index.coffee
 
 (module.exports = require './namespace')
+.includeInNamespace(require './_text')
 .addModules
   Layout:             require './layout'
   Metrics:            require './metrics'
