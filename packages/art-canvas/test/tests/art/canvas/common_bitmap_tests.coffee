@@ -3,8 +3,7 @@ define [
   'art-foundation'
   'art-atomic'
   'art-canvas'
-  'art-canvas/webgl'
-], (chai, Foundation, Atomic, Canvas, Webgl) ->
+], (chai, Foundation, Atomic, Canvas) ->
   assert = chai.assert
 
   {point, rect, color, matrix, Matrix} = Atomic
@@ -530,7 +529,7 @@ define [
 
 
       test "ADD and NORMAL compositing associativity: (red + blue).over(grey) == red + blue + grey", ->
-        if bitmapFactory != Webgl.Bitmap
+        if bitmapFactory != Neptune.Art.Webgl?.Bitmap
           log "compositing associativity is skipped for #{bitmapClassName} since only Webgl is capable of doing it correctly"
         else
           src = bitmapFactory.newBitmap point 3
