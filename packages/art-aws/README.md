@@ -1,2 +1,2 @@
 # art-aws
-A cleaner API to the AWS SDK uinsg Promises &amp; Art.Foundation
+A cleaner API to AWS SDK with Promises and Art.Foundation
