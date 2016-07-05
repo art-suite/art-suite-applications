@@ -10,8 +10,7 @@
     "neptune-namespaces": "git://github.com/Imikimi-LLC/neptune-namespaces.git"
   },
   "scripts": {
-    "test": "webpack-dev-server -d --progress",
-    "test-in-node": "neptune-namespaces --std;mocha -u tdd --compilers coffee:coffee-script/register",
+    "test": "neptune-namespaces --std;mocha -u tdd --compilers coffee:coffee-script/register",
     "nn": "neptune-namespaces --std"
   },
   "author": "Shane Brinkman-Davis Delamore",
