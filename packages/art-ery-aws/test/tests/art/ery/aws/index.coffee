@@ -3,5 +3,4 @@
 
 (module.exports = require './namespace')
 .addModules
-  Basic:   require './basic'
-  Dynasty: require './dynasty'
+  DynamoDb: require './dynamo_db'
