@@ -1,0 +1,21 @@
+{
+  "name": "art-ery-aws",
+  "version": "0.0.1",
+  "description": "ArtEry for AWS Lambda + DynamoDB",
+  "main": "index.coffee",
+  "dependencies": {
+    "art-foundation": "git://github.com/Imikimi-LLC/art-foundation.git",
+    "art-aws": "git://github.com/Imikimi-LLC/art-aws.git",
+    "neptune-namespaces": "git://github.com/Imikimi-LLC/neptune-namespaces.git",
+    "uuid": "^2.0.2"
+  },
+  "scripts": {
+    "test": "neptune-namespaces --std;mocha -u tdd --compilers coffee:coffee-script/register",
+    "nn": "neptune-namespaces --std"
+  },
+  "author": "Shane Brinkman-Davis Delamore",
+  "license": "ISC",
+  "devDependencies": {
+    "dynamodb-local": "0.0.11"
+  }
+}
