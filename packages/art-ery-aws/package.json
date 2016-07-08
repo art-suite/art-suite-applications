@@ -14,8 +14,5 @@
     "nn": "neptune-namespaces --std"
   },
   "author": "Shane Brinkman-Davis Delamore",
-  "license": "ISC",
-  "devDependencies": {
-    "dynamodb-local": "0.0.11"
-  }
+  "license": "ISC"
 }
