@@ -465,7 +465,7 @@ module.exports = class Color extends AtomicBase
 
   @getter
     plainObjects: -> r: @r, g: @g, b: @b, a: @a
-    inspectObjects: -> @
+    inspectedObjects: -> @
 
   # vivafy HSL on request
   @getter

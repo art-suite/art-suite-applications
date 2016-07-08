@@ -27,7 +27,7 @@ module.exports = class Base extends BaseObject
 
   @getter
     plainObjects: -> @toArray()
-    inspectObjects: -> inspect: => lowerCamelCase(@class.getName()) + "(#{@toArray().join ', '})"
+    inspectedObjects: -> inspect: => lowerCamelCase(@class.getName()) + "(#{@toArray().join ', '})"
 
   toPlainStructure: -> @getPlainObjects()
   toPlainEvalString: -> inspect @getPlainObjects()
