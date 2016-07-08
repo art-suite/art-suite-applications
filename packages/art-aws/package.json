@@ -1,12 +1,11 @@
 {
-  "name": "art-ery-aws",
+  "name": "art-aws",
   "version": "0.0.1",
-  "description": "ArtEry for AWS Lambda + DynamoDB",
+  "description": "Art AWS API Wrapper with Promises",
   "main": "index.coffee",
   "dependencies": {
     "art-foundation": "git://github.com/Imikimi-LLC/art-foundation.git",
     "aws-sdk": "^2.4.2",
-    "dynamodb": "^0.3.6",
     "neptune-namespaces": "git://github.com/Imikimi-LLC/neptune-namespaces.git"
   },
   "scripts": {
