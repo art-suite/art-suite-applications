@@ -16,7 +16,8 @@ Atomic = require 'art-atomic'
 
 Demos = require "./demos"
 
-Engine.FullScreenApp.init()
+Engine.FullScreenApp.init
+  title: "Art.React.Demos"
 .then ->
   DemoButton = createComponentFactory
     module: module
@@ -46,7 +47,6 @@ Engine.FullScreenApp.init()
       {selectedDemo} = @state
 
       CanvasElement
-        parentHtmlElement: self.document.body
         childrenLayout: "column"
 
         Element
