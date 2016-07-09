@@ -11,7 +11,7 @@ module.exports = class DynamoDbPipeline extends Pipeline
     super
     @_dynamoDb = new DynamoDb endpoint: "http://localhost:8081"
 
-  @getter
+  @getter "dynamoDb",
     uniqueId: -> Uuid.v4()
     tableName: -> @class.getName()
 

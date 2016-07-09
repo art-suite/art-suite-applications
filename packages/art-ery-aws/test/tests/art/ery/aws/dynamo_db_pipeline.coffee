@@ -8,10 +8,12 @@ config.region = 'us-west-2'
 
 suite "Art.Ery.Aws.DynamoDbPipeline", ->
   # test "works", ->
-  test "create", ->
+  myTable = null
+  setup ->
     {myTable} = class MyTable extends DynamoDbPipeline
       @singletonClass()
 
+  test "create", ->
     createData = null
 
     myTable.create
@@ -29,8 +31,6 @@ suite "Art.Ery.Aws.DynamoDbPipeline", ->
       assert.eq getData, createData
 
   test "update", ->
-    {myTable} = class MyTable extends DynamoDbPipeline
-      @singletonClass()
 
     createData = null
 
@@ -47,9 +47,6 @@ suite "Art.Ery.Aws.DynamoDbPipeline", ->
       assert.eq updateData, merge createData, foo: "bar"
 
   test "delete", ->
-    {myTable} = class MyTable extends DynamoDbPipeline
-      @singletonClass()
-
     createData = null
 
     myTable.create
@@ -67,3 +64,8 @@ suite "Art.Ery.Aws.DynamoDbPipeline", ->
       "triggered catch"
     .then (v)->
       assert.eq v, "triggered catch"
+
+  test "describeTable", ->
+    myTable.dynamoDb.describeTable TableName: myTable.tableName
+    .then (result) ->
+      log result
