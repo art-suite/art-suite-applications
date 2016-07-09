@@ -1,8 +1,7 @@
-AWS = require 'aws-sdk'
-AWS.config.region = 'us-west-2'
 Foundation = require 'art-foundation'
 {log} = Foundation
-{DynamoDb} = require 'art-aws'
+{DynamoDb, config} = require 'art-aws'
+config.region = 'us-west-2'
 
 testTableName = 'fooBarTestTable'
 
