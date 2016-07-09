@@ -3,7 +3,7 @@ Engine = require 'art-engine'
 React = require 'art-react'
 Atomic = require 'art-atomic'
 
-{upperCamelCase, lowerCamelCase} = Foundation
+{upperCamelCase, lowerCamelCase, log} = Foundation
 {point} = Atomic
 {
   Component, createComponentFactory, createAndInstantiateTopComponent
@@ -92,6 +92,6 @@ Engine.FullScreenApp.init()
               addedAnimation: from: axis: "topRight"
               removedAnimation: to: axis: "topRight"
               RectangleElement inFlow: false, color: "#eee"
-              for demo in Demos.namespaces
+              for demo in Demos.subNamespaces
                 DemoButton name:demo.name, selectDemo:@selectDemo
 
