@@ -7,7 +7,6 @@ Foundation = require 'art-foundation'
 
 module.exports = class DynamoDb
 
-
   @encodeDynamoData: encodeDynamoData = (data) ->
     ret = if isPlainObject data
       values = {}
