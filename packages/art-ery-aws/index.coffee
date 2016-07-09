@@ -1,1 +1,1 @@
-require './src/art/ery/aws'
+module.exports = require './src/art/ery/aws'
