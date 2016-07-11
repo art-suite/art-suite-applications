@@ -47,6 +47,7 @@ define [
       else                                         @initNewCanvas point a, b
 
     @getter
+      inspectedObjects: -> @
       canvas: ->
         unless @_canvas
           if @_htmlImageElement
