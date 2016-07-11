@@ -4,6 +4,7 @@
   stringToNumberArray
   BaseObject
   lowerCamelCase
+  inspectedObjectLiteral
 } = require 'art-foundation'
 
 module.exports = class Base extends BaseObject
@@ -27,7 +28,7 @@ module.exports = class Base extends BaseObject
 
   @getter
     plainObjects: -> @toArray()
-    inspectedObjects: -> inspect: => lowerCamelCase(@class.getName()) + "(#{@toArray().join ', '})"
+    inspectedObjects: -> inspectedObjectLiteral lowerCamelCase(@class.getName()) + "(#{@toArray().join ', '})"
 
   toPlainStructure: -> @getPlainObjects()
   toPlainEvalString: -> inspect @getPlainObjects()
