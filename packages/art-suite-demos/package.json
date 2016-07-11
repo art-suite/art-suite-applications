@@ -1,6 +1,6 @@
 {
   "name": "art-react-demos",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "art-react-demos",
   "main": "index.coffee",
   "dependencies": {
