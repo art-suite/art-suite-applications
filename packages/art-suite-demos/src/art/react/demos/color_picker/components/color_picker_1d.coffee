@@ -61,8 +61,8 @@ module.exports = createComponentFactory class ColorPicker1D extends FluxComponen
           fontSize: 20
           layoutMode: "tight"
           key: "#{keyPrefix}handle"
-          location: yh:.5
-          animate: duration: .1, to: location: xw: value, yh:.5
+          location: xw: value, yh:.5
+          animators: location: duration: .1
           axis: .5
 
         TextElement
