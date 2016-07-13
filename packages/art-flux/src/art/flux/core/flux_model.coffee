@@ -120,17 +120,13 @@ module.exports = class FluxModel extends BaseObject
 
     if @loadData
       @loadData key
-      .then (data) => @updateFluxStore key, status: success, data: data
-      , (error)    => @updateFluxStore key, status: failure, error: error
+      .then (data)    => @updateFluxStore key, status: success, data: data
+      .catch (error)  => @updateFluxStore key, status: failure, error: error
       null
     else if @loadFluxRecord
-      log "use loadFluxRecord": key
       @loadFluxRecord key
-      .then (fluxRecord) =>
-        log loadFluxRecord:
-          key:key
-          fluxRecord:fluxRecord
-        @updateFluxStore key, fluxRecord
+      .then (fluxRecord) => @updateFluxStore key, fluxRecord
+      .catch (error)     => @updateFluxStore key, status: failure, error: error
       null
     else
       @updateFluxStore key, status: missing

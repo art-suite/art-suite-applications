@@ -22,7 +22,7 @@ define [
 
       class MyModel extends FluxModel
         @register()
-        load: (key) -> status: 404
+        load: (key) -> status: missing
 
       MyWrapper = createComponentFactory
         getInitialState: ->
