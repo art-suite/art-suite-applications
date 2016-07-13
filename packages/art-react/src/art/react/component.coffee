@@ -196,12 +196,15 @@ module.exports = class Component extends VirtualNode
 
     ret
 
-  @stateFields: (fields) ->
+  @stateFields: sf = (fields) ->
     @_stateFields = mergeInto @_stateFields, fields
     for field, initialValue of fields
       do (field) =>
         @_addSetter @::, field, (v) -> @setState field, v
         @_addGetter @::, field, -> @state[field]
+
+  # ALIAS
+  @stateField: sf
 
   @createdComponents: null
   @pushCreatedComponent: (c)->
