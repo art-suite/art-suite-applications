@@ -1,6 +1,6 @@
 {
   "name": "art-atomic",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "atomic data-types such as Color, Point, Rectangle and Matrix",
   "main": "index.coffee",
   "dependencies": {
