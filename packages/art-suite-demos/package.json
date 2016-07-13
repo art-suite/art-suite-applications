@@ -9,9 +9,9 @@
   },
   "devDependencies": {},
   "scripts": {
-    "hot": "webpack-dev-server --hot --inline --progress",
-    "dev": "webpack-dev-server -d --progress",
-    "test": "webpack-dev-server -d --progress"
+    "hot": "neptune-namespaces --std; webpack-dev-server --hot --inline --progress",
+    "dev": "neptune-namespaces --std; webpack-dev-server -d --progress",
+    "test": "neptune-namespaces --std; webpack-dev-server -d --progress"
   },
   "author": "Shane Brinkman-Davis Delamore",
   "license": "MIT"

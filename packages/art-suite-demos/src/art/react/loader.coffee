@@ -92,6 +92,6 @@ Engine.FullScreenApp.init
               addedAnimation: from: axis: "topRight"
               removedAnimation: to: axis: "topRight"
               RectangleElement inFlow: false, color: "#eee"
-              for demo in Demos.subNamespaces
+              for demo in Demos.namespaces
                 DemoButton name:demo.name, selectDemo:@selectDemo
 
