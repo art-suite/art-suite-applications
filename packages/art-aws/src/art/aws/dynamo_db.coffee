@@ -1,9 +1,19 @@
-AWS = require 'aws-sdk'
 Foundation = require 'art-foundation'
 {
   merge
   isPlainObject, isPlainArray, isBoolean, isString, isNumber, inspect
+  capitalize
+  decapitalize
+  lowerCamelCase
+  wordsArray
+  log
 } = Foundation
+
+StreamlinedApi = require './StreamlinedApi'
+
+{Tools, StreamlinedDynamoDbApi} = StreamlinedApi
+{deepDecapitalizeAllKeys, deepCapitalizeAllKeys} = Tools
+{translateCreateTableParams} = StreamlinedDynamoDbApi
 
 module.exports = class DynamoDb
 
@@ -49,6 +59,10 @@ module.exports = class DynamoDb
     @_awsDynamoDb = new AWS.DynamoDB endpoint: endpoint
 
   invokeAws: (name, params) ->
+    params = deepCapitalizeAllKeys params
+    # log invokeAws:
+    #   name: name
+    #   params: params
     new Promise (resolve, reject) =>
       @_awsDynamoDb[name] params,  (err, res) ->
         if err then  reject err
@@ -61,13 +75,12 @@ module.exports = class DynamoDb
 
   @bindAll
     createTable: (params) ->
+
       @invokeAws "createTable",
-        merge
-          AttributeDefinitions: [AttributeName: 'id', AttributeType: 'S']
-          ProvisionedThroughput:
-            ReadCapacityUnits: 5
-            WriteCapacityUnits: 5
-          KeySchema: [AttributeName: 'id', KeyType: 'HASH']
+        translateCreateTableParams merge
+          attributes: id: 'string'
+          key:        id: 'hash'
+
           params
 
     listTables:       null

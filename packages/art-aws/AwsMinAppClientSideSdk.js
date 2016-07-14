@@ -1,0 +1,1 @@
+aws-sdk-2.4.6.s3.dynamoDb.lambda.min.js

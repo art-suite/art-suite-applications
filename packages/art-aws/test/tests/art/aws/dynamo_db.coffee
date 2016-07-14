@@ -5,8 +5,9 @@ config.region = 'us-west-2'
 
 testTableName = 'fooBarTestTable'
 
-suite "Art.Ery.Aws", ->
+suite "Art.Ery.Aws.DynamoDb", ->
   @timeout 10000
+
 
   dynamoDb = null
   setup ->
