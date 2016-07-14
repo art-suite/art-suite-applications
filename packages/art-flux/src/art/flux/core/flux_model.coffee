@@ -1,5 +1,5 @@
 Foundation = require "art-foundation"
-{missing, success, pending} = require './flux_status'
+{missing, success, pending, validStatus} = Foundation.CommunicationStatus
 {fluxStore} = require "./flux_store"
 ModelRegistry = require './model_registry'
 
@@ -18,6 +18,9 @@ module.exports = class FluxModel extends BaseObject
   @register: ->
     @singletonClass()
     ModelRegistry.register @getSingleton()
+
+  register: ->
+    ModelRegistry.register @
 
   @postCreate: (hotReloaded, classModuleState, _module) ->
     @register() unless hotReloaded
@@ -107,7 +110,9 @@ module.exports = class FluxModel extends BaseObject
 
   Optionally, you can implement one of to altenative load functions with Promise support:
 
-    loadData:       (key) -> promise.then (data) ->
+    loadData:       (key) ->
+                      promise.then (data) ->
+                      promise.catch (a validStatus or error info, status becomes failure) ->
     loadFluxRecord: (key) -> promise.then (fluxRecord) ->
 
     @load will take care of updating FluxStore.
@@ -121,7 +126,11 @@ module.exports = class FluxModel extends BaseObject
     if @loadData
       @loadData key
       .then (data)    => @updateFluxStore key, status: success, data: data
-      .catch (error)  => @updateFluxStore key, status: failure, error: error
+      .catch (error)  =>
+        if validStatus error
+          @updateFluxStore key, status: error
+        else
+          @updateFluxStore key, status: failure, error: error
       null
     else if @loadFluxRecord
       @loadFluxRecord key
