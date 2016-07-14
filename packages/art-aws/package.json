@@ -1,6 +1,6 @@
 {
   "name": "art-aws",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Art AWS API Wrapper with Promises",
   "main": "index.coffee",
   "dependencies": {
