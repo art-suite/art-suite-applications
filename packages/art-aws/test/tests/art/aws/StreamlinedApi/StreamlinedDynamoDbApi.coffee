@@ -17,7 +17,7 @@ suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.translateCreateTableParams"
     assert.eq translateCreateTableParams(
       tableName:             "foo"
       attributes: myKey: 'string'
-      key: myKey: 'hash'
+      key: 'myKey'
       provisioning: read: 10
     ),
       tableName:             "foo"
@@ -45,6 +45,24 @@ suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.translateKey", ->
   test "translateKey key: foo: 'hash'", ->
     assert.eq translateKey(key: foo: "hash"),
       keySchema: [attributeName: "foo", keyType: "HASH"]
+
+  test "translateKey key: 'foo'", ->
+    assert.eq translateKey(key: 'foo'),
+      keySchema: [attributeName: "foo", keyType: "HASH"]
+
+  test "translateKey key: 'foo/bar'", ->
+    assert.eq translateKey(key: 'foo/bar'),
+      keySchema: [
+        {attributeName: "foo", keyType: "HASH"}
+        {attributeName: "bar", keyType: "RANGE"}
+      ]
+
+  test "translateKey key: 'foo-bar'", ->
+    assert.eq translateKey(key: 'foo-bar'),
+      keySchema: [
+        {attributeName: "foo", keyType: "HASH"}
+        {attributeName: "bar", keyType: "RANGE"}
+      ]
 
 suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.translateAttributes", ->
   test "translateAttributes()", ->
@@ -86,8 +104,7 @@ suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.translateGlobalIndexes", ->
     assert.eq translateGlobalIndexes(
       globalIndexes:
         myIndexName:
-          key:
-            myHashKeyName:  'hash'
+          key: 'myHashKeyName'
     ),
       globalSecondaryIndexes: [
         indexName:             "myIndexName"
@@ -101,9 +118,7 @@ suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.translateGlobalIndexes", ->
       globalIndexes:
         myFirstIndexName: {}
         myIndexName:
-          key:
-            myHashKeyName:  'hash'
-            myRangeKeyName: 'range'
+          key: 'myHashKeyName, myRangeKeyName'
 
           projection:
             attributes: ["myNumberAttrName", "myBinaryAttrName"]
@@ -148,8 +163,7 @@ suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.translateLocalIndexes", ->
     assert.eq translateLocalIndexes(
       localIndexes:
         myIndexName:
-          key:
-            myHashKeyName:  'hash'
+          key: 'myHashKeyName'
     ),
       localSecondaryIndexes: [
         indexName:             "myIndexName"
@@ -162,9 +176,7 @@ suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.translateLocalIndexes", ->
       localIndexes:
         myFirstIndexName: {}
         myIndexName:
-          key:
-            myHashKeyName:  'hash'
-            myRangeKeyName: 'range'
+          key: "myHashKeyName myRangeKeyName"
 
           projection:
             attributes: ["myNumberAttrName", "myBinaryAttrName"]

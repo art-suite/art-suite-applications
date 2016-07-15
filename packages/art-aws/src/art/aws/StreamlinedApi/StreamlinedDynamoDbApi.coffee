@@ -1,4 +1,4 @@
-{lowerCamelCase, wordsArray, isPlainObject, log} = require 'art-foundation'
+{lowerCamelCase, wordsArray, isPlainObject, log, compactFlatten, isString} = require 'art-foundation'
 {deepDecapitalizeAllKeys, deepCapitalizeAllKeys} = require './Tools'
 
 module.exports = class StreamlinedDynamoDbApi
@@ -43,6 +43,16 @@ module.exports = class StreamlinedDynamoDbApi
     key:
       myHashKeyName:  'hash'
       myRangeKeyName: 'range'
+
+    OR:
+
+    key "hashKeyField"
+
+    OR:
+
+    key "hashKeyField/rangeKeyField"
+    NOTE:
+      you can use any format that matches /[_a-zA-Z0-9]+/g
   ###
   @translateKey: (params, target = {}) ->
     keySchema = params.key || params.keySchema || id: 'hash'
@@ -51,7 +61,12 @@ module.exports = class StreamlinedDynamoDbApi
       for k, v of keySchema
         attributeName:  k
         keyType:        createConstantsMap[v.toLowerCase()] || v
-    else keySchema
+    else if isString keySchema
+      [hashKeyField, rangeKeyField] = keySchema.match /[_a-zA-Z0-9]+/g
+      compactFlatten [
+        {attributeName: hashKeyField, keyType: 'HASH'}
+        {attributeName: rangeKeyField, keyType: 'RANGE'} if rangeKeyField
+      ]
 
     target
 
