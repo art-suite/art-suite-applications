@@ -53,7 +53,7 @@ module.exports = class FluxModel extends BaseObject
 
   constructor: (name)->
     super
-    @_name = name || decapitalize @class.name
+    @_name = name || decapitalize @class.getName()
 
   @classGetter
     models: -> ModelRegistry.models

@@ -227,7 +227,7 @@ module.exports = class FluxComponent extends FluxComponentBase
       modelName = model
       model = ModelRegistry.models[modelName]
       unless model
-        console.error error = "RestComponent::subscriptions() model #{modelName} not registered (component = #{@getClassPathName()})"
+        console.error error = "RestComponent::subscriptions() model #{modelName} not registered (component = #{@getNamespacePath()})"
         throw new Error error
 
     subscription.model = model
