@@ -1,19 +1,23 @@
-ArtEry = require 'art-ery'
-{log, merge} = require 'art-foundation'
-{DynamoDb} = require 'art-aws'
-{Pipeline} = ArtEry
 Uuid = require 'uuid'
+
+Foundation = require 'art-foundation'
+ArtEry = require 'art-ery'
+ArtAws = require 'art-aws'
+
+{log, merge} = Foundation
+{Pipeline} = ArtEry
+{DynamoDb} = ArtAws
 {encodeDynamoData, decodeDynamoData} = DynamoDb
 
 module.exports = class DynamoDbPipeline extends Pipeline
 
-  constructor: ->
+  constructor: (options = {}) ->
     super
     @_dynamoDb = new DynamoDb endpoint: "http://localhost:8081"
+    @_createTableParams = options
 
   @getter "dynamoDb",
     uniqueId: -> Uuid.v4()
-    tableName: -> @class.getName()
 
   @handlers
     get: ({key}) ->
@@ -69,5 +73,5 @@ module.exports = class DynamoDbPipeline extends Pipeline
         @_createTable()
 
   _createTable: ->
-    @_dynamoDb.createTable TableName: @tableName
+    @_dynamoDb.createTable(merge TableName: @tableName, @_createTableParams)
     .then -> @_tableExists = true
