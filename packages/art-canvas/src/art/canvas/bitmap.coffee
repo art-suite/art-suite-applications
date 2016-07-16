@@ -384,16 +384,8 @@ module.exports = class Bitmap extends BitmapBase
     else
       fillStyle.toString()
 
-  _setStrokeStyleFromOptions: (options) ->
-    @_setStrokeStyle options.fillStyle || options.color || @defaultColorString
-    {lineWidth, lineCap, lineJoin, miterLimit} = options
-    @_context.lineWidth  = lineWidth   || 1
-    @_context.lineCap    = lineCap     || "butt"
-    @_context.lineJoin   = lineJoin    || "miter"
-    @_context.miterLimit = miterLimit  || 10
-
-  _setFillStyleFromOptions: (options) ->
-    @_setFillStyle if options.colors
+  _getFillStyleFromOptions: (options) ->
+    if options.colors
       fromPoint = options.from || point0
       gradientRadius1 = options.gradientRadius1 || options.gradientRadius
       toPoint = options.to || if gradientRadius1? then fromPoint else @size
@@ -406,6 +398,18 @@ module.exports = class Bitmap extends BitmapBase
       )
     else
       options.fillStyle || options.color || @defaultColorString
+
+  _setStrokeStyleFromOptions: (options) ->
+    @_setStrokeStyle @_getFillStyleFromOptions options
+    {lineWidth, lineCap, lineJoin, miterLimit, lineDash} = options
+    @_context.setLineDash lineDash || []
+    @_context.lineWidth  = lineWidth   || 1
+    @_context.lineCap    = lineCap     || "butt"
+    @_context.lineJoin   = lineJoin    || "miter"
+    @_context.miterLimit = miterLimit  || 10
+
+  _setFillStyleFromOptions: (options) ->
+    @_setFillStyle @_getFillStyleFromOptions options
 
 
   _setupDraw: (where, options, stroke) ->
