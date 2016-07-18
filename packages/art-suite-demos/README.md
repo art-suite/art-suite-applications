@@ -11,4 +11,8 @@ npm install
 npm run hot
 ```
 
-Go to: [http://localhost:8080/webpack-dev-server/](http://localhost:8080/webpack-dev-server/)
+Then go to: [http://localhost:8080/webpack-dev-server/](http://localhost:8080/webpack-dev-server/)
+
+### Learn More
+
+See the [Art Suite Wiki](https://github.com/Imikimi-LLC/art-suite/wiki)
