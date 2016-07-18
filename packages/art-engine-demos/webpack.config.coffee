@@ -1,3 +1,5 @@
 module.exports = (require "art-foundation/configure_webpack")
   entries: "index"
-  dirname: __dirname
+  package:
+    dependencies:
+      "art-engine": "git://github.com/Imikimi-LLC/art-engine.git"

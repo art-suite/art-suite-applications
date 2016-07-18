@@ -49,7 +49,7 @@ class Loader
 
 FullScreenApp.init()
 .then ->
-  query = Foundation.Browser.Parse.query()
+  query = Foundation.parseQuery()
   demo = Demos[upperCamelCase query.demo || ""]
 
   if demo

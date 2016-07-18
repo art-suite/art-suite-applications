@@ -4,10 +4,10 @@ module.exports = ->
   Atomic = require 'art-atomic'
   Engine = require 'art-engine'
   {hslColor} = Atomic
-  {log, Browser, inspect, bound, min, max, abs, round, modulo} = Foundation
+  {log, Browser, inspect, bound, min, max, abs, round, modulo, parseQuery} = Foundation
   {RectangleElement, TextElement, CanvasElement, Element, PagingScrollElement} = Engine
 
-  scroll = ({vertical:"vertical", horizontal:"horizontal"}[Browser.Parse.query().scroll]) || "vertical"
+  scroll = ({vertical:"vertical", horizontal:"horizontal"}[parseQuery().scroll]) || "vertical"
   log
     PagingScrollElementDemo:
       scroll: scroll
