@@ -1,6 +1,7 @@
 Foundation = require 'art-foundation'
-VirtualElement = require '../react/virtual_element'
+React = require '../react'
 {log, createObjectTreeFactories, mergeInto, createObjectTreeFactory} = Foundation
+{VirtualElement, objectTreeFactoryOptions} = React
 {getNextPageIndexes} = require "./paging_scroll_element"
 
 standardArtEngineElementClassNames = "
@@ -20,7 +21,7 @@ standardArtEngineElementClassNames = "
 
 module.exports = class Aim
   @createVirtualElementFactories: (VirtualElementClass, elementClassNames = standardArtEngineElementClassNames) ->
-    mergeInto @, createObjectTreeFactories elementClassNames, (elementClassName) ->
+    mergeInto @, createObjectTreeFactories objectTreeFactoryOptions, elementClassNames, (elementClassName) ->
       (props, children) -> new VirtualElementClass elementClassName, props, children
 
     @bindHelperFunctions()

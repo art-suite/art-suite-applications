@@ -19,8 +19,11 @@ ReactArtEngineEpoch = require './react_art_engine_epoch'
   upperCamelCase
   createObjectTreeFactory
   select
+  formattedInspect
 } = Foundation
 {reactArtEngineEpoch} = ReactArtEngineEpoch
+
+React = require './namespace'
 
 {HotLoader} = require 'art-foundation/dev_tools/webpack'
 {runHot} = HotLoader
@@ -181,14 +184,16 @@ module.exports = class Component extends VirtualNode
     k for k, v of prototype when k != "constructor" && isFunction(v) && prototype.hasOwnProperty(k) && k not in nonBindingFunctions
 
   @toComponentFactory: ->
-    ret = createObjectTreeFactory (props, children) =>
-      props.children = children if children.length > 0
 
-      instance = new @ props
-      instance._validateChildren props?.children # TODO: only in dev mode!
+    ret = createObjectTreeFactory (merge React.objectTreeFactoryOptions, inspectedName: @getName() + "ComponentFactory"),
+      (props, children) =>
+        props.children = children if children.length > 0
 
-      instance
-    , null, @getName() + "ComponentFactory"
+        instance = new @ props
+        instance._validateChildren props?.children # TODO: only in dev mode!
+
+        instance
+
 
     # OUT: new instance
     ret.instantiateAsTopComponent = (spec, options) ->

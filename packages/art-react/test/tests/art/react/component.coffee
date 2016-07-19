@@ -32,6 +32,22 @@ suite "Art.React.Component.instantiate", ->
       assert.eq ["child"], (child.name for child in parent.children)
       done()
 
+suite "Art.React.Component.props", ->
+  test "basic", ->
+    MyFactory = createComponentFactory render: -> Element()
+    c = MyFactory foo: 123
+    assert.eq c.props, foo: 123
+
+  test "strings become text: string", ->
+    MyFactory = createComponentFactory render: -> Element()
+    c = MyFactory "foo"
+    assert.eq c.props, text: ["foo"]
+
+  test "multiple strings", ->
+    MyFactory = createComponentFactory render: -> Element()
+    c = MyFactory "foo", bar: 123, "bad"
+    assert.eq c.props, text: ["foo", "bad"], bar: 123
+
 suite "Art.React.Component.render", ->
   test "render", ->
     class MyComponent extends Component
