@@ -4,7 +4,9 @@
 Atomic = require 'art-atomic'
 Foundation = require 'art-foundation'
 {point, rgbColor, point1} = Atomic
-{inspect, shallowClone, flatten, isPlainObject, log, isNumber, isString, isPlainArray, clone, min } = Foundation
+{inspect, shallowClone, flatten, isPlainObject, log, isNumber, isString, isPlainArray, clone, min
+  floatEq, peek, arrayWith
+} = Foundation
 
 module.exports = class GradientFillStyle extends Foundation.BaseObject
 
@@ -84,14 +86,21 @@ module.exports = class GradientFillStyle extends Foundation.BaseObject
       i++
 
   @interpolateColorPositions: (colors) =>
-    colors[0].n = 0
-    colors[colors.length-1].n = 1
+    firstColor = colors[0]
+    lastColor = peek colors
+    firstColor.n = 0  unless isNumber firstColor.n
+    lastColor.n  = 1  unless isNumber lastColor.n
 
     lastNindex = 0
     for clr, i in colors
       if clr.n
         @interpolateColorPositionRange colors, lastNindex, i
         lastNindex = i
+
+    {n, c} = firstColor
+    colors = [n: 0, c: c].concat colors    unless floatEq n, 0
+    {n, c} = lastColor
+    colors = arrayWith colors, n: 1, c: c  unless floatEq n, 1
 
     colors
 
@@ -101,8 +110,8 @@ module.exports = class GradientFillStyle extends Foundation.BaseObject
   @normalizeColors: (colors) ->
     colors = @colorsFromObjects colors
     colors = @colorsToObjectsAndStringColors colors
-    colors = @interpolateColorPositions colors
     colors = @sortColorsByN colors
+    colors = @interpolateColorPositions colors
     colors
 
   constructor: (@from, @to, colors, @radius1, @radius2)->
@@ -136,6 +145,20 @@ module.exports = class GradientFillStyle extends Foundation.BaseObject
           n: 1, c: rgbColor "white"
         ]
 
+  getColorAt: (atN) ->
+    lastN = null
+    lastC = null
+    for {c, n}, i in @colors
+      if atN <= n
+        return if lastC
+          range = n - lastN
+          rgbColor(lastC).interpolate c, (atN - lastN) / range
+        else
+          c
+      lastC = c
+      lastN = n
+    null
+
   toCanvasStyle: (context)->
     context = context.context if context.context
     gradient = if @radius1?
@@ -160,5 +183,10 @@ module.exports = class GradientFillStyle extends Foundation.BaseObject
         @to.x
         @to.y
       )
-    gradient.addColorStop clr.n, clr.c for clr in @_colors
+    for clr in @_colors
+      try
+        gradient.addColorStop clr.n, clr.c
+      catch e
+        gradient.addColorStop clr.n, "black"
+
     gradient
