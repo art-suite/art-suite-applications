@@ -436,10 +436,35 @@ module.exports = class Bitmap extends BitmapBase
       shadowColor = shadow.color
       _context.shadowColor = color shadowColor || "black"
       _context.shadowBlur = blur if blur
-      _context.shadowOffsetX = offsetX if offsetX
-      _context.shadowOffsetY = offsetY if offsetY
+      offsetX ||= 0
+      offsetY ||= 0
+      if where instanceof Matrix
+        ###
+        Shadows seem to ignore scale and rotation transformations.
+
+        It seems someone wanted to enforce consistent shadows while completely breaking
+        the setTransform abstraction. Bah! :)
+
+        I believe this was a design mistake. It introduces inconsistencies both subtle
+        and large. For example, it makes shadow placement vary across devices depending
+        upon their devicePixelsPerPoint. No other draw command works this way.
+
+        Consistent shadows should be up to the programmer, not the drawing engine.
+
+        I believe this hack solves the problem. Shadow SHAPE does obey setTransforms. It
+        is also correctly proporitonal to the shape it is creating a shadow of. Said shape
+        fully obeys setTrasform - including location. Only the vector from the center of
+        the shape to the center of the shadow seems to ignore setTransform.
+         - July 2016, SBD
+        ###
+        _context.shadowOffsetX = Matrix.transform1D offsetX, offsetY, where.sx, where.shx, 0
+        _context.shadowOffsetY = Matrix.transform1D offsetY, offsetX, where.sy, where.shy, 0
+      else
+        _context.shadowOffsetX = offsetX
+        _context.shadowOffsetY = offsetY
 
     @_setTransform where
+
     true
 
   _cleanupDraw: (options) ->
