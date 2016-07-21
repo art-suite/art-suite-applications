@@ -464,7 +464,7 @@ module.exports = class Color extends AtomicBase
   toArray: toArray = -> [@r, @g, @b, @a]
 
   @getter
-    plainObjects: -> r: @r, g: @g, b: @b, a: @a
+    plainObjects: -> if @a < 1 then @rgbaHexString else @hexString
     inspectedObjects: -> @
 
   # vivafy HSL on request
