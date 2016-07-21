@@ -457,7 +457,7 @@ module.exports = class Matrix extends AtomicBase
 
   inspectBoth: (pointName) -> "(#{@inspectX pointName}, #{@inspectY pointName})"
 
-  transform1D = (x, y, sx, shx, tx) -> x * sx + y * shx + tx
+  @transform1D: transform1D = (x, y, sx, shx, tx) -> x * sx + y * shx + tx
 
   ###
   IN: a: Point or any object where .x and .y are numbers
