@@ -77,7 +77,12 @@ module.exports = class VirtualNode extends BaseObject
   @_assignRefs: (node) ->
     if (key = node.key) && @assignRefsTo
       if @assignRefsTo[key] # TODO: This should probably be disabled unless in dev-mode
-        console.warn "WARNING: Duplicate key found. This MUST be fixed for correct operation.\n  key: #{inspect key}\n  VirtualNode: #{node.inspectedName}"
+        console.warn """
+          WARNING: Duplicate key found. This MUST be fixed for correct operation.
+            key: #{inspect key}
+            new VirtualNode: #{node.inspectedName}
+            old VirtualNode: #{@assignRefsTo[key].inspectedName}
+          """
       else
         @assignRefsTo[key] = node
 

@@ -28,7 +28,8 @@ module.exports = class VirtualElement extends VirtualNode
   #################
   @getter
     inspectedName: ->
-      "<React.VirtualElement:#{@uniqueId} elementClassName: #{@elementClassName}, props: #{inspect @props}>"
+      {key, elementClassName} = @
+      "VirtualElement-#{elementClassName}#{if key then "-" + key  else ''}"
 
   toCoffeescript: (indent = "") ->
     compactFlatten([
