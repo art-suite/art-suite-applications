@@ -337,7 +337,9 @@ module.exports = class Color extends AtomicBase
       toColor.a * p + a * oneMinusP
     )
 
-  blend: (r, amount) -> r.sub(@).mul(amount).add @
+  blend: (r, amount) ->
+    amount = r.a unless amount?
+    r.sub(@).mul(amount).add @
   withAlpha: (a) -> new Color @r, @g, @b, a
   withLightness: (v) -> hslColor @h, @s, v, @a
   withHue: (v) -> hslColor v, @s, @l, @a
@@ -465,7 +467,7 @@ module.exports = class Color extends AtomicBase
 
   @getter
     plainObjects: -> if @a < 1 then @rgbaHexString else @hexString
-    inspectedObjects: -> @
+    inspectedObjects: -> if colorFloatEq(1, @a) then @hexString else @rgbaHexString
 
   # vivafy HSL on request
   @getter

@@ -5,7 +5,10 @@
 
 Foundation = require 'art-foundation'
 AtomicBase = require './base'
-{inspect, bound, floatEq, log, isNumber, isArray, isString, isFunction, stringToNumberArray, nearInfinity} = Foundation
+{
+  inspect, bound, floatEq, log, isNumber, isArray, isString, isFunction, stringToNumberArray, nearInfinity
+  inspectedObjectLiteral
+} = Foundation
 {abs, sqrt, atan, PI, floor, ceil, round, min, max} = Math
 
 ###
@@ -226,8 +229,7 @@ module.exports = class Point extends AtomicBase
 
   @getter
     plainObjects: -> x: @x, y: @y
-    inspectedObjects: ->
-      inspect: => inspect @
+    inspectedObjects: -> inspectedObjectLiteral @inspect()
 
   inspect: -> if floatEq @x, @y
       "point(#{@x})"
