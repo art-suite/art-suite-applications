@@ -190,21 +190,19 @@ define [
       [scratchBitmap, size, location] = @renderTextToScratchBitmap text, fontOptions, padding
       data = scratchBitmap.context.getImageData(0, 0, size.x, size.y).data
 
-      while !@checkBorder data, size
+      # getAutoCropRectangle returns the exact bounding rectangle of all pixels >= tightThreshold
+      # NOTE: for Atomic.Rectangles, right and bottom are EXCLUSIVE while LEFT and TOP are INCLUSIVE
+      {left, right, top, bottom} = scratchBitmap.getAutoCropRectangle tightThreshold
+
+      while left == 0 || top == 0 || right == size.x || bottom == size.y
         @log "Art.Text.Metrics#_generateTightFontMetrics: #{inspect fontOptions, 1}, padding: #{padding} too small. scratchBitmap.size: #{scratchBitmap.size}"
         padding *= 2
         [scratchBitmap, size, location] = @renderTextToScratchBitmap text, fontOptions, padding
-        data = scratchBitmap.context.getImageData(0, 0, size.x, size.y).data
+        {left, right, top, bottom} = scratchBitmap.getAutoCropRectangle tightThreshold
 
-      top         = @calculateTop    data, size, tightThreshold
-      left        = @calculateLeft   data, size, tightThreshold
-      right       = @calculateRight  data, size, tightThreshold
-      bottom      = @calculateBottom data, size, tightThreshold
-
+      # adjust top and left so all four point to the first blank column/row
       top--
       left--
-      right++
-      bottom++
 
       textOffsetX = location.x - left
       textOffsetY = location.y - top
@@ -256,68 +254,6 @@ define [
 
     @classGetter
       scratchCanvasBitmap: -> @_scratchCanvasBitmap ||= new Canvas.Bitmap point(10,10)
-
-    # INCLUSIVE: returns first line with pixels > tightThreshold
-    @calculateTop: (data, size, tightThreshold) ->
-      lineStep = size.x * pixelStep
-      pos = alphaChannelOffset
-      while pos < data.length && data[pos] <= tightThreshold
-        pos += pixelStep
-      floor pos / lineStep
-
-    # INCLUSIVE: returns last line with pixels > tightThreshold
-    @calculateBottom: (data, size, tightThreshold) ->
-      lineStep = size.x * pixelStep
-      pos = data.length + alphaChannelOffset - pixelStep # start on second to last line
-      while pos > 0 && data[pos] <= tightThreshold
-        pos -= pixelStep
-      floor pos / lineStep
-
-    # INCLUSIVE: returns first column with pixels > tightThreshold
-    @calculateLeft: (data, size, tightThreshold) ->
-      lineStep = size.x * pixelStep
-      length = data.length
-      posX = pixelStep + alphaChannelOffset # set on second column - SBD 2016: I think this is because we already did a parimeter check
-      while posX < lineStep
-        pos = posX
-        while pos < length
-          return floor posX / pixelStep if data[pos] > tightThreshold
-          pos += lineStep
-        posX += pixelStep
-
-    # INCLUSIVE: returns last column with pixels > tightThreshold
-    @calculateRight: (data, size, tightThreshold) ->
-      lineStep = size.x * pixelStep
-      length = data.length
-      posX = lineStep - 2 * pixelStep + alphaChannelOffset # start on second to last column
-      while posX > 0
-        pos = posX
-        while pos < length
-          return floor posX / pixelStep if data[pos] > tightThreshold
-          pos += lineStep
-        posX -= pixelStep
-
-    @topAndBottomCheck: (data, size) ->
-      lineStep = size.x * pixelStep
-      posX = alphaChannelOffset
-      topBottomStep = (size.y-1) * lineStep
-      while posX < lineStep
-        return false if data[posX] || data[posX + topBottomStep]
-        posX += pixelStep
-      true
-
-    @leftAndRightCheck: (data, size) ->
-      lineStep = size.x * pixelStep
-      posY = alphaChannelOffset + lineStep
-      leftRightStep = lineStep - pixelStep
-      while posY < data.length
-        return false if data[posY] || data[posY + leftRightStep]
-        posY += lineStep
-      true
-
-    # returns true if 100% of border pixels are 100% transparent
-    @checkBorder: (data, size) ->
-      @topAndBottomCheck(data, size) and @leftAndRightCheck(data, size)
 
     # if you draw the text, with the specified options, at location 0, 0...
     # This function makes a pessimistic, 99%+ correct guess...
