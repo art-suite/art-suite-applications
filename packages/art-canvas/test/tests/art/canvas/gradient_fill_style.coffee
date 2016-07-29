@@ -53,3 +53,41 @@ suite "Art.Canvas.GradientFillStyle", ->
       {c: "#70f", n: .9}
       {c: "#f0f", n: 1}
     ], "interpolateColorPositions"
+
+  test "regression 2", ->
+    gfs = new GradientFillStyle point(0,0), point(100,0), [
+      '#ff000000'
+      '#ff000001'
+      '#ff000002'
+      '#ff000005'
+      '#ff00000a'
+      '#ff00000f'
+      '#ff000015'
+      '#ff00001d'
+      '#ff000025'
+      '#ff00002f'
+      '#ff000039'
+      '#ff000043'
+      '#ff00004f'
+      '#ff00005a'
+      '#ff000067'
+      '#ff000073'
+      '#ff000080'
+      '#ff00008c'
+      '#ff000098'
+      '#ff0000a5'
+      '#ff0000b0'
+      '#ff0000bc'
+      '#ff0000c6'
+      '#ff0000d0'
+      '#ff0000da'
+      '#ff0000e2'
+      '#ff0000ea'
+      '#ff0000f0'
+      '#ff0000f5'
+      '#ff0000fa'
+      '#ff0000fd'
+      '#ff0000fe'
+      '#ff0000'
+      ]
+    log gfs.colors
