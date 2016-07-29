@@ -5,6 +5,13 @@ Canvas = require 'art-canvas'
 {log} = Foundation
 {Bitmap} = Canvas
 
+testDrawLog = (testName, setup) ->
+  test testName, ->
+    {bitmap, test} = setup()
+    log bitmap, testName
+    test? bitmap
+
+
 suite "Art.Canvas.Bitmap.drawGradient", ->
   test "basic", ->
     b = new Bitmap 128
@@ -59,3 +66,21 @@ suite "Art.Canvas.Bitmap.drawGradient", ->
       to: point 96, 96
       gradientRadius: 64 * 1.404
     log b
+
+  testDrawLog "regression", ->
+    bitmap:
+      new Bitmap 128
+      .drawRectangle null, 128,
+        colors: [
+          "#f00"
+          "#f70"
+          "#ff0"
+          "#7f0"
+          "#0f0"
+          "#0f7"
+          "#0ff"
+          "#07f"
+          "#00f"
+          "#70f"
+          "#f0f"
+          ]

@@ -73,36 +73,56 @@ module.exports = class GradientFillStyle extends Foundation.BaseObject
         ret.push clr
     ret
 
-  @interpolateColorPositionRange: (colors, start, end) ->
-    steps = end - start
-    firstN = colors[start].n
-    lastN = colors[end].n
+  @interpolateColorPositionRange: (
+      outColors
+      colors
+      start
+      end
+      firstN # inclusive
+      lastN  # exclusive
+      ) ->
+    steps = end - start + 1
     nDelta = (lastN-firstN)/steps
-    n = firstN + nDelta
-    i = start + 1
-    while i < end
-      colors[i].n = n
-      n += nDelta
-      i++
+    for i in [start...end]
+      outColors.push
+        c: colors[i].c
+        n: (i - start + 1) * nDelta
+
+  @needToInterpolateColors: (colors) =>
+    ret = false
+    for clr in colors when !clr.n?
+      ret = true;break;
+    ret
 
   @interpolateColorPositions: (colors) =>
-    firstColor = colors[0]
-    lastColor = peek colors
-    firstColor.n = 0  unless isNumber firstColor.n
-    lastColor.n  = 1  unless isNumber lastColor.n
+    return colors unless @needToInterpolateColors colors
+    [firstColor, ..., lastColor] = colors
+    firstColor = c: firstColor.c, n: 0 unless firstColor.n?
+    lastColor  = c: lastColor.c , n: 1 unless lastColor.n?
 
-    lastNindex = 0
-    for clr, i in colors
-      if clr.n
-        @interpolateColorPositionRange colors, lastNindex, i
-        lastNindex = i
+    outColors = [firstColor]
 
-    {n, c} = firstColor
-    colors = [n: 0, c: c].concat colors    unless floatEq n, 0
-    {n, c} = lastColor
-    colors = arrayWith colors, n: 1, c: c  unless floatEq n, 1
+    startN = firstColor.n
 
-    colors
+    interpolateCount = 0
+    for clr, i in colors when i > 0
+      clr = lastColor if i == colors.length - 1
+      {n} = clr
+      if n?
+        if interpolateCount > 0
+          @interpolateColorPositionRange outColors,
+            colors
+            i - interpolateCount
+            i
+            startN
+            n
+          interpolateCount = 0
+        startN = n
+      else
+        interpolateCount++
+
+    outColors.push lastColor
+    outColors
 
   @sortColorsByN: (colors) ->
     colors.sort (a, b) -> a.n - b.n
@@ -110,8 +130,8 @@ module.exports = class GradientFillStyle extends Foundation.BaseObject
   @normalizeColors: (colors) ->
     colors = @colorsFromObjects colors
     colors = @colorsToObjectsAndStringColors colors
-    colors = @sortColorsByN colors
     colors = @interpolateColorPositions colors
+    colors = @sortColorsByN colors
     colors
 
   constructor: (@from, @to, colors, @radius1, @radius2)->
@@ -185,7 +205,7 @@ module.exports = class GradientFillStyle extends Foundation.BaseObject
       )
     for clr in @_colors
       try
-        gradient.addColorStop clr.n, clr.c
+        gradient.addColorStop clr.n, clr.c.toString()
       catch e
         gradient.addColorStop clr.n, "black"
 
