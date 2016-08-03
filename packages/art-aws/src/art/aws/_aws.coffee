@@ -5,5 +5,4 @@ unless self.AWS
     clientSide: require 'art-aws/AwsMinAppClientSideSdk'
     serverSide: require 'aws-sdk'
     """
-module.exports =
-  config: AWS.config
+module.exports = require './Config'

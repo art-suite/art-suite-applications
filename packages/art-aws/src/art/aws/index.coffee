@@ -4,5 +4,6 @@
 module.exports = require './namespace'
 .includeInNamespace require './_aws'
 .addModules
-  DynamoDb: require './dynamo_db'
+  Config:   require './Config'  
+  DynamoDb: require './DynamoDb'
 require './StreamlinedApi'

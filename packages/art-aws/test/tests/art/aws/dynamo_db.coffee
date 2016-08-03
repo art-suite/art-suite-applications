@@ -2,16 +2,16 @@ Foundation = require 'art-foundation'
 {log} = Foundation
 {DynamoDb, config} = require 'art-aws'
 config.region = 'us-west-2'
+config.endpoint = "http://localhost:8081"
 
 testTableName = 'fooBarTestTable'
 
 suite "Art.Ery.Aws.DynamoDb", ->
   @timeout 10000
 
-
   dynamoDb = null
   setup ->
-    dynamoDb = new DynamoDb endpoint: "http://localhost:8081"
+    dynamoDb = new DynamoDb
     dynamoDb.listTables()
     .then ({TableNames}) ->
       list = for tableName in TableNames

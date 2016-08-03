@@ -9,6 +9,8 @@ Foundation = require 'art-foundation'
   log
 } = Foundation
 
+{config} = require "./Config"
+
 StreamlinedApi = require './StreamlinedApi'
 
 {Tools, StreamlinedDynamoDbApi} = StreamlinedApi
@@ -54,8 +56,10 @@ module.exports = class DynamoDb
     else
       throw new Error "unknown dynamo data type: #{inspect data}"
 
-  constructor: (options) ->
-    endpoint = new AWS.Endpoint options.endpoint if options.endpoint
+  constructor: (options = {}) ->
+    {endpoint} = options
+    endpoint ||= config.endpoint
+    endpoint = new AWS.Endpoint endpoint if endpoint
     @_awsDynamoDb = new AWS.DynamoDB endpoint: endpoint
 
   invokeAws: (name, params) ->
