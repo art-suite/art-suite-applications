@@ -44,15 +44,9 @@ module.exports = class StreamlinedDynamoDbApi
       myHashKeyName:  'hash'
       myRangeKeyName: 'range'
 
-    OR:
-
-    key "hashKeyField"
-
-    OR:
-
-    key "hashKeyField/rangeKeyField"
-    NOTE:
-      you can use any format that matches /[_a-zA-Z0-9]+/g
+      OR: "hashKeyField"
+      OR: "hashKeyField/rangeKeyField"
+        NOTE: you can use any string format that matches /[_a-zA-Z0-9]+/g
   ###
   @translateKey: (params, target = {}) ->
     keySchema = params.key || params.keySchema || id: 'hash'
@@ -146,6 +140,7 @@ module.exports = class StreamlinedDynamoDbApi
 
   ###
   IN:
+    attributes:     see translateAttributes
     globalIndexes:  see translateGlobalIndexes
     key:            see translateKey
     provisioning:   see translateProvisioning

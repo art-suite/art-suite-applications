@@ -1,3 +1,63 @@
+###
+The AWS DynamoDb API is redundent and uses UpperCamelCase names all over.
+
+Goals:
+  create a wrapper API which:
+
+  - elliminates redundencies
+  - uses lowerCamelCase key names for JavaScript naming convention compatibility.
+
+Strategy:
+  Incremental. Not all commands will be updated to the "new" api.
+  Instead, the API will always accept the unfiltered DynamoDb API with UpperCamelCase names.
+  As I can, I'll create a lowerCamelCase API for each commant.
+
+lowerCamelCase API:
+
+  createTable
+    attributes:
+      myHashKeyName:    'string'
+      myRangeKeyName:   'string'
+      myNumberAttrName: 'number'
+      myBinaryAttrName: 'binary'
+
+    key:
+      myHashKeyName:  'hash'
+      myRangeKeyName: 'range'
+
+      OR: "hashKeyField"
+      OR: "hashKeyField/rangeKeyField"
+        NOTE: you can use any string format that matches /[_a-zA-Z0-9]+/g
+
+    provisioning:
+      read: 5
+      write: 5
+
+    globalIndexes:
+      myIndexName:
+        key:
+          myHashKeyName:  'hash'
+          myRangeKeyName: 'range'
+
+        projection:
+          attributes: ["myNumberAttrName", "myBinaryAttrName"]
+          type: 'all' || 'keysOnly' || 'include'
+
+        provisioning:
+          read: 5
+          write: 5
+
+    localIndexes:
+      myIndexName:
+        key:
+          myHashKeyName:  'hash'  # localIndexes must have the same hash-key as the table
+          myRangeKeyName: 'range'
+
+        projection:
+          attributes: ["myNumberAttrName", "myBinaryAttrName"]
+          type: 'all' || 'keysOnly' || 'include'
+###
+
 Foundation = require 'art-foundation'
 {
   merge
