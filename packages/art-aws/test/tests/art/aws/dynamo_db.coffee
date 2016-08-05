@@ -1,6 +1,6 @@
 Foundation = require 'art-foundation'
 {log, isPlainArray} = Foundation
-{DynamoDb, config} = require 'art-aws'
+{DynamoDb, config, encodeDynamoData} = require 'art-aws'
 config.region = 'us-west-2'
 config.endpoint = "http://localhost:8081"
 
@@ -12,6 +12,12 @@ suite "Art.Ery.Aws.DynamoDb", ->
   dynamoDb = null
   setup ->
     dynamoDb = new DynamoDb
+      accessKeyId:    'thisIsSomeInvalidKey'
+      secretAccessKey:'anEquallyInvalidSecret!'
+      region:         'us-east-1'
+      endpoint:       'http://localhost:8081'
+      maxRetries:     5
+
     dynamoDb.listTables()
     .then ({TableNames}) ->
       list = for tableName in TableNames
@@ -19,21 +25,38 @@ suite "Art.Ery.Aws.DynamoDb", ->
           log "Deleting test table: #{testTableName}"
           dynamoDb.deleteTable TableName: tableName
         else
-          console.error "NOT deleting non-test-table: #{tableName}"
+          log "NOT deleting non-test-table: #{tableName}"
       Promise.all list
 
   test "listTables", ->
     dynamoDb.listTables()
     .then (tables) ->
       assert.eq true, isPlainArray tables.TableNames
-      log tables
+      # log tables
 
   test "createTable", ->
-    dynamoDb.createTable TableName: testTableName
-    .then (result) ->
-      log result
+    dynamoDb.createTable tableName: testTableName
+    # .then (result) ->
+    #   log result
 
   test "create complex table", ->
-    dynamoDb.createTable {"TableName":testTableName,"AttributeDefinitions":[{"AttributeName":"createdAt","AttributeType":"N"},{"AttributeName":"updatedAt","AttributeType":"N"},{"AttributeName":"user","AttributeType":"S"},{"AttributeName":"message","AttributeType":"S"},{"AttributeName":"chatRoom","AttributeType":"S"}],"KeySchema":[{"AttributeName":"chatRoom","KeyType":"HASH"},{"AttributeName":"createdAt","KeyType":"RANGE"}],"ProvisionedThroughput":{"ReadCapacityUnits":1,"WriteCapacityUnits":1}}
+    dynamoDb.createTable
+      tableName: testTableName
+      attributes:
+        createdAt: "number"
+        chatRoom:  "string"
+      key: "chatRoom/createdAt"
     .then (result) ->
-      log result
+      # log createResult: result
+      data =
+        createdAt: Date.now()
+        updatedAt: Date.now()
+        user: "abc123"
+        chatRoom: "xyz456"
+        message: "Hi!"
+        id: "lmnop123123"
+      dynamoDb.putItem
+        TableName: testTableName
+        Item: encodeDynamoData(data).M
+    # .then (result) ->
+    #   log putResult: result

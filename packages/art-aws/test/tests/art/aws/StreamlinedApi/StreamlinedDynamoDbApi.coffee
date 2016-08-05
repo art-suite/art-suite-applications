@@ -8,10 +8,10 @@
 suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.translateCreateTableParams", ->
   test "translateCreateTableParams() has defaults", ->
     assert.eq translateCreateTableParams(tableName: "foo"),
-      tableName:             "foo"
-      attributeDefinitions:  [attributeName: "id", attributeType: "S"]
-      keySchema:             [attributeName: "id", keyType: "HASH"]
-      provisionedThroughput: readCapacityUnits: 1, writeCapacityUnits: 1
+      TableName:             "foo"
+      AttributeDefinitions:  [AttributeName: "id", AttributeType: "S"]
+      KeySchema:             [AttributeName: "id", KeyType: "HASH"]
+      ProvisionedThroughput: ReadCapacityUnits: 1, WriteCapacityUnits: 1
 
   test "translateCreateTableParams() override defaults", ->
     assert.eq translateCreateTableParams(
@@ -20,68 +20,68 @@ suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.translateCreateTableParams"
       key: 'myKey'
       provisioning: read: 10
     ),
-      tableName:             "foo"
-      attributeDefinitions:  [attributeName: "myKey", attributeType: "S"]
-      keySchema:             [attributeName: "myKey", keyType: "HASH"]
-      provisionedThroughput: readCapacityUnits: 10, writeCapacityUnits: 1
+      TableName:             "foo"
+      AttributeDefinitions:  [AttributeName: "myKey", AttributeType: "S"]
+      KeySchema:             [AttributeName: "myKey", KeyType: "HASH"]
+      ProvisionedThroughput: ReadCapacityUnits: 10, WriteCapacityUnits: 1
 
 suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.translateProvisioning", ->
   test "translateProvisioning() has defaults", ->
     assert.eq translateProvisioning(),
-      provisionedThroughput:
-        readCapacityUnits: 1
-        writeCapacityUnits: 1
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
 
   test "translateProvisioning provisioning: read: 10, write: 20", ->
     assert.eq translateProvisioning(provisioning: read: 10, write: 20),
-      provisionedThroughput:
-        readCapacityUnits: 10
-        writeCapacityUnits: 20
+      ProvisionedThroughput:
+        ReadCapacityUnits: 10
+        WriteCapacityUnits: 20
 
 suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.translateKey", ->
   test "translateKey()", ->
-    assert.eq translateKey({}), keySchema: [attributeName: "id", keyType: "HASH"]
+    assert.eq translateKey({}), KeySchema: [AttributeName: "id", KeyType: "HASH"]
 
   test "translateKey key: foo: 'hash'", ->
     assert.eq translateKey(key: foo: "hash"),
-      keySchema: [attributeName: "foo", keyType: "HASH"]
+      KeySchema: [AttributeName: "foo", KeyType: "HASH"]
 
   test "translateKey key: 'foo'", ->
     assert.eq translateKey(key: 'foo'),
-      keySchema: [attributeName: "foo", keyType: "HASH"]
+      KeySchema: [AttributeName: "foo", KeyType: "HASH"]
 
   test "translateKey key: 'foo/bar'", ->
     assert.eq translateKey(key: 'foo/bar'),
-      keySchema: [
-        {attributeName: "foo", keyType: "HASH"}
-        {attributeName: "bar", keyType: "RANGE"}
+      KeySchema: [
+        {AttributeName: "foo", KeyType: "HASH"}
+        {AttributeName: "bar", KeyType: "RANGE"}
       ]
 
   test "translateKey key: 'foo-bar'", ->
     assert.eq translateKey(key: 'foo-bar'),
-      keySchema: [
-        {attributeName: "foo", keyType: "HASH"}
-        {attributeName: "bar", keyType: "RANGE"}
+      KeySchema: [
+        {AttributeName: "foo", KeyType: "HASH"}
+        {AttributeName: "bar", KeyType: "RANGE"}
       ]
 
 suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.translateAttributes", ->
   test "translateAttributes()", ->
-    assert.eq translateAttributes({}), attributeDefinitions: [attributeName: "id", attributeType: "S"]
+    assert.eq translateAttributes({}), AttributeDefinitions: [AttributeName: "id", AttributeType: "S"]
 
-  test "translateAttributes attributes: foo: 'string'", ->
+  test "translateAttributes Attributes: foo: 'string'", ->
     assert.eq translateAttributes(attributes: foo: "string"),
-      attributeDefinitions: [attributeName: "foo", attributeType: "S"]
+      AttributeDefinitions: [AttributeName: "foo", AttributeType: "S"]
 
-  test "translateAttributes attributes: all types", ->
+  test "translateAttributes Attributes: all types", ->
     assert.eq translateAttributes(
       attributes:
         aString: "string"
         aNumber: "number"
         aBinary: "binary"
-    ), attributeDefinitions: [
-      {attributeName: "aString", attributeType: "S"}
-      {attributeName: "aNumber", attributeType: "N"}
-      {attributeName: "aBinary", attributeType: "B"}
+    ), AttributeDefinitions: [
+      {AttributeName: "aString", AttributeType: "S"}
+      {AttributeName: "aNumber", AttributeType: "N"}
+      {AttributeName: "aBinary", AttributeType: "B"}
     ]
 
 suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.translateGlobalIndexes", ->
@@ -93,11 +93,11 @@ suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.translateGlobalIndexes", ->
       globalIndexes:
         myIndexName: {}
     ),
-      globalSecondaryIndexes: [
-        indexName:             "myIndexName"
-        keySchema:             [attributeName: "id", keyType: "HASH"]
-        projection:            type: "ALL", attributes: []
-        provisionedThroughput: readCapacityUnits: 1, writeCapacityUnits: 1
+      GlobalSecondaryIndexes: [
+        IndexName:             "myIndexName"
+        KeySchema:             [AttributeName: "id", KeyType: "HASH"]
+        Projection:            Type: "ALL", Attributes: []
+        ProvisionedThroughput: ReadCapacityUnits: 1, WriteCapacityUnits: 1
       ]
 
   test "translateGlobalIndexes custom key", ->
@@ -106,11 +106,11 @@ suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.translateGlobalIndexes", ->
         myIndexName:
           key: 'myHashKeyName'
     ),
-      globalSecondaryIndexes: [
-        indexName:             "myIndexName"
-        keySchema:             [attributeName: "myHashKeyName", keyType: "HASH"]
-        projection:            type: "ALL", attributes: []
-        provisionedThroughput: readCapacityUnits: 1, writeCapacityUnits: 1
+      GlobalSecondaryIndexes: [
+        IndexName:             "myIndexName"
+        KeySchema:             [AttributeName: "myHashKeyName", KeyType: "HASH"]
+        Projection:            Type: "ALL", Attributes: []
+        ProvisionedThroughput: ReadCapacityUnits: 1, WriteCapacityUnits: 1
       ]
 
   test "translateGlobalIndexes everything", ->
@@ -128,20 +128,20 @@ suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.translateGlobalIndexes", ->
             read: 5
             write: 5
     ),
-      globalSecondaryIndexes: [
+      GlobalSecondaryIndexes: [
         {
-          indexName:             "myFirstIndexName"
-          keySchema:             [attributeName: "id", keyType: "HASH"]
-          projection:            type: "ALL", attributes: []
-          provisionedThroughput: readCapacityUnits: 1, writeCapacityUnits: 1
+          IndexName:             "myFirstIndexName"
+          KeySchema:             [AttributeName: "id", KeyType: "HASH"]
+          Projection:            Type: "ALL", Attributes: []
+          ProvisionedThroughput: ReadCapacityUnits: 1, WriteCapacityUnits: 1
         }
-        indexName:             "myIndexName"
-        keySchema: [
-          {attributeName: "myHashKeyName", keyType: "HASH"}
-          {attributeName: "myRangeKeyName", keyType: "RANGE"}
+        IndexName:             "myIndexName"
+        KeySchema: [
+          {AttributeName: "myHashKeyName", KeyType: "HASH"}
+          {AttributeName: "myRangeKeyName", KeyType: "RANGE"}
         ]
-        projection:            type: "KEYS_ONLY", attributes: ["myNumberAttrName", "myBinaryAttrName"]
-        provisionedThroughput: readCapacityUnits: 5, writeCapacityUnits: 5
+        Projection:            Type: "KEYS_ONLY", Attributes: ["myNumberAttrName", "myBinaryAttrName"]
+        ProvisionedThroughput: ReadCapacityUnits: 5, WriteCapacityUnits: 5
       ]
 
 suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.translateLocalIndexes", ->
@@ -153,10 +153,10 @@ suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.translateLocalIndexes", ->
       localIndexes:
         myIndexName: {}
     ),
-      localSecondaryIndexes: [
-        indexName:             "myIndexName"
-        keySchema:             [attributeName: "id", keyType: "HASH"]
-        projection:            type: "ALL", attributes: []
+      LocalSecondaryIndexes: [
+        IndexName:             "myIndexName"
+        KeySchema:             [AttributeName: "id", KeyType: "HASH"]
+        Projection:            Type: "ALL", Attributes: []
       ]
 
   test "translateLocalIndexes custom key", ->
@@ -165,10 +165,10 @@ suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.translateLocalIndexes", ->
         myIndexName:
           key: 'myHashKeyName'
     ),
-      localSecondaryIndexes: [
-        indexName:             "myIndexName"
-        keySchema:             [attributeName: "myHashKeyName", keyType: "HASH"]
-        projection:            type: "ALL", attributes: []
+      LocalSecondaryIndexes: [
+        IndexName:             "myIndexName"
+        KeySchema:             [AttributeName: "myHashKeyName", KeyType: "HASH"]
+        Projection:            Type: "ALL", Attributes: []
       ]
 
   test "translateLocalIndexes everything", ->
@@ -186,16 +186,16 @@ suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.translateLocalIndexes", ->
             read: 5
             write: 5
     ),
-      localSecondaryIndexes: [
+      LocalSecondaryIndexes: [
         {
-          indexName:             "myFirstIndexName"
-          keySchema:             [attributeName: "id", keyType: "HASH"]
-          projection:            type: "ALL", attributes: []
+          IndexName:             "myFirstIndexName"
+          KeySchema:             [AttributeName: "id", KeyType: "HASH"]
+          Projection:            Type: "ALL", Attributes: []
         }
-        indexName:             "myIndexName"
-        keySchema: [
-          {attributeName: "myHashKeyName", keyType: "HASH"}
-          {attributeName: "myRangeKeyName", keyType: "RANGE"}
+        IndexName:             "myIndexName"
+        KeySchema: [
+          {AttributeName: "myHashKeyName", KeyType: "HASH"}
+          {AttributeName: "myRangeKeyName", KeyType: "RANGE"}
         ]
-        projection:            type: "KEYS_ONLY", attributes: ["myNumberAttrName", "myBinaryAttrName"]
+        Projection:            Type: "KEYS_ONLY", Attributes: ["myNumberAttrName", "myBinaryAttrName"]
       ]

@@ -14,7 +14,7 @@ Foundation = require 'art-foundation'
 StreamlinedApi = require './StreamlinedApi'
 
 {Tools, StreamlinedDynamoDbApi} = StreamlinedApi
-{deepDecapitalizeAllKeys, deepCapitalizeAllKeys} = Tools
+# {deepDecapitalizeAllKeys, deepCapitalizeAllKeys} = Tools
 {translateCreateTableParams} = StreamlinedDynamoDbApi
 
 module.exports = class DynamoDb
@@ -57,13 +57,9 @@ module.exports = class DynamoDb
       throw new Error "unknown dynamo data type: #{inspect data}"
 
   constructor: (options = {}) ->
-    {endpoint} = options
-    endpoint ||= config.endpoint
-    endpoint = new AWS.Endpoint endpoint if endpoint
-    @_awsDynamoDb = new AWS.DynamoDB endpoint: endpoint
+    @_awsDynamoDb = new AWS.DynamoDB merge config.dynamoDb, options
 
   invokeAws: (name, params) ->
-    params = deepCapitalizeAllKeys params
     # log invokeAws:
     #   name: name
     #   params: params

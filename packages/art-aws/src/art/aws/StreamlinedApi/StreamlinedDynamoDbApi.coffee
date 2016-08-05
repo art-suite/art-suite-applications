@@ -1,5 +1,5 @@
 {lowerCamelCase, wordsArray, isPlainObject, log, compactFlatten, isString} = require 'art-foundation'
-{deepDecapitalizeAllKeys, deepCapitalizeAllKeys} = require './Tools'
+# {deepDecapitalizeAllKeys, deepCapitalizeAllKeys} = require './Tools'
 
 module.exports = class StreamlinedDynamoDbApi
 
@@ -30,10 +30,10 @@ module.exports = class StreamlinedDynamoDbApi
   ###
   @translateAttributes: (params, target = {}) ->
     defs = params.attributes || params.attributeDefinitions || id: 'string'
-    target.attributeDefinitions = if isPlainObject defs
+    target.AttributeDefinitions = if isPlainObject defs
       for k, v of defs
-        attributeName:  k
-        attributeType:  createConstantsMap[v.toLowerCase()] || v
+        AttributeName:  k
+        AttributeType:  createConstantsMap[v.toLowerCase()] || v
     else defs
 
     target
@@ -57,15 +57,15 @@ module.exports = class StreamlinedDynamoDbApi
   @translateKey: (params, target = {}) ->
     keySchema = params.key || params.keySchema || id: 'hash'
 
-    target.keySchema = if isPlainObject keySchema
+    target.KeySchema = if isPlainObject keySchema
       for k, v of keySchema
-        attributeName:  k
-        keyType:        createConstantsMap[v.toLowerCase()] || v
+        AttributeName:  k
+        KeyType:        createConstantsMap[v.toLowerCase()] || v
     else if isString keySchema
       [hashKeyField, rangeKeyField] = keySchema.match /[_a-zA-Z0-9]+/g
       compactFlatten [
-        {attributeName: hashKeyField, keyType: 'HASH'}
-        {attributeName: rangeKeyField, keyType: 'RANGE'} if rangeKeyField
+        {AttributeName: hashKeyField, KeyType: 'HASH'}
+        {AttributeName: rangeKeyField, KeyType: 'RANGE'} if rangeKeyField
       ]
 
     target
@@ -78,9 +78,9 @@ module.exports = class StreamlinedDynamoDbApi
   ###
   @translateProvisioning: (params, target = {}) ->
     provisioning = params?.provisioning  || params?.provisionedThroughput || {}
-    target.provisionedThroughput =
-      readCapacityUnits:  provisioning.read  || provisioning.readCapacityUnits  || 1
-      writeCapacityUnits: provisioning.write || provisioning.writeCapacityUnits || 1
+    target.ProvisionedThroughput =
+      ReadCapacityUnits:  provisioning.read  || provisioning.readCapacityUnits  || 1
+      WriteCapacityUnits: provisioning.write || provisioning.writeCapacityUnits || 1
 
     target
 
@@ -102,9 +102,9 @@ module.exports = class StreamlinedDynamoDbApi
   ###
   @translateGlobalIndexes: (params, target = {}) =>
     if globalIndexes = params?.globalIndexes  || params?.globalSecondaryIndexes
-      target.globalSecondaryIndexes = if isPlainObject globalIndexes
+      target.GlobalSecondaryIndexes = if isPlainObject globalIndexes
         for indexName, indexProps of globalIndexes
-          _target = indexName: indexName
+          _target = IndexName: indexName
           @translateKey indexProps, _target
           @translateProjection indexProps, _target
           @translateProvisioning indexProps, _target
@@ -128,9 +128,9 @@ module.exports = class StreamlinedDynamoDbApi
   ###
   @translateLocalIndexes: (params, target = {}) =>
     if localIndexes = params?.localIndexes  || params?.localSecondaryIndexes
-      target.localSecondaryIndexes = if isPlainObject localIndexes
+      target.LocalSecondaryIndexes = if isPlainObject localIndexes
         for indexName, indexProps of localIndexes
-          _target = indexName: indexName
+          _target = IndexName: indexName
           @translateKey indexProps, _target
           @translateProjection indexProps, _target
           _target
@@ -140,23 +140,24 @@ module.exports = class StreamlinedDynamoDbApi
 
   @translateProjection: (params, target = {}) ->
     projection = params?.projection || type: 'all'
-    target.projection =
-      type: createConstantsMap[projection.type] || if projection.attributes then 'include' else 'all'
-      attributes: projection.attributes || []
+    target.Projection =
+      Type: createConstantsMap[projection.type] || if projection.attributes then 'include' else 'all'
+      Attributes: projection.attributes || []
 
   ###
   IN:
-    attributes:     see translateAttributes
     globalIndexes:  see translateGlobalIndexes
     key:            see translateKey
     provisioning:   see translateProvisioning
     localIndexes:   see translateLocalIndexes
 
+  NOTE:
+    Attributes must be exactly, and only, the types of the key attributes.
+
   ###
   @translateCreateTableParams: (params, target = {}) =>
-    params = deepDecapitalizeAllKeys params
     throw new Error "tableName required" unless params.tableName
-    target.tableName = params.tableName
+    target.TableName = params.tableName
     @translateGlobalIndexes params, target
     @translateLocalIndexes params, target
     @translateAttributes params, target

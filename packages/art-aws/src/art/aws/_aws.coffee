@@ -5,4 +5,7 @@ unless self.AWS
     clientSide: require 'art-aws/AwsMinAppClientSideSdk'
     serverSide: require 'aws-sdk'
     """
-module.exports = require './Config'
+module.exports = [
+  require './Config'
+  require './DynamoDb'
+]

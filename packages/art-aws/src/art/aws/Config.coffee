@@ -1,1 +1,3 @@
-module.exports = config: AWS.config
+module.exports = config:
+  AWS: AWS.config
+  dynamoDb: {}
