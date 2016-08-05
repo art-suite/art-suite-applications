@@ -1,5 +1,5 @@
 Foundation = require 'art-foundation'
-{log} = Foundation
+{log, isPlainArray} = Foundation
 {DynamoDb, config} = require 'art-aws'
 config.region = 'us-west-2'
 config.endpoint = "http://localhost:8081"
@@ -25,7 +25,7 @@ suite "Art.Ery.Aws.DynamoDb", ->
   test "listTables", ->
     dynamoDb.listTables()
     .then (tables) ->
-      assert.eq tables.TableNames, []
+      assert.eq true, isPlainArray tables.TableNames
       log tables
 
   test "createTable", ->
