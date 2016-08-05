@@ -19,7 +19,7 @@ suite "Art.Ery.Aws.DynamoDb", ->
           log "Deleting test table: #{testTableName}"
           dynamoDb.deleteTable TableName: tableName
         else
-          throw new Error "not test-table found: #{testTableName}"
+          console.error "NOT deleting non-test-table: #{tableName}"
       Promise.all list
 
   test "listTables", ->
@@ -30,5 +30,10 @@ suite "Art.Ery.Aws.DynamoDb", ->
 
   test "createTable", ->
     dynamoDb.createTable TableName: testTableName
-    .then (tables) ->
-      log tables
+    .then (result) ->
+      log result
+
+  test "create complex table", ->
+    dynamoDb.createTable {"TableName":testTableName,"AttributeDefinitions":[{"AttributeName":"createdAt","AttributeType":"N"},{"AttributeName":"updatedAt","AttributeType":"N"},{"AttributeName":"user","AttributeType":"S"},{"AttributeName":"message","AttributeType":"S"},{"AttributeName":"chatRoom","AttributeType":"S"}],"KeySchema":[{"AttributeName":"chatRoom","KeyType":"HASH"},{"AttributeName":"createdAt","KeyType":"RANGE"}],"ProvisionedThroughput":{"ReadCapacityUnits":1,"WriteCapacityUnits":1}}
+    .then (result) ->
+      log result
