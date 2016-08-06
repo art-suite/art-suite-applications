@@ -1,4 +1,4 @@
-{lowerCamelCase, wordsArray, isPlainObject, log, compactFlatten, isString} = require 'art-foundation'
+{lowerCamelCase, wordsArray, isPlainObject, log, compactFlatten, isString, compactFlatten, deepEachAll, uniqueValues} = require 'art-foundation'
 # {deepDecapitalizeAllKeys, deepCapitalizeAllKeys} = require './Tools'
 
 module.exports = class StreamlinedDynamoDbApi
@@ -20,6 +20,14 @@ module.exports = class StreamlinedDynamoDbApi
       """
     createConstantsMap[lowerCamelCase dynamoDbConstant] = dynamoDbConstant
 
+  @getKeySchemaAttributes: getKeySchemaAttributes = (createParams) ->
+    out = []
+    deepEachAll createParams, (v, k) ->
+      if k == "KeySchema"
+        for key in v
+          out.push key.AttributeName
+    uniqueValues out.sort()
+
   ###
   IN:
     attributes:
@@ -28,10 +36,10 @@ module.exports = class StreamlinedDynamoDbApi
       myNumberAttrName: 'number'
       myBinaryAttrName: 'binary'
   ###
-  @translateAttributes: (params, target = {}) ->
+  @translateAttributes: (params, target = {}, keySchemaAttributes) ->
     defs = params.attributes || params.attributeDefinitions || id: 'string'
     target.AttributeDefinitions = if isPlainObject defs
-      for k, v of defs
+      for k, v of defs when !keySchemaAttributes || k in keySchemaAttributes
         AttributeName:  k
         AttributeType:  createConstantsMap[v.toLowerCase()] || v
     else defs
@@ -82,24 +90,24 @@ module.exports = class StreamlinedDynamoDbApi
   IN:
     globalIndexes:
       myIndexName:
-        key:
-          myHashKeyName:  'hash'
-          myRangeKeyName: 'range'
+        "hashKey"           # see translateKey
+        "hashKey/rangeKey"  # see translateKey
 
-        projection:
-          attributes: ["myNumberAttrName", "myBinaryAttrName"]
-          type: 'all' || 'keysOnly' || 'include'
+        OR
 
-        provisioning:
-          read: 5
-          write: 5
+        key:          # see translateKey
+        projection:   # see translateProjection
+        provisioning: # see translateProvisioning
   ###
   @translateGlobalIndexes: (params, target = {}) =>
-    if globalIndexes = params?.globalIndexes  || params?.globalSecondaryIndexes
+    if globalIndexes = params?.globalIndexes
       target.GlobalSecondaryIndexes = if isPlainObject globalIndexes
         for indexName, indexProps of globalIndexes
           _target = IndexName: indexName
-          @translateKey indexProps, _target
+          if isString indexProps
+            @translateKey key: indexProps, _target
+          else
+            @translateKey indexProps, _target
           @translateProjection indexProps, _target
           @translateProvisioning indexProps, _target
           _target
@@ -111,22 +119,24 @@ module.exports = class StreamlinedDynamoDbApi
   IN:
     localIndexes:
       myIndexName:
-        key:
-          myHashKeyName:  'hash'  # localIndexes must have the same hash-key as the table
-          myRangeKeyName: 'range'
+        "hashKey"           # see translateKey
+        "hashKey/rangeKey"  # see translateKey
 
-        projection:
-          attributes: ["myNumberAttrName", "myBinaryAttrName"]
-          type: 'all' || 'keysOnly' || 'include'
+        OR
 
+        key:          # see translateKey
+        projection:   # see translateProjection
   ###
   @translateLocalIndexes: (params, target = {}) =>
     if localIndexes = params?.localIndexes  || params?.localSecondaryIndexes
       target.LocalSecondaryIndexes = if isPlainObject localIndexes
         for indexName, indexProps of localIndexes
           _target = IndexName: indexName
-          @translateKey indexProps, _target
-          @translateProjection indexProps, _target
+          if isString indexProps
+            @translateKey key: indexProps, _target
+          else
+            @translateKey indexProps, _target
+            @translateProjection indexProps, _target
           _target
       else globalIndexes
 
@@ -134,9 +144,10 @@ module.exports = class StreamlinedDynamoDbApi
 
   @translateProjection: (params, target = {}) ->
     projection = params?.projection || type: 'all'
-    target.Projection =
-      Type: createConstantsMap[projection.type] || if projection.attributes then 'include' else 'all'
-      Attributes: projection.attributes || []
+    target.Projection = out =
+      ProjectionType: createConstantsMap[projection.type] || if projection.attributes then 'INCLUDE' else 'ALL'
+    out.NonKeyAttributes = projection.attributes if projection.attributes
+    out
 
   ###
   IN:
@@ -147,15 +158,17 @@ module.exports = class StreamlinedDynamoDbApi
     localIndexes:   see translateLocalIndexes
 
   NOTE:
-    Attributes must be exactly, and only, the types of the key attributes.
+    DynmoDb requires that attributes only list attributes used in the primary and index keys.
+    BUT, translateCreateTableParams takes care of removing the extra fields from your list if present.
 
   ###
   @translateCreateTableParams: (params, target = {}) =>
     throw new Error "tableName required" unless params.tableName
     target.TableName = params.tableName
-    @translateGlobalIndexes params, target
-    @translateLocalIndexes params, target
-    @translateAttributes params, target
-    @translateKey params, target
+    @translateAttributes params, target, getKeySchemaAttributes [
+      @translateGlobalIndexes params, target
+      @translateLocalIndexes params, target
+      @translateKey params, target
+    ]
     @translateProvisioning params, target
     target

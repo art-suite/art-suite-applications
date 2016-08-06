@@ -14,13 +14,23 @@ Strategy:
 
 lowerCamelCase API:
 
+METHODS
   createTable
+    attributes:     # see translateAttributes
+    key:            # see translateKey
+    provisioning:   # see translateProvisioning
+    globalIndexes:  # see
+    localIndexes:
+
+HELPERS
+  translateAttributes
     attributes:
       myHashKeyName:    'string'
       myRangeKeyName:   'string'
       myNumberAttrName: 'number'
       myBinaryAttrName: 'binary'
 
+  translateKey
     key:
       myHashKeyName:  'hash'
       myRangeKeyName: 'range'
@@ -29,33 +39,33 @@ lowerCamelCase API:
       OR: "hashKeyField/rangeKeyField"
         NOTE: you can use any string format that matches /[_a-zA-Z0-9]+/g
 
+  translateProvisioning
     provisioning:
       read: 5
       write: 5
 
+  translateGlobalIndexes
     globalIndexes:
       myIndexName:
-        key:
-          myHashKeyName:  'hash'
-          myRangeKeyName: 'range'
+        "hashKey"           # see translateKey
+        "hashKey/rangeKey"  # see translateKey
 
-        projection:
-          attributes: ["myNumberAttrName", "myBinaryAttrName"]
-          type: 'all' || 'keysOnly' || 'include'
+        OR
 
-        provisioning:
-          read: 5
-          write: 5
+        key:          # see translateKey
+        projection:   # see translateProjection
+        provisioning: # see translateProvisioning
 
+  translateLocalIndexes
     localIndexes:
       myIndexName:
-        key:
-          myHashKeyName:  'hash'  # localIndexes must have the same hash-key as the table
-          myRangeKeyName: 'range'
+        "hashKey"           # see translateKey
+        "hashKey/rangeKey"  # see translateKey
 
-        projection:
-          attributes: ["myNumberAttrName", "myBinaryAttrName"]
-          type: 'all' || 'keysOnly' || 'include'
+        OR
+
+        key:          # see translateKey
+        projection:   # see translateProjection
 ###
 
 Foundation = require 'art-foundation'
@@ -136,7 +146,7 @@ module.exports = class DynamoDb
   @bindAll
     createTable: (params) ->
 
-      @invokeAws "createTable",
+      @invokeAws "createTable", log "createTable",
         translateCreateTableParams merge
           attributes: id: 'string'
           key:        id: 'hash'

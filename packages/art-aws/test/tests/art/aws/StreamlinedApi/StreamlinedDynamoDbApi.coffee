@@ -3,6 +3,7 @@
   translateGlobalIndexes
   translateLocalIndexes
   translateCreateTableParams
+  getKeySchemaAttributes
 } = Neptune.Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi
 
 suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.translateCreateTableParams", ->
@@ -84,9 +85,73 @@ suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.translateAttributes", ->
       {AttributeName: "aBinary", AttributeType: "B"}
     ]
 
+  test "translateAttributes only includes attributes in KeySchemas", ->
+    assert.eq translateAttributes(
+      {attributes:
+        aString: "string"
+        aNumber: "number"
+        aBinary: "binary"
+      },
+      null
+      ["aNumber"]
+    ), AttributeDefinitions: [
+      {AttributeName: "aNumber", AttributeType: "N"}
+    ]
+
+suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.getKeySchemaAttributes", ->
+  test "basic", ->
+    assert.eq(
+      getKeySchemaAttributes KeySchema: [AttributeName: "aNumber", KeyType: "HASH"]
+      ["aNumber"]
+    )
+
+  test "goes deep", ->
+    assert.eq(
+      getKeySchemaAttributes
+        KeySchema: [AttributeName: "aNumber", KeyType: "HASH"]
+        GlobalSecondaryIndexes: [
+          IndexName:             "myIndexName"
+          KeySchema: [
+              {AttributeName: "myHashKeyName", KeyType: "HASH"}
+              AttributeName: "myRangeKeyName", KeyType: "RANGE"
+            ]
+          Projection:            ProjectionType: "ALL"
+          ProvisionedThroughput: ReadCapacityUnits: 1, WriteCapacityUnits: 1
+        ]
+      ["aNumber", "myHashKeyName", "myRangeKeyName"]
+    )
+
 suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.translateGlobalIndexes", ->
   test "translateGlobalIndexes()", ->
     assert.eq translateGlobalIndexes({}), {}
+
+  test "translateGlobalIndexes globalIndexes: foo:'hashKey'", ->
+    assert.eq translateGlobalIndexes(globalIndexes: foo:'hashKey'),
+      GlobalSecondaryIndexes: [
+        IndexName: "foo"
+        KeySchema: [
+          AttributeName: "hashKey"
+          KeyType:       "HASH"
+        ]
+        Projection:            ProjectionType: "ALL"
+        ProvisionedThroughput: ReadCapacityUnits: 1, WriteCapacityUnits: 1
+      ]
+
+  test "translateGlobalIndexes globalIndexes: foo:'hashKey/rangeKey'", ->
+    assert.eq translateGlobalIndexes(globalIndexes: foo:'hashKey/rangeKey'),
+      GlobalSecondaryIndexes: [
+        IndexName: "foo"
+        KeySchema: [
+          {
+          AttributeName: "hashKey"
+          KeyType:       "HASH"
+          }
+          AttributeName: "rangeKey"
+          KeyType:       "RANGE"
+        ]
+        Projection:            ProjectionType: "ALL"
+        ProvisionedThroughput: ReadCapacityUnits: 1, WriteCapacityUnits: 1
+      ]
 
   test "translateGlobalIndexes simplest", ->
     assert.eq translateGlobalIndexes(
@@ -96,7 +161,7 @@ suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.translateGlobalIndexes", ->
       GlobalSecondaryIndexes: [
         IndexName:             "myIndexName"
         KeySchema:             [AttributeName: "id", KeyType: "HASH"]
-        Projection:            Type: "ALL", Attributes: []
+        Projection:            ProjectionType: "ALL"
         ProvisionedThroughput: ReadCapacityUnits: 1, WriteCapacityUnits: 1
       ]
 
@@ -109,7 +174,7 @@ suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.translateGlobalIndexes", ->
       GlobalSecondaryIndexes: [
         IndexName:             "myIndexName"
         KeySchema:             [AttributeName: "myHashKeyName", KeyType: "HASH"]
-        Projection:            Type: "ALL", Attributes: []
+        Projection:            ProjectionType: "ALL"
         ProvisionedThroughput: ReadCapacityUnits: 1, WriteCapacityUnits: 1
       ]
 
@@ -132,7 +197,7 @@ suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.translateGlobalIndexes", ->
         {
           IndexName:             "myFirstIndexName"
           KeySchema:             [AttributeName: "id", KeyType: "HASH"]
-          Projection:            Type: "ALL", Attributes: []
+          Projection:            ProjectionType: "ALL"
           ProvisionedThroughput: ReadCapacityUnits: 1, WriteCapacityUnits: 1
         }
         IndexName:             "myIndexName"
@@ -140,7 +205,7 @@ suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.translateGlobalIndexes", ->
           {AttributeName: "myHashKeyName", KeyType: "HASH"}
           {AttributeName: "myRangeKeyName", KeyType: "RANGE"}
         ]
-        Projection:            Type: "KEYS_ONLY", Attributes: ["myNumberAttrName", "myBinaryAttrName"]
+        Projection:            ProjectionType: "KEYS_ONLY", NonKeyAttributes: ["myNumberAttrName", "myBinaryAttrName"]
         ProvisionedThroughput: ReadCapacityUnits: 5, WriteCapacityUnits: 5
       ]
 
@@ -156,7 +221,7 @@ suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.translateLocalIndexes", ->
       LocalSecondaryIndexes: [
         IndexName:             "myIndexName"
         KeySchema:             [AttributeName: "id", KeyType: "HASH"]
-        Projection:            Type: "ALL", Attributes: []
+        Projection:            ProjectionType: "ALL"
       ]
 
   test "translateLocalIndexes custom key", ->
@@ -168,7 +233,7 @@ suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.translateLocalIndexes", ->
       LocalSecondaryIndexes: [
         IndexName:             "myIndexName"
         KeySchema:             [AttributeName: "myHashKeyName", KeyType: "HASH"]
-        Projection:            Type: "ALL", Attributes: []
+        Projection:            ProjectionType: "ALL"
       ]
 
   test "translateLocalIndexes everything", ->
@@ -190,12 +255,12 @@ suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.translateLocalIndexes", ->
         {
           IndexName:             "myFirstIndexName"
           KeySchema:             [AttributeName: "id", KeyType: "HASH"]
-          Projection:            Type: "ALL", Attributes: []
+          Projection:            ProjectionType: "ALL"
         }
         IndexName:             "myIndexName"
         KeySchema: [
           {AttributeName: "myHashKeyName", KeyType: "HASH"}
           {AttributeName: "myRangeKeyName", KeyType: "RANGE"}
         ]
-        Projection:            Type: "KEYS_ONLY", Attributes: ["myNumberAttrName", "myBinaryAttrName"]
+        Projection:            ProjectionType: "KEYS_ONLY", NonKeyAttributes: ["myNumberAttrName", "myBinaryAttrName"]
       ]
