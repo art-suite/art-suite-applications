@@ -4,7 +4,7 @@ Foundation = require 'art-foundation'
 ArtEry = require 'art-ery'
 ArtAws = require 'art-aws'
 
-{log, merge} = Foundation
+{log, merge, Validator, isString} = Foundation
 {Pipeline} = ArtEry
 {DynamoDb} = ArtAws
 {encodeDynamoData, decodeDynamoData} = DynamoDb
@@ -13,11 +13,12 @@ module.exports = class DynamoDbPipeline extends Pipeline
 
   constructor: (options = {}) ->
     super
-    @_dynamoDb = new DynamoDb endpoint: "http://localhost:8081"
+    @_dynamoDb = new DynamoDb
     @_createTableParams = options
 
-  @getter "dynamoDb",
-    uniqueId: -> Uuid.v4()
+  @getter "dynamoDb"
+
+  keyFromData: (data) -> data.id
 
   @handlers
     get: ({key}) ->
@@ -29,13 +30,12 @@ module.exports = class DynamoDbPipeline extends Pipeline
         Item && decodeDynamoData M: Item
 
     create: ({data}) ->
-      {uniqueId} = @
       @_vivifyTable().then =>
         @_dynamoDb.putItem
           TableName: @tableName
-          Item: encodeDynamoData(record = merge data, id: uniqueId).M
-        .then ->
-          record
+          Item: encodeDynamoData(data).M
+      .then ->
+        data
 
     update: ({key, data}) ->
       @_vivifyTable().then =>
@@ -72,6 +72,22 @@ module.exports = class DynamoDbPipeline extends Pipeline
       else
         @_createTable()
 
+  @getter
+    dynamoDbCreationAttributes: ->
+      out = {}
+      for k, v of @fields
+        if isString v
+          unless v = Validator.fieldTypes[v]
+            throw new Error "invalid field type: #{v}"
+        if v.type == "string" || v.type == "number"
+          out[k] = v.type
+      out
+
+
   _createTable: ->
-    @_dynamoDb.createTable(merge TableName: @tableName, @_createTableParams)
+    @_dynamoDb.createTable(merge
+        tableName: @tableName
+        attributes: @dynamoDbCreationAttributes
+        @_createTableParams
+      )
     .then -> @_tableExists = true
