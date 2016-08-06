@@ -113,6 +113,7 @@ module.exports = class FluxStore extends Epoch
   returns: updateFunctionOrNewFluxRecord
   ###
   update: (modelName, key, updateFunctionOrNewFluxRecord) ->
+    throw new Error "key must be a string. got: #{inspect key}" unless isString key
     @_queueChange
       modelName: modelName
       key: key
