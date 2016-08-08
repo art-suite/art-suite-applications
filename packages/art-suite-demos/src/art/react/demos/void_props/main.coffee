@@ -25,7 +25,6 @@ module.exports = createComponentFactory class MyComponent extends Component
     @stars = arrayWith @stars,
       key: "#{@nextUniqueId}"
       location: location
-      size: 30 + intRand 70
     @nextUniqueId = @nextUniqueId + 1
 
   removeClick: (event) ->
@@ -45,9 +44,13 @@ module.exports = createComponentFactory class MyComponent extends Component
 
       for props in @stars
         RectangleElement props,
+          size: 100
           colors: ["#ff0", "#fa0"]
           on: pointerClick: @removeClick
           axis: .5
           radius: 100
-          animators: size: easingFunction: "easeInElastic", duration: 1
-          voidProps: size: 0
+          animators:
+            size:
+              voidValue: 0
+              easingFunction: "easeInElastic"
+              duration: 1

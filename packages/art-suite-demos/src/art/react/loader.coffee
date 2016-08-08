@@ -43,12 +43,15 @@ Engine.FullScreenApp.init
     deselectDemo: ->
       @setState selectedDemo: null
 
+    toggle: ->
+      @setState toggled: !@state.toggled
+
     render: ->
-      {selectedDemo} = @state
+      {selectedDemo, toggled} = @state
+      log toggled:toggled
 
       CanvasElement
         childrenLayout: "column"
-
         Element
           size: ww:1, h:50
           childrenLayout: "row"
@@ -80,8 +83,7 @@ Engine.FullScreenApp.init
             Element
               key: "demo-#{selectedDemo}"
               clip: true
-              addedAnimation: from: axis: point -1, 0
-              removedAnimation: to: axis: point -1, 0
+              animators: axis: voidValue: point -1, 0
 
               Demos[selectedDemo].Main()
           else
@@ -89,8 +91,7 @@ Engine.FullScreenApp.init
             Element
               key: "select-demo"
               childrenLayout: "column"
-              addedAnimation: from: axis: "topRight"
-              removedAnimation: to: axis: "topRight"
+              animators: axis: voidValue: "topRight"
               RectangleElement inFlow: false, color: "#eee"
               for demo in Demos.namespaces
                 DemoButton name:demo.name, selectDemo:@selectDemo
