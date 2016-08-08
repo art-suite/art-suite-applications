@@ -1,12 +1,5 @@
 {
-<<<<<<< HEAD
-  "name": "art-react-demos",
-  "version": "0.2.2",
-  "description": "art-react-demos",
-  "main": "index.coffee",
-=======
   "author": "Shane Brinkman-Davis Delamore",
->>>>>>> c24acb2916fd362feeef522e8135b9176091269f
   "dependencies": {
     "art-flux": "git://github.com/Imikimi-LLC/art-flux",
     "art-react": "git://github.com/Imikimi-LLC/art-react",
@@ -31,6 +24,5 @@
     "nn": "neptune-namespaces --std",
     "nodeTest": "neptune-namespaces --std;mocha -u tdd --compilers coffee:coffee-script/register",
     "test": "neptune-namespaces --std; webpack-dev-server -d --progress"
-  },
-  "version": "0.2.2"
+  }
 }
