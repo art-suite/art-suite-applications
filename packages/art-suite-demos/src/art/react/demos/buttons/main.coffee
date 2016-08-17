@@ -1,4 +1,4 @@
-{log, capitalize} = Foundation = require "art-foundation"
+{log, capitalize, merge} = Foundation = require "art-foundation"
 {
   createComponentFactory
   Component
@@ -8,11 +8,128 @@
   TextElement
   arrayWithout
 } = require "art-react"
-{point, hslColor} = require "art-atomic"
+{point, hslColor, rgbColor} = require "art-atomic"
 
 textProps =
+  fontSize: 16
   fontFamily: "sans-serif"
   color: "#fffc"
+  align: .5
+  size: ps: 1
+  padding: 10
+
+standardShadowProps =
+  color:    "#0007"
+  blur:     20
+  offset:   y: 5
+
+
+AbstractButton = createComponentFactory
+  module: module
+
+  showWillActivate: -> @setState willActivate: true
+  showWontActivate: -> @setState willActivate: false
+
+  render: ->
+    {willActivate} = @state
+    {component} = @props
+
+    Element
+      margin: 10
+      size: w: 200, h: 100
+      cursor: "pointer"
+      on:
+        pointerDown: @showWillActivate
+        pointerUp: @showWontActivate
+      component @props, willActivate: willActivate
+
+ShadowButton = createComponentFactory
+  module: module
+  render: ->
+    {willActivate, color} = @props
+    Element null,
+      RectangleElement
+        color:    color
+        animators: shadow: duration: .1
+        shadow: if willActivate
+          merge standardShadowProps,
+            blur:     5
+            offset:   y: 5/4
+        else
+          standardShadowProps
+      TextElement textProps,
+        text: "Button Shadow"
+
+TextAlignButton = createComponentFactory
+  module: module
+  render: ->
+    {willActivate, color} = @props
+    Element null,
+      RectangleElement color: color, shadow: standardShadowProps
+      TextElement textProps,
+        animators: "align"
+        align: if willActivate then y:.5 else .5
+        text: "Button\nText\nAlignment"
+
+TextLeadingButton = createComponentFactory
+  module: module
+  render: ->
+    {willActivate, color} = @props
+    Element null,
+      RectangleElement color: color, shadow: standardShadowProps
+      TextElement textProps,
+        animators: "leading"
+        leading: if willActivate then 2 else 1.25
+        text: "Button\nText\nLeading"
+
+
+FontSizeButton = createComponentFactory
+  module: module
+  render: ->
+    {willActivate, color} = @props
+    Element null,
+      RectangleElement color: color, shadow: standardShadowProps
+      Element
+        clip: true
+        TextElement textProps,
+          size: cs: 1
+          location: ps: .5
+          axis: .5
+          animators: "fontSize"
+          fontSize: if willActivate then 100 else textProps.fontSize
+          text: "Font Size"
+
+
+ContinuousButton = createComponentFactory
+  module: module
+  render: ->
+    {willActivate, color} = @props
+    Element null,
+      RectangleElement
+        color: color
+        shadow: standardShadowProps
+        to: "bottomRight"
+        animators: if willActivate
+          colors:
+            animate: ({animationPos, options:{color1, color2}}) ->
+              out =
+                0: endsColor = rgbColor(color1).interpolate color2, animationPos
+                1: endsColor
+              out[animationPos] = color1
+              out[animationPos + .0001] = color2
+              out
+            period: 1
+            color1: color
+            color2: color.lightness * .5
+
+      Element
+        clip: true
+        TextElement textProps,
+          size: cs: 1
+          location: ps: .5
+          axis: .5
+          text: "Continuous Animation"
+
 
 Button1 = createComponentFactory
   module: module
@@ -64,13 +181,10 @@ Button1 = createComponentFactory
                     scale: if willActivate then point .8, 1 else 1
                   when "squishLeft"
                     scale: if willActivate then point .25, 1 else 1
-                  else
+                  when "angle"
                     angle: if willActivate then Math.PI/12 else 0
-        RectangleElement color: clr, shadow: color: "#0007", blur: 20, offsetY:5
+        RectangleElement color: clr, shadow: standardShadowProps
         TextElement textProps,
-          axis: .5
-          location: ps:.5
-
           text: "Button #{capitalize mode}"
 
 module.exports = createComponentFactory class MyComponent extends Component
@@ -83,10 +197,16 @@ module.exports = createComponentFactory class MyComponent extends Component
       padding: 10
       RectangleElement inFlow: false, color: "#ddd", padding: -10
 
-      Button1 mode: "angle",      clr: hslColor 3/5, .66, .6
+      Button1 mode: "angle",      clr: hslColor 6/10, .66, .6
       Button1 mode: "spin",       clr: hslColor 7/10, .66, .6
-      Button1 mode: "scale",      clr: hslColor 2/5, .66, .6
-      Button1 mode: "squish",     clr: hslColor 1/5, .66, .6
+      Button1 mode: "scale",      clr: hslColor 4/10, .66, .6
+      Button1 mode: "squish",     clr: hslColor 2/10, .66, .6
       Button1 mode: "squishLeft", clr: hslColor 3/10, .66, .6
-      Button1 mode: "opacity",    clr: hslColor 0/5, .66, .6
-      Button1 mode: "both",       clr: hslColor 4/5, .66, .6
+      Button1 mode: "opacity",    clr: hslColor 0/10, .66, .6
+      Button1 mode: "both",       clr: hslColor 8/10, .66, .6
+      AbstractButton component: TextAlignButton, color: hslColor 1/10, .66, .6
+      AbstractButton component: TextLeadingButton, color: hslColor 1/10, .66, .6
+      AbstractButton component: FontSizeButton, color: hslColor 1/10, .66, .6
+      AbstractButton component: ContinuousButton, color: hslColor 2/10, .66, .6
+      AbstractButton
+        component: ShadowButton, color: hslColor 5/10, .66, .6
