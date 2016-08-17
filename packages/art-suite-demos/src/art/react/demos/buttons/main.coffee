@@ -58,7 +58,7 @@ ShadowButton = createComponentFactory
         else
           standardShadowProps
       TextElement textProps,
-        text: "Button Shadow"
+        text: "Shadow"
 
 TextAlignButton = createComponentFactory
   module: module
@@ -69,7 +69,7 @@ TextAlignButton = createComponentFactory
       TextElement textProps,
         animators: "align"
         align: if willActivate then y:.5 else .5
-        text: "Button\nText\nAlignment"
+        text: "Text\nAlignment"
 
 TextLeadingButton = createComponentFactory
   module: module
@@ -80,7 +80,7 @@ TextLeadingButton = createComponentFactory
       TextElement textProps,
         animators: "leading"
         leading: if willActivate then 2 else 1.25
-        text: "Button\nText\nLeading"
+        text: "Text\nLeading"
 
 
 FontSizeButton = createComponentFactory
@@ -185,7 +185,7 @@ Button1 = createComponentFactory
                     angle: if willActivate then Math.PI/12 else 0
         RectangleElement color: clr, shadow: standardShadowProps
         TextElement textProps,
-          text: "Button #{capitalize mode}"
+          text: capitalize mode
 
 module.exports = createComponentFactory class MyComponent extends Component
   module: module
