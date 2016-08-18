@@ -1,10 +1,15 @@
 Foundation = require "art-foundation"
+Atomic = require 'art-atomic'
 React = require "art-react"
 
 {
   log, arrayWith
   intRand
 } = Foundation
+
+{
+  point
+} = Atomic
 
 {
   createComponentFactory

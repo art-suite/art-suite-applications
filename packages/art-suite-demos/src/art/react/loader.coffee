@@ -93,6 +93,6 @@ Engine.FullScreenApp.init
               childrenLayout: "column"
               animators: axis: voidValue: "topRight"
               RectangleElement inFlow: false, color: "#eee"
-              for demo in Demos.namespaces
+              for demo in Demos.namespaces.sort((a, b) -> a.name.localeCompare b.name)
                 DemoButton name:demo.name, selectDemo:@selectDemo
 
