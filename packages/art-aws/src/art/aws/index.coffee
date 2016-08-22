@@ -6,4 +6,4 @@ module.exports = require './namespace'
 .addModules
   Config:   require './Config'  
   DynamoDb: require './DynamoDb'
-require './StreamlinedApi'
+require './StreamlinedDynamoDbApi'

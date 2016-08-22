@@ -4,7 +4,7 @@
   translateLocalIndexes
   translateCreateTableParams
   getKeySchemaAttributes
-} = Neptune.Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi
+} = Neptune.Art.Aws.StreamlinedDynamoDbApi.CreateTableApi
 
 suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.translateCreateTableParams", ->
   test "translateCreateTableParams() has defaults", ->

@@ -81,11 +81,11 @@ Foundation = require 'art-foundation'
 
 {config} = require "./Config"
 
-StreamlinedApi = require './StreamlinedApi'
+StreamlinedDynamoDbApi = require './StreamlinedDynamoDbApi'
 
-{Tools, StreamlinedDynamoDbApi} = StreamlinedApi
+{Tools, CreateTableApi} = StreamlinedDynamoDbApi
 # {deepDecapitalizeAllKeys, deepCapitalizeAllKeys} = Tools
-{translateCreateTableParams} = StreamlinedDynamoDbApi
+{translateCreateTableParams} = CreateTableApi
 
 module.exports = class DynamoDb
 
