@@ -37,6 +37,7 @@ module.exports = createFluxComponentFactory
 
       PagingScrollElement
         clip: true
+        childrenAlignment: "bottomLeft"
         Element
           padding: 10
           size: hch: 1, ww: 1
