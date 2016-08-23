@@ -24,9 +24,9 @@ module.exports = class CreateTableApi extends TableApiBaseClass
 
   ###
   _translateParams: (params) =>
-    @_translateAttributes params, @_target, @_getKeySchemaAttributes [
-      @_translateGlobalIndexes params, @_target
-      @_translateLocalIndexes params, @_target
+    @_translateAttributes params, @_getKeySchemaAttributes [
+      @_translateGlobalIndexes params
+      @_translateLocalIndexes params
       @_translateKey params, @_target
     ]
     @_translateProvisioning params, @_target
@@ -48,15 +48,15 @@ module.exports = class CreateTableApi extends TableApiBaseClass
       myNumberAttrName: 'number'
       myBinaryAttrName: 'binary'
   ###
-  _translateAttributes: (params, target = {}, keySchemaAttributes) ->
+  _translateAttributes: (params, keySchemaAttributes) ->
     defs = params.attributes || params.attributeDefinitions || id: 'string'
-    target.AttributeDefinitions = if isPlainObject defs
+    @_target.AttributeDefinitions = if isPlainObject defs
       for k, v of defs when !keySchemaAttributes || k in keySchemaAttributes
         AttributeName:  k
         AttributeType:  @_normalizeConstant v
     else defs
 
-    target
+    @_target
 
   ###
   IN:
@@ -111,9 +111,9 @@ module.exports = class CreateTableApi extends TableApiBaseClass
         projection:   # see _translateProjection
         provisioning: # see _translateProvisioning
   ###
-  _translateGlobalIndexes: (params, target = {}) =>
+  _translateGlobalIndexes: (params) =>
     if globalIndexes = params?.globalIndexes
-      target.GlobalSecondaryIndexes = if isPlainObject globalIndexes
+      @_target.GlobalSecondaryIndexes = if isPlainObject globalIndexes
         for indexName, indexProps of globalIndexes
           _target = IndexName: indexName
           if isString indexProps
@@ -125,7 +125,7 @@ module.exports = class CreateTableApi extends TableApiBaseClass
           _target
       else globalIndexes
 
-    target
+    @_target
 
   ###
   IN:
@@ -139,9 +139,9 @@ module.exports = class CreateTableApi extends TableApiBaseClass
         key:          # see _translateKey
         projection:   # see _translateProjection
   ###
-  _translateLocalIndexes: (params, target = {}) =>
+  _translateLocalIndexes: (params) =>
     if localIndexes = params?.localIndexes  || params?.localSecondaryIndexes
-      target.LocalSecondaryIndexes = if isPlainObject localIndexes
+      @_target.LocalSecondaryIndexes = if isPlainObject localIndexes
         for indexName, indexProps of localIndexes
           _target = IndexName: indexName
           if isString indexProps
@@ -152,7 +152,7 @@ module.exports = class CreateTableApi extends TableApiBaseClass
           _target
       else globalIndexes
 
-    target
+    @_target
 
   _translateProjection: (params, target = {}) ->
     projection = params?.projection || type: 'all'

@@ -93,7 +93,6 @@ suite "Art.Aws.StreamlinedDynamoDbApi.CreateTableApi._translateAttributes", ->
         aNumber: "number"
         aBinary: "binary"
       },
-      null
       ["aNumber"]
     ), AttributeDefinitions: [
       {AttributeName: "aNumber", AttributeType: "N"}
