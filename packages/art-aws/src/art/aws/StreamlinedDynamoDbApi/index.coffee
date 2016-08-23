@@ -2,7 +2,10 @@
 # file: art/aws/StreamlinedDynamoDbApi/index.coffee
 
 module.exports = require './namespace'
+.includeInNamespace require './_StreamlinedDynamoDbApi'
 .addModules
-  Common:         require './Common'        
-  CreateTableApi: require './CreateTableApi'
-  Tools:          require './Tools'         
+  Common:            require './Common'           
+  CreateTableApi:    require './CreateTableApi'   
+  PutItemApi:        require './PutItemApi'       
+  QueryApi:          require './QueryApi'         
+  TableApiBaseClass: require './TableApiBaseClass'

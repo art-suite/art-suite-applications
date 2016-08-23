@@ -1,6 +1,6 @@
 Foundation = require 'art-foundation'
 {log, isPlainArray} = Foundation
-{DynamoDb, config, encodeDynamoData} = require 'art-aws'
+{DynamoDb, config} = require 'art-aws'
 config.region = 'us-west-2'
 config.endpoint = "http://localhost:8081"
 
@@ -20,12 +20,12 @@ suite "Art.Ery.Aws.DynamoDb", ->
 
     dynamoDb.listTables()
     .then ({TableNames}) ->
-      list = for tableName in TableNames
-        if tableName == testTableName
+      list = for table in TableNames
+        if table == testTableName
           log "Deleting test table: #{testTableName}"
-          dynamoDb.deleteTable TableName: tableName
+          dynamoDb.deleteTable TableName: table
         else
-          log "NOT deleting non-test-table: #{tableName}"
+          log "NOT deleting non-test-table: #{table}"
       Promise.all list
 
   test "listTables", ->
@@ -35,13 +35,13 @@ suite "Art.Ery.Aws.DynamoDb", ->
       # log tables
 
   test "createTable", ->
-    dynamoDb.createTable tableName: testTableName
+    dynamoDb.createTable table: testTableName
     # .then (result) ->
     #   log result
 
   test "create complex table", ->
     dynamoDb.createTable
-      tableName: testTableName
+      table: testTableName
       attributes:
         createdAt: "number"
         chatRoom:  "string"
@@ -56,7 +56,20 @@ suite "Art.Ery.Aws.DynamoDb", ->
         message: "Hi!"
         id: "lmnop123123"
       dynamoDb.putItem
-        TableName: testTableName
-        Item: encodeDynamoData(data).M
-    # .then (result) ->
-    #   log putResult: result
+        table: testTableName
+        item: data
+
+  test "query", ->
+    dynamoDb.createTable
+      table: testTableName
+    .then (result) ->
+      data =
+        createdAt: Date.now()
+        updatedAt: Date.now()
+        user: "abc123"
+        chatRoom: "xyz456"
+        message: "Hi!"
+        id: "lmnop123123"
+      dynamoDb.putItem
+        table: testTableName
+        item: data

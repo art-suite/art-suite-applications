@@ -3,4 +3,7 @@
 
 module.exports = require './namespace'
 .addModules
-  CreateTableApi: require './CreateTableApi'
+  CreateTableApi:    require './CreateTableApi'   
+  PutItemApi:        require './PutItemApi'       
+  QueryApi:          require './QueryApi'         
+  TableApiBaseClass: require './TableApiBaseClass'

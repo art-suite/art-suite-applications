@@ -1,13 +1,18 @@
 Foundation = require 'art-foundation'
 {
-  lowerCamelCase, wordsArray, isPlainObject, log, compactFlatten
-  isString, compactFlatten, deepEachAll, uniqueValues
+  log
+  lowerCamelCase, wordsArray
+  isString
+  isPlainArray
+  isPlainObject
+  isNumber
+  isBoolean
 } = Foundation
 
 module.exports = class Common
 
   # all dynamoDbConstants in lowerCamelCase, plus some aliases
-  @createConstantsMap:
+  @apiConstantsMap:
 
     # aliases
     string: 'S'
@@ -16,10 +21,23 @@ module.exports = class Common
     bothImages: 'NEW_AND_OLD_IMAGES'
 
   for dynamoDbConstant in wordsArray """
-      HASH RANGE
-      ALL KEYS_ONLY INCLUDE
+      ALL
+      ALL_ATTRIBUTES
+      ALL_PROJECTED_ATTRIBUTES
+      COUNT
+      HASH
+      INCLUDE
+      INDEXES
+      KEYS_ONLY
+      NEW_AND_OLD_IMAGES
+      NEW_IMAGE
+      NONE
+      OLD_IMAGE
+      RANGE
       S N B
-      NEW_IMAGE OLD_IMAGE NEW_AND_OLD_IMAGES
+      SPECIFIC_ATTRIBUTES
+      TOTAL
+
       """
-    @createConstantsMap[lowerCamelCase dynamoDbConstant] = dynamoDbConstant
+    @apiConstantsMap[lowerCamelCase dynamoDbConstant] = dynamoDbConstant
 

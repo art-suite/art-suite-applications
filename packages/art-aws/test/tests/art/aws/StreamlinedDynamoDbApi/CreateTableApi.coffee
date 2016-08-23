@@ -1,22 +1,23 @@
 {log} = require 'art-foundation'
-{ translateProvisioning, translateKey, translateAttributes
-  translateGlobalIndexes
-  translateLocalIndexes
-  translateCreateTableParams
-  getKeySchemaAttributes
-} = Neptune.Art.Aws.StreamlinedDynamoDbApi.CreateTableApi
+{CreateTableApi} = Neptune.Art.Aws.StreamlinedDynamoDbApi
+# { _translateProvisioning, _translateKey, _translateAttributes
+#   _translateGlobalIndexes
+#   _translateLocalIndexes
+#   new CreateTableApi().translateParams
+#   _getKeySchemaAttributes
+# } = Neptune.Art.Aws.StreamlinedDynamoDbApi.CreateTableApi
 
-suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.translateCreateTableParams", ->
-  test "translateCreateTableParams() has defaults", ->
-    assert.eq translateCreateTableParams(tableName: "foo"),
+suite "Art.Aws.StreamlinedDynamoDbApi.CreateTableApi.translateParams", ->
+  test "new CreateTableApi().translateParams() has defaults", ->
+    assert.eq new CreateTableApi().translateParams(table: "foo"),
       TableName:             "foo"
       AttributeDefinitions:  [AttributeName: "id", AttributeType: "S"]
       KeySchema:             [AttributeName: "id", KeyType: "HASH"]
       ProvisionedThroughput: ReadCapacityUnits: 1, WriteCapacityUnits: 1
 
-  test "translateCreateTableParams() override defaults", ->
-    assert.eq translateCreateTableParams(
-      tableName:             "foo"
+  test "new CreateTableApi().translateParams() override defaults", ->
+    assert.eq new CreateTableApi().translateParams(
+      table:             "foo"
       attributes: myKey: 'string'
       key: 'myKey'
       provisioning: read: 10
@@ -26,55 +27,55 @@ suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.translateCreateTableParams"
       KeySchema:             [AttributeName: "myKey", KeyType: "HASH"]
       ProvisionedThroughput: ReadCapacityUnits: 10, WriteCapacityUnits: 1
 
-suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.translateProvisioning", ->
-  test "translateProvisioning() has defaults", ->
-    assert.eq translateProvisioning(),
+suite "Art.Aws.StreamlinedDynamoDbApi.CreateTableApi._translateProvisioning", ->
+  test "_translateProvisioning() has defaults", ->
+    assert.eq new CreateTableApi()._translateProvisioning(),
       ProvisionedThroughput:
         ReadCapacityUnits: 1
         WriteCapacityUnits: 1
 
-  test "translateProvisioning provisioning: read: 10, write: 20", ->
-    assert.eq translateProvisioning(provisioning: read: 10, write: 20),
+  test "_translateProvisioning provisioning: read: 10, write: 20", ->
+    assert.eq new CreateTableApi()._translateProvisioning(provisioning: read: 10, write: 20),
       ProvisionedThroughput:
         ReadCapacityUnits: 10
         WriteCapacityUnits: 20
 
-suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.translateKey", ->
-  test "translateKey()", ->
-    assert.eq translateKey({}), KeySchema: [AttributeName: "id", KeyType: "HASH"]
+suite "Art.Aws.StreamlinedDynamoDbApi.CreateTableApi._translateKey", ->
+  test "_translateKey()", ->
+    assert.eq new CreateTableApi()._translateKey({}), KeySchema: [AttributeName: "id", KeyType: "HASH"]
 
-  test "translateKey key: foo: 'hash'", ->
-    assert.eq translateKey(key: foo: "hash"),
+  test "_translateKey key: foo: 'hash'", ->
+    assert.eq new CreateTableApi()._translateKey(key: foo: "hash"),
       KeySchema: [AttributeName: "foo", KeyType: "HASH"]
 
-  test "translateKey key: 'foo'", ->
-    assert.eq translateKey(key: 'foo'),
+  test "_translateKey key: 'foo'", ->
+    assert.eq new CreateTableApi()._translateKey(key: 'foo'),
       KeySchema: [AttributeName: "foo", KeyType: "HASH"]
 
-  test "translateKey key: 'foo/bar'", ->
-    assert.eq translateKey(key: 'foo/bar'),
+  test "_translateKey key: 'foo/bar'", ->
+    assert.eq new CreateTableApi()._translateKey(key: 'foo/bar'),
       KeySchema: [
         {AttributeName: "foo", KeyType: "HASH"}
         {AttributeName: "bar", KeyType: "RANGE"}
       ]
 
-  test "translateKey key: 'foo-bar'", ->
-    assert.eq translateKey(key: 'foo-bar'),
+  test "_translateKey key: 'foo-bar'", ->
+    assert.eq new CreateTableApi()._translateKey(key: 'foo-bar'),
       KeySchema: [
         {AttributeName: "foo", KeyType: "HASH"}
         {AttributeName: "bar", KeyType: "RANGE"}
       ]
 
-suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.translateAttributes", ->
-  test "translateAttributes()", ->
-    assert.eq translateAttributes({}), AttributeDefinitions: [AttributeName: "id", AttributeType: "S"]
+suite "Art.Aws.StreamlinedDynamoDbApi.CreateTableApi._translateAttributes", ->
+  test "_translateAttributes()", ->
+    assert.eq new CreateTableApi()._translateAttributes({}), AttributeDefinitions: [AttributeName: "id", AttributeType: "S"]
 
-  test "translateAttributes Attributes: foo: 'string'", ->
-    assert.eq translateAttributes(attributes: foo: "string"),
+  test "_translateAttributes Attributes: foo: 'string'", ->
+    assert.eq new CreateTableApi()._translateAttributes(attributes: foo: "string"),
       AttributeDefinitions: [AttributeName: "foo", AttributeType: "S"]
 
-  test "translateAttributes Attributes: all types", ->
-    assert.eq translateAttributes(
+  test "_translateAttributes Attributes: all types", ->
+    assert.eq new CreateTableApi()._translateAttributes(
       attributes:
         aString: "string"
         aNumber: "number"
@@ -85,8 +86,8 @@ suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.translateAttributes", ->
       {AttributeName: "aBinary", AttributeType: "B"}
     ]
 
-  test "translateAttributes only includes attributes in KeySchemas", ->
-    assert.eq translateAttributes(
+  test "_translateAttributes only includes attributes in KeySchemas", ->
+    assert.eq new CreateTableApi()._translateAttributes(
       {attributes:
         aString: "string"
         aNumber: "number"
@@ -98,16 +99,16 @@ suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.translateAttributes", ->
       {AttributeName: "aNumber", AttributeType: "N"}
     ]
 
-suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.getKeySchemaAttributes", ->
+suite "Art.Aws.StreamlinedDynamoDbApi.CreateTableApi._getKeySchemaAttributes", ->
   test "basic", ->
     assert.eq(
-      getKeySchemaAttributes KeySchema: [AttributeName: "aNumber", KeyType: "HASH"]
+      new CreateTableApi()._getKeySchemaAttributes KeySchema: [AttributeName: "aNumber", KeyType: "HASH"]
       ["aNumber"]
     )
 
   test "goes deep", ->
     assert.eq(
-      getKeySchemaAttributes
+      new CreateTableApi()._getKeySchemaAttributes
         KeySchema: [AttributeName: "aNumber", KeyType: "HASH"]
         GlobalSecondaryIndexes: [
           IndexName:             "myIndexName"
@@ -121,12 +122,12 @@ suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.getKeySchemaAttributes", ->
       ["aNumber", "myHashKeyName", "myRangeKeyName"]
     )
 
-suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.translateGlobalIndexes", ->
-  test "translateGlobalIndexes()", ->
-    assert.eq translateGlobalIndexes({}), {}
+suite "Art.Aws.StreamlinedDynamoDbApi.CreateTableApi._translateGlobalIndexes", ->
+  test "_translateGlobalIndexes()", ->
+    assert.eq new CreateTableApi()._translateGlobalIndexes({}), {}
 
-  test "translateGlobalIndexes globalIndexes: foo:'hashKey'", ->
-    assert.eq translateGlobalIndexes(globalIndexes: foo:'hashKey'),
+  test "_translateGlobalIndexes globalIndexes: foo:'hashKey'", ->
+    assert.eq new CreateTableApi()._translateGlobalIndexes(globalIndexes: foo:'hashKey'),
       GlobalSecondaryIndexes: [
         IndexName: "foo"
         KeySchema: [
@@ -137,8 +138,8 @@ suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.translateGlobalIndexes", ->
         ProvisionedThroughput: ReadCapacityUnits: 1, WriteCapacityUnits: 1
       ]
 
-  test "translateGlobalIndexes globalIndexes: foo:'hashKey/rangeKey'", ->
-    assert.eq translateGlobalIndexes(globalIndexes: foo:'hashKey/rangeKey'),
+  test "_translateGlobalIndexes globalIndexes: foo:'hashKey/rangeKey'", ->
+    assert.eq new CreateTableApi()._translateGlobalIndexes(globalIndexes: foo:'hashKey/rangeKey'),
       GlobalSecondaryIndexes: [
         IndexName: "foo"
         KeySchema: [
@@ -153,8 +154,8 @@ suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.translateGlobalIndexes", ->
         ProvisionedThroughput: ReadCapacityUnits: 1, WriteCapacityUnits: 1
       ]
 
-  test "translateGlobalIndexes simplest", ->
-    assert.eq translateGlobalIndexes(
+  test "_translateGlobalIndexes simplest", ->
+    assert.eq new CreateTableApi()._translateGlobalIndexes(
       globalIndexes:
         myIndexName: {}
     ),
@@ -165,8 +166,8 @@ suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.translateGlobalIndexes", ->
         ProvisionedThroughput: ReadCapacityUnits: 1, WriteCapacityUnits: 1
       ]
 
-  test "translateGlobalIndexes custom key", ->
-    assert.eq translateGlobalIndexes(
+  test "_translateGlobalIndexes custom key", ->
+    assert.eq new CreateTableApi()._translateGlobalIndexes(
       globalIndexes:
         myIndexName:
           key: 'myHashKeyName'
@@ -178,8 +179,8 @@ suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.translateGlobalIndexes", ->
         ProvisionedThroughput: ReadCapacityUnits: 1, WriteCapacityUnits: 1
       ]
 
-  test "translateGlobalIndexes everything", ->
-    assert.eq translateGlobalIndexes(
+  test "_translateGlobalIndexes everything", ->
+    assert.eq new CreateTableApi()._translateGlobalIndexes(
       globalIndexes:
         myFirstIndexName: {}
         myIndexName:
@@ -209,12 +210,12 @@ suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.translateGlobalIndexes", ->
         ProvisionedThroughput: ReadCapacityUnits: 5, WriteCapacityUnits: 5
       ]
 
-suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.translateLocalIndexes", ->
-  test "translateLocalIndexes()", ->
-    assert.eq translateLocalIndexes({}), {}
+suite "Art.Aws.StreamlinedDynamoDbApi.CreateTableApi._translateLocalIndexes", ->
+  test "_translateLocalIndexes()", ->
+    assert.eq new CreateTableApi()._translateLocalIndexes({}), {}
 
-  test "translateLocalIndexes simplest", ->
-    assert.eq translateLocalIndexes(
+  test "_translateLocalIndexes simplest", ->
+    assert.eq new CreateTableApi()._translateLocalIndexes(
       localIndexes:
         myIndexName: {}
     ),
@@ -224,8 +225,8 @@ suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.translateLocalIndexes", ->
         Projection:            ProjectionType: "ALL"
       ]
 
-  test "translateLocalIndexes custom key", ->
-    assert.eq translateLocalIndexes(
+  test "_translateLocalIndexes custom key", ->
+    assert.eq new CreateTableApi()._translateLocalIndexes(
       localIndexes:
         myIndexName:
           key: 'myHashKeyName'
@@ -236,8 +237,8 @@ suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.translateLocalIndexes", ->
         Projection:            ProjectionType: "ALL"
       ]
 
-  test "translateLocalIndexes everything", ->
-    assert.eq translateLocalIndexes(
+  test "_translateLocalIndexes everything", ->
+    assert.eq new CreateTableApi()._translateLocalIndexes(
       localIndexes:
         myFirstIndexName: {}
         myIndexName:

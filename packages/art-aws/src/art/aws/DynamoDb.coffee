@@ -83,29 +83,9 @@ Foundation = require 'art-foundation'
 
 StreamlinedDynamoDbApi = require './StreamlinedDynamoDbApi'
 
-{Tools, CreateTableApi} = StreamlinedDynamoDbApi
-# {deepDecapitalizeAllKeys, deepCapitalizeAllKeys} = Tools
-{translateCreateTableParams} = CreateTableApi
+{QueryApi, CreateTableApi, PutItemApi} = StreamlinedDynamoDbApi
 
 module.exports = class DynamoDb
-
-  @encodeDynamoData: encodeDynamoData = (data) ->
-    ret = if isPlainObject data
-      values = {}
-      values[k] = encodeDynamoData v for k, v of data when v != undefined
-      M: values
-    else if isPlainArray data
-      L: (encodeDynamoData v for v in data when v != undefined)
-    else if isBoolean data
-      BOOL: data
-    else if isString data
-      S: data
-    else if isNumber data
-      N: data.toString()
-    else if data == null
-      NULL: true
-    else
-      throw new Error "invalid data type: #{inspect data}"
 
   @decodeDynamoData: decodeDynamoData = (data) ->
     if map = data.M
@@ -147,11 +127,36 @@ module.exports = class DynamoDb
     createTable: (params) ->
 
       @invokeAws "createTable", log "createTable",
-        translateCreateTableParams merge
+        CreateTableApi.translateParams merge
           attributes: id: 'string'
           key:        id: 'hash'
 
           params
+
+    ###
+    IN: see QueryApi.translateQueryParams
+    OUT:
+      same as DynamoDb EXCEPT, lowerCamelCase:
+        items: Items
+        count: Count
+        scannedCount: ScannedCount
+        lastEvaluatedKey: LastEvaluatedKey
+        consumedCapacity: ConsumedCapacity
+    ###
+    query: (params) ->
+
+      @invokeAws "query",
+        QueryApi.translateParams params
+      .then ({Items, Count, ScannedCount, LastEvaluatedKey, ConsumedCapacity}) ->
+        items: Items
+        count: Count
+        scannedCount: ScannedCount
+        lastEvaluatedKey: LastEvaluatedKey
+        consumedCapacity: ConsumedCapacity
+
+    putItem: (params) ->
+      @invokeAws "putItem",
+        PutItemApi.translateParams params
 
     listTables:       null
 
@@ -162,9 +167,6 @@ module.exports = class DynamoDb
     describeLimits:   null
     describeTable:    null
     getItem:          null
-    listTables:       null
-    putItem:          null
-    query:            null
     scan:             null
     updateItem:       null
     updateTable:      null

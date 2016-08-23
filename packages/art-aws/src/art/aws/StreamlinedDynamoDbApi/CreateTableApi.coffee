@@ -4,11 +4,35 @@ Foundation = require 'art-foundation'
   isString, compactFlatten, deepEachAll, uniqueValues
 } = Foundation
 
-{createConstantsMap} = require './Common'
+TableApiBaseClass = require './TableApiBaseClass'
 
-module.exports = class CreateTableApi
+module.exports = class CreateTableApi extends TableApiBaseClass
 
-  @getKeySchemaAttributes: getKeySchemaAttributes = (createParams) ->
+
+  ###
+  IN: params:
+    table:      string (required)
+    attributes:     see _translateAttributes
+    globalIndexes:  see _translateGlobalIndexes
+    key:            see _translateKey
+    provisioning:   see _translateProvisioning
+    localIndexes:   see _translateLocalIndexes
+
+  NOTE:
+    DynamoDb requires that attributes only list attributes used in the primary and index keys.
+    BUT, _translateParams takes care of removing the extra fields from your list if present.
+
+  ###
+  _translateParams: (params) =>
+    @_translateAttributes params, @_target, @_getKeySchemaAttributes [
+      @_translateGlobalIndexes params, @_target
+      @_translateLocalIndexes params, @_target
+      @_translateKey params, @_target
+    ]
+    @_translateProvisioning params, @_target
+    @_target
+
+  _getKeySchemaAttributes: (createParams) ->
     out = []
     deepEachAll createParams, (v, k) ->
       if k == "KeySchema"
@@ -24,12 +48,12 @@ module.exports = class CreateTableApi
       myNumberAttrName: 'number'
       myBinaryAttrName: 'binary'
   ###
-  @translateAttributes: (params, target = {}, keySchemaAttributes) ->
+  _translateAttributes: (params, target = {}, keySchemaAttributes) ->
     defs = params.attributes || params.attributeDefinitions || id: 'string'
     target.AttributeDefinitions = if isPlainObject defs
       for k, v of defs when !keySchemaAttributes || k in keySchemaAttributes
         AttributeName:  k
-        AttributeType:  createConstantsMap[v.toLowerCase()] || v
+        AttributeType:  @_normalizeConstant v
     else defs
 
     target
@@ -44,13 +68,13 @@ module.exports = class CreateTableApi
       OR: "hashKeyField/rangeKeyField"
         NOTE: you can use any string format that matches /[_a-zA-Z0-9]+/g
   ###
-  @translateKey: (params, target = {}) ->
+  _translateKey: (params, target = {}) ->
     keySchema = params.key || params.keySchema || id: 'hash'
 
     target.KeySchema = if isPlainObject keySchema
       for k, v of keySchema
         AttributeName:  k
-        KeyType:        createConstantsMap[v.toLowerCase()] || v
+        KeyType:        @_normalizeConstant v
     else if isString keySchema
       [hashKeyField, rangeKeyField] = keySchema.match /[_a-zA-Z0-9]+/g
       compactFlatten [
@@ -66,7 +90,7 @@ module.exports = class CreateTableApi
       read: 5
       write: 5
   ###
-  @translateProvisioning: (params, target = {}) ->
+  _translateProvisioning: (params, target = {}) ->
     provisioning = params?.provisioning  || params?.provisionedThroughput || {}
     target.ProvisionedThroughput =
       ReadCapacityUnits:  provisioning.read  || provisioning.readCapacityUnits  || 1
@@ -78,26 +102,26 @@ module.exports = class CreateTableApi
   IN:
     globalIndexes:
       myIndexName:
-        "hashKey"           # see translateKey
-        "hashKey/rangeKey"  # see translateKey
+        "hashKey"           # see _translateKey
+        "hashKey/rangeKey"  # see _translateKey
 
         OR
 
-        key:          # see translateKey
-        projection:   # see translateProjection
-        provisioning: # see translateProvisioning
+        key:          # see _translateKey
+        projection:   # see _translateProjection
+        provisioning: # see _translateProvisioning
   ###
-  @translateGlobalIndexes: (params, target = {}) =>
+  _translateGlobalIndexes: (params, target = {}) =>
     if globalIndexes = params?.globalIndexes
       target.GlobalSecondaryIndexes = if isPlainObject globalIndexes
         for indexName, indexProps of globalIndexes
           _target = IndexName: indexName
           if isString indexProps
-            @translateKey key: indexProps, _target
+            @_translateKey key: indexProps, _target
           else
-            @translateKey indexProps, _target
-          @translateProjection indexProps, _target
-          @translateProvisioning indexProps, _target
+            @_translateKey indexProps, _target
+          @_translateProjection indexProps, _target
+          @_translateProvisioning indexProps, _target
           _target
       else globalIndexes
 
@@ -107,56 +131,33 @@ module.exports = class CreateTableApi
   IN:
     localIndexes:
       myIndexName:
-        "hashKey"           # see translateKey
-        "hashKey/rangeKey"  # see translateKey
+        "hashKey"           # see _translateKey
+        "hashKey/rangeKey"  # see _translateKey
 
         OR
 
-        key:          # see translateKey
-        projection:   # see translateProjection
+        key:          # see _translateKey
+        projection:   # see _translateProjection
   ###
-  @translateLocalIndexes: (params, target = {}) =>
+  _translateLocalIndexes: (params, target = {}) =>
     if localIndexes = params?.localIndexes  || params?.localSecondaryIndexes
       target.LocalSecondaryIndexes = if isPlainObject localIndexes
         for indexName, indexProps of localIndexes
           _target = IndexName: indexName
           if isString indexProps
-            @translateKey key: indexProps, _target
+            @_translateKey key: indexProps, _target
           else
-            @translateKey indexProps, _target
-            @translateProjection indexProps, _target
+            @_translateKey indexProps, _target
+            @_translateProjection indexProps, _target
           _target
       else globalIndexes
 
     target
 
-  @translateProjection: (params, target = {}) ->
+  _translateProjection: (params, target = {}) ->
     projection = params?.projection || type: 'all'
     target.Projection = out =
-      ProjectionType: createConstantsMap[projection.type] || if projection.attributes then 'INCLUDE' else 'ALL'
+      ProjectionType: @_normalizeConstant projection.type, if projection.attributes then 'INCLUDE' else 'ALL'
     out.NonKeyAttributes = projection.attributes if projection.attributes
     out
 
-  ###
-  IN:
-    attributes:     see translateAttributes
-    globalIndexes:  see translateGlobalIndexes
-    key:            see translateKey
-    provisioning:   see translateProvisioning
-    localIndexes:   see translateLocalIndexes
-
-  NOTE:
-    DynmoDb requires that attributes only list attributes used in the primary and index keys.
-    BUT, translateCreateTableParams takes care of removing the extra fields from your list if present.
-
-  ###
-  @translateCreateTableParams: (params, target = {}) =>
-    throw new Error "tableName required" unless params.tableName
-    target.TableName = params.tableName
-    @translateAttributes params, target, getKeySchemaAttributes [
-      @translateGlobalIndexes params, target
-      @translateLocalIndexes params, target
-      @translateKey params, target
-    ]
-    @translateProvisioning params, target
-    target
