@@ -3,13 +3,15 @@ A cleaner API to AWS SDK with Promises and Art.Foundation
 
 ### Benefits
 * all methods are wrapped in promises
-* Streamlined API params
-  * dramatic reduction in size
-  * reasonable defaults
-  * data is always in plain javascript data structures (JSON-compatible data-structures)
-    * methods affected: putItem, updateItem, getItem, query, etc...
-* lowerCamelCase property names for consistency with JavaScript
-* shorter, yet still hopefully clear property names and constant values
+* Streamlined API
+  * cleaner and dramatically reduced param size
+    * reasonable defaults
+    * lowerCamelCase property names for consistency with JavaScript
+    * shorter property names (without sacrificing clarity)
+    * method-specific params restructuring for additional clarity and reductions
+  * item data read and written is always in plain JavaScript data structures (JSON-compatible data-structures)
+    * currently supported: string, number, object, array
+    * future: could easily add support for all DynamoDb data-types
 
 #### Streamlined API Example: property names
 ```coffeeScript
