@@ -12,18 +12,17 @@ A cleaner API to AWS SDK with Promises and Art.Foundation
 * shorter, yet still hopefully clear property names and constant values
 
 #### Streamlined API Example: property names
-* Example:
-  ```coffeeScript
-  # Streamlined API
-  provisioning:
-    read: 1
-    write: 1
+```coffeeScript
+# Streamlined API
+provisioning:
+  read: 1
+  write: 1
 
-  # Standard API
-  ProvisionedThroughput:
-    ReadCapacityUnits: 1
-    WriteCapacityUnits: 1
-  ```
+# Standard API
+ProvisionedThroughput:
+  ReadCapacityUnits: 1
+  WriteCapacityUnits: 1
+```
 
 #### Streamlined API Example: `createTable`
 ```coffeescript
