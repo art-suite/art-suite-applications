@@ -50,13 +50,14 @@ dynamoDb.createTable
 ```coffeescript
 # Streamlined API
 dynamoDb.query
-  table:      "fooBarTestTable"
-  descending: true
+  table: "fooBarTestTable"
   where:
     chatRoom: "xyz456"
     id: gt: 1
+  descending: true
 .then ({items}) ->
   # items is an array of plain javascript objects
+  # Items is the standard DynamoDb-encoded Items list
 
 # Standard API
 dynamoDb.query
@@ -67,8 +68,9 @@ dynamoDb.query
     ":val1": S: "xyz456"
     ":val2": N: "1"
   KeyConditionExpression: "(#attr1 = :val1 AND #attr2 > :val2)"
-.then ({items}) ->
+.then ({items, Items}) ->
   # items is an array of plain javascript objects
+  # Items is the standard DynamoDb-encoded Items list
 ```
 ### Usage
 * Input API
