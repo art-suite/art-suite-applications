@@ -8,6 +8,20 @@ A cleaner API to AWS SDK with Promises and Art.Foundation
   * reasonable defaults
   * data is always in plain javascript data structures (JSON-compatible data-structures)
     * methods affected: putItem, updateItem, getItem, query, etc...
+* lowerCamelCase property names for consistency with JavaScript
+* shorter, yet still hopefully clear property names
+  * Example:
+    ```coffeeScript
+    # Streamlined API
+    provisioning:
+      read: 1
+      write: 1
+
+    # Standard API
+    ProvisionedThroughput:
+      ReadCapacityUnits: 1
+      WriteCapacityUnits: 1
+    ```
 
 #### createTable example
 ```coffeescript
