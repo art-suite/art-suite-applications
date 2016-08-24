@@ -4,6 +4,8 @@ Streamlined APIs for AWS SDK with Promises and Art.Foundation
 Currently supported:
 * DynamoDb (partial support)
 
+# Streamlined DymamoDb API
+
 ### Benefits
 * all methods are wrapped in promises
 * Streamlined API
