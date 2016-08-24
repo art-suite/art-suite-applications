@@ -18,7 +18,12 @@ module.exports = class TableApiBaseClass
     @_uniqueExpressionAttributeId = 0
     @_target = {}
 
+  ###
+  IN: params: plain object
+    if params.TableName is set, assume it is the standard DynamoDb API - pass directly through.
+  ###
   translateParams: (params) ->
+    return params if params.TableName
     @_translateTableName params
     @_translateParams params
     @_target
@@ -54,7 +59,7 @@ module.exports = class TableApiBaseClass
   #################################
   # OVERRIDES
   #################################
-  _translateParams: -> throw new Error "must be overridden"
+  _translateParams: ->
 
   #################################
   # PROTECTED

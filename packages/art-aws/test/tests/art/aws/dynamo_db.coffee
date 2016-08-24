@@ -28,6 +28,23 @@ suite "Art.Ery.Aws.DynamoDb.live", ->
         #   log "NOT deleting non-test-table: #{table}"
       Promise.all list
 
+  chatRoomId = "xyz456"
+  createItems = ->
+    Promise.all [
+      dynamoDb.putItem table: testTableName, item: chatRoom: chatRoomId, id: 1, message: "Hello!", createdAt: 400
+      dynamoDb.putItem table: testTableName, item: chatRoom: chatRoomId, id: 2, message: "world!", createdAt: 300
+    ]
+  createTable = ->
+    dynamoDb.createTable
+      table: testTableName
+      globalIndexes: chatsByChatRoomCreatedAt: "chatRoom/createdAt"
+      attributes:
+        id: "number"
+        chatRoom:  "string"
+        createdAt: "number"
+      key: "chatRoom/id"
+    .then (result) -> createItems()
+
   test "listTables", ->
     dynamoDb.listTables()
     .then (tables) ->
@@ -59,23 +76,18 @@ suite "Art.Ery.Aws.DynamoDb.live", ->
         table: testTableName
         item: data
 
+  suite "describe", ->
+    test "describeTable", ->
+      createTable()
+      .then -> dynamoDb.describeTable table: testTableName
+      .then (res) -> assert.eq res.Table.TableName, testTableName
+
+    test "describeLimits", ->
+      createTable()
+      .then -> dynamoDb.describeLimits()
+      .then (res) -> assert.gt res.AccountMaxReadCapacityUnits, 0
+
   suite "query", ->
-    chatRoomId = "xyz456"
-    createItems = ->
-      Promise.all [
-        dynamoDb.putItem table: testTableName, item: chatRoom: chatRoomId, id: 1, message: "Hello!", createdAt: 400
-        dynamoDb.putItem table: testTableName, item: chatRoom: chatRoomId, id: 2, message: "world!", createdAt: 300
-      ]
-    createTable = ->
-      dynamoDb.createTable
-        table: testTableName
-        globalIndexes: chatsByChatRoomCreatedAt: "chatRoom/createdAt"
-        attributes:
-          id: "number"
-          chatRoom:  "string"
-          createdAt: "number"
-        key: "chatRoom/id"
-      .then (result) -> createItems()
 
     test "basic primary key", ->
       createTable()

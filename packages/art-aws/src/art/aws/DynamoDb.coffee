@@ -109,7 +109,7 @@ module.exports = class DynamoDb
     createTable: (params) ->
 
       @invokeAws "createTable",
-        CreateTableApi.translateParams merge
+        log "createTable", params, CreateTableApi.translateParams merge
           attributes: id: 'string'
           key:        id: 'hash'
 
@@ -118,7 +118,8 @@ module.exports = class DynamoDb
     ###
     IN: see QueryApi.translateQueryParams
     OUT:
-      same as DynamoDb EXCEPT, lowerCamelCase:
+      DynamoDb standard output AND
+      Same output with lowerCamelCase names:
         items: Items
         count: Count
         scannedCount: ScannedCount
@@ -128,29 +129,38 @@ module.exports = class DynamoDb
     query: (params) ->
 
       @invokeAws "query",
-        QueryApi.translateParams params
-      .then ({Items, Count, ScannedCount, LastEvaluatedKey, ConsumedCapacity}) ->
-        items: (decodeDynamoItem item for item in Items)
-        count: Count
-        scannedCount: ScannedCount
-        lastEvaluatedKey: LastEvaluatedKey
-        consumedCapacity: ConsumedCapacity
+        log "query", params, QueryApi.translateParams params
+      .then (res) ->
+        {Items, Count, ScannedCount, LastEvaluatedKey, ConsumedCapacity} = res
+        merge res,
+          items: (decodeDynamoItem item for item in Items)
+          count: Count
+          scannedCount: ScannedCount
+          lastEvaluatedKey: LastEvaluatedKey
+          consumedCapacity: ConsumedCapacity
 
     putItem: (params) ->
       @invokeAws "putItem",
         PutItemApi.translateParams params
 
-    listTables:       null
+    describeTable: (params) -> @invokeAws "describeTable", TableApiBaseClass.translateParams params
+    deleteTable:   (params) -> @invokeAws "deleteTable",   TableApiBaseClass.translateParams params
 
+    deleteItem:       null
+
+    ###
+    Non-table-operations
+    ###
+    listTables:       null
+    describeLimits:   null
+
+    ###
+    TODO: currently these only support the default DynamoDb API (with promises)
+    ###
     batchGetItem:     null
     batchWriteItem:   null
-    deleteItem:       null
-    deleteTable:      null
-    describeLimits:   null
-    describeTable:    null
     getItem:          null
     scan:             null
     updateItem:       null
     updateTable:      null
     waitFor:          null
-
