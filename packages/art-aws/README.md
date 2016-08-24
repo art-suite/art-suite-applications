@@ -59,6 +59,7 @@ dynamoDb.query
   where:
     chatRoom: "xyz456"
     id: gt: 1
+
   descending: true
 .then ({items}) ->
   # items is an array of plain javascript objects
@@ -68,11 +69,15 @@ dynamoDb.query
 dynamoDb.query
   TableName: "fooBarTestTable"
   ScanIndexForward: false
-  ExpressionAttributeNames: "#attr1": "chatRoom", "#attr2": "id"
+  KeyConditionExpression: "(#attr1 = :val1 AND #attr2 > :val2)"
+  ExpressionAttributeNames:
+    "#attr1": "chatRoom"
+    "#attr2": "id"
+
   ExpressionAttributeValues:
     ":val1": S: "xyz456"
     ":val2": N: "1"
-  KeyConditionExpression: "(#attr1 = :val1 AND #attr2 > :val2)"
+
 .then ({items, Items}) ->
   # items is an array of plain javascript objects
   # Items is the standard DynamoDb-encoded Items list
