@@ -1,7 +1,7 @@
 # art-aws
 Streamlined APIs for AWS SDK with Promises and Art.Foundation
 
-AWS APIs currently supported:
+Currently supported:
 * DynamoDb (partial support)
 
 ### Benefits
