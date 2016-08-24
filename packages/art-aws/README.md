@@ -13,10 +13,15 @@ A cleaner API to AWS SDK with Promises and Art.Foundation
 ```coffeescript
 # Streamlined API:
 dynamoDb.createTable
-  table:         "fooBarTestTable"
-  globalIndexes: chatsByChatRoomCreatedAt: "chatRoom/createdAt"
-  attributes:    id: "number", chatRoom: "string", createdAt: "number"
-  key:           "chatRoom/id"
+  table: "fooBarTestTable"
+  key: "chatRoom/id"
+  attributes:
+    id:         "number"
+    chatRoom:   "string"
+    createdAt:  "number"
+
+  globalIndexes:
+    chatsByChatRoomCreatedAt: "chatRoom/createdAt"
 .then ->
   # ...
 
