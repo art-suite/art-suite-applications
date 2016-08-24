@@ -83,28 +83,10 @@ Foundation = require 'art-foundation'
 
 StreamlinedDynamoDbApi = require './StreamlinedDynamoDbApi'
 
-{QueryApi, CreateTableApi, PutItemApi} = StreamlinedDynamoDbApi
+{QueryApi, CreateTableApi, PutItemApi, TableApiBaseClass} = StreamlinedDynamoDbApi
+{decodeDynamoItem} = TableApiBaseClass
 
 module.exports = class DynamoDb
-
-  @decodeDynamoData: decodeDynamoData = (data) ->
-    if map = data.M
-      out = {}
-      for k, v of map
-        out[k] = decodeDynamoData v
-      out
-    else if array = data.L
-      decodeDynamoData v for v in array
-    else if string = data.S
-      string
-    else if (number = data.N)?
-      parseFloat number
-    else if bool = data.BOOL
-      !!bool
-    else if data.NULL
-      null
-    else
-      throw new Error "unknown dynamo data type: #{inspect data}"
 
   constructor: (options = {}) ->
     @_awsDynamoDb = new AWS.DynamoDB merge config.dynamoDb, options
@@ -126,7 +108,7 @@ module.exports = class DynamoDb
   @bindAll
     createTable: (params) ->
 
-      @invokeAws "createTable", log "createTable",
+      @invokeAws "createTable",
         CreateTableApi.translateParams merge
           attributes: id: 'string'
           key:        id: 'hash'
@@ -148,7 +130,7 @@ module.exports = class DynamoDb
       @invokeAws "query",
         QueryApi.translateParams params
       .then ({Items, Count, ScannedCount, LastEvaluatedKey, ConsumedCapacity}) ->
-        items: Items
+        items: (decodeDynamoItem item for item in Items)
         count: Count
         scannedCount: ScannedCount
         lastEvaluatedKey: LastEvaluatedKey

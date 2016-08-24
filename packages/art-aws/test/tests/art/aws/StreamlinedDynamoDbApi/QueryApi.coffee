@@ -36,7 +36,7 @@ suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.QueryApi.optional params", 
   test "descending", ->
     assert.eq(
       new QueryApi()._translateOptionalParams descending: true
-      ScanIndexForward: true
+      ScanIndexForward: false
     )
 
   test "returnConsumedCapacity", ->
@@ -105,11 +105,13 @@ suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.QueryApi.select", ->
   test "foo bar", ->
     assert.eq(
       new QueryApi()._translateSelect select: "foo bar"
-      Select: "foo, bar"
+      ProjectionExpression: "foo, bar"
+      Select:               "SPECIFIC_ATTRIBUTES"
     )
 
   test "['foo', 'bar']", ->
     assert.eq(
       new QueryApi()._translateSelect select: ['foo', 'bar']
-      Select: "foo, bar"
+      ProjectionExpression: "foo, bar"
+      Select:               "SPECIFIC_ATTRIBUTES"
     )

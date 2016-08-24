@@ -15,6 +15,12 @@ suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.TableApiBaseClass._translat
     ExpressionAttributeValues: ":val1": N: "123"
 
   translateConditionExpressionTest
+    foo: gt: 0
+    "(#attr1 > :val1)"
+    ExpressionAttributeNames:  "#attr1": "foo"
+    ExpressionAttributeValues: ":val1": N: "0"
+
+  translateConditionExpressionTest
     foo: 123
     bar: lte: "hi"
     "(#attr1 = :val1 AND #attr2 <= :val2)"

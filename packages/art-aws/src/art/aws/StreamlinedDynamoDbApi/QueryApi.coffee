@@ -125,13 +125,20 @@ module.exports = class QueryApi extends TableApiBaseClass
     @_target.ExclusiveStartKey = params.exclusiveStartKey if params.exclusiveStartKey
 
   _translateDescending: (params) ->
-    @_target.ScanIndexForward = true if params.descending
+    @_target.ScanIndexForward = false if params.descending
 
   _translateWhere: (params) ->
     {where} = params
     throw new Error "where param required" unless where?
     @_target.KeyConditionExpression = @_translateConditionExpression where
     @_target
+
+  _translateFilterExpression: (params) ->
+    {filterExpression} = params
+    return unless filterExpression
+    @_target.FilterExpression = @_translateConditionExpression filterExpression
+    @_target
+
 
   _translateSelect: (params) ->
     {select} = params
@@ -141,7 +148,8 @@ module.exports = class QueryApi extends TableApiBaseClass
       when "count(*)" then "COUNT"
       else
         select = select.match /[a-z0-9\[\].]+/gi if isString select
-        select.join ', '
+        @_target.ProjectionExpression = select.join ', '
+        "SPECIFIC_ATTRIBUTES"
 
     @_target
 

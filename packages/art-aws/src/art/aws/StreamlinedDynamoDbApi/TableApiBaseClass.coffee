@@ -26,6 +26,31 @@ module.exports = class TableApiBaseClass
   @translateParams: (params) ->
     new @().translateParams params
 
+  @decodeDynamoData: decodeDynamoData = (data) ->
+    if map = data.M
+      out = {}
+      for k, v of map
+        out[k] = decodeDynamoData v
+      out
+    else if array = data.L
+      decodeDynamoData v for v in array
+    else if string = data.S
+      string
+    else if (number = data.N)?
+      parseFloat number
+    else if bool = data.BOOL
+      !!bool
+    else if data.NULL
+      null
+    else
+      throw new Error "unknown dynamo data type: #{inspect data}"
+
+  @decodeDynamoItem: (item) ->
+    out = {}
+    for k, v of item
+      out[k] = decodeDynamoData v
+    out
+
   #################################
   # OVERRIDES
   #################################
@@ -53,24 +78,7 @@ module.exports = class TableApiBaseClass
     else
       throw new Error "invalid data type: #{inspect data}"
 
-  _decodeDynamoData: (data) ->
-    if map = data.M
-      out = {}
-      for k, v of map
-        out[k] = decodeDynamoData v
-      out
-    else if array = data.L
-      decodeDynamoData v for v in array
-    else if string = data.S
-      string
-    else if (number = data.N)?
-      parseFloat number
-    else if bool = data.BOOL
-      !!bool
-    else if data.NULL
-      null
-    else
-      throw new Error "unknown dynamo data type: #{inspect data}"
+  _decodeDynamoData: decodeDynamoData
 
   _encodeItem: (item) ->
     @_encodeDynamoData(item).M
@@ -112,12 +120,12 @@ module.exports = class TableApiBaseClass
       "#{attributeAlias} BETWEEN #{gteAlias} AND #{lteAlias}"
     else
       expression = if !isPlainObject value = test then "#{attributeAlias} = #{valueAlias}"
-      else if value = test.eq then "#{attributeAlias} = #{valueAlias}"
-      else if value = test.lt then "#{attributeAlias} < #{valueAlias}"
-      else if value = test.gt then "#{attributeAlias} > #{valueAlias}"
-      else if value = test.lte then "#{attributeAlias} <= #{valueAlias}"
-      else if value = test.gte then "#{attributeAlias} >= #{valueAlias}"
-      else if value = test.beginsWith then "begines_with(#{attributeAlias}, #{valueAlias})"
+      else if (value = test.eq        )? then "#{attributeAlias} = #{valueAlias}"
+      else if (value = test.lt        )? then "#{attributeAlias} < #{valueAlias}"
+      else if (value = test.gt        )? then "#{attributeAlias} > #{valueAlias}"
+      else if (value = test.lte       )? then "#{attributeAlias} <= #{valueAlias}"
+      else if (value = test.gte       )? then "#{attributeAlias} >= #{valueAlias}"
+      else if (value = test.beginsWith)? then "begines_with(#{attributeAlias}, #{valueAlias})"
       else throw new Error "no valid test detected in: #{attributeAlias}: #{inspect test}"
       @_addExpressionAttributeValue valueAlias, value
       expression

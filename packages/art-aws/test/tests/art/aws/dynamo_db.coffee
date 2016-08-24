@@ -6,7 +6,7 @@ config.endpoint = "http://localhost:8081"
 
 testTableName = 'fooBarTestTable'
 
-suite "Art.Ery.Aws.DynamoDb", ->
+suite "Art.Ery.Aws.DynamoDb.live", ->
   @timeout 10000
 
   dynamoDb = null
@@ -24,8 +24,8 @@ suite "Art.Ery.Aws.DynamoDb", ->
         if table == testTableName
           log "Deleting test table: #{testTableName}"
           dynamoDb.deleteTable TableName: table
-        else
-          log "NOT deleting non-test-table: #{table}"
+        # else
+        #   log "NOT deleting non-test-table: #{table}"
       Promise.all list
 
   test "listTables", ->
@@ -59,17 +59,92 @@ suite "Art.Ery.Aws.DynamoDb", ->
         table: testTableName
         item: data
 
-  test "query", ->
-    dynamoDb.createTable
-      table: testTableName
-    .then (result) ->
-      data =
-        createdAt: Date.now()
-        updatedAt: Date.now()
-        user: "abc123"
-        chatRoom: "xyz456"
-        message: "Hi!"
-        id: "lmnop123123"
-      dynamoDb.putItem
+  suite "query", ->
+    chatRoomId = "xyz456"
+    createItems = ->
+      Promise.all [
+        dynamoDb.putItem table: testTableName, item: chatRoom: chatRoomId, id: 1, message: "Hello!", createdAt: 400
+        dynamoDb.putItem table: testTableName, item: chatRoom: chatRoomId, id: 2, message: "world!", createdAt: 300
+      ]
+    createTable = ->
+      dynamoDb.createTable
         table: testTableName
-        item: data
+        globalIndexes: chatsByChatRoomCreatedAt: "chatRoom/createdAt"
+        attributes:
+          id: "number"
+          chatRoom:  "string"
+          createdAt: "number"
+        key: "chatRoom/id"
+      .then (result) -> createItems()
+
+    test "basic primary key", ->
+      createTable()
+      .then ->
+        dynamoDb.query
+          table: testTableName
+          where: chatRoom: chatRoomId
+      .then (result)->
+        assert.eq ["Hello!", "world!"], (item.message for item in result.items)
+        assert.eq result.items[0],
+          id:         1
+          message:    "Hello!"
+          chatRoom:   "xyz456"
+          createdAt:  400
+
+    test "basic global index", ->
+      createTable()
+      .then ->
+        dynamoDb.query
+          table: testTableName
+          index: "chatsByChatRoomCreatedAt"
+          where: chatRoom: chatRoomId
+      .then (result)->
+        assert.eq ["world!", "Hello!"], (item.message for item in result.items)
+        assert.eq result.items[0],
+          id:       2
+          message:  "world!"
+          chatRoom: "xyz456"
+          createdAt:  300
+
+    test "select: 'message'", ->
+      createTable()
+      .then ->
+        dynamoDb.query
+          table: testTableName
+          where: chatRoom: chatRoomId
+          select: "message"
+      .then (result)->
+        assert.eq ["Hello!", "world!"], (item.message for item in result.items)
+        assert.eq result.items[0],
+          message:  "Hello!"
+
+    test "descending: true", ->
+      createTable()
+      .then ->
+        dynamoDb.query
+          table: testTableName
+          descending: true
+          where: chatRoom: chatRoomId
+      .then (result)->
+        assert.eq ["world!", "Hello!"], (item.message for item in result.items)
+
+    test "where: id: gt: 1", ->
+      createTable()
+      .then ->
+        dynamoDb.query
+          table: testTableName
+          descending: true
+          where: chatRoom: chatRoomId, id: gt: 1
+      .then (result)->
+        assert.eq ["world!"], (item.message for item in result.items)
+
+    test "filter: message: beginsWith: 'H'", ->
+      createTable()
+      .then ->
+        dynamoDb.query
+          table: testTableName
+          descending: true
+          where: chatRoom: chatRoomId
+          filter: message: beginsWith: 'H'
+      .then (result)->
+        assert.eq ["world!", "Hello!"], (item.message for item in result.items)
