@@ -56,11 +56,10 @@ dynamoDb.createTable
 # Streamlined API
 dynamoDb.query
   table: "fooBarTestTable"
+  descending: true
   where:
     chatRoom: "xyz456"
     id: gt: 1
-
-  descending: true
 .then ({items}) ->
   # items is an array of plain javascript objects
   # Items is the standard DynamoDb-encoded Items list
@@ -77,7 +76,6 @@ dynamoDb.query
   ExpressionAttributeValues:
     ":val1": S: "xyz456"
     ":val2": N: "1"
-
 .then ({items, Items}) ->
   # items is an array of plain javascript objects
   # Items is the standard DynamoDb-encoded Items list
