@@ -9,21 +9,23 @@ A cleaner API to AWS SDK with Promises and Art.Foundation
   * data is always in plain javascript data structures (JSON-compatible data-structures)
     * methods affected: putItem, updateItem, getItem, query, etc...
 * lowerCamelCase property names for consistency with JavaScript
-* shorter, yet still hopefully clear property names
-  * Example:
-    ```coffeeScript
-    # Streamlined API
-    provisioning:
-      read: 1
-      write: 1
+* shorter, yet still hopefully clear property names and constant values
 
-    # Standard API
-    ProvisionedThroughput:
-      ReadCapacityUnits: 1
-      WriteCapacityUnits: 1
-    ```
+#### Streamlined API Example: property names
+* Example:
+  ```coffeeScript
+  # Streamlined API
+  provisioning:
+    read: 1
+    write: 1
 
-#### createTable example
+  # Standard API
+  ProvisionedThroughput:
+    ReadCapacityUnits: 1
+    WriteCapacityUnits: 1
+  ```
+
+#### Streamlined API Example: `createTable`
 ```coffeescript
 # Streamlined API:
 dynamoDb.createTable
@@ -65,7 +67,7 @@ dynamoDb.createTable
   # ...
 ```
 
-#### query example
+#### Streamlined API Example: `query`
 ```coffeescript
 # Streamlined API
 dynamoDb.query
