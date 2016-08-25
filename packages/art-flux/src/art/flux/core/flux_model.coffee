@@ -149,6 +149,8 @@ module.exports = class FluxModel extends BaseObject
   # shortcut for updating the fluxStore for the current model
   updateFluxStore: (key, fluxRecord) -> fluxStore.update @_name, key, fluxRecord
 
+  fluxStoreGet: (key) -> fluxStore.get @_name, key
+
   # Override to support non-string keys
   # return: string representation of key
   toFluxKey: (key) ->
