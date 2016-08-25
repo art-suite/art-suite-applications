@@ -145,8 +145,7 @@ module.exports = class DynamoDb
 
     describeTable: (params) -> @invokeAws "describeTable", TableApiBaseClass.translateParams params
     deleteTable:   (params) -> @invokeAws "deleteTable",   TableApiBaseClass.translateParams params
-
-    deleteItem:       null
+    waitFor:       (params) -> @invokeAws "waitFor",       TableApiBaseClass.translateParams params
 
     ###
     Non-table-operations
@@ -157,10 +156,12 @@ module.exports = class DynamoDb
     ###
     TODO: currently these only support the default DynamoDb API (with promises)
     ###
+    getItem:          null
+    deleteItem:       null
+    updateItem:       null
+
     batchGetItem:     null
     batchWriteItem:   null
-    getItem:          null
+
     scan:             null
-    updateItem:       null
     updateTable:      null
-    waitFor:          null
