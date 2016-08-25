@@ -4,48 +4,79 @@ Foundation = require 'art-foundation'
 ArtEry = require 'art-ery'
 ArtAws = require 'art-aws'
 
-{log, merge, Validator, isString} = Foundation
+{log, merge, Validator, isString, arrayToTruthMap} = Foundation
 {Pipeline} = ArtEry
 {DynamoDb} = ArtAws
 {encodeDynamoData, decodeDynamoData} = DynamoDb
 
 module.exports = class DynamoDbPipeline extends Pipeline
+  @classGetter
+    tablesByNameForVivification: ->
+      @_tablesByNameForVivificationPromise ||=
+        @getDynamoDb().listTables().then ({TableNames}) =>
+          arrayToTruthMap TableNames
+
+    dynamoDb: ->
+      @_dynamoDb ||= new DynamoDb
 
   constructor: (options = {}) ->
     super
-    @_dynamoDb = new DynamoDb
+
     @_createTableParams = options
+    @_vivifyTablePromise = Promise.resolve()
+    @_vivifyTable()
 
-  @getter "dynamoDb"
+  @getter
+    dynamoDb: -> DynamoDbPipeline.getDynamoDb()
+    tablesByNameForVivification: -> DynamoDbPipeline.getTablesByNameForVivification()
 
+  ###
+  TODO:
+  Add to ArtAws.DynamoDb:
+    getKeyFromDataFunction: (createTableParams) -> (data) -> key
+      IN: createTableParams
+        The exact same params used to create the table.
+      OUT: (data) -> key
+        IN: data: plain object record data
+        OUT: key: string which encodes the key
+          if there is no range-key, then just returns the hashKey as a string
+          else, "#{hashKey}/#{rangeKey}"
+
+    Initially, though, I expect all tables to have a simple hashKey: 'id'
+    Indexes will take care of most our rangeKey needs.
+  ###
   keyFromData: (data) -> data.id
+
+  queryDynamoDb: (params) ->
+    @_vivifyTablePromise.then =>
+      @dynamoDb.query merge params, table: @tableName
 
   @handlers
     get: ({key}) ->
-      @_vivifyTable().then =>
-        @_dynamoDb.getItem
+      @_vivifyTablePromise.then =>
+        @dynamoDb.getItem
           TableName: @tableName
           Key: id: S: key
       .then ({Item}) ->
         Item && decodeDynamoData M: Item
 
     create: ({data}) ->
-      @_vivifyTable().then =>
-        @_dynamoDb.putItem
-          TableName: @tableName
-          Item: encodeDynamoData(data).M
+      @_vivifyTablePromise.then =>
+        @dynamoDb.putItem
+          table: @tableName
+          item: data
       .then ->
         data
 
     update: ({key, data}) ->
-      @_vivifyTable().then =>
+      @_vivifyTablePromise.then =>
         attributeUpdates = {}
         for k, v of data
           attributeUpdates[k] =
             Action: "PUT"
             Value: encodeDynamoData v
 
-        @_dynamoDb.updateItem
+        @dynamoDb.updateItem
           TableName: @tableName
           Key: id: S: key
           AttributeUpdates: attributeUpdates
@@ -54,8 +85,8 @@ module.exports = class DynamoDbPipeline extends Pipeline
         decodeDynamoData M: Attributes
 
     delete: ({key}) ->
-      @_vivifyTable().then =>
-        @_dynamoDb.deleteItem
+      @_vivifyTablePromise.then =>
+        @dynamoDb.deleteItem
           TableName: @tableName
           Key: id: S: key
       .then => message: "success"
@@ -63,14 +94,16 @@ module.exports = class DynamoDbPipeline extends Pipeline
   #########################
   # PRIVATE
   #########################
+
   _vivifyTable: ->
-    return Promise.resolve true if @_tableExists
-    @_dynamoDb.listTables()
-    .then ({TableNames}) =>
-      if 0 <= TableNames.indexOf @tableName
-        @_tableExists = true
+    @tablesByNameForVivification
+    .then (tablesByName) =>
+      if tablesByName[@tableName]
+        log "#{@getClassName()}#_vivifyTable() dynamoDb table exists: #{@tableName}"
       else
+        log "#{@getClassName()}#_vivifyTable() dynamoDb table does not exist: #{@tableName}"
         @_createTable()
+
 
   @getter
     dynamoDbCreationAttributes: ->
@@ -85,9 +118,12 @@ module.exports = class DynamoDbPipeline extends Pipeline
 
 
   _createTable: ->
-    @_dynamoDb.createTable(merge
-        tableName: @tableName
+    log "_createTable #{@tableName} 1"
+    @dynamoDb.createTable(merge
+        table: @tableName
         attributes: @dynamoDbCreationAttributes
         @_createTableParams
       )
-    .then -> @_tableExists = true
+    .then =>
+      log "_createTable #{@tableName} done"
+
