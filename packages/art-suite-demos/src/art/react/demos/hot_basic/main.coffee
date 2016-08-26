@@ -33,13 +33,16 @@ module.exports = createComponentFactory class MyComponent extends Component
         pointerDown: @toggle
         pointerUp:   @toggle
 
-      RectangleElement color: "pink", animate: to: color: clr
+      RectangleElement
+        color: clr
+        animators: "color"
 
       TextElement
         key: text
         location: ps: .5
-        addedAnimation: from: opacity: 0, axis: "centerRight"
-        removedAnimation: to: opacity: 0, axis: "centerLeft"
+        animators:
+          opacity:  toFromVoid: 0
+          axis:     fromVoid: "centerRight", toVoid: "centerLeft"
         axis:     .5
         text:     text
         color:    "white"
@@ -48,8 +51,9 @@ module.exports = createComponentFactory class MyComponent extends Component
       TextElement
         key: hotText
         location: xw: .5, y: 5
-        addedAnimation: from: opacity: 0, axis: "bottomCenter"
-        removedAnimation: to: opacity: 0, axis: point .5, -1
+        animators:
+          opacity:  toFromVoid: 0
+          axis:     fromVoid: "bottomCenter", toVoid: point .5, -1
         axis:     "topCenter"
         text:     hotText
         color:    "white"
