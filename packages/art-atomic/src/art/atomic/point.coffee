@@ -45,6 +45,7 @@ OUT:
 
 ###
 module.exports = class Point extends AtomicBase
+  @defineAtomicClass fieldNames: "x y"
   @isPoint: (v) -> v instanceof Point
 
   pointWithAspectRatioAndArea = ({aspectRatio, area}) ->
@@ -68,8 +69,8 @@ module.exports = class Point extends AtomicBase
     x = a || 0
     y = if b? then b else a
 
-    return point0 if x == 0 && y == 0
-    return point1 if x == 1 && y == 1
+    return point0 if point0.eq x, y
+    return point1 if point1.eq x, y
 
     # construct new Point
     new Point a, b
@@ -161,10 +162,6 @@ module.exports = class Point extends AtomicBase
     y = @y - p2.y
     x * x + y * y
 
-  withX: (x) -> if floatEq @x, x then @ else point x, @y
-  withY: (y) -> if floatEq @y, y then @ else point @x, y
-  with: (x, y) -> if @_eqParts x, y then @ else new Point x, y
-
   withArea: (newArea) ->
     {area} = @
     throw new Error "area must be > 0" unless area > 0 && newArea >= 0
@@ -185,56 +182,8 @@ module.exports = class Point extends AtomicBase
     vector[l+1] = @y
     vector[l] = @x
 
-  _eqParts: (x, y) -> floatEq(x, @x) && floatEq(y, @y)
-
-  eq: (b) -> @ == b || (b && @_eqParts b.x, b.y)
-
-  lt: (b) -> @x < b.x && @y < b.y
-  gt: (b) -> @x > b.x && @y > b.y
-
-  lte: (b) -> @x <= b.x && @y <= b.y
-  gte: (b) -> @x >= b.x && @y >= b.y
-
-  between: (a, b) ->
-    {x, y} = @
-    a.x <= x &&
-    a.y <= y &&
-    x <= b.x &&
-    y <= b.y
-
-  # can do math with a scaler or another point
-  add: (b, c) -> if b instanceof Point then @with(@x + b.x, @y + b.y) else if !c? then @with(@x + b, @y + b) else @with(@x + b, @y + c)
-  sub: (b, c) -> if b instanceof Point then @with(@x - b.x, @y - b.y) else if !c? then @with(@x - b, @y - b) else @with(@x - b, @y - c)
-  mul: (b, c) -> if b instanceof Point then @with(@x * b.x, @y * b.y) else if !c? then @with(@x * b, @y * b) else @with(@x * b, @y * c)
-  div: (b, c) -> if b instanceof Point then @with(@x / b.x, @y / b.y) else if !c? then @with(@x / b, @y / b) else @with(@x / b, @y / c)
-
-  interpolate: (toPoint, p) ->
-    oneMinusP = 1 - p
-    new Point(
-      toPoint.x * p + @x * oneMinusP
-      toPoint.y * p + @y * oneMinusP
-    )
-
   dot: (p) -> @x * p.x + @y * p.y
   cross: (p) -> @x * p.y - @y * p.x
-
-  toString: toString = (precision)->
-    if precision
-      "[#{@x.toPrecision precision}, #{@y.toPrecision precision})]"
-    else
-      "[#{@x}, #{@y}]"
-
-  toJson: toString
-  toArray: toArray = -> [@x, @y]
-
-  @getter
-    plainObjects: -> x: @x, y: @y
-    inspectedObjects: -> inspectedObjectLiteral @inspect()
-
-  inspect: -> if floatEq @x, @y
-      "point(#{@x})"
-    else
-      "point(#{@x}, #{@y})"
 
   floor: -> @with floor(@x), floor(@y)
   ceil:  -> @with ceil(@x),  ceil(@y)
@@ -300,7 +249,9 @@ module.exports = class Point extends AtomicBase
   withSameAreaAs: (p) ->
     @mul Math.sqrt p.area / @area
 
-  # named points
+  ##################
+  # Named Instances
+  ##################
   point0       = Object.freeze new Point 0
   point1       = Object.freeze new Point 1
   topRight     = Object.freeze new Point 1  ,  0
@@ -331,4 +282,3 @@ module.exports = class Point extends AtomicBase
 
   for k, v of @namedPoints
     @[k] = v
-

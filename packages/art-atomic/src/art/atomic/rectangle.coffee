@@ -22,6 +22,8 @@ Point       = require './point'
 #   2 number argument:   (w, h)            -> (0, 0, w, h)
 #   4 number arguments:  (x, y, w, h)
 module.exports = class Rectangle extends AtomicBase
+  @defineAtomicClass fieldNames: "x y w h", constructorFunctionName: "rect"
+
   @rect: rect = (a, b, c, d) ->
     return a if a instanceof Rectangle
     new Rectangle a, b, c, d
@@ -129,59 +131,13 @@ module.exports = class Rectangle extends AtomicBase
         new Point left, bottom
       ]
 
-  # can do math with a scaler or another rectangle
-  add: (b) -> (if isNumber b then x = y = w = h = b else {x, y, w, h} = b); @with @x + x, @y + y, @w + w, @h + h
-  sub: (b) -> (if isNumber b then x = y = w = h = b else {x, y, w, h} = b); @with @x - x, @y - y, @w - w, @h - h
-  mul: (b) -> (if isNumber b then x = y = w = h = b else {x, y, w, h} = b); @with @x * x, @y * y, @w * w, @h * h
-  div: (b) -> (if isNumber b then x = y = w = h = b else {x, y, w, h} = b); @with @x / x, @y / y, @w / w, @h / h
-
-  lt: (b)  -> @x < b.x && @y < b.y && @w < b.w && @h < b.h
-  gt: (b)  -> @x > b.x && @y > b.y && @w > b.w && @h > b.h
-
-  lte: (b) -> @x <= b.x && @y <= b.y && @w <= b.w && @h <= b.h
-  gte: (b) -> @x >= b.x && @y >= b.y && @w >= b.w && @h >= b.h
-
-  interpolate: (toRect, p) ->
-    return @ if floatEq p, 0
-    return toRect if floatEq p, 1
-    oneMinusP = 1 - p
-    new Rectangle(
-      toRect.x * p + @x * oneMinusP
-      toRect.y * p + @y * oneMinusP
-      toRect.w * p + @w * oneMinusP
-      toRect.h * p + @h * oneMinusP
-    )
-
   # use .with* to only create a new rectangle if values actually changed
-  withX:  (v)         -> if floatEq v, @x then @ else new Rectangle v, @y, @w, @h
-  withY:  (v)         -> if floatEq v, @y then @ else new Rectangle @x, v, @w, @h
   withXY: (x, y)      -> if floatEq(x, @x) && floatEq(y, @y) then @ else new Rectangle x, y, @w, @h
-  withW:  (v)         -> if floatEq v, @w then @ else new Rectangle @x, @y, v, @h
-  withH:  (v)         -> if floatEq v, @h then @ else new Rectangle @x, @y, @w, v
   withWH: (w, h)      -> if floatEq(w, @w) && floatEq(h, @h) then @ else new Rectangle @x, @y, w, h
   withLocation: (v)   -> @withXY v.x, v.y
   withSize:     (v)   -> @withWH v.x, v.y
-  with: (x, y, w, h)  -> if @_eqParts x, y, w, h then @ else new Rectangle x, y, w, h
 
   movedBy: (d) -> @withXY @x + d.x, @y + d.y
-
-  _eqParts: (x, y, w, h) ->
-    floatEq(@x, x) &&
-    floatEq(@y, y) &&
-    floatEq(@w, w) &&
-    floatEq(@h, h)
-
-  eq: (b) -> @ == b || (b && @_eqParts b.x, b.y, b.w, b.h)
-  lt: (b) -> @x < b.x && @y < b.y && @w < b.w && @h < b.h
-  gt: (b) -> @x > b.x && @y > b.y && @w > b.w && @h > b.h
-
-  lte: (b) -> @x <= b.x && @y <= b.y && @w <= b.w && @h <= b.h
-  gte: (b) -> @x >= b.x && @y >= b.y && @w >= b.w && @h >= b.h
-
-  toString: -> "[#{@x}, #{@y}, #{@w}, #{@h}]"
-  inspect: -> "rect(#{@x}, #{@y}, #{@w}, #{@h})"
-  toArray: toArray = -> [@x, @y, @w, @h]
-  @getter plainObjects: -> x: @x, y:@y, w:@w, h:@h
 
   nearestInsidePoint: (p) -> new Point bound(@left, p.x, @right), bound(@top, p.y, @bottom)
   largestInsideRect: (ofSize) -> # result is centered

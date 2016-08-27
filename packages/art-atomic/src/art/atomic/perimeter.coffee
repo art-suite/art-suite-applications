@@ -16,6 +16,8 @@ Point      = require './point'
 {point} = Point
 
 module.exports = class Perimeter extends AtomicBase
+  @defineAtomicClass fieldNames: "left right top bottom"
+
   @perimeter: perimeter = (a, b, c, d) ->
     # just return if a already a Point
     return a if a instanceof Perimeter
@@ -54,29 +56,11 @@ module.exports = class Perimeter extends AtomicBase
       when 4 then @left = a; @right = b; @top = c; @bottom = d
       else throw new Error "invalid number of arguments: #{inspect arguments}"
 
-  @namedPerimeters: namedPerimeters =
-    perimeter0:             perimeter0 = Object.freeze new Perimeter 0
-
-  for k, v of @namedPerimeters
-    @[k] = v
-
-  toArray: -> [@left, @right, @top, @bottom]
-  toString: toString = -> "[#{@toArray().join ', '}]"
-  toJson: toString
-
-  inspect: -> "perimeter(#{@toArray().join ', '})"
-
   @getter
     width: -> @left + @right
     height: -> @top + @bottom
     w: -> @left + @right
     h: -> @top + @bottom
-
-  toObject: ->
-    left:   @left
-    right:  @right
-    top:    @top
-    bottom: @bottom
 
   subtractedFromSize: (size) ->
     w = @getWidth()
@@ -87,7 +71,6 @@ module.exports = class Perimeter extends AtomicBase
     else
       point size.x - w, size.y - h
 
-
   addedToSize: (size) ->
     w = @getWidth()
     h = @getHeight()
@@ -97,3 +80,11 @@ module.exports = class Perimeter extends AtomicBase
     else
       point size.x + w, size.y + h
 
+  ###
+  Named Instances
+  ###
+  @namedPerimeters: namedPerimeters =
+    perimeter0: perimeter0 = Object.freeze new Perimeter 0
+
+  for k, v of @namedPerimeters
+    @[k] = v

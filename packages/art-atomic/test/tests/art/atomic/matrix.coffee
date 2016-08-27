@@ -6,11 +6,11 @@ Atomic = require 'art-atomic'
 
 suite "Art.Atomic.Matrix.basic", ->
   test "0-arg creation", ->
-    assert.equal matrix().toString(), '1, 1, 0, 0, 0, 0'
-    assert.equal (new Matrix).toString(), '1, 1, 0, 0, 0, 0'
+    assert.equal matrix().toString(), '[1, 1, 0, 0, 0, 0]'
+    assert.equal (new Matrix).toString(), '[1, 1, 0, 0, 0, 0]'
 
   test "6-arg creation", ->
-    assert.equal matrix(1,2,3,4,5,6).toString(), '1, 2, 3, 4, 5, 6'
+    assert.equal matrix(1,2,3,4,5,6).toString(), '[1, 2, 3, 4, 5, 6]'
 
   test "scale is pure functional", ->
     m1 = matrix(1, 2, 3, 4, 5, 6)
@@ -94,16 +94,16 @@ suite "Art.Atomic.Matrix.basic", ->
     m2 = new Matrix(m1)
     m1.sx = 100
 
-    assert.equal "#{m2}", "2, 3, 5, 7, 11, 13"
+    assert.equal "#{m2}", "[2, 3, 5, 7, 11, 13]"
 
   test "mul", ->
     m1 = Matrix.scaleXY(2, 3)
     m2 = Matrix.translateXY(5, 7)
     m3 = m1.mul(m2)
-    assert.equal "#{m3}", "2, 3, 0, 0, 5, 7"
+    assert.equal "#{m3}", "[2, 3, 0, 0, 5, 7]"
 
     m3 = m2.mul(m1)
-    assert.equal "#{m3}", "2, 3, 0, 0, 10, 21"
+    assert.equal "#{m3}", "[2, 3, 0, 0, 10, 21]"
 
   test "invert & mul itself == idenity", ->
     m = Matrix.scaleXY 2,3
@@ -132,7 +132,7 @@ suite "Art.Atomic.Matrix.basic", ->
 
   test "set from string", ->
     m = matrix "1, 2, 3,         4,5, 6"
-    assert.equal "#{m}", "1, 2, 3, 4, 5, 6"
+    assert.equal "#{m}", "[1, 2, 3, 4, 5, 6]"
 
   test "transformBoundingRect translation", ->
     m = Matrix.translateXY 100, 200

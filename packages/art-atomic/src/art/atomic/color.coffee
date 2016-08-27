@@ -19,6 +19,8 @@ parseRGBColorComponent = (str) ->
     (str|0) * 1/255
 
 module.exports = class Color extends AtomicBase
+  @defineAtomicClass fieldNames: "r g b a", constructorFunctionName: "rgbColor"
+
   @colorNames:   colorNames = [
     'AliceBlue', 'AntiqueWhite', 'Aqua', 'Aquamarine', 'Azure',
     'Beige', 'Bisque', 'Black', 'BlanchedAlmond', 'Blue', 'BlueViolet', 'Brown',
@@ -313,20 +315,14 @@ module.exports = class Color extends AtomicBase
       @b = c - 0
       @a = if d? then d - 0 else 1
 
-  # all operators are performed component-wise
-  # operator signatures:
-  #  myColor.add myOtherColor # add by components
-  #  myColor.add v            # one number to add to all
-  #  myColor.add r, g, b, a   # 4 numbers
-  add: (r, g, b, a) -> if r instanceof Color then color(@r + r.r, @g + r.g, @b + r.b, @a + r.a) else if g? then color(@r + r, @g + g, @b + b, @a + a) else color(@r + r, @g + r, @b + r, @a + r)
-  sub: (r, g, b, a) -> if r instanceof Color then color(@r - r.r, @g - r.g, @b - r.b, @a - r.a) else if g? then color(@r - r, @g - g, @b - b, @a - a) else color(@r - r, @g - r, @b - r, @a - r)
-  mul: (r, g, b, a) -> if r instanceof Color then color(@r * r.r, @g * r.g, @b * r.b, @a * r.a) else if g? then color(@r * r, @g * g, @b * b, @a * a) else color(@r * r, @g * r, @b * r, @a * r)
-  div: (r, g, b, a) -> if r instanceof Color then color(@r / r.r, @g / r.g, @b / r.b, @a / r.a) else if g? then color(@r / r, @g / g, @b / b, @a / a) else color(@r / r, @g / r, @b / r, @a / r)
-
   interpolate: (toColor, p) ->
     {r, g, b, a} = @
-    {r, g, b} = toColor if float32Eq0 a
+
+    # do we really need this???
     toColor = color toColor
+
+    # make interpolation to/from 100% transparent nicer (color shouldn't change, only alpha)
+    {r, g, b} = toColor if float32Eq0 a
     toColor = @withAlpha 0 if float32Eq0 toColor.a
 
     oneMinusP = 1 - p
@@ -376,7 +372,7 @@ module.exports = class Color extends AtomicBase
     pad number.toString(16), length, zeroString, true
 
   @getter
-    array: -> [@r, @g, @b, @a]
+    # array: -> [@r, @g, @b, @a]
     arrayRGB: -> [@r, @g, @b]
     rgbSum: -> @r + @g + @b
     rgbSquaredSum: -> @r*@r + @g*@g + @b*@b
@@ -441,19 +437,6 @@ module.exports = class Color extends AtomicBase
       hexString(@b256) +
       hexString(@a256)
 
-  eq: (r) ->
-    return true if @ == r
-    r and
-    colorFloatEq(@r, r.r) and
-    colorFloatEq(@g, r.g) and
-    colorFloatEq(@b, r.b) and
-    colorFloatEq(@a, r.a)
-
-  lt: (r) -> @r < r.r and @b < r.b and @c < r.c and @a < r.a
-  gt: (r) -> @r > r.r and @b > r.b and @c > r.c and @a > r.a
-  lte: (r) -> @r <= r.r and @b <= r.b and @c <= r.c and @a <= r.a
-  gte: (r) -> @r >= r.r and @b >= r.b and @c >= r.c and @a >= r.a
-
   inspect: ->
     a = if colorFloatEq(1, @a) then @hexString else @rgbaHexString
     "rgbColor('#{a}')"
@@ -462,8 +445,6 @@ module.exports = class Color extends AtomicBase
     @_htmlColorString ||=
     if colorFloatEq(1, @a) then @getHexString()
     else                         @getCssString()
-
-  toArray: toArray = -> [@r, @g, @b, @a]
 
   @getter
     plainObjects: -> if @a < 1 then @rgbaHexString else @hexString

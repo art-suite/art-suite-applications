@@ -63,6 +63,8 @@ Rectangle  = require "./rectangle"
 {inspect, simplifyNum, float32Eq, compact, log, isNumber} = Foundation
 
 module.exports = class Matrix extends AtomicBase
+  @defineAtomicClass fieldNames: "sx sy shx shy tx ty"
+
   @matrix: matrix = (a, b, c, d, e, f) ->
     if a instanceof Matrix
       a
@@ -138,19 +140,6 @@ module.exports = class Matrix extends AtomicBase
       @shy = d - 0 if d?
       @tx  = e - 0 if e?
       @ty  = f - 0 if f?
-
-  _into: (into, sx, sy, shx, shy, tx, ty) ->
-    into = if into == true then @ else into || new Matrix
-    into._setAll sx, sy, shx, shy, tx, ty
-
-  _setAll: (sx, sy, shx, shy, tx, ty) ->
-    @sx  = sx
-    @sy  = sy
-    @shx = shx
-    @shy = shy
-    @tx  = tx
-    @ty  = ty
-    @
 
   getScale: -> return @getS()
 
@@ -331,69 +320,6 @@ module.exports = class Matrix extends AtomicBase
       d * (-@tx * @sy  + @ty * @shx)
       d * ( @tx * @shy - @ty * @sx )
 
-  eq: (m) ->
-    return true if @ == m
-    m &&
-    float32Eq(@sx  , m.sx ) &&
-    float32Eq(@sy  , m.sy ) &&
-    float32Eq(@shx , m.shx) &&
-    float32Eq(@shy , m.shy) &&
-    float32Eq(@tx  , m.tx ) &&
-    float32Eq(@ty  , m.ty )
-
-  lt: (m) ->
-    @sx  < m.sx  and
-    @sy  < m.sy  and
-    @shx < m.shx and
-    @shy < m.shy and
-    @tx  < m.tx  and
-    @ty  < m.ty
-
-  gt: (m) ->
-    @sx  > m.sx  and
-    @sy  > m.sy  and
-    @shx > m.shx and
-    @shy > m.shy and
-    @tx  > m.tx  and
-    @ty  > m.ty
-
-
-  lte: (m) ->
-    @sx  <= m.sx  and
-    @sy  <= m.sy  and
-    @shx <= m.shx and
-    @shy <= m.shy and
-    @tx  <= m.tx  and
-    @ty  <= m.ty
-
-  gte: (m) ->
-    @sx  >= m.sx  and
-    @sy  >= m.sy  and
-    @shx >= m.shx and
-    @shy >= m.shy and
-    @tx  >= m.tx  and
-    @ty  >= m.ty
-
-  add: (m, into) ->
-    into = if into == true then @ else into || new Matrix
-
-    @_into into,
-      @sx  + m.sx
-      @sy  + m.sy
-      @shx + m.shx
-      @shy + m.shy
-      @tx  + m.tx
-      @ty  + m.ty
-
-  sub: (m, into) ->
-    @_into into,
-      @sx  - m.sx
-      @sy  - m.sy
-      @shx - m.shx
-      @shy - m.shy
-      @tx  - m.tx
-      @ty  - m.ty
-
   mul: (m, into) ->
     if isNumber m
       @_into into,
@@ -418,22 +344,6 @@ module.exports = class Matrix extends AtomicBase
     else
       m.invert intermediatResultMatrix
     @mul multipler, into
-
-  interpolate: (toMatrix, p, into) ->
-    oneMinusP = 1 - p
-    @_into into,
-      toMatrix.sx  * p + @sx  * oneMinusP
-      toMatrix.sy  * p + @sy  * oneMinusP
-      toMatrix.shx * p + @shx * oneMinusP
-      toMatrix.shy * p + @shy * oneMinusP
-      toMatrix.tx  * p + @tx  * oneMinusP
-      toMatrix.ty  * p + @ty  * oneMinusP
-
-  toArray: toArray = -> [@sx, @sy, @shx, @shy, @tx, @ty]
-  @getter plainObjects: -> sx:@sx, sy:@sy, shx:@shx, shy:@shy, tx:@tx, ty:@ty
-
-  toString: -> @toArray().join ", "
-  inspect: -> "matrix(#{@toString()})"
 
   inspectX: (pointName, nullForZeroString) ->
     pn = pointName
