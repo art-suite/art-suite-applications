@@ -55,10 +55,10 @@ module.exports = class DynamoDbPipeline extends Pipeline
     get: ({key}) ->
       @_vivifyTablePromise.then =>
         @dynamoDb.getItem
-          TableName: @tableName
-          Key: id: S: key
-      .then ({Item}) ->
-        Item && decodeDynamoData M: Item
+          table: @tableName
+          key: id: key
+      .then ({item}) ->
+        item
 
     create: ({data}) ->
       @_vivifyTablePromise.then =>
@@ -70,19 +70,12 @@ module.exports = class DynamoDbPipeline extends Pipeline
 
     update: ({key, data}) ->
       @_vivifyTablePromise.then =>
-        attributeUpdates = {}
-        for k, v of data
-          attributeUpdates[k] =
-            Action: "PUT"
-            Value: encodeDynamoData v
-
         @dynamoDb.updateItem
-          TableName: @tableName
-          Key: id: S: key
-          AttributeUpdates: attributeUpdates
-          ReturnValues: 'ALL_NEW'
-      .then ({Attributes}) ->
-        decodeDynamoData M: Attributes
+          table: @tableName
+          key: id: key
+          item: data
+      .then ({item}) ->
+        item
 
     delete: ({key}) ->
       @_vivifyTablePromise.then =>
