@@ -1,9 +1,9 @@
 {log} = require 'art-foundation'
-{QueryApi} = Neptune.Art.Aws.StreamlinedDynamoDbApi
+{Query} = Neptune.Art.Aws.StreamlinedDynamoDbApi
 
-suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.QueryApi.optional params", ->
+suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.Query.optional params", ->
   test "translateParams", ->
-    assert.eq new QueryApi().translateParams(table: "foo", where: foo: 123),
+    assert.eq new Query().translateParams(table: "foo", where: foo: 123),
       TableName:                 "foo"
       ExpressionAttributeNames:  "#attr1": "foo"
       ExpressionAttributeValues: ":val1": N: "123"
@@ -11,48 +11,48 @@ suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.QueryApi.optional params", 
 
   test "index", ->
     assert.eq(
-      new QueryApi()._translateOptionalParams index: "bar"
+      new Query()._translateOptionalParams index: "bar"
       IndexName: "bar"
     )
 
   test "limit", ->
     assert.eq(
-      new QueryApi()._translateOptionalParams limit: 10
+      new Query()._translateOptionalParams limit: 10
       Limit: 10
     )
 
   test "exclusiveStartKey", ->
     assert.eq(
-      new QueryApi()._translateOptionalParams exclusiveStartKey: esk = what: ever: ["I", "want"]
+      new Query()._translateOptionalParams exclusiveStartKey: esk = what: ever: ["I", "want"]
       ExclusiveStartKey: esk
     )
 
   test "consistentRead", ->
     assert.eq(
-      new QueryApi()._translateOptionalParams consistentRead: true
+      new Query()._translateOptionalParams consistentRead: true
       ConsistentRead: true
     )
 
   test "descending", ->
     assert.eq(
-      new QueryApi()._translateOptionalParams descending: true
+      new Query()._translateOptionalParams descending: true
       ScanIndexForward: false
     )
 
   test "returnConsumedCapacity", ->
     assert.eq(
-      new QueryApi()._translateOptionalParams returnConsumedCapacity: "total"
+      new Query()._translateOptionalParams returnConsumedCapacity: "total"
       ReturnConsumedCapacity: "TOTAL"
     )
 
-suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.QueryApi.where", ->
+suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.Query.where", ->
   hashTestValue = "123"
   rangeTestValue = "xyz"
   rangeTestValue2 = "zzz"
 
   test "hash key equal", ->
     assert.eq(
-      new QueryApi()._translateWhere where: bar: hashTestValue
+      new Query()._translateWhere where: bar: hashTestValue
       KeyConditionExpression:       "(#attr1 = :val1)"
       ExpressionAttributeNames:     "#attr1": "bar"
       ExpressionAttributeValues:    ":val1": S: hashTestValue
@@ -70,7 +70,7 @@ suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.QueryApi.where", ->
       hashTestValue = "123"
       test[name] = rangeTestValue = "xyz"
       assert.eq(
-        new QueryApi()._translateWhere where: bar: hashTestValue, baz: test
+        new Query()._translateWhere where: bar: hashTestValue, baz: test
         ExpressionAttributeNames:    "#attr1": "bar", "#attr2": "baz"
         ExpressionAttributeValues:
           ":val1": S: hashTestValue
@@ -80,7 +80,7 @@ suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.QueryApi.where", ->
 
   test "sort key lte AND gte", ->
     assert.eq(
-      new QueryApi()._translateWhere where: bar: hashTestValue, baz: gte: rangeTestValue, lte: rangeTestValue2
+      new Query()._translateWhere where: bar: hashTestValue, baz: gte: rangeTestValue, lte: rangeTestValue2
       ExpressionAttributeNames:    "#attr1": "bar", "#attr2": "baz"
       ExpressionAttributeValues:
         ":val1": S: hashTestValue
@@ -89,29 +89,27 @@ suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.QueryApi.where", ->
       KeyConditionExpression:      "(#attr1 = :val1 AND #attr2 BETWEEN :val2Gte AND :val2Lte)"
     )
 
-suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.QueryApi.select", ->
+suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.Query.select", ->
   test "*", ->
     assert.eq(
-      new QueryApi()._translateSelect select: "*"
+      new Query()._translateSelect select: "*"
       Select: "ALL_ATTRIBUTES"
     )
 
   test "count(*)", ->
     assert.eq(
-      new QueryApi()._translateSelect select: "count(*)"
+      new Query()._translateSelect select: "count(*)"
       Select: "COUNT"
     )
 
   test "foo bar", ->
     assert.eq(
-      new QueryApi()._translateSelect select: "foo bar"
+      new Query()._translateSelect select: "foo bar"
       ProjectionExpression: "foo, bar"
-      Select:               "SPECIFIC_ATTRIBUTES"
     )
 
   test "['foo', 'bar']", ->
     assert.eq(
-      new QueryApi()._translateSelect select: ['foo', 'bar']
+      new Query()._translateSelect select: ['foo', 'bar']
       ProjectionExpression: "foo, bar"
-      Select:               "SPECIFIC_ATTRIBUTES"
     )

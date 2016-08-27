@@ -23,6 +23,8 @@ module.exports = class Common
   for dynamoDbConstant in wordsArray """
       ALL
       ALL_ATTRIBUTES
+      ALL_NEW
+      ALL_OLD
       ALL_PROJECTED_ATTRIBUTES
       COUNT
       HASH
@@ -37,6 +39,8 @@ module.exports = class Common
       S N B
       SPECIFIC_ATTRIBUTES
       TOTAL
+      UPDATED_NEW
+      UPDATED_OLD
 
       """
     @apiConstantsMap[lowerCamelCase dynamoDbConstant] = dynamoDbConstant

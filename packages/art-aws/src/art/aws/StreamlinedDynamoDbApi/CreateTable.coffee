@@ -6,7 +6,7 @@ Foundation = require 'art-foundation'
 
 TableApiBaseClass = require './TableApiBaseClass'
 
-module.exports = class CreateTableApi extends TableApiBaseClass
+module.exports = class CreateTable extends TableApiBaseClass
 
 
   ###

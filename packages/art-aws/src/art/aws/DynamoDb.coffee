@@ -83,7 +83,7 @@ Foundation = require 'art-foundation'
 
 StreamlinedDynamoDbApi = require './StreamlinedDynamoDbApi'
 
-{QueryApi, CreateTableApi, PutItemApi, TableApiBaseClass} = StreamlinedDynamoDbApi
+{Query, CreateTable, PutItem, UpdateItem, GetItem, TableApiBaseClass} = StreamlinedDynamoDbApi
 {decodeDynamoItem} = TableApiBaseClass
 
 module.exports = class DynamoDb
@@ -109,14 +109,14 @@ module.exports = class DynamoDb
     createTable: (params) ->
 
       @invokeAws "createTable",
-        log "createTable", params, CreateTableApi.translateParams merge
+        log "createTable", params, CreateTable.translateParams merge
           attributes: id: 'string'
           key:        id: 'hash'
 
           params
 
     ###
-    IN: see QueryApi.translateQueryParams
+    IN: see Query.translateQueryParams
     OUT:
       DynamoDb standard output AND
       Same output with lowerCamelCase names:
@@ -129,7 +129,7 @@ module.exports = class DynamoDb
     query: (params) ->
 
       @invokeAws "query",
-        log "query", params, QueryApi.translateParams params
+        log "query", params, Query.translateParams params
       .then (res) ->
         {Items, Count, ScannedCount, LastEvaluatedKey, ConsumedCapacity} = res
         merge res,
@@ -141,7 +141,19 @@ module.exports = class DynamoDb
 
     putItem: (params) ->
       @invokeAws "putItem",
-        PutItemApi.translateParams params
+        PutItem.translateParams params
+
+    getItem: (params) ->
+      @invokeAws "getItem",
+        GetItem.translateParams params
+      .then (res) ->
+        merge res, item: decodeDynamoItem res.Item
+
+    updateItem: (params) ->
+      @invokeAws "updateItem",
+        UpdateItem.translateParams params
+      .then (res) ->
+        merge res, item: decodeDynamoItem res.Attributes
 
     describeTable: (params) -> @invokeAws "describeTable", TableApiBaseClass.translateParams params
     deleteTable:   (params) -> @invokeAws "deleteTable",   TableApiBaseClass.translateParams params
@@ -156,9 +168,7 @@ module.exports = class DynamoDb
     ###
     TODO: currently these only support the default DynamoDb API (with promises)
     ###
-    getItem:          null
     deleteItem:       null
-    updateItem:       null
 
     batchGetItem:     null
     batchWriteItem:   null

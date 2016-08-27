@@ -7,7 +7,7 @@ Foundation = require 'art-foundation'
 
 TableApiBaseClass = require './TableApiBaseClass'
 
-module.exports = class QueryApi extends TableApiBaseClass
+module.exports = class Query extends TableApiBaseClass
 
   ###
   IN: params:
@@ -118,9 +118,6 @@ module.exports = class QueryApi extends TableApiBaseClass
   _translateLimit: (params) ->
     @_target.Limit = params.limit if params.limit?
 
-  _translateConsistentRead: (params) ->
-    @_target.ConsistentRead = true if params.consistentRead
-
   _translateExclusiveStartKey: (params) ->
     @_target.ExclusiveStartKey = params.exclusiveStartKey if params.exclusiveStartKey
 
@@ -139,25 +136,11 @@ module.exports = class QueryApi extends TableApiBaseClass
     @_target.FilterExpression = @_translateConditionExpression filterExpression
     @_target
 
-
-  _translateSelect: (params) ->
-    {select} = params
-    return @_target unless select
-    @_target.Select = switch select
-      when "*" then "ALL_ATTRIBUTES"
-      when "count(*)" then "COUNT"
-      else
-        select = select.match /[a-z0-9\[\].]+/gi if isString select
-        @_target.ProjectionExpression = select.join ', '
-        "SPECIFIC_ATTRIBUTES"
-
-    @_target
-
-  _translateOptionalParams: (params) =>
+  _translateOptionalParams: (params) ->
     @_translateIndexName params
     @_translateLimit params
     @_translateConsistentRead params
-    @_translateConstantParam params, "returnConsumedCapacity"
+    @_translateConsumedCapacity params
     @_translateDescending params
     @_translateExclusiveStartKey params
     @_translateSelect params

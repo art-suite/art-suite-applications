@@ -7,7 +7,7 @@ Foundation = require 'art-foundation'
 
 TableApiBaseClass = require './TableApiBaseClass'
 
-module.exports = class PutItemApi extends TableApiBaseClass
+module.exports = class PutItem extends TableApiBaseClass
   ###
   IN: params:
     table:                  string (required)
@@ -24,17 +24,12 @@ module.exports = class PutItemApi extends TableApiBaseClass
     @_target.Item = @_encodeItem item
     @_target
 
-  _translateConditionExpression: (params) ->
-    {conditionalExpression} = params
-    return @_target unless conditionalExpression
-    @_target.ConditionalExpression = @_translateConditionExpression conditionalExpression
-    @_target
-
   ReturnConsumedCapacity: 'INDEXES | TOTAL | NONE',
   ReturnItemCollectionMetrics: 'SIZE | NONE',
   ReturnValues: 'NONE | ALL_OLD | UPDATED_OLD | ALL_NEW | UPDATED_NEW'
 
   _translateOptionalParams: (params) ->
+    @_translateConditionalExpression params
     @_translateConstantParam params, "returnConsumedCapacity"
     @_translateConstantParam params, "returnItemCollectionMetrics"
-    @_translateConstantParam params, "returnConsumedCapacity"
+    @_translateConstantParam params, "returnValues"

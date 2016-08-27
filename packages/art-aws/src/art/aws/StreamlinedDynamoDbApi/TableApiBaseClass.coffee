@@ -97,6 +97,25 @@ module.exports = class TableApiBaseClass
   _getNextUniqueExpressionAttributeId: ->
     @_uniqueExpressionAttributeId = (@_uniqueExpressionAttributeId || 0) + 1
 
+  _translateConsistentRead: (params) ->
+    @_target.ConsistentRead = true if params.consistentRead
+
+  _translateConsumedCapacity: (params) ->
+    @_translateConstantParam params, "returnConsumedCapacity"
+
+  _translateSelect: (params) ->
+    {select} = params
+    return @_target unless select
+    switch select
+      when "*" then @_target.Select = "ALL_ATTRIBUTES"
+      when "count(*)" then @_target.Select = "COUNT"
+      else
+        select = select.match /[a-z0-9\[\].]+/gi if isString select
+        @_target.ProjectionExpression = select.join ', '
+        "SPECIFIC_ATTRIBUTES"
+
+    @_target
+
   # OUT: returns the test as a STRING for DynamoDb expressions
   # EFFECT: adds to @_target.ExpressionAttributeNames && @_target.ExpressionAttributeValues
   _translateConditionExpression: (conditionalExpression) ->
@@ -135,6 +154,19 @@ module.exports = class TableApiBaseClass
       @_addExpressionAttributeValue valueAlias, value
       expression
 
+  _translateConditionalExpression: (params) ->
+    {conditionalExpression} = params
+    return @_target unless conditionalExpression
+    @_target.ConditionalExpression = @_translateConditionExpression conditionalExpression
+    @_target
+
+  _translateKey: (params) ->
+    {key} = params
+    throw new Error "key required" unless key
+    out = {}
+    for k, v of key
+      out[k] = @_encodeDynamoData v
+    @_target.Key = out
 
   _translateTableName: (params) ->
     throw new Error "table required" unless params.table
@@ -147,7 +179,7 @@ module.exports = class TableApiBaseClass
     throw new Error "constant '#{constant}' not found/supported" unless ret = apiConstantsMap[constant] || _default
     ret
 
-  _translateConstantParam: (params, paramName) ->
+  _translateConstantParam: (params, paramName, _default) ->
     dynamoDbName = upperCamelCase paramName
-    value = params[paramName]
+    value = params[paramName] || _default
     @_target[dynamoDbName] = @_normalizeConstant value if value
