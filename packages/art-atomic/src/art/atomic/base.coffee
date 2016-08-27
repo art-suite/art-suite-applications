@@ -133,7 +133,7 @@ module.exports = class Base extends BaseObject
   reservedWords = with: true
   @_definePrototypeMethodViaEval: (name, paramsList, body) ->
     # try
-    #   console.log "#{@getName()}##{name}(#{paramsList}) defined:\n#{body}"
+      # console.log "#{@getName()}##{name}(#{paramsList}) defined:\n#{body}"
       nameInEval = if reservedWords[name] then "" else name
       @::[name] = eval body = """
         (
@@ -267,7 +267,7 @@ module.exports = class Base extends BaseObject
       @_definePrototypeMethodViaEval "with#{upperCamelCase field}", field,
         """
         return this.with(
-          #{((if f == field then "this.#{f}" else f) for f in fields).join ",\n  "}
+          #{((if f == field then f else "this.#{f}") for f in fields).join ",\n  "}
         );
         """
 

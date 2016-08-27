@@ -24,6 +24,14 @@ suite "Art.Atomic.Point", ->
     p = point a = [3, 4]
     assert.eq p.toArray(), a
 
+  test "withX", ->
+    p = point 3, 4
+    assert.eq p.withX(5), point 5, 4
+
+  test "withY", ->
+    p = point 3, 4
+    assert.eq p.withY(5), point 3, 5
+
   test "from object", ->
     a = x:10, y:20
     assert.eq point(a), point 10, 20
