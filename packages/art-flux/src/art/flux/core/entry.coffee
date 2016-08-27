@@ -4,6 +4,7 @@ Foundation = require 'art-foundation'
 {
   log, BaseObject, merge, removeFirstMatch, pushIfNotPresent
   Epoch, shallowClone, inspect, Unique, clone
+  isPlainObject
 } = Foundation
 
 module.exports = class Entry extends BaseObject
@@ -43,6 +44,7 @@ module.exports = class Entry extends BaseObject
       warnUnsettableFields newFluxRecord, @_fluxRecord
       newFluxRecord.key = key
       newFluxRecord.modelName = modelName
+      throw new Error "fluxRecord must be an object" unless isPlainObject newFluxRecord
       @_fluxRecord = newFluxRecord
 
   @getter
@@ -50,6 +52,7 @@ module.exports = class Entry extends BaseObject
     hasSubscribers: -> @_subscribers.length > 0
 
   _merge: (src) ->
+    throw new Error "fluxRecord must be an object" unless isPlainObject src
     @_fluxRecord = src._fluxRecord
     @_subscribers = @_subscribers.concat src._subscribers
 
