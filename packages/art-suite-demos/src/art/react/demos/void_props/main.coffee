@@ -39,13 +39,41 @@ module.exports = createComponentFactory class MyComponent extends Component
   render: ->
     Element null,
 
-      RectangleElement color: "black", on: pointerClick: @addClick
+      RectangleElement color: "black"
 
-      TextElement
-        fontFamily: "arial"
-        text: "click anywhere"
+      Element
+        childrenLayout: "column"
+        cacheDraw: true
         padding: 10
-        color: "#555"
+        TextElement
+          margin: 10
+          size: ww:1, hch:1
+          fontFamily: "arial"
+          color: "#777"
+          text: """
+            Elements can be automatically animated when added "from the void" or removed "to the void."
+
+            ❧ Click background to add an element.
+            ❧ Click element to remove it.
+
+            How to declare to/from void animations:
+            """
+
+        TextElement
+          fontFamily: "courier"
+          color: "#557"
+          padding: 10
+          text: """
+            RectangleElement
+              animators:
+                size:
+                  toFromVoid: 0
+                  easingFunction: "easeInElastic"
+                  duration: 1
+
+            """
+
+      Element on: pointerClick: @addClick
 
       for props in @stars
         RectangleElement props,
@@ -56,6 +84,6 @@ module.exports = createComponentFactory class MyComponent extends Component
           radius: 100
           animators:
             size:
-              voidValue: 0
+              toFromVoid: 0
               easingFunction: "easeInElastic"
               duration: 1

@@ -2,9 +2,9 @@
 # file: art/react/demos/index.coffee
 
 module.exports = require './namespace'
+require './Animations'
 require './Chat'
 require './basic'
-require './buttons'
 require './candy_stripe'
 require './clock'
 require './color_picker'
