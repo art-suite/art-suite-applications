@@ -2,5 +2,5 @@
 # file: art/index.coffee
 
 module.exports = require './namespace'
-require './react_specializations'
 require './react'
+require './react_specializations'
