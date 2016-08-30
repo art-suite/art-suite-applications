@@ -1,5 +1,5 @@
 Engine = require 'art-engine'
-React = require "../react"
+React = require "../index"
 {ElementFactory, Element, CanvasElement} = Engine
 module.exports = React
 Aim = require './aim'

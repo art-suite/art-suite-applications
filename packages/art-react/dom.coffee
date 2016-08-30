@@ -1,1 +1,1 @@
-module.exports = require "./src/art/react_specializations/dom"
+module.exports = require "./src/art/react/.Specializations/dom"

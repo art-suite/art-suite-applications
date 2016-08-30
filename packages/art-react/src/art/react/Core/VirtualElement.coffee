@@ -1,5 +1,5 @@
 Foundation = require 'art-foundation'
-VirtualNode = require './virtual_node'
+VirtualNode = require './VirtualNode'
 {
   log, compactFlatten, globalCount, time, stackTime, BaseObject, shallowClone
   inspect, keepIfRubyTrue, stackTime, isPlainObject, compactFlatten

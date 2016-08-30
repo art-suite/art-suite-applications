@@ -1,7 +1,6 @@
 Foundation = require 'art-foundation'
-VirtualNode = require './virtual_node'
-# {Element} = require './aim'
-ReactArtEngineEpoch = require './react_art_engine_epoch'
+VirtualNode = require './VirtualNode'
+ReactArtEngineEpoch = require './ReactArtEngineEpoch'
 {
   log, merge, mergeInto, clone, shallowClone
   inspect, compactFlatten, keepIfRubyTrue, BaseObject, fastBind

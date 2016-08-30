@@ -1,5 +1,5 @@
 require 'art-engine-remote/remote'
-module.exports = React = require "../react"
+module.exports = React = require "../index"
 
 class React.VirtualElementArtEngineRemote extends React.VirtualElement
 

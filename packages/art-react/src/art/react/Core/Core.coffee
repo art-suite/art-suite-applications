@@ -1,5 +1,5 @@
-Component = require './component'
-{reactArtEngineEpoch} = require './react_art_engine_epoch'
+Component = require './Component'
+{reactArtEngineEpoch} = require './ReactArtEngineEpoch'
 {isPlainArray, isString, arrayWith, log} = require 'art-foundation'
 
 module.exports = [

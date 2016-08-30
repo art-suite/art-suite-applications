@@ -1,5 +1,5 @@
 Foundation = require 'art-foundation'
-module.exports = React = require "../react"
+module.exports = React = require "../index"
 {setDomElementProps, setDomElementProp, allDomElementNames} =  Foundation
 
 VirtualElementDom = class React.VirtualElementDom extends React.VirtualElement

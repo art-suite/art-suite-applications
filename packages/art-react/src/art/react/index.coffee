@@ -2,10 +2,5 @@
 # file: art/react/index.coffee
 
 module.exports = require './namespace'
-.includeInNamespace require './_react'
-.addModules
-  Component:           require './component'             
-  HotStyleProps:       require './hot_style_props'       
-  ReactArtEngineEpoch: require './react_art_engine_epoch'
-  VirtualElement:      require './virtual_element'       
-  VirtualNode:         require './virtual_node'          
+.includeInNamespace require './React'
+require './Core'
