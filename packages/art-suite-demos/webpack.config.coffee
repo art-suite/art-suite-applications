@@ -4,6 +4,5 @@ module.exports = (require "art-foundation/configure_webpack")
   package:
     author: "Shane Brinkman-Davis Delamore"
     dependencies:
-      "art-react": "git://github.com/Imikimi-LLC/art-react"
-      "art-flux":  "git://github.com/Imikimi-LLC/art-flux"
+      "art-suite":      "git://github.com/Imikimi-LLC/art-suite"
 
