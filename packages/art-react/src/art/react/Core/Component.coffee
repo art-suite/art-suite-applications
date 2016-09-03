@@ -19,6 +19,7 @@ ReactArtEngineEpoch = require './ReactArtEngineEpoch'
   createObjectTreeFactory
   select
   formattedInspect
+  getModuleBeingDefined
 } = Foundation
 {reactArtEngineEpoch} = ReactArtEngineEpoch
 
@@ -128,39 +129,25 @@ module.exports = class Component extends VirtualNode
     createWithPostCreate componentClass
 
   @getModule: getModule = (spec = @::)->
-    spec.module || spec.hotModule
+    spec.module || spec.hotModule || getModuleBeingDefined()
 
   @getCanHotReload: -> @getModule()?.hot
 
-  @hotReload: ->
-    runHot @getModule(), (@_moduleState)=>
-      if @_moduleState
-        name = @getClassName()
-        if (oldPrototype = @_moduleState.prototypesToUpdate?[name]) && oldPrototype != @prototype
-          log "Component.hotReload - have oldPrototype to update"
-          # add/update new properties
-          for k, v of @prototype when @prototype.hasOwnProperty k
-            oldPrototype[k] = v
+  @_hotReloadUpdate: (@_moduleState) ->
+    name = @getClassName()
+    if hotInstances = @_moduleState.hotInstances
+      log HotReload:
+        Component: @
+        instanceCount: hotInstances.length
+        forEachInstance: "instance.componentDidHotReload()"
 
-          # delete removed properties
-          for k, v of oldPrototype when !@prototype.hasOwnProperty(k) && oldPrototype.hasOwnProperty k
-            delete oldPrototype[k]
-
-          self.hotReload = @
-          console.log "Component.hotReload #{@getClassName()}: updating instance bindings and hotReload them"
-          # update all instances
-          for instance in @_moduleState.hotInstances || []
-            instance._bindFunctions()
-            try instance.componentDidHotReload()
-          console.log "Component.hotReload #{@getClassName()}: updating instance bindings done"
-
-        (@_moduleState.prototypesToUpdate||={})[name] = oldPrototype || @prototype
+      # update all instances
+      for instance in hotInstances
+        instance._componentDidHotReload()
 
   @allComponents: {}
-  @postCreate: ->
-    # log "Component defined: #{@getClassName()}" + if @getCanHotReload() then " (HOT)" else ""
-
-    @hotReload()
+  @postCreate: ({classModuleState, hotReloadEnabled})->
+    @_hotReloadUpdate classModuleState if hotReloadEnabled
     @toComponentFactory()
 
   nonBindingFunctions = "getInitialState
@@ -193,6 +180,9 @@ module.exports = class Component extends VirtualNode
 
         instance
 
+    # class-like methods
+    ret.class = @
+    ret._name = @getName() + "ComponentFactory"
 
     # OUT: new instance
     ret.instantiateAsTopComponent = (spec, options) ->
@@ -721,6 +711,10 @@ module.exports = class Component extends VirtualNode
     return if defaultComponentWillMount == @componentWillMount
     timePerformance "reactLC", =>
       @componentWillMount()
+
+  _componentDidHotReload: ->
+    @._bindFunctions()
+    try @componentDidHotReload()
 
   _componentWillUnmount: ->
     return if  defaultComponentWillUnmount == @componentWillUnmount
