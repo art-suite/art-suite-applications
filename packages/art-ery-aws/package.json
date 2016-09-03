@@ -5,6 +5,7 @@
   "main": "index.coffee",
   "dependencies": {
     "art-foundation": "git://github.com/Imikimi-LLC/art-foundation.git",
+    "art-ery": "git://github.com/Imikimi-LLC/art-ery.git",
     "art-aws": "git://github.com/Imikimi-LLC/art-aws.git",
     "neptune-namespaces": "git://github.com/Imikimi-LLC/neptune-namespaces.git",
     "uuid": "^2.0.2"

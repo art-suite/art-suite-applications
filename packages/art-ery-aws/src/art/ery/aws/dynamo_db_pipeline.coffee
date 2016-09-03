@@ -16,8 +16,7 @@ module.exports = class DynamoDbPipeline extends Pipeline
         @getDynamoDb().listTables().then ({TableNames}) =>
           arrayToTruthMap TableNames
 
-    dynamoDb: ->
-      @_dynamoDb ||= new DynamoDb
+    dynamoDb: -> DynamoDb.singleton
 
   constructor: (options = {}) ->
     super
@@ -26,8 +25,31 @@ module.exports = class DynamoDbPipeline extends Pipeline
     @_vivifyTablePromise = Promise.resolve()
     @_vivifyTable()
 
+  getAutoDefinedQueries: ->
+    {globalIndexes} = @_createTableParams
+    return {} unless globalIndexes
+    queries = {}
+
+    for queryModelName, indexKey of globalIndexes when isString indexKey
+      do (queryModelName, indexKey) =>
+        [hashKey, sortKey] = indexKey.split "/"
+        whereClause = {}
+        queries[queryModelName] =
+          query: (hashKeyValue, pipeline) ->
+            whereClause[hashKey] = hashKeyValue
+            pipeline.queryDynamoDb
+              index: queryModelName
+              where: whereClause
+            .then ({items}) -> items
+          queryKeyFromRecord: (data) ->
+            log queryKeyFromRecord: data: data, hashKey: hashKey, value: data[hashKey]
+            data[hashKey]
+          localSort: (queryData) -> queryData.sort (a, b) -> a[sortKey] - b[sortKey]
+
+    queries
+
   @getter
-    dynamoDb: -> DynamoDbPipeline.getDynamoDb()
+    dynamoDb: -> DynamoDb.singleton
     tablesByNameForVivification: -> DynamoDbPipeline.getTablesByNameForVivification()
 
   ###
@@ -45,7 +67,6 @@ module.exports = class DynamoDbPipeline extends Pipeline
     Initially, though, I expect all tables to have a simple hashKey: 'id'
     Indexes will take care of most our rangeKey needs.
   ###
-  keyFromData: (data) -> data.id
 
   queryDynamoDb: (params) ->
     @_vivifyTablePromise.then =>
