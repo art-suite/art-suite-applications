@@ -1,4 +1,6 @@
 ###
+Local Web Console / Shell: http://localhost:8081/shell/
+
 The AWS DynamoDb API is redundent and uses UpperCamelCase names all over.
 
 Goals:
@@ -77,6 +79,7 @@ Foundation = require 'art-foundation'
   lowerCamelCase
   wordsArray
   log
+  BaseObject
 } = Foundation
 
 {config} = require "./Config"
@@ -86,7 +89,8 @@ StreamlinedDynamoDbApi = require './StreamlinedDynamoDbApi'
 {Query, CreateTable, PutItem, UpdateItem, GetItem, TableApiBaseClass} = StreamlinedDynamoDbApi
 {decodeDynamoItem} = TableApiBaseClass
 
-module.exports = class DynamoDb
+module.exports = class DynamoDb extends BaseObject
+  @singletonClass()
 
   constructor: (options = {}) ->
     @_awsDynamoDb = new AWS.DynamoDB merge config.dynamoDb, options
