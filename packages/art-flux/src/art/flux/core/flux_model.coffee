@@ -22,7 +22,7 @@ module.exports = class FluxModel extends BaseObject
   register: ->
     ModelRegistry.register @
 
-  @postCreate: (hotReloaded, classModuleState, _module) ->
+  @postCreate: ({hotReloaded}) ->
     @register() unless hotReloaded
     super
 

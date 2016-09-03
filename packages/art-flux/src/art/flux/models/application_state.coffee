@@ -44,7 +44,7 @@ Example:
 module.exports = class ApplicationState extends FluxModel
   @classProperty "persistant"
 
-  @postCreate: (hotReloaded, classModuleState, _module) ->
+  @postCreate: ({hotReloaded, classModuleState}) ->
     ret = super
 
     if hotReloaded
