@@ -1,6 +1,6 @@
 {
   "name": "art-flux",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "art-flux",
   "main": "index.coffee",
   "dependencies": {
