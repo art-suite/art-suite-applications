@@ -113,7 +113,7 @@ module.exports = class DynamoDb extends BaseObject
     createTable: (params) ->
 
       @invokeAws "createTable",
-        log "createTable", params, CreateTable.translateParams merge
+        log "createTable", params: params, CreateTable.translateParams merge
           attributes: id: 'string'
           key:        id: 'hash'
 

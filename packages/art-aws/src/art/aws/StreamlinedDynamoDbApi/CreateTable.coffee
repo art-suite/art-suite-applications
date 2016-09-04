@@ -8,6 +8,9 @@ TableApiBaseClass = require './TableApiBaseClass'
 
 module.exports = class CreateTable extends TableApiBaseClass
 
+  constructor: ->
+    super
+    @_requiredAttributes = {}
 
   ###
   IN: params:
@@ -24,21 +27,21 @@ module.exports = class CreateTable extends TableApiBaseClass
 
   ###
   _translateParams: (params) =>
-    @_translateAttributes params, @_getKeySchemaAttributes [
-      @_translateGlobalIndexes params
-      @_translateLocalIndexes params
-      @_translateKey params, @_target
-    ]
+    @_requiredAttributes = {}
+    @_translateGlobalIndexes params
+    @_translateLocalIndexes params
+    @_translateKey params, @_target
+    @_translateAttributes params
     @_translateProvisioning params, @_target
     @_target
 
-  _getKeySchemaAttributes: (createParams) ->
-    out = []
-    deepEachAll createParams, (v, k) ->
-      if k == "KeySchema"
-        for key in v
-          out.push key.AttributeName
-    uniqueValues out.sort()
+  # _getKeySchemaAttributes: (createParams) ->
+  #   out = []
+  #   deepEachAll createParams, (v, k) ->
+  #     if k == "KeySchema"
+  #       for key in v
+  #         out.push key.AttributeName
+  #   uniqueValues out.sort()
 
   ###
   IN:
@@ -48,12 +51,14 @@ module.exports = class CreateTable extends TableApiBaseClass
       myNumberAttrName: 'number'
       myBinaryAttrName: 'binary'
   ###
-  _translateAttributes: (params, keySchemaAttributes) ->
-    defs = params.attributes || params.attributeDefinitions || id: 'string'
+  _translateAttributes: (params, requiredAttributes = @_requiredAttributes) ->
+    defs = params.attributes || id: 'string'
     @_target.AttributeDefinitions = if isPlainObject defs
-      for k, v of defs when !keySchemaAttributes || k in keySchemaAttributes
-        AttributeName:  k
-        AttributeType:  @_normalizeConstant v
+      for attributeName in Object.keys(requiredAttributes).sort()
+        type = defs[attributeName]
+        throw new Error "Required attribute definition for '#{attributeName}'' not present. Please add it to 'attributes'." unless type
+        AttributeName:  attributeName
+        AttributeType:  @_normalizeConstant type
     else defs
 
     @_target
@@ -81,6 +86,9 @@ module.exports = class CreateTable extends TableApiBaseClass
         {AttributeName: hashKeyField, KeyType: 'HASH'}
         {AttributeName: rangeKeyField, KeyType: 'RANGE'} if rangeKeyField
       ]
+
+    for {AttributeName} in target.KeySchema
+      @_requiredAttributes[AttributeName] = true
 
     target
 

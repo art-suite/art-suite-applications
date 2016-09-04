@@ -160,3 +160,13 @@ suite "Art.Ery.Aws.DynamoDb.live", ->
           filter: message: beginsWith: 'H'
       .then (result)->
         assert.eq ["world!", "Hello!"], (item.message for item in result.items)
+
+    test 'createTable regression', ->
+      dynamoDb.createTable
+        table: testTableName
+        attributes:
+          id: "string"
+          createdAt: "number"
+          chatRoom: "string"
+        globalIndexes:
+          chatsByChatRoom: "chatRoom/createdAt"
