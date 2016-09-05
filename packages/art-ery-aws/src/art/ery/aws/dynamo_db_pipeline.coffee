@@ -22,8 +22,7 @@ module.exports = class DynamoDbPipeline extends Pipeline
     super
 
     @_createTableParams = options
-    @_vivifyTablePromise = Promise.resolve()
-    @_vivifyTable()
+    @_vivifyTablePromise = @_vivifyTable()
 
   getAutoDefinedQueries: ->
     {globalIndexes} = @_createTableParams
@@ -132,7 +131,7 @@ module.exports = class DynamoDbPipeline extends Pipeline
 
 
   _createTable: ->
-    log "_createTable #{@tableName} 1"
+
     @dynamoDb.createTable(merge
         table: @tableName
         attributes: @dynamoDbCreationAttributes
@@ -140,4 +139,8 @@ module.exports = class DynamoDbPipeline extends Pipeline
       )
     .then =>
       log "_createTable #{@tableName} done"
+    .catch (e) =>
+      log "_createTable #{@tableName} FAILED", e
+      throw e
+
 
