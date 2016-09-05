@@ -1,39 +1,41 @@
-define [
-  'art-foundation'
-  './flux_db_model_base'
-], (Foundation, FluxDbModelBase) ->
-  {log, BaseObject, decapitalize, pluralize, pureMerge, shallowClone, isString,
-  emailRegexp, urlRegexp, isNumber, nextTick, capitalize, inspect, isFunction, objectWithout} = Foundation
+Foundation = require 'art-foundation'
+FluxDbModelBase = require './flux_db_model_base'
 
-  ###
-  FluxDbQueryModel
+{
+  defineModule
+  log, BaseObject, decapitalize, pluralize, pureMerge, shallowClone, isString,
+  emailRegexp, urlRegexp, isNumber, nextTick, capitalize, inspect, isFunction, objectWithout
+} = Foundation
 
-  Foundation for auto-created query models.
+###
+FluxDbQueryModel
 
-  Currently only supports differentiating query model names based on a single field-name.
+Foundation for auto-created query models.
 
-  To use: inherit and override _storeGet (required)
+Currently only supports differentiating query model names based on a single field-name.
 
-  options:
-    keyFromData: (singleRecordData) -> key # override the default keyFromData method
-      should return the key used by this model to fetch the list, aggregate or derrivative "data"
-      that contains the singleRecordData
+To use: inherit and override _storeGet (required)
 
-    modelName: "string"
-      Normally the model name is generated from the singlesModel name and the parameterized field.
-      This allows you to set an arbitrary alternative model name.
-      Capitalization of the first letter is automatically handled correctly no matter what you pass in.
+options:
+  keyFromData: (singleRecordData) -> key # override the default keyFromData method
+    should return the key used by this model to fetch the list, aggregate or derrivative "data"
+    that contains the singleRecordData
 
-  ###
-  class FluxDbQueryModel extends FluxDbModelBase
-    constructor: (singlesModel, parameterizedField, options)->
-      super if options?.modelName
-        decapitalize options?.modelName
-      else
-        pluralize(singlesModel.name) + "By" + capitalize parameterizedField
+  modelName: "string"
+    Normally the model name is generated from the singlesModel name and the parameterized field.
+    This allows you to set an arbitrary alternative model name.
+    Capitalization of the first letter is automatically handled correctly no matter what you pass in.
 
-      @_singlesModel = singlesModel
-      @_parameterizedField = parameterizedField
-      @keyFromData = options.keyFromData || options.toFluxKey || eval "(function(data) {return data['#{parameterizedField}'];})"
-      @_options = options # used by derivative children
-      @toFluxKey = options.toFluxKey if options.toFluxKey
+###
+module.exports = class FluxDbQueryModel extends FluxDbModelBase
+  constructor: (singlesModel, parameterizedField, options)->
+    super if options?.modelName
+      decapitalize options?.modelName
+    else
+      pluralize(singlesModel.name) + "By" + capitalize parameterizedField
+
+    @_singlesModel = singlesModel
+    @_parameterizedField = parameterizedField
+    @keyFromData = options.keyFromData || options.toFluxKey || eval "(function(data) {return data['#{parameterizedField}'];})"
+    @_options = options # used by derivative children
+    @toFluxKey = options.toFluxKey if options.toFluxKey
