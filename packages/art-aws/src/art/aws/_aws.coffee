@@ -1,9 +1,11 @@
 unless self.AWS
   throw new Error """
-    please include AWS:
+    Art.Aws: global.AWS required
 
-    clientSide: require 'art-aws/AwsMinAppClientSideSdk'
-    serverSide: require 'aws-sdk'
+    Please use one of the following:
+
+      > require 'art-aws/Client'
+      > require 'art-aws/Server'
     """
 module.exports = [
   require './Config'
