@@ -4,7 +4,7 @@ Foundation = require 'art-foundation'
 ArtEry = require 'art-ery'
 ArtAws = require 'art-aws'
 
-{log, merge, Validator, isString, arrayToTruthMap} = Foundation
+{log, merge, Validator, isString, arrayToTruthMap, isFunction} = Foundation
 {Pipeline} = ArtEry
 {DynamoDb} = ArtAws
 {encodeDynamoData, decodeDynamoData} = DynamoDb
@@ -17,6 +17,11 @@ module.exports = class DynamoDbPipeline extends Pipeline
           arrayToTruthMap TableNames
 
     dynamoDb: -> DynamoDb.singleton
+
+  @createTablesForAllRegisteredPipelines: ->
+    promises = for name, pipeline of ArtEry.pipelines when isFunction pipeline.createTable
+      pipeline.createTable()
+    Promise.all promises
 
   @globalIndexes: (globalIndexes) -> @_globalIndexes = globalIndexes
 
