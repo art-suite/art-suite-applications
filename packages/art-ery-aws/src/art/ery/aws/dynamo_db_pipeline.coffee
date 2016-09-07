@@ -18,14 +18,13 @@ module.exports = class DynamoDbPipeline extends Pipeline
 
     dynamoDb: -> DynamoDb.singleton
 
-  constructor: (options = {}) ->
-    super
+  @globalIndexes: (globalIndexes) -> @_globalIndexes = globalIndexes
 
-    @_createTableParams = options
-    @_vivifyTablePromise = @_vivifyTable()
+  @getter
+    globalIndexes: -> @_options.globalIndexes || @class._globalIndexes
 
   getAutoDefinedQueries: ->
-    {globalIndexes} = @_createTableParams
+    {globalIndexes} = @
     return {} unless globalIndexes
     queries = {}
 
@@ -68,40 +67,39 @@ module.exports = class DynamoDbPipeline extends Pipeline
   ###
 
   queryDynamoDb: (params) ->
-    @_vivifyTablePromise.then =>
-      @dynamoDb.query merge params, table: @tableName
+    @dynamoDb.query merge params, table: @tableName
 
   @handlers
     get: ({key}) ->
-      @_vivifyTablePromise.then =>
-        @dynamoDb.getItem
-          table: @tableName
-          key: id: key
+      @dynamoDb.getItem
+        table: @tableName
+        key: id: key
       .then ({item}) ->
         item
 
+    createTable: ->
+      @_vivifyTable()
+      .then => message: "success"
+
     create: ({data}) ->
-      @_vivifyTablePromise.then =>
-        @dynamoDb.putItem
-          table: @tableName
-          item: data
+      @dynamoDb.putItem
+        table: @tableName
+        item: data
       .then ->
         data
 
     update: ({key, data}) ->
-      @_vivifyTablePromise.then =>
-        @dynamoDb.updateItem
-          table: @tableName
-          key: id: key
-          item: data
+      @dynamoDb.updateItem
+        table: @tableName
+        key: id: key
+        item: data
       .then ({item}) ->
         item
 
     delete: ({key}) ->
-      @_vivifyTablePromise.then =>
-        @dynamoDb.deleteItem
-          TableName: @tableName
-          Key: id: S: key
+      @dynamoDb.deleteItem
+        TableName: @tableName
+        Key: id: S: key
       .then => message: "success"
 
   #########################
@@ -109,38 +107,43 @@ module.exports = class DynamoDbPipeline extends Pipeline
   #########################
 
   _vivifyTable: ->
-    @tablesByNameForVivification
-    .then (tablesByName) =>
-      if tablesByName[@tableName]
-        log "#{@getClassName()}#_vivifyTable() dynamoDb table exists: #{@tableName}"
-      else
-        log "#{@getClassName()}#_vivifyTable() dynamoDb table does not exist: #{@tableName}"
-        @_createTable()
+    @_vivifyTablePromise ||= Promise.resolve().then =>
+      log "DynamoDbPipeline#_vivifyTable: #{@tableName}"
+      @tablesByNameForVivification
+      .then (tablesByName) =>
+        if tablesByName[@tableName]
+          log "#{@getClassName()}#_vivifyTable() dynamoDb table exists: #{@tableName}"
+        else
+          log "#{@getClassName()}#_vivifyTable() dynamoDb table does not exist: #{@tableName}"
+          @_createTable()
 
 
   @getter
     dynamoDbCreationAttributes: ->
       out = {}
-      for k, v of @fields
-        if isString v
-          unless v = Validator.fieldTypes[v]
-            throw new Error "invalid field type: #{v}"
-        if v.type == "string" || v.type == "number"
-          out[k] = v.type
+      for k, v of @normalizedFields
+        if v.dataType == "string" || v.dataType == "number"
+          out[k] = v.dataType
       out
-
+    createTableParams: ->
+      ArtAws.StreamlinedDynamoDbApi.CreateTable.translateParams merge
+        table: @tableName
+        globalIndexes: @globalIndexes
+        attributes: @dynamoDbCreationAttributes
+        @_options
 
   _createTable: ->
 
     @dynamoDb.createTable(merge
         table: @tableName
+        globalIndexes: @globalIndexes
         attributes: @dynamoDbCreationAttributes
-        @_createTableParams
+        @_options
       )
-    .then =>
-      log "_createTable #{@tableName} done"
+    .then (data) =>
+      log "DynamoDbPipeline#_createTable #{@tableName} success!"
     .catch (e) =>
-      log "_createTable #{@tableName} FAILED", e
+      log "DynamoDbPipeline#_createTable #{@tableName} FAILED", e
       throw e
 
 
