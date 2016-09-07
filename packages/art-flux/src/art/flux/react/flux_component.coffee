@@ -31,6 +31,7 @@ module.exports = class FluxComponent extends FluxComponentBase
   constructor: ->
     super
     @_autoMaintainedSubscriptions = {}
+    @class._prepareSubscriptions()
 
   ###
   @subscriptions takes an object as input with each entry describing one subscription.
@@ -238,10 +239,12 @@ module.exports = class FluxComponent extends FluxComponentBase
 
   @postCreate: ->
     @subscriptions @::subscriptions if @::subscriptions
-    @_prepareSubscriptions()
+    @_subscriptionsPrepared = false
     super
 
   @_prepareSubscriptions: ->
+    return if @_subscriptionsPrepared
+    @_subscriptionsPrepared = true
     for stateField, subscription of @_getSubscriptionProperties()
       @_prepareSubscription subscription
 
