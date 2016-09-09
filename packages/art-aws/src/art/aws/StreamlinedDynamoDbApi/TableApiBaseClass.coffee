@@ -43,7 +43,7 @@ module.exports = class TableApiBaseClass
       string
     else if (number = data.N)?
       parseFloat number
-    else if bool = data.BOOL
+    else if (bool = data.BOOL)?
       !!bool
     else if data.NULL
       null
