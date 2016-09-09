@@ -12,7 +12,7 @@ module.exports = class Entry extends BaseObject
     newValue = newFluxRecord[field]
     oldValue = oldFluxRecord?[field]
     if newFluxRecord.hasOwnProperty(field) && newValue != oldValue
-      console.warn "#{Entry.getClassPathName()}: Do not put/post the '#{field}' field (new value == #{inspect newValue}, old value == #{inspect oldValue}). Ignored."
+      console.warn "#{Entry.namespacePath}: Do not put/post the '#{field}' field (new value == #{inspect newValue}, old value == #{inspect oldValue}). Ignored."
 
   @warnUnsettableFields: warnUnsettableFields = (newFluxRecord, oldFluxRecord) ->
     warnCantSetField newFluxRecord, oldFluxRecord, "key"

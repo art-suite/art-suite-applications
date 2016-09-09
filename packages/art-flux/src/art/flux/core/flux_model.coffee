@@ -1,5 +1,5 @@
 Foundation = require "art-foundation"
-{missing, success, pending, validStatus} = Foundation.CommunicationStatus
+{missing, success, pending, failure, validStatus} = Foundation.CommunicationStatus
 {fluxStore} = require "./flux_store"
 ModelRegistry = require './model_registry'
 

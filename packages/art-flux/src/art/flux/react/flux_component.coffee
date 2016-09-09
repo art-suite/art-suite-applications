@@ -163,14 +163,12 @@ module.exports = class FluxComponent extends FluxComponentBase
     updated and new data is requested where needed.
   ###
   @subscriptions: ->
-    subscriptionProperties = @_getSubscriptionProperties()
-
     for arg in compactFlatten arguments
       if isPlainObject subscriptionMap = arg
 
         for stateField, value of subscriptionMap
           do (stateField, value) =>
-            subscriptionProperties[stateField] =
+            @extendSubscriptionProperties stateField,
               stateField: stateField
               params: value
 
@@ -181,7 +179,7 @@ module.exports = class FluxComponent extends FluxComponentBase
             if matches = subscriptionName.match /([a-zA-Z0-9]+)\.([a-zA-Z0-9]+)/
               [_, modelName, field] = matches
 
-              subscriptionProperties[field] =
+              @extendSubscriptionProperties field,
                 stateField: field
                 params:
                   model: modelName
@@ -190,7 +188,7 @@ module.exports = class FluxComponent extends FluxComponentBase
             else
               subscriptionNameId = subscriptionName + "Id"
 
-              subscriptionProperties[subscriptionName] =
+              @extendSubscriptionProperties subscriptionName,
                 stateField: subscriptionName
                 params:
                   model: subscriptionName
@@ -210,7 +208,7 @@ module.exports = class FluxComponent extends FluxComponentBase
   # PRIVATE
   ##########################
 
-  @_getSubscriptionProperties: -> @getPrototypePropertyExtendedByInheritance "subscriptionProperties", {}
+  @extendableProperty subscriptionProperties: {}
 
   @_prepareSubscription: (subscription) ->
     {stateField, params} = subscription
@@ -245,7 +243,7 @@ module.exports = class FluxComponent extends FluxComponentBase
   @_prepareSubscriptions: ->
     return if @_subscriptionsPrepared
     @_subscriptionsPrepared = true
-    for stateField, subscription of @_getSubscriptionProperties()
+    for stateField, subscription of @getSubscriptionProperties()
       @_prepareSubscription subscription
 
   _toFluxKey: (stateField, key, model, props) ->
@@ -281,7 +279,7 @@ module.exports = class FluxComponent extends FluxComponentBase
 
   _updateAllSubscriptions: (props = @props) ->
 
-    for stateField, subscriptionProps of @class._getSubscriptionProperties()
+    for stateField, subscriptionProps of @class.getSubscriptionProperties()
       {keyFunction, model} = subscriptionProps
       if isFunction model
         model = model props

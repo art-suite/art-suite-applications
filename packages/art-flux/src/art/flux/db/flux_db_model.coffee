@@ -88,7 +88,7 @@ module.exports = class FluxDbModel extends FluxDbModelBase
   @fields: (fieldDeclarationMap)->
     @register()
     for field, subOptions of fieldDeclarationMap
-      throw new Error "#{@.getClassPathName()}: @fields declarations using 'type' no longer supported" if subOptions.type
+      throw new Error "#{@.namespacePath}: @fields declarations using 'type' no longer supported" if subOptions.type
       if linkTo = subOptions.linkTo
         if field.match(/.*Id$/)
           console.warn "FluxDbModel #{@name}: linkTo field '#{field}' should not end in 'Id'"
@@ -206,10 +206,10 @@ module.exports = class FluxDbModel extends FluxDbModelBase
   # PRIVATE
   ###################################
 
-  @_addField: (field, options) ->
-    @_getFieldProperties()[field] = options
+  @extendableProperty fieldProperties: {}
 
-  @_getFieldProperties: -> @getPrototypePropertyExtendedByInheritance "fieldProperties", {}
+  @_addField: (field, options) ->
+    @extendFieldProperties field, options
 
   _missingFields: (fields) ->
     for fieldName, {required} of @fieldProperties when required && !(fields[fieldName]? || fields[required]?)
