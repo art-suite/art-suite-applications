@@ -23,13 +23,14 @@ module.exports = class DynamoDbPipeline extends Pipeline
       pipeline.createTable()
     Promise.all promises
 
-  @globalIndexes: (globalIndexes) -> @_globalIndexes = globalIndexes
+  @globalIndexes: (globalIndexes) ->
+    @_globalIndexes = globalIndexes
+    @query @_getAutoDefinedQueries globalIndexes
 
   @getter
     globalIndexes: -> @_options.globalIndexes || @class._globalIndexes
 
-  getAutoDefinedQueries: ->
-    {globalIndexes} = @
+  @_getAutoDefinedQueries: (globalIndexes) ->
     return {} unless globalIndexes
     queries = {}
 
@@ -38,14 +39,15 @@ module.exports = class DynamoDbPipeline extends Pipeline
         [hashKey, sortKey] = indexKey.split "/"
         whereClause = {}
         queries[queryModelName] =
-          query: (hashKeyValue, pipeline) ->
-            whereClause[hashKey] = hashKeyValue
-            pipeline.queryDynamoDb
+          query: (request) ->
+            whereClause[hashKey] = request.key
+            request.pipeline.queryDynamoDb
               index: queryModelName
               where: whereClause
             .then ({items}) -> items
+
           queryKeyFromRecord: (data) ->
-            log queryKeyFromRecord: data: data, hashKey: hashKey, value: data[hashKey]
+            # log queryKeyFromRecord: data: data, hashKey: hashKey, value: data[hashKey]
             data[hashKey]
           localSort: (queryData) -> queryData.sort (a, b) -> a[sortKey] - b[sortKey]
 
@@ -74,13 +76,16 @@ module.exports = class DynamoDbPipeline extends Pipeline
   queryDynamoDb: (params) ->
     @dynamoDb.query merge params, table: @tableName
 
+  scanDynamoDb: (params) ->
+    @dynamoDb.scan merge params, table: @tableName
+
   @handlers
     get: ({key}) ->
       @dynamoDb.getItem
         table: @tableName
         key: id: key
-      .then ({item}) ->
-        item
+      .then (result) ->
+        result.item
 
     createTable: ->
       @_vivifyTable()
@@ -113,13 +118,10 @@ module.exports = class DynamoDbPipeline extends Pipeline
 
   _vivifyTable: ->
     @_vivifyTablePromise ||= Promise.resolve().then =>
-      log "DynamoDbPipeline#_vivifyTable: #{@tableName}"
       @tablesByNameForVivification
       .then (tablesByName) =>
-        if tablesByName[@tableName]
-          log "#{@getClassName()}#_vivifyTable() dynamoDb table exists: #{@tableName}"
-        else
-          log "#{@getClassName()}#_vivifyTable() dynamoDb table does not exist: #{@tableName}"
+        unless tablesByName[@tableName]
+          log "#{@getClassName()}#_vivifyTable() dynamoDb table does not exist: #{@tableName}, creating..."
           @_createTable()
 
 
@@ -145,8 +147,6 @@ module.exports = class DynamoDbPipeline extends Pipeline
         attributes: @dynamoDbCreationAttributes
         @_options
       )
-    .then (data) =>
-      log "DynamoDbPipeline#_createTable #{@tableName} success!"
     .catch (e) =>
       log "DynamoDbPipeline#_createTable #{@tableName} FAILED", e
       throw e
