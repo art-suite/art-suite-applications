@@ -133,7 +133,7 @@ module.exports = class DynamoDb extends BaseObject
     query: (params) ->
 
       @invokeAws "query",
-        log "query", params, Query.translateParams params
+        Query.translateParams params
       .then (res) ->
         {Items, Count, ScannedCount, LastEvaluatedKey, ConsumedCapacity} = res
         merge res,
@@ -151,7 +151,7 @@ module.exports = class DynamoDb extends BaseObject
       @invokeAws "getItem",
         GetItem.translateParams params
       .then (res) ->
-        merge res, item: decodeDynamoItem res.Item
+        item: decodeDynamoItem res.Item
 
     updateItem: (params) ->
       @invokeAws "updateItem",
@@ -162,6 +162,15 @@ module.exports = class DynamoDb extends BaseObject
     describeTable: (params) -> @invokeAws "describeTable", TableApiBaseClass.translateParams params
     deleteTable:   (params) -> @invokeAws "deleteTable",   TableApiBaseClass.translateParams params
     waitFor:       (params) -> @invokeAws "waitFor",       TableApiBaseClass.translateParams params
+
+    scan: (params) ->
+      @invokeAws "scan",
+        log "scanParams", TableApiBaseClass.translateParams params
+      .then (res) ->
+        {Items, Count, ScannedCount} = res
+        items: (decodeDynamoItem item for item in Items)
+        count: Count
+        scannedCount: ScannedCount
 
     ###
     Non-table-operations
@@ -177,5 +186,4 @@ module.exports = class DynamoDb extends BaseObject
     batchGetItem:     null
     batchWriteItem:   null
 
-    scan:             null
     updateTable:      null
