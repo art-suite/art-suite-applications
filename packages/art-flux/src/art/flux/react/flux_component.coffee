@@ -175,7 +175,7 @@ module.exports = class FluxComponent extends FluxComponentBase
       else if isString subscriptionNames = arg
         for subscriptionName in subscriptionNames.match /[_a-zA-Z][._a-zA-Z0-9]*/g
           # log subscriptionName:subscriptionName
-          do (subscriptionName) ->
+          do (subscriptionName) =>
             if matches = subscriptionName.match /([a-zA-Z0-9]+)\.([a-zA-Z0-9]+)/
               [_, modelName, field] = matches
 
