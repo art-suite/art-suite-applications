@@ -2,11 +2,11 @@ Foundation = require 'art-foundation'
 Flux = require 'art-flux'
 Atomic = require 'art-atomic'
 
-{log, createHotWithPostCreate, shallowClone, timeout, bound} = Foundation
+{log, createWithPostCreate, shallowClone, timeout, bound} = Foundation
 {ApplicationState} = Flux
 {rgbColor} = Atomic
 
-createHotWithPostCreate module, class CurrentColor extends ApplicationState
+createWithPostCreate module, class CurrentColor extends ApplicationState
 
   # we maintain both the color and the individual channels
   # so we don't lose information in degenerate cases (like saturation or lightness == 0 or 1)
