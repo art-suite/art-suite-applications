@@ -10,9 +10,11 @@ ModelRegistry = require './model_registry'
   time
   globalCount
   compactFlatten
+  InstanceFunctionBindingMixin
 } = Foundation
 
 module.exports = class FluxModel extends BaseObject
+  @include InstanceFunctionBindingMixin
   # must call register to make model accessable to RestComponents
   # NOTE: @fields calls register for you, so if you use @fields, you don't need to call @register
   @register: ->
@@ -23,7 +25,10 @@ module.exports = class FluxModel extends BaseObject
     ModelRegistry.register @
 
   @postCreate: ({hotReloaded}) ->
-    @register() unless hotReloaded
+    if hotReloaded
+      @singleton.bindFunctionsToInstance()
+    else
+      @register()
     super
 
   ###
@@ -54,6 +59,7 @@ module.exports = class FluxModel extends BaseObject
   constructor: (name)->
     super
     @_name = name || decapitalize @class.getName()
+    @bindFunctionsToInstance()
 
   @classGetter
     models: -> ModelRegistry.models
