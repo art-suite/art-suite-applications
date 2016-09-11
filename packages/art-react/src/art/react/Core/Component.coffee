@@ -238,8 +238,8 @@ module.exports = class Component extends VirtualNode
     inspectedName: -> "#{@className}#{if @key then "-"+@key  else ''}"
     mounted: -> @_mounted
 
-  onNextReady: (callback) ->
-    reactArtEngineEpoch.onNextReady callback
+  onNextReady: (callback, forceEpoch = true) ->
+    onNextStateEpochReady callback, forceEpoch, @
 
   ################################################
   # Component API (based loosly on Facebook.React)
@@ -471,12 +471,6 @@ module.exports = class Component extends VirtualNode
 
   getPendingState: -> @_pendingState || @state
 
-  onNextReady: (f) ->
-    if stateEpoch
-      stateEpoch?.onNextReady f
-    else
-      super
-
   ######################
   # PRIVATE
   ######################
@@ -690,7 +684,7 @@ module.exports = class Component extends VirtualNode
       @componentWillMount()
 
   _componentDidHotReload: ->
-    @.bindFunctionsToInstance()
+    @bindFunctionsToInstance()
     try @componentDidHotReload()
 
   _componentWillUnmount: ->
