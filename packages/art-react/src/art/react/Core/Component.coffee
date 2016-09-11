@@ -20,6 +20,7 @@ ReactArtEngineEpoch = require './ReactArtEngineEpoch'
   select
   formattedInspect
   getModuleBeingDefined
+  InstanceFunctionBindingMixin
 } = Foundation
 {reactArtEngineEpoch} = ReactArtEngineEpoch
 
@@ -92,6 +93,18 @@ when state changes after the component was unmounted. How should I TEST this???
 
 ###
 module.exports = class Component extends VirtualNode
+
+  @nonBindingFunctions: "getInitialState
+    componentWillReceiveProps
+    componentWillMount
+    componentWillUnmount
+    componentWillUpdate
+    componentDidMount
+    componentDidUpdate
+    render".split /\s+/
+
+  @include InstanceFunctionBindingMixin
+
   @created: 0
   @topComponentInstances: []
   @rerenderAll: ->
@@ -149,25 +162,6 @@ module.exports = class Component extends VirtualNode
   @postCreate: ({classModuleState, hotReloadEnabled})->
     @_hotReloadUpdate classModuleState if hotReloadEnabled
     @toComponentFactory()
-
-  nonBindingFunctions = "getInitialState
-    componentWillReceiveProps
-    componentWillMount
-    componentWillUnmount
-    componentWillUpdate
-    componentDidMount
-    componentDidUpdate
-    render".split /\s+/
-
-  @getBindList: ->
-      if @hasOwnProperty "_bindList"
-        @_bindList
-      else
-        @_bindList = @detectBindList()
-
-  @detectBindList = ->
-    prototype = @::
-    k for k, v of prototype when k != "constructor" && isFunction(v) && prototype.hasOwnProperty(k) && k not in nonBindingFunctions
 
   @toComponentFactory: ->
 
@@ -528,7 +522,7 @@ module.exports = class Component extends VirtualNode
   _instantiate: (parentComponent, bindToOrCreateNewParentElementProps) ->
     super
     globalCount "ReactComponent_Instantiated"
-    @_bindFunctions()
+    @bindFunctionsToInstance()
 
     @props = @_preprocessProps @props
 
@@ -663,23 +657,6 @@ module.exports = class Component extends VirtualNode
 
     @_componentDidUpdate oldProps, oldState
 
-  _bindFunctions: ->
-    oldBindList = @_bindList
-    newBindList = @class.getBindList()
-
-    # console.error "no bindlist for class", @class unless newBindList
-    # log "@class.newBindList", newBindList, oldBindList
-
-    if oldBindList
-      delete @[k] for k in oldBindList when k not in newBindList
-
-    for k in newBindList
-      @[k] = fastBind @class.prototype[k], @
-
-    # log bound: (k for k in Object.keys @ when isFunction @[k])
-    @_bindList = newBindList
-
-
   ########################
   # PRIVATE
   # LifeCycle Management
@@ -713,7 +690,7 @@ module.exports = class Component extends VirtualNode
       @componentWillMount()
 
   _componentDidHotReload: ->
-    @._bindFunctions()
+    @.bindFunctionsToInstance()
     try @componentDidHotReload()
 
   _componentWillUnmount: ->
