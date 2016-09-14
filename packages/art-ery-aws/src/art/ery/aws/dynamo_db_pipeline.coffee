@@ -4,7 +4,7 @@ Foundation = require 'art-foundation'
 ArtEry = require 'art-ery'
 ArtAws = require 'art-aws'
 
-{log, merge, Validator, isString, arrayToTruthMap, isFunction} = Foundation
+{isPlainObject, inspect, log, merge, Validator, isString, arrayToTruthMap, isFunction} = Foundation
 {Pipeline} = ArtEry
 {DynamoDb} = ArtAws
 {encodeDynamoData, decodeDynamoData} = DynamoDb
@@ -81,6 +81,7 @@ module.exports = class DynamoDbPipeline extends Pipeline
 
   @handlers
     get: ({key}) ->
+      throw new Error "DynamoDbPipeline#get: key must be a string. key = #{inspect key}" unless isString key
       @dynamoDb.getItem
         table: @tableName
         key: id: key
@@ -92,6 +93,7 @@ module.exports = class DynamoDbPipeline extends Pipeline
       .then => message: "success"
 
     create: ({data}) ->
+      throw new Error "DynamoDbPipeline#create: data must be an object. data = #{inspect data}" unless isPlainObject data
       @dynamoDb.putItem
         table: @tableName
         item: data
@@ -99,6 +101,8 @@ module.exports = class DynamoDbPipeline extends Pipeline
         data
 
     update: ({key, data}) ->
+      throw new Error "DynamoDbPipeline#update: key must be a string. key = #{inspect key}" unless isString key
+      throw new Error "DynamoDbPipeline#update: data must be an object. data = #{inspect data}" unless isPlainObject data
       @dynamoDb.updateItem
         table: @tableName
         key: id: key
@@ -107,6 +111,7 @@ module.exports = class DynamoDbPipeline extends Pipeline
         item
 
     delete: ({key}) ->
+      throw new Error "DynamoDbPipeline#delete: key must be a string. key = #{inspect key}" unless isString key
       @dynamoDb.deleteItem
         TableName: @tableName
         Key: id: S: key
@@ -132,6 +137,7 @@ module.exports = class DynamoDbPipeline extends Pipeline
         if v.dataType == "string" || v.dataType == "number"
           out[k] = v.dataType
       out
+
     createTableParams: ->
       ArtAws.StreamlinedDynamoDbApi.CreateTable.translateParams merge
         table: @tableName
