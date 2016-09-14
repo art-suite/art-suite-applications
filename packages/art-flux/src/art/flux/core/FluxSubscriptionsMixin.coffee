@@ -17,7 +17,9 @@ defineModule module, -> (superClass) ->
       "#{model.name}/#{stateField}/#{fluxKey}"
 
     subscribe: (model, fluxKey, stateField, initialFluxRecord) ->
-      model = @models[model] if isString model
+      if isString modelName = model
+        model = @models[modelName]
+        throw new Error "No model registered with the name: #{modelName}. Models:\n  #{Object.keys(@models).join "\n  "}" unless model
 
       ckey = combinedKey model, fluxKey, stateField
       @setStateFromFluxRecord stateField, if @_subscriptions[ckey]
