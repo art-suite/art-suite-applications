@@ -92,7 +92,7 @@ fixed a bug where @state got altered without going through preprocessState first
 when state changes after the component was unmounted. How should I TEST this???
 
 ###
-module.exports = class Component extends VirtualNode
+module.exports = class Component extends InstanceFunctionBindingMixin VirtualNode
 
   @nonBindingFunctions: "getInitialState
     componentWillReceiveProps
@@ -102,8 +102,6 @@ module.exports = class Component extends VirtualNode
     componentDidMount
     componentDidUpdate
     render".split /\s+/
-
-  @include InstanceFunctionBindingMixin
 
   @created: 0
   @topComponentInstances: []
