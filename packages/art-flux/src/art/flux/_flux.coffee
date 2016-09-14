@@ -1,12 +1,13 @@
 FluxCore = require "./core"
 {FluxComponent} = require "./react"
 
-{FluxStore, ModelRegistry, FluxModel, FluxStatus} = FluxCore
+{FluxStore, ModelRegistry, FluxModel, FluxStatus, FluxSubscriptionsMixin} = FluxCore
 {fluxStore} = FluxStore
 
 module.exports = [
   FluxStatus
 
+  FluxSubscriptionsMixin:     FluxSubscriptionsMixin
   FluxStore:                  FluxStore
   FluxModel:                  FluxModel
   ModelRegistry:              ModelRegistry

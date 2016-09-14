@@ -3,8 +3,9 @@
 
 module.exports = require './namespace'
 .addModules
-  Entry:         require './entry'         
-  FluxModel:     require './flux_model'    
-  FluxStatus:    require './flux_status'   
-  FluxStore:     require './flux_store'    
-  ModelRegistry: require './model_registry'
+  Entry:                  require './entry'                 
+  FluxModel:              require './flux_model'            
+  FluxStatus:             require './flux_status'           
+  FluxStore:              require './flux_store'            
+  FluxSubscriptionsMixin: require './FluxSubscriptionsMixin'
+  ModelRegistry:          require './model_registry'        
