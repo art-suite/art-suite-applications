@@ -1,4 +1,4 @@
-{defineModule, log, BaseObject, nextTick, mergeInfo, capitalize, globalCount, time} = require 'art-foundation'
+{isString, defineModule, log, BaseObject, nextTick, mergeInfo, capitalize, globalCount, time} = require 'art-foundation'
 {fluxStore} = require '../core/flux_store'
 ModelRegistry = require '../core/model_registry'
 
@@ -11,10 +11,13 @@ defineModule module, -> (superClass) ->
     @getter
       models: -> ModelRegistry.models
 
+    getSubscriptions: -> @_subscriptions
+
     @_combinedKey: combinedKey = (model, fluxKey, stateField) ->
-      "#{model.mame}/#{stateField}/#{fluxKey}"
+      "#{model.name}/#{stateField}/#{fluxKey}"
 
     subscribe: (model, fluxKey, stateField, initialFluxRecord) ->
+      model = @models[model] if isString model
 
       ckey = combinedKey model, fluxKey, stateField
       @setStateFromFluxRecord stateField, if @_subscriptions[ckey]
