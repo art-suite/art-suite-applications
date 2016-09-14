@@ -138,7 +138,7 @@ module.exports = class TableApiBaseClass
 
   _translateConditionExpressionField: (attributeAlias, test, uniqueId) ->
     valueAlias = ":val#{uniqueId}"
-    if (gte = test.gte) and (lte = test.lte)
+    if test and (gte = test.gte) and (lte = test.lte)
       @_addExpressionAttributeValue (gteAlias = valueAlias + "Gte"), gte
       @_addExpressionAttributeValue (lteAlias = valueAlias + "Lte"), lte
       "#{attributeAlias} BETWEEN #{gteAlias} AND #{lteAlias}"
