@@ -4,7 +4,8 @@ define [
   'art-react'
   'art-engine'
 ], (Foundation, Flux, ReactArtEngine, Engine) ->
-  {log} = Foundation
+  {log, CommunicationStatus} = Foundation
+  {missing} = CommunicationStatus
 
   {FluxStore, FluxModel, ModelRegistry} = Flux.Core
   {FluxComponentBase} = Flux.React

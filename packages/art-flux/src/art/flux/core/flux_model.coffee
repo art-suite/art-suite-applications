@@ -13,8 +13,7 @@ ModelRegistry = require './model_registry'
   InstanceFunctionBindingMixin
 } = Foundation
 
-module.exports = class FluxModel extends BaseObject
-  @include InstanceFunctionBindingMixin
+module.exports = class FluxModel extends InstanceFunctionBindingMixin BaseObject
   # must call register to make model accessable to RestComponents
   # NOTE: @fields calls register for you, so if you use @fields, you don't need to call @register
   @register: ->
