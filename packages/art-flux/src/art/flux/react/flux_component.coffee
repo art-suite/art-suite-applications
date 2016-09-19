@@ -256,6 +256,9 @@ module.exports = class FluxComponent extends FluxComponentBase
   _updateSubscription: (stateField, key, model, props) ->
     fluxKey = @_toFluxKey stateField, key, model, props
 
+    unless @state[stateField]
+      @state[stateField] = initialData = props[stateField]
+
     unless rubyTrue existingSubscriptionFluxKey = @_autoMaintainedSubscriptions[stateField]
       existingSubscriptionFluxKey = null
 
@@ -267,7 +270,7 @@ module.exports = class FluxComponent extends FluxComponentBase
 
       if rubyTrue fluxKey
         @setState stateField + "Reload", -> model.load fluxKey
-        @subscribe model, fluxKey, stateField, if initialData = props[stateField]
+        @subscribe model, fluxKey, stateField, if initialData
           status: success
           data: initialData
 
