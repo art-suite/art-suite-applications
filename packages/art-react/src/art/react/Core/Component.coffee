@@ -2,6 +2,7 @@ Foundation = require 'art-foundation'
 VirtualNode = require './VirtualNode'
 ReactArtEngineEpoch = require './ReactArtEngineEpoch'
 {
+  defineModule
   log, merge, mergeInto, clone, shallowClone
   inspect, compactFlatten, keepIfRubyTrue, BaseObject, fastBind
   slice
@@ -92,7 +93,7 @@ fixed a bug where @state got altered without going through preprocessState first
 when state changes after the component was unmounted. How should I TEST this???
 
 ###
-module.exports = class Component extends InstanceFunctionBindingMixin VirtualNode
+defineModule module, -> class Component extends InstanceFunctionBindingMixin VirtualNode
 
   @nonBindingFunctions: "getInitialState
     componentWillReceiveProps
@@ -157,9 +158,28 @@ module.exports = class Component extends InstanceFunctionBindingMixin VirtualNod
         instance._componentDidHotReload()
 
   @allComponents: {}
+
+  ###
+  firstAbstractAncestor's purpose is to separate the inheritance tree into two parts:
+
+    abstractAncestors:
+      should never be instantiated
+      don't need factories
+      none of there class-methods should be bound or added to the Factory of any child-class
+
+    concreteClasses:
+      are instantiated
+      are primarilly used as Factories
+      have all of their and any concrete-ancestor's functions bound do the class and added to the Factory
+  ###
+  @firstAbstractAncestor: @
+
   @postCreate: ({classModuleState, hotReloadEnabled})->
-    @_hotReloadUpdate classModuleState if hotReloadEnabled
-    @toComponentFactory()
+    if @prototype instanceof @firstAbstractAncestor # this is strictly a subclass of @firstAbstractAncestor
+      @_hotReloadUpdate classModuleState if hotReloadEnabled
+      @toComponentFactory()
+    else
+      super
 
   @toComponentFactory: ->
 
@@ -172,15 +192,26 @@ module.exports = class Component extends InstanceFunctionBindingMixin VirtualNod
 
         instance
 
+    ########################
     # class-like methods
+    # The factory-function is not the class, but we
+    # want some class-like methods for convenience.
+    ########################
     ret.class = @
     ret._name = @getName() + "ComponentFactory"
 
-    # OUT: new instance
-    ret.instantiateAsTopComponent = (spec, options) ->
-      ret(spec).instantiateAsTopComponent options
+    # make all class-methods defined AFTER firstAbstractAncestor available in the Factory
+    for k, v of @ when !@firstAbstractAncestor[k] && isFunction v
+      log "toComponentFactory: bind #{k}"
+      ret[k] = fastBind v, @
 
+    ret.instantiateAsTopComponent = fastBind @instantiateAsTopComponent, @
+
+    ########################
     ret
+
+  @instantiateAsTopComponent = (props, options) ->
+    new @(props).instantiateAsTopComponent options
 
   @stateFields: sf = (fields) ->
     @_stateFields = mergeInto @_stateFields, fields
