@@ -4,7 +4,9 @@ FluxComponentBase = require './flux_component_base'
 
 {Component, createComponentFactory} = Neptune.Art.React
 
-{BaseObject, nextTick, mergeInfo, log, isPlainObject, isString, isFunction, inspect, time
+{
+  defineModule
+  BaseObject, nextTick, mergeInfo, log, isPlainObject, isString, isFunction, inspect, time
   globalCount
   rubyTrue
   rubyFalse
@@ -23,7 +25,7 @@ Declarative (automatic) Flux Subscription support:
 TODO: _prepareSubscription should be triggered via createWithPostCreate rather than with each component creation
 ###
 
-module.exports = class FluxComponent extends FluxComponentBase
+defineModule module, class FluxComponent extends FluxComponentBase
 
   @createFluxComponentFactory: (spec) ->
     createComponentFactory spec, FluxComponent
@@ -234,6 +236,8 @@ module.exports = class FluxComponent extends FluxComponentBase
         key
       else
         -> key
+
+  @firstAbstractAncestor: @
 
   @postCreate: ->
     @subscriptions @::subscriptions if @::subscriptions
