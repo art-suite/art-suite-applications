@@ -1,6 +1,6 @@
 {
   "name": "art-ery-aws",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "ArtEry for AWS Lambda + DynamoDB",
   "main": "index.coffee",
   "dependencies": {
