@@ -228,7 +228,7 @@ defineModule module, class FluxComponent extends FluxComponentBase
       modelName = model
       model = ModelRegistry.models[modelName]
       unless model
-        console.error error = "RestComponent::subscriptions() model #{modelName} not registered (component = #{@getNamespacePath()})"
+        console.error error = "#{@getName()}::subscriptions() model '#{modelName}' not registered (component = #{@getNamespacePath()})"
         throw new Error error
 
     subscription.model = model
@@ -273,7 +273,6 @@ defineModule module, class FluxComponent extends FluxComponentBase
       @_autoMaintainedSubscriptions[stateField] = fluxKey
 
       if rubyTrue fluxKey
-        @setState stateField + "Reload", -> model.load fluxKey
         @subscribe model, fluxKey, stateField, if initialData
           status: success
           data: initialData
