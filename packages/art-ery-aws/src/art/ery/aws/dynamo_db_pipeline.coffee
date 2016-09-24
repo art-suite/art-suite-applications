@@ -18,6 +18,8 @@ module.exports = class DynamoDbPipeline extends Pipeline
 
     dynamoDb: -> DynamoDb.singleton
 
+  @firstAbstractAncestor: @
+
   @createTablesForAllRegisteredPipelines: ->
     promises = for name, pipeline of ArtEry.pipelines when isFunction pipeline.createTable
       pipeline.createTable()
