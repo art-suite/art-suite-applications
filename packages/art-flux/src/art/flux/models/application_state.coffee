@@ -1,10 +1,9 @@
 Foundation = require 'art-foundation'
 FluxCore = require '../core'
-{BaseObject, log, isString, isPlainObject, merge, plainObjectsDeepEq, mergeInto, Unique} = Foundation
+{BaseObject, log, isString, isPlainObject, merge, propsEq, mergeInto, Unique} = Foundation
 {FluxStore, FluxModel, FluxStatus} = FluxCore
 {fluxStore} = FluxStore
 {pending, success, failure, missing} = FluxStatus
-propsEq = plainObjectsDeepEq
 
 ###
 A state-store with the same state API as React Components:

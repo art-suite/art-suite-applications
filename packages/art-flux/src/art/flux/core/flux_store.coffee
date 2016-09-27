@@ -9,7 +9,6 @@ ModelRegistry = require './model_registry'
   consistentJsonStringify
   isString
   timeout
-  plainObjectsDeepEq
   globalCount
   time
   inspect

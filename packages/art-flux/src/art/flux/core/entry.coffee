@@ -4,9 +4,8 @@ Foundation = require 'art-foundation'
 {
   log, BaseObject, merge, removeFirstMatch, pushIfNotPresent
   Epoch, shallowClone, inspect, Unique, clone
-  isPlainObject, plainObjectsDeepEq
+  isPlainObject, propsEq
 } = Foundation
-propsEq = plainObjectsDeepEq
 
 module.exports = class Entry extends BaseObject
   @warnCantSetField: warnCantSetField = (newFluxRecord, oldFluxRecord, field) ->
@@ -31,12 +30,12 @@ module.exports = class Entry extends BaseObject
     @_subscribers = []
     @_previousFluxRecord = null
 
-  @getter "previousFluxRecord",
+  @getter "previousFluxRecord fluxRecord subscribers",
+    dataChanged: -> !propsEq @_fluxRecord?.data, @_previousFluxRecord?.data
+    fluxRecordChanged: -> !propsEq @_fluxRecord, @_previousFluxRecord
     subscriberCount: -> @_subscribers.length
     key: -> @_fluxRecord.key
     modelName: -> @_fluxRecord.modelName
-
-  @getter "fluxRecord subscribers"
 
   @setter
     fluxRecord: (newFluxRecord)->
