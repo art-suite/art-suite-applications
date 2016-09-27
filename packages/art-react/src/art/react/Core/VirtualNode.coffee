@@ -2,14 +2,12 @@ Foundation = require 'art-foundation'
 ReactArtEngineEpoch = require './ReactArtEngineEpoch'
 {
   log, compact, globalCount, flatten, BaseObject, shallowClone, inspect, objectKeyCount, isObject, deepEach, isPlainObject, keepIfRubyTrue,
-  plainObjectsDeepEq
+  propsEq
 } = Foundation
 {reactArtEngineEpoch} = ReactArtEngineEpoch
 
 emptyObject = {}
 module.exports = class VirtualNode extends BaseObject
-  @propsEq: propsEq = plainObjectsDeepEq
-
   onNextReady: (f, forceEpoch = true) -> reactArtEngineEpoch.onNextReady f, forceEpoch, @
 
   @assignRefsTo: null

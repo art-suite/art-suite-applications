@@ -8,8 +8,8 @@ VirtualNode = require './VirtualNode'
   Browser
   merge
   Promise
+  propsEq
 } = Foundation
-{propsEq} = VirtualNode
 
 module.exports = class VirtualElement extends VirtualNode
   @created = 0
