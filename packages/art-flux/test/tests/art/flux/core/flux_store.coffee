@@ -86,19 +86,20 @@ suite "Art.Flux.Core.FluxStore", ->
 
   test "fluxStore.subscribe basic", (done)->
     reset()
-    subscriber = (fields) ->
-      assert.eq fields, bar: 1, key: "myKey", modelName: "myModel"
+
+    fluxStore.subscribe "myModel", "myKey", (fluxRecord, previousFluxRecord) ->
+      assert.eq previousFluxRecord, status: "missing", key: "myKey", modelName: "myModel"
+      assert.eq fluxRecord, bar: 1, key: "myKey", modelName: "myModel"
       done()
 
-    fluxStore.subscribe "myModel", "myKey", subscriber
     fluxStore.update "myModel", "myKey", bar: 1
 
   test "fluxStore.unsubscribe", (done)->
     reset()
     count1 = 0
     count2 = 0
-    subscriber1 = (fields) -> count1++
-    subscriber2 = (fields) -> count2++
+    subscriber1 = (fluxRecord) -> count1++
+    subscriber2 = (fluxRecord) -> count2++
 
     fluxStore.subscribe "myModel", "myKey", subscriber1
     fluxStore.subscribe "myModel", "myKey", subscriber2

@@ -1,6 +1,6 @@
 Foundation = require 'art-foundation'
 Flux = require 'art-flux'
-{log, isString, Promise, BaseObject, Epoch, timeout, createWithPostCreate} = Foundation
+{merge, log, isString, Promise, BaseObject, Epoch, timeout, createWithPostCreate} = Foundation
 
 {FluxModel, fluxStore, ModelRegistry, success, failure, missing, pending} = Flux
 
@@ -18,7 +18,6 @@ module.exports = suite:
           null
 
       res = fluxStore.subscribe "myBasicModel", "123", (fluxRecord) ->
-        log "subscription update", fluxRecord
         return unless fluxRecord.status != pending
         assert.eq fluxRecord, status: missing, key: "123", modelName: "myBasicModel"
         done()
@@ -33,27 +32,44 @@ module.exports = suite:
           timeout(20).then -> status: missing
 
       res = fluxStore.subscribe "myBasicModel", "123", (fluxRecord) ->
-        log "subscription update", fluxRecord
         return unless fluxRecord.status != pending
         assert.eq fluxRecord, status: missing, key: "123", modelName: "myBasicModel"
         done()
       assert.eq res, status: pending, key: "123", modelName: "myBasicModel"
 
-    test "model with custom load", ->
+    test "model with custom load - delayed", ->
       reset()
       createWithPostCreate class MyBasicModel extends FluxModel
 
-        load: (key, callback) -> @updateFluxStore key, status: success, data: theKeyIs:key
+        load: (key, callback) ->
+          @updateFluxStore key, -> status: success, data: theKeyIs:key
+          null
 
       new Promise (resolve) ->
-        fluxStore.subscribe "myBasicModel", "123", (fluxRecord) ->
+        res = fluxStore.subscribe "myBasicModel", "123", (fluxRecord) ->
           assert.eq fluxRecord, status: success, key: "123", modelName: "myBasicModel", data: theKeyIs:"123"
           resolve()
+        assert.eq res, status: pending, key: "123", modelName: "myBasicModel"
+
       .then ->
         new Promise (resolve) ->
           fluxStore.subscribe "myBasicModel", "456", (fluxRecord) ->
             assert.eq fluxRecord, status: success, key: "456", modelName: "myBasicModel", data: theKeyIs:"456"
             resolve()
+
+    test "model with custom load - immediate", ->
+      reset()
+      createWithPostCreate class MyBasicModel extends FluxModel
+
+        load: (key, callback) ->
+          @updateFluxStore key, status: success, data: theKeyIs:key
+
+      new Promise (resolve) ->
+        res = fluxStore.subscribe "myBasicModel", "123", (fluxRecord) ->
+          log.error "THIS SHOULDN'T HAPPEN!"
+          reject()
+        assert.eq res, status: success, key: "123", modelName: "myBasicModel", data: theKeyIs:"123"
+        fluxStore.onNextReady -> resolve()
 
     test "model with @loadData", ->
       reset()
@@ -77,18 +93,21 @@ module.exports = suite:
       reset()
       counts =
         load: 0
-        sub1: 0
-        sub2: 0
+        subscription1: 0
+        subscription2: 0
       createWithPostCreate class MyBasicModel extends FluxModel
         load: (key, callback) ->
           counts.load++
           @updateFluxStore key, status: success, data: theKeyIs:key
 
-      fluxStore.subscribe "myBasicModel", "123", (fluxRecord) -> counts.sub1++
-      fluxStore.subscribe "myBasicModel", "123", (fluxRecord) -> counts.sub2++
+      fluxStore.subscribe "myBasicModel", "123", (fluxRecord) -> assert.eq(fluxRecord.count, 2);counts.subscription1++
+      fluxStore.subscribe "myBasicModel", "123", (fluxRecord) -> assert.eq(fluxRecord.count, 2);counts.subscription2++
+
+      fluxStore.update "myBasicModel", "123", (fluxRecord) -> count: (fluxRecord.count || 0)+ 1
+      fluxStore.update "myBasicModel", "123", (fluxRecord) -> count: (fluxRecord.count || 0)+ 1
 
       fluxStore.onNextReady ->
-        assert.eq counts, load: 1, sub1: 1, sub2: 1
+        assert.eq counts, load: 1, subscription1: 1, subscription2: 1
         done()
 
     test "two simultantious FluxModel requests on the different keys triggers two store requests", (done) ->
@@ -102,8 +121,11 @@ module.exports = suite:
           counts.load++
           @updateFluxStore key, status: success, data: theKeyIs:key
 
-      fluxStore.subscribe "myBasicModel", "123", (fluxRecord) -> counts.sub1++
-      fluxStore.subscribe "myBasicModel", "456", (fluxRecord) -> counts.sub2++
+      fluxStore.subscribe "myBasicModel", "123", (fluxRecord) -> assert.eq(fluxRecord.count, 1);counts.sub1++
+      fluxStore.subscribe "myBasicModel", "456", (fluxRecord) -> assert.eq(fluxRecord.count, 1);counts.sub2++
+
+      fluxStore.update "myBasicModel", "123", (fluxRecord) -> count: (fluxRecord.count || 0)+ 1
+      fluxStore.update "myBasicModel", "456", (fluxRecord) -> count: (fluxRecord.count || 0)+ 1
 
       fluxStore.onNextReady ->
         assert.eq counts, load: 2, sub1: 1, sub2: 1

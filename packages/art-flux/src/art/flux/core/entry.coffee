@@ -4,8 +4,9 @@ Foundation = require 'art-foundation'
 {
   log, BaseObject, merge, removeFirstMatch, pushIfNotPresent
   Epoch, shallowClone, inspect, Unique, clone
-  isPlainObject
+  isPlainObject, plainObjectsDeepEq
 } = Foundation
+propsEq = plainObjectsDeepEq
 
 module.exports = class Entry extends BaseObject
   @warnCantSetField: warnCantSetField = (newFluxRecord, oldFluxRecord, field) ->
@@ -27,11 +28,10 @@ module.exports = class Entry extends BaseObject
       key: key
       modelName: modelName
 
-    @_updated = false
-
     @_subscribers = []
+    @_previousFluxRecord = null
 
-  @getter
+  @getter "previousFluxRecord",
     subscriberCount: -> @_subscribers.length
     key: -> @_fluxRecord.key
     modelName: -> @_fluxRecord.modelName
@@ -57,14 +57,15 @@ module.exports = class Entry extends BaseObject
     @_subscribers = @_subscribers.concat src._subscribers
 
   _notifySubscribers: ->
-    return unless @_subscribers && @_updated
+    return unless @_previousFluxRecord
     for subscriber in @_subscribers
-      subscriber @_fluxRecord
-    @_updated = false
+      subscriber @_fluxRecord, @_previousFluxRecord
+    @_previousFluxRecord = null
 
-  _update: (updateFunction) ->
-    @_updated = true
-    @setFluxRecord updateFunction?(@_fluxRecord) || {}
+  _updateFluxRecord: (updateFunction) ->
+    unless propsEq @_fluxRecord, updatedFluxRecord = updateFunction?(@_fluxRecord) || {}
+      @_previousFluxRecord = @_fluxRecord
+      @setFluxRecord updatedFluxRecord
 
   # subscriber is a function with the signature: (Entry) ->
   # to unsubscribe, you must provide the exact same subscription function

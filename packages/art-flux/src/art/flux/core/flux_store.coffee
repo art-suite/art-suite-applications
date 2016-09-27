@@ -50,7 +50,15 @@ module.exports = class FluxStore extends Epoch
   inputs:
     modelName: string
     key: string
-    subscriber signature: (fluxRecord, subscribers) -> # => null
+
+    subscriber: (fluxRecord, previousFluxRecord) -> null
+      IN:
+        fluxRecord: plain object; the current value for the fluxRecord
+        previousFluxRecord: plain object; the last value for the fluxRecord
+      GUARANTEES:
+        1. !propsEq fluxRecord, previousFluxRecord
+        2. only called once per change
+
     initialFluxRecord: if set, and the key is not in the store, this is used
       as the initial value instead of the calling "load" on the model.
 
@@ -78,27 +86,6 @@ module.exports = class FluxStore extends Epoch
   ###
   unsubscribe: (modelName, key, subscriber) ->
     @_queueChange modelName: modelName, key: key, removeSubscriber: subscriber
-
-  ###
-  subscribe to all changes on the store
-
-  inputs:
-    subscriber:
-      signature: (action, entry.plainStructure) -> # => null
-      actions: "addedEntry", "removedEntry" and "updatedEntry"
-
-      entry.plainStructure looks like this: (see Flux.Core.Entry)
-        fluxRecord: key: , modelName: , status: , ...
-        subscribers: [functions]
-
-  returns: null
-
-  Note:
-    Used by models to take actions when entries are added and removed
-    Added for Pusher subscriptions
-  ###
-  subscribeToStore: (subscriber) ->
-    throw new Error "subscribeToStore is depricated. Use fluxStoreEntryUpdated (etc...) overrides."
 
   ###
   put updates or creates the record
@@ -238,7 +225,7 @@ module.exports = class FluxStore extends Epoch
 
       entry = @_vivifyEntry modelName, key
 
-      if updateFunction        then entry._update updateFunction
+      if updateFunction        then entry._updateFluxRecord updateFunction
       else if addSubscriber    then entry._subscribe addSubscriber
       else if removeSubscriber then entry._unsubscribe removeSubscriber
 
