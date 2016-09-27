@@ -4,7 +4,7 @@ Foundation = require 'art-foundation'
 ArtEry = require 'art-ery'
 ArtAws = require 'art-aws'
 
-{isPlainObject, inspect, log, merge, Validator, isString, arrayToTruthMap, isFunction} = Foundation
+{isPlainObject, inspect, log, merge, compare, Validator, isString, arrayToTruthMap, isFunction, withSort} = Foundation
 {Pipeline} = ArtEry
 {DynamoDb} = ArtAws
 {encodeDynamoData, decodeDynamoData} = DynamoDb
@@ -51,7 +51,13 @@ module.exports = class DynamoDbPipeline extends Pipeline
           queryKeyFromRecord: (data) ->
             # log queryKeyFromRecord: data: data, hashKey: hashKey, value: data[hashKey]
             data[hashKey]
-          localSort: (queryData) -> queryData.sort (a, b) -> a[sortKey] - b[sortKey]
+
+          localSort: (queryData) -> withSort queryData, (a, b) ->
+            if 0 == ret = compare a[sortKey], b[sortKey]
+              compare a.id, b.id
+            else
+              ret
+
 
     queries
 
