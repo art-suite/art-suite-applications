@@ -11,6 +11,7 @@ ModelRegistry = require './model_registry'
   globalCount
   compactFlatten
   InstanceFunctionBindingMixin
+  Promise
 } = Foundation
 
 module.exports = class FluxModel extends InstanceFunctionBindingMixin BaseObject
@@ -129,7 +130,7 @@ module.exports = class FluxModel extends InstanceFunctionBindingMixin BaseObject
     #   this makes the results immediately available to subscribers.
 
     if @loadData
-      @loadData key
+      Promise.then    => @loadData key
       .then (data)    => @updateFluxStore key, status: success, data: data
       .catch (error)  =>
         if validStatus error
