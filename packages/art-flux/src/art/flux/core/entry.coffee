@@ -62,9 +62,10 @@ module.exports = class Entry extends BaseObject
     @_previousFluxRecord = null
 
   _updateFluxRecord: (updateFunction) ->
-    unless propsEq @_fluxRecord, updatedFluxRecord = updateFunction?(@_fluxRecord) || {}
-      @_previousFluxRecord = @_fluxRecord
-      @setFluxRecord updatedFluxRecord
+    @_previousFluxRecord ||= @_fluxRecord
+    @setFluxRecord updateFunction?(@_fluxRecord) || {}
+    if propsEq @_fluxRecord, @_previousFluxRecord
+      @_previousFluxRecord = null
 
   # subscriber is a function with the signature: (Entry) ->
   # to unsubscribe, you must provide the exact same subscription function
