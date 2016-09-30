@@ -1,5 +1,5 @@
 Foundation = require 'art-foundation'
-Entry = require './entry'
+FluxEntry = require './FluxEntry'
 ModelRegistry = require './ModelRegistry'
 
 {
@@ -36,7 +36,7 @@ defineModule module, class FluxStore extends Epoch
   getHasSubscribers: (modelName, key) -> !!@_getEntry(modelName, key)?.getHasSubscribers()
 
   ###
-  subscribe to all changes to the fluxStore Entry identified by modelName and Key.
+  subscribe to all changes to the fluxStore FluxEntry identified by modelName and Key.
 
   subscribers:
     are notified on all changes to the entry's:
@@ -144,7 +144,7 @@ defineModule module, class FluxStore extends Epoch
 
   _addEntry: (modelName, key) ->
     @_length++
-    entry = @_getEntriesForModelName(modelName)[key] = new Entry modelName, key
+    entry = @_getEntriesForModelName(modelName)[key] = new FluxEntry modelName, key
     pushIfNotPresent @_addedEntries, entry
     entry
 
@@ -200,7 +200,7 @@ defineModule module, class FluxStore extends Epoch
         console.error message, e.stack
         entry.setFluxRecord status: failure, errorObject: e, message: message
     else
-      console.warn "ArtFlux: there is no model registered with the name: #{modelName}. Entry for #{modelName}:#{key} will forever be status: pending."
+      console.warn "ArtFlux: there is no model registered with the name: #{modelName}. FluxEntry for #{modelName}:#{key} will forever be status: pending."
 
 
   # ensures the entry exists

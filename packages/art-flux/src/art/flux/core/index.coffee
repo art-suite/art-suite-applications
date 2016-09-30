@@ -3,7 +3,7 @@
 
 module.exports = require './namespace'
 .addModules
-  Entry:                  require './entry'                 
+  FluxEntry:              require './FluxEntry'             
   FluxModel:              require './FluxModel'             
   FluxStore:              require './FluxStore'             
   FluxSubscriptionsMixin: require './FluxSubscriptionsMixin'

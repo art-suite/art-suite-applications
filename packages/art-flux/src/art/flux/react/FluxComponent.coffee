@@ -45,16 +45,16 @@ defineModule module, class FluxComponent extends FluxSubscriptionsMixin Componen
   There are three different ways to define the subscription. Each entry in subscriptionMap
   can take any of the three patterns:
 
-  Entry-pattern 1: Fully Explicit
+  FluxEntry-pattern 1: Fully Explicit
 
     @subscriptions
       stateField:
         model: "modelName", model-instance or (props) -> "modelName"
         key:   "key",       key-object     or (props) -> "key" or key-object
 
-  Entry-pattern 2: Implicit-key-from-stateField, Explicit-model
+  FluxEntry-pattern 2: Implicit-key-from-stateField, Explicit-model
 
-    DEPRICATED: See Entry-pattern 5.
+    DEPRICATED: See FluxEntry-pattern 5.
 
     @subscriptions
       stateField:
@@ -68,7 +68,7 @@ defineModule module, class FluxComponent extends FluxSubscriptionsMixin Componen
       @subscriptions
         currentUser: model: "applicationState"
 
-  Entry-pattern 3: Implicit-model, Explicit-key
+  FluxEntry-pattern 3: Implicit-model, Explicit-key
 
     @subscriptions
       stateField: "key" or (props) -> "key" or key-object
@@ -90,7 +90,7 @@ defineModule module, class FluxComponent extends FluxSubscriptionsMixin Componen
       @subscriptions
         following: (props) -> userId: props.userId, feedId: props.feedId
 
-  Entry-pattern 4: Implicit-key-from-props, implicit-model
+  FluxEntry-pattern 4: Implicit-key-from-props, implicit-model
 
     @subscriptions "myField"
 
@@ -133,7 +133,7 @@ defineModule module, class FluxComponent extends FluxSubscriptionsMixin Componen
 
       I think that's all we need!
 
-  Entry-pattern 5: Implicit-key-from-fieldName, implicit-model
+  FluxEntry-pattern 5: Implicit-key-from-fieldName, implicit-model
 
     @subscriptions "modelName.fieldName"
 

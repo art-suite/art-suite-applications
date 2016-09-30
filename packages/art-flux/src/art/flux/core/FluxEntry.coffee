@@ -8,19 +8,19 @@ Foundation = require 'art-foundation'
 
 {pending, success, failure} = CommunicationStatus
 
-defineModule module, class Entry extends BaseObject
+defineModule module, class FluxEntry extends BaseObject
   @warnCantSetField: warnCantSetField = (newFluxRecord, oldFluxRecord, field) ->
     newValue = newFluxRecord[field]
     oldValue = oldFluxRecord?[field]
     if newFluxRecord.hasOwnProperty(field) && newValue != oldValue
-      console.warn "#{Entry.namespacePath}: Do not put/post the '#{field}' field (new value == #{inspect newValue}, old value == #{inspect oldValue}). Ignored."
+      console.warn "#{FluxEntry.namespacePath}: Do not put/post the '#{field}' field (new value == #{inspect newValue}, old value == #{inspect oldValue}). Ignored."
 
   @warnUnsettableFields: warnUnsettableFields = (newFluxRecord, oldFluxRecord) ->
     warnCantSetField newFluxRecord, oldFluxRecord, "key"
     warnCantSetField newFluxRecord, oldFluxRecord, "modelName"
 
 
-  # assumes Entry "owns" the fluxRecord - it will alter the object by adding a "key" field
+  # assumes FluxEntry "owns" the fluxRecord - it will alter the object by adding a "key" field
   constructor: (modelName, key)->
     super
     @_fluxRecord =
@@ -68,7 +68,7 @@ defineModule module, class Entry extends BaseObject
     if propsEq @_fluxRecord, @_previousFluxRecord
       @_previousFluxRecord = null
 
-  # subscriber is a function with the signature: (Entry) ->
+  # subscriber is a function with the signature: (FluxEntry) ->
   # to unsubscribe, you must provide the exact same subscription function
   _subscribe:   (subscriber) -> pushIfNotPresent @_subscribers, subscriber
   _unsubscribe: (subscriber) -> removeFirstMatch @_subscribers, subscriber
