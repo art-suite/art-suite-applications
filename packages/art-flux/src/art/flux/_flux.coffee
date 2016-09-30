@@ -1,18 +1,18 @@
+{defineModule} = require 'art-foundation'
 FluxCore = require "./core"
 {FluxComponent} = require "./react"
 
-{FluxStore, ModelRegistry, FluxModel, FluxStatus, FluxSubscriptionsMixin} = FluxCore
+{FluxStore, ModelRegistry, FluxModel, FluxSubscriptionsMixin} = FluxCore
 {fluxStore} = FluxStore
 
-module.exports = [
-  FluxStatus
+defineModule module, [
 
   FluxSubscriptionsMixin:     FluxSubscriptionsMixin
   FluxStore:                  FluxStore
   FluxModel:                  FluxModel
   ModelRegistry:              ModelRegistry
   FluxComponent:              FluxComponent
-  ApplicationState:           require './models/application_state'
+  ApplicationState:           require './models/ApplicationState'
 
   models:                     ModelRegistry.models
   createFluxComponentFactory: FluxComponent.createFluxComponentFactory

@@ -3,7 +3,7 @@
 
 module.exports = require './namespace'
 .addModules
-  ApplicationState:   require './application_state'   
+  ApplicationState:   require './ApplicationState'    
   VolatileModel:      require './volatile_model'      
   VolatileQueryModel: require './volatile_query_model'
   VolatileStore:      require './volatile_store'      

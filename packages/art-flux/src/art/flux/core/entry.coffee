@@ -1,13 +1,14 @@
 Foundation = require 'art-foundation'
-{pending, success, failure} = require './flux_status'
 
 {
   log, BaseObject, merge, removeFirstMatch, pushIfNotPresent
   Epoch, shallowClone, inspect, Unique, clone
   isPlainObject, propsEq
-} = Foundation
+, defineModule, CommunicationStatus} = Foundation
 
-module.exports = class Entry extends BaseObject
+{pending, success, failure} = CommunicationStatus
+
+defineModule module, class Entry extends BaseObject
   @warnCantSetField: warnCantSetField = (newFluxRecord, oldFluxRecord, field) ->
     newValue = newFluxRecord[field]
     oldValue = oldFluxRecord?[field]

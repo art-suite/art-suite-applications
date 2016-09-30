@@ -1,6 +1,6 @@
 {isString, defineModule, log, BaseObject, nextTick, mergeInfo, capitalize, globalCount, time} = require 'art-foundation'
-{fluxStore} = require '../core/flux_store'
-ModelRegistry = require '../core/model_registry'
+{fluxStore} = require '../core/FluxStore'
+ModelRegistry = require '../core/ModelRegistry'
 
 defineModule module, -> (superClass) ->
   class FluxSubscriptionsMixin extends superClass

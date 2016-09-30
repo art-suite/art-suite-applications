@@ -1,7 +1,6 @@
 Foundation = require 'art-foundation'
 Entry = require './entry'
-ModelRegistry = require './model_registry'
-{success, pending, missing, failure} = require './flux_status'
+ModelRegistry = require './ModelRegistry'
 
 {
   BaseObject, merge, removeFirstMatch
@@ -12,7 +11,9 @@ ModelRegistry = require './model_registry'
   globalCount
   time
   inspect
-} = Foundation
+, defineModule, CommunicationStatus} = Foundation
+
+{success, pending, missing, failure} = CommunicationStatus
 
 # FluxStore:
 #   a key-fields store
@@ -21,7 +22,7 @@ ModelRegistry = require './model_registry'
 #   Updates to values result in NEW Objects. A Value object is never altered.
 #   Epoched
 #   Supports change-notificaiton subscriptions per key.
-module.exports = class FluxStore extends Epoch
+defineModule module, class FluxStore extends Epoch
   @singletonClass()
 
   constructor: ->

@@ -1,9 +1,9 @@
 Foundation = require 'art-foundation'
 FluxCore = require '../core'
-{BaseObject, log, isString, isPlainObject, merge, propsEq, mergeInto, Unique} = Foundation
-{FluxStore, FluxModel, FluxStatus} = FluxCore
+{BaseObject, log, isString, isPlainObject, merge, propsEq, mergeInto, Unique, defineModule, CommunicationStatus} = Foundation
+{FluxStore, FluxModel} = FluxCore
 {fluxStore} = FluxStore
-{pending, success, failure, missing} = FluxStatus
+{pending, success, failure, missing} = CommunicationStatus
 
 ###
 A state-store with the same state API as React Components:
@@ -40,10 +40,11 @@ Example:
 
 ###
 
-module.exports = class ApplicationState extends FluxModel
+defineModule module, class ApplicationState extends FluxModel
+  @abstractClass()
   @classProperty "persistant"
 
-  @postCreate: ({hotReloaded, classModuleState}) ->
+  @postCreateConcreteClass: ({hotReloaded, classModuleState}) ->
     ret = super
 
     if hotReloaded

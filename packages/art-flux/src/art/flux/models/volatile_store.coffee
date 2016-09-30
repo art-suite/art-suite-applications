@@ -1,16 +1,16 @@
 Foundation = require 'art-foundation'
 FluxCore = require '../core'
-{FluxStore, FluxStatus} = FluxCore
-{success, missing} = FluxStatus
+{FluxStore} = FluxCore
 
-{BaseObject, mergeInfo, log, clone, slice, merge, arrayWithOne} = Foundation
+{BaseObject, mergeInfo, log, clone, slice, merge, arrayWithOne, defineModule, CommunicationStatus} = Foundation
+{success, missing} = CommunicationStatus
 {fluxStore} = FluxStore
 
 simulateAsyncRequest = (asyncCallback) ->
   fluxStore.onNextReady asyncCallback
   null
 
-module.exports = class VolatileStore extends BaseObject
+defineModule module, class VolatileStore extends BaseObject
   @singletonClass()
 
   constructor: ->

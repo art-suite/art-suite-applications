@@ -9,10 +9,10 @@ FluxDbModelBase = require './flux_db_model_base'
   isPlainObject
   isPlainArray
   compact
-} = Foundation
+, defineModule, CommunicationStatus} = Foundation
 
-{FluxStore, ModelRegistry, FluxModel, FluxStatus}  = FluxCore
-{missing, failure, success, pending} = FluxStatus
+{FluxStore, ModelRegistry, FluxModel}  = FluxCore
+{missing, failure, success, pending} = CommunicationStatus
 
 {fluxStore} = FluxStore
 
@@ -28,7 +28,9 @@ Adds declarative API:
   @fields - with validation and preprocessing support
   @query - declare/create a model for each query
 ###
-module.exports = class FluxDbModel extends FluxDbModelBase
+defineModule module, class FluxDbModel extends FluxDbModelBase
+  @abstractClass()
+
   @normalizeUrl: normalizeUrl = (url) ->
     match = url.match urlRegexp
     "#{match[1].toLowerCase()}#{match[2]}#{match[3].toLowerCase()}#{match.slice(4).join ''}"

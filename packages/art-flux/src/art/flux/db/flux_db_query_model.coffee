@@ -27,7 +27,9 @@ options:
     Capitalization of the first letter is automatically handled correctly no matter what you pass in.
 
 ###
-module.exports = class FluxDbQueryModel extends FluxDbModelBase
+defineModule module, class FluxDbQueryModel extends FluxDbModelBase
+  @abstractClass()
+
   constructor: (singlesModel, parameterizedField, options)->
     super if options?.modelName
       decapitalize options?.modelName

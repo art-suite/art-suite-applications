@@ -1,8 +1,9 @@
 Foundation = require 'art-foundation'
 Flux = require 'art-flux'
-{merge, log, isString, Promise, BaseObject, Epoch, timeout, createWithPostCreate} = Foundation
+{merge, log, isString, Promise, BaseObject, Epoch, timeout, createWithPostCreate, CommunicationStatus} = Foundation
 
-{FluxModel, fluxStore, ModelRegistry, success, failure, missing, pending} = Flux
+{FluxModel, fluxStore, ModelRegistry} = Flux
+{success, failure, missing, pending} = CommunicationStatus
 
 reset = -> Flux._reset()
 

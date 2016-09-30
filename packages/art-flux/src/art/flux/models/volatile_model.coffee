@@ -4,7 +4,7 @@ VolatileStore = require './volatile_store'
 VolatileQueryModel = require './volatile_query_model'
 FluxDb = require '../db'
 
-{defineModule, log, BaseObject, decapitalize, pluralize} = Foundation
+{defineModule, log, BaseObject, decapitalize, pluralize, defineModule} = Foundation
 {FluxStore, FluxModel, ModelRegistry} = FluxCore
 {volatileStore} = VolatileStore
 {fluxStore} = FluxStore

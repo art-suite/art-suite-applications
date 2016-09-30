@@ -1,6 +1,6 @@
-{log, BaseObject, decapitalize, isClass, inspect} = require "art-foundation"
+{log, BaseObject, decapitalize, isClass, inspect, defineModule} = require "art-foundation"
 
-module.exports = class ModelRegistry extends BaseObject
+defineModule module, class ModelRegistry extends BaseObject
   @models: models = {}
 
   # returns the singleton

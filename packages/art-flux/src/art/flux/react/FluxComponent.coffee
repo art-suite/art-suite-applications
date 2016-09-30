@@ -1,6 +1,5 @@
 Foundation = require 'art-foundation'
 FluxCore = require '../core'
-FluxComponentBase = require './flux_component_base'
 
 {Component, createComponentFactory} = Neptune.Art.React
 
@@ -11,10 +10,10 @@ FluxComponentBase = require './flux_component_base'
   rubyTrue
   rubyFalse
   compactFlatten
-} = Foundation
+, defineModule, CommunicationStatus} = Foundation
 
-{ModelRegistry, FluxStatus} = FluxCore
-{pending, success} = FluxStatus
+{ModelRegistry, FluxSubscriptionsMixin} = FluxCore
+{pending, success} = CommunicationStatus
 
 ###
 FluxComponent
@@ -25,7 +24,8 @@ Declarative (automatic) Flux Subscription support:
 TODO: _prepareSubscription should be triggered via createWithPostCreate rather than with each component creation
 ###
 
-defineModule module, class FluxComponent extends FluxComponentBase
+defineModule module, class FluxComponent extends FluxSubscriptionsMixin Component
+  @abstractClass()
 
   @createFluxComponentFactory: (spec) ->
     createComponentFactory spec, FluxComponent
@@ -206,6 +206,10 @@ defineModule module, class FluxComponent extends FluxComponentBase
     @_updateAllSubscriptions newProps = super
     newProps
 
+  componentWillUnmount: ->
+    super
+    @unsubscribeAll()
+
   ##########################
   # PRIVATE
   ##########################
@@ -237,9 +241,7 @@ defineModule module, class FluxComponent extends FluxComponentBase
       else
         -> key
 
-  @firstAbstractAncestor: @
-
-  @postCreate: ->
+  @postCreateConcreteClass: ->
     @subscriptions @::subscriptions if @::subscriptions
     @_subscriptionsPrepared = false
     super

@@ -1,7 +1,7 @@
 Foundation = require 'art-foundation'
 Flux = require 'art-flux'
 React = require 'art-react'
-{log, Promise, timeout, createWithPostCreate} = Foundation
+{log, Promise, timeout, createWithPostCreate, defineModule} = Foundation
 {success, missing} = Foundation.CommunicationStatus
 
 {FluxStore, ModelRegistry, FluxModel, FluxComponent, createFluxComponentFactory, fluxStore} = Flux
@@ -15,7 +15,7 @@ reset = ->
   volatileStore._reset()
   ModelRegistry._reset()
 
-suite "Art.Flux.React.FluxComponent", ->
+defineModule module, suite: ->
 
   test "@subscriptions user: 'abc123'", (done)->
     reset()

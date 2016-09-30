@@ -5,10 +5,10 @@ FluxCore = require '../core'
   log, BaseObject, decapitalize, pluralize, pureMerge, shallowClone, isString,
   emailRegexp, urlRegexp, isNumber, nextTick, capitalize, inspect, isFunction, merge, objectWithout, shallowClone,
   time, globalCount
-} = Foundation
-{FluxStore, ModelRegistry, FluxModel, FluxStatus} = FluxCore
+, defineModule, CommunicationStatus} = Foundation
+{FluxStore, ModelRegistry, FluxModel} = FluxCore
 {fluxStore} = FluxStore
-{pending, success, failure, missing} = FluxStatus
+{pending, success, failure, missing} = CommunicationStatus
 
 idRegExpStr = "[a-z0-9]+"
 isId = (v) -> isString(v) && v.match ///^#{idRegExpStr}$///i
@@ -20,7 +20,9 @@ FluxDbModelBase
 Basic functionality for DB-like models (CRUD).
 To use: inherit and override at least _storeGet and possibly other overrides.
 ###
-module.exports = class FluxDbModelBase extends FluxModel
+defineModule module, class FluxDbModelBase extends FluxModel
+  @abstractClass()
+
   # TODO: We need a way to expire old stuff from localStorage
   @localStoreCacheEnabled = false #true
 

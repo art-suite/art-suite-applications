@@ -1,7 +1,7 @@
 Foundation = require "art-foundation"
-{missing, success, pending, failure, validStatus} = Foundation.CommunicationStatus
-{fluxStore} = require "./flux_store"
-ModelRegistry = require './model_registry'
+{missing, success, pending, failure, validStatus, defineModule} = Foundation.CommunicationStatus
+{fluxStore} = require "./FluxStore"
+ModelRegistry = require './ModelRegistry'
 
 {
   log, BaseObject, decapitalize, pluralize, pureMerge, shallowClone, isString,
@@ -12,9 +12,11 @@ ModelRegistry = require './model_registry'
   compactFlatten
   InstanceFunctionBindingMixin
   Promise
-} = Foundation
+, defineModule} = Foundation
 
-module.exports = class FluxModel extends InstanceFunctionBindingMixin BaseObject
+defineModule module, class FluxModel extends InstanceFunctionBindingMixin BaseObject
+  @abstractClass()
+
   # must call register to make model accessable to RestComponents
   # NOTE: @fields calls register for you, so if you use @fields, you don't need to call @register
   @register: ->
@@ -24,7 +26,7 @@ module.exports = class FluxModel extends InstanceFunctionBindingMixin BaseObject
   register: ->
     ModelRegistry.register @
 
-  @postCreate: ({hotReloaded}) ->
+  @postCreateConcreteClass: ({hotReloaded}) ->
     if hotReloaded
       @singleton.bindFunctionsToInstance()
     else
