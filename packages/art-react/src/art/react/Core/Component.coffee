@@ -94,6 +94,7 @@ when state changes after the component was unmounted. How should I TEST this???
 
 ###
 defineModule module, -> class Component extends InstanceFunctionBindingMixin VirtualNode
+  @abstractClass()
 
   @nonBindingFunctions: "getInitialState
     componentWillReceiveProps
@@ -159,27 +160,10 @@ defineModule module, -> class Component extends InstanceFunctionBindingMixin Vir
 
   @allComponents: {}
 
-  ###
-  firstAbstractAncestor's purpose is to separate the inheritance tree into two parts:
-
-    abstractAncestors:
-      should never be instantiated
-      don't need factories
-      none of there class-methods should be bound or added to the Factory of any child-class
-
-    concreteClasses:
-      are instantiated
-      are primarilly used as Factories
-      have all of their and any concrete-ancestor's functions bound do the class and added to the Factory
-  ###
-  @firstAbstractAncestor: @
-
-  @postCreate: ({classModuleState, hotReloadEnabled})->
-    if @prototype instanceof @firstAbstractAncestor # this is strictly a subclass of @firstAbstractAncestor
-      @_hotReloadUpdate classModuleState if hotReloadEnabled
-      @toComponentFactory()
-    else
-      super
+  @postCreateConcreteClass: ({classModuleState, hotReloadEnabled})->
+    super
+    @_hotReloadUpdate classModuleState if hotReloadEnabled
+    @toComponentFactory()
 
   @toComponentFactory: ->
 
@@ -201,7 +185,8 @@ defineModule module, -> class Component extends InstanceFunctionBindingMixin Vir
     ret._name = @getName() + "ComponentFactory"
 
     # make all class-methods defined AFTER firstAbstractAncestor available in the Factory
-    for k, v of @ when !@firstAbstractAncestor[k] && isFunction v
+    abstractClass = @getAbstractClass()
+    for k, v of @ when !abstractClass[k] && isFunction v
       log "toComponentFactory: bind #{k}"
       ret[k] = fastBind v, @
 
