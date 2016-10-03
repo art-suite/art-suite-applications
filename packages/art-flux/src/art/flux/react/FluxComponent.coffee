@@ -10,6 +10,7 @@ FluxCore = require '../core'
   rubyTrue
   rubyFalse
   compactFlatten
+  Validator
 , defineModule, CommunicationStatus} = Foundation
 
 {ModelRegistry, FluxSubscriptionsMixin} = FluxCore
@@ -170,33 +171,51 @@ defineModule module, class FluxComponent extends FluxSubscriptionsMixin Componen
 
         for stateField, value of subscriptionMap
           do (stateField, value) =>
-            @extendSubscriptionProperties stateField,
-              stateField: stateField
-              params: value
+            @_addSubscription stateField, value
 
       else if isString subscriptionNames = arg
-        for subscriptionName in subscriptionNames.match /[_a-zA-Z][._a-zA-Z0-9]*/g
-          # log subscriptionName:subscriptionName
-          do (subscriptionName) =>
-            if matches = subscriptionName.match /([a-zA-Z0-9]+)\.([a-zA-Z0-9]+)/
-              [_, modelName, field] = matches
+        for subscriptionName in subscriptionNames.match /[_a-z][._a-z0-9]*/gi
 
-              @extendSubscriptionProperties field,
-                stateField: field
-                params:
-                  model: modelName
-                  key: field
+          do (subscriptionName) =>
+            if matches = subscriptionName.match /([_a-z0-9]+)\.([_a-z0-9]+)/i
+              [_, modelName, stateField] = matches
+              @_addSubscription stateField, model: modelName
 
             else
               subscriptionNameId = subscriptionName + "Id"
 
-              @extendSubscriptionProperties subscriptionName,
-                stateField: subscriptionName
-                params:
-                  model: subscriptionName
-                  key: (props) -> props[subscriptionName]?.id || props[subscriptionNameId]
+              @_addSubscription subscriptionName,
+                key: (props) -> props[subscriptionName]?.id || props[subscriptionNameId]
 
     null
+
+  subscriptionValidator = new Validator
+    stateField: "present string"
+    model:      required: validate: (v) -> isFunction(v) || isString(v)
+    key:        required: validate: (v) -> v != "undefined"
+
+  @_normalizeSubscriptionOptions: normalizeSubscriptionOptions = (stateField, subscriptionOptions) ->
+    if isPlainObject subscriptionOptions
+      {key, model} = subscriptionOptions
+      stateField: stateField
+      model:      model || stateField
+      key:        if subscriptionOptions.hasOwnProperty("key") then key else stateField
+    else
+      stateField: stateField
+      model:      stateField
+      key:        subscriptionOptions
+
+  @_addSubscription: (stateField, subscriptionOptions) ->
+
+    subscriptionOptions = normalizeSubscriptionOptions stateField, subscriptionOptions
+
+    subscriptionValidator.validateSync subscriptionOptions
+
+    throw new Error "stateField subscription already defined" if @getSubscriptionProperties()[stateField]
+
+    @extendSubscriptionProperties stateField, subscriptionOptions
+
+    @addGetter stateField, -> @state[stateField]
 
   ##########################
   # Lifecycle
@@ -217,14 +236,7 @@ defineModule module, class FluxComponent extends FluxSubscriptionsMixin Componen
   @extendableProperty subscriptionProperties: {}
 
   @_prepareSubscription: (subscription) ->
-    {stateField, params} = subscription
-
-    if isPlainObject options = params
-      {model, key} = options
-      key = stateField unless key?
-    else
-      key = params
-      model = stateField
+    {stateField, model, key} = subscription
 
     throw new Error "no model specified in subscription: #{inspect stateField:stateField, model:model, class:@name, subscription:subscription}" unless model
 
@@ -289,8 +301,8 @@ defineModule module, class FluxComponent extends FluxSubscriptionsMixin Componen
 
     for stateField, subscriptionProps of @class.getSubscriptionProperties()
       {keyFunction, model} = subscriptionProps
-      if isFunction model
-        model = model props
+
+      model = model props if isFunction model
 
       if isString model
         unless model = @models[model]

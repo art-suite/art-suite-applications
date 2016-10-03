@@ -3,4 +3,4 @@
 
 module.exports = require './namespace'
 .addModules
-  FluxComponent: require './flux_component'
+  FluxComponent: require './FluxComponent'

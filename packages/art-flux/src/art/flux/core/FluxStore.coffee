@@ -233,14 +233,14 @@ defineModule module, class FluxStore extends Epoch
 
     {models} = ModelRegistry
     for entry in updatedEntries
-      models[entry.getModelName()].fluxStoreEntryUpdated entry
+      models[entry.getModelName()]?.fluxStoreEntryUpdated entry
       entry._notifySubscribers()
       if entry.subscribers.length == 0
         pushIfNotPresent removedEntries, entry
         @_removeEntry entry
 
-    models[entry.getModelName()].fluxStoreEntryAdded entry for entry in @_addedEntries
-    models[entry.getModelName()].fluxStoreEntryRemoved entry for entry in removedEntries
+    models[entry.getModelName()]?.fluxStoreEntryAdded entry for entry in @_addedEntries
+    models[entry.getModelName()]?.fluxStoreEntryRemoved entry for entry in removedEntries
 
     @_addedEntries = []
     null
