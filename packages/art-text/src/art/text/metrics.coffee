@@ -11,16 +11,15 @@ for textual, have two areas:
     since we have no concrete information on this, we'll just make it something like 2x textualArea - or more
 
 ###
-define [
-  'art-foundation'
-  'art-atomic'
-  'art-canvas'
-  './text_layout_fragment'
-], (Foundation, Atomic, Canvas, TextLayoutFragment) ->
+Foundation = require 'art-foundation'
+Atomic = require 'art-atomic'
+Canvas = require 'art-canvas'
+TextLayoutFragment = require './text_layout_fragment'
+{point, rect, point0, Rectangle} = Atomic
+{defineModule, merge, log, logL, inspect, max, min, isObject, isString, allIndexes, eachMatch, clone} = Foundation
+{floor, ceil} = Math
 
-  {point, rect, point0, Rectangle} = Atomic
-  {log, logL, inspect, max, min, isObject, isString, allIndexes, eachMatch, clone} = Foundation
-  {floor, ceil} = Math
+defineModule module, ->
 
   alphaChannelOffset = 3
   pixelStep = 4
@@ -176,8 +175,16 @@ define [
     @_tightFontMetricCache: {}
 
     @_getTightFontMetrics: (text, tightThreshold, fontOptions, fontCss)  ->
-      tightFontMetricCacheKey = "#{text}:#{tightThreshold}:#{fontCss || toFontCss fontOptions}"
-      previousResult = @_tightFontMetricCache[tightFontMetricCacheKey] ||= @_generateTightFontMetrics text, tightThreshold, fontOptions, fontCss
+      tightFontMetricCacheKey = "#{text}:#{tightThreshold}:#{fontCss ||= toFontCss fontOptions}"
+      previousResult = @_tightFontMetricCache[tightFontMetricCacheKey] ||= if text.length == 1
+        upScale = 2
+        fontOptions = merge fontOptions, fontSize: fontOptions.fontSize * upScale
+        fontCss = toFontCss fontOptions
+        @_generateTightFontMetrics(text, tightThreshold, fontOptions, fontCss)
+        .mul 1/upScale
+      else
+        @_generateTightFontMetrics text, tightThreshold, fontOptions, fontCss
+
       # NOTE!!! We clone the two rectangles so that LAYOUT can modify them.
       #   We allow LAYOUT this dispensation because when using non-cached metrics (non-tight)
       #   it allows us to halve the number of rectangles created.
@@ -189,6 +196,7 @@ define [
       # log _generateTightFontMetrics:padding:padding
       [scratchBitmap, size, location] = @renderTextToScratchBitmap text, fontOptions, padding
       data = scratchBitmap.context.getImageData(0, 0, size.x, size.y).data
+      # log _generateTightFontMetrics: scratchBitmap, fontOptions:fontOptions
 
       # getAutoCropRectangle returns the exact bounding rectangle of all pixels >= tightThreshold
       # NOTE: for Atomic.Rectangles, right and bottom are EXCLUSIVE while LEFT and TOP are INCLUSIVE

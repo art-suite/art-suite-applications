@@ -49,6 +49,24 @@ define [
     toString: ->
       inspect @toPlainObject()
 
+    mul: (x) ->
+      new TextLayoutFragment(
+        @text
+        @font
+        x * @ascender
+        x * @descender
+
+        x * @textOffsetX
+        x * @textOffsetY
+        x * @layoutW
+        x * @layoutH
+
+        x * @drawAreaX
+        x * @drawAreaY
+        x * @drawAreaW
+        x * @drawAreaH
+      )
+
     toPlainObject: ->
       text:@text
       font:@font
