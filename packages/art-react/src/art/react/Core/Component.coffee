@@ -167,7 +167,11 @@ defineModule module, -> class Component extends InstanceFunctionBindingMixin Vir
 
   @toComponentFactory: ->
 
-    ret = createObjectTreeFactory (merge React.objectTreeFactoryOptions, inspectedName: @getName() + "ComponentFactory"),
+    createObjectTreeFactory (merge React.objectTreeFactoryOptions,
+        inspectedName: @getName() + "ComponentFactory"
+        class: @
+        bind: "instantiateAsTopComponent"
+      ),
       (props, children) =>
         props.children = children if children.length > 0
 
@@ -175,25 +179,6 @@ defineModule module, -> class Component extends InstanceFunctionBindingMixin Vir
         instance._validateChildren props?.children # TODO: only in dev mode!
 
         instance
-
-    ########################
-    # class-like methods
-    # The factory-function is not the class, but we
-    # want some class-like methods for convenience.
-    ########################
-    ret.class = @
-    ret._name = @getName() + "ComponentFactory"
-
-    # make all class-methods defined AFTER firstAbstractAncestor available in the Factory
-    abstractClass = @getAbstractClass()
-    for k, v of @ when !abstractClass[k] && isFunction v
-      log "toComponentFactory: bind #{k}"
-      ret[k] = fastBind v, @
-
-    ret.instantiateAsTopComponent = fastBind @instantiateAsTopComponent, @
-
-    ########################
-    ret
 
   @instantiateAsTopComponent = (props, options) ->
     new @(props).instantiateAsTopComponent options
