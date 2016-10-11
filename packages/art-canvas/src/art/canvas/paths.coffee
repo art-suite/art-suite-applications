@@ -1,5 +1,5 @@
 Foundation = require 'art-foundation'
-{log, floatEq, min, max} = Foundation
+{log, floatEq, min, max, isNumber, isPlainObject, float32Eq0, bound} = Foundation
 
 module.exports = class Paths
   @rectangle: rectangle = (context, r) ->
@@ -16,31 +16,43 @@ module.exports = class Paths
     context.lineTo toPoint.x, toPoint.y
 
   @roundedRectangle: roundedRectangle = (context, r, radius) ->
-    return rectangle context, r unless radius? && radius > 0
+    return rectangle context, r unless radius
+
+    if isPlainObject radius
+      {tl, tr, bl, br} = radius
+    else
+      tl = tr = bl = br = radius
+
+    return rectangle context, r if float32Eq0(tl) && float32Eq0(tr) && float32Eq0(bl) && float32Eq0(br)
+
     {w, h} = r
     w = max 0, w
     h = max 0, h
 
-    if floatEq(w, h) && radius >= halfW = w/2
+    if floatEq(w, h) && isNumber(radius) && radius >= halfW = w/2
       # perfect circle
       {hCenter, vCenter} = r
       context.arc hCenter, vCenter, halfW, 0, Math.PI*2, true
+      return
 
-    else
-      # rounded rectangle
-      radius = min radius, w/2, h/2
-      {left, right, top, bottom} = r
+    # rounded rectangle
+    maxRadius = min w/2, h/2
+    bl = bound 0, bl, maxRadius
+    br = bound 0, br, maxRadius
+    tl = bound 0, tl, maxRadius
+    tr = bound 0, tr, maxRadius
+    {left, right, top, bottom} = r
 
-      context.moveTo left  ,          top    + radius
-      context.arcTo  left  ,          top   ,                 left   + radius,  top   ,           radius
-      context.lineTo right  - radius, top
-      context.arcTo  right ,          top   ,                 right ,           top    + radius,  radius
-      context.lineTo right ,          bottom - radius
-      context.arcTo  right ,          bottom,                 right  - radius,  bottom,           radius
-      context.lineTo left   + radius, bottom
-      context.arcTo  left  ,          bottom,                 left  ,           bottom - radius,  radius
+    context.moveTo left  ,          top    + tl
+    context.arcTo  left  ,          top   ,                 left   + tl,      top   ,           tl
+    context.lineTo right  - tr,     top
+    context.arcTo  right ,          top   ,                 right ,           top    + tr,      tr
+    context.lineTo right ,          bottom - br
+    context.arcTo  right ,          bottom,                 right  - br,      bottom,           br
+    context.lineTo left   + bl,     bottom
+    context.arcTo  left  ,          bottom,                 left  ,           bottom - bl,      bl
 
-      context.closePath()
+    context.closePath()
 
   @curriedRoundedRectangle: (r, radius) ->
     (context) ->

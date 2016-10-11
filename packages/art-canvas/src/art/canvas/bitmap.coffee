@@ -25,6 +25,7 @@ StackBlur = require "./stack_blur"
 {
   inspect, log, min, max, Binary, isFunction, isPlainObject, eq, currentSecond, round, isNumber, floatEq0
   Promise
+  isPlainObject
 } = Foundation
 {EncodedImage} = Binary
 {point, Point, rect, Rectangle, matrix, Matrix, color, Color, IdentityMatrix, point0} = Atomic
@@ -243,7 +244,7 @@ module.exports = class Bitmap extends BitmapBase
     {_context} = @
     if @_setupDraw where, options
 
-      if radius > 0
+      if radius > 0 || isPlainObject radius
         _context.beginPath()
         Paths.roundedRectangle _context, r, radius
         _context.fill fillRule || "nonzero"
