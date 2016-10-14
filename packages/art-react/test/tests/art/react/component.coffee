@@ -152,35 +152,51 @@ module.exports = suite:
       assert.eq c.state, foo:"george", bar:"sally"
       assert.eq false, !!reactArtEngineEpoch.epochQueued
 
-  functionsBoundToInstances: ->
-    test "use bound function", ->
-      class MyComponent extends Component
-        getInitialState: -> foo: "bar"
-        updateState: -> @setState foo: "baz"
-        render: -> Element name: @state.foo
+  functionsBoundToInstances:
+    basic: ->
+      test "use bound function", ->
+        class MyComponent extends Component
+          getInitialState: -> foo: "bar"
+          updateState: -> @setState foo: "baz"
+          render: -> Element name: @state.foo
 
-      (c = new MyComponent)._instantiate()
-      assert.eq c.state, foo:"bar"
-      {updateState} = c
-      updateState();
-      c.onNextReady ->
-        assert.eq c.state, foo:"baz"
-        assert.eq c.element.pendingName, "baz"
+        (c = new MyComponent)._instantiate()
+        assert.eq c.state, foo:"bar"
+        {updateState} = c
+        updateState();
+        c.onNextReady ->
+          assert.eq c.state, foo:"baz"
+          assert.eq c.element.pendingName, "baz"
 
-    test "getBoundFunctionList() empty", ->
-      class MyComponent extends Component
-        render: -> Element()
+      test "getBoundFunctionList() empty", ->
+        class MyComponent extends Component
+          render: -> Element()
 
-      (c = new MyComponent)._instantiate()
-      assert.eq c.getBoundFunctionList(), []
+        (c = new MyComponent)._instantiate()
+        assert.eq c.getBoundFunctionList(), []
 
-    test "getBoundFunctionList() with one entry", ->
-      class MyComponent extends Component
-        foo: ->
-        render: -> Element()
+      test "getBoundFunctionList() with one entry", ->
+        class MyComponent extends Component
+          foo: ->
+          render: -> Element()
 
-      (c = new MyComponent)._instantiate()
-      assert.eq c.getBoundFunctionList(), ["foo"]
+        (c = new MyComponent)._instantiate()
+        assert.eq c.getBoundFunctionList(), ["foo"]
+
+    mixins: ->
+      test "basic", ->
+        FooMixin = (superClass) -> class Foo extends superClass
+          foo: ->
+            @setState foo: "foo"
+            @
+
+        c = new class MyComponent extends FooMixin Component
+          @stateFields bar: "bar"
+          render: -> Element()
+
+        {foo} = c._instantiate()
+        foo().onNextReady (ret) ->
+          assert.eq c.state, bar: "bar", foo: "foo"
 
   setState: ->
 
