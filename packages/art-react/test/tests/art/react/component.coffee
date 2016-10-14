@@ -216,43 +216,65 @@ module.exports = suite:
       assert.eq c.state, foo:"bar"
       assert.eq c.element.pendingName, "bar"
 
-  stateFields: ->
+  stateFields:
+    basic: ->
+      test "basics", ->
+        class MyComponent extends Component
+          @stateFields foo: "bar"
+          render: -> Element()
 
-    test "basics", ->
-      class MyComponent extends Component
-        @stateFields foo: "bar"
-        render: -> Element()
+        c = new MyComponent
+        assert.eq c.state, {}
+        c._instantiate()
+        assert.eq c.state, foo: "bar"
 
-      c = new MyComponent
-      assert.eq c.state, {}
-      c._instantiate()
-      assert.eq c.state, foo: "bar"
+      test "getters and setters", ->
+        class MyComponent extends Component
+          @stateFields foo: "bar"
+          render: -> Element()
 
-    test "getters and setters", ->
-      class MyComponent extends Component
-        @stateFields foo: "bar"
-        render: -> Element()
+        c = new MyComponent
+        assert.eq c.state, {}
+        c._instantiate()
+        assert.eq c.state, foo: "bar"
+        assert.eq c.foo, "bar"
+        c.foo = "baz"
+        c.onNextReady()
+        .then ->
+          assert.eq c.state, foo: "baz"
 
-      c = new MyComponent
-      assert.eq c.state, {}
-      c._instantiate()
-      assert.eq c.state, foo: "bar"
-      assert.eq c.foo, "bar"
-      c.foo = "baz"
-      c.onNextReady()
-      .then ->
+      test "getInitialState has priority", ->
+        class MyComponent extends Component
+          @stateFields foo: "bar"
+          getInitialState: -> foo: "baz"
+          render: -> Element()
+
+        c = new MyComponent
+        assert.eq c.state, {}
+        c._instantiate()
         assert.eq c.state, foo: "baz"
 
-    test "getInitialState has priority", ->
-      class MyComponent extends Component
-        @stateFields foo: "bar"
-        getInitialState: -> foo: "baz"
-        render: -> Element()
+    mixins: ->
+      test "basics", ->
+        MyMixin = (superClass) -> class MyMixinClass extends superClass
+          @stateFields foo: "foo"
 
-      c = new MyComponent
-      assert.eq c.state, {}
-      c._instantiate()
-      assert.eq c.state, foo: "baz"
+        class MyComponent1 extends MyMixin Component
+          @stateFields bar: "bar"
+          render: -> Element()
+
+        class MyComponent2 extends MyMixin Component
+          @stateFields baz: "baz"
+          render: -> Element()
+
+        c = new MyComponent1
+        assert.eq c.state, {}
+        assert.eq c._instantiate().state, foo: "foo", bar: "bar"
+
+        c = new MyComponent2
+        assert.eq c.state, {}
+        assert.eq c._instantiate().state, foo: "foo", baz: "baz"
+
 
   refs: ->
     test "basic", ->

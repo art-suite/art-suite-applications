@@ -183,8 +183,10 @@ defineModule module, -> class Component extends InstanceFunctionBindingMixin Vir
   @instantiateAsTopComponent = (props, options) ->
     new @(props).instantiateAsTopComponent options
 
+  @extendableProperty stateFields: {}
+
   @stateFields: sf = (fields) ->
-    @_stateFields = mergeInto @_stateFields, fields
+    @extendStateFields fields
     for field, initialValue of fields
       do (field) =>
         @addSetter field, (v) -> @setState field, v
@@ -528,7 +530,7 @@ defineModule module, -> class Component extends InstanceFunctionBindingMixin Vir
     __state = @state
     @state = emptyState
 
-    @state = @_preprocessState merge @class._stateFields, __state, initialState
+    @state = @_preprocessState merge @getStateFields(), __state, initialState
 
     @_virtualAimBranch = @_renderCaptureRefs()
 
