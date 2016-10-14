@@ -228,6 +228,15 @@ module.exports = suite:
         c._instantiate()
         assert.eq c.state, foo: "bar"
 
+      test "falsish default values are preserved", ->
+        class MyComponent extends Component
+          @stateFields falsy: false, zero: 0, nully: null, undefinedish: undefined
+          render: -> Element()
+
+        c = new MyComponent
+        assert.eq c.state, {}
+        assert.eq c._instantiate().state, falsy: false, zero: 0, nully: null, undefinedish: undefined
+
       test "getters and setters", ->
         class MyComponent extends Component
           @stateFields foo: "bar"
@@ -256,14 +265,14 @@ module.exports = suite:
 
     mixins: ->
       test "basics", ->
-        MyMixin = (superClass) -> class MyMixinClass extends superClass
+        FooMixin = (superClass) -> class Foo extends superClass
           @stateFields foo: "foo"
 
-        class MyComponent1 extends MyMixin Component
+        class MyComponent1 extends FooMixin Component
           @stateFields bar: "bar"
           render: -> Element()
 
-        class MyComponent2 extends MyMixin Component
+        class MyComponent2 extends FooMixin Component
           @stateFields baz: "baz"
           render: -> Element()
 
@@ -274,7 +283,6 @@ module.exports = suite:
         c = new MyComponent2
         assert.eq c.state, {}
         assert.eq c._instantiate().state, foo: "foo", baz: "baz"
-
 
   refs: ->
     test "basic", ->
