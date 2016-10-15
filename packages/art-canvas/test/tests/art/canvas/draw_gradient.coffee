@@ -1,6 +1,6 @@
 Foundation = require 'art-foundation'
 Atomic = require 'art-atomic'
-Canvas = require 'art-canvas'
+{Canvas} = Neptune.Art
 {point} = Atomic
 {log} = Foundation
 {Bitmap} = Canvas

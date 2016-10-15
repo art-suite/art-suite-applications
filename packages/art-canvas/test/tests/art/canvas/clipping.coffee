@@ -1,66 +1,63 @@
-define [
-  'art-foundation/src/art/dev_tools/test/art_chai'
-  'art-atomic'
-  'art-foundation'
-  'art-canvas'
-], (chai, Atomic, Foundation, Canvas) ->
-  {assert} = chai
-  {log} = Foundation
-  {point, rect} = Atomic
-  {Bitmap, Paths} = Canvas
-  {curriedRoundedRectangle} = Paths
+Foundation = require 'art-foundation'
+Atomic = require 'art-atomic'
+{Canvas} = Neptune.Art
 
-  testBitmap = (name, bitmapTest) ->
-    test name, ->
-      bitmap = new Bitmap point 100
-      bitmap.clear "#eee"
-      bitmapTest bitmap
-      log name, bitmap
+{log} = Foundation
+{point, rect} = Atomic
+{Bitmap, Paths} = Canvas
+{curriedRoundedRectangle} = Paths
 
-  suite "Art.Canvas.Bitmap Clipping", ->
-    testBitmap "nested clipping", (bitmap)->
-      r1 = rect(10, 10, 40, 80)
-      r2 = rect(10, 10, 80, 40)
-      bitmap.clippedTo r1, -> bitmap.clear "#ff7"
-      bitmap.clippedTo r2, -> bitmap.clear "#ff7"
+testBitmap = (name, bitmapTest) ->
+  test name, ->
+    bitmap = new Bitmap point 100
+    bitmap.clear "#eee"
+    bitmapTest bitmap
+    log name, bitmap
 
-      bitmap.clippedTo r1, ->
-        bitmap.clippedTo r2, ->
-          bitmap.clear "#7ff"
+suite "Art.Canvas.Bitmap Clipping", ->
+  testBitmap "nested clipping", (bitmap)->
+    r1 = rect(10, 10, 40, 80)
+    r2 = rect(10, 10, 80, 40)
+    bitmap.clippedTo r1, -> bitmap.clear "#ff7"
+    bitmap.clippedTo r2, -> bitmap.clear "#ff7"
 
-    testBitmap "circular path clipping", (bitmap)->
-      bitmap.clippedTo curriedRoundedRectangle(rect(10, 10, 80, 80), 1000), ->
-        bitmap.clear "#ff7"
+    bitmap.clippedTo r1, ->
+      bitmap.clippedTo r2, ->
+        bitmap.clear "#7ff"
 
-    testBitmap "rounded rectangle path clipping", (bitmap)->
-      bitmap.clippedTo curriedRoundedRectangle(rect(10, 10, 80, 80), 1000), ->
-        bitmap.clear "#ff7"
+  testBitmap "circular path clipping", (bitmap)->
+    bitmap.clippedTo curriedRoundedRectangle(rect(10, 10, 80, 80), 1000), ->
+      bitmap.clear "#ff7"
 
-    testBitmap "nested path clipping", (bitmap)->
-      bitmap.clippedTo curriedRoundedRectangle(rect(10, 10, 80, 80), 1000), ->
-        bitmap.clear "#ff7"
-        bitmap.clippedTo curriedRoundedRectangle(rect(50), 1000), ->
-          bitmap.clear "#0ff"
+  testBitmap "rounded rectangle path clipping", (bitmap)->
+    bitmap.clippedTo curriedRoundedRectangle(rect(10, 10, 80, 80), 1000), ->
+      bitmap.clear "#ff7"
 
-    testBitmap "sibling clips and restoring clips inbetween", (bitmap)->
-      bitmap.clippedTo rect(10, 10, 80, 80), ->
-        bitmap.clear "#ff7"
-        bitmap.clippedTo curriedRoundedRectangle(rect(50), 1000), ->
-          bitmap.clear "#0ff"
-          bitmap.drawRectangle null, rect(0, 25, 100, 50), color:"#077"
+  testBitmap "nested path clipping", (bitmap)->
+    bitmap.clippedTo curriedRoundedRectangle(rect(10, 10, 80, 80), 1000), ->
+      bitmap.clear "#ff7"
+      bitmap.clippedTo curriedRoundedRectangle(rect(50), 1000), ->
+        bitmap.clear "#0ff"
 
-        bitmap.drawRectangle null, rect(0, 40, 100, 20), color:"#0007"
+  testBitmap "sibling clips and restoring clips inbetween", (bitmap)->
+    bitmap.clippedTo rect(10, 10, 80, 80), ->
+      bitmap.clear "#ff7"
+      bitmap.clippedTo curriedRoundedRectangle(rect(50), 1000), ->
+        bitmap.clear "#0ff"
+        bitmap.drawRectangle null, rect(0, 25, 100, 50), color:"#077"
 
-        bitmap.clippedTo curriedRoundedRectangle(rect(50, 50, 50, 50), 1000), ->
-          bitmap.clear "#f0f"
-          bitmap.drawRectangle null, rect(50, 75, 100, 50), color:"#707"
+      bitmap.drawRectangle null, rect(0, 40, 100, 20), color:"#0007"
 
-    testBitmap "rect path rect clipping", (bitmap)->
-      bitmap.clippedTo rect(10, 10, 80, 80), ->
-        bitmap.clear "#ff7"
-        bitmap.clippedTo curriedRoundedRectangle(rect(50), 1000), ->
-          bitmap.clear "#0ff"
-          bitmap.clippedTo rect(0, 25, 100, 50), ->
-            bitmap.clear "#077"
+      bitmap.clippedTo curriedRoundedRectangle(rect(50, 50, 50, 50), 1000), ->
+        bitmap.clear "#f0f"
+        bitmap.drawRectangle null, rect(50, 75, 100, 50), color:"#707"
+
+  testBitmap "rect path rect clipping", (bitmap)->
+    bitmap.clippedTo rect(10, 10, 80, 80), ->
+      bitmap.clear "#ff7"
+      bitmap.clippedTo curriedRoundedRectangle(rect(50), 1000), ->
+        bitmap.clear "#0ff"
+        bitmap.clippedTo rect(0, 25, 100, 50), ->
+          bitmap.clear "#077"
 
 

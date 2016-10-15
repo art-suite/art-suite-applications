@@ -1,4 +1,4 @@
 module.exports = [
-  package: _package = require "art-canvas/package.json"
+  package: _package = require "../../../package.json"
   version: _package.version
 ]

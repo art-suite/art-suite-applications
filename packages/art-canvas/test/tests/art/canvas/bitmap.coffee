@@ -1,6 +1,6 @@
 Atomic = require 'art-atomic'
 Foundation = require 'art-foundation'
-Canvas = require 'art-canvas'
+{Canvas} = Neptune.Art
 commonBitmapTests = require './common_bitmap_tests'
 {Binary, log, eq} = Foundation
 {point, point0, point1, rect, color, matrix, Matrix} = Atomic

@@ -1,7 +1,7 @@
 {assert} = require 'art-foundation/src/art/dev_tools/test/art_chai'
 {point} = require 'art-atomic'
 {log} = require 'art-foundation'
-{GradientFillStyle} = require 'art-canvas'
+{GradientFillStyle} = Neptune.Art.Canvas
 
 suite "Art.Canvas.GradientFillStyle", ->
   test "explicit 3-step gradient", ->
