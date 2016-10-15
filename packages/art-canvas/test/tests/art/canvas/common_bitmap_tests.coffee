@@ -8,7 +8,7 @@ Atomic = require 'art-atomic'
 {EncodedImage} = Binary
 {BitmapBase, Bitmap, GradientFillStyle} = Canvas
 
-(bitmapFactory, bitmapClassName) ->
+module.exports = (bitmapFactory, bitmapClassName) ->
 
   compositeModes = [
     "add"
