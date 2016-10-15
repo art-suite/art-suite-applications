@@ -1,5 +1,5 @@
 {assert} = require 'art-foundation/src/art/dev_tools/test/art_chai'
-{point, rect, Rectangle} = Atomic = require 'art-atomic'
+{point, rect, Rectangle} = Atomic = Neptune.Art.Atomic
 
 suite "Art.Atomic.Rectangle", ->
   test "allocate rect from numbers", ->

@@ -1,6 +1,6 @@
 {assert} = require 'art-foundation/src/art/dev_tools/test/art_chai'
 {inspect, log, floatEq, inspectLean} = Foundation = require 'art-foundation'
-{point, Point, pointWithAspectRatioAndArea, point1} = Atomic = require 'art-atomic'
+{point, Point, pointWithAspectRatioAndArea, point1} = Atomic = Neptune.Art.Atomic
 
 suite "Art.Atomic.Point", ->
   test "allocate point", ->
