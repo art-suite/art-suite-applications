@@ -155,7 +155,7 @@ module.exports = class DynamoDb extends BaseObject
       @invokeAws "getItem",
         GetItem.translateParams params
       .then (res) ->
-        item: decodeDynamoItem res.Item
+        item: res.Item && decodeDynamoItem res.Item
 
     updateItem: (params) ->
       @invokeAws "updateItem",
