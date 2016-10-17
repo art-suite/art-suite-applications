@@ -4,4 +4,4 @@ module.exports = (require "art-foundation/configure_webpack")
   package:
     description: "atomic data-types such as Color, Point, Rectangle and Matrix"
     dependencies:
-      "art-foundation": "git://github.com/Imikimi-LLC/art-foundation.git"
+      "art-foundation": "git://github.com/imikimi/art-foundation.git"
