@@ -5,6 +5,7 @@ React = require "art-react"
 {
   log, arrayWith
   intRand
+  defineModule
 } = Foundation
 
 {
@@ -12,15 +13,13 @@ React = require "art-react"
 } = Atomic
 
 {
-  createComponentFactory
   Component
   Element
   RectangleElement
   TextElement
 } = React
 
-module.exports = createComponentFactory class MyComponent extends Component
-  module: module
+defineModule module, class MyComponent extends Component
 
   @stateField
     stars: []
@@ -56,7 +55,7 @@ module.exports = createComponentFactory class MyComponent extends Component
             ❧ Click background to add an element.
             ❧ Click element to remove it.
 
-            How to declare to/from void animations:
+            Example code:
             """
 
         TextElement
@@ -65,11 +64,7 @@ module.exports = createComponentFactory class MyComponent extends Component
           padding: 10
           text: """
             RectangleElement
-              animators:
-                size:
-                  toFromVoid: 0
-                  easingFunction: "easeInElastic"
-                  duration: 1
+              animators: size: toFrom: 0
 
             """
 
