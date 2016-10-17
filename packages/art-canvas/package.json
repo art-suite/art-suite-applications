@@ -1,8 +1,8 @@
 {
   "author": "Shane Brinkman-Davis Delamore, Imikimi LLC",
   "dependencies": {
-    "art-atomic": "git://github.com/Imikimi-LLC/art-atomic.git",
-    "art-foundation": "git://github.com/Imikimi-LLC/art-foundation.git",
+    "art-atomic": "git://github.com/imikimi/art-atomic.git",
+    "art-foundation": "git://github.com/imikimi/art-foundation.git",
     "chai": "^3.5.0",
     "coffee-loader": "^0.7.2",
     "coffee-script": "^1.11.1",
