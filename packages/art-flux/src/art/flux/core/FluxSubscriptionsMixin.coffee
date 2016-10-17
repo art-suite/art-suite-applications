@@ -16,7 +16,7 @@ defineModule module, -> (superClass) ->
     @_combinedKey: combinedKey = (model, fluxKey, stateField) ->
       "#{model.name}/#{stateField}/#{fluxKey}"
 
-    subscribe: (model, fluxKey, stateField, initialFluxRecord) ->
+    subscribe: (model, fluxKey, stateField, {initialFluxRecord, updatesCallback} = {}) ->
       if isString modelName = model
         model = @models[modelName]
         throw new Error "No model registered with the name: #{modelName}. Models:\n  #{Object.keys(@models).join "\n  "}" unless model
@@ -30,6 +30,7 @@ defineModule module, -> (superClass) ->
           fluxKey: fluxKey
           model: model
           subscriptionFunction: subscriptionFunction = (fluxRecord, subscribers) =>
+            updatesCallback? fluxRecord
             @setStateFromFluxRecord stateField, fluxRecord
 
         fluxStore.subscribe model.name, fluxKey, subscriptionFunction, initialFluxRecord

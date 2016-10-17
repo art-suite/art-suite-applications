@@ -287,9 +287,10 @@ defineModule module, class FluxComponent extends FluxSubscriptionsMixin Componen
       @_autoMaintainedSubscriptions[stateField] = fluxKey
 
       if rubyTrue fluxKey
-        @subscribe model, fluxKey, stateField, if initialData
-          status: success
-          data: initialData
+        @subscribe model, fluxKey, stateField,
+          initialFluxRecord: if initialData
+            status: success
+            data: initialData
 
       else
         # clear state fields previously set
