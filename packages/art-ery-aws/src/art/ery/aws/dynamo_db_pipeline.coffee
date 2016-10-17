@@ -88,13 +88,17 @@ module.exports = class DynamoDbPipeline extends Pipeline
     @dynamoDb.scan merge params, table: @tableName
 
   @handlers
-    get: ({key}) ->
+    get: (request) ->
+      {key} = request
       throw new Error "DynamoDbPipeline#get: key must be a string. key = #{inspect key}" unless isString key
       @dynamoDb.getItem
         table: @tableName
         key: id: key
       .then (result) ->
-        result.item
+        if result.item
+          result.item
+        else
+          request.missing()
 
     createTable: ->
       @_vivifyTable()
