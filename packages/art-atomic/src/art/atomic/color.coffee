@@ -202,13 +202,15 @@ module.exports = class Color extends AtomicBase
 
   @parseCache: parseCache = {}
 
-  @color: color = (a, b, c, d) ->
+  @rgbColor: rgbColor = (a, b, c, d) ->
     return a if !b? && (a instanceof Color)
     return clr if isString(a) && clr = colorNamesMap[a] || parseCache[a]
     new Color a, b, c, d
 
-  @newColor: color
-  @rgbColor: color
+  @newColor: rgbColor
+  @color: (a, b, c, d) ->
+    log.error "Atomic.color DEPRICATED. Use rgbColor."
+    rgbColor a, b, c, d
 
   @hslColor: hslColor = (h, s, l, a = 1) ->
     return h if h instanceof Color
@@ -280,7 +282,7 @@ module.exports = class Color extends AtomicBase
 
     else if /^[a-z]+$/i.test(lcString = string.toLowerCase())
       unless clr = colorNamesMap[lcString]
-        return @log parseError:@parseError = "WARNING: Color.parse failure. Unknown color name: #{inspect string}"
+        return @log parseError:@parseError = "WARNING: Color.parse failure. Unknown rgbColor name: #{inspect string}"
       @_htmlColorString = clr._htmlColorString
       @r = clr.r
       @g = clr.g
@@ -319,9 +321,9 @@ module.exports = class Color extends AtomicBase
     {r, g, b, a} = @
 
     # do we really need this???
-    toColor = color toColor
+    toColor = rgbColor toColor
 
-    # make interpolation to/from 100% transparent nicer (color shouldn't change, only alpha)
+    # make interpolation to/from 100% transparent nicer (rgbColor shouldn't change, only alpha)
     {r, g, b} = toColor if float32Eq0 a
     toColor = @withAlpha 0 if float32Eq0 toColor.a
 
@@ -333,9 +335,30 @@ module.exports = class Color extends AtomicBase
       toColor.a * p + a * oneMinusP
     )
 
-  blend: (r, amount) ->
-    amount = r.a unless amount?
-    r.sub(@).mul(amount).add @
+  blend: (color, amount) ->
+    color = rgbColor color
+    {r,g,b,a} = @
+    switch
+      when amount?
+        new Color(
+          (color.r - r) * amount + r
+          (color.g - g) * amount + g
+          (color.b - b) * amount + b
+          (color.a - a) * amount + a
+        )
+      when colorFloatEq color.a, 1
+        color
+      when colorFloatEq color.a, 0
+        @
+      else
+        amount = color.a
+        new Color(
+          (color.r - r) * amount + r
+          (color.g - g) * amount + g
+          (color.b - b) * amount + b
+          (1 - a) * amount + a
+        )
+
   withAlpha: (a) -> new Color @r, @g, @b, a
   withLightness: (v) -> hslColor @h, @s, v, @a
   withHue: (v) -> hslColor v, @s, @l, @a
@@ -408,7 +431,7 @@ module.exports = class Color extends AtomicBase
     demultiplied: -> new Color @r / @a, @g / @a, @b / @a, @a
 
     cssString: -> "rgba(" + [@r256, @g256, @b256, @aClamped].join(', ') + ")"
-    rgbaString: -> "color(" + [@r256, @g256, @b256, @a256].join('/255, ') + "/255)"
+    rgbaString: -> "rgbColor(" + [@r256, @g256, @b256, @a256].join('/255, ') + "/255)"
 
     hexString: ->
       "#" +
@@ -502,4 +525,4 @@ module.exports = class Color extends AtomicBase
     true
 
   for k, v of colorNamesMap
-    colorNamesMap[k] = color v
+    colorNamesMap[k] = rgbColor v
