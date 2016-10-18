@@ -28,7 +28,7 @@ StackBlur = require "./stack_blur"
   isPlainObject
 } = Foundation
 {EncodedImage} = Binary
-{point, Point, rect, Rectangle, matrix, Matrix, color, Color, IdentityMatrix, point0} = Atomic
+{point, Point, rect, Rectangle, matrix, Matrix, rgbColor, Color, IdentityMatrix, point0} = Atomic
 
 emptyOptions = {}
 
@@ -152,7 +152,7 @@ module.exports = class Bitmap extends BitmapBase
   #   () -> clr == "#0000"
   #   (a, b, c, d) -> clr == color a, b, c, d
   clear: (a, b, c, d) ->
-    clr = if a? then color a, b, c, d else color 0, 0, 0, 0
+    clr = if a? then rgbColor a, b, c, d else rgbColor 0, 0, 0, 0
 
     @_clearTransform()
 
@@ -160,7 +160,7 @@ module.exports = class Bitmap extends BitmapBase
     @_context.clearRect 0, 0, @size.x, @size.y unless clr.a == 1.0
 
     # set all pixels to transparent black, erasing any previously drawn content
-    unless clr.eq color 0, 0, 0, 0
+    unless clr.eq rgbColor 0, 0, 0, 0
       @_context.globalCompositeOperation = "source-over"
       @_setFillStyle clr
       @_context.fillRect 0, 0, @size.x, @size.y
@@ -435,7 +435,7 @@ module.exports = class Bitmap extends BitmapBase
     if shadow
       {blur, offsetX, offsetY, offset} = shadow
       shadowColor = shadow.color
-      _context.shadowColor = color shadowColor || "black"
+      _context.shadowColor = rgbColor shadowColor || "black"
       _context.shadowBlur = blur if blur
       offsetX ||= 0
       offsetY ||= 0

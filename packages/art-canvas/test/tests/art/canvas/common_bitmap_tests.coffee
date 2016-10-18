@@ -2,7 +2,7 @@ Foundation = require 'art-foundation'
 Atomic = require 'art-atomic'
 {Canvas} = Neptune.Art
 
-{point, rect, color, matrix, Matrix} = Atomic
+{point, rect, rgbColor, matrix, Matrix} = Atomic
 {inspect, log, eq} = Foundation
 {Binary} = Foundation
 {EncodedImage} = Binary
@@ -99,7 +99,7 @@ module.exports = (bitmapFactory, bitmapClassName) ->
 
     test "clear to a specific color", ->
       bitmap = bitmapFactory.newBitmap point 2, 2
-      bitmap.clear color 64/255.0, 127/255.0, 191/255.0, 255/255.0
+      bitmap.clear rgbColor 64/255.0, 127/255.0, 191/255.0, 255/255.0
       console.error "common bitmap tests - attempting to log(a)", bitmap, log
       log bitmap
       console.error "common bitmap tests - attempting to log(b)"
@@ -175,7 +175,7 @@ module.exports = (bitmapFactory, bitmapClassName) ->
 
     test "clone", ->
       bitmap = bitmapFactory.newBitmap point 2, 2
-      bitmap.clear color 64/255.0, 127/255.0, 191/255.0, 255/255.0
+      bitmap.clear rgbColor 64/255.0, 127/255.0, 191/255.0, 255/255.0
       b2 = bitmap.clone()
       log bitmap
       log b2
@@ -198,7 +198,7 @@ module.exports = (bitmapFactory, bitmapClassName) ->
 
     test "clear to a transparent color", ->
       bitmap = bitmapFactory.newBitmap point 2, 2
-      bitmap.clear color 1, .5, 0, .5
+      bitmap.clear rgbColor 1, .5, 0, .5
       log bitmap
       data = bitmap.getImageDataArray()
       assert.eq reducedRange(data), [
@@ -211,10 +211,10 @@ module.exports = (bitmapFactory, bitmapClassName) ->
     test "getImageDataArray with <1 alpha pixels", ->
       bitmap = bitmapFactory.newBitmap point 2, 2
       bitmap.clear()
-      bitmap.drawRectangle point(0,0), point(1,1), color:color 1, 1, 1, .25
-      bitmap.drawRectangle point(1,0), point(1,1), color:color 1, 1, 1, .50
-      bitmap.drawRectangle point(0,1), point(1,1), color:color 1, 1, 1, .75
-      bitmap.drawRectangle point(1,1), point(1,1), color:color 1, 1, 1, 0
+      bitmap.drawRectangle point(0,0), point(1,1), color:rgbColor 1, 1, 1, .25
+      bitmap.drawRectangle point(1,0), point(1,1), color:rgbColor 1, 1, 1, .50
+      bitmap.drawRectangle point(0,1), point(1,1), color:rgbColor 1, 1, 1, .75
+      bitmap.drawRectangle point(1,1), point(1,1), color:rgbColor 1, 1, 1, 0
       log bitmap
       assert.eq reducedRange(bitmap.getImageDataArray()), [
         8, 8, 8, 2,   8, 8, 8, 4,
@@ -243,7 +243,7 @@ module.exports = (bitmapFactory, bitmapClassName) ->
     test "drawRectangle with transparency", ->
       bitmap = bitmapFactory.newBitmap point(4, 4)
       draw2x2Checkers bitmap
-      bitmap.drawRectangle null, rect(1, 1, 2, 2), color:color 1,0,0,.5
+      bitmap.drawRectangle null, rect(1, 1, 2, 2), color:rgbColor 1,0,0,.5
       log bitmap
       assert.eq reducedRange(bitmap.getImageDataArray("red")), [
         4, 4, 8, 8,
@@ -255,10 +255,10 @@ module.exports = (bitmapFactory, bitmapClassName) ->
     test "drawRectangle with transparency 2", ->
       bitmap = bitmapFactory.newBitmap point(4, 4)
       bitmap.clear "black"
-      bitmap.drawRectangle null, rect(0, 0, 1, 4), color:color 1, .5, 0, 0
-      bitmap.drawRectangle null, rect(1, 0, 1, 4), color:color 1, .5, 0, .25
-      bitmap.drawRectangle null, rect(2, 0, 1, 4), color:color 1, .5, 0, .5
-      bitmap.drawRectangle null, rect(3, 0, 1, 4), color:color 1, .5, 0, .75
+      bitmap.drawRectangle null, rect(0, 0, 1, 4), color:rgbColor 1, .5, 0, 0
+      bitmap.drawRectangle null, rect(1, 0, 1, 4), color:rgbColor 1, .5, 0, .25
+      bitmap.drawRectangle null, rect(2, 0, 1, 4), color:rgbColor 1, .5, 0, .5
+      bitmap.drawRectangle null, rect(3, 0, 1, 4), color:rgbColor 1, .5, 0, .75
       log bitmap
       assert.eq reducedRange(bitmap.getImageDataArray("red")), [
         0, 2, 4, 6,
@@ -269,8 +269,8 @@ module.exports = (bitmapFactory, bitmapClassName) ->
 
     test "drawRectangle with transparency on transparency 5x5", ->
       bitmap = bitmapFactory.newBitmap point 5
-      bitmap.drawRectangle null, rect(i, 0, 1, 5), color:color 1, 0, 0, i/4 for i in [0..4]
-      bitmap.drawRectangle null, rect(0, i, 5, 1), color:color 0, 1, 0, i/4 for i in [0..4]
+      bitmap.drawRectangle null, rect(i, 0, 1, 5), color:rgbColor 1, 0, 0, i/4 for i in [0..4]
+      bitmap.drawRectangle null, rect(0, i, 5, 1), color:rgbColor 0, 1, 0, i/4 for i in [0..4]
 
       # opaqueBitmap = bitmapFactory.newBitmap point 3
       # opaqueBitmap.clear "white"
@@ -333,8 +333,8 @@ module.exports = (bitmapFactory, bitmapClassName) ->
 
       assert.eq textureBitmap.size, point 2
 
-      textureBitmap.clear color 1, 0, 0, 1
-      textureBitmap.drawRectangle null, point(1,2), color:color 0, 127/255.0, 1, 1
+      textureBitmap.clear rgbColor 1, 0, 0, 1
+      textureBitmap.drawRectangle null, point(1,2), color:rgbColor 0, 127/255.0, 1, 1
 
       canvasBitmap.drawBitmap point(1, 1), textureBitmap
       log canvasBitmap
@@ -347,11 +347,11 @@ module.exports = (bitmapFactory, bitmapClassName) ->
 
     test "drawBitmap section", ->
       source = bitmapFactory.newBitmap point 4, 4
-      source.clear color 1, 1, 0, 1
-      source.drawRectangle point(1), point(2), color:color 1, 0, 0, 1
+      source.clear rgbColor 1, 1, 0, 1
+      source.drawRectangle point(1), point(2), color:rgbColor 1, 0, 0, 1
 
       target = bitmapFactory.newBitmap point 4, 4
-      target.clear color .5, .5, .5, 1
+      target.clear rgbColor .5, .5, .5, 1
       target.drawBitmap point(1), source, sourceArea:rect 2,2,2,2
 
       assert.eq reducedRange(source.getImageDataArray()), [
@@ -375,8 +375,8 @@ module.exports = (bitmapFactory, bitmapClassName) ->
 
       assert.eq textureBitmap.size, point 2
 
-      textureBitmap.clear color 1, 0, 0, 1
-      textureBitmap.drawRectangle null, point(1,2), color:color 0, 127/255.0, 1, 1
+      textureBitmap.clear rgbColor 1, 0, 0, 1
+      textureBitmap.drawRectangle null, point(1,2), color:rgbColor 0, 127/255.0, 1, 1
 
       canvasBitmap.drawBitmap point(1, 1), textureBitmap, opacity:.5
       log canvasBitmap
@@ -486,8 +486,8 @@ module.exports = (bitmapFactory, bitmapClassName) ->
       a = bitmapFactory.newBitmap point 3
       b = bitmapFactory.newBitmap point 3
       for i in [0,1,2]
-        a.drawRectangle point(0,i), point(3, 1), color:color 1, .5, 0, i*.5
-        b.drawRectangle point(i,0), point(1, 3), color:color 1, .5, 0, i*.5
+        a.drawRectangle point(0,i), point(3, 1), color:rgbColor 1, .5, 0, i*.5
+        b.drawRectangle point(i,0), point(1, 3), color:rgbColor 1, .5, 0, i*.5
 
       temp = bitmapFactory.newBitmap b.size
       temp.clear "white"
@@ -531,8 +531,8 @@ module.exports = (bitmapFactory, bitmapClassName) ->
         src = bitmapFactory.newBitmap point 3
         dst = bitmapFactory.newBitmap point 3
         dst.clear "#777"
-        r = color 1, 0, 0, .5
-        b = color 0, 0, 1, .5
+        r = rgbColor 1, 0, 0, .5
+        b = rgbColor 0, 0, 1, .5
         drawSteps = (target)->
           target.drawRectangle null, rect(0,0,2,1), color:r, compositeMode:"add"
           target.drawRectangle null, rect(1,0,2,1), color:b, compositeMode:"add"
@@ -554,9 +554,9 @@ module.exports = (bitmapFactory, bitmapClassName) ->
 
 
     test "compositing modes", ->
-      dest1 = generateCompositingTestBitmap color(0,0,0,0), "#f00", "#00f"
-      # dest2 = generateCompositingTestBitmap color(0,0,0,0), color(1, 0, 0, 1), color(0,0,1,.75)
-      # dest3 = generateCompositingTestBitmap color(0,0,0,0), color(1, 0, 0, .75), color(0,0,1,.75)
+      dest1 = generateCompositingTestBitmap rgbColor(0,0,0,0), "#f00", "#00f"
+      # dest2 = generateCompositingTestBitmap rgbColor(0,0,0,0), rgbColor(1, 0, 0, 1), rgbColor(0,0,1,.75)
+      # dest3 = generateCompositingTestBitmap rgbColor(0,0,0,0), rgbColor(1, 0, 0, .75), rgbColor(0,0,1,.75)
 
       logBitmap = bitmapFactory.newBitmap point dest1.size.x*2, dest1.size.y*2
       logBitmap.drawBitmap point(0,0), dest1
@@ -624,7 +624,7 @@ module.exports = (bitmapFactory, bitmapClassName) ->
     test "drawRectangle gradient with transparency", ->
       bitmap = bitmapFactory.newBitmap point 5,1
       bitmap.clear "black"
-      gfs = new GradientFillStyle point(.5,0), point(4.5,0), [color(0,0,0,.25), color(1,0,0,.5), color(1,1,1,.75)]
+      gfs = new GradientFillStyle point(.5,0), point(4.5,0), [rgbColor(0,0,0,.25), rgbColor(1,0,0,.5), rgbColor(1,1,1,.75)]
       bitmap.drawRectangle null, bitmap.size, fillStyle:gfs
       log bitmap
 
@@ -633,7 +633,7 @@ module.exports = (bitmapFactory, bitmapClassName) ->
       assert.within bitmap.getImageDataArray("red"),
         [0, 48, 118, 159, 186]
         [6, 48, 127, 159, 191]
-      # I'm pretty certain the "48" is right. It should be color(.5, 0, 0, (.5 + .25)/2)
+      # I'm pretty certain the "48" is right. It should be rgbColor(.5, 0, 0, (.5 + .25)/2)
       # Then pre-multiply it to get 0.1875 for the r channel
       # 0.1875 * 255 == 47.8125
       # webGL is currently failing this test. Somehow its not correctly observing premultiplication.
@@ -659,7 +659,7 @@ module.exports = (bitmapFactory, bitmapClassName) ->
 
     test "blurAlpha", ->
       bitmap = bitmapFactory.newBitmap point 4, 4
-      bitmap.clear color(0,0,0,0)
+      bitmap.clear rgbColor(0,0,0,0)
       bitmap.drawRectangle point(1), point(2), color:"#fff"
       res = bitmap.blurAlpha 1
       assert.eq res, bitmap

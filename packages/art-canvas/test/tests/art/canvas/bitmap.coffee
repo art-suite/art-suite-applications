@@ -3,7 +3,7 @@ Foundation = require 'art-foundation'
 {Canvas} = Neptune.Art
 commonBitmapTests = require './common_bitmap_tests'
 {Binary, log, eq} = Foundation
-{point, point0, point1, rect, color, matrix, Matrix} = Atomic
+{point, point0, point1, rect, rgbColor, matrix, Matrix} = Atomic
 {Bitmap} = Canvas
 
 array = (a) -> i for i in a
@@ -46,13 +46,13 @@ suite "Art.Bitmap", ->
 
   test "getImageDataArray (all channels)", ->
     bitmap = new Bitmap point(2, 2)
-    bitmap.clear color 1/255, 2/255, 3/255, 255/255
+    bitmap.clear rgbColor 1/255, 2/255, 3/255, 255/255
     data = bitmap.getImageDataArray()
     assert.eq data, [1, 2, 3, 255, 1, 2, 3, 255, 1, 2, 3, 255, 1, 2, 3, 255]
 
   test "getImageDataArray (red channel)", ->
     bitmap = new Bitmap point(2, 2)
-    bitmap.clear color 1/255, 2/255, 3/255, 255/255
+    bitmap.clear rgbColor 1/255, 2/255, 3/255, 255/255
     data = bitmap.getImageDataArray("red")
     assert.eq data, [1, 1, 1, 1]
 
@@ -353,5 +353,5 @@ suite "Art.Bitmap.getAutoCropRectangle", ->
     test: (bitmap) -> assert.eq r, bitmap.getAutoCropRectangle()
 
   testAndLogBitmap "threshold test 2", ->
-    bitmap: new Bitmap(bitmapSize).drawRectangle null, r = rect(1, 2, 3, 4), color: color 0, 0, 0, .1
+    bitmap: new Bitmap(bitmapSize).drawRectangle null, r = rect(1, 2, 3, 4), color: rgbColor 0, 0, 0, .1
     test: (bitmap) -> assert.eq rect(), bitmap.getAutoCropRectangle(128)

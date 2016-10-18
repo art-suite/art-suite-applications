@@ -9,7 +9,7 @@
 Foundation = require 'art-foundation'
 Atomic = require 'art-atomic'
 
-{point, Point, rect, Rectangle, matrix, Matrix, color, Color} = Atomic
+{point, Point, rect, Rectangle, matrix, Matrix, rgbColor, Color} = Atomic
 {inspect, nextTick, BaseObject, Binary, pureMerge, isString, isNumber, log} = Foundation
 {round, floor} = Math
 {BinaryString} = Binary
@@ -23,7 +23,7 @@ module.exports = class BitmapBase extends BaseObject
   compositeModeSupported: (mode) -> @supportedCompositeModes.indexOf(mode) >= 0
   @pixelSnapDefault = true
 
-  defaultColor: color "black"
+  defaultColor: rgbColor "black"
   defaultColorString: "black"
 
   constructor: (a, b) ->
