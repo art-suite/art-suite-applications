@@ -1,6 +1,6 @@
 Foundation = require 'art-foundation'
 FluxCore = require '../core'
-{objectWithout, BaseObject, log, isString, isPlainObject, merge, propsEq, mergeInto, Unique, defineModule, CommunicationStatus} = Foundation
+{clone, objectWithout, BaseObject, log, isString, isPlainObject, merge, propsEq, mergeInto, Unique, defineModule, CommunicationStatus} = Foundation
 {FluxStore, FluxModel} = FluxCore
 {fluxStore} = FluxStore
 {pending, success, failure, missing} = CommunicationStatus
@@ -53,7 +53,7 @@ NEW:
 
 defineModule module, class ApplicationState extends FluxModel
   @abstractClass()
-  @classProperty "persistant"
+  @persistant: -> @_persistant = true
 
   @postCreateConcreteClass: ({hotReloaded, classModuleState}) ->
     ret = super
@@ -120,8 +120,7 @@ defineModule module, class ApplicationState extends FluxModel
       @state[key] = value
       @load key
 
-    @state[@name] = objectWithout @state, @name
-    @load @name
+    @_updateAllState()
 
     @_saveToLocalStorage()
     key
@@ -178,16 +177,29 @@ defineModule module, class ApplicationState extends FluxModel
     @updateFluxStore key, status: missing
 
   _loadFromLocalStorage: ->
-    if @class.persistant
+    if @class._persistant
       data = localStorage.getItem @name
       v = JSON.parse data if data
       log _loadFromLocalStorage:v
       v
 
+  _updateAllState: (state)->
+    oldState = state || @state
+    newState = merge oldState, "#{@name}": objectWithout oldState, @name
+
+    unless state
+      @state = newState
+      @load @name
+
+    newState
+
+  @getter
+    savableState: -> objectWithout @state, @name
+
   _saveToLocalStorage: (state = @state)->
-    if @class.persistant
-      localStorage.setItem @name, v = JSON.stringify state
+    if @class._persistant
+      localStorage.setItem @name, v = JSON.stringify @savableState
       log _saveToLocalStorage:v
 
   _getInitialState: ->
-    merge @getInitialState(), @class._stateFields, try @_loadFromLocalStorage()
+    @_updateAllState merge @getInitialState(), @class._stateFields, try @_loadFromLocalStorage()
