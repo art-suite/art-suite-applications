@@ -199,7 +199,7 @@ defineModule module, class ApplicationState extends FluxModel
   _saveToLocalStorage: (state = @state)->
     if @class._persistant
       localStorage.setItem @name, v = JSON.stringify @savableState
-      log _saveToLocalStorage:v
+      # log _saveToLocalStorage:v
 
   _getInitialState: ->
     @_updateAllState merge @getInitialState(), @class._stateFields, try @_loadFromLocalStorage()
