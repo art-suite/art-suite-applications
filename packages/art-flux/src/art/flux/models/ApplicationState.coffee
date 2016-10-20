@@ -1,6 +1,6 @@
 Foundation = require 'art-foundation'
 FluxCore = require '../core'
-{BaseObject, log, isString, isPlainObject, merge, propsEq, mergeInto, Unique, defineModule, CommunicationStatus} = Foundation
+{objectWithout, BaseObject, log, isString, isPlainObject, merge, propsEq, mergeInto, Unique, defineModule, CommunicationStatus} = Foundation
 {FluxStore, FluxModel} = FluxCore
 {fluxStore} = FluxStore
 {pending, success, failure, missing} = CommunicationStatus
@@ -38,6 +38,17 @@ Example:
     showWelcome: -> @setState "showingWelcome", true
     hideWelcome: -> @setState "showingWelcome", false
 
+NEW:
+  You can how subscribe to the entire state of the model by subscribing to its own name:
+
+  Example:
+    # using the model above, you can subscribe to its entire state as follows:
+
+    class MyComponent extends FluxComponent
+      @subscriptions "ozAppState.ozAppState"
+
+      render: ->
+        TextElement text: "showingWelcome: #{@ozAppState.showingWelcome}"
 ###
 
 defineModule module, class ApplicationState extends FluxModel
@@ -108,6 +119,9 @@ defineModule module, class ApplicationState extends FluxModel
     else if isString(key) && !propsEq @state[key], value
       @state[key] = value
       @load key
+
+    @state[@name] = objectWithout @state, @name
+    @load @name
 
     @_saveToLocalStorage()
     key
