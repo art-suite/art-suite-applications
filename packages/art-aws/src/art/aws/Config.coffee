@@ -7,12 +7,12 @@ module.exports = class Config
   IN: config: {}
     EXAMPLE:
       credentials:
-        accessKeyId:      'AKIAI6A2ZKODQMKSV34A'
-        secretAccessKey:  'ZG/vWdmnOJ0bWaKPjSZKr8n6WtxWrcvu0Km9G9NA'
+        accessKeyId:      'blahblah'
+        secretAccessKey:  'blahblah'
       region:             'us-east-1'
 
       s3Buckets:
-        tempBucket:       'oz-dev-expiring-uploads'
+        tempBucket:       'my-name'
 
       dynamoDb:
         endpoint:         'http://localhost:8081'
