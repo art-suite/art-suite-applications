@@ -1,6 +1,6 @@
 Foundation = require 'art-foundation'
 FluxCore = require '../core'
-{clone, objectWithout, BaseObject, log, isString, isPlainObject, merge, propsEq, mergeInto, Unique, defineModule, CommunicationStatus} = Foundation
+{clone, BaseObject, log, isString, isPlainObject, merge, propsEq, mergeInto, Unique, defineModule, CommunicationStatus} = Foundation
 {FluxStore, FluxModel} = FluxCore
 {fluxStore} = FluxStore
 {pending, success, failure, missing} = CommunicationStatus
@@ -164,7 +164,9 @@ defineModule module, class ApplicationState extends FluxModel
   # there should be no need to call this directly. call setState.
   # overrides FluxModel#load
   load: (key, callback) ->
-    fluxRecord = if @state.hasOwnProperty key
+    fluxRecord = if key == @name
+      status: success, data: @savableState
+    else if @state.hasOwnProperty key
       status: success, data: @state[key]
     else
       status: missing
@@ -178,28 +180,23 @@ defineModule module, class ApplicationState extends FluxModel
 
   _loadFromLocalStorage: ->
     if @class._persistant
-      data = localStorage.getItem @name
+      data = localStorage.getItem @localStorageKey
       v = JSON.parse data if data
       log _loadFromLocalStorage:v
       v
 
-  _updateAllState: (state)->
-    oldState = state || @state
-    newState = merge oldState, "#{@name}": objectWithout oldState, @name
-
-    unless state
-      @state = newState
-      @load @name
-
-    newState
+  _updateAllState: (state = @state)->
+    @state = state
+    @load @name
+    state
 
   @getter
-    savableState: -> objectWithout @state, @name
+    savableState: -> merge @state
+    localStorageKey: -> "ApplicationState:#{@name}"
 
   _saveToLocalStorage: (state = @state)->
     if @class._persistant
-      localStorage.setItem @name, v = JSON.stringify @savableState
-      # log _saveToLocalStorage:v
+      localStorage.setItem @localStorageKey, JSON.stringify @savableState
 
   _getInitialState: ->
     @_updateAllState merge @getInitialState(), @class._stateFields, try @_loadFromLocalStorage()
