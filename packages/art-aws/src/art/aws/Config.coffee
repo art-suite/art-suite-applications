@@ -30,6 +30,6 @@ module.exports = class Config
         maxRetries:       5
         config.dynamoDb
 
-      s3Buckets: newObjectFromEach config.s3buckets || {}, (id) -> {id}
+      s3Buckets: newObjectFromEach config.s3Buckets || {}, (id) -> {id}
 
       configured: true
