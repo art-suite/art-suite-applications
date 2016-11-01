@@ -8,6 +8,7 @@ Point       = require './point'
   round, floatEq, floor, ceil, round, log,
   isNumber, isArray, isString, isFunction
   stringToNumberArray
+  floatEq0
 } = Foundation
 {point} = Point
 
@@ -259,12 +260,12 @@ module.exports = class Rectangle extends AtomicBase
 
   grow: (a, b) ->
     if a instanceof Point
-      gx = a.x
-      gy = a.y
+      {x, y} = a
     else
-      gx = a
-      gy = if b? then b else a
-    @with @x - gx, @y - gy, @w + 2 * gx, @h + 2 * gy
+      x = a
+      y = if b? then b else a
+    return @ if floatEq0(x) && floatEq0(y)
+    @with @x - x, @y - y, @w + 2 * x, @h + 2 * y
 
   # Common instances
   @nothing:     Object.freeze new Rectangle 0, 0, 0, 0
