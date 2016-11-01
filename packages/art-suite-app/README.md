@@ -1,2 +1,5 @@
-# art-suite-app
-Helps streamline the process if building a cross-platform, full-screen app with the ArtSuite
+# art-boilerplate
+
+Recommended usage:
+
+* **fork it on github** That way you can pull updates from the boiler-plate if you want.
