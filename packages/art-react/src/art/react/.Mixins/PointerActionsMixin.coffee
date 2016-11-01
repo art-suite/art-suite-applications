@@ -14,7 +14,7 @@ defineModule module, ->
 
     @getter
 
-      buttonHandlers: ->
+      buttonHandlers: (customAction) ->
         ###
           CafScript could do: {}
             @mouseIn
@@ -37,7 +37,7 @@ defineModule module, ->
         pointerUp:        @pointerUp
         pointerCancel:    @pointerUp
         pointerOut:       @pointerUp
-        pointerUpInside:  @doAction
+        pointerUpInside:  customAction || @doAction
 
       hoverHandlers: ->
         # CafScript could do: {} @mouseIn @mouseOut
