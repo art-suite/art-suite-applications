@@ -4,4 +4,6 @@ module.exports = (require "art-foundation/configure_webpack")
   package:
     description: "Art App/Lib Boilerplate"
     dependencies:
-      "art-foundation": "git://github.com/imikimi/art-foundation.git"
+      "art-suite":    "git://github.com/imikimi/art-suite"
+      "art-aws":      "git://github.com/imikimi/art-aws"
+      "art-ery-aws":  "git://github.com/imikimi/art-ery-aws"
