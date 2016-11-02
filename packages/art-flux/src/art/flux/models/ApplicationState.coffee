@@ -143,7 +143,7 @@ defineModule module, class ApplicationState extends FluxModel
     @state = {}
 
   resetState: ->
-    @replaceState @_getInitialState()
+    @replaceState @_getInitialState false
 
   ###
   Replace all state with newState.
@@ -152,9 +152,10 @@ defineModule module, class ApplicationState extends FluxModel
     @setState newState
   ###
   replaceState: (newState) ->
-    for k, v of @state when !newState.hasOwnProperty k
-      @_removeFromFluxStore k
-      delete @state[k]
+    for k, v of @state
+      unless newState.hasOwnProperty k
+        @_removeFromFluxStore k
+        delete @state[k]
 
     @setState newState
 
@@ -198,5 +199,5 @@ defineModule module, class ApplicationState extends FluxModel
     if @class._persistant
       localStorage.setItem @localStorageKey, JSON.stringify @savableState
 
-  _getInitialState: ->
-    @_updateAllState merge @getInitialState(), @class._stateFields, try @_loadFromLocalStorage()
+  _getInitialState: (loadFromLocalStorage = true) ->
+    @_updateAllState merge @getInitialState(), @class._stateFields, loadFromLocalStorage && try @_loadFromLocalStorage()
