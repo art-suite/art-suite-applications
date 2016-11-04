@@ -4,6 +4,7 @@
   Promise
   inspect
   formattedInspect
+  deepMerge
 } = require 'art-foundation'
 ArtEry = require 'art-ery'
 ArtAws = require 'art-aws'
@@ -14,7 +15,17 @@ defineModule module, class Node
   @configureArtEry: ({artEry}) -> ArtEry.configure artEry
 
   @init: ({Config, environmentName = "Development"}) ->
-    environment = Config.current = Config.Environments[environmentName]
+    envConfig = if process.env.artSuiteAppConfig
+      try
+        JSON.parse process.env.artSuiteAppConfig
+      catch e
+        log.error "\nInvalid 'artSuiteAppConfig' environment. Must be valid JSON.\nprocess.env.artSuiteAppConfig =\n  #{process.env.artSuiteAppConfig}\n\nerror: #{e}\n"
+        null
+
+    log artSuiteAppConfig: envConfig
+    environment = Config.current = deepMerge null,
+      Config.Environments[environmentName]
+      envConfig
 
     throw new Error "Environment not found #{inspect environment} in Config.Environments: #{formattedInspect Object.keys Config?.Environments?.modules}" unless environment
 

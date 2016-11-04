@@ -5,6 +5,7 @@ module.exports = require './namespace'
 .addModules
   ArtEryReport:          require './ArtEryReport'         
   CreateTables:          require './CreateTables'         
+  CurrentConfig:         require './CurrentConfig'        
   ListPipelines:         require './ListPipelines'        
   ListTables:            require './ListTables'           
   LoadTestData:          require './LoadTestData'         

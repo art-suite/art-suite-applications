@@ -12,10 +12,14 @@ IN: options:
 
   createTables STUFF - what will that be?
 
+configuration:
+  Config.current = merge
+    Config[environmentName]
+    eval process.env.artSuiteApp || "null"
 ###
 module.exports = (options)->
   (require 'art-foundation/buildCommander')
-    package: options.package #require './package.json'
+    package: options.package
     beforeActions: (commander)->
       {merge} = require 'art-foundation'
       require 'art-aws/Server'
