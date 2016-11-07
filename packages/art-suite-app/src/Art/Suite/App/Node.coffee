@@ -30,10 +30,11 @@ defineModule module, class Node
 
     environmentName ||= process.env.artSuiteAppEnvironment
 
-    log artSuiteAppConfig: envConfig
     environment = Config.current = deepMerge null,
       Config.Environments[environmentName]
       envConfig
+
+    log artSuiteApp: environment: environment
 
     throw new Error "Environment not found #{inspect environment} in Config.Environments: #{formattedInspect Object.keys Config?.Environments?.modules}" unless environment
 
