@@ -66,7 +66,7 @@ defineModule module, class Init
   @init: (options) =>
     options.title ||= "ArtSuiteApp"
     {title, Component, Config} = options
-    throw new Error "options.Component and options.Config.Environments.Development required" unless Component and Config.Environments.Development
+    throw new Error "options.Component and options.Config.Environments.Development required" unless Component and Config?.Environments?.Development
     log "#{title}: initializing..."
     FullScreenApp.init options
     .then => @configure Config

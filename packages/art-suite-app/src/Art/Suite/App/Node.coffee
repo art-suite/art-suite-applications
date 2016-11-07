@@ -14,6 +14,12 @@ defineModule module, class Node
   @configureArtAws: ({artAws}) -> ArtAws.configure artAws
   @configureArtEry: ({artEry}) -> ArtEry.configure artEry
 
+  ###
+  IN:
+    process.env
+      artSuiteAppEnvironment: string
+      artSuiteAppConfig:      JSON object structure
+  ###
   @init: ({Config, environmentName = "Development"}) ->
     envConfig = if process.env.artSuiteAppConfig
       try
@@ -21,6 +27,8 @@ defineModule module, class Node
       catch e
         log.error "\nInvalid 'artSuiteAppConfig' environment. Must be valid JSON.\nprocess.env.artSuiteAppConfig =\n  #{process.env.artSuiteAppConfig}\n\nerror: #{e}\n"
         null
+
+    environmentName ||= process.env.artSuiteAppEnvironment
 
     log artSuiteAppConfig: envConfig
     environment = Config.current = deepMerge null,
