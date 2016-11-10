@@ -1,5 +1,5 @@
 module.exports = (require "art-foundation/configure_webpack")
-  entries: "index"
+  entries: "index test"
   package:
     description: 'ArtEry for AWS Lambda + DynamoDB'
     dependencies:
