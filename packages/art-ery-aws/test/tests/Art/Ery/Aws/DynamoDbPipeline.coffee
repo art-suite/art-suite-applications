@@ -1,32 +1,41 @@
 Foundation = require 'art-foundation'
-{missing} = require 'art-ery'
+{pipelines} = require 'art-ery'
+{createDatabaseFilters} = require 'art-ery/Filters'
+
 ArtEryAws = require 'art-ery-aws'
 
-{isString, log, merge} = Foundation
-{DynamoDbPipeline, config} = ArtEryAws
-config.region = 'us-west-2'
+{CommunicationStatus, isString, log, merge, createWithPostCreate} = Foundation
+{missing} = CommunicationStatus
+{DynamoDbPipeline} = ArtEryAws
+Neptune.Art.Aws.config.region = 'us-west-2'
 
-suite "Art.Ery.Aws.DynamoDbPipeline", ->
-  # test "works", ->
-  myTable = null
+
+Neptune.Art.Aws.config.dynamoDb.endpoint = 'http://localhost:1337/localhost:8081'
+
+module.exports = suite: ->
+  MyTable = null
   setup ->
-    {myTable} = class MyTable extends DynamoDbPipeline
-      @singletonClass()
+    Neptune.Art.Ery.PipelineRegistry._reset()
+    createWithPostCreate class MyTable extends DynamoDbPipeline
+      @filter createDatabaseFilters()
+
+    pipelines.myTable.createTable()
 
   test "create", ->
     createData = null
 
-    myTable.create
-      userName: "John"
-      email: "foo@bar.com"
-      rank: 123
-      attributes: ["adventurous", "charming"]
+    pipelines.myTable.create
+      data:
+        userName: "John"
+        email: "foo@bar.com"
+        rank: 123
+        attributes: ["adventurous", "charming"]
     .then (_createData) ->
       createData = _createData
       {id} = createData
       assert.ok isString id
       id
-    .then (id) -> myTable.get id
+    .then (id) -> pipelines.myTable.get key: id
     .then (getData) ->
       assert.eq getData, createData
 
@@ -34,38 +43,49 @@ suite "Art.Ery.Aws.DynamoDbPipeline", ->
 
     createData = null
 
-    myTable.create
-      userName: "John"
-      email: "foo@bar.com"
-      rank: 123
-      attributes: ["adventurous", "charming"]
-    .then (_createData) ->
-      createData = _createData
-      myTable.update createData.id,
-        foo: "bar"
-    .then (updateData) ->
-      assert.eq updateData, merge createData, foo: "bar"
+    pipelines.myTable.create
+      data:
+        userName: "John"
+        email: "foo@bar.com"
+        rank: 123
+        attributes: ["adventurous", "charming"]
+    .then (createData) ->
+      pipelines.myTable.update
+        key: createData.id
+        data: foo: "bar"
+      .then (updatedData)->
+        pipelines.myTable.get key: createData.id
+        .then (data)->
+          assert.eq data, merge createData, updatedData
 
   test "delete", ->
     createData = null
 
-    myTable.create
-      userName: "John"
-      email: "foo@bar.com"
-      rank: 123
-      attributes: ["adventurous", "charming"]
+    pipelines.myTable.create
+      data:
+        userName: "John"
+        email: "foo@bar.com"
+        rank: 123
+        attributes: ["adventurous", "charming"]
+
     .then (_createData) ->
       createData = _createData
-      myTable.delete createData.id,
+      pipelines.myTable.delete key: createData.id
+
     .then ->
-      myTable.get createData.id
+      pipelines.myTable.get key: createData.id
+
     .catch (response)->
       assert.eq response.status, missing
       "triggered catch"
+
     .then (v)->
       assert.eq v, "triggered catch"
 
   test "describeTable", ->
-    myTable.dynamoDb.describeTable TableName: myTable.tableName
-    .then (result) ->
-      log result
+    pipelines.myTable.dynamoDb.describeTable TableName: pipelines.myTable.tableName
+    .then ({Table}) ->
+      assert.eq Table.AttributeDefinitions, [
+        AttributeName: "id"
+        AttributeType: "S"
+      ]
