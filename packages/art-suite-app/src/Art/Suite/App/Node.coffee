@@ -5,6 +5,8 @@
   inspect
   formattedInspect
   deepMerge
+  parseQuery
+  merge
 } = require 'art-foundation'
 ArtEry = require 'art-ery'
 ArtAws = require 'art-aws'
@@ -17,24 +19,35 @@ defineModule module, class Node
   ###
   IN:
     process.env
-      artSuiteAppEnvironment: string
-      artSuiteAppConfig:      JSON object structure
+      artSuiteEnvironment: string
+      artSuiteConfig:      JSON object structure
   ###
-  @init: ({Config, environmentName = "Development"}) ->
-    envConfig = if process.env.artSuiteAppConfig
+  @init: ({Config, environmentName}) ->
+    environmentName ||= process.env.artSuiteEnvironment || "Development"
+
+    env = merge process.env, parseQuery()
+
+    envConfig = if env.artSuiteConfig
       try
-        JSON.parse process.env.artSuiteAppConfig
+        parsedArtSuiteAppConfig = JSON.parse env.artSuiteConfig
       catch e
-        log.error "\nInvalid 'artSuiteAppConfig' environment. Must be valid JSON.\nprocess.env.artSuiteAppConfig =\n  #{process.env.artSuiteAppConfig}\n\nerror: #{e}\n"
+        log.error "\nInvalid 'artSuiteConfig' environment. Must be valid JSON.\nprocess.env.artSuiteConfig =\n  #{env.artSuiteConfig}\n\nerror: #{e}\n"
         null
 
-    environmentName ||= process.env.artSuiteAppEnvironment
+    throw new Error "Config.Environments.#{environmentName} does not exist" unless Config.Environments[environmentName]
 
     environment = Config.current = deepMerge null,
       Config.Environments[environmentName]
       envConfig
+      environment: environmentName
 
-    log artSuiteApp: environment: environment
+    log artSuiteApp:
+      environment: environment
+      info:
+        "Config.Environments.#{environmentName}": Config.Environments[environmentName]
+        "process.env":
+          artSuiteEnvironment: env.artSuiteEnvironment
+          artSuiteConfig:      parsedArtSuiteAppConfig
 
     throw new Error "Environment not found #{inspect environment} in Config.Environments: #{formattedInspect Object.keys Config?.Environments?.modules}" unless environment
 

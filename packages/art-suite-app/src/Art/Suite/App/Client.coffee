@@ -17,7 +17,7 @@ defineModule module, class Init
   @getSelectedEnvironmentName: (environments) =>
     query = parseQuery()
 
-    env = query.env || "development"
+    env = query.env || query.artSuiteEnvironment || "development"
 
     log """
       Options
@@ -36,8 +36,16 @@ defineModule module, class Init
   @getSelectedEnvironment: (Config) =>
     environmentName = @getSelectedEnvironmentName()
     log environmentName: environmentName
-    environment = Config.Environments[environmentName = upperCamelCase environmentName]
+    environment = deepMerge Config.Environments[environmentName = upperCamelCase environmentName],
+      artSuiteConfig = JSON.parse parseQuery().artSuiteConfig || "{}"
+
     throw new Error "environment not found for: #{environmentName}" unless environment
+
+    log selectedEnvironment:
+      environment: environment
+      "Config.Environments.#{environmentName}": Config.Environments[environmentName = upperCamelCase environmentName]
+      artSuiteConfig: artSuiteConfig
+
     environment
 
   @configure: (Config) ->
