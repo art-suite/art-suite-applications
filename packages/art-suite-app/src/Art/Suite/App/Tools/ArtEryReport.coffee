@@ -1,6 +1,6 @@
 module.exports =
   params: "[pipeline]"
-  action: (pipelineName) ->
+  action: ({args:[pipelineName]}) ->
     Neptune.Art.Foundation.log  pipelineName:pipelineName
     if pipelineName
       "#{pipelineName}": Neptune.Art.Ery.pipelines[pipelineName].getPipelineReport()
