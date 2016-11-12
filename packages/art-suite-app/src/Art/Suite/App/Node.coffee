@@ -42,12 +42,12 @@ defineModule module, class Node
       environment: environmentName
 
     log artSuiteApp:
-      environment: environment
-      info:
-        "Config.Environments.#{environmentName}": Config.Environments[environmentName]
-        "process.env":
-          artSuiteEnvironment: env.artSuiteEnvironment
-          artSuiteConfig:      parsedArtSuiteAppConfig
+      Config:
+        current: environment
+        "Environments.#{environmentName}": Config.Environments[environmentName]
+      "process.env":
+        artSuiteEnvironment: env.artSuiteEnvironment
+        artSuiteConfig:      parsedArtSuiteAppConfig
 
     throw new Error "Environment not found #{inspect environment} in Config.Environments: #{formattedInspect Object.keys Config?.Environments?.modules}" unless environment
 
