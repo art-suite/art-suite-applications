@@ -2,5 +2,6 @@
 # file: Art/Ery/Aws/index.coffee
 
 module.exports = require './namespace'
+.includeInNamespace require './Aws'
 .addModules
   DynamoDbPipeline: require './DynamoDbPipeline'
