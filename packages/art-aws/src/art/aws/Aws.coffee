@@ -10,4 +10,6 @@ unless self.AWS
 module.exports = [
   require './Config'
   require './DynamoDb'
+  package: _package = require "art-aws/package.json"
+  version: _package.version
 ]

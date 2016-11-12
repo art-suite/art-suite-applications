@@ -2,7 +2,7 @@
 # file: art/aws/index.coffee
 
 module.exports = require './namespace'
-.includeInNamespace require './_aws'
+.includeInNamespace require './Aws'
 .addModules
   Config:   require './Config'  
   DynamoDb: require './DynamoDb'
