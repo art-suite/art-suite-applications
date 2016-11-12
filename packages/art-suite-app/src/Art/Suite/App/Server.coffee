@@ -2,14 +2,14 @@
 Used for buidling the minimal node.js code to deploy for production.
 Right now, this is tested with HEROKU, but it should work in other cases.
 
-Basically, you will build a single JS file that inludes:
+Example user:
 
-  require and init your pipelines
-  require this file
+  require 'art-suite-app/Server'
+  .start
+    Config:           require './src/Art/Imikimi/Auth/Config'
+    loadPipelines: -> require './src/Art/Imikimi/Auth/Pipelines'
 
-See art-ery-heroku-dev for a concrete example. In fact, you can use that repository
-as a starting point. All you need to do is require your own pipelines in
-the index.coffe file.
+  # NOTE: loadPipelines is a function so it can get called AFTER: require "art-aws/Server"
 
 ###
 
@@ -24,29 +24,8 @@ optionsValidator = new Validator
 module.exports = class Server
   @start: (options) ->
     optionsValidator.validate {loadPipelines, Config} = options
-    .then -> (require './Node').init Config: Config
+    .then -> (require './Node').init {Config}
     .then -> loadPipelines()
     .then -> (require 'art-ery/Server').start
       numWorkers:   process.env.WEB_CONCURRENCY || 1
       port:         process.env.PORT
-
-###
-# CaffeineScript:
-
-&ArtAws/Server
-
-include &ArtFoundation
-
-optionsValidator = new Validator
-  loadPipelines:  "required function"
-  Config:         "required object"
-
-class Server
-  @start: (options extract loadPipelines Config) ->
-    optionsValidator.validate options
-    then &Node.init Config: Config
-    then loadPipelines()
-    then &ArtEry/Server.start
-      numWorkers:   process.env.WEB_CONCURRENCY || 1
-      port:         process.env.PORT
-###
