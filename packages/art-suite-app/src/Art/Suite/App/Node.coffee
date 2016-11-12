@@ -48,6 +48,7 @@ defineModule module, class Node
       "process.env":
         artSuiteEnvironment: env.artSuiteEnvironment
         artSuiteConfig:      parsedArtSuiteAppConfig
+      Neptune: Neptune
 
     throw new Error "Environment not found #{inspect environment} in Config.Environments: #{formattedInspect Object.keys Config?.Environments?.modules}" unless environment
 
