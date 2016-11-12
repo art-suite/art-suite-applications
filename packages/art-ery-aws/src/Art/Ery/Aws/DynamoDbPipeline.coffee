@@ -31,6 +31,12 @@ module.exports = class DynamoDbPipeline extends Pipeline
 
   @getter
     globalIndexes: -> @_options.globalIndexes || @class._globalIndexes
+    status: ->
+      @_vivifyTable()
+      .then -> "OK: table exists and is reachable"
+      .catch -> "ERROR: could not connect to the table"
+
+
 
   @_getAutoDefinedQueries: (globalIndexes) ->
     return {} unless globalIndexes
