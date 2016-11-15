@@ -1,35 +1,28 @@
-{merge, select, newObjectFromEach, mergeInto} = require 'art-foundation'
+{merge, defineModule, select, newObjectFromEach, mergeInto, Configurable} = require 'art-foundation'
 
-module.exports = class Config
-  @config: configured: false
+defineModule module, class Config extends Configurable
+  @defaults
+    credentials:
+      accessKeyId:      'blah'
+      secretAccessKey:  'blah'
 
-  ###
-  IN: config: {}
-    EXAMPLE:
-      credentials:
-        accessKeyId:      'blahblah'
-        secretAccessKey:  'blahblah'
-      region:             'us-east-1'
+    region:             'us-east-1'
 
-      s3Buckets:
-        tempBucket:       'my-name'
+    # map from local-names to S3 bucket names
+    s3Buckets:  {}
 
-      dynamoDb:
-        endpoint:         'http://localhost:8081'
-  ###
-  @configure: (config) =>
-    AWS.config.credentials = config.credentials
-    AWS.config.region      = config.region
+    # options:
+    #   endpoint:         'http://localhost:8081'
+    #   accessKeyId:      default: Config.credentials.accessKeyId
+    #   secretAccessKey:  default: Config.credentials.secretAccessKey
+    #   region:           default: Config.region
+    #   maxRetries:       5
+    dynamoDb:   {}
 
-    mergeInto @config,
-      select config, "region", "credentials"
-      dynamoDb: merge
-        accessKeyId:      config.credentials.accessKeyId
-        secretAccessKey:  config.credentials.secretAccessKey
-        region:           config.region
-        maxRetries:       5
-        config.dynamoDb
-
-      s3Buckets: newObjectFromEach config.s3Buckets || {}, (id) -> {id}
-
-      configured: true
+  @getNormalizedDynamoDbConfig: ->
+    merge
+      accessKeyId:      @config.credentials.accessKeyId
+      secretAccessKey:  @config.credentials.secretAccessKey
+      region:           @config.region
+      maxRetries:       5
+      @config.dynamoDb

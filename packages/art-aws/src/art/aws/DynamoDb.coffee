@@ -82,7 +82,7 @@ Foundation = require 'art-foundation'
   BaseObject
 } = Foundation
 
-{config} = require "./Config"
+{config} = Config = require "./Config"
 
 StreamlinedDynamoDbApi = require './StreamlinedDynamoDbApi'
 
@@ -93,7 +93,7 @@ module.exports = class DynamoDb extends BaseObject
   @singletonClass()
 
   constructor: (options = {}) ->
-    @_awsDynamoDb = new AWS.DynamoDB merge config.dynamoDb, options
+    @_awsDynamoDb = new AWS.DynamoDB merge Config.getNormalizedDynamoDbConfig(), options
 
   invokeAws: (name, params) ->
     # log invokeAws:

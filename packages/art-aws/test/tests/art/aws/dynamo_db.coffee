@@ -1,8 +1,11 @@
 Foundation = require 'art-foundation'
-{log, isPlainArray} = Foundation
+{log, isPlainArray, ConfigRegistry} = Foundation
 {DynamoDb, config} = require 'art-aws'
-config.region = 'us-west-2'
-config.endpoint = "http://localhost:8081"
+
+ConfigRegistry.configure
+  Art:Aws:
+    region: 'us-west-2'
+    endpoint: "http://localhost:8081"
 
 testTableName = 'fooBarTestTable'
 
