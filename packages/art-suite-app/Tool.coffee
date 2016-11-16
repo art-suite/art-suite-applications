@@ -23,7 +23,8 @@ module.exports = (options)->
     beforeActions: (commander)->
       {merge} = require 'art-foundation'
       require 'art-aws/Server'
-      (require './node').init options = merge options, options.load()
+      options = merge options, options?.load()
+      (require './Node').init verbose: commander.verbose
       .then ->
         options
 

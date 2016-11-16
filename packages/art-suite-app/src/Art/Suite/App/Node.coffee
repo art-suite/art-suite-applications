@@ -1,7 +1,9 @@
 {
   defineModule
   ConfigRegistry
+  Promise
 } = require 'art-foundation'
 
 defineModule module, class Node
-  @init: (options) -> ConfigRegistry.configure options
+  @init: (options) ->
+    Promise.resolve ConfigRegistry.configure options
