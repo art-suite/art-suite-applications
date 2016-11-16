@@ -8,7 +8,7 @@ unless self.AWS
       > require 'art-aws/Server'
     """
 module.exports = [
-  require './Config'
+  config: require('./Config').config
   require './DynamoDb'
   package: _package = require "art-aws/package.json"
   version: _package.version
