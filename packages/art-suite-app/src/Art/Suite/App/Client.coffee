@@ -15,7 +15,7 @@
 ArtAws = require 'art-aws'
 {DynamoDbPipeline} = require 'art-ery-aws'
 
-defineModule module, class Init
+defineModule module, class Client
 
   ###
   IN: options:
@@ -35,7 +35,6 @@ defineModule module, class Init
 
     options.title ||= "ArtSuiteApp"
     {title, Component} = options
-    throw new Error "options.Component and options.Config.Environments.Development required" unless Component and Config?.Environments?.Development
     log "#{title}: initializing..."
     FullScreenApp.init options
     .then -> DynamoDbPipeline.createTablesForAllRegisteredPipelines()
