@@ -16,6 +16,7 @@ class LoaderButton extends Element
         pointerUpInside: => @showWontActivate();options.action?()
       margin: 10
       size: w:200, h:60
+      cursor: "pointer"
       children: [
         @mainElement = new Element
           axis: .5
@@ -40,11 +41,11 @@ class Loader
       new Element
         childrenLayout: "flow"
         padding: 10
-        for demo in Demos.namespaces
-          do (demo) ->
+        for name, Demo of Demos.namespaces
+          do (name, Demo) ->
             new LoaderButton
-              text: demo.name
-              action: -> document.location = "?demo=#{demo.name}"
+              text: name
+              action: -> document.location = "?demo=#{name}"
 
 
 FullScreenApp.init()
@@ -56,7 +57,3 @@ FullScreenApp.init()
     demo.Main()
   else
     new Loader()
-    console.log "invalid option: ?demo=#{query.demo}" if query.demo
-    console.log "Select demo with:"
-    for demo in Demos.namespaces
-      console.log "  ?demo=#{demo.name}"
