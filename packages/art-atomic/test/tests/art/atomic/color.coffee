@@ -1,4 +1,3 @@
-{assert} = require 'art-foundation/src/art/dev_tools/test/art_chai'
 {rgbColor, hslColor, Color} = Atomic = Neptune.Art.Atomic
 
 suite "Art.Atomic.Color", ->

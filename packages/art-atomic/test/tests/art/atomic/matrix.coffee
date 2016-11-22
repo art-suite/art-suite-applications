@@ -1,4 +1,3 @@
-{assert} = require 'art-foundation/src/art/dev_tools/test/art_chai'
 Foundation = require 'art-foundation'
 Atomic = Neptune.Art.Atomic
 {point, rect, matrix, Matrix, identityMatrix, Point} = Atomic
