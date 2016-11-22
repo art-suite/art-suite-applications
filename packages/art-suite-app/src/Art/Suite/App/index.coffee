@@ -2,6 +2,8 @@
 # file: Art/Suite/App/index.coffee
 
 module.exports = require './namespace'
-require './Client'
-require './Node'
+.addModules
+  Client: require './Client'
+  Node:   require './Node'  
+  Server: require './Server'
 require './Tools'

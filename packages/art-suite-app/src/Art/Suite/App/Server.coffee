@@ -13,7 +13,8 @@ Example user:
 ###
 
 require 'art-aws/Server'
-
+require 'art-aws'
+require 'art-ery'
 {Validator, merge, log} = require 'art-foundation'
 
 optionsValidator = new Validator
