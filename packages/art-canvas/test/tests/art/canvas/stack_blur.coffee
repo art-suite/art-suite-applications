@@ -1,4 +1,3 @@
-{assert} = require 'art-foundation/src/art/dev_tools/test/art_chai'
 {point, rect, color} = require 'art-atomic'
 {inspect, log} = require 'art-foundation'
 {Canvas} = Neptune.Art

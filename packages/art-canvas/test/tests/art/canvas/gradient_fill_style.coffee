@@ -1,4 +1,3 @@
-{assert} = require 'art-foundation/src/art/dev_tools/test/art_chai'
 {point} = require 'art-atomic'
 {log} = require 'art-foundation'
 {GradientFillStyle} = Neptune.Art.Canvas
