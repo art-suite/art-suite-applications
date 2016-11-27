@@ -79,7 +79,10 @@ Foundation = require 'art-foundation'
   lowerCamelCase
   wordsArray
   log
+  eq
   BaseObject
+  formattedInspect
+  objectHasKeys
 } = Foundation
 
 {config} = Config = require "./Config"
@@ -93,7 +96,24 @@ module.exports = class DynamoDb extends BaseObject
   @singletonClass()
 
   constructor: (options = {}) ->
-    @_awsDynamoDb = new AWS.DynamoDB merge Config.getNormalizedDynamoDbConfig(), options
+    config = merge Config.getNormalizedDynamoDbConfig(), options
+    if config.accessKeyId == Config.getDefaults().credentials.accessKeyId && !config.endpoint
+      log.error """
+        Art.Aws.DynamoDb invalid configuration. Please set one of:
+        - Art.Aws.credentails for connection to AWS
+        - Art.Aws.dynamoDb.endpoint for connection to a local DynamoDB.
+
+        #{
+        if objectHasKeys options
+          formattedInspect "Art.Aws.config":config, options: options, "merged config": config
+        else
+          formattedInspect "Art.Aws.config":config
+        }
+
+        """
+      throw new Error "invalid config options"
+
+    @_awsDynamoDb = new AWS.DynamoDB log "dynamodbConfig", config
 
   invokeAws: (name, params) ->
     # log invokeAws:
