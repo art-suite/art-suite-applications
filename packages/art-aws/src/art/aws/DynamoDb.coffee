@@ -83,6 +83,7 @@ Foundation = require 'art-foundation'
   BaseObject
   formattedInspect
   objectHasKeys
+  Promise
 } = Foundation
 
 {config} = Config = require "./Config"
@@ -119,10 +120,16 @@ module.exports = class DynamoDb extends BaseObject
     # log invokeAws:
     #   name: name
     #   params: params
-    new Promise (resolve, reject) =>
-      @_awsDynamoDb[name] params,  (err, res) ->
-        if err then  reject err
-        else         resolve res
+    Promise.withCallback (callback) => @_awsDynamoDb[name] params, callback
+    .catch (error) =>
+      if error
+        log.error "Art.Aws.DynamoDb": {
+          message: "request was rejected"
+          name
+          params
+          error
+        }
+      throw Error
 
   @bindAll: (map) ->
     for name, customMethod of map

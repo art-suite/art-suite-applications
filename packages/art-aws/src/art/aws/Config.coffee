@@ -17,7 +17,9 @@ defineModule module, class Config extends Configurable
     #   secretAccessKey:  default: Config.credentials.secretAccessKey
     #   region:           default: Config.region
     #   maxRetries:       5
-    dynamoDb:   {}
+    dynamoDb:
+      maxRetries: 5
+
 
   @getNormalizedDynamoDbConfig: ->
     merge
