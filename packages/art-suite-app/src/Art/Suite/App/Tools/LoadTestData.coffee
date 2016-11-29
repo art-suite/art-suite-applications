@@ -6,6 +6,7 @@ module.exports =
     .then ->
       {
         isString, log, w, lowerCamelCase, isPlainObject, merge, isString, pluralize, present
+        isPlainArray
         Promise
       } = require 'art-foundation'
       {pipelines} = require 'art-ery'
@@ -21,26 +22,30 @@ module.exports =
           records = getPlainTestData(pipelineName) || []
           log "loading #{pipelineName} (#{records.length} records)..." if records.length > 0
 
-          # serial
-          serializer = new Promise.Serializer
-          for record, i in records
-            do (record, i, pipeline, records) ->
-              serializer.then ->
-                log "#{pipeline.getName()}: #{i}/#{records.length}"
+          serial = true
+          loadDataPromise = if serial
+            # serial
+            serializer = new Promise.Serializer
+            for record, i in records
+              do (record, i, pipeline, records) ->
+                serializer.then ->
+                  log "#{pipeline.getName()}: #{i}/#{records.length}"
+                  pipeline.create originatedOnServer: true, data: record
+            serializer
+          else
+
+            parallel
+            newRecordPromises = for record in records
+              do (record) ->
+
                 pipeline.create originatedOnServer: true, data: record
+                .catch (error) ->
+                  createRejected: {error, record}
 
-          # parallel
-          # newRecordPromises = for record in records
-          #   do (record) ->
+            Promise.all newRecordPromises
 
-          #     pipeline.create originatedOnServer: true, data: record
-          #     .catch (error) ->
-          #       createRejected: {error, record}
-
-          # Promise.all newRecordPromises
-
-          serializer
-          .then (list) ->
+          loadDataPromise.then (list) ->
+            list = [list] unless isPlainArray list
             rejectList = (a.createRejected for a in list when a?.createRejected)
             merge
               pipeline: pipelineName
