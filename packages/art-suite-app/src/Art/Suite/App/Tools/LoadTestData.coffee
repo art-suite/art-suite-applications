@@ -8,6 +8,7 @@ module.exports =
         isString, log, w, lowerCamelCase, isPlainObject, merge, isString, pluralize, present
         isPlainArray
         Promise
+        array
       } = require 'art-foundation'
       {pipelines} = require 'art-ery'
 
@@ -16,36 +17,31 @@ module.exports =
       {UuidFilter} = (require 'art-ery').Filters
       UuidFilter.alwaysForceNewIds = false
 
-      promises = for pipelineName, pipeline of pipelines when !requestedPipelineName || requestedPipelineName == pipelineName
-
-        do (pipelineName) ->
+      promises = array pipelines,
+        when: (pipeline, pipelineName) -> !requestedPipelineName || requestedPipelineName == pipelineName
+        with: (pipeline, pipelineName) ->
           records = getPlainTestData(pipelineName) || []
           log "loading #{pipelineName} (#{records.length} records)..." if records.length > 0
 
-          serial = true
-          loadDataPromise = if serial
+
+
+          recordLoadPromises = if serial = true
             # serial
             serializer = new Promise.Serializer
-            for record, i in records
-              do (record, i, pipeline, records) ->
-                serializer.then ->
-                  log "#{pipeline.getName()}: #{i}/#{records.length}"
-                  pipeline.create originatedOnServer: true, data: record
-            serializer
-          else
-
-            parallel
-            newRecordPromises = for record in records
-              do (record) ->
-
+            array records, (record, i) ->
+              serializer.then ->
+                log "loading #{pipeline.getName()}: #{i+1}/#{records.length}"
                 pipeline.create originatedOnServer: true, data: record
                 .catch (error) ->
+                  log.error "loading #{pipeline.getName()}: #{i+1}/#{records.length} FAILED"
                   createRejected: {error, record}
+          else
+            array records, (record) ->
+              pipeline.create originatedOnServer: true, data: record
+              .catch (error) -> createRejected: {error, record}
 
-            Promise.all newRecordPromises
-
-          loadDataPromise.then (list) ->
-            list = [list] unless isPlainArray list
+          Promise.all recordLoadPromises
+          .then (list) ->
             rejectList = (a.createRejected for a in list when a?.createRejected)
             merge
               pipeline: pipelineName
