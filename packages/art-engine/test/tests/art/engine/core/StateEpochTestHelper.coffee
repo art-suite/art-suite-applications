@@ -6,7 +6,7 @@ Atomic = require 'art-atomic'
 {stateEpoch} = StateEpoch
 {Matrix} = Atomic
 
-TestHelper = require '../test_helper'
+TestHelper = require '../TestHelper'
 
 module.exports = class StateEpochTestHelper
 

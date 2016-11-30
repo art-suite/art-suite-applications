@@ -1,7 +1,7 @@
 Foundation = require 'art-foundation'
 Atomic = require 'art-atomic'
 Engine = require 'art-engine'
-Helper = require '../helper'
+Helper = require '../Helper'
 Canvas = require 'art-canvas'
 
 {inspect, log} = Foundation

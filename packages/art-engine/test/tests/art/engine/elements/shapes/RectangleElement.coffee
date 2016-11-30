@@ -1,9 +1,9 @@
 Foundation = require 'art-foundation'
 Atomic = require 'art-atomic'
 Engine = require 'art-engine'
-Helper = require '../helper'
+Helper = require '../Helper'
 
-{drawAndTestElement} = require '../../test_helper'
+{drawAndTestElement} = require '../../TestHelper'
 
 {insepct, log} = Foundation
 {point, Matrix, matrix} = Atomic
