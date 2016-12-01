@@ -206,7 +206,7 @@ module.exports = class Rectangle extends AtomicBase
     h = max(@getBottom(), b.getBottom()) - y
     @with x, y, w, h
 
-  unionInto: (into) ->
+  unionInto: (into = new Rectangle) ->
     area = @getArea()
     intoArea = into.getArea()
 
