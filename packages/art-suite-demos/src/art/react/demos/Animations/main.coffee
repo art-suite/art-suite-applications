@@ -265,7 +265,6 @@ module.exports = createComponentFactory class MyComponent extends Component
 
     # PagingScrollElement null,
       Element
-        size: ww:1, hch:1
         childrenLayout: "flow"
         padding: 10
         RectangleElement inFlow: false, color: "#ddd", padding: -10
