@@ -8,7 +8,7 @@ Get a look at what ArtReact and the ArtEngine can do.
 git clone https://github.com/Imikimi-LLC/art-react-demos.git
 cd art-react-demos
 npm install
-npm run hot
+npm start
 ```
 
 Then go to: [http://localhost:8080/webpack-dev-server/](http://localhost:8080/webpack-dev-server/)
