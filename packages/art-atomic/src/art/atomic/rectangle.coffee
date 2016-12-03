@@ -206,7 +206,8 @@ module.exports = class Rectangle extends AtomicBase
     h = max(@getBottom(), b.getBottom()) - y
     @with x, y, w, h
 
-  unionInto: (into = new Rectangle) ->
+  unionInto: (into) ->
+    return new Rectangle @x, @y, @w, @h unless into
     area = @getArea()
     intoArea = into.getArea()
 
@@ -226,6 +227,7 @@ module.exports = class Rectangle extends AtomicBase
     into
 
   intersectInto: (into) ->
+    return new Rectangle @x, @y, @w, @h unless into
     area = @getArea()
     intoArea = into.getArea()
 
@@ -270,3 +272,36 @@ module.exports = class Rectangle extends AtomicBase
   # Common instances
   @nothing:     Object.freeze new Rectangle 0, 0, 0, 0
   @everything:  Object.freeze new Rectangle 0, 0, Infinity, Infinity
+
+  # return an array of rectangles of what remains when we cut out "r" from this rectangle
+  cutout: (r) ->
+    return [@] unless @overlaps r
+    {x, y, w, h, right, bottom} = @
+    out = []
+    if r.x > x
+      # left column
+      out.push new Rectangle x, y, r.x - x, h
+
+    if (rRight = r.right) < right
+      # right column
+      out.push new Rectangle rRight, y, right - rRight, h
+
+    if r.y > y
+      # area above r
+      out.push new Rectangle(
+        outX = max r.x, x
+        y,
+        min(rRight, right) - outX
+        r.y - y
+      )
+
+    if (rBottom = r.bottom) < bottom
+      # area below r
+      out.push new Rectangle(
+        outX = max r.x, x
+        rBottom,
+        min(rRight, right) - outX
+        bottom - rBottom
+      )
+
+    out
