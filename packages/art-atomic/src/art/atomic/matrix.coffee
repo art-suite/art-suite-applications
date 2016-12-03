@@ -375,18 +375,22 @@ module.exports = class Matrix extends AtomicBase
   ###
   transform: (a, b) ->
     if isNumber a
+      log.error "DEPRICATED: matrix.transform(x, y) - use matrix.transformXY"
       x = a
       y = if b? then b else x
     else
       {x, y} = a
 
-    new Point(
-      transform1D x, y, @sx, @shx, @tx
-      transform1D y, x, @sy, @shy, @ty
-    )
+    @transformXY x, y
 
   transformX:        (x, y) -> transform1D x, y, @sx, @shx, @tx
   transformY:        (x, y) -> transform1D y, x, @sy, @shy, @ty
+
+  transformXY:       (x, y) ->
+    new Point(
+      @transformX x, y
+      @transformY x, y
+    )
 
   # equivalent to @inv.transform x, y
   inverseTransform: (a, b) ->
