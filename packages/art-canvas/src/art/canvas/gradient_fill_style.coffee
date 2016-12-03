@@ -6,6 +6,7 @@ Foundation = require 'art-foundation'
 {point, rgbColor, point1} = Atomic
 {inspect, shallowClone, flatten, isPlainObject, log, isNumber, isString, isPlainArray, clone, min
   floatEq, peek, arrayWith
+  bound
 } = Foundation
 
 module.exports = class GradientFillStyle extends Foundation.BaseObject
@@ -204,9 +205,10 @@ module.exports = class GradientFillStyle extends Foundation.BaseObject
         @to.y
       )
     for clr in @_colors
+      n = bound 0, clr.n, 1
       try
-        gradient.addColorStop clr.n, clr.c.toString()
+        gradient.addColorStop n, clr.c.toString()
       catch e
-        gradient.addColorStop clr.n, "black"
+        gradient.addColorStop n, "black"
 
     gradient
