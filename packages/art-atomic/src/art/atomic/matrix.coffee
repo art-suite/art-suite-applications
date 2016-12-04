@@ -60,9 +60,9 @@ Rectangle  = require "./rectangle"
 
 {point} = Point
 {rect} = Rectangle
-{inspect, simplifyNum, float32Eq, compact, log, isNumber} = Foundation
+{inspect, simplifyNum, float32Eq, compact, log, isNumber, defineModule} = Foundation
 
-module.exports = class Matrix extends AtomicBase
+defineModule module, class Matrix extends AtomicBase
   @defineAtomicClass fieldNames: "sx sy shx shy tx ty"
 
   @matrix: matrix = (a, b, c, d, e, f) ->
@@ -464,22 +464,19 @@ module.exports = class Matrix extends AtomicBase
 
     else
       # full implementation
-      top = r.x
-      left = r.y
-      right = r.x + r.w
-      bottom = r.y + r.h
+      {top, left, right, bottom} = r
 
-      x1 = left * @sx + top * @shx + @tx
-      y1 = top * @sy + left * @shy + @ty
+      x1 = transform1D left,    top,    @sx, @shx, @tx
+      y1 = transform1D top,     left,   @sy, @shy, @ty
 
-      x2 = right * @sx + top * @shx + @tx
-      y2 = top * @sy + right * @shy + @ty
+      x2 = transform1D right,   top,    @sx, @shx, @tx
+      y2 = transform1D top,     right,  @sy, @shy, @ty
 
-      x3 = right * @sx + bottom * @shx + @tx
-      y3 = bottom * @sy + right * @shy + @ty
+      x3 = transform1D right,   bottom, @sx, @shx, @tx
+      y3 = transform1D bottom,  right,  @sy, @shy, @ty
 
-      x4 = left * @sx + bottom * @shx + @tx
-      y4 = bottom * @sy + left * @shy + @ty
+      x4 = transform1D left,    bottom, @sx, @shx, @tx
+      y4 = transform1D bottom,  left,   @sy, @shy, @ty
 
       x = Math.min x1, x2, x3, x4
       w = Math.max(x1, x2, x3, x4) - x
