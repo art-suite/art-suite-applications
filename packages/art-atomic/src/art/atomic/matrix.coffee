@@ -197,6 +197,8 @@ module.exports = class Matrix extends AtomicBase
       float32Eq(@shx, 0) &&
       float32Eq(@shy, 0)
 
+    hasSkew: -> !@getIsTranslateAndScaleOnly()
+
     isTranslateAndPositiveScaleOnly: ->
       @sx > 0 &&
       @sy > 0 &&
