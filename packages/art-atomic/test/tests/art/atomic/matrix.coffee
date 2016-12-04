@@ -127,7 +127,7 @@ module.exports = suite:
 
     test "transform", ->
       m = Matrix.translateXY(5,7).scaleXY 2,3
-      p = m.transform(2,3)
+      p = m.transformXY(2,3)
       assert.eq point("#{p}"), point 14, 30
 
     test "set from string", ->
