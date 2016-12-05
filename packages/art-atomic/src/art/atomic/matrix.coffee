@@ -60,6 +60,7 @@ Rectangle  = require "./rectangle"
 
 {point} = Point
 {rect} = Rectangle
+{ceil, floor} = Math
 {inspect, simplifyNum, float32Eq, compact, log, isNumber, defineModule} = Foundation
 
 defineModule module, class Matrix extends AtomicBase
@@ -449,7 +450,7 @@ defineModule module, class Matrix extends AtomicBase
   #     max = if max then max.max(c) else c
   #     min = if min then min.min(c) else c
   #   new Rectangle min, max.sub min
-  transformBoundingRect: (r) ->
+  transformBoundingRect: (r, roundOut = false) ->
     r = rect r
     return r if r.infinite
 
@@ -459,6 +460,7 @@ defineModule module, class Matrix extends AtomicBase
       y = r.y * @sy + @ty
       w = r.w * @sx
       h = r.h * @sy
+
       if w < 0 then x += w; w = -w
       if h < 0 then y += h; h = -h
 
@@ -483,6 +485,14 @@ defineModule module, class Matrix extends AtomicBase
 
       y = Math.min y1, y2, y3, y4
       h = Math.max(y1, y2, y3, y4) - y
+
+    if roundOut
+      right = ceil x + w
+      bottom = ceil y + h
+      x = floor x
+      y = floor y
+      w = right - x
+      h = bottom - y
 
     new Rectangle x, y, w, h
 
