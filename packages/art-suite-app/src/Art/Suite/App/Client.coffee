@@ -38,7 +38,6 @@ defineModule module, class Client
     log "#{title}: initializing..."
     FullScreenApp.init options
     .then -> ArtEryFluxModel.defineModelsForAllPipelines()
-    .then -> DynamoDbPipeline.createTablesForAllRegisteredPipelines()
     .then -> ArtEry.Session.singleton.loadSession()
     .then -> timeout 100
     .then -> Component.instantiateAsTopComponent()
