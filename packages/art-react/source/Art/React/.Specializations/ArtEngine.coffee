@@ -3,7 +3,7 @@ Engine = require 'art-engine'
 React = require "../index"
 {ElementFactory, Element, CanvasElement, FullScreenApp} = Engine
 module.exports = React
-Aim = require './aim'
+Aim = require './Aim'
 
 React.addElementFactories = (elementClassNames) ->
   for k, v of factories = Aim.createVirtualElementFactories React.VirtualElementArtEngine, elementClassNames

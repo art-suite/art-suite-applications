@@ -2,7 +2,7 @@ Foundation = require 'art-foundation'
 React = require '../Core'
 {log, createObjectTreeFactories, mergeInto, createObjectTreeFactory} = Foundation
 {VirtualElement, objectTreeFactoryOptions} = React
-{getNextPageIndexes} = require "./paging_scroll_element"
+{getNextPageIndexes} = require "./PagingScrollElement"
 
 standardArtEngineElementClassNames = "
   BitmapElement

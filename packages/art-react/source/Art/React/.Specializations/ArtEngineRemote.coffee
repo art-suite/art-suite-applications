@@ -49,4 +49,4 @@ class React.VirtualElementArtEngineRemote extends React.VirtualElement
   withElement: (f) -> remote.evalWithElement @element, f
 
 
-React.includeInNamespace (require './aim').createVirtualElementFactories React.VirtualElementArtEngineRemote
+React.includeInNamespace (require './Aim').createVirtualElementFactories React.VirtualElementArtEngineRemote
