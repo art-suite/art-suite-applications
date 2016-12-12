@@ -7,7 +7,7 @@ reset = ->
   ModelRegistry._reset()
   createWithPostCreate class MyModel extends FluxModel
 
-suite "Art.Flux.Core.FluxStore", ->
+module.exports = suite: ->
   test "fluxStore.reset & length", ->
     reset()
     assert.eq fluxStore.length, 0

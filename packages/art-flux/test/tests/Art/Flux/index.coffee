@@ -3,5 +3,4 @@
 
 module.exports = require './namespace'
 require './Core'
-require './Models'
 require './React'
