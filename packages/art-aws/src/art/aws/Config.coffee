@@ -21,10 +21,13 @@ defineModule module, class Config extends Configurable
       maxRetries: 5
 
 
-  @getNormalizedDynamoDbConfig: ->
+  @getNormalizedDynamoDbConfig: =>
+    @getNormalizedConfig "dynamoDb"
+
+  @getNormalizedConfig: (forService) =>
     merge
       accessKeyId:      @config.credentials.accessKeyId
       secretAccessKey:  @config.credentials.secretAccessKey
       region:           @config.region
       maxRetries:       5
-      @config.dynamoDb
+      @config[forService]
