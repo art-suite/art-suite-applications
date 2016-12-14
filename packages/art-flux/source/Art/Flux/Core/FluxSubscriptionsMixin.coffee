@@ -45,7 +45,7 @@ defineModule module, -> (superClass) ->
       @setState baseField, fluxRecord?.data
       @setState baseField + "Status", fluxRecord.status   if fluxRecord.status
       @setState baseField + "Progress", fluxRecord.progress if fluxRecord.progress?
-      @setState baseField + "FluxRecord", fluxRecord
+      # @setState baseField + "FluxRecord", fluxRecord
 
     unsubscribeAll: ->
       for ckey, {model, fluxKey, subscriptionFunction} of @_subscriptions
