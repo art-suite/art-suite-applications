@@ -11,6 +11,9 @@ module.exports = class UpdateItem extends TableApiBaseClass
   ###
   IN: params:
     table:                  string (required)
+    key:
+    item:                   object maps fields to values -> fields to set with values (using UpdateExpression's 'SET' action)
+    add:                    object maps fields to values -> fields to add values to (using UpdateExpression's 'ADD' action)
 
   ###
   _translateParams: (params) =>
@@ -35,7 +38,7 @@ module.exports = class UpdateItem extends TableApiBaseClass
     attributeName: "remove" # remove the attribute
   ###
   _translateUpdateExpression: (params) =>
-    {item} = params
+    {item, add} = params
     throw new Error "item required" unless item
 
     actions = for attributeName, attributeValue of item
@@ -46,7 +49,19 @@ module.exports = class UpdateItem extends TableApiBaseClass
       @_addExpressionAttributeValue valueAlias, attributeValue
       "#{attributeAlias} = #{valueAlias}"
 
-    @_target.UpdateExpression = "SET #{actions.join ', '}"
+    addActions = add && for attributeName, attributeValue of add
+      uniqueId = @_getNextUniqueExpressionAttributeId @_target
+      attributeAlias = "#attr#{uniqueId}"
+      valueAlias = ":val#{uniqueId}"
+      @_addExpressionAttributeName attributeAlias, attributeName
+      @_addExpressionAttributeValue valueAlias, attributeValue
+      "#{attributeAlias} #{valueAlias}"
+
+    updateExpression = "SET #{actions.join ', '}"
+    if addActions?.length > 0
+      updateExpression = "ADD #{addActions.join ', '} #{updateExpression}"
+
+    @_target.UpdateExpression = updateExpression
     @_target
 
   ReturnConsumedCapacity: 'INDEXES | TOTAL | NONE',
