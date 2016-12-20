@@ -23,3 +23,4 @@ defineModule module, class CanvasImage extends BaseObject
   @getter
     pixelCount: -> @width * @height
     imageData:  -> @context.getImageData 0, 0, @width, @height
+    imageDataBuffer: -> @imageData.data.buffer

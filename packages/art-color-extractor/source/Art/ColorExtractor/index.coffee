@@ -2,10 +2,8 @@
 # file: Art/ColorExtractor/index.coffee
 
 module.exports = require './namespace'
+.includeInNamespace require './ColorExtractor'
 .addModules
-  CanvasImage: require './CanvasImage'
-  ColorThief:  require './ColorThief' 
-  Gradify:     require './Gradify'    
-  Main:        require './Main'       
-  Vibrant:     require './Vibrant'    
-  Worker:      require './Worker'     
+  ColorThief: require './ColorThief'
+  Gradify:    require './Gradify'   
+  Vibrant:    require './Vibrant'   
