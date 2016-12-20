@@ -13,10 +13,10 @@ defineModule module, class Gradify
     @pixelData = pixelData
 
     # Colors which do not catch the eye
-    @ignoredColors = [[0,0,0], [255,255,255]]
+    @blackAndWhite = [[0,0,0], [255,255,255]]
 
     # Sensitivity to ignored colors
-    @BWSensitivity = 4
+    @bwSensitivity = 4
 
     # Overall sensitivity to closeness of colors.
     @sensitivity = 7
@@ -28,15 +28,18 @@ defineModule module, class Gradify
 
     @computeGradients()
 
-  getColorDiff: (first, second) ->
+  getColorDiff = (a, b) ->
     # *Very* rough approximation of a better color space than RGB.
     sqrt(
       abs(
-        1.4 * sqrt(abs(first[0] - second[0])) +
-        0.8 * sqrt(abs(first[1] - second[1])) +
-        0.8 * sqrt(abs(first[2] - second[2]))
+        1.4 * sqrt(abs(a[0] - b[0])) +
+        0.8 * sqrt(abs(a[1] - b[1])) +
+        0.8 * sqrt(abs(a[2] - b[2]))
       )
     )
+
+  colorsAreSimilar = (sensitivity, a, b) ->
+    sensitivity > getColorDiff a, b
 
   generateOutput: (colors) ->
     s = []
@@ -75,7 +78,7 @@ defineModule module, class Gradify
       b = @pixelData[j + 2]
 
       # If close enough, increment color's quad score.
-      for color, i in colors when 4.3 > @getColorDiff color, [r,g,b]
+      for color, i in colors when colorsAreSimilar 4.3, color, [r,g,b]
         xq = floor ((j / 4) % @width) / (@height / 2)
         yq = round  (j / 4) / (@width * @height)
 
@@ -108,53 +111,43 @@ defineModule module, class Gradify
           quadArr[best_choice] = 0
 
         j++
-    @generateOutput quadCombo
+
+    quadCombo
+
+  colorIsSimilarToColorInSet = (sensitivity, color, colorSet) ->
+    for testColor in colorSet when colorsAreSimilar sensitivity, testColor, color
+      return true
+    false
 
   # Select for dominant but different colors.
-  getColors: (colors) ->
+  getDominantColors: (colors) ->
     selectedColors = []
     flag = false
     found = false
     old = []
-    sensitivity = @sensitivity
-    bws = @BWSensitivity
+    {sensitivity, bwSensitivity} = @
 
-    while selectedColors.length < 4 && !found
+    while selectedColors.length < 4 && sensitivity >= 0
       selectedColors = []
-      for color in colors
-        acceptableColor = false
-        # Check curr color isn't too black/white.
-        for ignoredColor in @ignoredColors
-          if bws > @getColorDiff ignoredColor, color[0]
-            acceptableColor = true
-            break
+      for [color] in colors
+        unless colorIsSimilarToColorInSet(bwSensitivity, color, @blackAndWhite) ||
+            colorIsSimilarToColorInSet sensitivity, color, selectedColors
+          selectedColors.push color
+          break if selectedColors.length > 3
 
-        # Check curr color is not close to previous colors
-        for selectedColor in selectedColors
-          if sensitivity > @getColorDiff selectedColor, color[0]
-            acceptableColor = true
-            break
+      # Decrement sensitivities
+      if bwSensitivity > 2
+        bwSensitivity -= 1
 
-        continue if acceptableColor
-
-        # IF a good color, add to our selected colors!
-        selectedColors.push(color[0])
-        if selectedColors.length > 3
-          found = true
-          break
-
-      # Decrement both sensitivities.
-      if bws > 2
-        bws -= 1
       else
         sensitivity--
-        found = 1 if sensitivity < 0
 
         # Reset BW sensitivity for new iteration of lower overall sensitivity.
-        bws = @BWSensitivity
+        {bwSensitivity} = @bwSensitivity
 
-    @getQuads selectedColors
+    selectedColors
 
+  # Count all colors and sort high to low.
   getColorsByFrequency: ->
     r = b = g = 0
     colorMap = {}
@@ -175,10 +168,8 @@ defineModule module, class Gradify
 
     colors.sort (a, b) -> b[1] - a[1]
 
-  # Count all colors and sort high to low.
   computeGradients: ->
-
-    @getColors @getColorsByFrequency()
+    @generateOutput @getQuads @getDominantColors @getColorsByFrequency()
 
   #########################
   # PRIVATE
