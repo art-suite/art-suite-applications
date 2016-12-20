@@ -4,6 +4,7 @@
 module.exports = require './namespace'
 .includeInNamespace require './ColorExtractor'
 .addModules
-  ColorThief: require './ColorThief'
-  Gradify:    require './Gradify'   
-  Vibrant:    require './Vibrant'   
+  ColorThief:      require './ColorThief'      
+  GradifyOriginal: require './Gradify_original'
+  Gradify:         require './Gradify'         
+  Vibrant:         require './Vibrant'         

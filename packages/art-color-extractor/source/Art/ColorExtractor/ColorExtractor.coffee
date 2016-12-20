@@ -17,12 +17,12 @@ module.exports =
 
     log extractColors imageDataBuffer
   ###
-  extractColors: (imageDataBuffer) ->
+  extractColors: (imageDataBuffer, imageSize) ->
     imageDataClampedArray = new Uint8ClampedArray imageDataBuffer
 
     thiefPaletteRaw =
 
-    gradify = new Gradify imageDataClampedArray, 1
+    gradify = new Gradify imageDataClampedArray, imageSize
 
     gradify:
       dominantColor:  gradify.rawColor

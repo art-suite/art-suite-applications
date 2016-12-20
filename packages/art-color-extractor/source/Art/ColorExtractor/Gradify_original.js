@@ -21,21 +21,6 @@ var Grad = function(pixelData, optNumColors) {
 
   this.width = this.height = Math.sqrt(pixelData.length / 4);
 
-  // Element to apply grad to.
-  // this.classname = classname;
-
-  // Prefixes for grad rules (cross-browser).
-  // this.browserPrexies = ["","-webkit-", "-moz-", "-o-", "-ms-"]
-
-  // Safari being difficult and requiring special CSS rules
-  // this.directionMap = {
-  //   0: "right top",
-  //   270: "right bottom",
-  //   180: "left bottom",
-  //   360: "right top",
-  //   90: "left top"
-  // }
-
   this.handleData();
   return
 }
@@ -49,53 +34,19 @@ Grad.prototype.getColorDiff = function(first, second) {
 Grad.prototype.createCSS = function(colors) {
   var s = [];
   var rawGradients = [];
-  // for (var j = 0; j < this.browserPrexies.length; j++) {
-    for (var i=0; i<colors.length; i++) {
-      // oppDir = this.directionMap[(90 + colors[i][3] + 180)%360]
-      var dir = (90 + colors[i][3] + 180)%360;
-      s.push("linear-gradient(" + dir + "deg, rgba(" +
-          colors[i][0] + "," + colors[i][1] + "," + colors[i][2] + ",0) 0%, rgba(" +
-          colors[i][0] + "," + colors[i][1] + "," + colors[i][2] + ",1) 100%)");
-      rawGradients.push([dir, [colors[i][0], colors[i][1], colors[i][2], 0], [colors[i][0], colors[i][1], colors[i][2], 1]]);
-    }
+  for (var i=0; i<colors.length; i++) {
+    var dir = (90 + colors[i][3] + 180)%360;
+    s.push("linear-gradient(" + dir + "deg, rgba(" +
+        colors[i][0] + "," + colors[i][1] + "," + colors[i][2] + ",0) 0%, rgba(" +
+        colors[i][0] + "," + colors[i][1] + "," + colors[i][2] + ",1) 100%)");
+    rawGradients.push([dir, [colors[i][0], colors[i][1], colors[i][2], 0], [colors[i][0], colors[i][1], colors[i][2], 1]]);
+  }
 
-  // }
-  // this.cssBackgroundImage = this.browserPrexies.map(function(prefix) {
-  //   return s.map(function (style) {
-  //     return prefix + style;
-  //   }).join(', ');
-  // }).join(', ');
   this.cssBackgroundImage = s.join(', ');
   this.rawGradients = rawGradients;
   this.rawColor = colors[3].slice(0,3);
   this.singleColor = 'rgb(' + colors[3].slice(0,3).join(', ') + ')';
-  //
-  // var els = [].slice.call(document.querySelectorAll('.' + this.classname));
-  // var css = s.reduce(function (previous, current) {
-  //   return previous + "background:" + current + ";\n";
-  // }, "");
-  //
-  // els.forEach(function(el) {
-  //   var currentStyle = el.getAttribute('style');
-  //   el.setAttribute('style', currentStyle + css);
-  // });
 }
-
-// Grad.prototype.getCSSBackgroundImage = function(colors) {
-//   var s = [];
-//   for (var j = 0; j < this.browserPrexies.length; j++, s[j] = [""]) {
-//     for (var i=0; i<colors.length; i++) {
-//       oppDir = this.directionMap[(90 + colors[i][3] + 180)%360]
-//       s[j] += this.browserPrexies[j]+"linear-gradient(" + oppDir + ", rgba(" +
-//           colors[i][0] + "," + colors[i][1] + "," + colors[i][2] + ",0) 0%, rgba(" +
-//           colors[i][0] + "," + colors[i][1] + "," + colors[i][2] + ",1) 100%),"
-//     }
-//     s[j] = s[j].slice(0, -1);
-//   }
-//
-//   return s;
-// }
-
 
 Grad.prototype.getQuads = function(colors) {
   // Second iteration of pix data is necessary because

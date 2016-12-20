@@ -1,6 +1,6 @@
 {extractColors} = Neptune.Art.ColorExtractor
 
-{log, w, array, object, isPlainObject, isPlainArray, isNumber, merge} = require 'art-foundation'
+{log, toPlainObjects, w, array, object, isPlainObject, isPlainArray, isNumber, merge} = require 'art-foundation'
 {Bitmap} = require 'art-canvas'
 
 files = w "
@@ -72,11 +72,12 @@ colorInfoToDrawRectangles = (colorInfo) ->
 
 drawGradients = (bitmap, colorInfo) ->
   {size} = bitmap
-  for drawRectangleOptions in colorInfoToDrawRectangles colorInfo
+  for drawRectangleOptions in a = colorInfoToDrawRectangles colorInfo
     options = merge options, drawRectangleOptions
     bitmap.drawRectangle null, size, merge drawRectangleOptions,
       to: options.to?.mul size
       from: options.from?.mul size
+  log toPlainObjects a
 
 module.exports = suite: ->
 
@@ -84,12 +85,12 @@ module.exports = suite: ->
     test file, ->
       Bitmap.get testAssetRoot + "/" + file
       .then (bitmap) ->
-        colors = atomify colorInfo = extractColors bitmap.imageDataBuffer
+        colors = atomify colorInfo = extractColors bitmap.imageDataBuffer, bitmap.size
         gradientBitmap = new Bitmap bitmap.size
         drawGradients gradientBitmap, colorInfo
 
         log {
-          # colors
+          colors
           bitmaps: [bitmap, gradientBitmap]
           file
         }
