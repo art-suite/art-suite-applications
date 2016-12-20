@@ -1,6 +1,6 @@
-ColorThief = require('./color_thief'),
-   Vibrant = require('./vibrant'),
-   Gradify = require('./gradify');
+ColorThief = require('./ColorThief'),
+   Vibrant = require('./Vibrant'),
+   Gradify = require('./Gradify');
 
 extract = function(imageData) {
   var thiefPaletteRaw = new ColorThief().getPalette(imageData);
