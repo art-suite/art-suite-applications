@@ -8,44 +8,59 @@
   Google - Palette support library in Android
 ###
 
-{defineModule, BaseObject, log} = require 'art-foundation'
+{object, defineModule, BaseObject, log, max} = require 'art-foundation'
 {rgb256Color, rgbColor, hslColor} = require 'art-atomic'
 
 quantize = require 'quantize'
 
 defineModule module, ->
 
-  WEIGHT_SATURATION =         3
-  WEIGHT_LUMA =               6
-  WEIGHT_POPULATION =         1
+  WEIGHT_SATURATION =           3
+  WEIGHT_LUMA =                 6
+  WEIGHT_POPULATION =           1
 
-  rgbToHsl = ([r, g, b]) -> (rgbColor r/255, g/255, b/255).arrayHsl
+  MIN_DARK_LUMA =               0.2
+  TARGET_DARK_LUMA =            0.35
+  MAX_DARK_LUMA =               0.5
+
+  MIN_LIGHT_LUMA =              0.65
+  TARGET_LIGHT_LUMA =           0.84
+  MAX_LIGHT_LUMA =              1
+
+  MIN_NORMAL_LUMA =             0.4
+  TARGET_NORMAL_LUMA =          0.6
+  MAX_NORMAL_LUMA =             0.8
+
+  MIN_MUTED_SATURATION =        0
+  TARGET_MUTED_SATURATION =     0.2
+  MAX_MUTED_SATURATION =        0.3
+
+  MIN_VIBRANT_SATURATION =      0.7
+  TARGET_VIBRANT_SATURATION =   1
+  MAX_VIBRANT_SATURATION =      1
+
+  colorTolerences =
+    Vibrant:        targetLuma: TARGET_NORMAL_LUMA,  minLuma: MIN_NORMAL_LUMA,   maxLuma: MAX_NORMAL_LUMA, targetSaturation: TARGET_VIBRANT_SATURATION, minSaturation: MIN_VIBRANT_SATURATION,  maxSaturation: MAX_VIBRANT_SATURATION
+    LightVibrant:   targetLuma: TARGET_LIGHT_LUMA,   minLuma: MIN_LIGHT_LUMA,    maxLuma: MAX_LIGHT_LUMA,  targetSaturation: TARGET_VIBRANT_SATURATION, minSaturation: MIN_VIBRANT_SATURATION,  maxSaturation: MAX_VIBRANT_SATURATION
+    DarkVibrant:    targetLuma: TARGET_DARK_LUMA,    minLuma: MIN_DARK_LUMA,     maxLuma: MAX_DARK_LUMA,   targetSaturation: TARGET_VIBRANT_SATURATION, minSaturation: MIN_VIBRANT_SATURATION,  maxSaturation: MAX_VIBRANT_SATURATION
+    Muted:          targetLuma: TARGET_NORMAL_LUMA,  minLuma: MIN_NORMAL_LUMA,   maxLuma: MAX_NORMAL_LUMA, targetSaturation: TARGET_MUTED_SATURATION,   minSaturation: MIN_MUTED_SATURATION,    maxSaturation: MAX_MUTED_SATURATION
+    LightMuted:     targetLuma: TARGET_LIGHT_LUMA,   minLuma: MIN_LIGHT_LUMA,    maxLuma: MAX_LIGHT_LUMA,  targetSaturation: TARGET_MUTED_SATURATION,   minSaturation: MIN_MUTED_SATURATION,    maxSaturation: MAX_MUTED_SATURATION
+    DarkMuted:      targetLuma: TARGET_DARK_LUMA,    minLuma: MIN_DARK_LUMA,     maxLuma: MAX_DARK_LUMA,   targetSaturation: TARGET_MUTED_SATURATION,   minSaturation: MIN_MUTED_SATURATION,    maxSaturation: MAX_MUTED_SATURATION
+
+  rgbToHsl = (rgb) -> (rgb256Color rgb).arrayHsl
 
   hslToRgb = ([h, s, l]) ->
     {r256, g256, b256} = hslColor h, s, l
     [r256, g256, b256]
 
-  createComparisonValue = (saturation, targetSaturation, luma, targetLuma, population, maxPopulation) ->
-    weightedMean(
-      invertDiff(saturation, targetSaturation), WEIGHT_SATURATION
-      invertDiff(luma, targetLuma),             WEIGHT_LUMA
-      population / maxPopulation,               WEIGHT_POPULATION
-    )
+  getMatchQuality = (saturation, targetSaturation, luma, targetLuma, population, maxPopulation) ->
+    (
+      invertDiff(saturation, targetSaturation)  * WEIGHT_SATURATION
+      invertDiff(luma, targetLuma)              * WEIGHT_LUMA
+      (population / maxPopulation)              * WEIGHT_POPULATION
+    ) / (WEIGHT_SATURATION + WEIGHT_LUMA + WEIGHT_POPULATION)
 
-  invertDiff = (value, targetValue) ->
-    1 - Math.abs value - targetValue
-
-  weightedMean = (values...) ->
-    sum = 0
-    sumWeight = 0
-    i = 0
-    while i < values.length
-      value = values[i]
-      weight = values[i + 1]
-      sum += value * weight
-      sumWeight += weight
-      i += 2
-    sum / sumWeight
+  invertDiff = (value, targetValue) -> 1 - Math.abs value - targetValue
 
   class Swatch extends BaseObject
 
@@ -55,36 +70,18 @@ defineModule module, ->
     @property "rgb population"
 
     @getter
-      hsl: -> @_hsl ||= rgbToHsl @rgb
+      hsl: -> @_hsl ||= @color.arrayHsl
       yiq: -> @_yiq ||= (@rgb[0] * 299 + @rgb[1] * 587 + @rgb[2] * 114) / 1000
+      color: -> @_color ||= rgb256Color @rgb
 
     getTitleTextColor: -> if @yiq < 200 then "#fff" else "#000"
     getBodyTextColor:  -> if @yiq < 150 then "#fff" else "#000"
 
-  class Vibrant
-
-    TARGET_DARK_LUMA:           0.36
-    MAX_DARK_LUMA:              0.55
-    MIN_LIGHT_LUMA:             0.65
-    TARGET_LIGHT_LUMA:          0.84
-
-    MIN_NORMAL_LUMA:            0.5
-    TARGET_NORMAL_LUMA:         0.6
-    MAX_NORMAL_LUMA:            0.8
-
-    TARGET_MUTED_SATURATION:    0.2
-    MAX_MUTED_SATURATION:       0.3
-
-    TARGET_VIBRANT_SATURATION:  1
-    MIN_VIBRANT_SATURATION:     0.7
+  class VibrantColors extends BaseObject
 
     constructor: (pixels, colorCount = 32, quality = 1) ->
-      @VibrantSwatch =
-      @MutedSwatch =
-      @DarkVibrantSwatch =
-      @DarkMutedSwatch =
-      @LightVibrantSwatch =
-      @LightMutedSwatch = null
+      @_selectedSwatches = {}
+      @_selectedSwatchesList = []
 
       pixelCount = pixels.length / 4
 
@@ -100,76 +97,54 @@ defineModule module, ->
 
       cmap = quantize allPixels, colorCount
 
-      @maxPopulation = 0
+      @_maxPopulation = 0
       @_swatches = cmap.vboxes.map (vbox) ->
-        log rgb256Color vbox.color
         count = vbox.vbox.count()
-        @maxPopulation = Math.max @maxPopulation, count
+        log rgb256Color vbox.color
+        @_maxPopulation = max @_maxPopulation, count
         new Swatch vbox.color, count
 
       @generateVarationColors()
-      @generateEmptySwatches()
-
+      @normalizeSelectedSwatches()
 
     generateVarationColors: ->
-      @VibrantSwatch = @findColorVariation(@TARGET_NORMAL_LUMA, @MIN_NORMAL_LUMA, @MAX_NORMAL_LUMA,
-        @TARGET_VIBRANT_SATURATION, @MIN_VIBRANT_SATURATION, 1);
+      for name, tolerences of colorTolerences
+        if variation = @findColorVariation tolerences
+          @selectSwatch name, variation
 
-      @LightVibrantSwatch = @findColorVariation(@TARGET_LIGHT_LUMA, @MIN_LIGHT_LUMA, 1,
-        @TARGET_VIBRANT_SATURATION, @MIN_VIBRANT_SATURATION, 1);
+    selectSwatch: (name, swatch) ->
+      @_selectedSwatches[name] = swatch
+      @_selectedSwatchesList.push swatch
 
-      @DarkVibrantSwatch = @findColorVariation(@TARGET_DARK_LUMA, 0, @MAX_DARK_LUMA,
-        @TARGET_VIBRANT_SATURATION, @MIN_VIBRANT_SATURATION, 1);
+    isSelected: (swatch) -> swatch in @_selectedSwatchesList
 
-      @MutedSwatch = @findColorVariation(@TARGET_NORMAL_LUMA, @MIN_NORMAL_LUMA, @MAX_NORMAL_LUMA,
-        @TARGET_MUTED_SATURATION, 0, @MAX_MUTED_SATURATION);
+    normalizeSelectedSwatches: ->
+      {Vibrant, DarkVibrant} = @_selectedSwatches
+      if !!Vibrant != !!DarkVibrant
+        {hsl} = DarkVibrant || Vibrant
+        log normalizeSelectedSwatches: Vibrant: Vibrant?.color, DarkVibrant: DarkVibrant?.color
+        if Vibrant
+          hsl[2] = TARGET_DARK_LUMA
+          @_selectedSwatches.DarkVibrant = new Swatch hslToRgb(hsl), 0
+        else
+          hsl[2] = TARGET_NORMAL_LUMA
+          @_selectedSwatches.Vibrant     = new Swatch hslToRgb(hsl), 0
 
-      @LightMutedSwatch = @findColorVariation(@TARGET_LIGHT_LUMA, @MIN_LIGHT_LUMA, 1,
-        @TARGET_MUTED_SATURATION, 0, @MAX_MUTED_SATURATION);
+    findColorVariation: ({targetLuma, minLuma, maxLuma, targetSaturation, minSaturation, maxSaturation}) ->
+      bestSwatch = null
+      maxQuality = -1
 
-      @DarkMutedSwatch = @findColorVariation(@TARGET_DARK_LUMA, 0, @MAX_DARK_LUMA,
-        @TARGET_MUTED_SATURATION, 0, @MAX_MUTED_SATURATION);
+      for swatch in @_swatches when !@isSelected swatch
+        [__, sat, luma] = swatch.hsl
 
-    generateEmptySwatches: ->
-      if !@VibrantSwatch && @DarkVibrantSwatch
-        {hsl} = @DarkVibrantSwatch
-        hsl[2] = @TARGET_NORMAL_LUMA
-        @VibrantSwatch = new Swatch hslToRgb(hsl), 0
+        if minSaturation <= sat <= maxSaturation and minLuma <= luma <= maxLuma
 
-      if !@DarkVibrantSwatch && @VibrantSwatch
-        {hsl} = @VibrantSwatch
-        hsl[2] = @TARGET_DARK_LUMA
-        @DarkVibrantSwatch = new Swatch hslToRgb(hsl), 0
+          if maxQuality < quality = getMatchQuality sat, targetSaturation, luma, targetLuma, swatch.population, @_maxPopulation
+            bestSwatch = swatch
+            maxQuality = quality
 
-    findColorVariation: (targetLuma, minLuma, maxLuma, targetSaturation, minSaturation, maxSaturation) ->
-      max = undefined
-      maxValue = 0
+      bestSwatch
 
-      for swatch in @_swatches
-        [__, sat, luma] = swatch.getHsl()
-
-        if sat >= minSaturation and sat <= maxSaturation and
-            luma >= minLuma and luma <= maxLuma and
-            not @isAlreadySelected swatch
-
-          value = createComparisonValue sat, targetSaturation, luma, targetLuma,
-            swatch.getPopulation(), @maxPopulation
-
-          if !max? or value > maxValue
-            max = swatch
-            maxValue = value
-
-      max
-
-    swatches: ->
-      Vibrant:      @VibrantSwatch
-      Muted:        @MutedSwatch
-      DarkVibrant:  @DarkVibrantSwatch
-      DarkMuted:    @DarkMutedSwatch
-      LightVibrant: @LightVibrantSwatch
-      LightMuted:   @LightMutedSwatch
-
-    isAlreadySelected: (swatch) ->
-      @VibrantSwatch is swatch or @DarkVibrantSwatch is swatch or
-        @LightVibrantSwatch is swatch or @MutedSwatch is swatch or
-        @DarkMutedSwatch is swatch or @LightMutedSwatch is swatch
+    @getter
+      colors: -> object @_selectedSwatches, (swatch) -> swatch.color
+      rgbs:   -> object @_selectedSwatches, (swatch) -> swatch.rgb
