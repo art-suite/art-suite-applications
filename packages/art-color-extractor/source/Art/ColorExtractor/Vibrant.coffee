@@ -76,9 +76,9 @@ defineModule module, ->
     MAX_MUTED_SATURATION:       0.3
 
     TARGET_VIBRANT_SATURATION:  1
-    MIN_VIBRANT_SATURATION:     0.8
+    MIN_VIBRANT_SATURATION:     0.7
 
-    constructor: (pixels, colorCount = 64, quality = 5) ->
+    constructor: (pixels, colorCount = 32, quality = 1) ->
       @VibrantSwatch =
       @MutedSwatch =
       @DarkVibrantSwatch =
@@ -100,11 +100,12 @@ defineModule module, ->
 
       cmap = quantize allPixels, colorCount
 
+      @maxPopulation = 0
       @_swatches = cmap.vboxes.map (vbox) ->
-        # log rgb256Color vbox.color
-        new Swatch vbox.color, vbox.vbox.count()
-
-      @maxPopulation = @findMaxPopulation
+        log rgb256Color vbox.color
+        count = vbox.vbox.count()
+        @maxPopulation = Math.max @maxPopulation, count
+        new Swatch vbox.color, count
 
       @generateVarationColors()
       @generateEmptySwatches()
@@ -130,26 +131,15 @@ defineModule module, ->
         @TARGET_MUTED_SATURATION, 0, @MAX_MUTED_SATURATION);
 
     generateEmptySwatches: ->
-      if @VibrantSwatch is undefined
-        # If we do not have a vibrant color...
-        if @DarkVibrantSwatch isnt undefined
-          # ...but we do have a dark vibrant, generate the value by modifying the luma
-          {hsl} = @DarkVibrantSwatch
-          hsl[2] = @TARGET_NORMAL_LUMA
-          @VibrantSwatch = new Swatch hslToRgb(hsl), 0
+      if !@VibrantSwatch && @DarkVibrantSwatch
+        {hsl} = @DarkVibrantSwatch
+        hsl[2] = @TARGET_NORMAL_LUMA
+        @VibrantSwatch = new Swatch hslToRgb(hsl), 0
 
-      if @DarkVibrantSwatch is undefined
-        # If we do not have a vibrant color...
-        if @VibrantSwatch isnt undefined
-          # ...but we do have a dark vibrant, generate the value by modifying the luma
-          {hsl} = @VibrantSwatch
-          hsl[2] = @TARGET_DARK_LUMA
-          @DarkVibrantSwatch = new Swatch hslToRgb(hsl), 0
-
-    findMaxPopulation: ->
-      population = 0
-      population = Math.max(population, swatch.getPopulation()) for swatch in @_swatches
-      population
+      if !@DarkVibrantSwatch && @VibrantSwatch
+        {hsl} = @VibrantSwatch
+        hsl[2] = @TARGET_DARK_LUMA
+        @DarkVibrantSwatch = new Swatch hslToRgb(hsl), 0
 
     findColorVariation: (targetLuma, minLuma, maxLuma, targetSaturation, minSaturation, maxSaturation) ->
       max = undefined
@@ -161,9 +151,11 @@ defineModule module, ->
         if sat >= minSaturation and sat <= maxSaturation and
             luma >= minLuma and luma <= maxLuma and
             not @isAlreadySelected swatch
+
           value = createComparisonValue sat, targetSaturation, luma, targetLuma,
-            swatch.getPopulation(), 0
-          if max is undefined or value > maxValue
+            swatch.getPopulation(), @maxPopulation
+
+          if !max? or value > maxValue
             max = swatch
             maxValue = value
 
