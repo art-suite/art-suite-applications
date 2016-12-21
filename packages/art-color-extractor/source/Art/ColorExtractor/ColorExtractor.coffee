@@ -22,10 +22,10 @@ module.exports =
 
     gradify = new Gradify imageDataClampedArray, imageSize
 
-    # gradify:
-    #   dominantColor:  gradify.rawColor
-    #   gradients:      gradify.rawGradients
+    gradify:
+      dominantColor:  gradify.rawColor
+      gradients:      gradify.rawGradients
 
-    # quantized:        new ColorThief().getPalette imageDataClampedArray
+    quantized:        new ColorThief().getPalette imageDataClampedArray
 
     vibrant: new Vibrant(imageDataClampedArray).rgbs

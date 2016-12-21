@@ -12,6 +12,7 @@ files = w "
   dessert.jpg
   leaves.jpg
   science.jpg
+  grey.jpg
   "
 
 {point, rgbColor} = require 'art-atomic'
