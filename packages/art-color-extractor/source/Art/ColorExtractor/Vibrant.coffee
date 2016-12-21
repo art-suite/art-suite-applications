@@ -11,6 +11,8 @@
 {defineModule, BaseObject, log} = require 'art-foundation'
 {rgbColor, hslColor} = require 'art-atomic'
 
+quantize = require 'quantize'
+
 defineModule module, ->
 
   rgbToHsl = ([r, g, b]) -> (rgbColor r/255, g/255, b/255).arrayHsl
@@ -34,11 +36,8 @@ defineModule module, ->
     getTitleTextColor: -> if @yiq < 200 then "#fff" else "#000"
     getBodyTextColor:  -> if @yiq < 150 then "#fff" else "#000"
 
-  window.Vibrant = class Vibrant
+  class Vibrant
 
-    quantize: require('quantize')
-
-    _swatches: []
 
     TARGET_DARK_LUMA:           0.36
     MAX_DARK_LUMA:              0.55
@@ -79,9 +78,9 @@ defineModule module, ->
         if a >= 125 && !(r > 250 and g > 250 and b > 250)
           allPixels.push [r, g, b]
 
-      cmap = @quantize allPixels, colorCount
+      cmap = quantize allPixels, colorCount
 
-      @_swatches = cmap.vboxes.map (vbox) =>
+      @_swatches = cmap.vboxes.map (vbox) ->
         new Swatch vbox.color, vbox.vbox.count()
 
       @maxPopulation = @findMaxPopulation
