@@ -397,6 +397,9 @@ module.exports = class Color extends AtomicBase
   @getter
     # array: -> [@r, @g, @b, @a]
     arrayRGB: -> [@r, @g, @b]
+    arrayRgb: -> [@r, @g, @b]
+    arrayHsl: -> @_rgbToHsl() && [@_hue, @_saturation, @_lightness]
+
     rgbSum: -> @r + @g + @b
     rgbSquaredSum: -> @r*@r + @g*@g + @b*@b
 
@@ -475,17 +478,17 @@ module.exports = class Color extends AtomicBase
 
   # vivafy HSL on request
   @getter
-    h:          -> @_hue        ?= @rgbToHsl() && @_hue
-    s:          -> @_saturation ?= @rgbToHsl() && @_saturation
-    l:          -> @_lightness  ?= @rgbToHsl() && @_lightness
+    h:          -> @_hue        ?= @_rgbToHsl() && @_hue
+    s:          -> @_saturation ?= @_rgbToHsl() && @_saturation
+    l:          -> @_lightness  ?= @_rgbToHsl() && @_lightness
     inverseL:   -> 1 - @l
     inverseS:   -> 1 - @s
     inverseH:   -> 1 - @h
-    hue:        -> @_hue        ?= @rgbToHsl() && @_hue
-    sat:        -> @_saturation ?= @rgbToHsl() && @_saturation
-    lit:        -> @_lightness  ?= @rgbToHsl() && @_lightness
-    saturation: -> @_saturation ?= @rgbToHsl() && @_saturation
-    lightness:  -> @_lightness  ?= @rgbToHsl() && @_lightness
+    hue:        -> @_hue        ?= @_rgbToHsl() && @_hue
+    sat:        -> @_saturation ?= @_rgbToHsl() && @_saturation
+    lit:        -> @_lightness  ?= @_rgbToHsl() && @_lightness
+    saturation: -> @_saturation ?= @_rgbToHsl() && @_saturation
+    lightness:  -> @_lightness  ?= @_rgbToHsl() && @_lightness
     perceptualLightness: -> 0.2126*@r + 0.7152*@g + 0.0722*@b
     satLightness: -> (2 - @_saturation) * @_lightness * .5
 
@@ -495,32 +498,27 @@ module.exports = class Color extends AtomicBase
     g: 0.7152
     b: 0.0722
 
-  rgbToHsl: ->
-    r = @r
-    g = @g
-    b = @b
-    maxRGB = max r, g, b
-    minRGB = min r, g, b
-    delta = maxRGB - minRGB
-    sixth = 1.0 / 6.0
+  _rgbToHsl: ->
+    return true if @_hue?
+    {r, g, b} = @
 
-    # Calculate Brightness
-    @_lightness = maxRGB
+    maxRgb = @_lightness = max r, g, b
+    minRgb               = min r, g, b
 
-    # Calculate Hue
-    if maxRGB == minRGB
-      @_hue = 0
+    @_hue = if maxRgb == minRgb
       @_saturation = 0
-      return true
 
-    if maxRGB == r
-      if g >= b then          @_hue = sixth * ((g - b) / delta)           # maxRGB == r, g >= b
-      else                    @_hue = sixth * ((g - b) / delta) + 1       # maxRGB == r, g < b
-    else if maxRGB == g then  @_hue = sixth * ((b - r) / delta) + 1 / 3   # maxRGB == g
-    else                      @_hue = sixth * ((r - g) / delta) + 2 / 3   # maxRGB == b
+    else
+      @_saturation = 1 - (minRgb / maxRgb)    # maxRgb is > 0 since maxRgb != minRgb
 
-    # Calculate Satuartion
-    @_saturation = 1 - (minRGB / maxRGB)    # maxRGB is > 0 since maxRGB != minRGB
+      delta = maxRgb - minRgb
+
+      switch maxRgb
+        when r then (g - b) / delta + (if g >= b then 0 else 6)
+        when g then (b - r) / delta + 2
+        when b then (r - g) / delta + 4
+
+    @_hue /= 6
 
     true
 
