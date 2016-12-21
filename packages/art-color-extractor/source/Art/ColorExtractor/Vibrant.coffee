@@ -9,17 +9,43 @@
 ###
 
 {defineModule, BaseObject, log} = require 'art-foundation'
-{rgbColor, hslColor} = require 'art-atomic'
+{rgb256Color, rgbColor, hslColor} = require 'art-atomic'
 
 quantize = require 'quantize'
 
 defineModule module, ->
+
+  WEIGHT_SATURATION =         3
+  WEIGHT_LUMA =               6
+  WEIGHT_POPULATION =         1
 
   rgbToHsl = ([r, g, b]) -> (rgbColor r/255, g/255, b/255).arrayHsl
 
   hslToRgb = ([h, s, l]) ->
     {r256, g256, b256} = hslColor h, s, l
     [r256, g256, b256]
+
+  createComparisonValue = (saturation, targetSaturation, luma, targetLuma, population, maxPopulation) ->
+    weightedMean(
+      invertDiff(saturation, targetSaturation), WEIGHT_SATURATION
+      invertDiff(luma, targetLuma),             WEIGHT_LUMA
+      population / maxPopulation,               WEIGHT_POPULATION
+    )
+
+  invertDiff = (value, targetValue) ->
+    1 - Math.abs value - targetValue
+
+  weightedMean = (values...) ->
+    sum = 0
+    sumWeight = 0
+    i = 0
+    while i < values.length
+      value = values[i]
+      weight = values[i + 1]
+      sum += value * weight
+      sumWeight += weight
+      i += 2
+    sum / sumWeight
 
   class Swatch extends BaseObject
 
@@ -30,14 +56,12 @@ defineModule module, ->
 
     @getter
       hsl: -> @_hsl ||= rgbToHsl @rgb
-      hex: -> "#" + ((1 << 24) + (@rgb[0] << 16) + (@rgb[1] << 8) + @rgb[2]).toString(16).slice(1, 7);
       yiq: -> @_yiq ||= (@rgb[0] * 299 + @rgb[1] * 587 + @rgb[2] * 114) / 1000
 
     getTitleTextColor: -> if @yiq < 200 then "#fff" else "#000"
     getBodyTextColor:  -> if @yiq < 150 then "#fff" else "#000"
 
   class Vibrant
-
 
     TARGET_DARK_LUMA:           0.36
     MAX_DARK_LUMA:              0.55
@@ -52,11 +76,7 @@ defineModule module, ->
     MAX_MUTED_SATURATION:       0.3
 
     TARGET_VIBRANT_SATURATION:  1
-    MIN_VIBRANT_SATURATION:     0.55
-
-    WEIGHT_SATURATION:          3
-    WEIGHT_LUMA:                6
-    WEIGHT_POPULATION:          1
+    MIN_VIBRANT_SATURATION:     0.8
 
     constructor: (pixels, colorCount = 64, quality = 5) ->
       @VibrantSwatch =
@@ -81,6 +101,7 @@ defineModule module, ->
       cmap = quantize allPixels, colorCount
 
       @_swatches = cmap.vboxes.map (vbox) ->
+        # log rgb256Color vbox.color
         new Swatch vbox.color, vbox.vbox.count()
 
       @maxPopulation = @findMaxPopulation
@@ -113,7 +134,7 @@ defineModule module, ->
         # If we do not have a vibrant color...
         if @DarkVibrantSwatch isnt undefined
           # ...but we do have a dark vibrant, generate the value by modifying the luma
-          hsl = @DarkVibrantSwatch.getHsl()
+          {hsl} = @DarkVibrantSwatch
           hsl[2] = @TARGET_NORMAL_LUMA
           @VibrantSwatch = new Swatch hslToRgb(hsl), 0
 
@@ -121,7 +142,7 @@ defineModule module, ->
         # If we do not have a vibrant color...
         if @VibrantSwatch isnt undefined
           # ...but we do have a dark vibrant, generate the value by modifying the luma
-          hsl = @VibrantSwatch.getHsl()
+          {hsl} = @VibrantSwatch
           hsl[2] = @TARGET_DARK_LUMA
           @DarkVibrantSwatch = new Swatch hslToRgb(hsl), 0
 
@@ -140,37 +161,13 @@ defineModule module, ->
         if sat >= minSaturation and sat <= maxSaturation and
             luma >= minLuma and luma <= maxLuma and
             not @isAlreadySelected swatch
-          value = @createComparisonValue sat, targetSaturation, luma, targetLuma,
+          value = createComparisonValue sat, targetSaturation, luma, targetLuma,
             swatch.getPopulation(), 0
           if max is undefined or value > maxValue
             max = swatch
             maxValue = value
 
       max
-
-    createComparisonValue: (saturation, targetSaturation,
-        luma, targetLuma, population, maxPopulation) ->
-
-      weightedMean(
-        invertDiff(saturation, targetSaturation), @WEIGHT_SATURATION,
-        invertDiff(luma, targetLuma), @WEIGHT_LUMA,
-        population / maxPopulation, @WEIGHT_POPULATION
-      )
-
-    invertDiff = (value, targetValue) ->
-      1 - Math.abs value - targetValue
-
-    weightedMean = (values...) ->
-      sum = 0
-      sumWeight = 0
-      i = 0
-      while i < values.length
-        value = values[i]
-        weight = values[i + 1]
-        sum += value * weight
-        sumWeight += weight
-        i += 2
-      sum / sumWeight
 
     swatches: ->
       Vibrant:      @VibrantSwatch

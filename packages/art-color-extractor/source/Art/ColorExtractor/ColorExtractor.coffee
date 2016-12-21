@@ -28,6 +28,6 @@ module.exports =
 
     # quantized:        new ColorThief().getPalette imageDataClampedArray
 
-    vibrant: object new Vibrant(imageDataClampedArray, 4).swatches(),
+    vibrant: object new Vibrant(imageDataClampedArray).swatches(),
       when: (swatch) -> swatch
-      with: (swatch) -> swatch?.getRgb()
+      with: (swatch) -> swatch.rgb
