@@ -21,9 +21,6 @@ defineModule module, class Gradify
     # Overall sensitivity to closeness of colors.
     @sensitivity = 7
 
-    # Max sensitivity of black/white in the gradient (0 is pure BW, 5 is none).
-    @maxBW = 2
-
     {@width, @height} = imageSize
 
     @computeGradients()

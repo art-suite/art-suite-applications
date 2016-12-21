@@ -20,15 +20,13 @@ module.exports =
   extractColors: (imageDataBuffer, imageSize) ->
     imageDataClampedArray = new Uint8ClampedArray imageDataBuffer
 
-    thiefPaletteRaw =
-
     gradify = new Gradify imageDataClampedArray, imageSize
 
-    gradify:
-      dominantColor:  gradify.rawColor
-      gradients:      gradify.rawGradients
+    # gradify:
+    #   dominantColor:  gradify.rawColor
+    #   gradients:      gradify.rawGradients
 
-    quantized:        new ColorThief().getPalette imageDataClampedArray
+    # quantized:        new ColorThief().getPalette imageDataClampedArray
 
     vibrant: object new Vibrant(imageDataClampedArray, 4).swatches(),
       when: (swatch) -> swatch
