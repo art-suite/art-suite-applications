@@ -1,13 +1,9 @@
-ColorThief = require './ColorThief'
 Vibrant    = require './Vibrant'
-Gradify    = require './Gradify'
 
 {log, object, merge} = require 'art-foundation'
-quantize = require 'quantize'
-
-{gradientsToDrawRectangleParams} = require './GradifyHelper'
 
 {rgb256Color, point, Matrix} = require 'art-atomic'
+{Bitmap} = require 'art-canvas'
 
 sbdGradients = (bitmap) ->
   b = bitmap.getMipmap s = point 3
@@ -27,8 +23,31 @@ sbdGradients = (bitmap) ->
   log [{val, blur, upscale1}, upscale2, colors]
   colors
 
+
+previewBitmapScale = 7
+previewBitmapBlur = 2
+
 module.exports =
   version: version = (require '../../../package.json').version
+
+  getColorMapBitmap: getColorMapBitmap = (colorMap) ->
+    {imageData} = colorMapBitmap = new Bitmap 3
+    i = 0
+    {data} = imageData
+    for color in colorMap
+      {r256,g256,b256} = rgbColor color
+      data[i + 0] = r256
+      data[i + 1] = g256
+      data[i + 2] = b256
+      data[i + 3] = 255
+      i += 4
+
+    colorMapBitmap.putImageData imageData
+
+
+  generatePreviewBitmap: ({colorMap})->
+    getColorMapBitmap(colorMap).getScaled previewBitmapScale
+    .blur previewBitmapBlur
 
   ###
   IN: imageData - a 1D RGBA pixel array
@@ -44,16 +63,7 @@ module.exports =
   extractColors: (imageDataBuffer, imageSize, bitmap) ->
     imageDataClampedArray = new Uint8ClampedArray imageDataBuffer
 
-    # gradify = new Gradify imageDataClampedArray, imageSize
-
-
-    # gradify:
-    #   dominantColor:  gradify.rawColor
-    #   gradients:      gradify.rawGradients
-
-    # quantized:  new ColorThief().getPalette imageDataClampedArray
     merge
       version:    version
       colorMap:   sbdGradients bitmap
-    # gradients:  gradientsToDrawRectangleParams gradify
       new Vibrant(imageDataClampedArray).rgbs
