@@ -6,11 +6,12 @@
 
 {extractColors, generatePreviewBitmap} = Neptune.Art.ColorExtractor
 
-module.exports = suite: ->
+selectedFiles = w "8mpSunset.jpg boy2.jpg"
+module.exports = suite: object selectedFiles, (file) -> ->
   bitmap = null
   colorInfo = null
   suiteSetup ->
-    Assets.load "8mpSunset.jpg"
+    Assets.load file
     .then (_bitmap) ->
       bitmap = _bitmap
       colorInfo = extractColors bitmap

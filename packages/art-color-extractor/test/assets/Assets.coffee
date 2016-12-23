@@ -15,11 +15,18 @@ module.exports = class Assets
     8mpSunset.jpg
     "
 
+  # An intersting test case that fails pretty bad for Vibrant is: animegalleries.jpg
+  # Found this image here:
+  #   http://bisqwit.iki.fi/jutut/colorquant/
+  # The orginal is here:
+  #   http://www.animegalleries.net/img/76761
+
   @fileMap = object @files
 
   # OUT: promise -> {filename: bitmap, ...}
   @loadAll: =>
-    @_loadPromise ||= Promise.deepAll object @files, (file) -> Bitmap.get testAssetRoot + "/" + file
+    @_loadPromise ||= Promise.deepAll object @files, (file) ->
+      Bitmap.get if file.match /http/ then file else testAssetRoot + "/" + file
 
   # OUT: promise -> bitmap
   @load: (file) =>

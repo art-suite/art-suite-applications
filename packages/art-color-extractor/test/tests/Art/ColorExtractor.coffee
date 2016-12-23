@@ -1,4 +1,4 @@
-{extractColors, generatePreviewBitmap} = Neptune.Art.ColorExtractor
+{extractColors, generatePreviewBitmap, mipmapSize} = Neptune.Art.ColorExtractor
 
 {log, toPlainObjects, w, array, object, isPlainObject, isPlainArray, isNumber, merge} = require 'art-foundation'
 {Bitmap} = require 'art-canvas'
@@ -86,6 +86,7 @@ module.exports = suite: ->
           bitmap
           colorInfo
           previewBitmap
+          mipmap:         bitmap.getMipmap mipmapSize
           upscale:        previewBitmap.getScaled point area:point(700).div(previewBitmap.size).area, aspectRatio: bitmap.size.aspectRatio
           json: JSON.stringify toPlainObjects colorInfo
         }
