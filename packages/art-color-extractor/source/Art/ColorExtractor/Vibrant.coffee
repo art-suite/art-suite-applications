@@ -20,57 +20,57 @@ quantize = require 'quantize'
 
 defineModule module, ->
 
-  WEIGHT_SATURATION =           3
-  WEIGHT_LUMA =                 6
-  WEIGHT_POPULATION =           1
+  saturationWeight  = 3
+  lumaWeight        = 6
+  populationWeight  = 1
+  totalQualityWeight = saturationWeight + lumaWeight + populationWeight
 
-  MIN_DARK_LUMA =               0.2
-  TARGET_DARK_LUMA =            0.35
-  MAX_DARK_LUMA =               0.5
+  lumaDarkMin       = 0.2
+  lumaDarkTarget    = 0.35
+  lumaDarkMax       = 0.5
 
-  MIN_LIGHT_LUMA =              0.65
-  TARGET_LIGHT_LUMA =           0.84
-  MAX_LIGHT_LUMA =              1
+  lumaLightMin      = 0.65
+  lumaLightTarget   = 0.84
+  lumaLightMax      = 1
 
-  MIN_NORMAL_LUMA =             0.4
-  TARGET_NORMAL_LUMA =          0.6
-  MAX_NORMAL_LUMA =             0.8
+  lumaNormalMin     = 0.4
+  lumaNormalTarget  = 0.6
+  lumaNormalMax     = 0.8
 
-  MIN_MUTED_SATURATION =        0
-  TARGET_MUTED_SATURATION =     0.2
-  MAX_MUTED_SATURATION =        0.3
+  satMutedMin       = 0
+  satMutedTarget    = 0.2
+  satMutedMax       = 0.3
 
-  MIN_VIBRANT_SATURATION =      0.7
-  TARGET_VIBRANT_SATURATION =   1
-  MAX_VIBRANT_SATURATION =      1
+  satVibrantMin     = 0.7
+  satVibrantTarget  = 1
+  satVibrantMax     = 1
 
   colorTolerences =
-    vibrant:        targetLuma: TARGET_NORMAL_LUMA,  minLuma: MIN_NORMAL_LUMA,   maxLuma: MAX_NORMAL_LUMA, targetSaturation: TARGET_VIBRANT_SATURATION, minSaturation: MIN_VIBRANT_SATURATION,  maxSaturation: MAX_VIBRANT_SATURATION
-    lightVibrant:   targetLuma: TARGET_LIGHT_LUMA,   minLuma: MIN_LIGHT_LUMA,    maxLuma: MAX_LIGHT_LUMA,  targetSaturation: TARGET_VIBRANT_SATURATION, minSaturation: MIN_VIBRANT_SATURATION,  maxSaturation: MAX_VIBRANT_SATURATION
-    darkVibrant:    targetLuma: TARGET_DARK_LUMA,    minLuma: MIN_DARK_LUMA,     maxLuma: MAX_DARK_LUMA,   targetSaturation: TARGET_VIBRANT_SATURATION, minSaturation: MIN_VIBRANT_SATURATION,  maxSaturation: MAX_VIBRANT_SATURATION
-    muted:          targetLuma: TARGET_NORMAL_LUMA,  minLuma: MIN_NORMAL_LUMA,   maxLuma: MAX_NORMAL_LUMA, targetSaturation: TARGET_MUTED_SATURATION,   minSaturation: MIN_MUTED_SATURATION,    maxSaturation: MAX_MUTED_SATURATION
-    lightMuted:     targetLuma: TARGET_LIGHT_LUMA,   minLuma: MIN_LIGHT_LUMA,    maxLuma: MAX_LIGHT_LUMA,  targetSaturation: TARGET_MUTED_SATURATION,   minSaturation: MIN_MUTED_SATURATION,    maxSaturation: MAX_MUTED_SATURATION
-    darkMuted:      targetLuma: TARGET_DARK_LUMA,    minLuma: MIN_DARK_LUMA,     maxLuma: MAX_DARK_LUMA,   targetSaturation: TARGET_MUTED_SATURATION,   minSaturation: MIN_MUTED_SATURATION,    maxSaturation: MAX_MUTED_SATURATION
+    vibrant:        targetLuma: lumaNormalTarget,  minLuma: lumaNormalMin,   maxLuma: lumaNormalMax, targetSat: satVibrantTarget, minSat: satVibrantMin,  maxSat: satVibrantMax
+    lightVibrant:   targetLuma: lumaLightTarget,   minLuma: lumaLightMin,    maxLuma: lumaLightMax,  targetSat: satVibrantTarget, minSat: satVibrantMin,  maxSat: satVibrantMax
+    darkVibrant:    targetLuma: lumaDarkTarget,    minLuma: lumaDarkMin,     maxLuma: lumaDarkMax,   targetSat: satVibrantTarget, minSat: satVibrantMin,  maxSat: satVibrantMax
+    muted:          targetLuma: lumaNormalTarget,  minLuma: lumaNormalMin,   maxLuma: lumaNormalMax, targetSat: satMutedTarget,   minSat: satMutedMin,    maxSat: satMutedMax
+    lightMuted:     targetLuma: lumaLightTarget,   minLuma: lumaLightMin,    maxLuma: lumaLightMax,  targetSat: satMutedTarget,   minSat: satMutedMin,    maxSat: satMutedMax
+    darkMuted:      targetLuma: lumaDarkTarget,    minLuma: lumaDarkMin,     maxLuma: lumaDarkMax,   targetSat: satMutedTarget,   minSat: satMutedMin,    maxSat: satMutedMax
 
-  getMatchQuality = (saturation, targetSaturation, luma, targetLuma, population, maxPopulation) ->
+  getMatchQuality = (saturation, targetSat, luma, targetLuma, population, maxPopulation) ->
     (
-      invertDiff(saturation, targetSaturation)  * WEIGHT_SATURATION
-      invertDiff(luma, targetLuma)              * WEIGHT_LUMA
-      (population / maxPopulation)              * WEIGHT_POPULATION
-    ) / (WEIGHT_SATURATION + WEIGHT_LUMA + WEIGHT_POPULATION)
+      (saturationWeight * invertDiff saturation, targetSat) +
+      (lumaWeight       * invertDiff luma, targetLuma     ) +
+      (populationWeight * population / maxPopulation      )
+    ) / totalQualityWeight
 
   invertDiff = (value, targetValue) -> 1 - Math.abs value - targetValue
 
   class Swatch extends BaseObject
 
     constructor: (@rgb, @population) ->
-      @_hsl = @_yiq = null
+      @_hsl = @_color = null
 
     @property "rgb population"
 
     @getter
       hsl:   -> @_hsl ||= @color.arrayHsl
-      yiq:   -> @_yiq ||= (@rgb[0] * 299 + @rgb[1] * 587 + @rgb[2] * 114) / 1000
       color: -> @_color ||= rgb256Color @rgb
 
   class VibrantColors extends BaseObject
@@ -122,16 +122,16 @@ defineModule module, ->
 
     _isSelected: (swatch) -> swatch in @_selectedSwatchesList
 
-    _findColorVariation: ({targetLuma, minLuma, maxLuma, targetSaturation, minSaturation, maxSaturation}) ->
+    _findColorVariation: ({targetLuma, minLuma, maxLuma, targetSat, minSat, maxSat}) ->
       bestSwatch = null
       maxQuality = -1
 
       for swatch in @_inputSwatches when !@_isSelected swatch
         [__, sat, luma] = swatch.hsl
 
-        if minSaturation <= sat <= maxSaturation and minLuma <= luma <= maxLuma
+        if minSat <= sat <= maxSat and minLuma <= luma <= maxLuma
 
-          if maxQuality < quality = getMatchQuality sat, targetSaturation, luma, targetLuma, swatch.population, @_maxPopulation
+          if maxQuality < quality = getMatchQuality sat, targetSat, luma, targetLuma, swatch.population, @_maxPopulation
             bestSwatch = swatch
             maxQuality = quality
 
