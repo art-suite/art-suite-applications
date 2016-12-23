@@ -1,21 +1,8 @@
-{extractColors} = Neptune.Art.ColorExtractor
+{extractColors, generatePreviewBitmap} = Neptune.Art.ColorExtractor
 
 {log, toPlainObjects, w, array, object, isPlainObject, isPlainArray, isNumber, merge} = require 'art-foundation'
 {Bitmap} = require 'art-canvas'
-
-files = w "
-  boy2.jpg
-  rose.jpg
-  boy1.jpg
-  cockpit.jpg
-  colors.jpg
-  dessert.jpg
-  leaves.jpg
-  science.jpg
-  grey.jpg
-  "
-
-{point, rgbColor} = require 'art-atomic'
+{Matrix, point, rgbColor} = require 'art-atomic'
 
 mediaColorToColor = (mc) ->
   return null unless mc
@@ -80,21 +67,26 @@ drawGradients = (bitmap, {preview}) ->
       from: from  && point(from).mul size
 
 module.exports = suite: ->
-
-  array files, (file) ->
+  log Assets.files
+  array Assets.files, (file) ->
     test file, ->
-      Bitmap.get testAssetRoot + "/" + file
+      Assets.load file
       .then (bitmap) ->
-        colorInfo = atomify colorInfo = extractColors bitmap.imageDataBuffer, bitmap.size, bitmap
-        # gradientBitmap = new Bitmap bitmap.size
-        # drawGradients gradientBitmap, colorInfo
-        assert.isString colorInfo.version
-        assert.isPlainArray colorInfo.colorMap
-        # assert.isPlainObject colorInfo.colors
 
-        log {
+        colorInfo = extractColors bitmap
+
+        assert.isNumber colorInfo.version
+        assert.isPlainArray colorInfo.colorMap
+
+        previewBitmap = generatePreviewBitmap colorInfo
+
+        # upscale.drawBitmap Matrix.scale(upscale.size.div previewBitmap.size), previewBitmap
+
+        log "#{file}": {
+          bitmap
           colorInfo
-          file
+          previewBitmap
+          upscale:        previewBitmap.getScaled point area:point(700).div(previewBitmap.size).area, aspectRatio: bitmap.size.aspectRatio
           json: JSON.stringify toPlainObjects colorInfo
         }
 

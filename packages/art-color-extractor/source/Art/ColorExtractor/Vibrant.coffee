@@ -1,11 +1,16 @@
 ###
-  Vibrant.js
-  by Jari Zwarts
-  Color algorithm class that finds variations on colors in an image.
-  Credits
-  --------
-  Lokesh Dhakar (http://www.lokeshdhakar.com) - Created ColorThief
-  Google - Palette support library in Android
+  Original Vibrant.js:
+    by Jari Zwarts
+    Color algorithm class that finds variations on colors in an image.
+    Credits
+    --------
+    Lokesh Dhakar (http://www.lokeshdhakar.com) - Created ColorThief
+    Google - Palette support library in Android
+
+  Art.ColorExtractor.Vibrant:
+    Significant refactor with many bug fixes.
+    Leverages Art.Atomic and Art.Foundation
+
 ###
 
 {object, defineModule, BaseObject, log, max} = require 'art-foundation'
@@ -47,12 +52,6 @@ defineModule module, ->
     lightMuted:     targetLuma: TARGET_LIGHT_LUMA,   minLuma: MIN_LIGHT_LUMA,    maxLuma: MAX_LIGHT_LUMA,  targetSaturation: TARGET_MUTED_SATURATION,   minSaturation: MIN_MUTED_SATURATION,    maxSaturation: MAX_MUTED_SATURATION
     darkMuted:      targetLuma: TARGET_DARK_LUMA,    minLuma: MIN_DARK_LUMA,     maxLuma: MAX_DARK_LUMA,   targetSaturation: TARGET_MUTED_SATURATION,   minSaturation: MIN_MUTED_SATURATION,    maxSaturation: MAX_MUTED_SATURATION
 
-  rgbToHsl = (rgb) -> (rgb256Color rgb).arrayHsl
-
-  hslToRgb = ([h, s, l]) ->
-    {r256, g256, b256} = hslColor h, s, l
-    [r256, g256, b256]
-
   getMatchQuality = (saturation, targetSaturation, luma, targetLuma, population, maxPopulation) ->
     (
       invertDiff(saturation, targetSaturation)  * WEIGHT_SATURATION
@@ -81,7 +80,7 @@ defineModule module, ->
       @_selectedSwatchesList = []
 
       @_populateSwatches pixels, colorCount, quality
-      @_generateVarationColors()
+      @_generateVariationColors()
 
     @getter
       colors: -> object @_selectedSwatches, (swatch) -> swatch.color
@@ -109,11 +108,10 @@ defineModule module, ->
       @_maxPopulation = 0
       @_inputSwatches = cmap.vboxes.map (vbox) ->
         count = vbox.vbox.count()
-        # log rgb256Color vbox.color
         @_maxPopulation = max @_maxPopulation, count
         new Swatch vbox.color, count
 
-    _generateVarationColors: ->
+    _generateVariationColors: ->
       for name, tolerences of colorTolerences
         if variation = @_findColorVariation tolerences
           @_selectSwatch name, variation

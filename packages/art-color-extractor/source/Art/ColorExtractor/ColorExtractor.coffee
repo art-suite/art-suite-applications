@@ -2,27 +2,16 @@ Vibrant    = require './Vibrant'
 
 {log, object, merge} = require 'art-foundation'
 
-{rgb256Color, point, Matrix} = require 'art-atomic'
+{rgb256Color, rgbColor, point, Matrix} = require 'art-atomic'
 {Bitmap} = require 'art-canvas'
 
-sbdGradients = (bitmap) ->
+getColorMap = (bitmap) ->
   b = bitmap.getMipmap s = point 3
   final = bitmap.newBitmap s
   final.drawBitmap Matrix.scale(s.div b.size), b
-  log {bitmap, final}
-  val = 7
-  upscale1 = final.getScaled val
-  upscale1.blur blur = Math.ceil val / 5
 
-  upscale2 = upscale1.getScaled point area:point(700).div(upscale1.size).area, aspectRatio: bitmap.size.aspectRatio
-  upscale2.drawBitmap Matrix.scale(upscale2.size.div upscale1.size), upscale1
-
-  colors = for r, i in pd = final.imageData.data by 4
+  for r, i in pd = final.imageData.data by 4
     rgb256Color r, pd[i + 1], pd[i + 2]
-
-  log [{val, blur, upscale1}, upscale2, colors]
-  colors
-
 
 previewBitmapScale = 7
 previewBitmapBlur = 2
@@ -44,10 +33,11 @@ module.exports =
 
     colorMapBitmap.putImageData imageData
 
-
   generatePreviewBitmap: ({colorMap})->
     getColorMapBitmap(colorMap).getScaled previewBitmapScale
     .blur previewBitmapBlur
+
+  mipmapSize: mipmapSize = 64
 
   ###
   IN: imageData - a 1D RGBA pixel array
@@ -60,10 +50,11 @@ module.exports =
 
     log extractColors imageDataBuffer
   ###
-  extractColors: (imageDataBuffer, imageSize, bitmap) ->
-    imageDataClampedArray = new Uint8ClampedArray imageDataBuffer
+  extractColors: (bitmap) ->
+    bitmap = bitmap.getMipmap mipmapSize
+    imageDataClampedArray = bitmap.imageData.data
 
     merge
-      version:    version
-      colorMap:   sbdGradients bitmap
-      new Vibrant(imageDataClampedArray).rgbs
+      version:    version.split(".")[0] | 0
+      colorMap:   getColorMap bitmap
+      new Vibrant(imageDataClampedArray).colors
