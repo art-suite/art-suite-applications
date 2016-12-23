@@ -44,10 +44,10 @@ atomify = (o) ->
   else o
 
 gradientAngles =
-  0:    from: point("bottomLeft"),   to: point "topLeft"
-  90:   from: point("bottomLeft"),   to: point "bottomRight"
-  180:  from: point("topRight"  ),   to: point "bottomRight"
-  270:  from: point("topRight"  ),   to: point "topLeft"
+  0:    from: point("bottomLeft"),   to: point("topLeft"    )
+  90:   from: point("bottomLeft"),   to: point("bottomRight")
+  180:  from: point("topRight"  ),   to: point("bottomRight")
+  270:  from: point("topRight"  ),   to: point("topLeft"    )
 
 colorInfoToDrawRectangles = (colorInfo) ->
   if gradients = colorInfo?.gradify?.gradients
@@ -71,14 +71,13 @@ colorInfoToDrawRectangles = (colorInfo) ->
   else
     [color: colorInfoToMediaColor colorInfo]
 
-drawGradients = (bitmap, colorInfo) ->
+drawGradients = (bitmap, {preview}) ->
   {size} = bitmap
-  for drawRectangleOptions in a = colorInfoToDrawRectangles colorInfo
-    options = merge options, drawRectangleOptions
+  for drawRectangleOptions in preview
+    {to, from} = options = merge options, drawRectangleOptions
     bitmap.drawRectangle null, size, merge drawRectangleOptions,
-      to: options.to?.mul size
-      from: options.from?.mul size
-  log toPlainObjects a
+      to:   to    && point(to).mul size
+      from: from  && point(from).mul size
 
 module.exports = suite: ->
 
@@ -86,13 +85,16 @@ module.exports = suite: ->
     test file, ->
       Bitmap.get testAssetRoot + "/" + file
       .then (bitmap) ->
-        colors = atomify colorInfo = extractColors bitmap.imageDataBuffer, bitmap.size
-        gradientBitmap = new Bitmap bitmap.size
-        drawGradients gradientBitmap, colorInfo
+        colorInfo = atomify colorInfo = extractColors bitmap.imageDataBuffer, bitmap.size, bitmap
+        # gradientBitmap = new Bitmap bitmap.size
+        # drawGradients gradientBitmap, colorInfo
+        assert.isString colorInfo.version
+        assert.isPlainArray colorInfo.colorMap
+        # assert.isPlainObject colorInfo.colors
 
         log {
-          colors
-          bitmaps: [bitmap, gradientBitmap]
+          colorInfo
           file
+          json: JSON.stringify toPlainObjects colorInfo
         }
 

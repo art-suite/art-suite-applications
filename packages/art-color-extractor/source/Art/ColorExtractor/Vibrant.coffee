@@ -40,12 +40,12 @@ defineModule module, ->
   MAX_VIBRANT_SATURATION =      1
 
   colorTolerences =
-    Vibrant:        targetLuma: TARGET_NORMAL_LUMA,  minLuma: MIN_NORMAL_LUMA,   maxLuma: MAX_NORMAL_LUMA, targetSaturation: TARGET_VIBRANT_SATURATION, minSaturation: MIN_VIBRANT_SATURATION,  maxSaturation: MAX_VIBRANT_SATURATION
-    LightVibrant:   targetLuma: TARGET_LIGHT_LUMA,   minLuma: MIN_LIGHT_LUMA,    maxLuma: MAX_LIGHT_LUMA,  targetSaturation: TARGET_VIBRANT_SATURATION, minSaturation: MIN_VIBRANT_SATURATION,  maxSaturation: MAX_VIBRANT_SATURATION
-    DarkVibrant:    targetLuma: TARGET_DARK_LUMA,    minLuma: MIN_DARK_LUMA,     maxLuma: MAX_DARK_LUMA,   targetSaturation: TARGET_VIBRANT_SATURATION, minSaturation: MIN_VIBRANT_SATURATION,  maxSaturation: MAX_VIBRANT_SATURATION
-    Muted:          targetLuma: TARGET_NORMAL_LUMA,  minLuma: MIN_NORMAL_LUMA,   maxLuma: MAX_NORMAL_LUMA, targetSaturation: TARGET_MUTED_SATURATION,   minSaturation: MIN_MUTED_SATURATION,    maxSaturation: MAX_MUTED_SATURATION
-    LightMuted:     targetLuma: TARGET_LIGHT_LUMA,   minLuma: MIN_LIGHT_LUMA,    maxLuma: MAX_LIGHT_LUMA,  targetSaturation: TARGET_MUTED_SATURATION,   minSaturation: MIN_MUTED_SATURATION,    maxSaturation: MAX_MUTED_SATURATION
-    DarkMuted:      targetLuma: TARGET_DARK_LUMA,    minLuma: MIN_DARK_LUMA,     maxLuma: MAX_DARK_LUMA,   targetSaturation: TARGET_MUTED_SATURATION,   minSaturation: MIN_MUTED_SATURATION,    maxSaturation: MAX_MUTED_SATURATION
+    vibrant:        targetLuma: TARGET_NORMAL_LUMA,  minLuma: MIN_NORMAL_LUMA,   maxLuma: MAX_NORMAL_LUMA, targetSaturation: TARGET_VIBRANT_SATURATION, minSaturation: MIN_VIBRANT_SATURATION,  maxSaturation: MAX_VIBRANT_SATURATION
+    lightVibrant:   targetLuma: TARGET_LIGHT_LUMA,   minLuma: MIN_LIGHT_LUMA,    maxLuma: MAX_LIGHT_LUMA,  targetSaturation: TARGET_VIBRANT_SATURATION, minSaturation: MIN_VIBRANT_SATURATION,  maxSaturation: MAX_VIBRANT_SATURATION
+    darkVibrant:    targetLuma: TARGET_DARK_LUMA,    minLuma: MIN_DARK_LUMA,     maxLuma: MAX_DARK_LUMA,   targetSaturation: TARGET_VIBRANT_SATURATION, minSaturation: MIN_VIBRANT_SATURATION,  maxSaturation: MAX_VIBRANT_SATURATION
+    muted:          targetLuma: TARGET_NORMAL_LUMA,  minLuma: MIN_NORMAL_LUMA,   maxLuma: MAX_NORMAL_LUMA, targetSaturation: TARGET_MUTED_SATURATION,   minSaturation: MIN_MUTED_SATURATION,    maxSaturation: MAX_MUTED_SATURATION
+    lightMuted:     targetLuma: TARGET_LIGHT_LUMA,   minLuma: MIN_LIGHT_LUMA,    maxLuma: MAX_LIGHT_LUMA,  targetSaturation: TARGET_MUTED_SATURATION,   minSaturation: MIN_MUTED_SATURATION,    maxSaturation: MAX_MUTED_SATURATION
+    darkMuted:      targetLuma: TARGET_DARK_LUMA,    minLuma: MIN_DARK_LUMA,     maxLuma: MAX_DARK_LUMA,   targetSaturation: TARGET_MUTED_SATURATION,   minSaturation: MIN_MUTED_SATURATION,    maxSaturation: MAX_MUTED_SATURATION
 
   rgbToHsl = (rgb) -> (rgb256Color rgb).arrayHsl
 
@@ -70,18 +70,27 @@ defineModule module, ->
     @property "rgb population"
 
     @getter
-      hsl: -> @_hsl ||= @color.arrayHsl
-      yiq: -> @_yiq ||= (@rgb[0] * 299 + @rgb[1] * 587 + @rgb[2] * 114) / 1000
+      hsl:   -> @_hsl ||= @color.arrayHsl
+      yiq:   -> @_yiq ||= (@rgb[0] * 299 + @rgb[1] * 587 + @rgb[2] * 114) / 1000
       color: -> @_color ||= rgb256Color @rgb
-
-    getTitleTextColor: -> if @yiq < 200 then "#fff" else "#000"
-    getBodyTextColor:  -> if @yiq < 150 then "#fff" else "#000"
 
   class VibrantColors extends BaseObject
 
     constructor: (pixels, colorCount = 32, quality = 1) ->
       @_selectedSwatches = {}
       @_selectedSwatchesList = []
+
+      @_populateSwatches pixels, colorCount, quality
+      @_generateVarationColors()
+
+    @getter
+      colors: -> object @_selectedSwatches, (swatch) -> swatch.color
+      rgbs:   -> object @_selectedSwatches, (swatch) -> swatch.rgb
+
+    #####################
+    # PRIVATE
+    #####################
+    _populateSwatches: (pixels, colorCount, quality) ->
 
       pixelCount = pixels.length / 4
 
@@ -98,43 +107,28 @@ defineModule module, ->
       cmap = quantize allPixels, colorCount
 
       @_maxPopulation = 0
-      @_swatches = cmap.vboxes.map (vbox) ->
+      @_inputSwatches = cmap.vboxes.map (vbox) ->
         count = vbox.vbox.count()
-        log rgb256Color vbox.color
+        # log rgb256Color vbox.color
         @_maxPopulation = max @_maxPopulation, count
         new Swatch vbox.color, count
 
-      @generateVarationColors()
-      @normalizeSelectedSwatches()
-
-    generateVarationColors: ->
+    _generateVarationColors: ->
       for name, tolerences of colorTolerences
-        if variation = @findColorVariation tolerences
-          @selectSwatch name, variation
+        if variation = @_findColorVariation tolerences
+          @_selectSwatch name, variation
 
-    selectSwatch: (name, swatch) ->
+    _selectSwatch: (name, swatch) ->
       @_selectedSwatches[name] = swatch
       @_selectedSwatchesList.push swatch
 
-    isSelected: (swatch) -> swatch in @_selectedSwatchesList
+    _isSelected: (swatch) -> swatch in @_selectedSwatchesList
 
-    normalizeSelectedSwatches: ->
-      {Vibrant, DarkVibrant} = @_selectedSwatches
-      if !!Vibrant != !!DarkVibrant
-        {hsl} = DarkVibrant || Vibrant
-        log normalizeSelectedSwatches: Vibrant: Vibrant?.color, DarkVibrant: DarkVibrant?.color
-        if Vibrant
-          hsl[2] = TARGET_DARK_LUMA
-          @_selectedSwatches.DarkVibrant = new Swatch hslToRgb(hsl), 0
-        else
-          hsl[2] = TARGET_NORMAL_LUMA
-          @_selectedSwatches.Vibrant     = new Swatch hslToRgb(hsl), 0
-
-    findColorVariation: ({targetLuma, minLuma, maxLuma, targetSaturation, minSaturation, maxSaturation}) ->
+    _findColorVariation: ({targetLuma, minLuma, maxLuma, targetSaturation, minSaturation, maxSaturation}) ->
       bestSwatch = null
       maxQuality = -1
 
-      for swatch in @_swatches when !@isSelected swatch
+      for swatch in @_inputSwatches when !@_isSelected swatch
         [__, sat, luma] = swatch.hsl
 
         if minSaturation <= sat <= maxSaturation and minLuma <= luma <= maxLuma
@@ -144,7 +138,3 @@ defineModule module, ->
             maxQuality = quality
 
       bestSwatch
-
-    @getter
-      colors: -> object @_selectedSwatches, (swatch) -> swatch.color
-      rgbs:   -> object @_selectedSwatches, (swatch) -> swatch.rgb
