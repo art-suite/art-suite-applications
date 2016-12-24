@@ -18,6 +18,9 @@ toChannelNumberMap = 0:0, 1:1, 2:2, 3:3, r:0, g:1, b:2, a:3, red:0, green:1, blu
 alphaChannelOffset = 3
 pixelStep = 4
 
+quaterPoint = point 1/4
+halfPoint = point 1/2
+
 module.exports = class BitmapBase extends BaseObject
   @bitmapsCreated: 0
   compositeModeSupported: (mode) -> @supportedCompositeModes.indexOf(mode) >= 0
@@ -189,9 +192,12 @@ module.exports = class BitmapBase extends BaseObject
   ################################
   toMemoryBitmap: -> @
   toMemoryDrawableBitmap: -> @
-  getImageData: (a, b, c, d) ->
-    area = if a==null || a==undefined then rect @size else rect a, b, c, d
-    @toMemoryBitmap().context.getImageData area.x, area.y, area.w, area.h
+  @getter
+    imageData: (a, b, c, d) ->
+      area = if a==null || a==undefined then rect @size else rect a, b, c, d
+      @toMemoryBitmap().context.getImageData area.x, area.y, area.w, area.h
+
+    imageDataBuffer: (a, b, c, d) -> @getImageData(a, b, c, d).data.buffer
 
   putImageData: (imageData, location = point(), sourceArea = rect @size) ->
     location = location.sub sourceArea.location
@@ -260,6 +266,72 @@ module.exports = class BitmapBase extends BaseObject
     result = @newBitmap @size
     result.drawBitmap Matrix.translateXY(0,-@size.y/2).scaleXY(1,-1).translateXY(0,@size.y/2), @
     result
+
+  @getter
+    flipped: ->
+      @newBitmap @size
+      .drawBitmap Matrix.scaleXY(-1,1).translateXY(@size.x,0), @
+
+    rotated180: ->
+      @newBitmap @size
+      .drawBitmap Matrix.rotate(Math.PI).translate(@size), @
+
+    flippedAndRotated180: ->
+      @newBitmap @size
+      .drawBitmap Matrix.scaleXY(-1,1).rotate(Math.PI).translateXY(0, @size.y), @
+
+    rotated90Clockwise: ->
+      @newBitmap @size.swapped
+      .drawBitmap Matrix.rotate(Math.PI/2).translateXY(@size.y, 0), @
+
+    flippedAndRotated90Clockwise: ->
+      @newBitmap @size.swapped
+      .drawBitmap Matrix.scaleXY(-1,1).rotate(Math.PI/2).translateXY(@size.y, @size.x), @
+
+    rotated90CounterClockwise: ->
+      @newBitmap @size.swapped
+      .drawBitmap Matrix.rotate(-Math.PI/2).translateXY(0, @size.x), @
+
+    flippedAndRotated90CounterClockwise: ->
+      @newBitmap @size.swapped
+      .drawBitmap Matrix.scaleXY(-1,1).rotate(-Math.PI/2), @
+
+    rotated180AndFlipped: -> @flippedAndRotated180
+    rotated90ClockwiseAndFlipped: -> @flippedAndRotated90CounterClockwise
+    rotated90CounterClockwiseAndFlipped: -> @flippedAndRotated90Clockwise
+
+    # IN: targetMinSize: number or point
+    # If targetMinSize is set, then mipmap is called recursively
+    #   and the last mipmap which is >= targetMinSize is returned.
+    # else mipmap is computed once, returning a bitmap which is 1/2 the width and height of this one (round up)
+    mipmap: (targetMinSize)->
+      return @ if targetMinSize && !@size.mul(halfPoint).ceil().gte targetMinSize = point targetMinSize
+
+      result = @scale halfPoint
+
+      if targetMinSize
+        result.getMipmap targetMinSize
+      else
+        result
+
+  # IN: newSize can anything "point" accepts
+  resize: (newSize) ->
+    newSize = point newSize
+    return @ if newSize.eq @size
+    @scale newSize.div @size
+
+  # IN: scale can anything "point" accepts
+  scale: (scale, highQuality = true) ->
+    newSize = @size.mul(scale = point scale).ceil()
+    source = @
+    if highQuality
+      while scale.lte quaterPoint
+        scale = scale.mul 2
+        source = source.scale halfPoint
+
+    return source if newSize.eq source.size
+    newBitmap = @newBitmap newSize
+    newBitmap.drawBitmap Matrix.scale(newBitmap.size.div source.size), source
 
   ################################
   # Draw Macros

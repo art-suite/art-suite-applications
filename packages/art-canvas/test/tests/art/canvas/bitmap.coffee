@@ -2,7 +2,7 @@ Atomic = require 'art-atomic'
 Foundation = require 'art-foundation'
 {Canvas} = Neptune.Art
 commonBitmapTests = require './common_bitmap_tests'
-{Binary, log, eq} = Foundation
+{each, w, Binary, log, eq, defineModule} = Foundation
 {point, point0, point1, rect, rgbColor, matrix, Matrix} = Atomic
 {Bitmap} = Canvas
 
@@ -12,6 +12,12 @@ commonBitmapTests Bitmap, "Canvas.Bitmap"
 
 reducedRange = (data, factor = 32) ->
   Math.round a / factor for a in data
+
+testAndLogBitmap = (testName, setup) ->
+  test testName, ->
+    {bitmap, test} = setup()
+    log bitmap, testName
+    test? bitmap
 
 generateTestBitmap = ->
   result = new Bitmap point(5, 5)
@@ -39,55 +45,56 @@ generateTestBitmap3 = (c = "#00f")->
   result.drawRectangle point(30,30), point(60,60), color:c
   result
 
-suite "Art.Bitmap", ->
-  test "allocate", ->
-    bitmap = new Bitmap point(400, 300)
-    assert.equal 400, bitmap.size.x
+defineModule module, suite:
+  basic: ->
+    test "allocate", ->
+      bitmap = new Bitmap point(400, 300)
+      assert.equal 400, bitmap.size.x
 
-  test "getImageDataArray (all channels)", ->
-    bitmap = new Bitmap point(2, 2)
-    bitmap.clear rgbColor 1/255, 2/255, 3/255, 255/255
-    data = bitmap.getImageDataArray()
-    assert.eq data, [1, 2, 3, 255, 1, 2, 3, 255, 1, 2, 3, 255, 1, 2, 3, 255]
+    test "getImageDataArray (all channels)", ->
+      bitmap = new Bitmap point(2, 2)
+      bitmap.clear rgbColor 1/255, 2/255, 3/255, 255/255
+      data = bitmap.getImageDataArray()
+      assert.eq data, [1, 2, 3, 255, 1, 2, 3, 255, 1, 2, 3, 255, 1, 2, 3, 255]
 
-  test "getImageDataArray (red channel)", ->
-    bitmap = new Bitmap point(2, 2)
-    bitmap.clear rgbColor 1/255, 2/255, 3/255, 255/255
-    data = bitmap.getImageDataArray("red")
-    assert.eq data, [1, 1, 1, 1]
+    test "getImageDataArray (red channel)", ->
+      bitmap = new Bitmap point(2, 2)
+      bitmap.clear rgbColor 1/255, 2/255, 3/255, 255/255
+      data = bitmap.getImageDataArray("red")
+      assert.eq data, [1, 1, 1, 1]
 
-  test "clear", ->
-    bitmap = new Bitmap point(2, 2)
-    bitmap.drawRectangle null, rect(0, 0, 2, 2), color:"red"
-    bitmap.clear()
-    assert.eq bitmap.getImageDataArray(), [
-      0, 0, 0, 0,
-      0, 0, 0, 0,
-      0, 0, 0, 0,
-      0, 0, 0, 0
-    ]
+    test "clear", ->
+      bitmap = new Bitmap point(2, 2)
+      bitmap.drawRectangle null, rect(0, 0, 2, 2), color:"red"
+      bitmap.clear()
+      assert.eq bitmap.getImageDataArray(), [
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0
+      ]
 
-  test "clear '#f1f1f1'", ->
-    bitmap = new Bitmap point(2, 2)
-    bitmap.drawRectangle null, rect(0, 0, 2, 2), color:"red"
-    bitmap.clear "#f1a52f"
-    assert.eq bitmap.getImageDataArray(), [
-      241, 165, 47, 255
-      241, 165, 47, 255
-      241, 165, 47, 255
-      241, 165, 47, 255
-    ]
+    test "clear '#f1f1f1'", ->
+      bitmap = new Bitmap point(2, 2)
+      bitmap.drawRectangle null, rect(0, 0, 2, 2), color:"red"
+      bitmap.clear "#f1a52f"
+      assert.eq bitmap.getImageDataArray(), [
+        241, 165, 47, 255
+        241, 165, 47, 255
+        241, 165, 47, 255
+        241, 165, 47, 255
+      ]
 
-  test "new", ->
-    bitmap = new Bitmap point(2, 2)
-    assert.eq bitmap.getImageDataArray(), [
-      0, 0, 0, 0,
-      0, 0, 0, 0,
-      0, 0, 0, 0,
-      0, 0, 0, 0
-    ]
+    test "new", ->
+      bitmap = new Bitmap point(2, 2)
+      assert.eq bitmap.getImageDataArray(), [
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0
+      ]
 
-  suite "stroke", ->
+  stroke: ->
 
     test "drawLine", ->
       bitmap = new Bitmap point 3
@@ -229,7 +236,7 @@ suite "Art.Bitmap", ->
       ]
 
 
-  suite "fill", ->
+  fill: ->
     test "compositing", ->
       a = generateTestBitmap2 "#f00"
       log a
@@ -288,7 +295,7 @@ suite "Art.Bitmap", ->
       bitmap.drawRectangle point(10, 10), point(80, 80), color:"red", radius:20
       log bitmap
 
-  suite "toImage", ->
+  toImage: ->
     test "pixelsPerPoint=2", ->
       bitmap = new Bitmap point 100, 80
       bitmap.clear "orange"
@@ -310,48 +317,66 @@ suite "Art.Bitmap", ->
         assert.eq img.width, 100
         assert.eq img.height, 80
 
-testAndLogBitmap = (testName, setup) ->
-  test testName, ->
-    {bitmap, test} = setup()
-    log bitmap, testName
-    test? bitmap
+  getAutoCropRectangle: ->
+    bitmapSize = point 10
+    test "blank image", ->
+      assert.eq rect(), new Bitmap(10).getAutoCropRectangle()
 
-suite "Art.Bitmap.getAutoCropRectangle", ->
-  bitmapSize = point 10
-  test "blank image", ->
-    assert.eq rect(), new Bitmap(10).getAutoCropRectangle()
+    test "full image", ->
+      assert.eq rect(bitmapSize), new Bitmap(bitmapSize).clear("black").getAutoCropRectangle()
 
-  test "full image", ->
-    assert.eq rect(bitmapSize), new Bitmap(bitmapSize).clear("black").getAutoCropRectangle()
+    testAndLogBitmap "rectangle in the middle", ->
+      bitmap: new Bitmap(bitmapSize).drawRectangle null, r = rect(1, 2, 3, 4), color: "black"
+      test: (bitmap) -> assert.eq r, bitmap.getAutoCropRectangle()
 
-  testAndLogBitmap "rectangle in the middle", ->
-    bitmap: new Bitmap(bitmapSize).drawRectangle null, r = rect(1, 2, 3, 4), color: "black"
-    test: (bitmap) -> assert.eq r, bitmap.getAutoCropRectangle()
+    testAndLogBitmap "rectangle at left", ->
+      bitmap: new Bitmap(bitmapSize).drawRectangle null, r = rect(0, 2, 3, 4), color: "black"
+      test: (bitmap) -> assert.eq r, bitmap.getAutoCropRectangle()
 
-  testAndLogBitmap "rectangle at left", ->
-    bitmap: new Bitmap(bitmapSize).drawRectangle null, r = rect(0, 2, 3, 4), color: "black"
-    test: (bitmap) -> assert.eq r, bitmap.getAutoCropRectangle()
+    testAndLogBitmap "rectangle at right", ->
+      bitmap: new Bitmap(bitmapSize).drawRectangle null, r = rect(7, 2, 3, 4), color: "black"
+      test: (bitmap) -> assert.eq r, bitmap.getAutoCropRectangle()
 
-  testAndLogBitmap "rectangle at right", ->
-    bitmap: new Bitmap(bitmapSize).drawRectangle null, r = rect(7, 2, 3, 4), color: "black"
-    test: (bitmap) -> assert.eq r, bitmap.getAutoCropRectangle()
+    testAndLogBitmap "rectangle at top", ->
+      bitmap: new Bitmap(bitmapSize).drawRectangle null, r = rect(1, 0, 3, 4), color: "black"
+      test: (bitmap) -> assert.eq r, bitmap.getAutoCropRectangle()
 
-  testAndLogBitmap "rectangle at top", ->
-    bitmap: new Bitmap(bitmapSize).drawRectangle null, r = rect(1, 0, 3, 4), color: "black"
-    test: (bitmap) -> assert.eq r, bitmap.getAutoCropRectangle()
+    testAndLogBitmap "rectangle at bottom", ->
+      bitmap: new Bitmap(bitmapSize).drawRectangle null, r = rect(1, 6, 3, 4), color: "black"
+      test: (bitmap) -> assert.eq r, bitmap.getAutoCropRectangle()
 
-  testAndLogBitmap "rectangle at bottom", ->
-    bitmap: new Bitmap(bitmapSize).drawRectangle null, r = rect(1, 6, 3, 4), color: "black"
-    test: (bitmap) -> assert.eq r, bitmap.getAutoCropRectangle()
+    testAndLogBitmap "two rectangles", ->
+      bitmap: new Bitmap(bitmapSize).drawRectangle(null, r = rect(1, 2, 3, 4), color: "red").drawRectangle(null, r = rect(5, 6, 7, 8), color: "blue")
+      test: (bitmap) -> assert.eq rect(1, 2, 9, 8), bitmap.getAutoCropRectangle()
 
-  testAndLogBitmap "two rectangles", ->
-    bitmap: new Bitmap(bitmapSize).drawRectangle(null, r = rect(1, 2, 3, 4), color: "red").drawRectangle(null, r = rect(5, 6, 7, 8), color: "blue")
-    test: (bitmap) -> assert.eq rect(1, 2, 9, 8), bitmap.getAutoCropRectangle()
+    testAndLogBitmap "threshold test 1", ->
+      bitmap: new Bitmap(bitmapSize).drawRectangle null, r = rect(1, 2, 3, 4), color: "#0001"
+      test: (bitmap) -> assert.eq r, bitmap.getAutoCropRectangle()
 
-  testAndLogBitmap "threshold test 1", ->
-    bitmap: new Bitmap(bitmapSize).drawRectangle null, r = rect(1, 2, 3, 4), color: "#0001"
-    test: (bitmap) -> assert.eq r, bitmap.getAutoCropRectangle()
+    testAndLogBitmap "threshold test 2", ->
+      bitmap: new Bitmap(bitmapSize).drawRectangle null, r = rect(1, 2, 3, 4), color: rgbColor 0, 0, 0, .1
+      test: (bitmap) -> assert.eq rect(), bitmap.getAutoCropRectangle(128)
 
-  testAndLogBitmap "threshold test 2", ->
-    bitmap: new Bitmap(bitmapSize).drawRectangle null, r = rect(1, 2, 3, 4), color: rgbColor 0, 0, 0, .1
-    test: (bitmap) -> assert.eq rect(), bitmap.getAutoCropRectangle(128)
+  "new transformed bitmaps": ->
+    newTestBitmap = ->
+      b = new Bitmap point 128, 64
+      b.drawRectangle null, b.size, colors: {0:"orange", 0.45:"orange", 0.55:"yellow", 1:"yellow"}, to: b.size
+      b
+    properties = w "
+      mipmap
+      flipped
+      rotated180
+      flippedAndRotated180
+      rotated180AndFlipped
+      rotated90Clockwise
+      rotated90ClockwiseAndFlipped
+      flippedAndRotated90CounterClockwise
+      rotated90CounterClockwise
+      rotated90CounterClockwiseAndFlipped
+      flippedAndRotated90Clockwise
+      "
+    each properties, (property) ->
+      test property, -> log "#{property}": newTestBitmap()[property]
+
+    test "scale", -> log "scale": newTestBitmap().scale 2
+    test "resize", -> log "resize": newTestBitmap().resize 64
