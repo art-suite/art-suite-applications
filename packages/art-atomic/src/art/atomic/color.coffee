@@ -202,10 +202,24 @@ module.exports = class Color extends AtomicBase
 
   @parseCache: parseCache = {}
 
+  defaultAlpha = 1
+
   @rgbColor: rgbColor = (a, b, c, d) ->
     return a if !b? && (a instanceof Color)
     return clr if isString(a) && clr = colorNamesMap[a] || parseCache[a]
     new Color a, b, c, d
+
+  @rgb256Color: (a, b, c, d) ->
+    return a if !b? && (a instanceof Color)
+    return clr if isString(a) && clr = colorNamesMap[a] || parseCache[a]
+    defaultAlpha = 255
+    out = new Color a, b, c, d
+    defaultAlpha = 1
+    out.r /= 255
+    out.g /= 255
+    out.b /= 255
+    out.a /= 255
+    out
 
   @newColor: rgbColor
   @color: (a, b, c, d) ->
@@ -293,7 +307,7 @@ module.exports = class Color extends AtomicBase
 
   initProperties: ->
     @r = @g = @b = 0
-    @a = 1
+    @a = defaultAlpha
     @_hue = @_saturation = @_lightness = null
     @parseError = null
     @_htmlColorString = null
@@ -306,16 +320,13 @@ module.exports = class Color extends AtomicBase
     @_lightness = l - 0 if l?
     if !a?
       @r = @g = @b = 0
-      @a = 1
     else if !b?
-      a /= 255 if a > 1
       @r = @g = @b = a - 0
-      @a = 1 - 0
     else if c?
       @r = a - 0
       @g = b - 0
       @b = c - 0
-      @a = if d? then d - 0 else 1
+      @a = d - 0 if d?
 
   interpolate: (toColor, p) ->
     {r, g, b, a} = @
