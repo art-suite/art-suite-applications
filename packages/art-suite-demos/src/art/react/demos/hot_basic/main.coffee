@@ -1,5 +1,6 @@
-{log, pluralize} = Foundation = require "art-foundation"
 {
+  log
+  pluralize
   createComponentFactory
   Component
   CanvasElement
@@ -7,11 +8,11 @@
   RectangleElement
   TextElement
   arrayWithout
-} = require "art-react"
-{point} = require "art-atomic"
+  defineModule
+  point
+} = require "art-suite"
 
-module.exports = createComponentFactory class MyComponent extends Component
-  module: module
+defineModule module, class MyComponent extends Component
 
   getInitialState: -> toggled: false
   toggle: -> @setState toggled: !@state.toggled

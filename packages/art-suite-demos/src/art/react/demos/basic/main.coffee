@@ -1,40 +1,33 @@
-{log} = Foundation = require "art-foundation"
 {
-  createComponentFactory
+  log
   Component
-  CanvasElement
   Element
   RectangleElement
   TextElement
-  arrayWithout
-} = require "art-react"
-{point} = require "art-atomic"
+  defineModule
+  PointerActionsMixin
+} = require "art-suite"
 
-module.exports = createComponentFactory class MyComponent extends Component
-
-  getInitialState: -> toggled: false
-  toggle: -> @setState toggled: !@state.toggled
+defineModule module, class MyComponent extends PointerActionsMixin Component
 
   render: ->
-    {toggled} = @state
-    [text, clr] = if toggled
+    [text, color] = if @state.pointerIsDown
       ["and War", "red"]
     else
       ["Love", "pink"]
 
     Element
-      on:
-        pointerDown: @toggle
-        pointerUp:   @toggle
+      on: @buttonHandlers
 
-      RectangleElement color: "pink", animate: to: color: clr
+      RectangleElement
+        color:      color
+        animators:  "color"
 
       TextElement
-        key: text
-        location: ps: .5
-        addedAnimation: from: opacity: 0, axis: point 1, .5
-        removedAnimation: to: opacity: 0, axis: point 0, .5
-        axis:     .5
-        text:     text
-        color:    "white"
-        fontSize: 50
+        key:        text
+        location:   ps: .5
+        axis:       .5
+        animators:  opacity: toFrom: 0
+        text:       text
+        color:      "white"
+        fontSize:   50
