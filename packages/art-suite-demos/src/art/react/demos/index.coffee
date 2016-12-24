@@ -4,6 +4,7 @@
 module.exports = require './namespace'
 require './Animations'
 require './Chat'
+require './ColorExtractor'
 require './ScrollingDynamic'
 require './ScrollingInfinite'
 require './basic'
