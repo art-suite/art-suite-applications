@@ -2,14 +2,14 @@ ArtSuite = require 'art-suite'
 StyleProps = require './style_props'
 
 {
-  createComponentFactory, Element, RectangleElement, TextElement,
+  defineModule, Element, RectangleElement, TextElement,
   TextInput
   log
   point
+  Component
 } = ArtSuite
 
-module.exports = createComponentFactory
-  module: module
+defineModule module, class ChatMessage extends Component
 
   render: ->
     {currentUser, user, message} = @props
