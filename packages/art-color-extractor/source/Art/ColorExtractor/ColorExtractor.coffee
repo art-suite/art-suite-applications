@@ -62,7 +62,7 @@ TODO:
 
 Vibrant    = require './Vibrant'
 
-{log, object, merge} = require 'art-foundation'
+{log, object, merge, toPlainObjects} = require 'art-foundation'
 
 {rgb256Color, rgbColor, point, Matrix} = require 'art-atomic'
 {Bitmap} = require 'art-canvas'
@@ -98,7 +98,7 @@ module.exports =
     colorMapBitmap.putImageData imageData
 
   generatePreviewBitmap: ({colorMap})->
-    getColorMapBitmap(colorMap).getScaled previewBitmapScale
+    getColorMapBitmap(colorMap).scale previewBitmapScale
     .blur previewBitmapBlur
 
   mipmapSize: mipmapSize = 64
@@ -114,7 +114,7 @@ module.exports =
 
     log extractColors imageDataBuffer
   ###
-  extractColors: (bitmap) ->
+  extractColors: extractColors = (bitmap) ->
     bitmap = bitmap.getMipmap mipmapSize
     {data} = bitmap.imageData
 
@@ -122,3 +122,5 @@ module.exports =
       version:    version.split(".")[0] | 0
       colorMap:   getColorMap bitmap
       new Vibrant(data).colors
+
+  extractColorsAsPlainObjects: (bitmap) => toPlainObjects extractColors bitmap

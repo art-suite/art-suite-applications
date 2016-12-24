@@ -87,7 +87,7 @@ module.exports = suite: ->
           colorInfo
           previewBitmap
           mipmap:         bitmap.getMipmap mipmapSize
-          upscale:        previewBitmap.getScaled point area:point(700).div(previewBitmap.size).area, aspectRatio: bitmap.size.aspectRatio
+          upscale:        previewBitmap.scale point area:point(700).div(previewBitmap.size).area, aspectRatio: bitmap.size.aspectRatio
           json: JSON.stringify toPlainObjects colorInfo
         }
 
