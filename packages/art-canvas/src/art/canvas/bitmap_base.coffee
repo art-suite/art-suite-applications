@@ -18,7 +18,7 @@ toChannelNumberMap = 0:0, 1:1, 2:2, 3:3, r:0, g:1, b:2, a:3, red:0, green:1, blu
 alphaChannelOffset = 3
 pixelStep = 4
 
-quaterPoint = point 1/4
+quarterPoint = point 1/4
 halfPoint = point 1/2
 
 module.exports = class BitmapBase extends BaseObject
@@ -315,19 +315,17 @@ module.exports = class BitmapBase extends BaseObject
         result
 
   # IN: newSize can anything "point" accepts
-  resize: (newSize) ->
-    newSize = point newSize
-    return @ if newSize.eq @size
-    @scale newSize.div @size
+  resize: (newSize) -> @scale point(newSize).div @size
 
   # IN: scale can anything "point" accepts
   scale: (scale, highQuality = true) ->
     newSize = @size.mul(scale = point scale).ceil()
     source = @
+
     if highQuality
-      while scale.lte quaterPoint
+      while scale.lte quarterPoint
         scale = scale.mul 2
-        source = source.scale halfPoint
+        source = source.mipmap
 
     return source if newSize.eq source.size
     newBitmap = @newBitmap newSize
