@@ -88,6 +88,7 @@ module.exports = class Base extends BaseObject
   @getter
     plainObjects: -> @toObject()
     inspectedObjects: -> inspectedObjectLiteral @class.getConstructorFunctionName() + "(#{@toArray().join ', '})"
+    array: -> @toArray()
 
   toPlainStructure: -> @getPlainObjects()
   toPlainEvalString: -> inspect @getPlainObjects()
