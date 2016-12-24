@@ -1,7 +1,6 @@
 {
   log
   pluralize
-  createComponentFactory
   Component
   CanvasElement
   Element
@@ -10,16 +9,19 @@
   arrayWithout
   defineModule
   point
+  PointerActionsMixin
 } = require "art-suite"
 
-defineModule module, class MyComponent extends Component
+defineModule module, class MyComponent extends PointerActionsMixin Component
 
-  getInitialState: -> toggled: false
-  toggle: -> @setState toggled: !@state.toggled
+  @stateFields toggled: false
+
+  toggle: -> @toggled = !@toggled
 
   render: ->
-    {toggled, _hotModuleReloadCount} = @state
-    [text, clr] = if toggled
+    {_hotModuleReloadCount} = @state
+
+    [text, color] = if @state.pointerIsDown
       ["and War", "red"]
     else
       ["Love", "pink"]
@@ -30,13 +32,11 @@ defineModule module, class MyComponent extends Component
       "edit hot_basic/main.coffee, save, and watch the magic!"
 
     Element
-      on:
-        pointerDown: @toggle
-        pointerUp:   @toggle
+      on: @buttonHandlers
 
       RectangleElement
-        color: clr
-        animators: "color"
+        color:      color
+        animators:  "color"
 
       TextElement
         key: text
@@ -44,6 +44,7 @@ defineModule module, class MyComponent extends Component
         animators:
           opacity:  toFromVoid: 0
           axis:     fromVoid: "centerRight", toVoid: "centerLeft"
+
         axis:     .5
         text:     text
         color:    "white"
@@ -55,6 +56,7 @@ defineModule module, class MyComponent extends Component
         animators:
           opacity:  toFromVoid: 0
           axis:     fromVoid: "bottomCenter", toVoid: point .5, -1
+
         axis:     "topCenter"
         text:     hotText
         color:    "white"
