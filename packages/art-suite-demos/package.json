@@ -1,6 +1,7 @@
 {
   "author": "Shane Brinkman-Davis Delamore",
   "dependencies": {
+    "art-color-extractor": "git://github.com/imikimi/art-color-extractor",
     "art-suite": "git://github.com/imikimi/art-suite",
     "case-sensitive-paths-webpack-plugin": "^1.1.4",
     "chai": "^3.5.0",
