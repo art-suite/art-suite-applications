@@ -4,7 +4,7 @@ Get a look at what ArtReact and the ArtEngine can do.
 
 ### Install and Run
 
-* Get the latest (Node.js)[https://nodejs.org/]
+* Get the latest [Node.js](https://nodejs.org/)
 
 ```
 git clone https://github.com/Imikimi-LLC/art-suite-demos.git
