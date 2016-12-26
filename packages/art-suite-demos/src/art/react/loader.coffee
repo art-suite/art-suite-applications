@@ -1,31 +1,29 @@
-Foundation = require "art-foundation"
-Engine = require 'art-engine'
-React = require 'art-react'
-Atomic = require 'art-atomic'
-{PointerActionsMixin} = require 'art-react/mixins'
-
-{defineModule, createWithPostCreate, upperCamelCase, lowerCamelCase, log} = Foundation
-{point} = Atomic
 {
+  defineModule, createWithPostCreate, upperCamelCase, lowerCamelCase, log
+  point
+  InitArtReactApp
+  PointerActionsMixin
   Component, createComponentFactory, createAndInstantiateTopComponent
   CanvasElement
   Element
   RectangleElement
   PagingScrollElement
   TextElement
-} = React
+  Promise
+} = require 'art-suite'
 
 Demos = require "./demos"
 
-textStyle =
-  fontFamily: "Helvetica"
-  fontSize: 16
-  color: "#fffc"
+InitArtReactApp
+  title: "Art.React.Demos"
 
-defineModule module, ->
-  Engine.FullScreenApp.init
-    title: "Art.React.Demos"
-  .then ->
+  Promise.try ->
+
+    textStyle =
+      fontFamily: "Helvetica"
+      fontSize: 16
+      color: "#fffc"
+
     DemoButton = createWithPostCreate class DemoButton extends PointerActionsMixin Component
 
       doAction: ->
@@ -71,7 +69,7 @@ defineModule module, ->
             padding: 10
             on: @getButtonHandlers @props.back
 
-    createAndInstantiateTopComponent
+    class Loader extends Component
 
       selectDemo: (name)-> @setState selectedDemo: name
       back: -> @setState selectedDemo: null

@@ -37,6 +37,7 @@ defineModule module, class MyComponent extends PointerActionsMixin Component
 
   render: ->
     {bitmap, colorInfo, previewBitmap, hover, selectedColor} = @state
+    log {colorInfo}
 
     Element
       childrenLayout: "column"
@@ -87,25 +88,23 @@ defineModule module, class MyComponent extends PointerActionsMixin Component
         margin: layoutWeight
         childrenAlignment: "center"
         childrenLayout: "row"
-        array colorInfo,
-          when: (v) -> v instanceof Color
-          with: (v, k) =>
-            Element
-              cursor: "pointer"
-              padding: layoutWeight
-              margin: layoutWeight
+        array colorInfo.colors, (v, k) =>
+          Element
+            cursor: "pointer"
+            padding: layoutWeight
+            margin: layoutWeight
+            size: cs: 1
+            on: pointerClick: =>
+              log v
+              @selectedColor = v
+
+            RectangleElement
+              color: v
+              padding: -layoutWeight
+              shadow: shadowProps
+
+            TextElement
               size: cs: 1
-              on: pointerClick: =>
-                log v
-                @selectedColor = v
-
-              RectangleElement
-                color: v
-                padding: -layoutWeight
-                shadow: shadowProps
-
-              TextElement
-                size: cs: 1
-                color: if v.perceptualLightness < .5 then "white" else "black"
-                text: k
-                fontFamily: "AvenirNext-Regular"
+              color: if v.perceptualLightness < .5 then "white" else "black"
+              text: k
+              fontFamily: "AvenirNext-Regular"
