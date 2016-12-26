@@ -1,1 +1,1 @@
-module.exports = require "./src/art"
+module.exports = require "./source/Art"
