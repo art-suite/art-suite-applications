@@ -121,6 +121,6 @@ module.exports =
     merge
       version:    version.split(".")[0] | 0
       colorMap:   getColorMap bitmap
-      new Vibrant(data).colors
+      colors:     new Vibrant(data).colors
 
   extractColorsAsPlainObjects: (bitmap) => toPlainObjects extractColors bitmap
