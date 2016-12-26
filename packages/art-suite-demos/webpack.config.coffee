@@ -1,5 +1,5 @@
 module.exports = (require "art-foundation/configure_webpack")
-  entries: "app HelloWorld"
+  entries: "Demos HelloWorld"
   dirname: __dirname
   package:
     author: "Shane Brinkman-Davis Delamore"

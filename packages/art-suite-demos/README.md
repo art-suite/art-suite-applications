@@ -4,9 +4,11 @@ Get a look at what ArtReact and the ArtEngine can do.
 
 ### Install and Run
 
+* Get the latest (Node.js)[https://nodejs.org/]
+
 ```
-git clone https://github.com/Imikimi-LLC/art-react-demos.git
-cd art-react-demos
+git clone https://github.com/Imikimi-LLC/art-suite-demos.git
+cd art-suite-demos
 npm install
 npm start
 ```
