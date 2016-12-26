@@ -1,7 +1,7 @@
 {
   defineModule, createWithPostCreate, upperCamelCase, lowerCamelCase, log
   point
-  InitArtReactApp
+  InitArtSuiteApp
   PointerActionsMixin
   Component, createComponentFactory, createAndInstantiateTopComponent
   CanvasElement
@@ -14,7 +14,7 @@
 
 Demos = require "./demos"
 
-InitArtReactApp
+InitArtSuiteApp
   title: "Art.React.Demos"
 
   Promise.try ->

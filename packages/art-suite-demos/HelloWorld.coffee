@@ -3,10 +3,10 @@
   RectangleElement
   TextElement
   CanvasElement
-  InitArtReactApp
+  InitArtSuiteApp
 } = require "art-suite"
 
-InitArtReactApp
+InitArtSuiteApp
   title: "My HelloWorld"
 
   class HelloWorld extends Component

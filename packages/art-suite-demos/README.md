@@ -1,6 +1,6 @@
 # Art.Suite.Demos
 
-Get a look at what ArtReact and the ArtEngine can do.
+See what ArtSuite can do.
 
 ### Install and Run
 
