@@ -1,4 +1,4 @@
-{log} = require 'art-foundation'
+{log, isPlainObject} = require 'art-foundation'
 Engine = require 'art-engine'
 React = require "../index"
 {ElementFactory, Element, CanvasElement, FullScreenApp} = Engine
@@ -39,7 +39,7 @@ class React.VirtualElementArtEngine extends React.VirtualElement
 # fullScreenReactAppInit should be called immediatly when the top-level JS is loaded from index.html
 # However, topComponent can be a Promise, so if you have async work to do, do it there and return the topComponent
 # when you are done
-React.fullScreenReactAppInit = (a, b) ->
+React.InitArtReactApp = (a, b) ->
   initOptions = if isPlainObject a
     topComponent = b
     a
@@ -51,6 +51,6 @@ React.fullScreenReactAppInit = (a, b) ->
     Promise.resolve topComponent
     .then (topComponent) -> topComponent.instantiateAsTopComponent()
   .catch (error) ->
-    log.error "ArtReact.fullScreenReactAppInit failed", error
+    log.error "Art.React.InitArtReactApp failed", error
 
 React.addElementFactories()
