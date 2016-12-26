@@ -1,4 +1,4 @@
-# Art.React Demos
+# Art.Suite.Demos
 
 Get a look at what ArtReact and the ArtEngine can do.
 
