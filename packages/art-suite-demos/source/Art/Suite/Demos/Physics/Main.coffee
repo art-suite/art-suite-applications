@@ -1,18 +1,14 @@
-Foundation = require "art-foundation"
-React = require "art-react"
-Atomic = require "art-atomic"
-
-{log} = Foundation
 {
-  createComponentFactory
+  log
+  defineModule
   Component
   CanvasElement
   Element
   RectangleElement
   TextElement
   arrayWithout
-} = React
-{point} = Atomic
+  point
+} = require 'art-suite'
 
 animateLocationWithPhysics = ({toValue, element:{currentLocation}, frameSeconds, state, options}) ->
   targetLocation = toValue.layout()
@@ -37,8 +33,7 @@ animateLocationWithPhysics = ({toValue, element:{currentLocation}, frameSeconds,
   state.velocity = velocity = velocity.add acceleration.mul frameSeconds
   currentLocation.add velocity.mul frameSeconds
 
-module.exports = createComponentFactory class MyComponent extends Component
-  module: module
+defineModule module, class MyComponent extends Component
 
   @stateFields location: ps: .5
 

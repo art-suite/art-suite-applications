@@ -1,21 +1,14 @@
-Foundation = require "art-foundation"
-React = require 'art-react'
-Atomic = require 'art-atomic'
-Flux = require 'art-flux'
-
-{Animator} = Neptune.Art.Engine.Animation
-
-require './Models'
-
 {
   log, merge, clone, peek, inspect, timeout, Browser, intRand
   isNumber, shallowClone, iPart, min, max
   defineModule
-} = Foundation
+  createWithPostCreate
+  point
+  Element, RectangleElement, TextElement, OutlineElement, FillElement, PagingScrollElement, Component
+  FluxComponent
+} = require 'art-suite'
 
-{point} = Atomic
-{Element, RectangleElement, TextElement, OutlineElement, FillElement, PagingScrollElement, Component, createComponentFactory} = React
-{FluxComponent, createFluxComponentFactory} = Flux
+require './Models'
 
 defineModule module, ->
   class StyleProps
@@ -50,11 +43,9 @@ defineModule module, ->
 
   colors = Object.keys boardNums
 
-  ColorCheckBox = createFluxComponentFactory
+  ColorCheckBox = createWithPostCreate class ColorCheckBox extends FluxComponent
     toggleCheckbox: ->
       @models.quixx.toggleCheckbox @props.color, @props.index
-
-
 
     render: ->
       Element
@@ -86,8 +77,7 @@ defineModule module, ->
           text: @props.text
           color: StyleProps.textColorMap[@props.color]
 
-  ColorRow = createFluxComponentFactory
-
+  ColorRow = createWithPostCreate class ColorRow extends Component
 
     render: ->
       {color, nums} = @props
@@ -149,16 +139,9 @@ defineModule module, ->
                 text: nums[i]
                 boardComponent: @props.boardComponent
 
-  ColorScore = createComponentFactory class ColorScore extends Component
+  ColorScore = createWithPostCreate class ColorScore extends Component
 
     getInitialState: -> score: @props.score
-
-    componentWillReceiveProps: (nextProps = {}) ->
-      new Animator @,
-        from: score: @props.score
-        to: score: nextProps.score
-        duration: .25
-        f: "easeInQuad"
 
     @setter score: (score) -> @setState "score", iPart score
 
@@ -179,7 +162,7 @@ defineModule module, ->
           text: @state.score
           color: StyleProps.textColorMap[@props.color] || @props.color
 
-  Logo = createComponentFactory
+  Logo = createWithPostCreate class Logo extends Component
 
     render: ->
       Element
@@ -207,7 +190,7 @@ defineModule module, ->
             lineWidth: 5
             compositeMode: "destOver"
 
-  createComponentFactory class Quixx extends FluxComponent
+  class Quixx extends FluxComponent
 
     @subscriptions "quixx.board quixx.subScores quixx.score"
 
@@ -249,11 +232,13 @@ defineModule module, ->
               Element
                 size: ww:1, hch:1
                 padding: 10
-                childrenLayout: "flow"
+                childrenLayout: "row"
                 for c, i in colors
                   [
                     ColorScore color: c, score: subScores[c]
                     TextElement
+                      size: wcw: 1, hh:1
+                      align: .5
                       text: if i == colors.length-1 then "=" else "+"
                       color: "#777"
                       fontFamily: "Arial"

@@ -1,6 +1,5 @@
 { log, pluralize, defineModule
   Bitmap
-  createComponentFactory
   Component
   CanvasElement
   Element

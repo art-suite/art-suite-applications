@@ -1,23 +1,17 @@
-Foundation = require 'art-foundation'
-Atomic = require 'art-atomic'
 ColorPreview = require './ColorPreview'
 ColorPicker1d = require './ColorPicker1D'
-React = require 'art-react'
-Flux = require 'art-flux'
 
-{log, bound, wordsArray} = Foundation
-{color} = Atomic
 {
-  Component, createComponentFactory
+  log, bound, w
+  Component,
+  defineModule
   Element, RectangleElement, TextElement, OutlineElement, CanvasElement
-} = React
+  FluxComponent
+} = require 'art-suite'
 
-{FluxComponent} = Flux
+defineModule module, class ColorPicker extends FluxComponent
 
-channels = wordsArray "red green blue hue saturation lightness"
-
-module.exports = createComponentFactory class ColorPicker extends FluxComponent
-  module: module
+  channels = w "red green blue hue saturation lightness"
 
   render: ->
     {color} = @state
@@ -28,4 +22,8 @@ module.exports = createComponentFactory class ColorPicker extends FluxComponent
         padding: 10
         childrenLayout: "column"
         ColorPreview()
-        ColorPicker1d channel: channel.slice(0, 1), label: channel for channel in channels
+
+        for channel in channels
+          ColorPicker1d
+            channel:  channel.slice 0, 1
+            label:    channel

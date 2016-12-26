@@ -3,7 +3,7 @@
   point
   InitArtSuiteApp
   PointerActionsMixin
-  Component, createComponentFactory, createAndInstantiateTopComponent
+  Component
   CanvasElement
   Element
   RectangleElement
@@ -14,101 +14,97 @@
 
 Demos = require "./Demos"
 
-InitArtSuiteApp
-  title: "Art.React.Demos"
+defineModule module, ->
+  textStyle =
+    fontFamily: "Helvetica"
+    fontSize: 16
+    color: "#fffc"
 
-  Promise.try ->
+  DemoButton = createWithPostCreate class DemoButton extends PointerActionsMixin Component
 
-    textStyle =
-      fontFamily: "Helvetica"
-      fontSize: 16
-      color: "#fffc"
+    doAction: ->
+      @props.selectDemo @props.name
 
-    DemoButton = createWithPostCreate class DemoButton extends PointerActionsMixin Component
+    render: ->
+      {pointerIsDown, hover} = @state
+      {name} = @props
+      Element
+        size: ww:1, hch:1
 
-      doAction: ->
-        @props.selectDemo @props.name
+        RectangleElement
+          color: if hover then "#fff" else "#fff0"
+          animators: "color"
 
-      render: ->
-        {pointerIsDown, hover} = @state
-        {name} = @props
-        Element
+        TextElement textStyle,
           size: ww:1, hch:1
+          cursor: "pointer"
+          color:    "#0007"
+          text:     name
+          padding: 10
+          on: @buttonHandlers
 
-          RectangleElement
-            color: if hover then "#fff" else "#fff0"
-            animators: "color"
+  BackButton = createWithPostCreate class BackButton extends PointerActionsMixin Component
 
-          TextElement textStyle,
-            size: ww:1, hch:1
-            cursor: "pointer"
-            color:    "#0007"
-            text:     name
-            padding: 10
-            on: @buttonHandlers
+    render: ->
+      {pointerIsDown, hover} = @state
+      {name} = @props
+      Element
+        size: cs: 1
+        clip: true
+        animators: size: toFrom: hch:1, w: 0
 
-    BackButton = createWithPostCreate class BackButton extends PointerActionsMixin Component
+        RectangleElement
+          color: if hover then "#999" else "#555"
+          animators: "color"
+          radius: 5
 
-      render: ->
-        {pointerIsDown, hover} = @state
-        {name} = @props
-        Element
+        TextElement textStyle,
           size: cs: 1
-          clip: true
-          animators: size: toFrom: hch:1, w: 0
+          cursor: "pointer"
+          text:     "back"
+          padding: 10
+          on: @getButtonHandlers @props.back
 
-          RectangleElement
-            color: if hover then "#999" else "#555"
-            animators: "color"
-            radius: 5
+  class Loader extends Component
+
+    selectDemo: (name)-> @setState selectedDemo: name
+    back: -> @setState selectedDemo: null
+
+    render: ->
+      {selectedDemo} = @state
+
+      Element
+        childrenLayout: "column"
+        Element
+          size: ww:1, h:50
+          childrenLayout: "row"
+          childrenAlignment: "centerLeft"
+          RectangleElement inFlow: false, color: "#333", padding: -10
+          padding: 10
+
+          BackButton {@back} if selectedDemo
 
           TextElement textStyle,
-            size: cs: 1
-            cursor: "pointer"
-            text:     "back"
-            padding: 10
-            on: @getButtonHandlers @props.back
+            fontSize: 20
+            margin:   10
+            text:     selectedDemo || "art-react-demos"
 
-    class Loader extends Component
+        Element null,
+          if selectedDemo
+            Element
+              key: "demo-#{selectedDemo}"
+              clip: true
+              animators: axis: toFrom: point -1, 0
 
-      selectDemo: (name)-> @setState selectedDemo: name
-      back: -> @setState selectedDemo: null
+              Demos[selectedDemo].Main()
+          else
 
-      render: ->
-        {selectedDemo} = @state
+            Element
+              key: "select-demo"
+              childrenLayout: "column"
+              animators: axis: toFrom: "topRight"
 
-        CanvasElement
-          childrenLayout: "column"
-          Element
-            size: ww:1, h:50
-            childrenLayout: "row"
-            childrenAlignment: "centerLeft"
-            RectangleElement inFlow: false, color: "#333", padding: -10
-            padding: 10
-
-            BackButton {@back} if selectedDemo
-
-            TextElement textStyle,
-              fontSize: 20
-              margin:   10
-              text:     if selectedDemo then selectedDemo else "art-react-demos"
-
-          Element null,
-            if selectedDemo
-              Element
-                key: "demo-#{selectedDemo}"
-                clip: true
-                animators: axis: toFrom: point -1, 0
-
-                Demos[selectedDemo].Main()
-            else
-
-              Element
-                key: "select-demo"
-                childrenLayout: "column"
-                animators: axis: toFrom: "topRight"
-
-                RectangleElement inFlow: false, color: "#eee"
-                for name in Demos.getNamespaceNames()
-                  DemoButton {name, @selectDemo}
+              RectangleElement inFlow: false, color: "#eee"
+              for name in Demos.getNamespaceNames()
+                DemoButton {name, @selectDemo}
 

@@ -1,25 +1,16 @@
-Foundation = require "art-foundation"
-React = require "art-react"
-Atomic = require "art-atomic"
-
-{log} = Foundation
 {
-  createComponentFactory
+  defineModule
+  log
   Component
-  CanvasElement
   Element
   RectangleElement
   TextElement
-  arrayWithout
-} = React
-{rgbColor, point} = Atomic
+  rgbColor
+} = require 'art-suite'
 
-module.exports = createComponentFactory class MyComponent extends Component
-  module: module
+defineModule module, class CandyStripe extends Component
 
   render: ->
-    {location} = @state
-
     Element null,
 
       RectangleElement color: "white"

@@ -4,4 +4,5 @@
 module.exports = require './namespace'
 .addModules
   Loader: require './Loader'
+  Main:   require './Main'  
 require './Demos'

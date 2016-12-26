@@ -1,11 +1,14 @@
-{log} = require 'art-foundation'
-{Element, RectangleElement, TextInput, TextElement, Component, createComponentFactory} = require 'art-react'
-{FluxComponent} = require 'art-flux'
-{rgbColor} = require 'art-atomic'
+{
+  defineModule
+  log
+  Element, RectangleElement, TextInput, TextElement, Component
+  FluxComponent
+  rgbColor
+} = require 'art-suite'
 
-module.exports = createComponentFactory class ColorPreview extends FluxComponent
+defineModule module, class ColorPreview extends FluxComponent
   subscriptions: "currentColor.color"
-  module: module
+
   selectAll: ({target}) ->
     log "selectAll"
     target.selectAll()

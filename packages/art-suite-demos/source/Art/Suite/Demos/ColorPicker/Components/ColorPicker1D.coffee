@@ -1,9 +1,12 @@
-{log} = require 'art-foundation'
-{Element, RectangleElement, Component, createComponentFactory, TextElement} = require 'art-react'
-{FluxComponent} = require 'art-flux'
+{
+  log
+  defineModule
+  Element, RectangleElement, Component, TextElement
+  FluxComponent
+} = require 'art-suite'
 
-module.exports = createComponentFactory class ColorPicker1D extends FluxComponent
-  module: module
+defineModule module, class ColorPicker1D extends FluxComponent
+
   @subscriptions "currentColor.color",
     currentColor: ({channel}) -> channel
 
