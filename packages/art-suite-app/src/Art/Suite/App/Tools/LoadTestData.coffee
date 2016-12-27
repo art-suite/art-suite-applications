@@ -32,9 +32,9 @@ module.exports =
               serializer.then ->
                 log "loading #{pipeline.getName()}: #{i+1}/#{records.length}"
                 pipeline.create originatedOnServer: true, data: record
-                .catch (error) ->
-                  log.error "loading #{pipeline.getName()}: #{i+1}/#{records.length} FAILED"
-                  createRejected: {error, record}
+                # .catch (error) ->
+                #   log.error "loading #{pipeline.getName()}: #{i+1}/#{records.length} FAILED"
+                #   createRejected: {error, record}
           else
             array records, (record) ->
               pipeline.create originatedOnServer: true, data: record
