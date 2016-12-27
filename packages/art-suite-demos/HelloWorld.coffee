@@ -3,17 +3,17 @@
   RectangleElement
   TextElement
   CanvasElement
-  InitArtSuiteApp
+  initArtSuiteApp
 } = require "art-suite"
 
-InitArtSuiteApp
-  title: "My HelloWorld"
+initArtSuiteApp MainComponent: class MyHelloWorldComponent extends Component
 
-  class HelloWorld extends Component
+  render: ->
+    # The top-most Element, and only the top-most Element, should be a CanvasElement.
+    CanvasElement null,
 
-    render: ->
+      # background color
+      RectangleElement color: "pink"
 
-      # The top-most Element, and only the top-most Element, should be a CanvasElement.
-      CanvasElement null,
-        RectangleElement color: "pink"
-        TextElement text: "Hello, world!"
+      # show some text
+      TextElement text: "Hello, world!"

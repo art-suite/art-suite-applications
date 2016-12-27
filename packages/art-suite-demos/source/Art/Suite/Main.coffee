@@ -1,10 +1,8 @@
 {
-  InitArtSuiteApp
+  initArtSuiteApp
   Component
   CanvasElement
 } = require 'art-suite'
 
-InitArtSuiteApp
-  title: "Art.React.Demos"
-  class Main extends Component
-    render: -> CanvasElement (require './Loader')()
+initArtSuiteApp MainComponent: class ArtSuiteDemos extends Component
+  render: -> CanvasElement (require './Loader')()
