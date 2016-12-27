@@ -37,20 +37,26 @@ class React.VirtualElementArtEngine extends React.VirtualElement
   _newErrorElement: -> @_newElement "RectangleElement", key:"ART_REACT_ERROR_CREATING_CHILD_PLACEHOLDER", color:"orange"
 
 # fullScreenReactAppInit should be called immediatly when the top-level JS is loaded from index.html
-# However, topComponent can be a Promise, so if you have async work to do, do it there and return the topComponent
+# However, MainComponent can be a Promise, so if you have async work to do, do it there and return the MainComponent
 # when you are done
-React.InitArtReactApp = (a, b) ->
-  initOptions = if isPlainObject a
-    topComponent = b
-    a
-  else
-    topComponent = a
-    b || {}
+###
+IN:
+  options:
+    MainComponent: the MainComponent-factory to start the app with. (required)
+    prepare: null or promise (optional)
+      Init will wait for the prepare-promise to finish before starting the app.
 
-  FullScreenApp.init(initOptions).then ->
-    Promise.resolve topComponent
-    .then (topComponent) -> topComponent.instantiateAsTopComponent()
+###
+React.initArtReactApp = (options) ->
+  {MainComponent, prepare} = options
+  throw new Error "MainComponent required" unless MainComponent
+
+  options.title ||= MainComponent.getName()
+
+  FullScreenApp.init options
+  .then -> Promise.resolve prepare
+  .then -> MainComponent.instantiateAsTopComponent()
   .catch (error) ->
-    log.error "Art.React.InitArtReactApp failed", error
+    log.error "Art.React.initArtReactApp failed", error
 
 React.addElementFactories()
