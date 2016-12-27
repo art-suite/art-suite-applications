@@ -1,16 +1,12 @@
 {
   defineModule
-  upperCamelCase
-  parseQuery
   log
   merge
   timeout
   Promise
-  FullScreenApp
   ArtEry
   ArtEryFluxModel
-  deepMerge
-  ConfigRegistry
+  initArtSuiteApp
 } = require 'art-suite'
 ArtAws = require 'art-aws'
 {DynamoDbPipeline} = require 'art-ery-aws'
@@ -19,27 +15,19 @@ defineModule module, class Client
 
   ###
   IN: options:
-    Component: React component to instantiate as the top component
-
-    title: the title of this app. Sets the browser tab's title, also effects logging
-
     all options are passed to:
+      initArtSuiteApp options
 
-      ConfigRegistry.configure options
-      ArtEngine.FullScreenApp.init options
+      specifically, you should see:
+        Art.Foundation.ConfigRegistry.configure options
+        Art.Engine.FullScreenApp.init options
 
-      See their respective Docs.
+  EFFECT: Does everything initArtSuiteApp does PLUS initializes ArtEry
   ###
-  @init: (options) =>
-    ConfigRegistry.configure options
-
-    options.title ||= "ArtSuiteApp"
-    {title, Component} = options
-    log "#{title}: initializing..."
-    FullScreenApp.init options
-    .then -> ArtEryFluxModel.defineModelsForAllPipelines()
-    .then -> ArtEry.Session.singleton.loadSession()
-    .then -> timeout 100
-    .then -> Component.instantiateAsTopComponent()
-    .then -> log "#{title}: started."
-    .catch (e) -> log "#{title}: error initializing", e
+  @initArtSuiteClient: (options) =>
+    initArtSuiteApp merge options,
+      prepare:
+        Promise.resolve options.prepare
+        .then -> ArtEryFluxModel.defineModelsForAllPipelines()
+        .then -> ArtEry.Session.singleton.loadSession()
+        .then -> timeout 100 # I think this may be here the handle the icomoon loading problems. TODO - elliminate this!
