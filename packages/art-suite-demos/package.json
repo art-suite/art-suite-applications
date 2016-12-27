@@ -25,5 +25,5 @@
     "start": "nn -s; webpack-dev-server --hot --inline --progress",
     "test": "nn -s; webpack-dev-server -d --progress"
   },
-  "version": "0.9.0"
+  "version": "0.10.0"
 }
