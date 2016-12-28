@@ -4,6 +4,7 @@
 module.exports = require './namespace'
 .addModules
   Bitmap:            require './bitmap'             
+  BitmapBase:        require './BitmapBase'         
   Clipping:          require './clipping'           
   CommonBitmapTests: require './common_bitmap_tests'
   DrawGradient:      require './draw_gradient'      

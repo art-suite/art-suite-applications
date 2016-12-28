@@ -9,9 +9,9 @@
 Foundation = require 'art-foundation'
 Atomic = require 'art-atomic'
 
-{point, Point, rect, Rectangle, matrix, Matrix, rgbColor, Color} = Atomic
-{inspect, nextTick, BaseObject, Binary, pureMerge, isString, isNumber, log} = Foundation
-{round, floor} = Math
+{point, point0, Point, rect, Rectangle, matrix, Matrix, rgbColor, Color} = Atomic
+{inspect, nextTick, BaseObject, Binary, pureMerge, isString, isNumber, log, bound, merge} = Foundation
+{round, floor, ceil, max, min} = Math
 {BinaryString} = Binary
 
 toChannelNumberMap = 0:0, 1:1, 2:2, 3:3, r:0, g:1, b:2, a:3, red:0, green:1, blue:2, alpha:3
@@ -614,3 +614,77 @@ module.exports = class BitmapBase extends BaseObject
     right  = calculateRight  data, size, threshold, top, bottom, left
 
     rect left, top, right - left + 1, bottom - top + 1
+
+  emptyOptions = {}
+  drawBitmapWithLayout: (where, bitmap, options = emptyOptions) ->
+    # log drawBitmapWithLayout: {where, bitmap, options, self:@}
+    {targetSize = @size, sourceArea, focus, aspectRatio, layout} = options
+
+
+    bitmapToThisMatrix = matrix()
+
+    if sourceArea
+      sourceArea = sourceArea.mul bitmap.pixelsPerPoint if bitmap.pixelsPerPoint != 1
+    else
+      sourceArea = rect bitmap.size
+
+    bitmapSize = bitmap.size
+
+    sourceSize = sourceArea.size
+    sourceLoc  = sourceArea.location
+
+    aspectRatio ||= sourceSize.aspectRatio
+
+    bitmapToThisMatrix = switch layout
+      # Preserving Aspect Ratio; Centered: scale the bitmap so it fills all of targetSize
+      when "zoom"
+        adjustedTargetSize = if aspectRatio != sourceSize.aspectRatio
+          point(
+            targetSize.x * sourceSize.aspectRatio / aspectRatio
+            targetSize.y
+          )
+        else
+          targetSize
+
+        scale = max adjustedTargetSize.x / sourceSize.x, adjustedTargetSize.y / sourceSize.y
+        effectiveSourceSizeX = min bitmapSize.x, ceil adjustedTargetSize.x / scale
+        effectiveSourceSizeY = min bitmapSize.y, ceil adjustedTargetSize.y / scale
+
+        if focus
+          desiredSourceX = sourceSize.x * focus.x - effectiveSourceSizeX * .5
+          desiredSourceY = sourceSize.y * focus.y - effectiveSourceSizeY * .5
+        else
+          desiredSourceX = sourceLoc.x + sourceSize.x * .5 - round effectiveSourceSizeX * .5
+          desiredSourceY = sourceLoc.y + sourceSize.y * .5 - round effectiveSourceSizeY * .5
+
+        sourceX = bound 0, desiredSourceX, bitmapSize.x - effectiveSourceSizeX
+        sourceY = bound 0, desiredSourceY, bitmapSize.y - effectiveSourceSizeY
+
+        options = merge options, sourceArea: rect sourceX, sourceY, effectiveSourceSizeX, effectiveSourceSizeY
+
+        bitmapToThisMatrix.scaleXY(
+          targetSize.x / effectiveSourceSizeX
+          targetSize.y / effectiveSourceSizeY
+        )
+
+      when "fit"
+        if aspectRatio != bitmapSize.aspectRatio
+          s = bitmapSize
+          bitmapSize = s.withAspectRatio aspectRatio
+          bitmapToThisMatrix = bitmapToThisMatrix.scale scaler = bitmapSize.div s
+          sourceSize = sourceSize.mul scaler
+          sourceLoc = sourceLoc.mul scaler
+
+        Matrix
+        .translateXY -sourceArea.w/2, -sourceArea.h/2
+        .mul bitmapToThisMatrix
+        .scale min targetSize.x / sourceSize.x, targetSize.y / sourceSize.y
+        .translateXY targetSize.x/2, targetSize.y/2
+
+      else
+        throw new Error "unknown mode: #{@_mode}"
+
+    if where
+      bitmapToThisMatrix = bitmapToThisMatrix.mul matrix where
+
+    @drawBitmap bitmapToThisMatrix, bitmap, options
