@@ -27,30 +27,42 @@ commonSetup = ->
   checker wideBitmap
   checker tallBitmap
 
-defineModule module, suite:
-  drawBitmapWithLayout: ->
 
+testWithOptions = (where, options = {}) ->
+  test "#{formattedInspect options}, bitmap: wide", ->
+    targetBitmap.drawBitmapWithLayout where, tallBitmap, options
+    log {options, tallBitmap, targetBitmap}
+
+  test "#{formattedInspect options}, bitmap: tall", ->
+    targetBitmap.drawBitmapWithLayout where, wideBitmap, options
+    log {options, wideBitmap, targetBitmap}
+
+withLayoutTestSuite = (f) ->
+  ->
     setup commonSetup
+    f()
 
-    testWithOptions = (where, options = {}) ->
-      test "#{formattedInspect options}, bitmap: wide", ->
-        targetBitmap.drawBitmapWithLayout where, tallBitmap, options
-        log {options, tallBitmap, targetBitmap}
+defineModule module, suite:
+  drawBitmapWithLayout:
+    zoom: withLayoutTestSuite ->
 
-      test "#{formattedInspect options}, bitmap: tall", ->
-        targetBitmap.drawBitmapWithLayout where, wideBitmap, options
-        log {options, wideBitmap, targetBitmap}
+      testWithOptions null, layout: "zoom"
+      testWithOptions null, layout: "zoom", aspectRatio: 1/2
+      testWithOptions null, layout: "zoom", aspectRatio: 2
 
-    testWithOptions null, layout: "zoom",
-    testWithOptions null, layout: "zoom", aspectRatio: 1/2
-    testWithOptions null, layout: "zoom", aspectRatio: 2
+    fit: withLayoutTestSuite ->
+      testWithOptions null, layout: "fit"
+      testWithOptions null, layout: "fit", aspectRatio: 1/2
+      testWithOptions null, layout: "fit", aspectRatio: 2
 
-    testWithOptions null, layout: "fit",
-    testWithOptions null, layout: "fit", aspectRatio: 1/2
-    testWithOptions null, layout: "fit", aspectRatio: 2
+    stretch: withLayoutTestSuite ->
+      testWithOptions null, layout: "stretch"
 
-    testWithOptions point(10), layout: "zoom", targetSize: point 80
-    testWithOptions point(10), layout: "fit", targetSize: point 80
+    bounded: withLayoutTestSuite ->
+      testWithOptions point(10), layout: "stretch", targetSize: point 80
+      testWithOptions point(10), layout: "zoom",    targetSize: point 80
+      testWithOptions point(10), layout: "fit",     targetSize: point 80
 
-    testWithOptions null, layout: "zoom", sourceArea: point 12
-    testWithOptions point(10), layout: "zoom", sourceArea: point(12), targetSize: point(80), aspectRatio: 2
+    sourceArea: withLayoutTestSuite ->
+      testWithOptions null,       layout: "zoom", sourceArea: point 12
+      testWithOptions point(10),  layout: "zoom", sourceArea: point(12), targetSize: point(80), aspectRatio: 2

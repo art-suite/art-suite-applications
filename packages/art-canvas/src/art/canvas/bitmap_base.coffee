@@ -620,9 +620,6 @@ module.exports = class BitmapBase extends BaseObject
     # log drawBitmapWithLayout: {where, bitmap, options, self:@}
     {targetSize = @size, sourceArea, focus, aspectRatio, layout} = options
 
-
-    bitmapToThisMatrix = matrix()
-
     if sourceArea
       sourceArea = sourceArea.mul bitmap.pixelsPerPoint if bitmap.pixelsPerPoint != 1
     else
@@ -636,6 +633,12 @@ module.exports = class BitmapBase extends BaseObject
     aspectRatio ||= sourceSize.aspectRatio
 
     bitmapToThisMatrix = switch layout
+      when "stretch"
+        Matrix.scaleXY(
+          targetSize.x / sourceSize.x
+          targetSize.y / sourceSize.y
+        )
+
       # Preserving Aspect Ratio; Centered: scale the bitmap so it fills all of targetSize
       when "zoom"
         adjustedTargetSize = if aspectRatio != sourceSize.aspectRatio
@@ -662,12 +665,13 @@ module.exports = class BitmapBase extends BaseObject
 
         options = merge options, sourceArea: rect sourceX, sourceY, effectiveSourceSizeX, effectiveSourceSizeY
 
-        bitmapToThisMatrix.scaleXY(
+        Matrix.scaleXY(
           targetSize.x / effectiveSourceSizeX
           targetSize.y / effectiveSourceSizeY
         )
 
       when "fit"
+        bitmapToThisMatrix = matrix()
         if aspectRatio != bitmapSize.aspectRatio
           s = bitmapSize
           bitmapSize = s.withAspectRatio aspectRatio
