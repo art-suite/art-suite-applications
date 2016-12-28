@@ -7,7 +7,7 @@ See what ArtSuite can do.
 * Get the latest [Node.js](https://nodejs.org/)
 
 ```
-git clone https://github.com/Imikimi-LLC/art-suite-demos.git
+git clone https://github.com/imikimi/art-suite-demos.git
 cd art-suite-demos
 npm install
 npm start
@@ -17,4 +17,4 @@ Then go to: [http://localhost:8080/webpack-dev-server/](http://localhost:8080/we
 
 ### Learn More
 
-See the [Art Suite Wiki](https://github.com/Imikimi-LLC/art-suite/wiki)
+See the [Art Suite Wiki](https://github.com/imikimi/art-suite/wiki)
