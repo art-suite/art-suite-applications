@@ -38,7 +38,7 @@ module.exports = class UpdateItem extends TableApiBaseClass
     attributeName: "remove" # remove the attribute
   ###
   _translateUpdateExpression: (params) =>
-    {item, add} = params
+    {item, add, defaults} = params
     throw new Error "item required" unless item
 
     actions = for attributeName, attributeValue of item
@@ -49,6 +49,14 @@ module.exports = class UpdateItem extends TableApiBaseClass
       @_addExpressionAttributeValue valueAlias, attributeValue
       "#{attributeAlias} = #{valueAlias}"
 
+    setDefaultActions = for attributeName, attributeValue of defaults
+      uniqueId = @_getNextUniqueExpressionAttributeId @_target
+      attributeAlias = "#attr#{uniqueId}"
+      valueAlias = ":val#{uniqueId}"
+      @_addExpressionAttributeName attributeAlias, attributeName
+      @_addExpressionAttributeValue valueAlias, attributeValue
+      "#{attributeAlias} = if_not_exists(#{attributeAlias}, #{valueAlias})"
+
     addActions = add && for attributeName, attributeValue of add
       uniqueId = @_getNextUniqueExpressionAttributeId @_target
       attributeAlias = "#attr#{uniqueId}"
@@ -57,9 +65,8 @@ module.exports = class UpdateItem extends TableApiBaseClass
       @_addExpressionAttributeValue valueAlias, attributeValue
       "#{attributeAlias} #{valueAlias}"
 
-    updateExpression = "SET #{actions.join ', '}"
-    if addActions?.length > 0
-      updateExpression = "ADD #{addActions.join ', '} #{updateExpression}"
+    updateExpression = "SET #{compactFlatten([actions, setDefaultActions]).join ', '}"
+    updateExpression = "ADD #{addActions.join ', '} #{updateExpression}" if addActions?.length > 0
 
     @_target.UpdateExpression = updateExpression
     @_target
