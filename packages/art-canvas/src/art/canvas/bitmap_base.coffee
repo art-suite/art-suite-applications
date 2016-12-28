@@ -616,9 +616,33 @@ module.exports = class BitmapBase extends BaseObject
     rect left, top, right - left + 1, bottom - top + 1
 
   emptyOptions = {}
+  ###
+  IN:
+    where:    null, matrix, point
+    bitmap:   null or an instance of BitmapBase
+    options:
+      all drawBitmap's options PLUS:
+
+      targetSize: size of the target area to layout in. Default: @size (target bitmap's size)
+
+      aspectRatio: for the source pixels to be an aspectRatio other than implied by square-pixels.
+        This is useful if you want one bitmap to layout exactly the same as another even though
+        they have a different size.
+
+      layout: 'zoom', 'fit', 'stretch'
+
+        Selects how to layout.
+
+  Note that pixels will NEVER be drawn outside of rect(point(), targetSize).
+
+  That is why I restricted the layout modes to zoom, fit and stretch.
+
+  ###
   drawBitmapWithLayout: (where, bitmap, options = emptyOptions) ->
-    # log drawBitmapWithLayout: {where, bitmap, options, self:@}
-    {targetSize = @size, sourceArea, focus, aspectRatio, layout} = options
+    return unless bitmap
+
+    {targetSize = @size, sourceArea, focus, aspectRatio, layout, opacity} = options
+    return if opacity < 1/256
 
     if sourceArea
       sourceArea = sourceArea.mul bitmap.pixelsPerPoint if bitmap.pixelsPerPoint != 1
