@@ -249,6 +249,10 @@ module.exports = class Point extends AtomicBase
   withSameAreaAs: (p) ->
     @mul Math.sqrt p.area / @area
 
+  withAspectRatio: (aspectRatio) ->
+    return @ if floatEq aspectRatio, @aspectRatio
+    point {aspectRatio, @area}
+
   ##################
   # Named Instances
   ##################
