@@ -9,7 +9,7 @@
     "css-loader": "^0.23.1",
     "json-loader": "^0.5.4",
     "mocha": "^2.5.3",
-    "neptune-namespaces": "^1.5.0",
+    "neptune-namespaces": "^1.7.4",
     "quantize": "^1.0.2",
     "script-loader": "^0.7.0",
     "sourcemapped-stacktrace": "^1.1.3",

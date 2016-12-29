@@ -29,19 +29,19 @@ defineModule module, ->
   lumaDarkTarget    = 0.35
   lumaDarkMax       = 0.5
 
-  lumaLightMin      = 0.65
-  lumaLightTarget   = 0.84
-  lumaLightMax      = 1
-
   lumaNormalMin     = 0.4
   lumaNormalTarget  = 0.6
   lumaNormalMax     = 0.8
+
+  lumaLightMin      = 0.65
+  lumaLightTarget   = 0.84
+  lumaLightMax      = 1
 
   satMutedMin       = 0
   satMutedTarget    = 0.2
   satMutedMax       = 0.3
 
-  satVibrantMin     = 0.7
+  satVibrantMin     = 0.6
   satVibrantTarget  = 1
   satVibrantMax     = 1
 
@@ -70,6 +70,7 @@ defineModule module, ->
     @property "rgb population"
 
     @getter
+      inspectedObjects: -> {@population, @color, @hsl, perceptual: @color.perceptualLightness}
       hsl:   -> @_hsl ||= @color.arrayHsl
       color: -> @_color ||= rgb256Color @rgb
 

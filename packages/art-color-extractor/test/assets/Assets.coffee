@@ -13,6 +13,7 @@ module.exports = class Assets
     science.jpg
     grey.jpg
     8mpSunset.jpg
+    shane.jpg
     "
 
   # An intersting test case that fails pretty bad for Vibrant is: animegalleries.jpg
