@@ -145,9 +145,9 @@ defineModule module, ->
 
     _generateVariationColors: ->
       for name, tolerences of colorTolerences
-        log "qualifying swatches for #{name}": array @_inputSwatches,
-          when: (swatch) -> swatch.qualifiesFor tolerences
-          with: (swatch) -> swatch.color
+        # log "qualifying swatches for #{name}": array @_inputSwatches,
+        #   when: (swatch) -> swatch.qualifiesFor tolerences
+        #   with: (swatch) -> swatch.color
 
         if variation = @_findColorVariation name
           @_selectSwatch name, variation
