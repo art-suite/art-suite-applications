@@ -10,6 +10,7 @@
   Color
   array
   FillElement
+  OutlineElement
 } = require "art-suite"
 {PointerActionsMixin} = require 'art-react/mixins'
 {extractColors, generatePreviewBitmap} = require 'art-color-extractor'
@@ -30,13 +31,13 @@ defineModule module, class MyComponent extends PointerActionsMixin Component
     .then ({bitmap}) =>
 
       @previewBitmap = generatePreviewBitmap @colorInfo = ci = extractColors @bitmap = bitmap
-      @selectedColor = ci.vibrant || ci.darkVibrant || ci.lightVibrant || ci.muted || ci.darkMuted || ci.lightMuted
+      {darkMuted, muted, lightMuted, darkVibrant, vibrant, lightVibrant} = ci.colors
+      @selectedColor = darkMuted || muted || lightMuted || darkVibrant || vibrant || lightVibrant
 
   doAction: -> @requestImage()
 
   render: ->
     {bitmap, colorInfo, previewBitmap, hover, selectedColor} = @state
-    log {colorInfo}
 
     Element
       childrenLayout: "column"
@@ -58,22 +59,20 @@ defineModule module, class MyComponent extends PointerActionsMixin Component
           Element
             size: ps: 1
           #   size: hh: 1, wcw: 1
-            cursor: "pointer"
-            on: @buttonHandlers
-            BitmapElement
-              mode: "fit"
-              location: xw: .5
-              axis: "topCenter"
-              size: hh: 1, wph: bitmap.aspectRatio
-              bitmap: bitmap
-              shadow: shadowProps
-            hover && BitmapElement
-              location: xw: .5
-              axis: "topCenter"
-              size: hh: 1, wph: bitmap.aspectRatio
-              bitmap: previewBitmap
-              animators: opacity: toFrom: 0
-            # RectangleElement color: "#fff7"
+            Element
+              size: hh: 1, wph: bitmap.aspectRatio, max: ww:1, hpw: 1 / bitmap.aspectRatio
+              cursor: "pointer"
+              on: @buttonHandlers
+              location: "centerCenter"
+              axis: "centerCenter"
+
+              BitmapElement
+                bitmap: bitmap
+                shadow: shadowProps
+              hover && BitmapElement
+                bitmap: previewBitmap
+                animators: opacity: toFrom: 0
+              # RectangleElement color: "#fff7"
       else
         TextElement
           text: "pick photo"
@@ -100,10 +99,13 @@ defineModule module, class MyComponent extends PointerActionsMixin Component
             RectangleElement
               color: v
               padding: -layoutWeight
-              shadow: shadowProps
+              if v.eq @selectedColor
+                FillElement()
+              else
+                shadow: shadowProps
 
             TextElement
               size: cs: 1
-              color: if v.perceptualLightness < .5 then "white" else "black"
+              color: if v.perceptualLightness < .75 then "white" else "black"
               text: k
               fontFamily: "AvenirNext-Regular"
