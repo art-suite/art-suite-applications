@@ -78,7 +78,7 @@ getColorMap = (bitmap) ->
 [
   previewBitmapScale
   previewBitmapBlur
-] = [10, 10] # [7, 2] # is not bad and about 30% faster, but I can see banding on the 8pmSunset image.
+] = [10, 5] # [7, 2] # is not bad and about 30% faster, but I can see banding on the 8pmSunset image.
 
 module.exports =
   version: version = (require '../../../package.json').version

@@ -22,7 +22,7 @@ defineModule module, ->
 
   saturationWeight  = 3
   lumaWeight        = 6
-  countWeight       = 1/2
+  countWeight       = 1/10
   totalQualityWeight = saturationWeight + lumaWeight + countWeight
 
   lumaDarkMin       = 0
@@ -38,7 +38,7 @@ defineModule module, ->
   lumaLightMax      = 1
 
   satMutedMin       = 0
-  satMutedTarget    = 0.3
+  satMutedTarget    = 0.15
   satMutedMax       = 0.3
 
   satVibrantMin     = 0.4
@@ -46,12 +46,12 @@ defineModule module, ->
   satVibrantMax     = 1
 
   colorTolerences =
-    vibrant:        targetLuma: lumaNormalTarget,  minLuma: lumaNormalMin,   maxLuma: lumaNormalMax, targetSat: satVibrantTarget, minSat: satVibrantMin,  maxSat: satVibrantMax
+    darkMuted:      targetLuma: lumaDarkTarget,    minLuma: lumaDarkMin,     maxLuma: lumaDarkMax,   targetSat: satMutedTarget,   minSat: satMutedMin,    maxSat: satMutedMax
     muted:          targetLuma: lumaNormalTarget,  minLuma: lumaNormalMin,   maxLuma: lumaNormalMax, targetSat: satMutedTarget,   minSat: satMutedMin,    maxSat: satMutedMax
-    lightVibrant:   targetLuma: lumaLightTarget,   minLuma: lumaLightMin,    maxLuma: lumaLightMax,  targetSat: satVibrantTarget, minSat: satVibrantMin,  maxSat: satVibrantMax
     lightMuted:     targetLuma: lumaLightTarget,   minLuma: lumaLightMin,    maxLuma: lumaLightMax,  targetSat: satMutedTarget,   minSat: satMutedMin,    maxSat: satMutedMax
     darkVibrant:    targetLuma: lumaDarkTarget,    minLuma: lumaDarkMin,     maxLuma: lumaDarkMax,   targetSat: satVibrantTarget, minSat: satVibrantMin,  maxSat: satVibrantMax
-    darkMuted:      targetLuma: lumaDarkTarget,    minLuma: lumaDarkMin,     maxLuma: lumaDarkMax,   targetSat: satMutedTarget,   minSat: satMutedMin,    maxSat: satMutedMax
+    vibrant:        targetLuma: lumaNormalTarget,  minLuma: lumaNormalMin,   maxLuma: lumaNormalMax, targetSat: satVibrantTarget, minSat: satVibrantMin,  maxSat: satVibrantMax
+    lightVibrant:   targetLuma: lumaLightTarget,   minLuma: lumaLightMin,    maxLuma: lumaLightMax,  targetSat: satVibrantTarget, minSat: satVibrantMin,  maxSat: satVibrantMax
 
   getMatchQuality = (saturation, targetSat, luma, targetLuma, count, maxCount) ->
     (
@@ -149,7 +149,7 @@ defineModule module, ->
           when: (swatch) -> swatch.qualifiesFor tolerences
           with: (swatch) -> swatch.color
 
-        if variation = @_findColorVariation tolerences
+        if variation = @_findColorVariation name
           @_selectSwatch name, variation
 
     _selectSwatch: (name, swatch) ->
@@ -158,7 +158,8 @@ defineModule module, ->
 
     _isSelected: (swatch) -> swatch in @_selectedSwatchesList
 
-    _findColorVariation: ({targetLuma, minLuma, maxLuma, targetSat, minSat, maxSat}) ->
+    _findColorVariation: (name) ->
+      {targetLuma, minLuma, maxLuma, targetSat, minSat, maxSat} = colorTolerences[name]
       bestSwatch = null
       maxQuality = -1
 
@@ -170,5 +171,7 @@ defineModule module, ->
           if maxQuality < quality = getMatchQuality sat, targetSat, luma, targetLuma, swatch.count, @_maxCount
             bestSwatch = swatch
             maxQuality = quality
+
+          # log {name, quality, swatch}
 
       bestSwatch
