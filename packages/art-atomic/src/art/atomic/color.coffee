@@ -409,7 +409,7 @@ module.exports = class Color extends AtomicBase
     # array: -> [@r, @g, @b, @a]
     arrayRGB: -> [@r, @g, @b]
     arrayRgb: -> [@r, @g, @b]
-    arrayHsl: -> @_rgbToHsl() && [@_hue, @_saturation, @_lightness]
+    arrayHsl: -> @_computeHsl() && [@_hue, @_saturation, @_lightness]
 
     rgbSum: -> @r + @g + @b
     rgbSquaredSum: -> @r*@r + @g*@g + @b*@b
@@ -489,18 +489,37 @@ module.exports = class Color extends AtomicBase
 
   # vivafy HSL on request
   @getter
-    h:          -> @_hue        ?= @_rgbToHsl() && @_hue
-    s:          -> @_saturation ?= @_rgbToHsl() && @_saturation
-    l:          -> @_lightness  ?= @_rgbToHsl() && @_lightness
+    h:          -> @_hue        ?= @_computeHsl() && @_hue
+    s:          -> @_saturation ?= @_computeHsl() && @_saturation
+    l:          -> @_lightness  ?= @_computeHsl() && @_lightness
     inverseL:   -> 1 - @l
     inverseS:   -> 1 - @s
     inverseH:   -> 1 - @h
-    hue:        -> @_hue        ?= @_rgbToHsl() && @_hue
-    sat:        -> @_saturation ?= @_rgbToHsl() && @_saturation
-    lit:        -> @_lightness  ?= @_rgbToHsl() && @_lightness
-    saturation: -> @_saturation ?= @_rgbToHsl() && @_saturation
-    lightness:  -> @_lightness  ?= @_rgbToHsl() && @_lightness
-    perceptualLightness: -> 0.2126*@r + 0.7152*@g + 0.0722*@b
+    hue:        -> @_hue        ?= @_computeHsl() && @_hue
+    sat:        -> @_saturation ?= @_computeHsl() && @_saturation
+    lit:        -> @_lightness  ?= @_computeHsl() && @_lightness
+    saturation: -> @_saturation ?= @_computeHsl() && @_saturation
+    lightness:  -> @_lightness  ?= @_computeHsl() && @_lightness
+    perceptualLightness: ->
+      {r, g, b} = @
+
+      rWeight = .7
+      gWeight = .8
+      bWeight = .3
+      rWeighted = r * rWeight
+      gWeighted = g * gWeight
+      bWeighted = b * bWeight
+
+      if gWeighted >= rWeighted && gWeighted >= bWeighted
+        gWeighted + (r + b) * .5 * (1 - gWeight)
+      else if bWeighted >= rWeighted && bWeighted >= gWeighted
+        bWeighted + (r + g) * .5 * (1 - bWeight)
+      else
+        rWeighted + (g + b) * .5 * (1 - rWeight)
+
+    # this decreases the saturation for very dark values
+    perceptualSaturation: -> Math.pow(@perceptualLightness, 1/3) * @saturation
+
     satLightness: -> (2 - @_saturation) * @_lightness * .5
 
 
@@ -509,7 +528,7 @@ module.exports = class Color extends AtomicBase
     g: 0.7152
     b: 0.0722
 
-  _rgbToHsl: ->
+  _computeHsl: ->
     return true if @_hue?
     {r, g, b} = @
 
