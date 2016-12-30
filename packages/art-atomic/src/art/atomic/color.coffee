@@ -503,12 +503,9 @@ module.exports = class Color extends AtomicBase
     perceptualLightness: ->
       {r, g, b} = @
 
-      rWeight = .7
-      gWeight = .8
-      bWeight = .3
-      rWeighted = r * rWeight
-      gWeighted = g * gWeight
-      bWeighted = b * bWeight
+      rWeighted = r * rWeight = .7
+      gWeighted = g * gWeight = .8
+      bWeighted = b * bWeight = .3
 
       if gWeighted >= rWeighted && gWeighted >= bWeighted
         gWeighted + (r + b) * .5 * (1 - gWeight)
@@ -521,12 +518,6 @@ module.exports = class Color extends AtomicBase
     perceptualSaturation: -> Math.pow(@perceptualLightness, 1/3) * @saturation
 
     satLightness: -> (2 - @_saturation) * @_lightness * .5
-
-
-  @perceptualWeights:
-    r: 0.2126
-    g: 0.7152
-    b: 0.0722
 
   _computeHsl: ->
     return true if @_hue?
