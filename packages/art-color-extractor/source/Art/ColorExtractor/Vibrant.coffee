@@ -13,7 +13,7 @@
 
 ###
 
-{object, defineModule, BaseObject, log, max} = require 'art-foundation'
+{compact, array, object, defineModule, BaseObject, log, max} = require 'art-foundation'
 {rgb256Color, rgbColor, hslColor} = require 'art-atomic'
 
 quantize = require 'quantize'
@@ -22,57 +22,78 @@ defineModule module, ->
 
   saturationWeight  = 3
   lumaWeight        = 6
-  populationWeight  = 1
-  totalQualityWeight = saturationWeight + lumaWeight + populationWeight
+  countWeight       = 1/2
+  totalQualityWeight = saturationWeight + lumaWeight + countWeight
 
-  lumaDarkMin       = 0.2
-  lumaDarkTarget    = 0.35
-  lumaDarkMax       = 0.5
+  lumaDarkMin       = 0
+  lumaDarkTarget    = 0.3
+  lumaDarkMax       = 0.4
 
   lumaNormalMin     = 0.4
-  lumaNormalTarget  = 0.6
-  lumaNormalMax     = 0.8
+  lumaNormalTarget  = 0.5
+  lumaNormalMax     = 0.6
 
-  lumaLightMin      = 0.65
-  lumaLightTarget   = 0.84
+  lumaLightMin      = 0.6
+  lumaLightTarget   = 0.85
   lumaLightMax      = 1
 
   satMutedMin       = 0
-  satMutedTarget    = 0.2
+  satMutedTarget    = 0.3
   satMutedMax       = 0.3
 
-  satVibrantMin     = 0.6
+  satVibrantMin     = 0.4
   satVibrantTarget  = 1
   satVibrantMax     = 1
 
   colorTolerences =
     vibrant:        targetLuma: lumaNormalTarget,  minLuma: lumaNormalMin,   maxLuma: lumaNormalMax, targetSat: satVibrantTarget, minSat: satVibrantMin,  maxSat: satVibrantMax
-    lightVibrant:   targetLuma: lumaLightTarget,   minLuma: lumaLightMin,    maxLuma: lumaLightMax,  targetSat: satVibrantTarget, minSat: satVibrantMin,  maxSat: satVibrantMax
-    darkVibrant:    targetLuma: lumaDarkTarget,    minLuma: lumaDarkMin,     maxLuma: lumaDarkMax,   targetSat: satVibrantTarget, minSat: satVibrantMin,  maxSat: satVibrantMax
     muted:          targetLuma: lumaNormalTarget,  minLuma: lumaNormalMin,   maxLuma: lumaNormalMax, targetSat: satMutedTarget,   minSat: satMutedMin,    maxSat: satMutedMax
+    lightVibrant:   targetLuma: lumaLightTarget,   minLuma: lumaLightMin,    maxLuma: lumaLightMax,  targetSat: satVibrantTarget, minSat: satVibrantMin,  maxSat: satVibrantMax
     lightMuted:     targetLuma: lumaLightTarget,   minLuma: lumaLightMin,    maxLuma: lumaLightMax,  targetSat: satMutedTarget,   minSat: satMutedMin,    maxSat: satMutedMax
+    darkVibrant:    targetLuma: lumaDarkTarget,    minLuma: lumaDarkMin,     maxLuma: lumaDarkMax,   targetSat: satVibrantTarget, minSat: satVibrantMin,  maxSat: satVibrantMax
     darkMuted:      targetLuma: lumaDarkTarget,    minLuma: lumaDarkMin,     maxLuma: lumaDarkMax,   targetSat: satMutedTarget,   minSat: satMutedMin,    maxSat: satMutedMax
 
-  getMatchQuality = (saturation, targetSat, luma, targetLuma, population, maxPopulation) ->
+  getMatchQuality = (saturation, targetSat, luma, targetLuma, count, maxCount) ->
     (
-      (saturationWeight * invertDiff saturation, targetSat) +
-      (lumaWeight       * invertDiff luma, targetLuma     ) +
-      (populationWeight * population / maxPopulation      )
+      saturationWeight * invertDiff(saturation, targetSat ) +
+      lumaWeight       * invertDiff(luma,       targetLuma) +
+      countWeight      * count / maxCount
     ) / totalQualityWeight
 
   invertDiff = (value, targetValue) -> 1 - Math.abs value - targetValue
 
   class Swatch extends BaseObject
 
-    constructor: (@rgb, @population) ->
+    constructor: (@rgb, @count) ->
       @_hsl = @_color = null
 
-    @property "rgb population"
+    @property "rgb count"
 
     @getter
-      inspectedObjects: -> {@population, @color, @hsl, perceptual: @color.perceptualLightness}
+      inspectedObjects: -> {@color, @luma, @sat, @normalSat, @count}
       hsl:   -> @_hsl ||= @color.arrayHsl
       color: -> @_color ||= rgb256Color @rgb
+      luma:  -> @_luma ?= @color.perceptualLightness
+      sat:   -> @_sat ||= @color.perceptualSaturation
+      normalSat: -> @color.sat
+
+      isVibrant: -> satVibrantMin <= @sat  <= satVibrantMax
+      isMuted:   -> satMutedMin   <= @sat  <= satMutedMax
+      isDark:    -> lumaDarkMin   <= @luma <= lumaDarkMax
+      isNormal:  -> lumaNormalMin <= @luma <= lumaNormalMax
+      isLight:   -> lumaLightMin  <= @luma <= lumaLightMax
+
+    qualifiesFor: (tolerences) ->
+      {
+        # targetLuma
+        # targetSat
+        minLuma
+        maxLuma
+        minSat
+        maxSat
+      } = tolerences
+      (minLuma <= @luma <= maxLuma) &&
+      (minSat <= @sat <= maxSat)
 
   class VibrantColors extends BaseObject
 
@@ -106,14 +127,28 @@ defineModule module, ->
 
       cmap = quantize allPixels, colorCount
 
-      @_maxPopulation = 0
-      @_inputSwatches = cmap.vboxes.map (vbox) ->
-        count = vbox.vbox.count()
-        @_maxPopulation = max @_maxPopulation, count
-        new Swatch vbox.color, count
+      @_maxCount = 0
+      @_inputSwatches = compact cmap.vboxes.map (vbox) =>
+        if 0 < count = vbox.vbox.count()
+          @_maxCount = max @_maxCount, count
+          new Swatch vbox.color, count
+
+      # log {@_inputSwatches}
+
+    @getter
+      debugSwatches: ->
+        isVibrant: (swatch for swatch in @_inputSwatches when swatch.isVibrant)
+        isMuted:   (swatch for swatch in @_inputSwatches when swatch.isMuted  )
+        isDark:    (swatch for swatch in @_inputSwatches when swatch.isDark   )
+        isNormal:  (swatch for swatch in @_inputSwatches when swatch.isNormal )
+        isLight:   (swatch for swatch in @_inputSwatches when swatch.isLight  )
 
     _generateVariationColors: ->
       for name, tolerences of colorTolerences
+        log "qualifying swatches for #{name}": array @_inputSwatches,
+          when: (swatch) -> swatch.qualifiesFor tolerences
+          with: (swatch) -> swatch.color
+
         if variation = @_findColorVariation tolerences
           @_selectSwatch name, variation
 
@@ -128,11 +163,11 @@ defineModule module, ->
       maxQuality = -1
 
       for swatch in @_inputSwatches when !@_isSelected swatch
-        [__, sat, luma] = swatch.hsl
+        {sat, luma} = swatch
 
         if minSat <= sat <= maxSat and minLuma <= luma <= maxLuma
 
-          if maxQuality < quality = getMatchQuality sat, targetSat, luma, targetLuma, swatch.population, @_maxPopulation
+          if maxQuality < quality = getMatchQuality sat, targetSat, luma, targetLuma, swatch.count, @_maxCount
             bestSwatch = swatch
             maxQuality = quality
 

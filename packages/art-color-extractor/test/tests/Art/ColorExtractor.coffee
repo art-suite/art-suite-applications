@@ -2,7 +2,7 @@
 
 {log, toPlainObjects, w, array, object, isPlainObject, isPlainArray, isNumber, merge} = require 'art-foundation'
 {Bitmap} = require 'art-canvas'
-{Matrix, point, rgbColor} = require 'art-atomic'
+{hslColor, Color, Matrix, point, rgbColor} = require 'art-atomic'
 
 mediaColorToColor = (mc) ->
   return null unless mc
@@ -68,6 +68,22 @@ drawGradients = (bitmap, {preview}) ->
 
 module.exports = suite: ->
   log Assets.files
+  test "perceptualLightness", ->
+    factor = 16
+    groups = []
+    for color in Color.colorNames#w "#f00 #0f0 #00f"
+      {perceptualLightness} = c = rgbColor color
+      luma = Math.round perceptualLightness * factor
+      (groups[luma] ||= []).push c #[
+        # c
+        # c2 = rgbColor c.perceptualLightness
+        # c.perceptualLightness
+        # c2.perceptualLightness
+      # ]
+    groups = array groups, (group, luma) ->
+      (group || []).sort (a, b) -> a.s - b.s
+    log groups
+
   array Assets.files, (file) ->
     test file, ->
       Assets.load file
