@@ -20,10 +20,9 @@ quantize = require 'quantize'
 
 defineModule module, ->
 
-  saturationWeight  = 3
-  lumaWeight        = 6
-  countWeight       = 1/10
-  totalQualityWeight = saturationWeight + lumaWeight + countWeight
+  saturationWeight  = 7
+  lumaWeight        = 12
+  countWeight       = 1
 
   lumaDarkMin       = 0
   lumaDarkTarget    = 0.3
@@ -39,7 +38,7 @@ defineModule module, ->
 
   satMutedMin       = 0
   satMutedTarget    = 0.15
-  satMutedMax       = 0.3
+  satMutedMax       = 0.20
 
   satVibrantMin     = 0.4
   satVibrantTarget  = 1
@@ -54,11 +53,9 @@ defineModule module, ->
     lightVibrant:   targetLuma: lumaLightTarget,   minLuma: lumaLightMin,    maxLuma: lumaLightMax,  targetSat: satVibrantTarget, minSat: satVibrantMin,  maxSat: satVibrantMax
 
   getMatchQuality = (saturation, targetSat, luma, targetLuma, count, maxCount) ->
-    (
-      saturationWeight * invertDiff(saturation, targetSat ) +
-      lumaWeight       * invertDiff(luma,       targetLuma) +
-      countWeight      * count / maxCount
-    ) / totalQualityWeight
+    saturationWeight * invertDiff(saturation, targetSat ) +
+    lumaWeight       * invertDiff(luma,       targetLuma) +
+    countWeight      * count / maxCount
 
   invertDiff = (value, targetValue) -> 1 - Math.abs value - targetValue
 
@@ -145,9 +142,9 @@ defineModule module, ->
 
     _generateVariationColors: ->
       for name, tolerences of colorTolerences
-        # log "qualifying swatches for #{name}": array @_inputSwatches,
-        #   when: (swatch) -> swatch.qualifiesFor tolerences
-        #   with: (swatch) -> swatch.color
+        log "qualifying swatches for #{name}": array @_inputSwatches,
+          when: (swatch) -> swatch.qualifiesFor tolerences
+          with: (swatch) -> swatch.color
 
         if variation = @_findColorVariation name
           @_selectSwatch name, variation
