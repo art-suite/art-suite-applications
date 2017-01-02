@@ -39,9 +39,8 @@ module.exports = class UpdateItem extends TableApiBaseClass
   ###
   _translateUpdateExpression: (params) =>
     {item, add, defaults} = params
-    throw new Error "item required" unless item
 
-    actions = for attributeName, attributeValue of item
+    actions = for attributeName, attributeValue of item || {}
       uniqueId = @_getNextUniqueExpressionAttributeId @_target
       attributeAlias = "#attr#{uniqueId}"
       valueAlias = ":val#{uniqueId}"
