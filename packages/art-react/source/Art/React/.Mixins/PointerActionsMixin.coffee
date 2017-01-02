@@ -13,6 +13,8 @@ defineModule module, ->
     pointerUp:   -> @setState pointerIsDown: false
 
     @getter
+      hover: -> @state.hover
+      pointerIsDown: -> @state.pointerIsDown
 
       buttonHandlers: (customAction) ->
         ###
@@ -37,7 +39,7 @@ defineModule module, ->
         pointerUp:        @pointerUp
         pointerCancel:    @pointerUp
         pointerOut:       @pointerUp
-        pointerUpInside:  customAction || @doAction
+        pointerUpInside:  customAction || @doAction || @action
 
       hoverHandlers: ->
         # CafScript could do: {} @mouseIn @mouseOut
