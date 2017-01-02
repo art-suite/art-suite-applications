@@ -1,6 +1,6 @@
 {merge, defineModule, select, newObjectFromEach, mergeInto, Configurable} = require 'art-foundation'
 
-defineModule module, class Config extends Configurable
+defineModule module, class ArtAwsConfig extends Configurable
   @defaults
     credentials:
       accessKeyId:      'blah'
