@@ -329,9 +329,21 @@ module.exports = class Bitmap extends BitmapBase
 
     @
 
+  ###
+  IN:
+    options:
+      fontFamily:
+      fontSize:
+      align:
+      baseline:
+
+      DEPRICATED:
+        size:
+        family:
+  ###
   drawText:(where, text, options = emptyOptions) ->
     if @_setupDraw where, options
-      @_context.font = "#{options.size || 16}px #{options.family || 'Arial'}, Arial"
+      @_context.font = "#{options.fontSize || options.size || 16}px #{options.fontFamily || options.family || 'Arial'}, Arial"
       @_context.textAlign = options.align || 'start'
       @_context.textBaseline = options.baseline || 'alphabetic'
       @_context.fillText text, 0, 0
