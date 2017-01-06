@@ -6,6 +6,7 @@ module.exports = require './namespace'
 .addModules
   BitmapBase:        require './bitmap_base'        
   Bitmap:            require './bitmap'             
+  FontLoader:        require './FontLoader'         
   GoogleFontLoader:  require './google_font_loader' 
   GradientFillStyle: require './gradient_fill_style'
   OriginalStackBlur: require './original_stack_blur'
