@@ -114,7 +114,7 @@ module.exports = class DynamoDb extends BaseObject
         """
       throw new Error "invalid config options"
 
-    @_awsDynamoDb = new AWS.DynamoDB log "dynamodbConfig", config
+    @_awsDynamoDb = new AWS.DynamoDB config
 
   invokeAws: (name, params) ->
     # log invokeAws:
@@ -138,9 +138,6 @@ module.exports = class DynamoDb extends BaseObject
 
   @bindAll
     createTable: (params) ->
-      log DynamoDb: createTable: 1
-      log DynamoDb: createTable: {params}
-
       try
         @invokeAws "createTable",
           CreateTable.translateParams merge

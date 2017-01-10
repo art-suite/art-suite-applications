@@ -157,7 +157,7 @@ module.exports = class CreateTable extends TableApiBaseClass
             @_translateKey key: indexProps, _target
           else
             @_translateKey indexProps, _target
-            @_translateProjection indexProps, _target
+          @_translateProjection indexProps, _target
           _target
       else globalIndexes
 

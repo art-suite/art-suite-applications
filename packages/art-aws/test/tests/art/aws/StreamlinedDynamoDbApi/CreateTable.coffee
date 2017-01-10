@@ -28,6 +28,41 @@ module.exports = suite:
         KeySchema:             [AttributeName: "myKey", KeyType: "HASH"]
         ProvisionedThroughput: ReadCapacityUnits: 10, WriteCapacityUnits: 1
 
+    test 'createTable regression - localIndexes', ->
+      assert.eq(
+        CreateTable.translateParams
+          table: 'chat'
+          attributes:
+            id: "string"
+            chatRoom: "string"
+          localIndexes:
+            chatsByChatRoom: "id/chatRoom"
+      ,
+        TableName: "chat"
+        LocalSecondaryIndexes: [
+          IndexName:
+            "chatsByChatRoom"
+
+          KeySchema: [
+            {AttributeName: "id", KeyType: "HASH"}
+            {AttributeName: "chatRoom", KeyType: "RANGE"}
+          ]
+
+          Projection:            ProjectionType: "ALL"
+        ]
+        KeySchema: [
+          AttributeName: "id"
+          KeyType:       "HASH"
+        ]
+        AttributeDefinitions: [
+          {AttributeName: "chatRoom", AttributeType: "S"}
+          {AttributeName: "id", AttributeType: "S"}
+        ]
+        ProvisionedThroughput:
+          ReadCapacityUnits:  1
+          WriteCapacityUnits: 1
+      )
+
     test 'createTable regression', ->
       assert.eq(
         CreateTable.translateParams
@@ -232,17 +267,26 @@ module.exports = suite:
           Projection:            ProjectionType: "ALL"
         ]
 
-    test "_translateLocalIndexes custom key", ->
+    test "_translateLocalIndexes custom indexName: key: key", ->
       assert.eq new CreateTable()._translateLocalIndexes(
-        localIndexes:
-          myIndexName:
-            key: 'myHashKeyName'
+        localIndexes: myIndexName: key: 'myHashKeyName'
       ),
         LocalSecondaryIndexes: [
           IndexName:             "myIndexName"
           KeySchema:             [AttributeName: "myHashKeyName", KeyType: "HASH"]
           Projection:            ProjectionType: "ALL"
         ]
+
+    test "_translateLocalIndexes custom indexName: key", ->
+      assert.eq new CreateTable()._translateLocalIndexes(
+        localIndexes: myIndexName: 'myHashKeyName'
+      ),
+        LocalSecondaryIndexes: [
+          IndexName:             "myIndexName"
+          KeySchema:             [AttributeName: "myHashKeyName", KeyType: "HASH"]
+          Projection:            ProjectionType: "ALL"
+        ]
+
 
     test "_translateLocalIndexes everything", ->
       assert.eq new CreateTable()._translateLocalIndexes(

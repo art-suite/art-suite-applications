@@ -15,7 +15,7 @@ suite "Art.Ery.Aws.DynamoDb.live", ->
     .then ({TableNames}) ->
       list = for table in TableNames
         if table == testTableName
-          log "Deleting test table: #{testTableName}"
+          log "tests/Art.Ery.Aws.DynamoDb.live: Deleting test table '#{testTableName}'"
           dynamoDb.deleteTable TableName: table
         # else
         #   log "NOT deleting non-test-table: #{table}"
@@ -68,6 +68,25 @@ suite "Art.Ery.Aws.DynamoDb.live", ->
       dynamoDb.putItem
         table: testTableName
         item: data
+
+  test "create table with globalSecondaryIndex", ->
+    dynamoDb.createTable
+      table: testTableName
+      globalIndexes: chatRoomsByCreatedAt: "createdAt/chatRoom"
+      attributes:
+        createdAt: "number"
+        chatRoom:  "string"
+      key: "chatRoom/createdAt"
+
+  test "create table with localSecondaryIndex", ->
+    dynamoDb.createTable
+      table: testTableName
+      localIndexes: chatRoomsByCreatedAt: "chatRoom/topic"
+      attributes:
+        createdAt: "number"
+        chatRoom:  "string"
+        topic:     "string"
+      key: "chatRoom/createdAt"
 
   suite "describe", ->
     test "describeTable", ->
