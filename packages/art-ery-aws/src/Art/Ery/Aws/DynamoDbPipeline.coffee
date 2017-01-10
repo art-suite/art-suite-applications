@@ -4,7 +4,7 @@ Foundation = require 'art-foundation'
 ArtEry = require 'art-ery'
 ArtAws = require 'art-aws'
 
-{isPlainObject, inspect, log, merge, compare, Validator, isString, arrayToTruthMap, isFunction, withSort} = Foundation
+{object, isPlainObject, inspect, log, merge, compare, Validator, isString, arrayToTruthMap, isFunction, withSort} = Foundation
 {Pipeline} = ArtEry
 {DynamoDb} = ArtAws
 {encodeDynamoData, decodeDynamoData} = DynamoDb
@@ -76,6 +76,10 @@ module.exports = class DynamoDbPipeline extends Pipeline
 
     queries
 
+  constructor: ->
+    super
+    @primaryKeyFields = @primaryKey.split "/"
+
   @getter
     dynamoDb: -> DynamoDb.singleton
     tablesByNameForVivification: -> DynamoDbPipeline.getTablesByNameForVivification()
@@ -108,11 +112,13 @@ module.exports = class DynamoDbPipeline extends Pipeline
   withDynamoDb: (action, params) ->
     @dynamoDb[action] merge params, table: @tableName
 
-  dynamoDbKeyFromRequest = (request) ->
+  @dynamoDbKeyFromRequest: (request) ->
     {key} = request
     if isPlainObject key
       key
-    else if isString key
+    else if @primaryKeyFields.length > 1
+      object @primaryKeyFields
+    else isString key
       id: key
     else
       throw new Error "DynamoDbPipeline: key must be a string. key = #{inspect key}" unless isString key
@@ -121,7 +127,7 @@ module.exports = class DynamoDbPipeline extends Pipeline
     get: (request) ->
       @dynamoDb.getItem
         table:  @tableName
-        key:    dynamoDbKeyFromRequest key
+        key:    @dynamoDbKeyFromRequest request
       .then (result) ->
         if result.item
           result.item
@@ -144,14 +150,14 @@ module.exports = class DynamoDbPipeline extends Pipeline
       throw new Error "DynamoDbPipeline#update: data must be an object. data = #{inspect data}" unless isPlainObject data
       @dynamoDb.updateItem
         table:  @tableName
-        key:    dynamoDbKeyFromRequest key
+        key:    @dynamoDbKeyFromRequest request
         item:   data
       .then ({item}) -> item
 
     delete: (request) ->
       @dynamoDb.deleteItem
         table:  @tableName
-        key:    dynamoDbKeyFromRequest key
+        key:    @dynamoDbKeyFromRequest request
       .then -> message: "success"
 
   #########################
