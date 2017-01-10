@@ -138,6 +138,8 @@ module.exports = class DynamoDb extends BaseObject
 
   @bindAll
     createTable: (params) ->
+      log DynamoDb: createTable: 1
+      log DynamoDb: createTable: {params}
 
       try
         @invokeAws "createTable",

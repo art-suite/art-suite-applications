@@ -81,7 +81,8 @@ module.exports = class CreateTable extends TableApiBaseClass
         AttributeName:  k
         KeyType:        @_normalizeConstant v
     else if isString keySchema
-      [hashKeyField, rangeKeyField] = keySchema.match /[_a-zA-Z0-9]+/g
+      [hashKeyField, rangeKeyField] = keySchema.split "/"
+
       compactFlatten [
         {AttributeName: hashKeyField, KeyType: 'HASH'}
         {AttributeName: rangeKeyField, KeyType: 'RANGE'} if rangeKeyField

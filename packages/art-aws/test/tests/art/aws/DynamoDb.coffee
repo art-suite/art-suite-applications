@@ -2,11 +2,6 @@ Foundation = require 'art-foundation'
 {log, isPlainArray, ConfigRegistry} = Foundation
 {DynamoDb, config} = require 'art-aws'
 
-ConfigRegistry.configure
-  Art:Aws:
-    region: 'us-west-2'
-    endpoint: "http://localhost:8081"
-
 testTableName = 'fooBarTestTable'
 
 suite "Art.Ery.Aws.DynamoDb.live", ->
@@ -15,11 +10,6 @@ suite "Art.Ery.Aws.DynamoDb.live", ->
   dynamoDb = null
   setup ->
     dynamoDb = new DynamoDb
-      accessKeyId:    'thisIsSomeInvalidKey'
-      secretAccessKey:'anEquallyInvalidSecret!'
-      region:         'us-east-1'
-      endpoint:       'http://localhost:8081'
-      maxRetries:     5
 
     dynamoDb.listTables()
     .then ({TableNames}) ->

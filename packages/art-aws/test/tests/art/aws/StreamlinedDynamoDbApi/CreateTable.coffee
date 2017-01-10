@@ -18,9 +18,9 @@ module.exports = suite:
 
     test "new CreateTable().translateParams() override defaults", ->
       assert.eq new CreateTable().translateParams(
-        table:             "foo"
-        attributes: myKey: 'string'
-        key: 'myKey'
+        table:              "foo"
+        attributes: myKey:  'string'
+        key:                'myKey'
         provisioning: read: 10
       ),
         TableName:             "foo"
@@ -92,13 +92,6 @@ module.exports = suite:
 
     test "_translateKey key: 'foo/bar'", ->
       assert.eq new CreateTable()._translateKey(key: 'foo/bar'),
-        KeySchema: [
-          {AttributeName: "foo", KeyType: "HASH"}
-          {AttributeName: "bar", KeyType: "RANGE"}
-        ]
-
-    test "_translateKey key: 'foo-bar'", ->
-      assert.eq new CreateTable()._translateKey(key: 'foo-bar'),
         KeySchema: [
           {AttributeName: "foo", KeyType: "HASH"}
           {AttributeName: "bar", KeyType: "RANGE"}
@@ -198,7 +191,7 @@ module.exports = suite:
         globalIndexes:
           myFirstIndexName: {}
           myIndexName:
-            key: 'myHashKeyName, myRangeKeyName'
+            key: 'myHashKeyName/myRangeKeyName'
 
             projection:
               attributes: ["myNumberAttrName", "myBinaryAttrName"]
@@ -256,7 +249,7 @@ module.exports = suite:
         localIndexes:
           myFirstIndexName: {}
           myIndexName:
-            key: "myHashKeyName myRangeKeyName"
+            key: "myHashKeyName/myRangeKeyName"
 
             projection:
               attributes: ["myNumberAttrName", "myBinaryAttrName"]
@@ -274,7 +267,7 @@ module.exports = suite:
           }
           IndexName:             "myIndexName"
           KeySchema: [
-            {AttributeName: "myHashKeyName", KeyType: "HASH"}
+            {AttributeName: "myHashKeyName",  KeyType: "HASH"}
             {AttributeName: "myRangeKeyName", KeyType: "RANGE"}
           ]
           Projection:            ProjectionType: "KEYS_ONLY", NonKeyAttributes: ["myNumberAttrName", "myBinaryAttrName"]
