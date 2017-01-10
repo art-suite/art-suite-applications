@@ -1,3 +1,15 @@
+### Simple Example
+
+```coffeescript
+{defineModule} = require 'art-foundation'
+{DynamoDbPipeline} = require 'art-ery-aws'
+{createDatabaseFilters} = require 'art-ery/Filters'
+
+defineModule module, class Channel extends DynamoDbPipeline
+
+  @filter createDatabaseFilters
+    title: "trimmedString"
+```
 
 ### Full Declaration Example
 
