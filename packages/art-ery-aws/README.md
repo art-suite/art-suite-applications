@@ -1,4 +1,4 @@
-### Simple Example
+### Simple Table Example
 
 ```coffeescript
 {defineModule} = require 'art-foundation'
@@ -11,7 +11,7 @@ defineModule module, class Channel extends DynamoDbPipeline
     title: "trimmedString"
 ```
 
-### Full Declaration Example
+### Full Declaration & Many-to-Many Table Example
 
 This uses all of the declaration features of DynamoDbPipeline. This is also a good example for how to do a many-to-many DynamoDb model.
 
