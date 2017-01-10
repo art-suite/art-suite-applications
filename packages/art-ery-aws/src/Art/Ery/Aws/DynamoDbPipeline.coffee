@@ -93,6 +93,9 @@ module.exports = class DynamoDbPipeline extends Pipeline
   scanDynamoDb: (params) ->
     @dynamoDb.scan merge params, table: @tableName
 
+  updateItem: (params) ->
+    @dynamoDb.updateItem merge params, table: @tableName
+
   withDynamoDb: (action, params) ->
     @dynamoDb[action] merge params, table: @tableName
 
