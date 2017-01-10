@@ -26,6 +26,6 @@ defineModule module, class Participant extends DynamoDbPipeline
   @localIndexes  participantsByPostId: "postId/createdAt"
 
   @filter createDatabaseFilters
-    user:             "link"
-    post:             "link"
+    user: "link"
+    post: "link"
 ```
