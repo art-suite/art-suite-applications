@@ -25,12 +25,21 @@ module.exports = class DynamoDbPipeline extends Pipeline
       pipeline.createTable()
     Promise.all promises
 
+  @_primaryKey: "id"
+  @primaryKey: (@_primaryKey) ->
+
   @globalIndexes: (globalIndexes) ->
     @_globalIndexes = globalIndexes
     @query @_getAutoDefinedQueries globalIndexes
 
+  @localIndexes: (localIndexes) ->
+    @_localIndexes = localIndexes
+    @query @_getAutoDefinedQueries localIndexes
+
   @getter
     globalIndexes: -> @_options.globalIndexes || @class._globalIndexes
+    localIndexes: -> @_options.localIndexes || @class._localIndexes
+    primaryKey:    -> @class._primaryKey
     status: ->
       @_vivifyTable()
       .then -> "OK: table exists and is reachable"
@@ -38,11 +47,11 @@ module.exports = class DynamoDbPipeline extends Pipeline
 
 
 
-  @_getAutoDefinedQueries: (globalIndexes) ->
-    return {} unless globalIndexes
+  @_getAutoDefinedQueries: (indexes) ->
+    return {} unless indexes
     queries = {}
 
-    for queryModelName, indexKey of globalIndexes when isString indexKey
+    for queryModelName, indexKey of indexes when isString indexKey
       do (queryModelName, indexKey) =>
         [hashKey, sortKey] = indexKey.split "/"
         whereClause = {}
@@ -99,13 +108,20 @@ module.exports = class DynamoDbPipeline extends Pipeline
   withDynamoDb: (action, params) ->
     @dynamoDb[action] merge params, table: @tableName
 
+  dynamoDbKeyFromRequest = (request) ->
+    {key} = request
+    if isPlainObject key
+      key
+    else if isString key
+      id: key
+    else
+      throw new Error "DynamoDbPipeline: key must be a string. key = #{inspect key}" unless isString key
+
   @handlers
     get: (request) ->
-      {key} = request
-      throw new Error "DynamoDbPipeline#get: key must be a string. key = #{inspect key}" unless isString key
       @dynamoDb.getItem
-        table: @tableName
-        key: id: key
+        table:  @tableName
+        key:    dynamoDbKeyFromRequest key
       .then (result) ->
         if result.item
           result.item
@@ -114,32 +130,29 @@ module.exports = class DynamoDbPipeline extends Pipeline
 
     createTable: ->
       @_vivifyTable()
-      .then => message: "success"
+      .then -> message: "success"
 
     create: ({data}) ->
       throw new Error "DynamoDbPipeline#create: data must be an object. data = #{inspect data}" unless isPlainObject data
       @dynamoDb.putItem
-        table: @tableName
-        item: data
-      .then ->
-        data
+        table:  @tableName
+        item:   data
+      .then -> data
 
-    update: ({key, data}) ->
-      throw new Error "DynamoDbPipeline#update: key must be a string. key = #{inspect key}" unless isString key
+    update: (request) ->
+      {data} = request
       throw new Error "DynamoDbPipeline#update: data must be an object. data = #{inspect data}" unless isPlainObject data
       @dynamoDb.updateItem
-        table: @tableName
-        key: id: key
-        item: data
-      .then ({item}) ->
-        item
+        table:  @tableName
+        key:    dynamoDbKeyFromRequest key
+        item:   data
+      .then ({item}) -> item
 
-    delete: ({key}) ->
-      throw new Error "DynamoDbPipeline#delete: key must be a string. key = #{inspect key}" unless isString key
+    delete: (request) ->
       @dynamoDb.deleteItem
-        TableName: @tableName
-        Key: id: S: key
-      .then => message: "success"
+        table:  @tableName
+        key:    dynamoDbKeyFromRequest key
+      .then -> message: "success"
 
   #########################
   # PRIVATE
@@ -162,21 +175,21 @@ module.exports = class DynamoDbPipeline extends Pipeline
           out[k] = v.dataType
       out
 
-    createTableParams: ->
-      ArtAws.StreamlinedDynamoDbApi.CreateTable.translateParams merge
+    streamlinedCreateTableParams: ->
+      merge
         table: @tableName
         globalIndexes: @globalIndexes
+        localIndexes: @localIndexes
         attributes: @dynamoDbCreationAttributes
+        (key: @primaryKey if @primaryKey)
         @_options
+
+    createTableParams: ->
+      ArtAws.StreamlinedDynamoDbApi.CreateTable.translateParams @streamlinedCreateTableParams
 
   _createTable: ->
 
-    @dynamoDb.createTable(merge
-        table: @tableName
-        globalIndexes: @globalIndexes
-        attributes: @dynamoDbCreationAttributes
-        @_options
-      )
+    @dynamoDb.createTable @streamlinedCreateTableParams
     .catch (e) =>
       log "DynamoDbPipeline#_createTable #{@tableName} FAILED", e
       throw e
