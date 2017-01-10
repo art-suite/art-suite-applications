@@ -1,7 +1,7 @@
 
 ### Full Declaration Example
 
-This uses all of the declaration features of DynamoDbPipeline.
+This uses all of the declaration features of DynamoDbPipeline. This is also a good example for how to do a many-to-many DynamoDb model.
 
 ```coffeescript
 {defineModule} = require 'art-foundation'
