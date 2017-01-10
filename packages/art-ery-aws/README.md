@@ -22,4 +22,15 @@ defineModule module, class Participant extends DynamoDbPipeline
     lastSeenActivityCount: "number"
     lastSeenActivityAt: "timestamp"
 
+  ###
+  This filter replaces the "key" property in every request
+  with the HASH+RANGE compound-key for DynamoDb.
+  ###
+  @filter
+    name: "compoundKey"
+    before: all: (request) ->
+      return request unless request.data
+      {userId, postId} = request.data
+      request.withKey {postId, userId}
+
 ```
