@@ -1,13 +1,7 @@
-{log} = require 'art-foundation'
 {CreateTable} = Neptune.Art.Aws.StreamlinedDynamoDbApi
-# { _translateProvisioning, _translateKey, _translateAttributes
-#   _translateGlobalIndexes
-#   _translateLocalIndexes
-#   new CreateTable().translateParams
-#   _getKeySchemaAttributes
-# } = Neptune.Art.Aws.StreamlinedDynamoDbApi.CreateTable
+{log, defineModule} = Neptune.Art.Foundation
 
-module.exports = suite:
+defineModule module, suite: ->
   translateParams: ->
     test "new CreateTable().translateParams() has defaults", ->
       assert.eq new CreateTable().translateParams(table: "foo"),

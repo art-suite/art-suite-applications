@@ -48,7 +48,7 @@ module.exports = class UpdateItem extends TableApiBaseClass
       @_addExpressionAttributeValue valueAlias, attributeValue
       "#{attributeAlias} = #{valueAlias}"
 
-    setDefaultActions = for attributeName, attributeValue of defaults
+    setDefaultActions = for attributeName, attributeValue of defaults || {}
       uniqueId = @_getNextUniqueExpressionAttributeId @_target
       attributeAlias = "#attr#{uniqueId}"
       valueAlias = ":val#{uniqueId}"
@@ -56,7 +56,7 @@ module.exports = class UpdateItem extends TableApiBaseClass
       @_addExpressionAttributeValue valueAlias, attributeValue
       "#{attributeAlias} = if_not_exists(#{attributeAlias}, #{valueAlias})"
 
-    addActions = add && for attributeName, attributeValue of add
+    addActions = for attributeName, attributeValue of add || {}
       uniqueId = @_getNextUniqueExpressionAttributeId @_target
       attributeAlias = "#attr#{uniqueId}"
       valueAlias = ":val#{uniqueId}"
@@ -64,8 +64,16 @@ module.exports = class UpdateItem extends TableApiBaseClass
       @_addExpressionAttributeValue valueAlias, attributeValue
       "#{attributeAlias} #{valueAlias}"
 
-    updateExpression = "SET #{compactFlatten([actions, setDefaultActions]).join ', '}"
-    updateExpression = "ADD #{addActions.join ', '} #{updateExpression}" if addActions?.length > 0
+    unless actions.length + setDefaultActions.length + addActions.length > 0
+      throw new Error "at least one 'item', 'add' or 'defaults' entry required"
+
+    if actions.length + setDefaultActions.length > 0
+      setExpression = "SET #{compactFlatten([actions, setDefaultActions]).join ', '}"
+
+    if addActions.length > 0
+      addExpression = "ADD #{addActions.join ', '}"
+
+    updateExpression = compactFlatten([setExpression, addExpression]).join ' '
 
     @_target.UpdateExpression = updateExpression
     @_target

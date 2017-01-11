@@ -1,7 +1,7 @@
-{log} = require 'art-foundation'
 {Query} = Neptune.Art.Aws.StreamlinedDynamoDbApi
+{log, defineModule} = Neptune.Art.Foundation
 
-suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.Query.optional params", ->
+defineModule module, suite: ->
   test "translateParams", ->
     assert.eq new Query().translateParams(table: "foo", where: foo: 123),
       TableName:                 "foo"

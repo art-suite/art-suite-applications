@@ -1,7 +1,7 @@
-{log} = require 'art-foundation'
+{log, defineModule} = Neptune.Art.Foundation
 {PutItem} = Neptune.Art.Aws.StreamlinedDynamoDbApi
 
-suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.PutItem.basic", ->
+defineModule module, suite: ->
   test "item required", ->
     assert.throws -> new PutItem()._translateItem {}
 

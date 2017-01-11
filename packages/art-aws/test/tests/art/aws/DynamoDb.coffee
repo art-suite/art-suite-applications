@@ -69,6 +69,30 @@ suite "Art.Ery.Aws.DynamoDb.live", ->
         table: testTableName
         item: data
 
+  test "create table with compound primary key", ->
+    dynamoDb.createTable
+      table: testTableName
+      attributes:
+        hashKey:    "string"
+        rangeKey:   "string"
+      key: "hashKey/rangeKey"
+    .then (result) ->
+      # log createResult: result
+      data =
+        createdAt: Date.now()
+        updatedAt: Date.now()
+        hashKey: "hashKey123"
+        rangeKey: "rangeKey123"
+      dynamoDb.putItem
+        table: testTableName
+        item: data
+    .then (result) ->
+      dynamoDb.getItem
+        table: testTableName
+        key:
+          hashKey: "hashKey123"
+          rangeKey: "rangeKey123"
+
   test "create table with globalSecondaryIndex", ->
     dynamoDb.createTable
       table: testTableName

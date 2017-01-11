@@ -1,7 +1,7 @@
-{log, formattedInspect} = require 'art-foundation'
 {TableApiBaseClass} = Neptune.Art.Aws.StreamlinedDynamoDbApi
+{log, formattedInspect, defineModule} = Neptune.Art.Foundation
 
-suite "Art.Aws.StreamlinedApi.StreamlinedDynamoDbApi.TableApiBaseClass._translateConditionExpression", ->
+defineModule module, suite: ->
   translateConditionExpressionTest = (expression, expectedExpressionString, expectedTarget) ->
     test formattedInspect(expression), ->
       expressionString = ({_target} = new TableApiBaseClass())._translateConditionExpression expression

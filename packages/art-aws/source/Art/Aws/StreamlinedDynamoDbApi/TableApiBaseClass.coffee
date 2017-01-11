@@ -164,13 +164,14 @@ module.exports = class TableApiBaseClass
     {key} = params
     throw new Error "key required" unless key
     out = {}
+    key = id: key if isString key
     for k, v of key
       out[k] = @_encodeDynamoData v
     @_target.Key = out
 
-  _translateTableName: (params) ->
-    throw new Error "table required" unless params.table
-    @_target.TableName = params.table
+  _translateTableName: ({table, tableName}) ->
+    throw new Error "table or tableName required" unless table || tableName
+    @_target.TableName = tableName || table
 
   _translateIndexName: (params) ->
     @_target.IndexName = params.index if params.index
