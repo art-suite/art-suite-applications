@@ -6,6 +6,7 @@ module.exports = require './namespace'
 .addModules
   Common:            require './Common'           
   CreateTable:       require './CreateTable'      
+  DeleteItem:        require './DeleteItem'       
   GetItem:           require './GetItem'          
   PutItem:           require './PutItem'          
   Query:             require './Query'            

@@ -4,6 +4,7 @@
 module.exports = require './namespace'
 .addModules
   CreateTable:       require './CreateTable'      
+  DeleteItem:        require './DeleteItem'       
   PutItem:           require './PutItem'          
   Query:             require './Query'            
   TableApiBaseClass: require './TableApiBaseClass'

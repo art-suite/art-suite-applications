@@ -90,7 +90,7 @@ Foundation = require 'art-foundation'
 
 StreamlinedDynamoDbApi = require './StreamlinedDynamoDbApi'
 
-{Query, CreateTable, PutItem, UpdateItem, GetItem, TableApiBaseClass} = StreamlinedDynamoDbApi
+{Query, CreateTable, PutItem, UpdateItem, DeleteItem, GetItem, TableApiBaseClass} = StreamlinedDynamoDbApi
 {decodeDynamoItem} = TableApiBaseClass
 
 module.exports = class DynamoDb extends BaseObject
@@ -177,6 +177,10 @@ module.exports = class DynamoDb extends BaseObject
       @invokeAws "putItem",
         PutItem.translateParams params
 
+    deleteItem: (params) ->
+      @invokeAws "deleteItem",
+        DeleteItem.translateParams params
+
     getItem: (params) ->
       @invokeAws "getItem",
         GetItem.translateParams params
@@ -211,7 +215,6 @@ module.exports = class DynamoDb extends BaseObject
     ###
     TODO: currently these only support the default DynamoDb API (with promises)
     ###
-    deleteItem:       null
 
     batchGetItem:     null
     batchWriteItem:   null

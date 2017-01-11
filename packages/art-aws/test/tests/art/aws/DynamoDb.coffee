@@ -1,10 +1,9 @@
-Foundation = require 'art-foundation'
-{log, isPlainArray, ConfigRegistry} = Foundation
-{DynamoDb, config} = require 'art-aws'
+{log, isPlainArray, defineModule, ConfigRegistry} = Neptune.Art.Foundation
+{DynamoDb, config} = Neptune.Art.Aws
 
 testTableName = 'fooBarTestTable'
 
-suite "Art.Ery.Aws.DynamoDb.live", ->
+defineModule module, suite: "real requests to dynamoDb": ->
   @timeout 10000
 
   dynamoDb = null
@@ -44,73 +43,86 @@ suite "Art.Ery.Aws.DynamoDb.live", ->
       assert.eq true, isPlainArray tables.TableNames
       # log tables
 
-  test "createTable", ->
-    dynamoDb.createTable table: testTableName
-    # .then (result) ->
-    #   log result
 
-  test "create complex table", ->
-    dynamoDb.createTable
-      table: testTableName
-      attributes:
-        createdAt: "number"
-        chatRoom:  "string"
-      key: "chatRoom/createdAt"
-    .then (result) ->
-      # log createResult: result
-      data =
-        createdAt: Date.now()
-        updatedAt: Date.now()
-        user: "abc123"
-        chatRoom: "xyz456"
-        message: "Hi!"
-        id: "lmnop123123"
-      dynamoDb.putItem
+  suite "table operations", ->
+    test "createTable with minimum props", ->
+      dynamoDb.createTable table: testTableName
+
+    test "createTable interesting table then putItem", ->
+      dynamoDb.createTable
         table: testTableName
-        item: data
+        attributes:
+          createdAt: "number"
+          chatRoom:  "string"
+        key: "chatRoom/createdAt"
+      .then (result) ->
+        # log createResult: result
+        data =
+          createdAt: Date.now()
+          updatedAt: Date.now()
+          user: "abc123"
+          chatRoom: "xyz456"
+          message: "Hi!"
+          id: "lmnop123123"
+        dynamoDb.putItem
+          table: testTableName
+          item: data
 
-  test "create table with compound primary key", ->
-    dynamoDb.createTable
-      table: testTableName
-      attributes:
-        hashKey:    "string"
-        rangeKey:   "string"
-      key: "hashKey/rangeKey"
-    .then (result) ->
-      # log createResult: result
-      data =
-        createdAt: Date.now()
-        updatedAt: Date.now()
+    test "createTable with compound primary key then putItem, getItem and deleteItem", ->
+      testKey =
         hashKey: "hashKey123"
         rangeKey: "rangeKey123"
-      dynamoDb.putItem
+
+      testKeyAndTable =
         table: testTableName
-        item: data
-    .then (result) ->
-      dynamoDb.getItem
+        key: testKey
+
+      dynamoDb.createTable
         table: testTableName
-        key:
+        key: "hashKey/rangeKey"
+        attributes:
+          hashKey:    "string"
+          rangeKey:   "string"
+
+      .then (result) ->
+        data =
+          createdAt: Date.now()
+          updatedAt: Date.now()
           hashKey: "hashKey123"
           rangeKey: "rangeKey123"
 
-  test "create table with globalSecondaryIndex", ->
-    dynamoDb.createTable
-      table: testTableName
-      globalIndexes: chatRoomsByCreatedAt: "createdAt/chatRoom"
-      attributes:
-        createdAt: "number"
-        chatRoom:  "string"
-      key: "chatRoom/createdAt"
+        dynamoDb.putItem
+          table: testTableName
+          item: data
 
-  test "create table with localSecondaryIndex", ->
-    dynamoDb.createTable
-      table: testTableName
-      localIndexes: chatRoomsByCreatedAt: "chatRoom/topic"
-      attributes:
-        createdAt: "number"
-        chatRoom:  "string"
-        topic:     "string"
-      key: "chatRoom/createdAt"
+      .then (result) -> dynamoDb.getItem testKeyAndTable
+      .then (result) ->
+        assert.ok result.item
+        assert.eq result.item.rangeKey, testKey.rangeKey
+
+      .then (result) -> dynamoDb.deleteItem testKeyAndTable
+      .then (result) -> dynamoDb.getItem testKeyAndTable
+      .then (result) -> assert.ok !result.item
+
+
+    test "createTable with globalSecondaryIndex ", ->
+      dynamoDb.createTable
+        table: testTableName
+        globalIndexes: chatRoomsByCreatedAt: "createdAt/chatRoom"
+        attributes:
+          createdAt: "number"
+          chatRoom:  "string"
+        key: "chatRoom/createdAt"
+
+    test "createTable with localSecondaryIndex", ->
+      dynamoDb.createTable
+        table: testTableName
+        localIndexes: chatRoomsByCreatedAt: "chatRoom/topic"
+        attributes:
+          createdAt: "number"
+          chatRoom:  "string"
+          topic:     "string"
+        key: "chatRoom/createdAt"
 
   suite "describe", ->
     test "describeTable", ->
