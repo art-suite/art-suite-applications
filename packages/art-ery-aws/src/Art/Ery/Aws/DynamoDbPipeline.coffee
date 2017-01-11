@@ -3,6 +3,7 @@ Uuid = require 'uuid'
 Foundation = require 'art-foundation'
 ArtEry = require 'art-ery'
 ArtAws = require 'art-aws'
+require 'art-ery/Filters'
 
 {object, isPlainObject, inspect, log, merge, compare, Validator, isString, arrayToTruthMap, isFunction, withSort} = Foundation
 {Pipeline} = ArtEry
@@ -112,52 +113,43 @@ module.exports = class DynamoDbPipeline extends Pipeline
   withDynamoDb: (action, params) ->
     @dynamoDb[action] merge params, table: @tableName
 
-  @dynamoDbKeyFromRequest: (request) ->
-    {key} = request
-    if isPlainObject key
-      key
-    else if @primaryKeyFields.length > 1
-      object @primaryKeyFields
-    else isString key
-      id: key
-    else
-      throw new Error "DynamoDbPipeline: key must be a string. key = #{inspect key}" unless isString key
+  stripPrimaryKeyFieldsFromData: (data) ->
+    data && object data, when: (v, k) => not(k in @primaryKeyFields)
+
+  dynamoDbParamsFromRequest: (request, isCreate = false) ->
+    {key, data} = request
+    if data
+      throw new Error "DynamoDbPipeline##{request.type}: data must be an object. data = #{inspect data}" unless isPlainObject data
+
+    table: @tableName
+    key: !isCreate && if isPlainObject key
+        key
+      else if isString key
+        id: key
+      else
+        data = @stripPrimaryKeyFieldsFromData data
+        object @primaryKeyFields, (v) -> request.data[v]
+    item: data
 
   @handlers
     get: (request) ->
-      @dynamoDb.getItem
-        table:  @tableName
-        key:    @dynamoDbKeyFromRequest request
-      .then (result) ->
-        if result.item
-          result.item
-        else
-          request.missing()
+      @dynamoDb.getItem @dynamoDbParamsFromRequest request
+      .then (result) -> result.item || request.missing()
 
     createTable: ->
       @_vivifyTable()
       .then -> message: "success"
 
-    create: ({data}) ->
-      throw new Error "DynamoDbPipeline#create: data must be an object. data = #{inspect data}" unless isPlainObject data
-      @dynamoDb.putItem
-        table:  @tableName
-        item:   data
-      .then -> data
+    create: (request) ->
+      @dynamoDb.putItem @dynamoDbParamsFromRequest request, true
+      .then -> request.data
 
     update: (request) ->
-      {data} = request
-      throw new Error "DynamoDbPipeline#update: data must be an object. data = #{inspect data}" unless isPlainObject data
-      @dynamoDb.updateItem
-        table:  @tableName
-        key:    @dynamoDbKeyFromRequest request
-        item:   data
+      @dynamoDb.updateItem @dynamoDbParamsFromRequest request
       .then ({item}) -> item
 
     delete: (request) ->
-      @dynamoDb.deleteItem
-        table:  @tableName
-        key:    @dynamoDbKeyFromRequest request
+      @dynamoDb.deleteItem @dynamoDbParamsFromRequest request
       .then -> message: "success"
 
   #########################

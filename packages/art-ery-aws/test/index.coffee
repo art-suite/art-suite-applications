@@ -1,17 +1,18 @@
-{Mocha} = require "art-foundation/dev_tools/test"
+require 'art-aws/Client'
+require '../'
+require "art-foundation/testing"
+.init
+  artConfig:
+    Art:
+      Aws:
+        credentials:
+          accessKeyId:      'blah'
+          secretAccessKey:  'blahblah'
 
-{log} = require 'art-foundation'
-global.AWS = require 'aws-sdk'
-AWS.config.region = 'us-west-2'
-AWS.config.endpoint = "http://localhost:8081"
-{config} = require 'art-aws'
-config.dynamoDb =
-  accessKeyId:    'thisIsSomeInvalidKey'
-  secretAccessKey:'anEquallyInvalidSecret!'
-  region:         'us-east-1'
-  endpoint:       'http://localhost:8081'
-  maxRetries:     5
+        region:             'us-east-1'
 
-Mocha.run ({assert})->
-  self.testAssetRoot = "/test/assets"
-  require './tests'
+        dynamoDb:
+          endpoint:         'http://localhost:1337/localhost:8081'
+      Ery: tableNamePrefix: "art-ery-aws-test."
+
+  defineTests: -> require './tests'
