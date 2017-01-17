@@ -133,7 +133,9 @@ module.exports = suite:
         User = null
         createWithPostCreate class User extends DynamoDbPipeline
           @updateItemAfter
-            post: create: postCreateUpdateFunction = ({data:{userId, createdAt}}) ->
+            post: create: postCreateUpdateFunction = (response) ->
+              {userId, createdAt} = response.data
+              assert.eq "post", response.pipelineName
               key: userId
               set: lastPostCreatedAt: createdAt
               add: postCount: 1
@@ -214,4 +216,13 @@ module.exports = suite:
         , DynamoDbPipeline._mergeUpdateItemProps [
           {key: "foo", set: name: "alice"}
           {key: "bar", set: name: "bill"}
+        ]
+
+      test "array of updates", ->
+        assert.eq
+          foo: key: "foo", set: name: "alice"
+          bar: key: "bar", set: name: "bill"
+        , DynamoDbPipeline._mergeUpdateItemProps [
+          [{key: "foo", set: name: "alice"}
+          {key: "bar", set: name: "bill"}]
         ]

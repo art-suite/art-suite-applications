@@ -29,11 +29,33 @@ module.exports = class DynamoDbPipeline extends Pipeline
   ###########################################
   ###
   IN: pipelineEventMap looks like:
-    pipelineName: requestType: (response) -> updateItemProps or array of updateItemProps or promise returning one of those
+    pipelineName: requestType: updateItemPropsFunction
+
+    updateItemPropsFunction: (response) -> updateItemProps
+    IN: response is the ArtEry request-response for the request-in-progress on
+      the specified pipelineName.
+      (response.pipelineName should always == pipelineName)
+
+    OUT: plainObject OR an array (with arbitrary array-nesting) of plainObjects
+      The plainObjects are all merged to form one or more AWS updateItem calls.
+      They should follow the art-aws streamlined UpdateItem API.
+      In general, they should be of the form:
+        key: string or object # the DynamoDb item's primary key
+        # and one or more of:
+        set/item:             (field -> value map)
+        add:                  (field -> value to add map)
+        setDefault/defaults:  (field -> value to set if no value present)
+
+      SEE: art-aws/.../UpdateItem for more
 
   EXAMPLE:
+    class User extends DynamoDbPipeline
+      @updateItemAfter
+        post: create: ({data:{userId, createdAt}}) ->
+          key: userId
+          set: lastPostCreatedAt: createdAt
+          add: postCount: 1
 
-  SEE: art-aws/.../UpdateItem for more on set-item-props
   ###
   @updateItemAfter: (pipelineMap) ->
     throw new Error "primaryKey must be 'id'" unless @_primaryKey == "id"
