@@ -220,9 +220,10 @@ module.exports = suite:
 
       test "array of updates", ->
         assert.eq
-          foo: key: "foo", set: name: "alice"
+          foo: key: "foo", set: name: "alice", address: "123 Street"
           bar: key: "bar", set: name: "bill"
         , DynamoDbPipeline._mergeUpdateItemProps [
           [{key: "foo", set: name: "alice"}
           {key: "bar", set: name: "bill"}]
+          {key: "foo", set: address: "123 Street"}
         ]
