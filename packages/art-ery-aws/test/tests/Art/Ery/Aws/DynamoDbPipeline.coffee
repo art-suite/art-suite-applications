@@ -1,6 +1,6 @@
 {Ery, Foundation} = Neptune.Art
 
-{CommunicationStatus, isString, log, merge, createWithPostCreate, randomString} = Foundation
+{Promise, CommunicationStatus, isString, log, merge, createWithPostCreate, randomString} = Foundation
 {clientFailure, missing} = CommunicationStatus
 
 {session, pipelines} = Ery
@@ -134,11 +134,12 @@ module.exports = suite:
         createWithPostCreate class User extends DynamoDbPipeline
           @updateItemAfter
             post: create: postCreateUpdateFunction = (response) ->
-              {userId, createdAt} = response.data
-              assert.eq "post", response.pipelineName
-              key: userId
-              set: lastPostCreatedAt: createdAt
-              add: postCount: 1
+              Promise.then ->
+                {userId, createdAt} = response.data
+                assert.eq "post", response.pipelineName
+                key: userId
+                set: lastPostCreatedAt: createdAt
+                add: postCount: 1
 
           @addDatabaseFilters
             name:           "required trimmedstring"
