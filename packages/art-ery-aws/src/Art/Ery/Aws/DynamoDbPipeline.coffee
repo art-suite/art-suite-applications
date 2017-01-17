@@ -25,7 +25,11 @@ module.exports = class DynamoDbPipeline extends Pipeline
   @firstAbstractAncestor: @
 
   ###########################################
+  ###########################################
+  #
   # AfterEventsFilter and @updateItemsAfter
+  #
+  ###########################################
   ###########################################
   ###
   IN: pipelineEventMap looks like:
@@ -66,34 +70,6 @@ module.exports = class DynamoDbPipeline extends Pipeline
 
   @extendableProperty updateItemPropsFunctions: {}
 
-  @_addUpdateAfterFunction: (pipelineName, requestType, updateItemPropsFunction) ->
-    ((@extendUpdateItemPropsFunctions()[pipelineName]||={})[requestType]||=[])
-    .push updateItemPropsFunction
-
-  # OUT: updateItemPropsBykey
-  @_mergeUpdateItemProps: _mergeUpdateItemProps = (manyUpdateItemProps) ->
-    object (compactFlatten manyUpdateItemProps),
-      key: ({key}) -> key
-      with: (props, key, into) ->
-        if into[props.key]
-          deepMerge into[props.key], props
-        else
-          props
-
-  ###
-  Executes all @updateItemPropsFunctions appropriate for the current request.
-  Then merge them together so we only have one update per unique record-id.
-  ###
-  @handleRequestAfterEvent: (request) ->
-    {pipelineName, type} = request
-    promises = for updateItemFunction in @getUpdateItemPropsFunctions()[pipelineName]?[type] || []
-      updateItemFunction request
-    Promise.all promises
-    .then (manyUpdateItemProps) =>
-      promises = for key, props of _mergeUpdateItemProps manyUpdateItemProps
-        @singleton.updateItem props
-      Promise.all promises
-
   ###########################################
   ###########################################
   @createTablesForAllRegisteredPipelines: ->
@@ -121,37 +97,6 @@ module.exports = class DynamoDbPipeline extends Pipeline
       .then -> "OK: table exists and is reachable"
       .catch -> "ERROR: could not connect to the table"
 
-
-
-  @_getAutoDefinedQueries: (indexes) ->
-    return {} unless indexes
-    queries = {}
-
-    for queryModelName, indexKey of indexes when isString indexKey
-      do (queryModelName, indexKey) =>
-        [hashKey, sortKey] = indexKey.split "/"
-        whereClause = {}
-        queries[queryModelName] =
-          query: (request) ->
-            whereClause[hashKey] = request.key
-            request.pipeline.queryDynamoDb
-              index: queryModelName
-              where: whereClause
-            .then ({items}) -> items
-
-          queryKeyFromRecord: (data) ->
-            # log queryKeyFromRecord: data: data, hashKey: hashKey, value: data[hashKey]
-            data[hashKey]
-
-          localSort: (queryData) -> withSort queryData, (a, b) ->
-            if 0 == ret = compare a[sortKey], b[sortKey]
-              compare a.id, b.id
-            else
-              ret
-
-
-    queries
-
   constructor: ->
     super
     @primaryKeyFields = @primaryKey.split "/"
@@ -176,17 +121,10 @@ module.exports = class DynamoDbPipeline extends Pipeline
     Indexes will take care of most our rangeKey needs.
   ###
 
-  queryDynamoDb: (params) ->
-    @dynamoDb.query merge params, table: @tableName
-
-  scanDynamoDb: (params) ->
-    @dynamoDb.scan merge params, table: @tableName
-
-  updateItem: (params) ->
-    @dynamoDb.updateItem merge params, table: @tableName
-
-  withDynamoDb: (action, params) ->
-    @dynamoDb[action] merge params, table: @tableName
+  queryDynamoDb:  (params)         -> @dynamoDb.query      merge params, table: @tableName
+  scanDynamoDb:   (params)         -> @dynamoDb.scan       merge params, table: @tableName
+  updateItem:     (params)         -> @dynamoDb.updateItem merge params, table: @tableName
+  withDynamoDb:   (action, params) -> @dynamoDb[action]    merge params, table: @tableName
 
   stripPrimaryKeyFieldsFromData: (data) ->
     data && object data, when: (v, k) => not(k in @primaryKeyFields)
@@ -230,6 +168,62 @@ module.exports = class DynamoDbPipeline extends Pipeline
   #########################
   # PRIVATE
   #########################
+  @_getAutoDefinedQueries: (indexes) ->
+    return {} unless indexes
+    queries = {}
+
+    for queryModelName, indexKey of indexes when isString indexKey
+      do (queryModelName, indexKey) =>
+        [hashKey, sortKey] = indexKey.split "/"
+        whereClause = {}
+        queries[queryModelName] =
+          query: (request) ->
+            whereClause[hashKey] = request.key
+            request.pipeline.queryDynamoDb
+              index: queryModelName
+              where: whereClause
+            .then ({items}) -> items
+
+          queryKeyFromRecord: (data) ->
+            # log queryKeyFromRecord: data: data, hashKey: hashKey, value: data[hashKey]
+            data[hashKey]
+
+          localSort: (queryData) -> withSort queryData, (a, b) ->
+            if 0 == ret = compare a[sortKey], b[sortKey]
+              compare a.id, b.id
+            else
+              ret
+
+    queries
+
+
+  @_addUpdateAfterFunction: (pipelineName, requestType, updateItemPropsFunction) ->
+    ((@extendUpdateItemPropsFunctions()[pipelineName]||={})[requestType]||=[])
+    .push updateItemPropsFunction
+
+  # OUT: updateItemPropsBykey
+  @_mergeUpdateItemProps: _mergeUpdateItemProps = (manyUpdateItemProps) ->
+    object (compactFlatten manyUpdateItemProps),
+      key: ({key}) -> key
+      with: (props, key, into) ->
+        if into[props.key]
+          deepMerge into[props.key], props
+        else
+          props
+
+  ###
+  Executes all @updateItemPropsFunctions appropriate for the current request.
+  Then merge them together so we only have one update per unique record-id.
+  ###
+  @handleRequestAfterEvent: (request) ->
+    {pipelineName, type} = request
+    promises = for updateItemFunction in @getUpdateItemPropsFunctions()[pipelineName]?[type] || []
+      updateItemFunction request
+    Promise.all promises
+    .then (manyUpdateItemProps) =>
+      promises = for key, props of _mergeUpdateItemProps manyUpdateItemProps
+        @singleton.updateItem props
+      Promise.all promises
 
   _vivifyTable: ->
     @_vivifyTablePromise ||= Promise.resolve().then =>
