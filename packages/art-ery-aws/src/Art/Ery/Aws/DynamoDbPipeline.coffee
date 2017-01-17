@@ -3,9 +3,12 @@ Uuid = require 'uuid'
 Foundation = require 'art-foundation'
 ArtEry = require 'art-ery'
 ArtAws = require 'art-aws'
-require 'art-ery/Filters'
+{AfterEventsFilter} = ArtEry.Filters
 
-{object, isPlainObject, inspect, log, merge, compare, Validator, isString, arrayToTruthMap, isFunction, withSort} = Foundation
+{
+  Promise, object, isPlainObject, deepMerge, compactFlatten, inspect
+  log, merge, compare, Validator, isString, arrayToTruthMap, isFunction, withSort
+} = Foundation
 {Pipeline} = ArtEry
 {DynamoDb} = ArtAws
 {encodeDynamoData, decodeDynamoData} = DynamoDb
@@ -21,6 +24,56 @@ module.exports = class DynamoDbPipeline extends Pipeline
 
   @firstAbstractAncestor: @
 
+  ###########################################
+  # AfterEventsFilter and @updateItemsAfter
+  ###########################################
+  ###
+  IN: pipelineEventMap looks like:
+    pipelineName: requestType: (response) -> updateItemProps or array of updateItemProps or promise returning one of those
+
+  EXAMPLE:
+
+  SEE: art-aws/.../UpdateItem for more on set-item-props
+  ###
+  @updateItemAfter: (pipelineMap) ->
+    throw new Error "primaryKey must be 'id'" unless @_primaryKey == "id"
+    for pipelineName, requestTypeMap of pipelineMap
+      for requestType, updateItemPropsFunction of requestTypeMap
+        AfterEventsFilter.registerPipelineListener @, pipelineName, requestType
+        @_addUpdateAfterFunction pipelineName, requestType, updateItemPropsFunction
+
+  @extendableProperty updateItemPropsFunctions: {}
+
+  @_addUpdateAfterFunction: (pipelineName, requestType, updateItemPropsFunction) ->
+    ((@extendUpdateItemPropsFunctions()[pipelineName]||={})[requestType]||=[])
+    .push updateItemPropsFunction
+
+  # OUT: updateItemPropsBykey
+  @_mergeUpdateItemProps: _mergeUpdateItemProps = (manyUpdateItemProps) ->
+    object (compactFlatten manyUpdateItemProps),
+      key: ({key}) -> key
+      with: (props, key, into) ->
+        if into[props.key]
+          deepMerge into[props.key], props
+        else
+          props
+
+  ###
+  Executes all @updateItemPropsFunctions appropriate for the current request.
+  Then merge them together so we only have one update per unique record-id.
+  ###
+  @handleRequestAfterEvent: (request) ->
+    {pipelineName, type} = request
+    promises = for updateItemFunction in @getUpdateItemPropsFunctions()[pipelineName]?[type] || []
+      updateItemFunction request
+    Promise.all promises
+    .then (manyUpdateItemProps) =>
+      promises = for key, props of _mergeUpdateItemProps manyUpdateItemProps
+        @singleton.updateItem props
+      Promise.all promises
+
+  ###########################################
+  ###########################################
   @createTablesForAllRegisteredPipelines: ->
     promises = for name, pipeline of ArtEry.pipelines when isFunction pipeline.createTable
       pipeline.createTable()
