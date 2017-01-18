@@ -3,6 +3,7 @@ Foundation = require 'art-foundation'
   lowerCamelCase, wordsArray, isPlainObject, log, compactFlatten
   isString, compactFlatten, deepEachAll, uniqueValues
   isNumber
+  merge
 } = Foundation
 
 TableApiBaseClass = require './TableApiBaseClass'
@@ -12,8 +13,9 @@ module.exports = class UpdateItem extends TableApiBaseClass
   IN: params:
     table:                  string (required)
     key:
-    item:                   object maps fields to values -> fields to set with values (using UpdateExpression's 'SET' action)
-    add:                    object maps fields to values -> fields to add values to (using UpdateExpression's 'ADD' action)
+    item/set:               object(fields -> values): set ()
+    add:                    object(fields -> values): add value to existing value (or 0, if adding a number) (using UpdateExpression's 'ADD' action)
+    defaults/setDefault:    object(fields -> values): set if not present (using UpdateExpression's 'SET' and 'if_not_exists')
 
   ###
   _translateParams: (params) =>
@@ -38,9 +40,11 @@ module.exports = class UpdateItem extends TableApiBaseClass
     attributeName: "remove" # remove the attribute
   ###
   _translateUpdateExpression: (params) =>
-    {item, add, defaults} = params
+    {item, set, add, setDefault, defaults} = params
+    item = merge item, set
+    defaults = merge setDefault, defaults
 
-    actions = for attributeName, attributeValue of item || {}
+    actions = for attributeName, attributeValue of item
       uniqueId = @_getNextUniqueExpressionAttributeId @_target
       attributeAlias = "#attr#{uniqueId}"
       valueAlias = ":val#{uniqueId}"
@@ -48,7 +52,7 @@ module.exports = class UpdateItem extends TableApiBaseClass
       @_addExpressionAttributeValue valueAlias, attributeValue
       "#{attributeAlias} = #{valueAlias}"
 
-    setDefaultActions = for attributeName, attributeValue of defaults || {}
+    setDefaultActions = for attributeName, attributeValue of defaults
       uniqueId = @_getNextUniqueExpressionAttributeId @_target
       attributeAlias = "#attr#{uniqueId}"
       valueAlias = ":val#{uniqueId}"
