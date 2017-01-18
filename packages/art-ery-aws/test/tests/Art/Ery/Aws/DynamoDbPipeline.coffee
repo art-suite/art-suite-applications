@@ -7,6 +7,66 @@
 {AfterEventsFilter} = Ery.Filters
 {DynamoDbPipeline} = Ery.Aws
 
+
+sharedAfterEventTests = (setupUserWith) ->
+
+  setup ->
+    AfterEventsFilter._reset()
+    Neptune.Art.Ery.PipelineRegistry._reset()
+
+    User = null
+    createWithPostCreate class User extends DynamoDbPipeline
+      @addDatabaseFilters
+        name:               "required trimmedstring"
+        postCount:          "number"
+        lastPostCreatedAt:  "timestamp"
+
+    setupUserWith User
+
+    createWithPostCreate class Post extends DynamoDbPipeline
+      @addDatabaseFilters
+        userOwned: true
+        text:       "trimmedstring"
+        createdAt:  "timestamp"
+
+    pipelines.user.createTable()
+    pipelines.post.createTable()
+
+    # User and AfterEventsFilter properly setup
+    assert.eq AfterEventsFilter.handlers.post.create.length, 1
+    assert.eq AfterEventsFilter.handlers.post.create[0], User
+
+
+  test "User and AfterEventsFilter properly setup", ->
+    # tests are in setup, since we want to run them EACH TIME - the second time can fail
+    # LEAVE THIS 'empty' TEST HERE - so we can JUST run the setup-tests
+
+  test "create user and two posts", ->
+    userId = post = null
+    pipelines.user.create
+      data: name: "Bill"
+    .then (user) ->
+      {name, postCount, lastPostCreatedAt, id: userId} = user
+      session.data = {userId}
+      assert.doesNotExist lastPostCreatedAt
+      assert.doesNotExist postCount
+      assert.eq name, "Bill"
+      assert.eq name, "Bill"
+      assert.isString userId
+    .then -> pipelines.post.create data: userId: userId, text: "hi"
+    .then (_post) -> post = _post; pipelines.user.get key: userId
+    .then (user) ->
+      {postCount, lastPostCreatedAt} = user
+      assert.eq lastPostCreatedAt, post.createdAt
+      assert.eq postCount, 1
+
+    .then -> pipelines.post.create data: userId: userId, text: "hi"
+    .then (_post) -> post = _post; pipelines.user.get key: userId
+    .then (user) ->
+      {postCount, lastPostCreatedAt} = user
+      assert.eq lastPostCreatedAt, post.createdAt
+      assert.eq postCount, 2
+
 module.exports = suite:
 
   basic: ->
@@ -123,16 +183,26 @@ module.exports = suite:
       .then (expectedError) ->
         assert.eq expectedError.info.response.status, clientFailure
 
-  updateItemAfter:
-    full: ->
-      User = null
-      postCreateUpdateFunction = null
-      setup ->
-        AfterEventsFilter._reset()
-        Neptune.Art.Ery.PipelineRegistry._reset()
-        User = null
-        createWithPostCreate class User extends DynamoDbPipeline
-          @updateItemAfter
+  crossPipelineEvents:
+    afterEvent: ->
+
+      sharedAfterEventTests (User) ->
+        User.afterEvent
+          create: post: afterEventFunction = (response) ->
+            Promise.then ->
+              {userId, createdAt} = response.data
+              assert.eq "post", response.pipelineName
+              User.singleton.updateItem
+                key: userId
+                set: lastPostCreatedAt: createdAt
+                add: postCount: 1
+
+        assert.eq User.getAfterEventFunctions(), post: create: [afterEventFunction]
+
+    updateItemAfter:
+      full: ->
+        sharedAfterEventTests (User) ->
+          User.updateItemAfter
             create: post: postCreateUpdateFunction = (response) ->
               Promise.then ->
                 {userId, createdAt} = response.data
@@ -141,90 +211,43 @@ module.exports = suite:
                 set: lastPostCreatedAt: createdAt
                 add: postCount: 1
 
-          @addDatabaseFilters
-            name:           "required trimmedstring"
-            postCount:          "number"
-            lastPostCreatedAt:  "timestamp"
+          # User and AfterEventsFilter properly setup
+          assert.eq User.getUpdateItemPropsFunctions(), post: create: [postCreateUpdateFunction]
 
-        createWithPostCreate class Post extends DynamoDbPipeline
-          @addDatabaseFilters
-            userOwned: true
-            text:       "trimmedstring"
-            createdAt:  "timestamp"
+      _mergeUpdateItemProps: ->
+        test "basic", ->
+          assert.eq
+            foo: key: "foo", set: bar: 123
+          , DynamoDbPipeline._mergeUpdateItemProps [
+            {key: "foo", set: bar: 123}
+          ]
 
-        pipelines.user.createTable()
-        pipelines.post.createTable()
+        test "distinct actions for same key", ->
+          assert.eq
+            foo:
+              key:        "foo"
+              set:        bar: 123
+              setDefault: baz: 456
+          , DynamoDbPipeline._mergeUpdateItemProps [
+            {key: "foo", set: bar: 123}
+            {key: "foo", setDefault: baz: 456}
+          ]
 
-        # User and AfterEventsFilter properly setup
-        assert.eq User.getUpdateItemPropsFunctions(), post: create: [postCreateUpdateFunction]
-        assert.eq AfterEventsFilter.handlers.post.create.length, 1
-        assert.isFunction AfterEventsFilter.handlers.post.create[0]
+        test "two keys with overlapping actions", ->
+          assert.eq
+            foo: key: "foo", set: name: "alice"
+            bar: key: "bar", set: name: "bill"
+          , DynamoDbPipeline._mergeUpdateItemProps [
+            {key: "foo", set: name: "alice"}
+            {key: "bar", set: name: "bill"}
+          ]
 
-      test "User and AfterEventsFilter properly setup", ->
-        # tests are in setup, since we want to run them EACH TIME - the second time can fail
-        # LEAVE THIS 'empty' TEST HERE - so we can JUST run the setup-tests
-
-      test "create user and two posts", ->
-
-        userId = post = null
-        pipelines.user.create
-          data: name: "Bill"
-        .then (user) ->
-          {name, postCount, lastPostCreatedAt, id: userId} = user
-          session.data = {userId}
-          assert.doesNotExist lastPostCreatedAt
-          assert.doesNotExist postCount
-          assert.eq name, "Bill"
-          assert.eq name, "Bill"
-          assert.isString userId
-        .then -> pipelines.post.create data: userId: userId, text: "hi"
-        .then (_post) -> post = _post; pipelines.user.get key: userId
-        .then (user) ->
-          {postCount, lastPostCreatedAt} = user
-          assert.eq lastPostCreatedAt, post.createdAt
-          assert.eq postCount, 1
-
-        .then -> pipelines.post.create data: userId: userId, text: "hi"
-        .then (_post) -> post = _post; pipelines.user.get key: userId
-        .then (user) ->
-          {postCount, lastPostCreatedAt} = user
-          assert.eq lastPostCreatedAt, post.createdAt
-          assert.eq postCount, 2
-
-    _mergeUpdateItemProps: ->
-      test "basic", ->
-        assert.eq
-          foo: key: "foo", set: bar: 123
-        , DynamoDbPipeline._mergeUpdateItemProps [
-          {key: "foo", set: bar: 123}
-        ]
-
-      test "distinct actions for same key", ->
-        assert.eq
-          foo:
-            key:        "foo"
-            set:        bar: 123
-            setDefault: baz: 456
-        , DynamoDbPipeline._mergeUpdateItemProps [
-          {key: "foo", set: bar: 123}
-          {key: "foo", setDefault: baz: 456}
-        ]
-
-      test "two keys with overlapping actions", ->
-        assert.eq
-          foo: key: "foo", set: name: "alice"
-          bar: key: "bar", set: name: "bill"
-        , DynamoDbPipeline._mergeUpdateItemProps [
-          {key: "foo", set: name: "alice"}
-          {key: "bar", set: name: "bill"}
-        ]
-
-      test "array of updates", ->
-        assert.eq
-          foo: key: "foo", set: name: "alice", address: "123 Street"
-          bar: key: "bar", set: name: "bill"
-        , DynamoDbPipeline._mergeUpdateItemProps [
-          [{key: "foo", set: name: "alice"}
-          {key: "bar", set: name: "bill"}]
-          {key: "foo", set: address: "123 Street"}
-        ]
+        test "array of updates", ->
+          assert.eq
+            foo: key: "foo", set: name: "alice", address: "123 Street"
+            bar: key: "bar", set: name: "bill"
+          , DynamoDbPipeline._mergeUpdateItemProps [
+            [{key: "foo", set: name: "alice"}
+            {key: "bar", set: name: "bill"}]
+            {key: "foo", set: address: "123 Street"}
+          ]

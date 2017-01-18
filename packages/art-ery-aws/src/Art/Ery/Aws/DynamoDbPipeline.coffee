@@ -32,7 +32,7 @@ module.exports = class DynamoDbPipeline extends Pipeline
   ###########################################
   ###########################################
   ###
-  IN: pipelineEventMap looks like:
+  IN: eventMap looks like:
     requestType: pipelineName: updateItemPropsFunction
 
     updateItemPropsFunction: (response) -> updateItemProps
@@ -61,14 +61,26 @@ module.exports = class DynamoDbPipeline extends Pipeline
           add: postCount: 1
 
   ###
-  @updateItemAfter: (pipelineMap) ->
+  @updateItemAfter: (eventMap) ->
     throw new Error "primaryKey must be 'id'" unless @_primaryKey == "id"
-    for requestType, requestTypeMap of pipelineMap
+    for requestType, requestTypeMap of eventMap
       for pipelineName, updateItemPropsFunction of requestTypeMap
         AfterEventsFilter.registerPipelineListener @, pipelineName, requestType
-        @_addUpdateAfterFunction pipelineName, requestType, updateItemPropsFunction
+        @_addUpdateItemAfterFunction pipelineName, requestType, updateItemPropsFunction
 
-  @extendableProperty updateItemPropsFunctions: {}
+  @extendableProperty
+    updateItemPropsFunctions: {}
+    afterEventFunctions: {}
+
+  ###
+  IN: eventMap looks like:
+    requestType: pipelineName: (response) -> (ignored)
+  ###
+  @afterEvent: (eventMap) ->
+    for requestType, requestTypeMap of eventMap
+      for pipelineName, afterEventFunction of requestTypeMap
+        AfterEventsFilter.registerPipelineListener @, pipelineName, requestType
+        @_addAfterEventFunction pipelineName, requestType, afterEventFunction
 
   ###########################################
   ###########################################
@@ -197,9 +209,13 @@ module.exports = class DynamoDbPipeline extends Pipeline
     queries
 
 
-  @_addUpdateAfterFunction: (pipelineName, requestType, updateItemPropsFunction) ->
+  @_addUpdateItemAfterFunction: (pipelineName, requestType, updateItemPropsFunction) ->
     ((@extendUpdateItemPropsFunctions()[pipelineName]||={})[requestType]||=[])
     .push updateItemPropsFunction
+
+  @_addAfterEventFunction: (pipelineName, requestType, afterEventFunction) ->
+    ((@extendAfterEventFunctions()[pipelineName]||={})[requestType]||=[])
+    .push afterEventFunction
 
   # OUT: updateItemPropsBykey
   @_mergeUpdateItemProps: _mergeUpdateItemProps = (manyUpdateItemProps) ->
@@ -215,12 +231,20 @@ module.exports = class DynamoDbPipeline extends Pipeline
   Executes all @updateItemPropsFunctions appropriate for the current request.
   Then merge them together so we only have one update per unique record-id.
   ###
+  emptyArray = []
   @handleRequestAfterEvent: (request) ->
     {pipelineName, type} = request
-    promises = for updateItemFunction in @getUpdateItemPropsFunctions()[pipelineName]?[type] || []
-      updateItemFunction request
-    Promise.all promises
-    .then (manyUpdateItemProps) =>
+    updateItemPromises = for updateItemFunction in @getUpdateItemPropsFunctions()[pipelineName]?[type] || emptyArray
+      Promise.then -> updateItemFunction request
+
+    afterEventPromises = for afterEventFunction in @getAfterEventFunctions()[pipelineName]?[type] || emptyArray
+      Promise.then -> afterEventFunction request
+
+    Promise.all([
+      Promise.all updateItemPromises
+      Promise.all afterEventPromises
+    ])
+    .then ([manyUpdateItemProps]) =>
       promises = for key, props of _mergeUpdateItemProps manyUpdateItemProps
         @singleton.updateItem props
       Promise.all promises
