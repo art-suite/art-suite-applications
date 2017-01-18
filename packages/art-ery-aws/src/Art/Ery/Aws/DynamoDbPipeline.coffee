@@ -33,7 +33,7 @@ module.exports = class DynamoDbPipeline extends Pipeline
   ###########################################
   ###
   IN: pipelineEventMap looks like:
-    pipelineName: requestType: updateItemPropsFunction
+    requestType: pipelineName: updateItemPropsFunction
 
     updateItemPropsFunction: (response) -> updateItemProps
     IN: response is the ArtEry request-response for the request-in-progress on
@@ -55,7 +55,7 @@ module.exports = class DynamoDbPipeline extends Pipeline
   EXAMPLE:
     class User extends DynamoDbPipeline
       @updateItemAfter
-        post: create: ({data:{userId, createdAt}}) ->
+        create: post: ({data:{userId, createdAt}}) ->
           key: userId
           set: lastPostCreatedAt: createdAt
           add: postCount: 1
@@ -63,8 +63,8 @@ module.exports = class DynamoDbPipeline extends Pipeline
   ###
   @updateItemAfter: (pipelineMap) ->
     throw new Error "primaryKey must be 'id'" unless @_primaryKey == "id"
-    for pipelineName, requestTypeMap of pipelineMap
-      for requestType, updateItemPropsFunction of requestTypeMap
+    for requestType, requestTypeMap of pipelineMap
+      for pipelineName, updateItemPropsFunction of requestTypeMap
         AfterEventsFilter.registerPipelineListener @, pipelineName, requestType
         @_addUpdateAfterFunction pipelineName, requestType, updateItemPropsFunction
 

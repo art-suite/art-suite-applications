@@ -133,7 +133,7 @@ module.exports = suite:
         User = null
         createWithPostCreate class User extends DynamoDbPipeline
           @updateItemAfter
-            post: create: postCreateUpdateFunction = (response) ->
+            create: post: postCreateUpdateFunction = (response) ->
               Promise.then ->
                 {userId, createdAt} = response.data
                 assert.eq "post", response.pipelineName
