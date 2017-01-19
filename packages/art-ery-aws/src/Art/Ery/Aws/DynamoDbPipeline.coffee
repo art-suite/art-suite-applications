@@ -135,8 +135,12 @@ module.exports = class DynamoDbPipeline extends Pipeline
 
   queryDynamoDb:  (params)         -> @dynamoDb.query      merge params, table: @tableName
   scanDynamoDb:   (params)         -> @dynamoDb.scan       merge params, table: @tableName
-  updateItem:     (params)         -> @dynamoDb.updateItem merge params, table: @tableName
   withDynamoDb:   (action, params) -> @dynamoDb[action]    merge params, table: @tableName
+  updateItem:     (params) ->
+    @dynamoDb.updateItem merge params,
+      table: @tableName
+      # ensure we are updating an existing record only
+      conditionExpression: id: params.key.id || params.key if @primaryKey == "id"
 
   stripPrimaryKeyFieldsFromData: (data) ->
     data && object data, when: (v, k) => not(k in @primaryKeyFields)
@@ -170,8 +174,12 @@ module.exports = class DynamoDbPipeline extends Pipeline
       .then -> request.data
 
     update: (request) ->
-      @dynamoDb.updateItem @dynamoDbParamsFromRequest request
+      @updateItem @dynamoDbParamsFromRequest request
       .then ({item}) -> item
+      .catch (error) ->
+        if error.message.match /ConditionalCheckFailedException/
+          request.missing "Attempted to update a non-existant record."
+        else throw error
 
     delete: (request) ->
       @dynamoDb.deleteItem @dynamoDbParamsFromRequest request

@@ -115,6 +115,14 @@ module.exports = suite:
           .then (data)->
             assert.eq data, merge createData, updatedData
 
+
+    test "update non-existant record fails", ->
+      assert.rejects myTable.update
+        key: "doesn't exist key"
+        data: foo: "bar"
+      .then (rejectedValue) ->
+        assert rejectedValue.info.response.status == missing
+
     test "delete", ->
       createData = null
 
