@@ -140,7 +140,7 @@ module.exports = class DynamoDbPipeline extends Pipeline
     @dynamoDb.updateItem merge params,
       table: @tableName
       # ensure we are updating an existing record only
-      conditionExpression: id: params.key.id || params.key if @primaryKey == "id"
+      conditionExpression: object @primaryKeyFields, (field) -> params.key[field] || params.key
 
   stripPrimaryKeyFieldsFromData: (data) ->
     data && object data, when: (v, k) => not(k in @primaryKeyFields)
