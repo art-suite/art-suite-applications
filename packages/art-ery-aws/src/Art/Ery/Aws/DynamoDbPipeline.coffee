@@ -139,7 +139,7 @@ module.exports = class DynamoDbPipeline extends Pipeline
   updateItem:     (params) ->
     @dynamoDb.updateItem merge params,
       table: @tableName
-      # ensure we are updating an existing record only
+      # ensure we are updating an existing record only - updated to work with any primaryKey
       conditionExpression: object @primaryKeyFields, (field) -> params.key[field] || params.key
 
   stripPrimaryKeyFieldsFromData: (data) ->
