@@ -20,6 +20,32 @@ defineModule module, suite: ->
 
       new UpdateItem().translateParams table: "hi", key: "foo", item: foo: 123
 
+  test "conditionalExpression", ->
+    assert.eq
+      TableName: "hi"
+      Key:       id: S: "foo"
+      UpdateExpression: "SET #attr1 = :val1"
+      ConditionalExpression: "(#attr2 = :val2 AND #attr3 >= :val3)"
+      ReturnValues: "UPDATED_NEW"
+
+      ExpressionAttributeNames:
+        "#attr1": "foo"
+        "#attr2": "id"
+        "#attr3": "foo"
+
+      ExpressionAttributeValues:
+        ":val1":  N: "123"
+        ":val2":  S: "abc"
+        ":val3":  N: "10"
+
+      new UpdateItem().translateParams
+        table: "hi"
+        key: "foo"
+        item: foo: 123
+        conditionalExpression:
+          id: "abc"
+          foo: gte: 10
+
   test "item: foo: 123, bar: undefined", ->
     assert.eq
       TableName: "hi"

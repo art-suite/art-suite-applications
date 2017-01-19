@@ -91,6 +91,7 @@ module.exports = class TableApiBaseClass
   _addExpressionAttributeValue: (key, value) ->
     (@_target.ExpressionAttributeValues ||= {})[key] = @_encodeDynamoData value
 
+  # TODO: this should GENERATE the alias, and return it, and reuse aliases when for the same attributeName
   _addExpressionAttributeName: (attributeAlias, attributeName) ->
     (@_target.ExpressionAttributeNames ||= {})[attributeAlias] = attributeName
 
