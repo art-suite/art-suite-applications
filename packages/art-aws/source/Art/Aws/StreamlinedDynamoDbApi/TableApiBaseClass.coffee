@@ -119,9 +119,9 @@ module.exports = class TableApiBaseClass
 
   # OUT: returns the test as a STRING for DynamoDb expressions
   # EFFECT: adds to @_target.ExpressionAttributeNames && @_target.ExpressionAttributeValues
-  _translateConditionExpression: (conditionalExpression) ->
-    ret = if isPlainArray conditionalExpression
-      expressions = for subExpression in conditionalExpression
+  _translateConditionExpression: (conditionExpression) ->
+    ret = if isPlainArray conditionExpression
+      expressions = for subExpression in conditionExpression
         if isString subExpression
           subExpression
         else
@@ -129,7 +129,7 @@ module.exports = class TableApiBaseClass
 
       expressions.join ' '
     else
-      expressions = for attributeName, test of conditionalExpression
+      expressions = for attributeName, test of conditionExpression
         uniqueId = @_getNextUniqueExpressionAttributeId @_target
         attributeAlias = "#attr#{uniqueId}"
         @_addExpressionAttributeName attributeAlias, attributeName
@@ -155,10 +155,10 @@ module.exports = class TableApiBaseClass
       @_addExpressionAttributeValue valueAlias, value
       expression
 
-  _translateConditionalExpression: (params) ->
-    {conditionalExpression} = params
-    return @_target unless conditionalExpression
-    @_target.ConditionalExpression = @_translateConditionExpression conditionalExpression
+  _translateConditionExpressionParam: (params) ->
+    {conditionExpression} = params
+    return @_target unless conditionExpression
+    @_target.ConditionExpression = @_translateConditionExpression conditionExpression
     @_target
 
   _translateKey: (params) ->

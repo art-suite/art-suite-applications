@@ -12,7 +12,7 @@ module.exports = class DeleteItem extends TableApiBaseClass
   IN: params:
     table:                  (required) string
     key:                    (required) see TableApiBaseClass._translateKey
-    conditionalExpression:  (optional) see TableApiBaseClass._translateConditionalExpression
+    conditionExpression:  (optional) see TableApiBaseClass._translateConditionExpressionParam
     returnConsumedCapacity: (optional) see TableApiBaseClass._translateConsumedCapacity
   ###
   _translateParams: (params) ->
@@ -22,4 +22,4 @@ module.exports = class DeleteItem extends TableApiBaseClass
 
   _translateOptionalParams: (params) ->
     @_translateConsumedCapacity params
-    @_translateConditionalExpression params
+    @_translateConditionExpressionParam params

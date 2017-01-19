@@ -29,7 +29,7 @@ module.exports = class PutItem extends TableApiBaseClass
   ReturnValues: 'NONE | ALL_OLD | UPDATED_OLD | ALL_NEW | UPDATED_NEW'
 
   _translateOptionalParams: (params) ->
-    @_translateConditionalExpression params
+    @_translateConditionExpressionParam params
     @_translateConstantParam params, "returnConsumedCapacity"
     @_translateConstantParam params, "returnItemCollectionMetrics"
     @_translateConstantParam params, "returnValues"

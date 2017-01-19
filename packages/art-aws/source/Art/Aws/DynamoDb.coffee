@@ -122,14 +122,13 @@ module.exports = class DynamoDb extends BaseObject
     #   params: params
     Promise.withCallback (callback) => @_awsDynamoDb[name] params, callback
     .catch (error) =>
-      if error
-        log.error "Art.Aws.DynamoDb": {
-          message: "request was rejected"
-          name
-          params
-          error
-        }
-      throw Error
+      log.error "Art.Aws.DynamoDb": {
+        message: "request was rejected"
+        name
+        params
+        error
+      }
+      throw error
 
   @bindAll: (map) ->
     for name, customMethod of map
