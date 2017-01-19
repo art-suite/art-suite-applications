@@ -44,7 +44,7 @@ module.exports = class UpdateItem extends TableApiBaseClass
     item = merge item, set
     defaults = merge setDefault, defaults
 
-    actions = for attributeName, attributeValue of item
+    actions = for attributeName, attributeValue of item when attributeValue != undefined
       uniqueId = @_getNextUniqueExpressionAttributeId @_target
       attributeAlias = "#attr#{uniqueId}"
       valueAlias = ":val#{uniqueId}"
@@ -52,7 +52,7 @@ module.exports = class UpdateItem extends TableApiBaseClass
       @_addExpressionAttributeValue valueAlias, attributeValue
       "#{attributeAlias} = #{valueAlias}"
 
-    setDefaultActions = for attributeName, attributeValue of defaults
+    setDefaultActions = for attributeName, attributeValue of defaults when attributeValue != undefined
       uniqueId = @_getNextUniqueExpressionAttributeId @_target
       attributeAlias = "#attr#{uniqueId}"
       valueAlias = ":val#{uniqueId}"
@@ -60,7 +60,7 @@ module.exports = class UpdateItem extends TableApiBaseClass
       @_addExpressionAttributeValue valueAlias, attributeValue
       "#{attributeAlias} = if_not_exists(#{attributeAlias}, #{valueAlias})"
 
-    addActions = for attributeName, attributeValue of add || {}
+    addActions = for attributeName, attributeValue of add || {} when attributeValue != undefined
       uniqueId = @_getNextUniqueExpressionAttributeId @_target
       attributeAlias = "#attr#{uniqueId}"
       valueAlias = ":val#{uniqueId}"
