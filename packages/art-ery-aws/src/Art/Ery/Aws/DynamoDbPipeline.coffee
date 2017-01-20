@@ -137,28 +137,50 @@ module.exports = class DynamoDbPipeline extends Pipeline
   scanDynamoDb:   (params)         -> @dynamoDb.scan       merge params, table: @tableName
   withDynamoDb:   (action, params) -> @dynamoDb[action]    merge params, table: @tableName
   updateItem:     (params) ->
-    @dynamoDb.updateItem merge params,
+    @dynamoDb.updateItem merge
       table: @tableName
       # ensure we are updating an existing record only - updated to work with any primaryKey
       conditionExpression: object @primaryKeyFields, (field) -> params.key[field] || params.key
+      params
+
+  deleteItem: (params) ->
+    @dynamoDb.deleteItem merge
+      table: @tableName
+      # ensure we are updating an existing record only - updated to work with any primaryKey
+      conditionExpression: object @primaryKeyFields, (field) -> params.key[field] || params.key
+      params
 
   stripPrimaryKeyFieldsFromData: (data) ->
     data && object data, when: (v, k) => not(k in @primaryKeyFields)
 
+  ###
+  IN:
+    request.requestOptions.dynamoDbParams:
+      Set this to add custom params to the dynmoDb command.
+      NOTE - request must have originatedOnServer
+  ###
   dynamoDbParamsFromRequest: (request, isCreate = false) ->
-    {key, data} = request
+    {key, data, requestOptions} = request
     if data
       throw new Error "DynamoDbPipeline##{request.type}: data must be an object. data = #{inspect data}" unless isPlainObject data
 
-    table: @tableName
-    key: !isCreate && if isPlainObject key
-        key
-      else if isString key
-        id: key
-      else
-        data = @stripPrimaryKeyFieldsFromData data
-        object @primaryKeyFields, (v) -> request.data[v]
-    item: data
+    out =
+      table: @tableName
+      key: !isCreate && if isPlainObject key
+          key
+        else if isString key
+          id: key
+        else
+          data = @stripPrimaryKeyFieldsFromData data
+          object @primaryKeyFields, (v) -> request.data[v]
+      item: data
+
+    if requestOptions?.dynamoDbParams
+      request.requireServerOrigin "to use dynamoDbParams"
+      merge requestOptions?.dynamoDbParams, out
+    else
+      out
+
 
   @handlers
     get: (request) ->
@@ -169,10 +191,22 @@ module.exports = class DynamoDbPipeline extends Pipeline
       @_vivifyTable()
       .then -> message: "success"
 
+    # TODO: make create fail if the item already exists
+    # TODO: add createOrReplace - if we need it
+    # WHY? we have after-triggers that need to only trigger on a real create - not a replace
+    # AND filters like ValidationFilter assume create is a real create and update is a real update...
+    # NOTE: replace should be considered an update...
     create: (request) ->
       @dynamoDb.putItem @dynamoDbParamsFromRequest request, true
       .then -> request.data
 
+    ###
+    OUT:
+      if record didn't exist:
+        response.status == missing
+      else
+        data: values of updated fields
+    ###
     update: (request) ->
       @updateItem @dynamoDbParamsFromRequest request
       .then ({item}) -> item
@@ -181,9 +215,55 @@ module.exports = class DynamoDbPipeline extends Pipeline
           request.missing "Attempted to update a non-existant record."
         else throw error
 
+    ###
+    This calls 'update' and possibly 'create', so hooks on update an create will be triggered.
+    NOTE: update fails if the record doesn't exist, so after-create-hooks will not be triggered.
+    ###
+    createOrUpdate: (request) ->
+      throw new Error "no available on tables with auto-generated-ids" if @primaryKey == 'id'
+      {data} = request
+      request.subrequest @pipelineName, "update",
+        data: data
+        # ensure we return createdAt and updatedAt; client can test if a new record was created
+        # by seeing if they are == or not. Also used for testing.
+        requestOptions: dynamoDbParams: returnValues: "allNew"
+      .catch (error) =>
+        if error.info.response.isMissing
+          request.subrequest @pipelineName, "create", {data}
+        else throw error
+
+    ###
+    OUT:
+      if record didn't exist:
+        response.status == missing
+      else
+        data: keyFields & values
+    ###
     delete: (request) ->
-      @dynamoDb.deleteItem @dynamoDbParamsFromRequest request
-      .then -> message: "success"
+      @deleteItem deleteItemParams = @dynamoDbParamsFromRequest request
+      .then ->
+        # TODO: dynamoDb deleteItem can return the old values upon request:
+        #   returnValues: 'allOld'
+        # but in typical DynamoDb doc, it isn't clear HOW they are returned:
+        #   http://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_DeleteItem.html
+        deleteItemParams.key
+      .catch (error) ->
+        if error.message.match /ConditionalCheckFailedException/
+          request.missing "Attempted to delete a non-existant record."
+        else throw error
+
+    ###
+    This calls 'get' first, then calls 'delete' if it exists. Therefor 'delete' hooks
+    will only fire if the record actually exists.
+    ###
+    deleteIfExists: (request) ->
+      {key} = request
+      request.subrequest @pipelineName, "delete", {key}
+      .catch (error) ->
+        if error.info.response.isMissing
+          # still a success if the record didn't exist
+          request.success()
+        else throw error
 
   #########################
   # PRIVATE
