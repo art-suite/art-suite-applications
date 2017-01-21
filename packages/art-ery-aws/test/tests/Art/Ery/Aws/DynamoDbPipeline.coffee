@@ -94,7 +94,7 @@ module.exports = suite:
         .then (getData) ->
           assert.eq getData, data
 
-    test "update", ->
+    test "update using keys", ->
 
       createData = null
 
@@ -112,6 +112,26 @@ module.exports = suite:
 
         .then (updatedData)->
           myTable.get key: createData.id
+          .then (data)->
+            assert.eq data, merge createData, updatedData
+
+    test "update using data as keys", ->
+
+      createData = null
+
+      myTable.create
+        data:
+          name: "John"
+          email: "foo@bar.com"
+          rank: 123
+          attributes: ["adventurous", "charming"]
+
+      .then (createData) ->
+        myTable.update
+          data: foo: "bar", id: createData.id
+
+        .then (updatedData)->
+          myTable.get data: id: createData.id
           .then (data)->
             assert.eq data, merge createData, updatedData
 

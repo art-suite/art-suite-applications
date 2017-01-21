@@ -154,9 +154,14 @@ module.exports = class DynamoDbPipeline extends Pipeline
   stripPrimaryKeyFields: (o) ->
     o && object o, when: (v, k) => not(k in @primaryKeyFields)
 
-  normalizeKey: (key) ->
+  getNormalizedKeyFromRequest: ({key, data}) ->
+    key ||= data
+
     if isPlainObject key
-      object @primaryKeyFields, (v) -> key[v]
+      object @primaryKeyFields, (v) ->
+        unless ret = key[v]
+          throw new Error "must provide all primaryKeyFields (missing: #{formattedInspect v})"
+        ret
     else if isString key
       "#{@primaryKeyFields[0]}": key
     else
@@ -164,36 +169,55 @@ module.exports = class DynamoDbPipeline extends Pipeline
 
   ###
   IN:
-    request.requestOptions.dynamoDbParams:
-      Set this to add custom params to the dynmoDb command.
-      NOTE - request must have originatedOnServer
+    request:
+    requiresKey: true/false
+      true:  key and data will be normalized using the primaryKey fields
+      false: there willbe no key
+
+    action: (streamlinedDynamoDbParams) -> out
+
+  OUT:
+    promise.catch (error) ->                # only internalErrors are thrown
+    promise.then (clientFailureResponse) -> # if input is invalid, return clientFailure without invoking action
+    promise.then (out) ->                   # otherwise, returns action's return value
   ###
-  dynamoDbParamsFromRequest: (request, requiresKey = true) ->
-    {key, data, requestOptions} = request
-    if requiresKey
-      data = @stripPrimaryKeyFields data
-      key = @normalizeKey key
+  artEryToDynamoDbRequest: (request, requiresKey, action) ->
+    Promise
+    .then =>
+      {key, data, requestOptions} = request
 
-    out =
-      table:  @tableName
-      item:   data
-      key:    key
+      if requiresKey
+        data = @stripPrimaryKeyFields data
+        key  = @getNormalizedKeyFromRequest request
 
-    if requestOptions?.dynamoDbParams
-      request.requireServerOrigin "to use dynamoDbParams"
-      merge requestOptions?.dynamoDbParams, out
+      out =
+        table:  @tableName
+        item:   data
+        key:    key
 
-    else
-      out
+      if requestOptions?.dynamoDbParams
+        request.requireServerOrigin "to use dynamoDbParams"
+        merge requestOptions?.dynamoDbParams, out
+
+      else
+        out
+
+    .then action
+    , ({message}) -> request.clientFailure message
 
   @handlers
-    get: (request) ->
-      @dynamoDb.getItem @dynamoDbParamsFromRequest request
-      .then (result) -> result.item || request.missing()
 
     createTable: ->
       @_vivifyTable()
       .then -> message: "success"
+
+    ################################
+    # Direct DynamoDb requests
+    ################################
+    get: (request) ->
+      @artEryToDynamoDbRequest request, true, (params) =>
+        @dynamoDb.getItem params
+        .then (result) -> result.item || request.missing()
 
     # TODO: make create fail if the item already exists
     # TODO: add createOrReplace - if we need it
@@ -201,8 +225,9 @@ module.exports = class DynamoDbPipeline extends Pipeline
     # AND filters like ValidationFilter assume create is a real create and update is a real update...
     # NOTE: replace should be considered an update...
     create: (request) ->
-      @dynamoDb.putItem @dynamoDbParamsFromRequest request, false
-      .then -> request.data
+      @artEryToDynamoDbRequest request, false, (params) =>
+        @dynamoDb.putItem params
+        .then -> request.data
 
     ###
     OUT:
@@ -212,11 +237,51 @@ module.exports = class DynamoDbPipeline extends Pipeline
         data: values of updated fields
     ###
     update: (request) ->
-      @updateItem @dynamoDbParamsFromRequest request
-      .then ({item}) -> item
+      @artEryToDynamoDbRequest request, true, (dynamoDbParams)=>
+        log {dynamoDbParams}
+        @updateItem dynamoDbParams
+        .then ({item}) -> item
+        .catch (error) ->
+          if error.message.match /ConditionalCheckFailedException/
+            request.missing "Attempted to update a non-existant record."
+          else throw error
+
+    ###
+    OUT:
+      if record didn't exist:
+        response.status == missing
+      else
+        data: keyFields & values
+    ###
+    delete: (request) ->
+      @artEryToDynamoDbRequest request, true, (deleteItemParams) =>
+        @deleteItem deleteItemParams
+        .then ->
+          # TODO: dynamoDb deleteItem can return the old values upon request:
+          #   returnValues: 'allOld'
+          # but in typical DynamoDb doc, it isn't clear HOW they are returned:
+          #   http://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_DeleteItem.html
+          deleteItemParams.key
+        .catch (error) ->
+          if error.message.match /ConditionalCheckFailedException/
+            request.missing "Attempted to delete a non-existant record."
+          else throw error
+
+    ################################
+    # Compound Requests
+    ################################
+
+    ###
+    This calls 'get' first, then calls 'delete' if it exists. Therefor 'delete' hooks
+    will only fire if the record actually exists.
+    ###
+    deleteIfExists: (request) ->
+      {key} = request
+      request.subrequest @pipelineName, "delete", {key}
       .catch (error) ->
-        if error.message.match /ConditionalCheckFailedException/
-          request.missing "Attempted to update a non-existant record."
+        if error.info.response.isMissing
+          # still a success if the record didn't exist
+          request.success()
         else throw error
 
     ###
@@ -234,39 +299,6 @@ module.exports = class DynamoDbPipeline extends Pipeline
       .catch (error) =>
         if error.info.response.isMissing
           request.subrequest @pipelineName, "create", {data}
-        else throw error
-
-    ###
-    OUT:
-      if record didn't exist:
-        response.status == missing
-      else
-        data: keyFields & values
-    ###
-    delete: (request) ->
-      @deleteItem deleteItemParams = @dynamoDbParamsFromRequest request
-      .then ->
-        # TODO: dynamoDb deleteItem can return the old values upon request:
-        #   returnValues: 'allOld'
-        # but in typical DynamoDb doc, it isn't clear HOW they are returned:
-        #   http://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_DeleteItem.html
-        deleteItemParams.key
-      .catch (error) ->
-        if error.message.match /ConditionalCheckFailedException/
-          request.missing "Attempted to delete a non-existant record."
-        else throw error
-
-    ###
-    This calls 'get' first, then calls 'delete' if it exists. Therefor 'delete' hooks
-    will only fire if the record actually exists.
-    ###
-    deleteIfExists: (request) ->
-      {key} = request
-      request.subrequest @pipelineName, "delete", {key}
-      .catch (error) ->
-        if error.info.response.isMissing
-          # still a success if the record didn't exist
-          request.success()
         else throw error
 
   #########################
