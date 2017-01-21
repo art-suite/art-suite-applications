@@ -360,11 +360,11 @@ module.exports = class DynamoDbPipeline extends Pipeline
   ###
   emptyArray = []
   @handleRequestAfterEvent: (request) ->
-    {pipelineName, type} = request
-    updateItemPromises = for updateItemFunction in @getUpdateItemPropsFunctions()[pipelineName]?[type] || emptyArray
+    {pipelineName, requestType} = request
+    updateItemPromises = for updateItemFunction in @getUpdateItemPropsFunctions()[pipelineName]?[requestType] || emptyArray
       Promise.then -> updateItemFunction request
 
-    afterEventPromises = for afterEventFunction in @getAfterEventFunctions()[pipelineName]?[type] || emptyArray
+    afterEventPromises = for afterEventFunction in @getAfterEventFunctions()[pipelineName]?[requestType] || emptyArray
       Promise.then -> afterEventFunction request
 
     Promise.all([
