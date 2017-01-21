@@ -8,6 +8,7 @@ ArtAws = require 'art-aws'
 {
   Promise, object, isPlainObject, deepMerge, compactFlatten, inspect
   log, merge, compare, Validator, isString, arrayToTruthMap, isFunction, withSort
+  formattedInspect
 } = Foundation
 {Pipeline} = ArtEry
 {DynamoDb} = ArtAws
@@ -150,8 +151,16 @@ module.exports = class DynamoDbPipeline extends Pipeline
       conditionExpression: object @primaryKeyFields, (field) -> params.key[field] || params.key
       params
 
-  stripPrimaryKeyFieldsFromData: (data) ->
-    data && object data, when: (v, k) => not(k in @primaryKeyFields)
+  stripPrimaryKeyFields: (o) ->
+    o && object o, when: (v, k) => not(k in @primaryKeyFields)
+
+  normalizeKey: (key) ->
+    if isPlainObject key
+      object @primaryKeyFields, (v) -> key[v]
+    else if isString key
+      "#{@primaryKeyFields[0]}": key
+    else
+      throw new Error "expected key to be an object or a string: #{formattedInspect key}"
 
   ###
   IN:
@@ -159,28 +168,23 @@ module.exports = class DynamoDbPipeline extends Pipeline
       Set this to add custom params to the dynmoDb command.
       NOTE - request must have originatedOnServer
   ###
-  dynamoDbParamsFromRequest: (request, isCreate = false) ->
+  dynamoDbParamsFromRequest: (request, requiresKey = true) ->
     {key, data, requestOptions} = request
-    if data
-      throw new Error "DynamoDbPipeline##{request.type}: data must be an object. data = #{inspect data}" unless isPlainObject data
+    if requiresKey
+      data = @stripPrimaryKeyFields data
+      key = @normalizeKey key
 
     out =
-      table: @tableName
-      key: !isCreate && if isPlainObject key
-          key
-        else if isString key
-          id: key
-        else
-          data = @stripPrimaryKeyFieldsFromData data
-          object @primaryKeyFields, (v) -> request.data[v]
-      item: data
+      table:  @tableName
+      item:   data
+      key:    key
 
     if requestOptions?.dynamoDbParams
       request.requireServerOrigin "to use dynamoDbParams"
       merge requestOptions?.dynamoDbParams, out
+
     else
       out
-
 
   @handlers
     get: (request) ->
@@ -197,7 +201,7 @@ module.exports = class DynamoDbPipeline extends Pipeline
     # AND filters like ValidationFilter assume create is a real create and update is a real update...
     # NOTE: replace should be considered an update...
     create: (request) ->
-      @dynamoDb.putItem @dynamoDbParamsFromRequest request, true
+      @dynamoDb.putItem @dynamoDbParamsFromRequest request, false
       .then -> request.data
 
     ###
