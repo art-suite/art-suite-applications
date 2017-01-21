@@ -9,6 +9,7 @@ ArtAws = require 'art-aws'
   Promise, object, isPlainObject, deepMerge, compactFlatten, inspect
   log, merge, compare, Validator, isString, arrayToTruthMap, isFunction, withSort
   formattedInspect
+  mergeIntoUnless
 } = Foundation
 {Pipeline} = ArtEry
 {DynamoDb} = ArtAws
@@ -137,35 +138,24 @@ module.exports = class DynamoDbPipeline extends Pipeline
   queryDynamoDb:  (params)         -> @dynamoDb.query      merge params, table: @tableName
   scanDynamoDb:   (params)         -> @dynamoDb.scan       merge params, table: @tableName
   withDynamoDb:   (action, params) -> @dynamoDb[action]    merge params, table: @tableName
-  updateItem:     (params) ->
-    @dynamoDb.updateItem merge
-      table: @tableName
-      # ensure we are updating an existing record only - updated to work with any primaryKey
-      conditionExpression: object @primaryKeyFields, (field) -> params.key[field] || params.key
-      params
-
-  deleteItem: (params) ->
-    @dynamoDb.deleteItem merge
-      table: @tableName
-      # ensure we are updating an existing record only - updated to work with any primaryKey
-      conditionExpression: object @primaryKeyFields, (field) -> params.key[field] || params.key
-      params
+  updateItem:     (params)         -> @dynamoDb.updateItem merge params, table: @tableName
+  deleteItem:     (params)         -> @dynamoDb.deleteItem merge params, table: @tableName
 
   stripPrimaryKeyFields: (o) ->
     o && object o, when: (v, k) => not(k in @primaryKeyFields)
 
-  getNormalizedKeyFromRequest: ({key, data}) ->
+  getNormalizedKeyFromRequest: ({key, data, type}) ->
     key ||= data
 
     if isPlainObject key
       object @primaryKeyFields, (v) ->
         unless ret = key[v]
-          throw new Error "must provide all primaryKeyFields (missing: #{formattedInspect v})"
+          throw new Error "DynamoDbPipeline: must provide all primaryKeyFields (missing: #{formattedInspect v})"
         ret
     else if isString key
       "#{@primaryKeyFields[0]}": key
     else
-      throw new Error "expected key to be an object or a string: #{formattedInspect key}"
+      throw new Error "DynamoDbPipeline: expected key to be an object or a string: #{formattedInspect {key, data}}"
 
   ###
   IN:
@@ -181,7 +171,10 @@ module.exports = class DynamoDbPipeline extends Pipeline
     promise.then (clientFailureResponse) -> # if input is invalid, return clientFailure without invoking action
     promise.then (out) ->                   # otherwise, returns action's return value
   ###
-  artEryToDynamoDbRequest: (request, requiresKey, action) ->
+  artEryToDynamoDbRequest: (request, options = {}) ->
+    {requiresKey, mustExist} = options
+    requiresKey = true if mustExist
+
     Promise
     .then =>
       {key, data, requestOptions} = request
@@ -197,12 +190,14 @@ module.exports = class DynamoDbPipeline extends Pipeline
 
       if requestOptions?.dynamoDbParams
         request.requireServerOrigin "to use dynamoDbParams"
-        merge requestOptions?.dynamoDbParams, out
+        mergeIntoUnless out, requestOptions.dynamoDbParams
 
-      else
-        out
+      if mustExist
+        out.conditionExpression = merge out.conditionExpression, key
 
-    .then action
+      out
+
+    .then options.then
     , ({message}) -> request.clientFailure message
 
   @handlers
@@ -215,9 +210,11 @@ module.exports = class DynamoDbPipeline extends Pipeline
     # Direct DynamoDb requests
     ################################
     get: (request) ->
-      @artEryToDynamoDbRequest request, true, (params) =>
-        @dynamoDb.getItem params
-        .then (result) -> result.item || request.missing()
+      @artEryToDynamoDbRequest request,
+        requiresKey: true
+        then: (params) =>
+          @dynamoDb.getItem params
+          .then (result) -> result.item || request.missing()
 
     # TODO: make create fail if the item already exists
     # TODO: add createOrReplace - if we need it
@@ -225,7 +222,7 @@ module.exports = class DynamoDbPipeline extends Pipeline
     # AND filters like ValidationFilter assume create is a real create and update is a real update...
     # NOTE: replace should be considered an update...
     create: (request) ->
-      @artEryToDynamoDbRequest request, false, (params) =>
+      @artEryToDynamoDbRequest request, then: (params) =>
         @dynamoDb.putItem params
         .then -> request.data
 
@@ -237,14 +234,15 @@ module.exports = class DynamoDbPipeline extends Pipeline
         data: values of updated fields
     ###
     update: (request) ->
-      @artEryToDynamoDbRequest request, true, (dynamoDbParams)=>
-        log {dynamoDbParams}
-        @updateItem dynamoDbParams
-        .then ({item}) -> item
-        .catch (error) ->
-          if error.message.match /ConditionalCheckFailedException/
-            request.missing "Attempted to update a non-existant record."
-          else throw error
+      @artEryToDynamoDbRequest request,
+        mustExist: true
+        then: (dynamoDbParams)=>
+          @updateItem dynamoDbParams
+          .then ({item}) -> item
+          .catch (error) ->
+            if error.message.match /ConditionalCheckFailedException/
+              request.missing "Attempted to update a non-existant record."
+            else throw error
 
     ###
     OUT:
@@ -254,18 +252,20 @@ module.exports = class DynamoDbPipeline extends Pipeline
         data: keyFields & values
     ###
     delete: (request) ->
-      @artEryToDynamoDbRequest request, true, (deleteItemParams) =>
-        @deleteItem deleteItemParams
-        .then ->
-          # TODO: dynamoDb deleteItem can return the old values upon request:
-          #   returnValues: 'allOld'
-          # but in typical DynamoDb doc, it isn't clear HOW they are returned:
-          #   http://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_DeleteItem.html
-          deleteItemParams.key
-        .catch (error) ->
-          if error.message.match /ConditionalCheckFailedException/
-            request.missing "Attempted to delete a non-existant record."
-          else throw error
+      @artEryToDynamoDbRequest request,
+        mustExist: true
+        then: (deleteItemParams) =>
+          @deleteItem deleteItemParams
+          .then ->
+            # TODO: dynamoDb deleteItem can return the old values upon request:
+            #   returnValues: 'allOld'
+            # but in typical DynamoDb doc, it isn't clear HOW they are returned:
+            #   http://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_DeleteItem.html
+            deleteItemParams.key
+          .catch (error) ->
+            if error.message.match /ConditionalCheckFailedException/
+              request.missing "Attempted to delete a non-existant record."
+            else throw error
 
     ################################
     # Compound Requests
@@ -342,10 +342,13 @@ module.exports = class DynamoDbPipeline extends Pipeline
     .push afterEventFunction
 
   # OUT: updateItemPropsBykey
-  @_mergeUpdateItemProps: _mergeUpdateItemProps = (manyUpdateItemProps) ->
+  @_mergeUpdateItemProps: (manyUpdateItemProps) ->
     object (compactFlatten manyUpdateItemProps),
       key: ({key}) -> key
-      with: (props, key, into) ->
+      with: (props, key, into) =>
+        unless props.key
+          log.error "key not found for one or more updateItem entries": {manyUpdateItemProps}
+          throw new Error "#{@getName()}.updateItemAfter: key required for each updateItem param set (see log for details)"
         if into[props.key]
           deepMerge into[props.key], props
         else
@@ -369,7 +372,7 @@ module.exports = class DynamoDbPipeline extends Pipeline
       Promise.all afterEventPromises
     ])
     .then ([manyUpdateItemProps]) =>
-      promises = for key, props of _mergeUpdateItemProps manyUpdateItemProps
+      promises = for key, props of @_mergeUpdateItemProps manyUpdateItemProps
         @singleton.updateItem props
       Promise.all promises
 
