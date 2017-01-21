@@ -144,14 +144,17 @@ module.exports = class DynamoDbPipeline extends Pipeline
   stripPrimaryKeyFields: (o) ->
     o && object o, when: (v, k) => not(k in @primaryKeyFields)
 
+  getKeyFields: (data) ->
+    object @primaryKeyFields, (v) ->
+      unless ret = data[v]
+        throw new Error "DynamoDbPipeline: must provide all primaryKeyFields (missing: #{formattedInspect v})"
+      ret
+
   getNormalizedKeyFromRequest: ({key, data, type}) ->
     key ||= data
 
     if isPlainObject key
-      object @primaryKeyFields, (v) ->
-        unless ret = key[v]
-          throw new Error "DynamoDbPipeline: must provide all primaryKeyFields (missing: #{formattedInspect v})"
-        ret
+      @getKeyFields key
     else if isString key
       "#{@primaryKeyFields[0]}": key
     else
@@ -274,14 +277,16 @@ module.exports = class DynamoDbPipeline extends Pipeline
     ###
     This calls 'get' first, then calls 'delete' if it exists. Therefor 'delete' hooks
     will only fire if the record actually exists.
+
+    OUT: promise.then (response) -> response.data == key(s)
     ###
     deleteIfExists: (request) ->
-      {key} = request
-      request.subrequest @pipelineName, "delete", {key}
+      {key, data} = request
+      request.subrequest @pipelineName, "delete", {key, data}
       .catch (error) ->
-        if error.info.response.isMissing
+        if error?.info?.response?.isMissing
           # still a success if the record didn't exist
-          request.success()
+          request.success data: merge key, data
         else throw error
 
     ###
@@ -297,7 +302,7 @@ module.exports = class DynamoDbPipeline extends Pipeline
         # by seeing if they are == or not. Also used for testing.
         requestOptions: dynamoDbParams: returnValues: "allNew"
       .catch (error) =>
-        if error.info.response.isMissing
+        if error?.info?.response?.isMissing
           request.subrequest @pipelineName, "create", {data}
         else throw error
 
@@ -362,10 +367,10 @@ module.exports = class DynamoDbPipeline extends Pipeline
   @handleRequestAfterEvent: (request) ->
     {pipelineName, requestType} = request
     updateItemPromises = for updateItemFunction in @getUpdateItemPropsFunctions()[pipelineName]?[requestType] || emptyArray
-      Promise.then -> updateItemFunction request
+      Promise.then => updateItemFunction.call @singleton, request
 
     afterEventPromises = for afterEventFunction in @getAfterEventFunctions()[pipelineName]?[requestType] || emptyArray
-      Promise.then -> afterEventFunction request
+      Promise.then => afterEventFunction.call @singleton, request
 
     Promise.all([
       Promise.all updateItemPromises
