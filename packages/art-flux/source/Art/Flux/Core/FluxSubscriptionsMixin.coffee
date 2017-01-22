@@ -2,8 +2,10 @@
 {fluxStore} = require './FluxStore'
 ModelRegistry = require './ModelRegistry'
 
-defineModule module, -> (superClass) ->
-  class FluxSubscriptionsMixin extends superClass
+defineModule module, ->
+  # when CafScript arrives, this line will just be:
+  # mixin FluxSubscriptionsMixin
+  (superClass) -> class FluxSubscriptionsMixin extends superClass
     ################################
     # constructor
     ################################
