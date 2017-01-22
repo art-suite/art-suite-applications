@@ -175,7 +175,7 @@ module.exports = class DynamoDbPipeline extends Pipeline
     promise.then (out) ->                   # otherwise, returns action's return value
   ###
   artEryToDynamoDbRequest: (request, options = {}) ->
-    {requiresKey, mustExist} = options
+    {requiresKey, mustExist, returnValues} = options
     requiresKey = true if mustExist
 
     Promise
@@ -197,6 +197,9 @@ module.exports = class DynamoDbPipeline extends Pipeline
 
       if mustExist
         out.conditionExpression = merge out.conditionExpression, key
+
+      if returnValues
+        out.returnValues = returnValues
 
       out
 
@@ -257,14 +260,10 @@ module.exports = class DynamoDbPipeline extends Pipeline
     delete: (request) ->
       @artEryToDynamoDbRequest request,
         mustExist: true
+        returnValues: "allOld"
         then: (deleteItemParams) =>
           @deleteItem deleteItemParams
-          .then ->
-            # TODO: dynamoDb deleteItem can return the old values upon request:
-            #   returnValues: 'allOld'
-            # but in typical DynamoDb doc, it isn't clear HOW they are returned:
-            #   http://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_DeleteItem.html
-            deleteItemParams.key
+          .then ({item}) -> item
           .catch (error) ->
             if error.message.match /ConditionalCheckFailedException/
               request.missing "Attempted to delete a non-existant record."
