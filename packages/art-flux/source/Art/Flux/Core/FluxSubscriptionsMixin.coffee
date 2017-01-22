@@ -4,29 +4,34 @@ ModelRegistry = require './ModelRegistry'
 
 defineModule module, -> (superClass) ->
   class FluxSubscriptionsMixin extends superClass
+    ################################
+    # constructor
+    ################################
     constructor: ->
       super
       @_subscriptions = {}
 
+    ################################
+    # getters
+    ################################
     @getter
       models: -> ModelRegistry.models
+      subscriptions: -> @_subscriptions
 
-    getSubscriptions: -> @_subscriptions
-
-    @_combinedKey: combinedKey = (model, fluxKey, stateField) ->
-      "#{model.name}/#{stateField}/#{fluxKey}"
-
+    ################################
+    # Subscribe
+    ################################
     subscribe: (model, fluxKey, stateField, {initialFluxRecord, updatesCallback} = {}) ->
       if isString modelName = model
-        model = @models[modelName]
-        throw new Error "No model registered with the name: #{modelName}. Models:\n  #{Object.keys(@models).join "\n  "}" unless model
+        unless model = @models[modelName]
+          throw new Error "No model registered with the name: #{modelName}. Registered models:\n  #{Object.keys(@models).join "\n  "}"
 
-      ckey = combinedKey model, fluxKey, stateField
-      @setStateFromFluxRecord stateField, if @_subscriptions[ckey]
+      combinedKey = getCombinedKey model, fluxKey, stateField
+      @setStateFromFluxRecord stateField, if @_subscriptions[combinedKey]
         console.error "already subscribed"
         fluxStore.get model.name, fluxKey
       else
-        @_subscriptions[ckey] =
+        @_subscriptions[combinedKey] =
           fluxKey: fluxKey
           model: model
           subscriptionFunction: subscriptionFunction = (fluxRecord, subscribers) =>
@@ -35,19 +40,30 @@ defineModule module, -> (superClass) ->
 
         fluxStore.subscribe model.name, fluxKey, subscriptionFunction, initialFluxRecord
 
+    ################################
+    # Unsubscribe
+    ################################
     unsubscribe: (model, fluxKey, stateField)->
-      ckey = combinedKey model, fluxKey, stateField
-      if subscription = @_subscriptions[ckey]
+      combinedKey = getCombinedKey model, fluxKey, stateField
+      if subscription = @_subscriptions[combinedKey]
         fluxStore.unsubscribe model.name, fluxKey, subscription.subscriptionFunction
-        delete @_subscriptions[ckey]
-
-    setStateFromFluxRecord: (baseField, fluxRecord) ->
-      @setState baseField, fluxRecord?.data
-      @setState baseField + "Status", fluxRecord.status   if fluxRecord.status
-      @setState baseField + "Progress", fluxRecord.progress if fluxRecord.progress?
-      # @setState baseField + "FluxRecord", fluxRecord
+        delete @_subscriptions[combinedKey]
 
     unsubscribeAll: ->
-      for ckey, {model, fluxKey, subscriptionFunction} of @_subscriptions
+      for combinedKey, {model, fluxKey, subscriptionFunction} of @_subscriptions
         fluxStore.unsubscribe model.name, fluxKey, subscriptionFunction
       @_subscriptions = {}
+
+    ################################
+    # Update State
+    ################################
+    setStateFromFluxRecord: (baseField, fluxRecord) ->
+      @setState baseField, fluxRecord?.data
+      @setState baseField + "Status",   fluxRecord.status   if fluxRecord.status
+      @setState baseField + "Progress", fluxRecord.progress if fluxRecord.progress?
+
+    ################################
+    # PRIVATE
+    ################################
+    @_getCombinedKey: getCombinedKey = (model, fluxKey, stateField) ->
+      "#{model.name}/#{stateField}/#{fluxKey}"

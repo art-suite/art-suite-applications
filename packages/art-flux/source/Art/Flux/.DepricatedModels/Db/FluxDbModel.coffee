@@ -1,5 +1,5 @@
 Foundation = require 'art-foundation'
-FluxCore = require '../Core'
+FluxCore = require '../../Core'
 FluxDbModelBase = require './FluxDbModelBase'
 
 {

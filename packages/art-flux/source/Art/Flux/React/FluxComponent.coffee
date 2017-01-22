@@ -29,16 +29,42 @@ defineModule module, class FluxComponent extends FluxSubscriptionsMixin Componen
   @abstractClass()
 
   @createFluxComponentFactory: (spec) ->
+    log.error "createFluxComponentFactory is DEPRICATED. Use: createWithPostCreate or defineModule"
+    ###
+    DEPRICATED: createComponentFactory myDefinition
+
+      # USE:
+      {createWithPostCreate} = Art.Foundation
+      createWithPostCreate class MyClass extends FluxComponent
+        myDefinition
+
+      # OR:
+      {defineModule} = Art.Foundation
+      defineModule module, class MyClass extends FluxComponent
+        myDefinition
+
+      # When CafScript arrives, createWithPostCreate is implied
+      # Just use:
+      class MyClass extends FluxComponent
+        myDefinition
+
+    ###
     createComponentFactory spec, FluxComponent
 
+  ##########################
+  # Constructor
+  ##########################
   constructor: ->
     super
     @_autoMaintainedSubscriptions = {}
     @class._prepareSubscriptions()
 
-  ###
-  @Subscriptions does a lot. Please see the docs: https://github.com/imikimi/art-flux/wiki
-  ###
+  ##########################
+  # Define Subscriptions
+  ##########################
+
+  # @Subscriptions does a lot.
+  # Please see the docs: https://github.com/imikimi/art-flux/wiki
   @subscriptions: ->
     for arg in compactFlatten arguments
       if isPlainObject subscriptionMap = arg
@@ -62,6 +88,24 @@ defineModule module, class FluxComponent extends FluxSubscriptionsMixin Componen
                 key: (props) -> props[subscriptionName]?.id || props[subscriptionNameId]
 
     null
+
+  ##########################
+  # Lifecycle
+  ##########################
+
+  preprocessProps: (newProps) ->
+    @_updateAllSubscriptions newProps = super
+    newProps
+
+  componentWillUnmount: ->
+    super
+    @unsubscribeAll()
+
+  ##########################
+  # PRIVATE
+  ##########################
+
+  @extendableProperty subscriptionProperties: {}
 
   subscriptionValidator = new Validator
     stateField: "present string"
@@ -91,23 +135,6 @@ defineModule module, class FluxComponent extends FluxSubscriptionsMixin Componen
 
     @addGetter stateField, -> @state[stateField]
 
-  ##########################
-  # Lifecycle
-  ##########################
-
-  preprocessProps: (newProps) ->
-    @_updateAllSubscriptions newProps = super
-    newProps
-
-  componentWillUnmount: ->
-    super
-    @unsubscribeAll()
-
-  ##########################
-  # PRIVATE
-  ##########################
-
-  @extendableProperty subscriptionProperties: {}
 
   @_prepareSubscription: (subscription) ->
     {stateField, model, key} = subscription

@@ -1,5 +1,5 @@
 Foundation = require 'art-foundation'
-FluxCore = require '../Core'
+FluxCore = require '../../Core'
 
 {
   log, BaseObject, decapitalize, pluralize, pureMerge, shallowClone, isString,
