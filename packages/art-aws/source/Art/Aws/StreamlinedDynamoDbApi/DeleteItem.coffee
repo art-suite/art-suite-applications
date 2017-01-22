@@ -21,5 +21,7 @@ module.exports = class DeleteItem extends TableApiBaseClass
     @_target
 
   _translateOptionalParams: (params) ->
-    @_translateConsumedCapacity params
     @_translateConditionExpressionParam params
+    @_translateConstantParam params, "returnConsumedCapacity"
+    @_translateConstantParam params, "returnItemCollectionMetrics"
+    @_translateConstantParam params, "returnValues", "none"

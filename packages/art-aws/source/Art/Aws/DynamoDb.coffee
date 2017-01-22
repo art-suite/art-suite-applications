@@ -177,10 +177,14 @@ module.exports = class DynamoDb extends BaseObject
     putItem: (params) ->
       @invokeAws "putItem",
         PutItem.translateParams params
+      .then (res) ->
+        merge res, item: decodeDynamoItem res.Attributes
 
     deleteItem: (params) ->
       @invokeAws "deleteItem",
-        DeleteItem.translateParams params
+        params = DeleteItem.translateParams params
+      .then (res) ->
+        merge res, item: decodeDynamoItem res.Attributes
 
     getItem: (params) ->
       @invokeAws "getItem",

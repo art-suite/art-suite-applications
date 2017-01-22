@@ -82,10 +82,6 @@ module.exports = class UpdateItem extends TableApiBaseClass
     @_target.UpdateExpression = updateExpression
     @_target
 
-  ReturnConsumedCapacity: 'INDEXES | TOTAL | NONE',
-  ReturnItemCollectionMetrics: 'SIZE | NONE',
-  ReturnValues: 'NONE | ALL_OLD | UPDATED_OLD | ALL_NEW | UPDATED_NEW'
-
   _translateOptionalParams: (params) ->
     @_translateConditionExpressionParam params
     @_translateConstantParam params, "returnConsumedCapacity"
