@@ -23,6 +23,19 @@ defineModule module, ->
     ################################
     # Subscribe
     ################################
+    ###
+    IN:
+      model: lowerCamelCase model name
+      fluxKey: the flux key
+      stateField: string or null. If set, will call @setStateFromFluxRecord stateField, fluxRecord with changes
+      options:
+        # a) initialize fluxStore with initialFluxRecord, if there isn't already a fluxRecord with fluxKey
+        # b) immediate @setStateFromFluxRecord stateField, initialFluxRecord
+        initialFluxRecord:
+
+        # get callbacks with every change
+        updatesCallback:  (fluxRecord) -> ignored
+    ###
     subscribe: (model, fluxKey, stateField, {initialFluxRecord, updatesCallback} = {}) ->
       if isString modelName = model
         unless model = @models[modelName]
@@ -30,9 +43,10 @@ defineModule module, ->
 
       combinedKey = getCombinedKey model, fluxKey, stateField
       @setStateFromFluxRecord stateField, if @_subscriptions[combinedKey]
-        console.error "already subscribed"
+        # already subscribed
         fluxStore.get model.name, fluxKey
       else
+        # new subscription
         @_subscriptions[combinedKey] =
           fluxKey: fluxKey
           model: model
@@ -41,6 +55,19 @@ defineModule module, ->
             @setStateFromFluxRecord stateField, fluxRecord
 
         fluxStore.subscribe model.name, fluxKey, subscriptionFunction, initialFluxRecord
+
+      null
+
+    ###
+    OUT: promise.then -> # subscription has been created
+    USE:
+      Primarilly useful for models which want to subscribe to
+      other models when they are constructed. This solves the
+      loading-order problem.
+    ###
+    subscribeOnModelRegistered: (modelName, fluxKey, stateField, options) ->
+      ModelRegistry.onModelRegistered modelName
+      .then (model)=> @subscribe model, fluxKey, stateField, options
 
     ################################
     # Unsubscribe
@@ -57,9 +84,10 @@ defineModule module, ->
       @_subscriptions = {}
 
     ################################
-    # Update State
+    # Helpers
     ################################
     setStateFromFluxRecord: (baseField, fluxRecord) ->
+      return unless baseField
       @setState baseField, fluxRecord?.data
       @setState baseField + "Status",   fluxRecord.status   if fluxRecord.status
       @setState baseField + "Progress", fluxRecord.progress if fluxRecord.progress?

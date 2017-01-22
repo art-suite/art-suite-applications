@@ -1,3 +1,4 @@
+# TODO: rename to ApplicationStateModel
 Foundation = require 'art-foundation'
 FluxCore = require '../Core'
 {clone, BaseObject, log, isString, isPlainObject, merge, propsEq, mergeInto, Unique, defineModule, CommunicationStatus} = Foundation

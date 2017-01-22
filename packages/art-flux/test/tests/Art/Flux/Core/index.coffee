@@ -3,5 +3,6 @@
 
 module.exports = require './namespace'
 .addModules
-  FluxModel: require './FluxModel'
-  FluxStore: require './FluxStore'
+  FluxModel:              require './FluxModel'             
+  FluxStore:              require './FluxStore'             
+  FluxSubscriptionsMixin: require './FluxSubscriptionsMixin'
