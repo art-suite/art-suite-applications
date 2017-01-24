@@ -1,4 +1,4 @@
-{isString, defineModule, CommunicationStatus, log, isFunction, BaseObject, nextTick, mergeInfo, capitalize, globalCount, time} = require 'art-foundation'
+{isString, defineModule, isPlainObject, CommunicationStatus, log, isFunction, BaseObject, nextTick, mergeInfo, capitalize, globalCount, time} = require 'art-foundation'
 {success} = CommunicationStatus
 {fluxStore} = require './FluxStore'
 ModelRegistry = require './ModelRegistry'
@@ -68,7 +68,15 @@ defineModule module, ->
       If there was already a subscription in this object with they same subscriptionKey,
       then @unsubscribe subscriptionKey will be called before setting up the new subscription.
     ###
-    subscribe: (subscriptionKey, modelName, key, {stateField, initialFluxRecord, updatesCallback}) ->
+    subscribe: (subscriptionKey, modelName, key, options) ->
+
+      if isPlainObject allOptions = subscriptionKey
+        {subscriptionKey, modelName, key, stateField, initialFluxRecord, updatesCallback, callback} = allOptions
+        updatesCallback ||= callback
+        subscriptionKey ||= stateField || modelName
+      else
+        {stateField, initialFluxRecord, updatesCallback} = options
+
       throw new Error "REQUIRED: subscriptionKey" unless isString subscriptionKey
       throw new Error "REQUIRED: updatesCallback or stateField" unless isString(stateField) || isFunction updatesCallback
 
@@ -102,6 +110,9 @@ defineModule module, ->
       loading-order problem.
     ###
     subscribeOnModelRegistered: (subscriptionKey, modelName, fluxKey, options) ->
+      if isPlainObject subscriptionKey
+        {modelName} = subscriptionKey
+
       ModelRegistry.onModelRegistered modelName
       .then => @subscribe subscriptionKey, modelName, fluxKey, options
 
