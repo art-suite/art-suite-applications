@@ -180,7 +180,7 @@ module.exports = class DynamoDbPipeline extends Pipeline
 
     Promise
     .then =>
-      {key, data, requestOptions} = request
+      {key, data, dynamoDbParams} = request.props
 
       if requiresKey
         data = @stripPrimaryKeyFields data
@@ -191,9 +191,9 @@ module.exports = class DynamoDbPipeline extends Pipeline
         item:   data
         key:    key
 
-      if requestOptions?.dynamoDbParams
+      if dynamoDbParams
         request.requireServerOrigin "to use dynamoDbParams"
-        mergeIntoUnless out, requestOptions.dynamoDbParams
+        mergeIntoUnless out, dynamoDbParams
 
       if mustExist
         out.conditionExpression = merge out.conditionExpression, key
