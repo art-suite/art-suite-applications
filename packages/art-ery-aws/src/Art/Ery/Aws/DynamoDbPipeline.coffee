@@ -238,6 +238,10 @@ module.exports = class DynamoDbPipeline extends Pipeline
         response.status == missing
       else
         data: values of updated fields
+
+    TODO:
+      support request.props.add and request.props.setDefaults
+        for both: requireOriginatedOnServer
     ###
     update: (request) ->
       @artEryToDynamoDbRequest request,
