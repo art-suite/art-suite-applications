@@ -1,4 +1,4 @@
-{isString, defineModule, isPlainObject, CommunicationStatus, log, isFunction, BaseObject, nextTick, mergeInfo, capitalize, globalCount, time} = require 'art-foundation'
+{isString, defineModule, isPlainObject, rubyTrue, CommunicationStatus, log, isFunction, BaseObject, nextTick, mergeInfo, capitalize, globalCount, time} = require 'art-foundation'
 {success} = CommunicationStatus
 {fluxStore} = require './FluxStore'
 ModelRegistry = require './ModelRegistry'
@@ -84,7 +84,7 @@ defineModule module, ->
       @unsubscribe subscriptionKey
 
       # unless key and modelName are present, clear stateFields and return after unsubscribing
-      return @setStateFromFluxRecord stateField, status: success unless key? && modelName
+      return @setStateFromFluxRecord stateField, status: success unless rubyTrue(key) && modelName
 
       unless model = @models[modelName]
         throw new Error "No model registered with the name: #{modelName}. Registered models:\n  #{Object.keys(@models).join "\n  "}"
