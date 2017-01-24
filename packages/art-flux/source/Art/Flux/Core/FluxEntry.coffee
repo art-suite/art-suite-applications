@@ -44,6 +44,7 @@ defineModule module, class FluxEntry extends BaseObject
       warnUnsettableFields newFluxRecord, @_fluxRecord
       newFluxRecord.key = key
       newFluxRecord.modelName = modelName
+      newFluxRecord.status ||= pending
       throw new Error "fluxRecord must be an object" unless isPlainObject newFluxRecord
       @_fluxRecord = newFluxRecord
 

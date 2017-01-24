@@ -1,4 +1,5 @@
-{isString, defineModule, log, BaseObject, nextTick, mergeInfo, capitalize, globalCount, time} = require 'art-foundation'
+{isString, defineModule, CommunicationStatus, log, isFunction, BaseObject, nextTick, mergeInfo, capitalize, globalCount, time} = require 'art-foundation'
+{success} = CommunicationStatus
 {fluxStore} = require './FluxStore'
 ModelRegistry = require './ModelRegistry'
 
@@ -24,76 +25,107 @@ defineModule module, ->
     # Subscribe
     ################################
     ###
+    subscribe OR update a subscription
+
     IN:
-      model: lowerCamelCase model name
-      fluxKey: the flux key
-      stateField: string or null. If set, will call @setStateFromFluxRecord stateField, fluxRecord with changes
+      subscriptionKey: string (REQUIRED)
+        Provide a unique key for each active subscription.
+        To update the suscription, call @subscribe again with the same subscriptionKey.
+        To unsubscribe, call @unsubscribe with the same subscriptionKey.
+
+      modelName: lowerCamelCase string
+        if modelName is null/undefined then
+          - no subscription will be created.
+          - @unsubscribe subscriptionKey will still happen
+
+      key: valid input for models[modelName].toFluxKey - usually it's a string
+        if key is null/undefined then
+          - no subscription will be created.
+          - @unsubscribe subscriptionKey will still happen
+
       options:
-        # a) initialize fluxStore with initialFluxRecord, if there isn't already a fluxRecord with fluxKey
-        # b) immediate @setStateFromFluxRecord stateField, initialFluxRecord
-        initialFluxRecord:
+        # if provided, will call @setState(stateField, ...) immediately and with every change
+        stateField: string
 
-        # get callbacks with every change
+        initialFluxRecord: fluxRecord-style object
+
+        # get called with every change
         updatesCallback:  (fluxRecord) -> ignored
+
+      NOTE: One of options.stateField OR options.updatesCallback is REQUIRED.
+
+    OUT: existingFluxRecord || initialFluxRecord || status: missing fluxRecord
+
+    EFFECT:
+      Establishes a FluxStore subscription for the given model and fluxKey.
+      Upon any changes to the fluxRecord, will:
+        call updatesCallback, if provided
+        and/or @setStateFromFluxRecord if stateField was provided
+
+      Will also call @setStateFromFluxRecord immediately, if stateField is provided,
+        with either the initialFluxRecord, or the existing fluxRecord, if any
+
+      If there was already a subscription in this object with they same subscriptionKey,
+      then @unsubscribe subscriptionKey will be called before setting up the new subscription.
     ###
-    subscribe: (model, fluxKey, stateField, {initialFluxRecord, updatesCallback} = {}) ->
-      if isString modelName = model
-        unless model = @models[modelName]
-          throw new Error "No model registered with the name: #{modelName}. Registered models:\n  #{Object.keys(@models).join "\n  "}"
+    subscribe: (subscriptionKey, modelName, key, {stateField, initialFluxRecord, updatesCallback}) ->
+      throw new Error "REQUIRED: subscriptionKey" unless isString subscriptionKey
+      throw new Error "REQUIRED: updatesCallback or stateField" unless isString(stateField) || isFunction updatesCallback
 
-      combinedKey = getCombinedKey model, fluxKey, stateField
-      @setStateFromFluxRecord stateField, if @_subscriptions[combinedKey]
-        # already subscribed
-        fluxStore.get model.name, fluxKey
-      else
-        # new subscription
-        @_subscriptions[combinedKey] =
-          fluxKey: fluxKey
-          model: model
-          subscriptionFunction: subscriptionFunction = (fluxRecord, subscribers) =>
-            updatesCallback? fluxRecord
-            @setStateFromFluxRecord stateField, fluxRecord
+      # unsubscribe, if needed
+      @unsubscribe subscriptionKey
 
-        fluxStore.subscribe model.name, fluxKey, subscriptionFunction, initialFluxRecord
+      # unless key and modelName are present, clear stateFields and return after unsubscribing
+      return @setStateFromFluxRecord stateField, status: success unless key? && modelName
 
-      null
+      unless model = @models[modelName]
+        throw new Error "No model registered with the name: #{modelName}. Registered models:\n  #{Object.keys(@models).join "\n  "}"
+
+      fluxKey = model.toFluxKey key
+
+      subscriptionFunction = (fluxRecord) =>
+        updatesCallback? fluxRecord
+        @setStateFromFluxRecord stateField, fluxRecord
+
+      @_subscriptions[subscriptionKey] = {modelName, fluxKey, subscriptionFunction}
+
+      # NOTE: subscriptionFunction is the 'handle' needed later to unsubscribe from the fluxStore
+      @setStateFromFluxRecord stateField,
+        fluxStore.subscribe modelName, fluxKey, subscriptionFunction, initialFluxRecord
 
     ###
+    IN: same as @subscribe
     OUT: promise.then -> # subscription has been created
     USE:
       Primarilly useful for models which want to subscribe to
       other models when they are constructed. This solves the
       loading-order problem.
     ###
-    subscribeOnModelRegistered: (modelName, fluxKey, stateField, options) ->
+    subscribeOnModelRegistered: (subscriptionKey, modelName, fluxKey, options) ->
       ModelRegistry.onModelRegistered modelName
-      .then (model)=> @subscribe model, fluxKey, stateField, options
+      .then => @subscribe subscriptionKey, modelName, fluxKey, options
 
     ################################
     # Unsubscribe
     ################################
-    unsubscribe: (model, fluxKey, stateField)->
-      combinedKey = getCombinedKey model, fluxKey, stateField
-      if subscription = @_subscriptions[combinedKey]
-        fluxStore.unsubscribe model.name, fluxKey, subscription.subscriptionFunction
-        delete @_subscriptions[combinedKey]
+    unsubscribe: (subscriptionKey)->
+      if subscription = @_subscriptions[subscriptionKey]
+        {subscriptionFunction, modelName, fluxKey} = subscription
+        fluxStore.unsubscribe modelName, fluxKey, subscriptionFunction
+        delete @_subscriptions[subscriptionKey]
+      null
 
     unsubscribeAll: ->
-      for combinedKey, {model, fluxKey, subscriptionFunction} of @_subscriptions
-        fluxStore.unsubscribe model.name, fluxKey, subscriptionFunction
-      @_subscriptions = {}
+      for subscriptionKey, __ of @_subscriptions
+        @unsubscribe subscriptionKey
+      null
 
     ################################
     # Helpers
     ################################
-    setStateFromFluxRecord: (baseField, fluxRecord) ->
-      return unless baseField
-      @setState baseField, fluxRecord?.data
-      @setState baseField + "Status",   fluxRecord.status   if fluxRecord.status
-      @setState baseField + "Progress", fluxRecord.progress if fluxRecord.progress?
-
-    ################################
-    # PRIVATE
-    ################################
-    @_getCombinedKey: getCombinedKey = (model, fluxKey, stateField) ->
-      "#{model.name}/#{stateField}/#{fluxKey}"
+    setStateFromFluxRecord: (stateField, fluxRecord) ->
+      if stateField && isFunction @setState
+        @setState stateField, fluxRecord?.data
+        @setState stateField + "Status",   fluxRecord.status   if fluxRecord.status
+        @setState stateField + "Progress", fluxRecord.progress if fluxRecord.progress?
+      fluxRecord

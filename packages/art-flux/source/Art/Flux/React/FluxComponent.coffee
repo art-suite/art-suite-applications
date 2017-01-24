@@ -56,7 +56,7 @@ defineModule module, class FluxComponent extends FluxSubscriptionsMixin Componen
   ##########################
   constructor: ->
     super
-    @_autoMaintainedSubscriptions = {}
+    # @_autoMaintainedSubscriptions = {}
     @class._prepareSubscriptions()
 
   ##########################
@@ -166,38 +166,28 @@ defineModule module, class FluxComponent extends FluxSubscriptionsMixin Componen
       @_prepareSubscription subscription
 
   _toFluxKey: (stateField, key, model, props) ->
-    key = props[stateField]?.id if rubyFalse key
-    if rubyTrue key
+    key ?= props[stateField]?.id
+    if key?
       model.toFluxKey key
     else
       null
 
   _updateSubscription: (stateField, key, model, props) ->
-    fluxKey = @_toFluxKey stateField, key, model, props
 
+    # DO WE NEED THIS???
+    # I think subscribe calls setState synchronously
+    # AND I think during Component init, setStates are sync, not async....
+    # Need to test!
     unless @state[stateField]
       @state[stateField] = initialData = props[stateField]
 
-    unless rubyTrue existingSubscriptionFluxKey = @_autoMaintainedSubscriptions[stateField]
-      existingSubscriptionFluxKey = null
-
-    if model && (fluxKey != null || fluxKey != existingSubscriptionFluxKey)
-      if existingSubscriptionFluxKey != null
-        @unsubscribe model, existingSubscriptionFluxKey, stateField
-
-      @_autoMaintainedSubscriptions[stateField] = fluxKey
-
-      if rubyTrue fluxKey
-        @subscribe model, fluxKey, stateField,
-          initialFluxRecord: if initialData
-            status: success
-            data: initialData
-
-      else
-        # clear state fields previously set
-        @setStateFromFluxRecord stateField, status: success
-
-      true
+    @subscribe stateField,
+      model.modelName
+      key
+      stateField: stateField
+      initialFluxRecord: if initialData
+        status: success
+        data:   initialData
 
   _updateAllSubscriptions: (props = @props) ->
 

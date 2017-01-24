@@ -1,6 +1,7 @@
-{log, merge, createWithPostCreate} = require 'art-foundation'
+{log, merge, CommunicationStatus, createWithPostCreate} = require 'art-foundation'
 {Core:{FluxStore, FluxModel, ModelRegistry}} = require 'art-flux'
 {fluxStore} = FluxStore
+{success, missing, pending} = CommunicationStatus
 
 reset = ->
   fluxStore._reset()
@@ -19,7 +20,7 @@ module.exports = suite: ->
 
     fluxStore.onNextReady ->
       assert.eq fluxStore.length, 1
-      assert.eq fluxStore.get("myModel", "myKey"), bar: 1, key: "myKey", modelName: "myModel"
+      assert.eq fluxStore.get("myModel", "myKey"), status: pending, bar: 1, key: "myKey", modelName: "myModel"
       done()
 
   test "fluxStore.update with no subscriber is noop", (done)->
@@ -39,7 +40,7 @@ module.exports = suite: ->
 
     fluxStore.onNextReady ->
       assert.eq fluxStore.length, 1
-      assert.eq fluxStore.get("myModel", "myKey"), baz: 2, key: "myKey", modelName: "myModel"
+      assert.eq fluxStore.get("myModel", "myKey"), status: pending, baz: 2, key: "myKey", modelName: "myModel"
       done()
 
   test "fluxStore.getHasSubscribers", (done)->
@@ -60,7 +61,7 @@ module.exports = suite: ->
 
     fluxStore.onNextReady ->
       assert.eq fluxStore.length, 1
-      assert.eq fluxStore.get("myModel", "myKey"), bar:1, baz: 2, key: "myKey", modelName: "myModel"
+      assert.eq fluxStore.get("myModel", "myKey"), status: pending, bar:1, baz: 2, key: "myKey", modelName: "myModel"
       done()
 
   test "fluxStore.update cant set key", (done)->
@@ -69,7 +70,7 @@ module.exports = suite: ->
     fluxStore.update "myModel", "myKey", bar:1, key: "boggle"
 
     fluxStore.onNextReady ->
-      assert.eq fluxStore.get("myModel", "myKey"), bar: 1, key: "myKey", modelName: "myModel"
+      assert.eq fluxStore.get("myModel", "myKey"), status: pending, bar: 1, key: "myKey", modelName: "myModel"
       done()
 
   test "fluxStore.update cant update key", (done)->
@@ -81,15 +82,15 @@ module.exports = suite: ->
       fluxStore.update "myModel", "myKey", bar:1, key: "boggle2"
 
       fluxStore.onNextReady ->
-        assert.eq fluxStore.get("myModel", "myKey"), bar: 1, key: "myKey", modelName: "myModel"
+        assert.eq fluxStore.get("myModel", "myKey"), status: pending, bar: 1, key: "myKey", modelName: "myModel"
         done()
 
   test "fluxStore.subscribe basic", (done)->
     reset()
 
     fluxStore.subscribe "myModel", "myKey", (fluxRecord, previousFluxRecord) ->
-      assert.eq previousFluxRecord, status: "missing", key: "myKey", modelName: "myModel"
-      assert.eq fluxRecord, bar: 1, key: "myKey", modelName: "myModel"
+      assert.eq previousFluxRecord, status: missing, key: "myKey", modelName: "myModel"
+      assert.eq fluxRecord, status: pending, bar: 1, key: "myKey", modelName: "myModel"
       done()
 
     fluxStore.update "myModel", "myKey", bar: 1

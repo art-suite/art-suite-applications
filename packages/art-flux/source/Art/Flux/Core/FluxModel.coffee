@@ -72,10 +72,13 @@ defineModule module, class FluxModel extends InstanceFunctionBindingMixin BaseOb
     fluxStore: -> fluxStore
     singlesModel: -> @_singlesModel || @
 
+  # DEPRICATED
   subscribe: (fluxKey, subscriptionFunction) ->
+    log.error "DEPRICATED - use FluxSubscriptionsMixin and it's subscribe"
     fluxStore.subscribe @_name, fluxKey, subscriptionFunction
 
-  @getter "name"
+  @getter "name",
+    modelName: -> @_name
 
   ###
   load the requested data for the given key and update the fluxStore

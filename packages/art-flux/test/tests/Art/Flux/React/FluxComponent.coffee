@@ -151,7 +151,7 @@ defineModule module, suite:
       MyComponent = createWithPostCreate class MyComponent extends FluxComponent
 
         getInitialState: ->
-          user: @subscribe @models.myModel, "myField", "myCustomStateField"
+          user: @subscribe "mySubscriptionKey", "myModel", "myField", stateField: "myCustomStateField"
 
         render: ->
           resolve() if @state.myCustomStateField == "sally"
