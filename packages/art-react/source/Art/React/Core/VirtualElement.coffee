@@ -164,20 +164,20 @@ module.exports = class VirtualElement extends VirtualNode
     VirtualElement.instantiated++
     # globalCount "ReactVirtualElement_Instantiated"
 
-    childElements = for c, i in @children
+    childElements = for child, childIndex in @children
       try
-        c._instantiate parentComponent
-        c.element
-      catch e
-        console.error e.stack
-        console.error """
-          Error instantiating child:
-            childIndex #{i}
-            error: #{e}
-            child: #{c}
-            elementClassName: #{@elementClassName}
-            props: #{inspect @props}
-          """
+        child._instantiate parentComponent
+        child.element
+      catch error
+        log.error error
+        log.error
+          "Error instantiating child": {
+            childIndex
+            error
+            child
+            @elementClassName
+            @props
+          }
         @_newErrorElement()
 
     @element = @_newElement @elementClassName, @props, childElements, bindToOrCreateNewParentElementProps
