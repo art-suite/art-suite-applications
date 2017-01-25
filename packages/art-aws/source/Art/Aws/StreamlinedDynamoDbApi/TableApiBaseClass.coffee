@@ -9,6 +9,7 @@ Foundation = require 'art-foundation'
   isBoolean
   inspect
   upperCamelCase
+  compact
 } = Foundation
 
 {apiConstantsMap} = require './Common'
@@ -127,7 +128,8 @@ module.exports = class TableApiBaseClass
         else
           @_translateConditionExpression subExpression
 
-      expressions.join ' '
+      compact expressions
+      .join ' '
     else
       expressions = for attributeName, test of conditionExpression
         uniqueId = @_getNextUniqueExpressionAttributeId @_target
@@ -135,7 +137,10 @@ module.exports = class TableApiBaseClass
         @_addExpressionAttributeName attributeAlias, attributeName
         @_translateConditionExpressionField attributeAlias, test, uniqueId
       expressions.join ' AND '
-    "(#{ret})"
+    if "()" == ret = "(#{ret})"
+      null
+    else
+      ret
 
   _translateConditionExpressionField: (attributeAlias, test, uniqueId) ->
     valueAlias = ":val#{uniqueId}"
@@ -158,7 +163,8 @@ module.exports = class TableApiBaseClass
   _translateConditionExpressionParam: (params) ->
     {conditionExpression} = params
     return @_target unless conditionExpression
-    @_target.ConditionExpression = @_translateConditionExpression conditionExpression
+    if expr = @_translateConditionExpression conditionExpression
+      @_target.ConditionExpression = expr
     @_target
 
   _translateKey: (params) ->

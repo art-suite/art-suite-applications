@@ -2,6 +2,7 @@ Foundation = require 'art-foundation'
 {
   lowerCamelCase, wordsArray, isPlainObject, log, compactFlatten
   isString, compactFlatten, deepEachAll, uniqueValues
+  formattedInspect
   isNumber
 } = Foundation
 
@@ -127,13 +128,18 @@ module.exports = class Query extends TableApiBaseClass
   _translateWhere: (params) ->
     {where} = params
     throw new Error "where param required" unless where?
-    @_target.KeyConditionExpression = @_translateConditionExpression where
+    if expr = @_translateConditionExpression where
+      @_target.KeyConditionExpression = expr
+    else
+      throw new Error "non-empty where param required: where: #{formattedInspect where}" unless where?
+
     @_target
 
   _translateFilterExpression: (params) ->
     {filterExpression} = params
     return unless filterExpression
-    @_target.FilterExpression = @_translateConditionExpression filterExpression
+    if expr = @_translateConditionExpression filterExpression
+      @_target.FilterExpression = expr
     @_target
 
   _translateOptionalParams: (params) ->

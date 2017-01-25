@@ -1,83 +1,102 @@
 {log, defineModule} = Neptune.Art.Foundation
 {UpdateItem} = Neptune.Art.Aws.StreamlinedDynamoDbApi
 
-defineModule module, suite: ->
-  test "item required", ->
-    assert.throws -> new UpdateItem()._translateItem {}
+defineModule module, suite:
+  basic: ->
+    test "item required", ->
+      assert.throws -> new UpdateItem()._translateItem {}
 
-  test "no updates throws error", ->
-    assert.throws -> new UpdateItem().translateParams table: "hi", key: "foo", item: {}
+    test "no updates throws error", ->
+      assert.throws -> new UpdateItem().translateParams table: "hi", key: "foo", item: {}
 
-  test "item: foo: 123", ->
-    assert.eq
-      TableName: "hi"
-      Key:       id: S: "foo"
-      ExpressionAttributeNames:   "#attr1": "foo"
-      ExpressionAttributeValues:  ":val1":  N: "123"
-      UpdateExpression: "SET #attr1 = :val1"
+    test "item: foo: 123", ->
+      assert.eq
+        TableName: "hi"
+        Key:       id: S: "foo"
+        ExpressionAttributeNames:   "#attr1": "foo"
+        ExpressionAttributeValues:  ":val1":  N: "123"
+        UpdateExpression: "SET #attr1 = :val1"
 
-      ReturnValues: "UPDATED_NEW"
+        ReturnValues: "UPDATED_NEW"
 
-      new UpdateItem().translateParams table: "hi", key: "foo", item: foo: 123
+        new UpdateItem().translateParams table: "hi", key: "foo", item: foo: 123
 
-  test "conditionExpression", ->
-    assert.eq
-      TableName: "hi"
-      Key:       id: S: "foo"
-      UpdateExpression: "SET #attr1 = :val1"
-      ConditionExpression: "(#attr2 = :val2 AND #attr3 >= :val3)"
-      ReturnValues: "UPDATED_NEW"
 
-      ExpressionAttributeNames:
-        "#attr1": "foo"
-        "#attr2": "id"
-        "#attr3": "foo"
+    test "item: foo: 123, bar: undefined", ->
+      assert.eq
+        TableName: "hi"
+        Key:       id: S: "foo"
+        ExpressionAttributeNames:   "#attr1": "foo"
+        ExpressionAttributeValues:  ":val1":  N: "123"
+        UpdateExpression: "SET #attr1 = :val1"
 
-      ExpressionAttributeValues:
-        ":val1":  N: "123"
-        ":val2":  S: "abc"
-        ":val3":  N: "10"
+        ReturnValues: "UPDATED_NEW"
 
-      new UpdateItem().translateParams
-        table: "hi"
-        key: "foo"
-        item: foo: 123
-        conditionExpression:
-          id: "abc"
-          foo: gte: 10
+        new UpdateItem().translateParams table: "hi", key: "foo", item: foo: 123, bar: undefined
 
-  test "item: foo: 123, bar: undefined", ->
-    assert.eq
-      TableName: "hi"
-      Key:       id: S: "foo"
-      ExpressionAttributeNames:   "#attr1": "foo"
-      ExpressionAttributeValues:  ":val1":  N: "123"
-      UpdateExpression: "SET #attr1 = :val1"
+    test "add: foo: 123", ->
+      assert.eq
+        TableName: "hi"
+        Key:       id: S: "foo"
+        ExpressionAttributeNames:   "#attr1": "foo"
+        ExpressionAttributeValues:  ":val1":  N: "123"
+        UpdateExpression: "ADD #attr1 :val1"
 
-      ReturnValues: "UPDATED_NEW"
+        ReturnValues: "UPDATED_NEW"
 
-      new UpdateItem().translateParams table: "hi", key: "foo", item: foo: 123, bar: undefined
+        new UpdateItem().translateParams table: "hi", key: "foo", add: foo: 123
 
-  test "add: foo: 123", ->
-    assert.eq
-      TableName: "hi"
-      Key:       id: S: "foo"
-      ExpressionAttributeNames:   "#attr1": "foo"
-      ExpressionAttributeValues:  ":val1":  N: "123"
-      UpdateExpression: "ADD #attr1 :val1"
+    test "defaults: foo: 123", ->
+      assert.eq
+        TableName: "hi"
+        Key:       id: S: "foo"
+        ExpressionAttributeNames:   "#attr1": "foo"
+        ExpressionAttributeValues:  ":val1":  N: "123"
+        UpdateExpression: "SET #attr1 = if_not_exists(#attr1, :val1)"
 
-      ReturnValues: "UPDATED_NEW"
+        ReturnValues: "UPDATED_NEW"
 
-      new UpdateItem().translateParams table: "hi", key: "foo", add: foo: 123
+        new UpdateItem().translateParams table: "hi", key: "foo", defaults: foo: 123
+  conditionExpression: ->
 
-  test "defaults: foo: 123", ->
-    assert.eq
-      TableName: "hi"
-      Key:       id: S: "foo"
-      ExpressionAttributeNames:   "#attr1": "foo"
-      ExpressionAttributeValues:  ":val1":  N: "123"
-      UpdateExpression: "SET #attr1 = if_not_exists(#attr1, :val1)"
+    test "conditionExpression", ->
+      assert.eq
+        TableName: "hi"
+        Key:       id: S: "foo"
+        UpdateExpression: "SET #attr1 = :val1"
+        ConditionExpression: "(#attr2 = :val2 AND #attr3 >= :val3)"
+        ReturnValues: "UPDATED_NEW"
 
-      ReturnValues: "UPDATED_NEW"
+        ExpressionAttributeNames:
+          "#attr1": "foo"
+          "#attr2": "id"
+          "#attr3": "foo"
 
-      new UpdateItem().translateParams table: "hi", key: "foo", defaults: foo: 123
+        ExpressionAttributeValues:
+          ":val1":  N: "123"
+          ":val2":  S: "abc"
+          ":val3":  N: "10"
+
+        new UpdateItem().translateParams
+          table: "hi"
+          key: "foo"
+          item: foo: 123
+          conditionExpression:
+            id: "abc"
+            foo: gte: 10
+
+    test "blank conditionExpression is OK", ->
+      assert.eq
+        TableName: "hi"
+        Key:       id: S: "foo"
+        UpdateExpression: "SET #attr1 = :val1"
+        ReturnValues: "UPDATED_NEW"
+
+        ExpressionAttributeNames: "#attr1": "foo"
+        ExpressionAttributeValues: ":val1":  N: "123"
+
+        new UpdateItem().translateParams
+          table: "hi"
+          key: "foo"
+          item: foo: 123
+          conditionExpression: {}
