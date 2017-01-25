@@ -71,8 +71,16 @@ module.exports = class DynamoDbPipeline extends Pipeline
         AfterEventsFilter.registerPipelineListener @, pipelineName, requestType
         @_addUpdateItemAfterFunction pipelineName, requestType, updateItemPropsFunction
 
+  @updateAfter: (eventMap) ->
+    throw new Error "primaryKey must be 'id'" unless @_primaryKey == "id"
+    for requestType, requestTypeMap of eventMap
+      for pipelineName, updateRequestPropsFunction of requestTypeMap
+        AfterEventsFilter.registerPipelineListener @, pipelineName, requestType
+        @_addUpdateAfterFunction pipelineName, requestType, updateRequestPropsFunction
+
   @extendableProperty
     updateItemPropsFunctions: {}
+    updatePropsFunctions: {}
     afterEventFunctions: {}
 
   ###
@@ -343,6 +351,10 @@ module.exports = class DynamoDbPipeline extends Pipeline
     queries
 
 
+  @_addUpdateAfterFunction: (pipelineName, requestType, updatePropsFunction) ->
+    ((@extendUpdatePropsFunctions()[pipelineName]||={})[requestType]||=[])
+    .push updatePropsFunction
+
   @_addUpdateItemAfterFunction: (pipelineName, requestType, updateItemPropsFunction) ->
     ((@extendUpdateItemPropsFunctions()[pipelineName]||={})[requestType]||=[])
     .push updateItemPropsFunction
@@ -352,7 +364,7 @@ module.exports = class DynamoDbPipeline extends Pipeline
     .push afterEventFunction
 
   # OUT: updateItemPropsBykey
-  @_mergeUpdateItemProps: (manyUpdateItemProps) ->
+  @_mergeUpdateProps: (manyUpdateItemProps) ->
     object (compactFlatten manyUpdateItemProps),
       key: ({key}) -> key
       with: (props, key, into) =>
@@ -374,16 +386,24 @@ module.exports = class DynamoDbPipeline extends Pipeline
     updateItemPromises = for updateItemFunction in @getUpdateItemPropsFunctions()[pipelineName]?[requestType] || emptyArray
       Promise.then => updateItemFunction.call @singleton, request
 
+    updateRequestPropsPromises = for updateRequestPropsFunction in @getUpdatePropsFunctions()[pipelineName]?[requestType] || emptyArray
+      Promise.then => updateRequestPropsFunction.call @singleton, request
+
     afterEventPromises = for afterEventFunction in @getAfterEventFunctions()[pipelineName]?[requestType] || emptyArray
       Promise.then => afterEventFunction.call @singleton, request
 
     Promise.all([
       Promise.all updateItemPromises
+      Promise.all updateRequestPropsPromises
       Promise.all afterEventPromises
     ])
-    .then ([manyUpdateItemProps]) =>
-      promises = for key, props of @_mergeUpdateItemProps manyUpdateItemProps
+    .then ([manyUpdateItemProps, manyUpdateRequestProps]) =>
+      promises = for key, props of @_mergeUpdateProps manyUpdateItemProps
         @singleton.updateItem props
+
+      for key, props of @_mergeUpdateProps manyUpdateRequestProps
+        promises.push request.subrequest @getPipelineName(), "update", {props}
+
       Promise.all promises
 
   _vivifyTable: ->
