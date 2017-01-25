@@ -10,6 +10,7 @@ ArtAws = require 'art-aws'
   log, merge, compare, Validator, isString, arrayToTruthMap, isFunction, withSort
   formattedInspect
   mergeIntoUnless
+  objectWithExistingValues
 } = Foundation
 {Pipeline} = ArtEry
 {DynamoDb} = ArtAws
@@ -178,30 +179,31 @@ module.exports = class DynamoDbPipeline extends Pipeline
     {requiresKey, mustExist, returnValues} = options
     requiresKey = true if mustExist
 
-    Promise
-    .then =>
-      {key, data, dynamoDbParams} = request.props
+    {key, data, add, setDefault, conditionExpression} = request.props
+    {requestType} = request
 
+    Promise
+    .then => request.requireServerOriginOr !(add || setDefault || conditionExpression || returnValues), "to use add, setDefault, returnValues, or conditionExpression props"
+    .then => request.require !(add || setDefault) || requestType == "update", "add and setDefault only valid for update requests"
+    .then =>
       if requiresKey
         data = @stripPrimaryKeyFields data
         key  = @getNormalizedKeyFromRequest request
 
-      out =
-        table:  @tableName
-        item:   data
-        key:    key
+      returnValues ||= "allNew" if requestType == "update" && add || setDefault
+      conditionExpression ||= mustExist && key
 
-      if dynamoDbParams
-        request.requireServerOrigin "to use dynamoDbParams"
-        mergeIntoUnless out, dynamoDbParams
+      objectWithExistingValues {
+        @tableName
+        data
+        key
 
-      if mustExist
-        out.conditionExpression = merge out.conditionExpression, key
-
-      if returnValues
-        out.returnValues = returnValues
-
-      out
+        # requireServerOrigin
+        add
+        setDefault
+        returnValues
+        conditionExpression
+      }
 
     .then options.then
     , ({message}) -> request.clientFailure message
@@ -237,7 +239,7 @@ module.exports = class DynamoDbPipeline extends Pipeline
       if record didn't exist:
         response.status == missing
       else
-        data: values of updated fields
+        data: all fields with their current values (returnValues: 'allNew')
 
     TODO:
       support request.props.add and request.props.setDefaults
@@ -299,11 +301,7 @@ module.exports = class DynamoDbPipeline extends Pipeline
     createOrUpdate: (request) ->
       throw new Error "no available on tables with auto-generated-ids" if @primaryKey == 'id'
       {data} = request
-      request.subrequest @pipelineName, "update",
-        data: data
-        # ensure we return createdAt and updatedAt; client can test if a new record was created
-        # by seeing if they are == or not. Also used for testing.
-        requestOptions: dynamoDbParams: returnValues: "allNew"
+      request.subrequest @pipelineName, "update", {data}
       .catch (error) =>
         if error?.info?.response?.isMissing
           request.subrequest @pipelineName, "create", {data}
@@ -389,7 +387,7 @@ module.exports = class DynamoDbPipeline extends Pipeline
       @tablesByNameForVivification
       .then (tablesByName) =>
         unless tablesByName[@tableName]
-          log "#{@getClassName()}#_vivifyTable() dynamoDb table does not exist: #{@tableName}, creating..."
+          log.warn "#{@getClassName()}#_vivifyTable() dynamoDb table does not exist: #{@tableName}, creating..."
           @_createTable()
 
 
@@ -417,7 +415,7 @@ module.exports = class DynamoDbPipeline extends Pipeline
 
     @dynamoDb.createTable @streamlinedCreateTableParams
     .catch (e) =>
-      log "DynamoDbPipeline#_createTable #{@tableName} FAILED", e
+      log.error "DynamoDbPipeline#_createTable #{@tableName} FAILED", e
       throw e
 
 
