@@ -176,10 +176,10 @@ module.exports = class DynamoDbPipeline extends Pipeline
     promise.then (out) ->                   # otherwise, returns action's return value
   ###
   artEryToDynamoDbRequest: (request, options = {}) ->
-    {requiresKey, mustExist, returnValues} = options
+    {requiresKey, mustExist} = options
     requiresKey = true if mustExist
 
-    {key, data, add, setDefault, conditionExpression} = request.props
+    {key, data, add, setDefault, conditionExpression, returnValues} = request.props
     {requestType} = request
 
     Promise
@@ -190,6 +190,10 @@ module.exports = class DynamoDbPipeline extends Pipeline
         data = @stripPrimaryKeyFields data
         key  = @getNormalizedKeyFromRequest request
 
+      # higher priority
+      returnValues = options.returnValues if options.returnValues
+
+      # defaults
       returnValues ||= "allNew" if requestType == "update" && add || setDefault
       conditionExpression ||= mustExist && key
 
