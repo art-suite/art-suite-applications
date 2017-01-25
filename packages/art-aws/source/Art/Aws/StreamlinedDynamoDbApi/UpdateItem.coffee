@@ -40,8 +40,8 @@ module.exports = class UpdateItem extends TableApiBaseClass
     attributeName: "remove" # remove the attribute
   ###
   _translateUpdateExpression: (params) =>
-    {item, set, add, setDefault, defaults} = params
-    item = merge item, set
+    {item, set, data, add, setDefault, defaults} = params
+    item = merge item, set, data
     defaults = merge setDefault, defaults
 
     actions = for attributeName, attributeValue of item when attributeValue != undefined
@@ -69,7 +69,7 @@ module.exports = class UpdateItem extends TableApiBaseClass
       "#{attributeAlias} #{valueAlias}"
 
     unless actions.length + setDefaultActions.length + addActions.length > 0
-      throw new Error "at least one 'item', 'add' or 'defaults' entry required"
+      throw new Error "at least one 'item/set/data', 'add' or 'defaults/setDefault' entry required"
 
     if actions.length + setDefaultActions.length > 0
       setExpression = "SET #{compactFlatten([actions, setDefaultActions]).join ', '}"

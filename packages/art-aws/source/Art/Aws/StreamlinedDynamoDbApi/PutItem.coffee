@@ -19,8 +19,9 @@ module.exports = class PutItem extends TableApiBaseClass
     @_target
 
   _translateItem: (params) =>
-    {item} = params
-    throw new Error "item required" unless item
+    {item, data} = params
+    item ||= data
+    throw new Error "item or data required" unless item
     @_target.Item = @_encodeItem item
     @_target
 
