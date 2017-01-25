@@ -25,10 +25,6 @@ module.exports = class PutItem extends TableApiBaseClass
     @_target.Item = @_encodeItem item
     @_target
 
-  ReturnConsumedCapacity: 'INDEXES | TOTAL | NONE',
-  ReturnItemCollectionMetrics: 'SIZE | NONE',
-  ReturnValues: 'NONE | ALL_OLD | UPDATED_OLD | ALL_NEW | UPDATED_NEW'
-
   _translateOptionalParams: (params) ->
     @_translateConditionExpressionParam params
     @_translateConstantParam params, "returnConsumedCapacity"
