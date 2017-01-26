@@ -6,6 +6,7 @@ ArtAws = require 'art-aws'
 {AfterEventsFilter} = ArtEry.Filters
 
 {
+  defineModule
   Promise, object, isPlainObject, deepMerge, compactFlatten, inspect
   log, merge, compare, Validator, isString, arrayToTruthMap, isFunction, withSort
   formattedInspect
@@ -16,7 +17,9 @@ ArtAws = require 'art-aws'
 {DynamoDb} = ArtAws
 {encodeDynamoData, decodeDynamoData} = DynamoDb
 
-module.exports = class DynamoDbPipeline extends Pipeline
+defineModule module, class DynamoDbPipeline extends Pipeline
+  @abstractClass()
+
   @classGetter
     tablesByNameForVivification: ->
       @_tablesByNameForVivificationPromise ||=
@@ -74,7 +77,7 @@ module.exports = class DynamoDbPipeline extends Pipeline
 
   @extendableProperty
     updatePropsFunctions: {}
-    afterEventFunctions: {}
+    afterEventFunctions:  {}
 
   ###
   IN: eventMap looks like:
