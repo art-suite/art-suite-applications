@@ -230,23 +230,23 @@ module.exports = suite:
     updateItemAfter:
       full: ->
         sharedAfterEventTests (User) ->
-          User.updateItemAfter
+          User.updateAfter
             create: post: postCreateUpdateFunction = (response) ->
               Promise.then ->
                 {userId, createdAt} = response.data
                 assert.eq "post", response.pipelineName
                 key: userId
-                set: lastPostCreatedAt: createdAt
+                data: lastPostCreatedAt: createdAt
                 add: postCount: 1
 
           # User and AfterEventsFilter properly setup
-          assert.eq User.getUpdateItemPropsFunctions(), post: create: [postCreateUpdateFunction]
+          assert.eq User.getUpdatePropsFunctions(), post: create: [postCreateUpdateFunction]
 
-      _mergeUpdateItemProps: ->
+      _mergeUpdateProps: ->
         test "basic", ->
           assert.eq
             foo: key: "foo", set: bar: 123
-          , DynamoDbPipeline._mergeUpdateItemProps [
+          , DynamoDbPipeline._mergeUpdateProps [
             {key: "foo", set: bar: 123}
           ]
 
@@ -256,7 +256,7 @@ module.exports = suite:
               key:        "foo"
               set:        bar: 123
               setDefault: baz: 456
-          , DynamoDbPipeline._mergeUpdateItemProps [
+          , DynamoDbPipeline._mergeUpdateProps [
             {key: "foo", set: bar: 123}
             {key: "foo", setDefault: baz: 456}
           ]
@@ -265,7 +265,7 @@ module.exports = suite:
           assert.eq
             foo: key: "foo", set: name: "alice"
             bar: key: "bar", set: name: "bill"
-          , DynamoDbPipeline._mergeUpdateItemProps [
+          , DynamoDbPipeline._mergeUpdateProps [
             {key: "foo", set: name: "alice"}
             {key: "bar", set: name: "bill"}
           ]
@@ -274,7 +274,7 @@ module.exports = suite:
           assert.eq
             foo: key: "foo", set: name: "alice", address: "123 Street"
             bar: key: "bar", set: name: "bill"
-          , DynamoDbPipeline._mergeUpdateItemProps [
+          , DynamoDbPipeline._mergeUpdateProps [
             [{key: "foo", set: name: "alice"}
             {key: "bar", set: name: "bill"}]
             {key: "foo", set: address: "123 Street"}
