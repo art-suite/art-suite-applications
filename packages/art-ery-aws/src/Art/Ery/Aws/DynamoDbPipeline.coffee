@@ -57,19 +57,13 @@ module.exports = class DynamoDbPipeline extends Pipeline
 
   EXAMPLE:
     class User extends DynamoDbPipeline
-      @updateItemAfter
+      @updateAfter
         create: post: ({data:{userId, createdAt}}) ->
-          key: userId
-          set: lastPostCreatedAt: createdAt
-          add: postCount: 1
+          key:  userId
+          data: lastPostCreatedAt: createdAt
+          add:  postCount: 1
 
   ###
-  @updateItemAfter: (eventMap) ->
-    throw new Error "primaryKey must be 'id'" unless @_primaryKey == "id"
-    for requestType, requestTypeMap of eventMap
-      for pipelineName, updateItemPropsFunction of requestTypeMap
-        AfterEventsFilter.registerPipelineListener @, pipelineName, requestType
-        @_addUpdateItemAfterFunction pipelineName, requestType, updateItemPropsFunction
 
   @updateAfter: (eventMap) ->
     throw new Error "primaryKey must be 'id'" unless @_primaryKey == "id"
@@ -79,7 +73,6 @@ module.exports = class DynamoDbPipeline extends Pipeline
         @_addUpdateAfterFunction pipelineName, requestType, updateRequestPropsFunction
 
   @extendableProperty
-    updateItemPropsFunctions: {}
     updatePropsFunctions: {}
     afterEventFunctions: {}
 
@@ -355,10 +348,6 @@ module.exports = class DynamoDbPipeline extends Pipeline
     ((@extendUpdatePropsFunctions()[pipelineName]||={})[requestType]||=[])
     .push updatePropsFunction
 
-  @_addUpdateItemAfterFunction: (pipelineName, requestType, updateItemPropsFunction) ->
-    ((@extendUpdateItemPropsFunctions()[pipelineName]||={})[requestType]||=[])
-    .push updateItemPropsFunction
-
   @_addAfterEventFunction: (pipelineName, requestType, afterEventFunction) ->
     ((@extendAfterEventFunctions()[pipelineName]||={})[requestType]||=[])
     .push afterEventFunction
@@ -367,24 +356,23 @@ module.exports = class DynamoDbPipeline extends Pipeline
   @_mergeUpdateProps: (manyUpdateItemProps) ->
     object (compactFlatten manyUpdateItemProps),
       key: ({key}) -> key
-      with: (props, key, into) =>
+      when: (props) -> props
+      with: (props, inputKey, into) =>
         unless props.key
           log.error "key not found for one or more updateItem entries": {manyUpdateItemProps}
-          throw new Error "#{@getName()}.updateItemAfter: key required for each updateItem param set (see log for details)"
+          throw new Error "#{@getName()}.updateAfter: key required for each updateItem param set (see log for details)"
         if into[props.key]
           deepMerge into[props.key], props
         else
           props
 
   ###
-  Executes all @updateItemPropsFunctions appropriate for the current request.
+  Executes all @updatePropsFunctions appropriate for the current request.
   Then merge them together so we only have one update per unique record-id.
   ###
   emptyArray = []
   @handleRequestAfterEvent: (request) ->
     {pipelineName, requestType} = request
-    updateItemPromises = for updateItemFunction in @getUpdateItemPropsFunctions()[pipelineName]?[requestType] || emptyArray
-      Promise.then => updateItemFunction.call @singleton, request
 
     updateRequestPropsPromises = for updateRequestPropsFunction in @getUpdatePropsFunctions()[pipelineName]?[requestType] || emptyArray
       Promise.then => updateRequestPropsFunction.call @singleton, request
@@ -393,16 +381,12 @@ module.exports = class DynamoDbPipeline extends Pipeline
       Promise.then => afterEventFunction.call @singleton, request
 
     Promise.all([
-      Promise.all updateItemPromises
       Promise.all updateRequestPropsPromises
       Promise.all afterEventPromises
     ])
-    .then ([manyUpdateItemProps, manyUpdateRequestProps]) =>
-      promises = for key, props of @_mergeUpdateProps manyUpdateItemProps
-        @singleton.updateItem props
-
-      for key, props of @_mergeUpdateProps manyUpdateRequestProps
-        promises.push request.subrequest @getPipelineName(), "update", {props}
+    .then ([resolvedUpdateRequestProps]) =>
+      promises = for key, props of @_mergeUpdateProps resolvedUpdateRequestProps
+        request.subrequest @getPipelineName(), "update", {props}
 
       Promise.all promises
 
@@ -413,7 +397,6 @@ module.exports = class DynamoDbPipeline extends Pipeline
         unless tablesByName[@tableName]
           log.warn "#{@getClassName()}#_vivifyTable() dynamoDb table does not exist: #{@tableName}, creating..."
           @_createTable()
-
 
   @getter
     dynamoDbCreationAttributes: ->
