@@ -220,10 +220,10 @@ module.exports = suite:
             Promise.then ->
               {userId, createdAt} = response.data
               assert.eq "post", response.pipelineName
-              User.singleton.updateItem
-                key: userId
-                set: lastPostCreatedAt: createdAt
-                add: postCount: 1
+              User.singleton.update props:
+                key:  userId
+                data: lastPostCreatedAt: createdAt
+                add:  postCount: 1
 
         assert.eq User.getAfterEventFunctions(), post: create: [afterEventFunction]
 
