@@ -8,7 +8,7 @@ defineModule module, class ModelRegistry extends BaseObject
   @register: (modelClassOrInstance) ->
 
     model = if isClass modelClassOrInstance
-      console.warn "ModelRegistry.register Class (not instance) is DEPRICATED"
+      log.warn "ModelRegistry.register Class (not instance) is DEPRICATED"
       {_aliases} = modelClassOrInstance
       new modelClassOrInstance
     else
