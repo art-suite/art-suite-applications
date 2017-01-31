@@ -5,3 +5,4 @@ module.exports = require './namespace'
 .includeInNamespace require './Aws'
 .addModules
   DynamoDbPipeline: require './DynamoDbPipeline'
+  UpdateAfterMixin: require './UpdateAfterMixin'

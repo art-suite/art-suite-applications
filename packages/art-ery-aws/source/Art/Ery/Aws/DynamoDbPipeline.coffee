@@ -1,196 +1,36 @@
-Uuid = require 'uuid'
-
-Foundation = require 'art-foundation'
-ArtEry = require 'art-ery'
-ArtAws = require 'art-aws'
-{AfterEventsFilter} = ArtEry.Filters
-
 {
   defineModule
   Promise, object, isPlainObject, deepMerge, compactFlatten, inspect
-  log, merge, compare, Validator, isString, arrayToTruthMap, isFunction, withSort
+  log, merge, compare, Validator, isString, isFunction, withSort
   formattedInspect
   mergeIntoUnless
   objectWithExistingValues
-} = Foundation
-{Pipeline} = ArtEry
-{DynamoDb} = ArtAws
-{encodeDynamoData, decodeDynamoData} = DynamoDb
+  present
+} = require 'art-foundation'
 
-UpdateAfterMixin = (superClass) -> class UpdateAfterMixin extends superClass
-  # Requires AfterEventsFilter on any pipeline you want to subscribe to
+{Pipeline, KeyFieldsMixin, pipelines} = require 'art-ery'
+{DynamoDb} = require 'art-aws'
 
-  ###
-  IN: eventMap looks like:
-    requestType: pipelineName: updateItemPropsFunction
+UpdateAfterMixin = require './UpdateAfterMixin'
 
-    updateItemPropsFunction: (response) -> updateItemProps
-    IN: response is the ArtEry request-response for the request-in-progress on
-      the specified pipelineName.
-      (response.pipelineName should always == pipelineName)
-
-    OUT: plainObject OR an array (with arbitrary array-nesting) of plainObjects
-      The plainObjects are all merged to form one or more AWS updateItem calls.
-      They should follow the art-aws streamlined UpdateItem API.
-      In general, they should be of the form:
-        key: string or object # the DynamoDb item's primary key
-        # and one or more of:
-        set/item:             (field -> value map)
-        add:                  (field -> value to add map)
-        setDefault/defaults:  (field -> value to set if no value present)
-
-      SEE: art-aws/.../UpdateItem for more
-
-  EXAMPLE:
-    class User extends DynamoDbPipeline
-      @updateAfter
-        create: post: ({data:{userId, createdAt}}) ->
-          key:  userId
-          data: lastPostCreatedAt: createdAt
-          add:  postCount: 1
-
-  ###
-
-  @updateAfter: (eventMap) ->
-    throw new Error "primaryKey must be 'id'" unless @_primaryKey == "id"
-    for requestType, requestTypeMap of eventMap
-      for pipelineName, updateRequestPropsFunction of requestTypeMap
-        AfterEventsFilter.registerPipelineListener @, pipelineName, requestType
-        @_addUpdateAfterFunction pipelineName, requestType, updateRequestPropsFunction
-
-  @extendableProperty
-    updatePropsFunctions: {}
-    afterEventFunctions:  {}
-
-  ###
-  IN: eventMap looks like:
-    requestType: pipelineName: (response) -> (ignored)
-  ###
-  @afterEvent: (eventMap) ->
-    for requestType, requestTypeMap of eventMap
-      for pipelineName, afterEventFunction of requestTypeMap
-        AfterEventsFilter.registerPipelineListener @, pipelineName, requestType
-        @_addAfterEventFunction pipelineName, requestType, afterEventFunction
-
-  ########################
-  # PRIVATE
-  ########################
-
-  @_addUpdateAfterFunction: (pipelineName, requestType, updatePropsFunction) ->
-    ((@extendUpdatePropsFunctions()[pipelineName]||={})[requestType]||=[])
-    .push updatePropsFunction
-
-  @_addAfterEventFunction: (pipelineName, requestType, afterEventFunction) ->
-    ((@extendAfterEventFunctions()[pipelineName]||={})[requestType]||=[])
-    .push afterEventFunction
-
-  # OUT: updateItemPropsBykey
-  @_mergeUpdateProps: (manyUpdateItemProps) ->
-    object (compactFlatten manyUpdateItemProps),
-      key: ({key}) -> key
-      when: (props) -> props
-      with: (props, inputKey, into) =>
-        unless props.key
-          log.error "key not found for one or more updateItem entries": {manyUpdateItemProps}
-          throw new Error "#{@getName()}.updateAfter: key required for each updateItem param set (see log for details)"
-        if into[props.key]
-          deepMerge into[props.key], props
-        else
-          props
-
-  ###
-  Executes all @updatePropsFunctions appropriate for the current request.
-  Then merge them together so we only have one update per unique record-id.
-  ###
-  emptyArray = []
-  @handleRequestAfterEvent: (request) ->
-    {pipelineName, requestType} = request
-
-    updateRequestPropsPromises = for updateRequestPropsFunction in @getUpdatePropsFunctions()[pipelineName]?[requestType] || emptyArray
-      Promise.then => updateRequestPropsFunction.call @singleton, request
-
-    afterEventPromises = for afterEventFunction in @getAfterEventFunctions()[pipelineName]?[requestType] || emptyArray
-      Promise.then => afterEventFunction.call @singleton, request
-
-    Promise.all([
-      Promise.all updateRequestPropsPromises
-      Promise.all afterEventPromises
-    ])
-    .then ([resolvedUpdateRequestProps]) =>
-      promises = for key, props of @_mergeUpdateProps resolvedUpdateRequestProps
-        request.subrequest @getPipelineName(), "update", {props}
-
-      Promise.all promises
-
-defineModule module, class DynamoDbPipeline extends UpdateAfterMixin Pipeline
+defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMixin Pipeline
   @abstractClass()
 
-  @classGetter
-    tablesByNameForVivification: ->
-      @_tablesByNameForVivificationPromise ||=
-        @getDynamoDb().listTables().then ({TableNames}) =>
-          arrayToTruthMap TableNames
-
-    dynamoDb: -> DynamoDb.singleton
-
   ###########################################
-  # Primary Keys
+  # Class API
   ###########################################
-  @_primaryKey:       defaultPrimaryKey = "id"
-  @_primaryKeyFields: [defaultPrimaryKey]
 
-  @primaryKey: (@_primaryKey) ->
-    @_primaryKeyFields = @_primaryKey.split "/"
-
-  @getter
-    primaryKey:       -> @class._primaryKey
-    primaryKeyFields: -> @class._primaryKeyFields
-
-  stripPrimaryKeyFields: (o) ->
-    o && object o, when: (v, k) => not(k in @primaryKeyFields)
-
-  # NEW, unused, untested
-  keyToString: (key) ->
-    if isString key
-      key
-    else
-      list = array @primaryKeyFields, (v) ->
-        unless value = key[v]
-          throw new Error "DynamoDbPipeline: must provide all primaryKeyFields (missing: #{formattedInspect v})"
-        value
-      list.join "/"
-
-  # NEW, unused, untested
-  stringToKey: (keyString) ->
-    {primaryKeyFields} = @
-    return keyString if primaryKeyFields.length == 1
-    parts = keyString.split "/"
-    object primaryKeyFields, (v, i) -> parts[i]
-
-  getKeyFields: (data) ->
-    object @primaryKeyFields, (v) ->
-      unless ret = data[v]
-        throw new Error "DynamoDbPipeline: must provide all primaryKeyFields (missing: #{formattedInspect v})"
-      ret
-
-  getNormalizedKeyFromRequest: ({key, data, type}) ->
-    key ||= data
-
-    if isPlainObject key
-      @getKeyFields key
-    else if isString key
-      "#{@primaryKeyFields[0]}": key
-    else
-      throw new Error "DynamoDbPipeline: expected key to be an object or a string: #{formattedInspect {key, data}}"
-
-  ###########################################
-  # misc
-  ###########################################
   @createTablesForAllRegisteredPipelines: ->
-    promises = for name, pipeline of ArtEry.pipelines when isFunction pipeline.createTable
+    promises = for name, pipeline of pipelines when isFunction pipeline.createTable
       pipeline.createTable()
     Promise.all promises
 
+  @classGetter
+    dynamoDb: -> DynamoDb.singleton
+
+  ###########################################
+  # Indexes
+  ###########################################
   @globalIndexes: (globalIndexes) ->
     @_globalIndexes = globalIndexes
     @query @_getAutoDefinedQueries globalIndexes
@@ -202,35 +42,28 @@ defineModule module, class DynamoDbPipeline extends UpdateAfterMixin Pipeline
   @getter
     globalIndexes: -> @_options.globalIndexes || @class._globalIndexes
     localIndexes:  -> @_options.localIndexes  || @class._localIndexes
+
+  ###########################################
+  # Instance Getters
+  ###########################################
+
+  @getter
     status: ->
       @_vivifyTable()
       .then -> "OK: table exists and is reachable"
       .catch -> "ERROR: could not connect to the table"
-
-  @getter
     dynamoDb: -> DynamoDb.singleton
-    tablesByNameForVivification: -> DynamoDbPipeline.getTablesByNameForVivification()
 
-  ###
-  TODO:
-  Add to ArtAws.DynamoDb:
-    getKeyFromDataFunction: (createTableParams) -> (data) -> key
-      IN: createTableParams
-        The exact same params used to create the table.
-      OUT: (data) -> key
-        IN: data: plain object record data
-        OUT: key: string which encodes the key
-          if there is no range-key, then just returns the hashKey as a string
-          else, "#{hashKey}/#{rangeKey}"
-
-    Initially, though, I expect all tables to have a simple hashKey: 'id'
-    Indexes will take care of most our rangeKey needs.
-  ###
-
+  ###########################################
+  # Helpers - not sure these should be public at all
+  ###########################################
   queryDynamoDb:  (params)         -> @dynamoDb.query      merge params, table: @tableName
   scanDynamoDb:   (params)         -> @dynamoDb.scan       merge params, table: @tableName
   withDynamoDb:   (action, params) -> @dynamoDb[action]    merge params, table: @tableName
 
+  ###########################################
+  # Handlers
+  ###########################################
   @handlers
 
     createTable: ->
@@ -248,7 +81,6 @@ defineModule module, class DynamoDbPipeline extends UpdateAfterMixin Pipeline
           .then (result) -> result.item || request.missing()
 
     # TODO: make create fail if the item already exists
-    # TODO: add createOrReplace - if we need it
     # WHY? we have after-triggers that need to only trigger on a real create - not a replace
     # AND filters like ValidationFilter assume create is a real create and update is a real update...
     # NOTE: replace should be considered an update...
@@ -319,10 +151,11 @@ defineModule module, class DynamoDbPipeline extends UpdateAfterMixin Pipeline
 
     ###
     This calls 'update' and possibly 'create', so hooks on update an create will be triggered.
-    NOTE: update fails if the record doesn't exist, so after-create-hooks will not be triggered.
+    NOTE: Only after-update OR after-create filters/events will be processed - NOT BOTH!
+      Which is the whole reason this exists, really - you the correct after-filters-events fire.
     ###
     createOrUpdate: (request) ->
-      throw new Error "no available on tables with auto-generated-ids" if @primaryKey == 'id'
+      throw new Error "not available on tables with auto-generated-ids" if @getKeyFieldsString() == 'id'
       {data} = request
       request.subrequest @pipelineName, "update", {data}
       .catch (error) =>
@@ -369,7 +202,15 @@ defineModule module, class DynamoDbPipeline extends UpdateAfterMixin Pipeline
           log.warn "#{@getClassName()}#_vivifyTable() dynamoDb table does not exist: #{@tableName}, creating..."
           @_createTable()
 
+  @classGetter
+    tablesByNameForVivification: ->
+      @_tablesByNameForVivificationPromise ||=
+        @getDynamoDb().listTables().then ({TableNames}) =>
+          object TableNames, -> true
+
   @getter
+    tablesByNameForVivification: -> DynamoDbPipeline.getTablesByNameForVivification()
+
     dynamoDbCreationAttributes: ->
       out = {}
       for k, v of @normalizedFields
@@ -383,7 +224,7 @@ defineModule module, class DynamoDbPipeline extends UpdateAfterMixin Pipeline
         globalIndexes: @globalIndexes
         localIndexes: @localIndexes
         attributes: @dynamoDbCreationAttributes
-        (key: @primaryKey if @primaryKey)
+        key: @keyFieldsString
         @_options
 
     createTableParams: ->
@@ -423,8 +264,8 @@ defineModule module, class DynamoDbPipeline extends UpdateAfterMixin Pipeline
     .then => request.require !(add || setDefault) || requestType == "update", "add and setDefault only valid for update requests"
     .then =>
       if requiresKey
-        data = @stripPrimaryKeyFields data
-        key  = @getNormalizedKeyFromRequest request
+        data = @dataWithoutKeyFields data
+        key  = @_getNormalizedKeyFromRequest request
 
       # higher priority
       returnValues = options.returnValues if options.returnValues
@@ -447,3 +288,15 @@ defineModule module, class DynamoDbPipeline extends UpdateAfterMixin Pipeline
 
     .then options.then
     , ({message}) -> request.clientFailure message
+
+  _getNormalizedKeyFromRequest: (request) ->
+    {key, data, type} = request
+    key ||= data
+
+    if isPlainObject key
+      @toKeyObject key
+    else if isString key
+      "#{@keyFields[0]}": key
+    else
+      # log.error {request, key, data, type}
+      throw new Error "DynamoDbPipeline: expected key to be an object or a string: #{formattedInspect {key, data}}"
