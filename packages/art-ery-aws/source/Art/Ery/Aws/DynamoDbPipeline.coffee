@@ -1,5 +1,6 @@
 {
   defineModule
+  mergeInto
   Promise, object, isPlainObject, deepMerge, compactFlatten, inspect
   log, merge, compare, Validator, isString, isFunction, withSort
   formattedInspect
@@ -105,7 +106,8 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
         mustExist: true
         then: (dynamoDbParams)=>
           @dynamoDb.updateItem dynamoDbParams
-          .then ({item}) -> item
+          .then ({item}) ->
+            mergeInto item, dynamoDbParams.key
           .catch (error) ->
             if error.message.match /ConditionalCheckFailedException/
               request.missing "Attempted to update a non-existant record."
