@@ -12,6 +12,7 @@ ModelRegistry = require './ModelRegistry'
   compactFlatten
   InstanceFunctionBindingMixin
   Promise
+  formattedInspect
 , defineModule} = Foundation
 
 defineModule module, class FluxModel extends InstanceFunctionBindingMixin BaseObject
@@ -164,8 +165,11 @@ defineModule module, class FluxModel extends InstanceFunctionBindingMixin BaseOb
 
   # Override to support non-string keys
   # return: string representation of key
-  toFluxKey: (key) ->
-    throw new Error "FluxModel #{@name}: Must implement custom toFluxKey for non-string fluxKeys like: #{inspect key}" unless isString key
+  toKeyString: (key) ->
+    unless isString key
+      throw new Error "FluxModel #{@name}: Must implement
+        custom toKeyString for
+        non-string keys like: #{formattedInspect key}"
     key
 
   # Override to respond to entries being added or removed from the flux-store

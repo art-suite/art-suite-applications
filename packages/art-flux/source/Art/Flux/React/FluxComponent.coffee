@@ -168,7 +168,7 @@ defineModule module, class FluxComponent extends FluxSubscriptionsMixin Componen
   _toFluxKey: (stateField, key, model, props) ->
     key ?= props[stateField]?.id
     if key?
-      model.toFluxKey key
+      model.toKeyString key
     else
       null
 

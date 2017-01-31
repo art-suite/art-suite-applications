@@ -184,7 +184,7 @@ defineModule module, suite:
     test "subscriptions with structured keys", -> new Promise (resolve) ->
       class MyStructuredKeyModel extends FluxModel
         @register()
-        toFluxKey: (key) -> "#{key.foo}:#{key.bar}"
+        toKeyString: (key) -> "#{key.foo}:#{key.bar}"
         load: (key) -> data: key, status: success
 
       MyComponent = createWithPostCreate class MyComponent extends FluxComponent

@@ -38,7 +38,7 @@ defineModule module, ->
           - no subscription will be created.
           - @unsubscribe subscriptionKey will still happen
 
-      key: valid input for models[modelName].toFluxKey - usually it's a string
+      key: valid input for models[modelName].toKeyString - usually it's a string
         if key is null/undefined then
           - no subscription will be created.
           - @unsubscribe subscriptionKey will still happen
@@ -89,7 +89,7 @@ defineModule module, ->
       unless model = @models[modelName]
         throw new Error "No model registered with the name: #{modelName}. Registered models:\n  #{Object.keys(@models).join "\n  "}"
 
-      fluxKey = model.toFluxKey key
+      fluxKey = model.toKeyString key
 
       subscriptionFunction = (fluxRecord) =>
         updatesCallback? fluxRecord
