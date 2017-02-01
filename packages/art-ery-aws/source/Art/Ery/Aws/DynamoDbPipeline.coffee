@@ -91,8 +91,15 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
         .then -> request.data
 
     ###
+    IN: response.props:
+      createOk: true/falsish
+        NOTE:
+          A) can only use on tables which don't auto-generate-ids
+
     OUT:
       if record didn't exist:
+        if createOk
+          record was created
         response.status == missing
       else
         data: all fields with their current values (returnValues: 'allNew')
@@ -102,16 +109,25 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
         for both: requireOriginatedOnServer
     ###
     update: (request) ->
-      @_artEryToDynamoDbRequest request,
-        mustExist: true
-        then: (dynamoDbParams)=>
-          @dynamoDb.updateItem dynamoDbParams
-          .then ({item}) ->
-            mergeInto item, dynamoDbParams.key
-          .catch (error) ->
-            if error.message.match /ConditionalCheckFailedException/
-              request.missing "Attempted to update a non-existant record."
-            else throw error
+      {createOk} = request.props
+      request.requireServerOriginIf createOk, "to use createOk"
+      .then =>
+        request.rejectIf createOk && @getKeyFieldsString() == 'id', "createOk not available on tables with auto-generated-ids"
+      .then =>
+        @_artEryToDynamoDbRequest request,
+          mustExist: !createOk
+          requiresKey: true
+          then: (dynamoDbParams)=>
+            @dynamoDb.updateItem dynamoDbParams
+            .then ({item}) ->
+              if dynamoDbParams.returnValues?.match /old/i
+                item
+              else
+                mergeInto item, dynamoDbParams.key
+            .catch (error) ->
+              if error.message.match /ConditionalCheckFailedException/
+                request.missing "Attempted to update a non-existant record."
+              else throw error
 
     ###
     OUT:
@@ -157,13 +173,16 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
       Which is the whole reason this exists, really - you the correct after-filters-events fire.
     ###
     createOrUpdate: (request) ->
-      throw new Error "not available on tables with auto-generated-ids" if @getKeyFieldsString() == 'id'
-      {data} = request
-      request.subrequest @pipelineName, "update", {data}
-      .catch (error) =>
-        if error?.info?.response?.isMissing
-          request.subrequest @pipelineName, "create", {data}
-        else throw error
+      request.requireServerOrigin()
+      .then =>
+        request.rejectIf createOk && @getKeyFieldsString() == 'id', "createOk not available on tables with auto-generated-ids"
+      .then =>
+        {data} = request
+        request.subrequest @pipelineName, "update", {data}
+        .catch (error) =>
+          if error?.info?.response?.isMissing
+            request.subrequest @pipelineName, "create", {data}
+          else throw error
 
   #########################
   # PRIVATE

@@ -1,7 +1,7 @@
 {Ery, Foundation} = Neptune.Art
 
 {Promise, CommunicationStatus, isString, log, merge, createWithPostCreate, randomString} = Foundation
-{clientFailure, missing} = CommunicationStatus
+{success, clientFailure, missing} = CommunicationStatus
 
 {session, pipelines} = Ery
 {AfterEventsFilter} = Ery.Filters
@@ -67,18 +67,29 @@ sharedAfterEventTests = (setupUserWith) ->
       assert.eq lastPostCreatedAt, post.createdAt
       assert.eq postCount, 2
 
+myTable = MyTable = null
+setupWithMyTable = ->
+  Neptune.Art.Ery.PipelineRegistry._reset()
+  {myTable} = createWithPostCreate class MyTable extends DynamoDbPipeline
+    @addDatabaseFilters
+      name:   "required string"
+      email:  "required email"
+
+  {myCompoundKeyTable} = createWithPostCreate class MyCompoundKeyTable extends DynamoDbPipeline
+    @keyFields "userId/postId"
+    @addDatabaseFilters
+      user:   "link"
+      post:   "link"
+
+  Promise.all([
+    myCompoundKeyTable._vivifyTable()
+    myTable._vivifyTable()
+  ])
+
 module.exports = suite:
 
   basic: ->
-    myTable = MyTable = null
-    setup ->
-      Neptune.Art.Ery.PipelineRegistry._reset()
-      {myTable} = createWithPostCreate class MyTable extends DynamoDbPipeline
-        @addDatabaseFilters
-          name: "required string"
-          email:    "required email"
-
-      myTable.createTable()
+    setup setupWithMyTable
 
     test "create then get", ->
       myTable.create
@@ -93,6 +104,40 @@ module.exports = suite:
         myTable.get {data}
         .then (getData) ->
           assert.eq getData, data
+
+
+    test "delete", ->
+      createData = null
+
+      myTable.create
+        data:
+          name: "John"
+          email: "foo@bar.com"
+          rank: 123
+          attributes: ["adventurous", "charming"]
+
+      .then (_createData) ->
+        createData = _createData
+        myTable.delete key: createData.id
+
+      .then ->
+        assert.rejects myTable.get key: createData.id
+
+      .then (expectedError)->
+        {response} = expectedError.info
+        assert.eq response.status, missing
+        "triggered catch"
+
+    test "describeTable", ->
+      myTable.dynamoDb.describeTable TableName: myTable.tableName
+      .then ({Table}) ->
+        assert.eq Table.AttributeDefinitions, [
+          AttributeName: "id"
+          AttributeType: "S"
+        ]
+
+  update: ->
+    setup setupWithMyTable
 
     test "update using keys", ->
 
@@ -136,42 +181,31 @@ module.exports = suite:
             assert.eq data, merge createData, updatedData
 
 
-    test "update non-existant record fails", ->
+    test "update non-existant record fails with status: missing", ->
       assert.rejects myTable.update
-        key: "doesn't exist key"
+        key: randomString()
         data: foo: "bar"
-      .then (rejectedValue) ->
-        assert rejectedValue.info.response.status == missing
+      .then (rejectsWith) ->
+        assert.eq rejectsWith.info.response.status, missing
 
-    test "delete", ->
-      createData = null
+    test "update with createOk rejected without originatedOnServer", ->
+      assert.rejects myTable.update
+        props:
+          createOk: true
+          key: randomString()
+          data: foo: "bar"
+      .then (rejectsWith) ->
+        assert.eq rejectsWith.info.response.status, clientFailure
 
-      myTable.create
-        data:
-          name: "John"
-          email: "foo@bar.com"
-          rank: 123
-          attributes: ["adventurous", "charming"]
-
-      .then (_createData) ->
-        createData = _createData
-        myTable.delete key: createData.id
-
-      .then ->
-        assert.rejects myTable.get key: createData.id
-
-      .then (expectedError)->
-        {response} = expectedError.info
-        assert.eq response.status, missing
-        "triggered catch"
-
-    test "describeTable", ->
-      myTable.dynamoDb.describeTable TableName: myTable.tableName
-      .then ({Table}) ->
-        assert.eq Table.AttributeDefinitions, [
-          AttributeName: "id"
-          AttributeType: "S"
-        ]
+    test "update non-existant record works with createOk and originatedOnServer", ->
+      pipelines.myCompoundKeyTable.update
+        returnResponseObject: true
+        originatedOnServer: true
+        props:
+          createOk: true
+          data: userId: "123", postId: "abc"
+      .then (response) ->
+        assert.eq response.status, success
 
   "compound primary key": ->
     myManyToManyTable = null
@@ -220,14 +254,14 @@ module.exports = suite:
             Promise.then ->
               {userId, createdAt} = response.data
               assert.eq "post", response.pipelineName
-              User.singleton.update props:
+              response.subrequest "user", "update", props:
                 key:  userId
                 data: lastPostCreatedAt: createdAt
                 add:  postCount: 1
 
         assert.eq User.getAfterEventFunctions(), post: create: [afterEventFunction]
 
-    updateItemAfter:
+    updateAfter:
       full: ->
         sharedAfterEventTests (User) ->
           User.updateAfter
