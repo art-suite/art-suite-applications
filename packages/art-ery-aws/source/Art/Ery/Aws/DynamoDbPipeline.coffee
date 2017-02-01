@@ -175,7 +175,7 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
     createOrUpdate: (request) ->
       request.requireServerOrigin()
       .then =>
-        request.rejectIf createOk && @getKeyFieldsString() == 'id', "createOk not available on tables with auto-generated-ids"
+        request.rejectIf @getKeyFieldsString() == 'id', "createOk not available on tables with auto-generated-ids"
       .then =>
         {data} = request
         request.subrequest @pipelineName, "update", {data}
