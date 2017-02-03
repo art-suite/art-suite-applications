@@ -1,5 +1,5 @@
 Foundation = require 'art-foundation'
-Flux = require 'art-flux'
+{models} = Flux = require 'art-flux'
 {merge, log, isString, Promise, BaseObject, Epoch, timeout, createWithPostCreate, CommunicationStatus} = Foundation
 
 {FluxModel, fluxStore, ModelRegistry} = Flux
@@ -131,6 +131,28 @@ module.exports = suite:
       fluxStore.onNextReady ->
         assert.eq counts, load: 2, sub1: 1, sub2: 1
         done()
+
+  loadPromise: ->
+    test "multiple loadPromises with the same key only load once", ->
+      reset()
+      loadCount = 0
+      createWithPostCreate class User extends FluxModel
+        loadData: (key) ->
+          timeout 10
+          .then ->
+            loadCount++
+            id: key
+            userName: "fred"
+
+      p1 = models.user.loadPromise "abc"
+      p2 = models.user.loadPromise "abc"
+      p3 = models.user.loadPromise "def"
+      Promise.all [p1, p2, p3]
+      .then ->
+        assert.eq loadCount, 2
+        assert.eq p1, p2
+        assert.neq p1, p3
+
 
   aliases: ->
     test "@aliases adds aliases to the model registry", ->

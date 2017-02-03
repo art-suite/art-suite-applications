@@ -63,6 +63,7 @@ defineModule module, class FluxModel extends InstanceFunctionBindingMixin BaseOb
     super
     @_name = name || decapitalize @class.getName()
     @bindFunctionsToInstance()
+    @_activeLoadingRequests = {}
 
   @classGetter
     models: -> ModelRegistry.models
@@ -120,7 +121,7 @@ defineModule module, class FluxModel extends InstanceFunctionBindingMixin BaseOb
       rely on the fact that it returned a fluxRecord with a set of inputs, it might not
       the next time.
 
-  Optionally, you can implement one of to altenative load functions with Promise support:
+  Optionally, you can implement one of two altenative load functions with Promise support:
 
     loadData:       (key) ->
                       promise.then (data) ->
@@ -135,7 +136,45 @@ defineModule module, class FluxModel extends InstanceFunctionBindingMixin BaseOb
     # returns {status: missing} since updateFluxStore returns the last argument,
     #   this makes the results immediately available to subscribers.
 
-    if @loadData
+    if @loadData || @loadFluxRecord
+      @loadPromise key
+      null
+    else
+      @updateFluxStore key, status: missing
+
+  ###
+  NOTE: @loadData or @loadFluxRecord should be implemented.
+  @loadPromise is an alternative to @load
+
+  Unlike @load, @loadPromise returns a promise that resolves when the load is done.
+
+  The down-side is @loadPromise cannot immediately update the flux-store. If you have
+  a model which stores its data locally, like ApplicationState, then override @load
+  for immediate fluxStore updates.
+
+  However, if your model always has to get the data asynchronously, override @loadData
+  or @loadFluxRecord and use @loadPromise anytime you need to manually trigger a load.
+
+  EFFECTS:
+  - Triggers loadData or loadFluxRecord.
+  - Puts the results in the fluxStore.
+  - Elegently reduces multiple in-flight requests with the same key to one Promise.
+    @loadData or @loadFluxRecord will only be invoked once per key while their
+    returned promises are unresolved.
+    NOTE: the block actually extends all the way through to the fluxStore being updated.
+    That means you can immediately call @fluxStoreGet and get the latest data - when
+    the promise resolves.
+
+  OUT: promise.then (fluxRecord) ->
+    fluxRecord: the latest, just-loaded data
+    ERRORS: errors are encoded into the fluxRecord. The promise should always resolve.
+  ###
+  loadPromise: (key) ->
+    if p = @_activeLoadingRequests[key]
+      log "saved 1 reload due to activeLoadingRequests! (model: #{@name}, key: #{key})"
+      return p
+
+    p = if @loadData
       Promise.then    => @loadData key
       .then (data)    => @updateFluxStore key, status: success, data: data
       .catch (error)  =>
@@ -143,14 +182,16 @@ defineModule module, class FluxModel extends InstanceFunctionBindingMixin BaseOb
           @updateFluxStore key, status: error
         else
           @updateFluxStore key, status: failure, error: error
-      null
     else if @loadFluxRecord
       @loadFluxRecord key
       .then (fluxRecord) => @updateFluxStore key, fluxRecord
       .catch (error)     => @updateFluxStore key, status: failure, error: error
-      null
     else
-      @updateFluxStore key, status: missing
+      Promise.resolve @updateFluxStore key, status: missing
+
+    @_activeLoadingRequests[key] = p
+    .then => @onNextReady()
+    .then => @_activeLoadingRequests[key] = null
 
   # load is not required to updateFluxStore
   # reload guarantees fluxStore is updated
