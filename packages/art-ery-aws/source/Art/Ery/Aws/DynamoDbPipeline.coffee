@@ -7,6 +7,7 @@
   mergeIntoUnless
   objectWithExistingValues
   present
+  isString
 } = require 'art-foundation'
 
 {Pipeline, KeyFieldsMixin, pipelines} = require 'art-ery'
@@ -204,7 +205,10 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
             .then ({items}) -> items
 
           toKeyString: (data) ->
-            data[hashKey]
+            if isString data
+              data
+            else
+              data[hashKey]
 
           localSort: (queryData) -> withSort queryData, (a, b) ->
             if 0 == ret = compare a[sortKey], b[sortKey]
