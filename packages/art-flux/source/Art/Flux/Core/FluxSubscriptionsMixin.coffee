@@ -50,7 +50,7 @@ defineModule module, ->
         initialFluxRecord: fluxRecord-style object
 
         # get called with every change
-        updatesCallback:  (fluxRecord) -> ignored
+        callback / updatesCallback:  (fluxRecord) -> ignored
 
       NOTE: One of options.stateField OR options.updatesCallback is REQUIRED.
 
