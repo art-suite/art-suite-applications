@@ -203,8 +203,7 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
               where: whereClause
             .then ({items}) -> items
 
-          queryKeyFromRecord: (data) ->
-            # log queryKeyFromRecord: data: data, hashKey: hashKey, value: data[hashKey]
+          toKeyString: (data) ->
             data[hashKey]
 
           localSort: (queryData) -> withSort queryData, (a, b) ->
