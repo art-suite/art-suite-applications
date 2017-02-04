@@ -204,11 +204,8 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
               where: whereClause
             .then ({items}) -> items
 
-          toKeyString: (data) ->
-            if isString data
-              data
-            else
-              data[hashKey]
+          dataToKeyString: (data) ->
+            data[hashKey]
 
           localSort: (queryData) -> withSort queryData, (a, b) ->
             if 0 == ret = compare a[sortKey], b[sortKey]
