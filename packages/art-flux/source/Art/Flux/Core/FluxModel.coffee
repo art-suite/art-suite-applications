@@ -191,8 +191,8 @@ defineModule module, class FluxModel extends InstanceFunctionBindingMixin BaseOb
       Promise.resolve @updateFluxStore key, status: missing
 
     @_activeLoadingRequests[key] = p
-    .then => @onNextReady()
-    .then => @_activeLoadingRequests[key] = null
+    .then (result) => @onNextReady(); result
+    .then (result) => @_activeLoadingRequests[key] = null; result
 
   # load is not required to updateFluxStore
   # reload guarantees fluxStore is updated
