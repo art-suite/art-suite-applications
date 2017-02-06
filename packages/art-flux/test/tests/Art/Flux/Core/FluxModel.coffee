@@ -10,33 +10,35 @@ reset = -> Flux._reset()
 module.exports = suite:
   load: ->
 
-    test "model with async load", (done) ->
-      reset()
-      createWithPostCreate class MyBasicModel extends FluxModel
+    test "model with async load", ->
+      new Promise (resolve) ->
+        reset()
+        createWithPostCreate class MyBasicModel extends FluxModel
 
-        load: (key) ->
-          fluxStore.onNextReady => @updateFluxStore key, status: missing
-          null
+          load: (key) ->
+            fluxStore.onNextReady => @updateFluxStore key, status: missing
+            null
 
-      res = fluxStore.subscribe "myBasicModel", "123", (fluxRecord) ->
-        return unless fluxRecord.status != pending
-        assert.eq fluxRecord, status: missing, key: "123", modelName: "myBasicModel"
-        done()
-      assert.eq res, status: pending, key: "123", modelName: "myBasicModel"
+        res = fluxStore.subscribe "myBasicModel", "123", (fluxRecord) ->
+          return unless fluxRecord.status != pending
+          assert.eq fluxRecord, status: missing, key: "123", modelName: "myBasicModel"
+          resolve()
+        assert.eq res, status: pending, key: "123", modelName: "myBasicModel"
 
 
-    test "model with @loadFluxRecord", (done) ->
-      reset()
-      createWithPostCreate class MyBasicModel extends FluxModel
+    test "model with @loadFluxRecord", ->
+      new Promise (resolve) ->
+        reset()
+        createWithPostCreate class MyBasicModel extends FluxModel
 
-        loadFluxRecord: (key) ->
-          timeout(20).then -> status: missing
+          loadFluxRecord: (key) ->
+            timeout(20).then -> status: missing
 
-      res = fluxStore.subscribe "myBasicModel", "123", (fluxRecord) ->
-        return unless fluxRecord.status != pending
-        assert.eq fluxRecord, status: missing, key: "123", modelName: "myBasicModel"
-        done()
-      assert.eq res, status: pending, key: "123", modelName: "myBasicModel"
+        res = fluxStore.subscribe "myBasicModel", "123", (fluxRecord) ->
+          return unless fluxRecord.status != pending
+          assert.eq fluxRecord, status: missing, key: "123", modelName: "myBasicModel"
+          resolve()
+        assert.eq res, status: pending, key: "123", modelName: "myBasicModel"
 
     test "model with custom load - delayed", ->
       reset()
@@ -90,7 +92,7 @@ module.exports = suite:
 
   simultanious: ->
 
-    test "two simultantious FluxModel requests on the same key only triggers one store request", (done) ->
+    test "two simultantious FluxModel requests on the same key only triggers one store request", ->
       reset()
       counts =
         load: 0
@@ -109,9 +111,8 @@ module.exports = suite:
 
       fluxStore.onNextReady ->
         assert.eq counts, load: 1, subscription1: 1, subscription2: 1
-        done()
 
-    test "two simultantious FluxModel requests on the different keys triggers two store requests", (done) ->
+    test "two simultantious FluxModel requests on the different keys triggers two store requests", ->
       reset()
       counts =
         load: 0
@@ -130,7 +131,6 @@ module.exports = suite:
 
       fluxStore.onNextReady ->
         assert.eq counts, load: 2, sub1: 1, sub2: 1
-        done()
 
   loadPromise: ->
     test "multiple loadPromises with the same key only load once", ->
@@ -152,7 +152,6 @@ module.exports = suite:
         assert.eq loadCount, 2
         assert.eq p1, p2
         assert.neq p1, p3
-
 
   aliases: ->
     test "@aliases adds aliases to the model registry", ->
