@@ -463,24 +463,18 @@ module.exports = (bitmapFactory, bitmapClassName) ->
       matrix(), rect(10, 10, 3, 4)
 
     test "load image", ->
-      bitmap1 = bitmapFactory.newBitmap point 3
-      bitmap1.clear "#777"
 
       EncodedImage.get "#{testAssetRoot}/array_buffer_image_test/sample.jpg"
       .then (image) ->
-        bitmap2 = bitmapFactory.newBitmap image
-        assert.eq bitmap2.size, point 256, 256
-        bitmap1.drawBitmap null, bitmap2
-        log bitmap1
+        loadedBitmap = bitmapFactory.newBitmap image
+        assert.eq loadedBitmap.size, point 256, 256
+        bitmapSample = bitmapFactory.newBitmap point 3
+        bitmapSample.drawBitmap null, loadedBitmap
+        log {bitmapSample, loadedBitmap}
 
         # this is the top-left 3x3 pixels of sample.jpg - a picture of carpet samples
-        data = bitmap1.getImageDataArray()
-        if eq(data, [72, 114, 156, 255, 69, 112, 152, 255, 73, 116, 150, 255, 52, 98, 142, 255, 36, 84, 126, 255, 31, 81, 119, 255, 28, 78, 126, 255, 17, 72, 117, 255, 40, 89, 128, 255])
-          # MSIE = ok
-        else if eq(data, [72, 115, 156, 255, 70, 113, 153, 255, 74, 117, 151, 255, 54, 100, 143, 255, 35, 85, 127, 255, 30, 82, 120, 255, 26, 79, 127, 255, 16, 73, 118, 255, 38, 90, 129, 255])
-          # SAFARI = ok
-        else
-          assert.eq data, [74, 115, 154, 255, 72, 113, 151, 255, 75, 117, 149, 255, 56, 100, 141, 255, 38, 85, 125, 255, 34, 82, 118, 255, 30, 79, 125, 255, 21, 73, 116, 255, 42, 90, 127, 255]
+        data = (Math.round(v/16) for v in bitmapSample.getImageDataArray())
+        assert.eq data, [5, 7, 10, 16, 5, 7, 9, 16, 5, 7, 9, 16, 4, 6, 9, 16, 3, 5, 8, 16, 3, 5, 7, 16, 3, 5, 8, 16, 2, 5, 7, 16, 3, 6, 8, 16]
 
     test "compositing target_alphmask is alphamask in the other order", ->
       a = bitmapFactory.newBitmap point 3

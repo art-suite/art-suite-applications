@@ -11,4 +11,5 @@ suite "Art.Canvas.GoogleFontLoader", ->
     googleFontLoader.load (name = "Euphoria Script"), (assets, sources, info) ->
       assert.ok assets[name]
       done()
+    null
 
