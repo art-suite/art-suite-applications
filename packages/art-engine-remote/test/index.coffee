@@ -1,2 +1,2 @@
 require "art-foundation/testing"
-.run -> require './tests'
+.init defineTests: -> require './tests'
