@@ -7,7 +7,7 @@
 } = require 'art-suite'
 
 defineModule module, class ColorPreview extends FluxComponent
-  subscriptions: "currentColor.color"
+  @subscriptions "currentColor.color"
 
   selectAll: ({target}) ->
     log "selectAll"

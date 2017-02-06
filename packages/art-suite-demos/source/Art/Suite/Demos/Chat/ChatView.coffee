@@ -15,7 +15,7 @@ StyleProps = require './StyleProps'
 ChatMessage = require './ChatMessage'
 
 defineModule module, class ChatView extends FluxComponent
-  subscriptions: "chat.history"
+  @subscriptions "chat.history"
 
   postMessage: ({target}) ->
     {currentUser} = @props

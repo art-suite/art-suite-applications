@@ -58,9 +58,10 @@ defineModule module, ->
           FillElement()
 
   ClockFace = createWithPostCreate class ClockFace extends FluxComponent
-    subscriptions: "currentTime.second"
+    @subscriptions "currentTime.second"
 
     render: ->
+      log "render clock"
       {total} = @models.currentTime
       Element
         size: (ps) -> ps.min()

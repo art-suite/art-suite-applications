@@ -22,6 +22,7 @@ createWithPostCreate module, class CurrentTime extends ApplicationState
       if @minute >= 60
         @minute = 0
         @hour++
+
     @second = second
 
     timeout 1000, => @_update()
