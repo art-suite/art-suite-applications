@@ -22,7 +22,7 @@ module.exports = suite:
       assert.eq c.element.class, Engine.Core.Element
       assert.eq c.element.pendingName, "foo"
 
-    test "instantiateAsTopComponent", (done)->
+    test "instantiateAsTopComponent", ->
       MyComponent = createComponentFactory
         render: ->
           Element key: "child"
@@ -31,7 +31,6 @@ module.exports = suite:
       parent.onNextReady ->
         assert.eq c.element.parent, parent
         assert.eq ["child"], (child.name for child in parent.children)
-        done()
 
   props: ->
     test "basic", ->
@@ -200,37 +199,39 @@ module.exports = suite:
 
   setState: ->
 
-    test "setState Object", (done)->
-      class MyComponent extends Component
-        getInitialState: ->
-          foo: "bar"
-        render: ->
-          Element name:@state.foo
+    test "setState Object", ->
+      new Promise (resolve) ->
+        class MyComponent extends Component
+          getInitialState: ->
+            foo: "bar"
+          render: ->
+            Element name:@state.foo
 
-      (c = new MyComponent)._instantiate()
-      assert.eq c.state, foo:"bar"
-      c.setState foo:"baz", ->
-        assert.eq c.state, foo:"baz"
-        assert.eq c.element.pendingName, "baz"
-        done()
-      assert.eq c.state, foo:"bar"
-      assert.eq c.element.pendingName, "bar"
+        (c = new MyComponent)._instantiate()
+        assert.eq c.state, foo:"bar"
+        c.setState foo:"baz", ->
+          assert.eq c.state, foo:"baz"
+          assert.eq c.element.pendingName, "baz"
+          resolve()
+        assert.eq c.state, foo:"bar"
+        assert.eq c.element.pendingName, "bar"
 
-    test "setState string, value", (done)->
-      class MyComponent extends Component
-        getInitialState: ->
-          foo: "bar"
-        render: ->
-          Element name:@state.foo
+    test "setState string, value", ->
+      new Promise (resolve) ->
+        class MyComponent extends Component
+          getInitialState: ->
+            foo: "bar"
+          render: ->
+            Element name:@state.foo
 
-      (c = new MyComponent)._instantiate()
-      assert.eq c.state, foo:"bar"
-      c.setState "foo", "baz", ->
-        assert.eq c.state, foo:"baz"
-        assert.eq c.element.pendingName, "baz"
-        done()
-      assert.eq c.state, foo:"bar"
-      assert.eq c.element.pendingName, "bar"
+        (c = new MyComponent)._instantiate()
+        assert.eq c.state, foo:"bar"
+        c.setState "foo", "baz", ->
+          assert.eq c.state, foo:"baz"
+          assert.eq c.element.pendingName, "baz"
+          resolve()
+        assert.eq c.state, foo:"bar"
+        assert.eq c.element.pendingName, "bar"
 
   stateFields:
     basic: ->
@@ -351,7 +352,7 @@ module.exports = suite:
 
   "children prop": ->
 
-    test "children passed to component-factory become @props.children", (done)->
+    test "children passed to component-factory become @props.children", ->
       Wrapper = createComponentFactory
         render: ->
           Element
@@ -369,7 +370,6 @@ module.exports = suite:
       c.element.onNextReady ->
         assert.eq c.element.key, "wrapper"
         assert.eq ["#ff0000", "#0000ff"], (child.color.toString() for child in c.element.children)
-        done()
 
   canUpdateFrom: ->
     test "_canUpdateFrom matching Component-classes == true", ->
@@ -459,7 +459,7 @@ module.exports = suite:
         assert.eq ["child1", "child3"], (child.name for child in a.element.children)
 
   tools: ->
-    test "find", (done)->
+    test "find", ->
       MySubComponent = createComponentFactory class MySubComponent extends Component
         render: -> Element()
 
@@ -481,4 +481,3 @@ module.exports = suite:
         assert.eq ["key1", "key2"],             (found.key for found in instance.find("key",    verbose:verbose))
         assert.eq ["subKey1"],                  (found.key for found in instance.find("subKey", verbose:verbose))
         assert.eq ["key1", "key2", "subKey1"],  (found.key for found in instance.find("ey",     verbose:verbose)).sort()
-        done()

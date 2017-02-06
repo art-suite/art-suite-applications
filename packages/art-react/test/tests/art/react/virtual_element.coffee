@@ -66,16 +66,16 @@ define [
       assert.eq ["child1", "child2"], (child.props.name for child in a.children)
 
   suite "Art.React.VirtualElement.instantiate", ->
-    test "instantiate VirtualElement with props", (done)->
+    test "instantiate VirtualElement with props", ->
       a = Element size: 123
       a._instantiate {}
       assert.ok a.element instanceof Engine.Core.Element
 
       stateEpoch.onNextReady ->
         assert.eq a.element.currentSize, point 123
-        done()
 
-    test "instantiate VirtualElement with children", (done)->
+
+    test "instantiate VirtualElement with children", ->
       a = Element
         name: "parent"
         Element name: "child1"
@@ -84,7 +84,7 @@ define [
 
       stateEpoch.onNextReady ->
         assert.eq ["child1", "child2"], (child.name for child in a.element.children)
-        done()
+
 
   suite "Art.React.VirtualElement._canUpdateFrom", ->
     test "_canUpdateFrom matching elementClasses == true", ->
@@ -103,7 +103,7 @@ define [
       assert.eq false, a._canUpdateFrom b
 
   suite "Art.React.VirtualElement._updateFrom", ->
-    test "_updateFrom changed props", (done)->
+    test "_updateFrom changed props", ->
       a = Element name: "foo"
       b = Element name: "bar"
 
@@ -111,9 +111,9 @@ define [
       a._updateFrom b
       stateEpoch.onNextReady ->
         assert.eq a.element.name, "bar"
-        done()
 
-    test "_updateFrom: same children reuses children's array and children's VitualElement instances", (done)->
+
+    test "_updateFrom: same children reuses children's array and children's VitualElement instances", ->
       a = Element
         name: "foo"
         Element name: "child1"
@@ -132,9 +132,9 @@ define [
         assert.ok initialChildren == a.children
         assert.eq initialelements, (child.element for child in a.children)
         assert.eq ["child1", "child2"], (child.props.name for child in a.children)
-        done()
 
-    test "_updateFrom: children with only props changed reuses children's array and children's VitualElement instances", (done)->
+
+    test "_updateFrom: children with only props changed reuses children's array and children's VitualElement instances", ->
       a = Element
         name: "foo"
         Element name: "child1"
@@ -153,9 +153,9 @@ define [
         assert.ok initialChildren == a.children
         assert.eq initialelements, (child.element for child in a.children)
         assert.eq ["child3", "child4"], (child.props.name for child in a.children)
-        done()
 
-    test "_updateFrom: children with keys can reuse with swapped order", (done)->
+
+    test "_updateFrom: children with keys can reuse with swapped order", ->
       a = Element
         name: "foo"
         Element key: "child1"
@@ -175,9 +175,9 @@ define [
         assert.eq initialChildren.length, a.children.length
         assert.eq [element2, element1], (child.element for child in a.children)
         assert.eq ["child2", "child1"], (child.props.key for child in a.children)
-        done()
 
-    test "_updateFrom: children without keys and same type won't swap order", (done)->
+
+    test "_updateFrom: children without keys and same type won't swap order", ->
       a = Element
         name: "foo"
         Element name: "child1"
@@ -197,9 +197,9 @@ define [
         assert.eq initialChildren.length, a.children.length
         assert.eq [element1, element2], (child.element for child in a.children)
         assert.eq ["child2", "child1"], (child.props.name for child in a.children)
-        done()
 
-    test "_updateFrom: children without keys but different types can swap order", (done)->
+
+    test "_updateFrom: children without keys but different types can swap order", ->
       a = Element
         name: "foo"
         Element name: "child1"
@@ -219,9 +219,9 @@ define [
         assert.eq initialChildren.length, a.children.length
         assert.eq [element2, element1], (child.element for child in a.children)
         assert.eq ["child2", "child1"], (child.props.name for child in a.children)
-        done()
 
-    test "_updateFrom: add child", (done)->
+
+    test "_updateFrom: add child", ->
       a = Element
         name: "foo"
         Element name: "child1"
@@ -234,10 +234,10 @@ define [
       a._updateFrom b
       stateEpoch.onNextReady ->
         assert.eq ["child1", "child2"], (child.props.name for child in a.children)
-        done()
 
 
-    test "_updateFrom: remove child", (done)->
+
+    test "_updateFrom: remove child", ->
       a = Element
         name: "foo"
         Element name: "child1"
@@ -252,5 +252,5 @@ define [
       a._updateFrom b
       stateEpoch.onNextReady ->
         assert.eq ["child1", "child3"], (child.props.name for child in a.children)
-        done()
+
 
