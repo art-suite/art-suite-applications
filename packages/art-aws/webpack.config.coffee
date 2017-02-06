@@ -3,6 +3,6 @@ module.exports = (require "art-foundation/configure_webpack")
   dirname: __dirname
   package:
     dependencies:
-      "aws-sdk":        "^2.7.9"
-      "dynamodb-local": "^0.0.12"
+      "aws-sdk":        "^2.9.0"
+      "dynamodb-local": "^0.0.13"
       "corsproxy":      "^1.5.0"
