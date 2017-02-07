@@ -122,9 +122,12 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
             @dynamoDb.updateItem dynamoDbParams
             .then ({item}) ->
               if dynamoDbParams.returnValues?.match /old/i
-                item
+                request.success
+                  props:
+                    oldData: item
+                    data: request.requestDataWithKey
               else
-                mergeInto item, dynamoDbParams.key
+                mergeInto request.requestDataWithKey, item
             .catch (error) ->
               if error.message.match /ConditionalCheckFailedException/
                 request.missing "Attempted to update a non-existant record."
