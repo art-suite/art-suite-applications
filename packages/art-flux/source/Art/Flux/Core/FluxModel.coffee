@@ -126,6 +126,8 @@ defineModule module, class FluxModel extends InstanceFunctionBindingMixin BaseOb
 
     loadData:       (key) ->
                       promise.then (data) ->
+                        if data is null or undefined, status will be set to missing
+                        otherwise, status will be success
                       promise.catch (a validStatus or error info, status becomes failure) ->
     loadFluxRecord: (key) -> promise.then (fluxRecord) ->
 
@@ -177,7 +179,7 @@ defineModule module, class FluxModel extends InstanceFunctionBindingMixin BaseOb
 
     p = if @loadData
       Promise.then    => @loadData key
-      .then (data)    => @updateFluxStore key, status: success, data: data
+      .then (data)    => @updateFluxStore key, if data? then status: success, data: data else status: missing
       .catch (error)  =>
         if validStatus error
           @updateFluxStore key, status: error
