@@ -101,7 +101,7 @@ module.exports = suite:
         assert.isString data.id
         assert.isNumber data.createdAt
         assert.isNumber data.updatedAt
-        myTable.get {data}
+        myTable.get key: data
         .then (getData) ->
           assert.eq getData, data
 
@@ -160,27 +160,6 @@ module.exports = suite:
           .then (data)->
             assert.eq data, merge createData, updatedData
 
-    test "update using data as keys", ->
-
-      createData = null
-
-      myTable.create
-        data:
-          name: "John"
-          email: "foo@bar.com"
-          rank: 123
-          attributes: ["adventurous", "charming"]
-
-      .then (createData) ->
-        myTable.update
-          data: foo: "bar", id: createData.id
-
-        .then (updatedData)->
-          myTable.get data: id: createData.id
-          .then (data)->
-            assert.eq data, merge createData, updatedData
-
-
     test "update non-existant record fails with status: missing", ->
       assert.rejects myTable.update
         key: randomString()
@@ -203,7 +182,7 @@ module.exports = suite:
         originatedOnServer: true
         props:
           createOk: true
-          data: userId: "123", postId: "abc"
+          key: userId: "123", postId: "abc"
       .then (response) ->
         assert.eq response.status, success
 
@@ -229,10 +208,10 @@ module.exports = suite:
 
       .then (data) ->
         assert.doesNotExist data.id
-        myManyToManyTable.get {data}
+        myManyToManyTable.get key: data
         .then ({foo}) -> assert.eq foo, "bar"
-        .then         -> myManyToManyTable.update data: merge data, foo: "bar2"
-        .then         -> myManyToManyTable.get {data}
+        .then         -> myManyToManyTable.update key: data, data: merge data, foo: "bar2"
+        .then         -> myManyToManyTable.get key: data
         .then ({foo}) -> assert.eq foo, "bar2"
 
     test "create fails with missing required field", ->

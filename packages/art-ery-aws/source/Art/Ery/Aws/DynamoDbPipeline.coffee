@@ -164,12 +164,9 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
     ###
     deleteIfExists: (request) ->
       {key, data} = request
-      request.subrequest @pipelineName, "delete", {key, data}
-      .catch (error) ->
-        if error?.info?.response?.isMissing
-          # still a success if the record didn't exist
-          request.success data: merge key, data
-        else throw error
+      request.subrequest @pipelineName, "delete", {key, data, returnNullIfMissing: true}
+      .then (result) ->
+        result ? request.success data: request.requestDataWithKey
 
     ###
     This calls 'update' and possibly 'create', so hooks on update an create will be triggered.
@@ -181,12 +178,10 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
       .then =>
         request.rejectIf @getKeyFieldsString() == 'id', "createOk not available on tables with auto-generated-ids"
       .then =>
-        {data} = request
-        request.subrequest @pipelineName, "update", {data}
-        .catch (error) =>
-          if error?.info?.response?.isMissing
-            request.subrequest @pipelineName, "create", {data}
-          else throw error
+        {data, key} = request
+        request.subrequest @pipelineName, "update", {key, data, returnNullIfMissing: true}
+        .then (result) =>
+          result ? request.subrequest @pipelineName, "create", {key, data}
 
   #########################
   # PRIVATE
@@ -289,7 +284,7 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
     .then =>
       if requiresKey
         data = @dataWithoutKeyFields data
-        key  = @_getNormalizedKeyFromRequest request
+        key  = @toKeyObject request.key
 
       # higher priority
       returnValues = options.returnValues if options.returnValues
@@ -312,15 +307,3 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
 
     .then options.then
     , ({message}) -> request.clientFailure message
-
-  _getNormalizedKeyFromRequest: (request) ->
-    {key, data, type} = request
-    key ||= data
-
-    if isPlainObject key
-      @toKeyObject key
-    else if isString key
-      "#{@keyFields[0]}": key
-    else
-      # log.error {request, key, data, type}
-      throw new Error "DynamoDbPipeline: expected key to be an object or a string: #{formattedInspect {key, data}}"
