@@ -176,7 +176,7 @@ defineModule module, ->
 
     @_getTightFontMetrics: (text, tightThreshold, fontOptions, fontCss)  ->
       tightFontMetricCacheKey = "#{text}:#{tightThreshold}:#{fontCss ||= toFontCss fontOptions}"
-      previousResult = @_tightFontMetricCache[tightFontMetricCacheKey] ||= if text.length == 1
+      previousResult = @_tightFontMetricCache[tightFontMetricCacheKey] ||= if text.length <= 3
         upScale = 2
         fontOptions = merge fontOptions, fontSize: fontOptions.fontSize * upScale
         fontCss = toFontCss fontOptions
@@ -220,6 +220,8 @@ defineModule module, ->
 
       ascender =   location.y - top + 1  # ascender + descender should == area.size.y
       descender =  bottom     - location.y
+
+      # log {scratchBitmap, text, fontOptions, ascender, descender, textOffsetX, textOffsetY, layoutW, layoutH}
 
       new TextLayoutFragment(
         text
