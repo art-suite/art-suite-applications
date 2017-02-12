@@ -36,6 +36,7 @@ module.exports = class Layout extends BaseObject
     overflow:   "ellipsis" # "visible", "clipped" or "ellipsis"
     # vAlign:     "top" # "middle"/"center" or "bottom"
     maxLines:   undefined
+    # TODO: paragraphLeading: 1.25 # multiple of fontSize - becomes the leading between lines separated by new-line
 
   wordStringToHash = (wordString) ->
     ret = {}
