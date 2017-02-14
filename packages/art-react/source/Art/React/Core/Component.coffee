@@ -467,8 +467,9 @@ defineModule module, -> class Component extends InstanceFunctionBindingMixin Vir
       child.find pattern, arguments[1], matches for child in @subComponents
     matches
 
-  toCoffeescript: (indent)->
-    @_virtualAimBranch.toCoffeescript indent
+  @getter
+    inspectedObjects: ->
+      "Component-#{@inspectedName} #{@_virtualAimBranch.inspectedName}": @_virtualAimBranch.inspectedObjectsContents
 
   getPendingState: -> @_pendingState || @state
 

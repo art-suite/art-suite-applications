@@ -1,6 +1,8 @@
 Foundation = require 'art-foundation'
 VirtualNode = require './VirtualNode'
 {
+  objectHasKeys
+  toInspectedObjects
   log, compactFlatten, globalCount, time, stackTime, BaseObject, shallowClone
   inspect, keepIfRubyTrue, stackTime, isPlainObject, compactFlatten
   isWebWorker
@@ -9,9 +11,10 @@ VirtualNode = require './VirtualNode'
   merge
   Promise
   propsEq
+  defineModule
 } = Foundation
 
-module.exports = class VirtualElement extends VirtualNode
+defineModule module, class VirtualElement extends VirtualNode
   @created = 0
   @instantiated = 0
 
@@ -29,20 +32,18 @@ module.exports = class VirtualElement extends VirtualNode
   @getter
     inspectedName: ->
       {key, elementClassName} = @
-      "VirtualElement-#{elementClassName}#{if key then "-" + key  else ''}"
+      "Virtual-#{elementClassName}#{if key then "-" + key  else ''}"
 
-  toCoffeescript: (indent = "") ->
-    compactFlatten([
-      "#{indent}#{@elementClassName}"
-      if Object.keys(@props).length == 0
-        "{}"
-      else
-        "\n  #{indent}#{k}: #{inspect v}" for k, v of @props
-      if @children?.length > 0
-        subIndent = indent + "  "
-        for child in @children
-          "\n#{child.toCoffeescript subIndent}"
-    ]).join ''
+    inspectedObjects: ->
+      "#{@inspectedName}": @inspectedObjectsContents
+
+    inspectedObjectsContents: ->
+      if @children.length > 0
+        compactFlatten [
+          {@props}
+          toInspectedObjects @children
+        ]
+      else {@props}
 
   #####################################
   # Custom Concrete-Element Overrides
