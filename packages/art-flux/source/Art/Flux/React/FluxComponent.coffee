@@ -133,7 +133,9 @@ defineModule module, class FluxComponent extends FluxSubscriptionsMixin Componen
 
     @extendSubscriptionProperties stateField, subscriptionOptions
 
-    @addGetter stateField, -> @state[stateField]
+    existingGetters = /element/ # TODO: make a list of all existing getters and don't replace them!
+    unless stateField.match existingGetters
+      @addGetter stateField, -> @state[stateField]
 
 
   @_prepareSubscription: (subscription) ->
