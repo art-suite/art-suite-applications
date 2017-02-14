@@ -74,6 +74,7 @@ defineModule module, class FluxModel extends InstanceFunctionBindingMixin BaseOb
     models: -> ModelRegistry.models
     fluxStore: -> fluxStore
     singlesModel: -> @_singlesModel || @
+    fluxStoreEntries: -> fluxStore.getEntriesForModel @name
 
   # DEPRICATED
   subscribe: (fluxKey, subscriptionFunction) ->

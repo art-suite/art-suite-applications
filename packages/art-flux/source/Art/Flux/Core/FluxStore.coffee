@@ -34,6 +34,7 @@ defineModule module, class FluxStore extends Epoch
   get:               (modelName, key) -> @_getEntry(modelName, key)?.fluxRecord
   getSubscribers:    (modelName, key) -> @_getEntry(modelName, key)?.subscribers
   getHasSubscribers: (modelName, key) -> !!@_getEntry(modelName, key)?.getHasSubscribers()
+  getEntriesForModel: (modelName) ->  @_entriesByModelName[modelName]
 
   ###
   subscribe to all changes to the fluxStore FluxEntry identified by modelName and Key.
