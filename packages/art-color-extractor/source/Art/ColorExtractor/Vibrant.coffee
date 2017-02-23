@@ -92,7 +92,7 @@ defineModule module, ->
       (minLuma <= @luma <= maxLuma) &&
       (minSat <= @sat <= maxSat)
 
-  class VibrantColors extends BaseObject
+  class Vibrant extends BaseObject
 
     constructor: (pixels, colorCount = 32, quality = 1) ->
       @_selectedSwatches = {}
