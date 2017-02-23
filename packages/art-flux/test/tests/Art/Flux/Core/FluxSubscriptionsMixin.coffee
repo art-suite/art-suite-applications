@@ -151,7 +151,6 @@ module.exports = suite:
 
           timeout 10 # not the best method to give the setState-reject a chance to fire before resolving, can anyone think of a better way?
         .then ->
-          log "resolve"
           resolve()
 
     test "unsubscribeAll", ->
@@ -183,7 +182,6 @@ module.exports = suite:
 
           timeout 10 # not the best method to give the setState-reject a chance to fire before resolving, can anyone think of a better way?
         .then ->
-          log "resolve"
           resolve()
 
 

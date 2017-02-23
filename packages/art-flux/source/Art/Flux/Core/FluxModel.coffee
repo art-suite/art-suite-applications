@@ -55,8 +55,10 @@ defineModule module, class FluxModel extends InstanceFunctionBindingMixin BaseOb
         @subscriptions "post"
   ###
   @aliases: ->
-    @_aliases = compactFlatten arguments, @_aliases
+    @_aliases = compactFlatten [arguments, @_aliases]
     null
+
+  @_aliases: []
 
   onNextReady: (f) -> fluxStore.onNextReady f
 

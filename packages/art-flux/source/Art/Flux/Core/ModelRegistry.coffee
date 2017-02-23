@@ -1,28 +1,34 @@
-{Promise, log, BaseObject, decapitalize, isClass, inspect, defineModule} = require "art-foundation"
+{Promise, timeout, log, formattedInspect, BaseObject, decapitalize, isClass, inspect, defineModule} = require "art-foundation"
 
 defineModule module, class ModelRegistry extends BaseObject
   @models: models = {}
   @_modelRegistrationPromiseResolvers: {}
 
+  _registerModel = (name, model) ->
+    if models[name]
+      throw new Error "
+        ArtFlux.ModelRegistry: model already registered for name: '#{name}'.
+        #{formattedInspect alreadyRegisteredModel: models[name], attemptingToRegisterModel: model, name: name}
+        "
+    # timeout().then -> log "ArtFlux model registered: #{name}, (#{formattedInspect model})"
+    models[name] = model
+
   # returns the singleton
-  @register: (modelClassOrInstance) ->
+  @register: (model) =>
 
-    model = if isClass modelClassOrInstance
-      log.warn "ModelRegistry.register Class (not instance) is DEPRICATED"
-      {_aliases} = modelClassOrInstance
-      new modelClassOrInstance
-    else
-      {_aliases} = modelClassOrInstance.class
-      modelClassOrInstance
+    {modelName} = model
 
-    _aliases && for alias in _aliases
-      models[alias] = model
+    for alias in model.class._aliases
+      _registerModel alias, model
 
-    models[modelName = model.name] = model
+    _registerModel modelName, model
 
+    @_modelRegistered model
+
+  @_modelRegistered: (model) ->
+    {modelName} = model
     if resolvers = @_modelRegistrationPromiseResolvers[modelName]
       resolve model for resolve in resolvers
-
     model
 
   # OUT: promise.then (model) -> model has been registered

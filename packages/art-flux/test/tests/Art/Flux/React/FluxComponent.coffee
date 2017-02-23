@@ -8,9 +8,11 @@ React = require 'art-react'
 
 {Element} = React
 
+resetAll = ->
+  Flux._reset()
+
 myModelSetup = ->
-  fluxStore._reset()
-  ModelRegistry._reset()
+  resetAll()
   createWithPostCreate class MyModel extends ApplicationState
     @stateFields myField: {}, myField2: {}
 
@@ -70,7 +72,7 @@ defineModule module, suite:
       models.myField2 = name:"alice"
 
   initialValues: ->
-    setup myModelSetup
+    setup resetAll
 
     test "subscriptions - component with subscription to model with immediate result only renders once", -> new Promise (resolve)->
       createWithPostCreate class MyModel extends FluxModel
@@ -104,6 +106,7 @@ defineModule module, suite:
       MyComponent(user: id:"124", name:"george")._instantiate()
 
     test "subscriptions - post - declarative subscriptions", -> new Promise (resolve) ->
+      myModelSetup()
 
       MyComponent = createWithPostCreate class MyComponent extends FluxComponent
         @subscriptions "myModel.myField"
