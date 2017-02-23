@@ -1,13 +1,22 @@
-{object, merge, defineModule, formattedInspect, log, timeout} = require 'art-foundation'
+{present, object, merge, defineModule, formattedInspect, log, timeout} = Foundation = require 'art-foundation'
 {point} = require 'art-atomic'
 Bitmap = require './bitmap'
 
+{Div, Link, Style} = Foundation.Browser.DomElementFactories
+
+
+###
+fonts: an object
+  keys are fontFamily names if value.fontFamily is not provided
+  values are options objects:
+    text: the text to test if the font is loaded
+    css: URL to the css file that will load the font
+    url: URL to the font-file to load
+    fontFamily: override the fontFamily name
+###
 defineModule module, class FontLoader
   ###
-  IN: object:
-    keys are ignored except for the return value
-    values are fontOptions passed to bitmap.drawText
-    With one addition: set text: "string" for custom test-text
+  IN: see 'fonts' above
   OUT: promise.then (object) -> all specified fonts have been loaded
     object lists all the input keys with 'true' for the values - because
     they have all been loaded
@@ -32,15 +41,40 @@ defineModule module, class FontLoader
 
       testFonts()
 
-  # immediatly returns T/F
+  # IN: see 'fonts' above
+  # OUT: immediatly returns T/F
   @allFontsLoadedSync: (fonts) ->
     for k, loaded of FontLoader.fontsLoadedSync fonts
       return false unless loaded
     true
 
-  # OUT: object keys are from fonts, values are true/false if that font is loaded
+  # IN: see 'fonts' above
+  # OUT: promise.then (loadedMap) ->
+  #   IN: ladedMap: object keys are from fonts, values are true/false if that font is loaded
   @fontsLoadedSync: (fonts) ->
     object fonts, FontLoader.fontLoaded
+
+  # IN: see 'fonts' above
+  @loadFonts: (fonts) ->
+    fontsLoaded = @fontsLoadedSync fonts
+    for name, {fontFamily, text = "aA", css, url} of fonts when !fontsLoaded[fontFamily]
+      fontFamily ||= name
+      if css
+        document.head.appendChild Link
+          rel: "stylesheet"
+          href: Icomoon.stylesheet
+
+      else if url
+        document.head.appendChild Style "@font-face { font-family: #{fontFamily}; src: url('#{url}'); } "
+
+      document.body.appendChild Div
+        style:
+          fontFamily: fontFamily
+          position:   "absolute"
+          fontSize:   "0"
+        text
+
+    @allFontsLoaded fonts
 
   @fontLoaded: (fontOptions, fontFamily) ->
     text = fontOptions.text || "aA"
