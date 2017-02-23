@@ -1,18 +1,17 @@
-{present, object, merge, defineModule, formattedInspect, log, timeout} = Foundation = require 'art-foundation'
+{present, isPlainObject, object, merge, defineModule, formattedInspect, log, timeout} = Foundation = require 'art-foundation'
 {point} = require 'art-atomic'
 Bitmap = require './bitmap'
 
 {Div, Link, Style} = Foundation.Browser.DomElementFactories
 
-
+defaultLoadedTestText = "aA"
 ###
-fonts: an object
-  keys are fontFamily names if value.fontFamily is not provided
-  values are options objects:
-    text: the text to test if the font is loaded
-    css: URL to the css file that will load the font
-    url: URL to the font-file to load
-    fontFamily: override the fontFamily name
+fonts:
+  nameKey:
+    loadedTestText: string of characters with different glyphs than Arial (actually rendered to validate they changed)
+    css:            URL to the css file that will load the font
+    url:            URL to the font-file to load
+    fontFamily:     font-family name [default: nameKey]
 ###
 defineModule module, class FontLoader
   ###
@@ -29,7 +28,10 @@ defineModule module, class FontLoader
     timeoutRemaining = initialTimeoutRemaining = 1000
     new Promise (resolve, reject) ->
       testFonts = ->
-        log formattedInspect FontLoader: allFontsLoaded: {fonts, waited: initialTimeoutRemaining - timeoutRemaining}
+        if initialTimeoutRemaining - timeoutRemaining >= 100
+          # font taking more than 100ms to load
+          log.warn formattedInspect FontLoader: allFontsLoaded: {fonts, waited: initialTimeoutRemaining - timeoutRemaining}
+
         if FontLoader.allFontsLoadedSync fonts
           resolve object fonts, -> true
         else if timeoutRemaining <= 0
@@ -56,13 +58,20 @@ defineModule module, class FontLoader
 
   # IN: see 'fonts' above
   @loadFonts: (fonts) ->
+    if !isPlainObject fonts
+      throw new Error "ArtCanvas.FontLoader.loadFonts: fonts should be an object"
+
+    log FontLoader: loading: fonts
+
     fontsLoaded = @fontsLoadedSync fonts
-    for name, {fontFamily, text = "aA", css, url} of fonts when !fontsLoaded[fontFamily]
+    for name, {fontFamily, loadedTestText, css, url} of fonts when !fontsLoaded[fontFamily]
+      loadedTestText ||= defaultLoadedTestText
       fontFamily ||= name
+      log loading: {fontFamily}
       if css
         document.head.appendChild Link
           rel: "stylesheet"
-          href: Icomoon.stylesheet
+          href: css
 
       else if url
         document.head.appendChild Style "@font-face { font-family: #{fontFamily}; src: url('#{url}'); } "
@@ -72,29 +81,30 @@ defineModule module, class FontLoader
           fontFamily: fontFamily
           position:   "absolute"
           fontSize:   "0"
-        text
+        loadedTestText
 
     @allFontsLoaded fonts
 
   @fontLoaded: (fontOptions, fontFamily) ->
-    text = fontOptions.text || "aA"
+    throw new Error "fontOption 'text' is DEPRICATED: use loadedTestText" if fontOptions.text
+    {loadedTestText} = fontOptions
+    loadedTestText = fontOptions.loadedTestText || "aA"
     fontOptions = merge
       fontFamily: fontFamily
-      text: "aA"
       fontSize: 12
       fontOptions
 
     # log renderTest: {fontOptions}
 
     x = fontOptions.fontSize * 3
-    tempBitmap = new Bitmap point x + fontOptions.fontSize * (fontOptions.text.length - 1), x
+    tempBitmap = new Bitmap point x + fontOptions.fontSize * (loadedTestText.length - 1), x
     tempBitmap.clear backgroundColor = "#eee"
-    tempBitmap.drawText point(x * 1/3, x * 2 / 3), fontOptions.text, referenceOptions = merge fontOptions, fontFamily: "Sans Serif", color: "black"
+    tempBitmap.drawText point(x * 1/3, x * 2 / 3), loadedTestText, referenceOptions = merge fontOptions, fontFamily: "Sans Serif", color: "black"
     # log referenceBitmap: tempBitmap.clone(), referenceOptions: referenceOptions
     referenceData = tempBitmap.imageData.data
 
     tempBitmap.clear backgroundColor
-    tempBitmap.drawText point(x * 1/3, x * 2 / 3), fontOptions.text, testOptions = merge fontOptions, fontFamily: "#{fontOptions.fontFamily}, Sans Serif", color: "black"
+    tempBitmap.drawText point(x * 1/3, x * 2 / 3), loadedTestText, testOptions = merge fontOptions, fontFamily: "#{fontOptions.fontFamily}, Sans Serif", color: "black"
 
     # log testBitmap: tempBitmap.clone(), testOptions: testOptions
     testData = tempBitmap.imageData.data
