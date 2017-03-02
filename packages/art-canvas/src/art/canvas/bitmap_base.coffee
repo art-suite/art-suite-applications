@@ -50,6 +50,17 @@ module.exports = class BitmapBase extends BaseObject
     else                                         @initNewCanvas point a, b
 
   @getter
+    hasAlpha: ->
+      {size} = @
+      if size.x <= 128 && size.y <= 128
+        {data} = @imageData
+        for v, i in data by 4
+          if data[i + 3] < 255
+            return true
+        false
+      else
+        @resize(128).hasAlpha
+
     inspectedObjects: -> @
     canvas: ->
       unless @_canvas
