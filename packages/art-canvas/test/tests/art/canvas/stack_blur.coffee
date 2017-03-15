@@ -15,12 +15,12 @@ exactFill = (bitmap, r, g, b, a) ->
   bitmap.putImageData iData
 
 suite "Art.Canvas.StackBlurOriginal", ->
-  test "StackBlurOriginal", ->
-    bitmap = new Canvas.Bitmap point 128, 128
-    bitmap.drawRectangle null, rect(32, 32, 64, 64), radius:32
-    log bitmap
-    Canvas.StackBlurOriginal.blur bitmap, 32
-    log bitmap
+  # test "StackBlurOriginal", ->
+  #   bitmap = new Canvas.Bitmap point 128, 128
+  #   bitmap.drawRectangle null, rect(32, 32, 64, 64), radius:32
+  #   log bitmap
+  #   Canvas.StackBlurOriginal.blur bitmap, 32
+  #   log bitmap
 
   test "StackBlur", ->
     bitmap = new Canvas.Bitmap point 128, 128

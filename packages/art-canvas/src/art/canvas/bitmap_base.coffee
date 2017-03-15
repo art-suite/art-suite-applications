@@ -165,9 +165,13 @@ module.exports = class BitmapBase extends BaseObject
     return if @_context
     throw new Error "invalid size=#{size} for Art.Canvas.Bitmap" unless size.gt point()
     @_size = size.floor()
-    @_canvas = document.createElement 'canvas'
-    @_canvas.width = @size.x
-    @_canvas.height = @size.y
+    if global.document
+      @_canvas = document.createElement 'canvas'
+      @_canvas.width = @size.x
+      @_canvas.height = @size.y
+    else
+      # HTMLCanvasElement = require 'canvas'
+      @_canvas = new HTMLCanvasElement @size.x, @size.y
     @initContext()
 
   populateClone: (result)->
@@ -239,17 +243,37 @@ module.exports = class BitmapBase extends BaseObject
     .then => # use nextTick to ensure all pending draw commands complete before we extract the pixel data
       @toMemoryBitmap().canvas.toDataURL "image/jpeg", quality
 
-  # results in BinaryString
+  # OUT: results in BinaryString
   toPng: ->
     @toPngUri()
     .then (dataURI) ->
       BinaryString.fromDataUri dataURI
 
-  # results in BinaryString
+  # OUT: results in BinaryString
   toJpg: (quality) ->
     @toJpgUri quality
     .then (dataURI) ->
       BinaryString.fromDataUri dataURI
+
+  ###
+  automatically incode to jpg or png
+  png: only if hasAlpha is true
+  jpg: all other times
+  OUT:
+    mimeType:   what mime-type was used
+    extension:  what extension was used
+    data: binaryString in either PNG or JPG format
+  ###
+  autoEncode: (quality) ->
+    encodePromise = if @hasAlpha
+      extension = "png"
+      @toPng()
+    else
+      extension = "jpeg"
+      @toJpg quality
+
+    encodePromise.then (data) ->
+      {extension, data, mimeType: "image/#{extension}"}
 
   toImage: ->
     nextTick()

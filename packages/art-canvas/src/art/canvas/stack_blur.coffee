@@ -68,23 +68,19 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 ###
 
-define [
-  "./namespace"
-  'art-atomic'
-  'art-foundation'
-  "./bitmap_base"
-  ], (Canvas, Atomic, Foundation) ->
-  {point, matrix, rect, color} = Atomic
+Canvas = require './namespace'
+{point, matrix, rect, color} = require 'art-atomic'
+{defineModule, inspect, nextTick} = require 'art-standard-lib'
+{BaseClass} = require 'art-class-system'
+require './bitmap_base'
 
-  inspect   = Foundation.Inspect.inspect
-  nextTick  = Foundation.nextTick
-
+defineModule module, ->
   class BlurStack
     constructor: ->
       @r = @g = @b = @a = 0
       @next = null
 
-  class Canvas.StackBlur extends Foundation.BaseObject
+  class Canvas.StackBlur extends BaseClass
     @blur: (bitmap, radius) -> (new Canvas.StackBlur).blur bitmap, radius
     @blurRGB: (bitmap, radius) -> (new Canvas.StackBlur).blurRGB bitmap, radius
     @blurAlpha: (bitmap, radius) -> (new Canvas.StackBlur).blurAlpha bitmap, radius

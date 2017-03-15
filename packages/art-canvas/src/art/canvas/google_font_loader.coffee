@@ -1,7 +1,7 @@
 # http://www.google.com/fonts/
 # https://github.com/typekit/webfontloader
 Foundation = require 'art-foundation'
-WebFont = require 'webfontloader'
+WebFont = require 'webfontloader' unless Neptune.isNode
 {inspect, log, BatchLoader} = Foundation
 
 module.exports = class GoogleFontLoader extends BatchLoader

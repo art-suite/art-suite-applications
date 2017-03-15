@@ -26,6 +26,7 @@ StackBlur = require "./stack_blur"
   inspect, log, min, max, Binary, isFunction, isPlainObject, eq, currentSecond, round, isNumber, floatEq0
   Promise
   isPlainObject
+  isString
 } = Foundation
 {EncodedImage} = Binary
 {point, Point, rect, Rectangle, matrix, Matrix, rgbColor, Color, IdentityMatrix, point0} = Atomic
@@ -78,7 +79,7 @@ module.exports = class Bitmap extends BitmapBase
     EncodedImage.get url, options
     .then (image) ->
       bitmap = new Bitmap image
-      if match = url.match /@([2-9])x\.[a-zA-Z]+$/
+      if isString(url) && match = url.match /@([2-9])x\.[a-zA-Z]+$/
         [_, resolution] = match
         bitmap.pixelsPerPoint = resolution | 0
       bitmap
