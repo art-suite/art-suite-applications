@@ -11,7 +11,7 @@
 } = require 'art-foundation'
 
 {Pipeline, KeyFieldsMixin, pipelines} = require 'art-ery'
-{DynamoDb} = require 'art-aws'
+{DynamoDb} = ArtAws = require 'art-aws'
 
 UpdateAfterMixin = require './UpdateAfterMixin'
 
