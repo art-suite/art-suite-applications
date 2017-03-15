@@ -118,9 +118,6 @@ module.exports = class DynamoDb extends BaseObject
 
   nonInternalErrorsRegex = /ConditionalCheckFailedException/
   invokeAws: (name, params) ->
-    # log invokeAws:
-    #   name: name
-    #   params: params
     Promise.withCallback (callback) => @_awsDynamoDb[name] params, callback
     .catch (error) =>
       if config.verbose || !error.message.match nonInternalErrorsRegex
