@@ -104,7 +104,7 @@ module.exports =
   mipmapSize: mipmapSize = 64
 
   ###
-  IN: imageData - a 1D RGBA pixel array
+  IN: bitmap
 
     Example:
 
@@ -113,6 +113,14 @@ module.exports =
     imageDataBuffer = imageData.data.buffer
 
     log extractColors imageDataBuffer
+
+  OUT:
+    version:
+    colorMap: [] # 9 colors that represent the image in this shape:
+      1 2 3
+      4 5 6
+      7 8 9
+    colors: {} # named colors
   ###
   extractColors: extractColors = (bitmap) ->
     bitmap = bitmap.getMipmap mipmapSize
