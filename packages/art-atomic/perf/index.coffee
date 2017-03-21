@@ -1,5 +1,8 @@
-{Mocha, Perf} = require "art-foundation/dev_tools/test"
+{Mocha, Perf} = require "art-testbench"
 self.benchmark = Perf.benchmark
 
-Mocha.run ({assert})->
-  require './perfs'
+require '../'
+require "art-testbench/testing"
+.init
+  synchronous: true
+  defineTests: -> require './perfs'
