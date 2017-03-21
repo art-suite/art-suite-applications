@@ -1,5 +1,5 @@
-Foundation = require "art-foundation"
-{present, RestClient, defineModule, parseUrl, peek, Promise,merge} = Foundation
+RestClient = require 'art-rest-client'
+{log, present, defineModule, parseUrl, peek, Promise,merge} = require 'art-standard-lib'
 
 # npm querystring doesn't implement escape and unescape, which aws4 needs
 QuertyString = require 'querystring'
@@ -8,9 +8,9 @@ QuertyString.unescape ||= decodeURIComponent
 
 {config} = Config = require "./Config"
 
-{BaseObject, log} = Foundation
+{BaseClass} = require 'art-class-system'
 
-defineModule module, class S3 extends BaseObject
+defineModule module, class S3 extends BaseClass
 
     ###
     OUT: Promise -> {location, response}
