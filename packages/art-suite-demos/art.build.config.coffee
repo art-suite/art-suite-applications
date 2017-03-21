@@ -1,8 +1,12 @@
-module.exports = (require "art-foundation/configure_webpack")
-  entries: "Demos HelloWorld"
-  dirname: __dirname
+module.exports =
+  webpack:
+    common: {}
+    targets:
+      Demos: {}
+      HelloWorld: {}
+
   package:
-    author: "Shane Brinkman-Davis Delamore"
+    description: "See what ArtSuite can do."
     dependencies:
       "art-suite":            "git://github.com/imikimi/art-suite"
       "art-color-extractor":  "git://github.com/imikimi/art-color-extractor"

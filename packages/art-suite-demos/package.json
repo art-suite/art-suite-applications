@@ -1,8 +1,9 @@
 {
-  "author": "Shane Brinkman-Davis Delamore",
+  "author": "Shane Brinkman-Davis Delamore, Imikimi LLC",
   "dependencies": {
     "art-class-system": "^1.0.1",
     "art-color-extractor": "git://github.com/imikimi/art-color-extractor",
+    "art-config": "^1.0.0",
     "art-standard-lib": "^1.1.0",
     "art-suite": "git://github.com/imikimi/art-suite",
     "art-testbench": "^1.0.0",
@@ -18,6 +19,7 @@
     "webpack-dev-server": "^2.3.0",
     "webpack-merge": "^3.0.0"
   },
+  "description": "See what ArtSuite can do.",
   "license": "ISC",
   "name": "art-suite-demos",
   "scripts": {
