@@ -68,7 +68,12 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
   ###########################################
   @handlers
 
+    # to-depricate??? use initialize
     createTable: ->
+      @_vivifyTable()
+      .then -> message: "success"
+
+    initialize: (request)->
       @_vivifyTable()
       .then -> message: "success"
 
