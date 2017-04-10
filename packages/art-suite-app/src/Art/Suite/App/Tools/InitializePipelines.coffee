@@ -1,16 +1,18 @@
+
 module.exports =
   params: "[pipelineName]"
   action: (options) ->
-    {log, wordsArray, lowerCamelCase, isPlainObject, merge, isString} = require 'art-foundation'
+    {array, log, wordsArray, lowerCamelCase, isPlainObject, merge, isString} = require 'art-foundation'
     {args:[pipelineName]} = options
     {pipelines} = require 'art-ery'
     ArtAws = require 'art-aws'
 
     errors = []
-    promises = for name, pipe of pipelines when pipe.createTable && (!pipelineName || pipelineName == name)
-      do (pipe) ->
-        pipe.createTable()
-        .then => success: pipe
+    promises = array pipelines,
+      when: (pipe, name) -> pipe.initialize && (!pipelineName || pipelineName == name)
+      with: (pipe, name) ->
+        pipe.initialize()
+        .then => pipe
         .catch (response) =>
           console.error response
           errors.push ["error creating table: #{pipe.tableName}",
@@ -18,8 +20,11 @@ module.exports =
             response: response
           ]
     Promise.all promises
-    .then ->
+    .then (pipelines)->
       if errors.length > 0
         errors
       else
         ArtAws.DynamoDb.singleton.listTables()
+        .then (tables) ->
+          dynamoDbTables: tables
+          pipelinesInitialized: pipelines
