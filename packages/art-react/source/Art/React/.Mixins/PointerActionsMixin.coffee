@@ -39,7 +39,7 @@ defineModule module, ->
         pointerUp:        @pointerUp
         pointerCancel:    @pointerUp
         pointerOut:       @pointerUp
-        pointerUpInside:  customAction || @doAction || @action
+        pointerUpInside:  customAction || @doAction || @action || @props.action
 
       hoverHandlers: ->
         # CafScript could do: {} @mouseIn @mouseOut
