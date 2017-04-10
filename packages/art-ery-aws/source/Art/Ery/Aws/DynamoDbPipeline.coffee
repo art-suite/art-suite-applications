@@ -10,10 +10,8 @@
   isString
 } = require 'art-foundation'
 
-{Pipeline, KeyFieldsMixin, pipelines} = require 'art-ery'
+{Pipeline, KeyFieldsMixin, pipelines, UpdateAfterMixin} = require 'art-ery'
 {DynamoDb} = ArtAws = require 'art-aws'
-
-UpdateAfterMixin = require './UpdateAfterMixin'
 
 defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMixin Pipeline
   @abstractClass()
