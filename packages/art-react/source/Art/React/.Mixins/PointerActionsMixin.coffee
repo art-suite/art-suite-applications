@@ -1,4 +1,4 @@
-{defineModule} = require 'art-foundation'
+{defineModule, log} = require 'art-standard-lib'
 
 defineModule module, ->
   (superClass) -> class PointerActionsMixin extends superClass
@@ -7,16 +7,19 @@ defineModule module, ->
       hover: false
       pointerIsDown: false
 
-    mouseIn:     -> @setState hover: true
-    mouseOut:    -> @setState hover: false
-    pointerDown: -> @setState pointerIsDown: true
-    pointerUp:   -> @setState pointerIsDown: false
+    mouseIn:            -> @setState hover: true
+    mouseOut:           -> @setState hover: false
+    pointerDownHandler: -> @setState pointerIsDown: true
+
+    pointerUp:          -> @setState pointerIsDown: false
 
     @getter
       hover: -> @state.hover
       pointerIsDown: -> @state.pointerIsDown
+      pointerDown: -> @pointerIsDown
 
       buttonHandlers: (customAction) ->
+        element = @
         ###
           CafScript could do: {}
             @mouseIn
@@ -34,12 +37,16 @@ defineModule module, ->
         #   pointerUpInside: newProps.preprocessAction
         mouseIn:          @mouseIn
         mouseOut:         @mouseOut
-        pointerDown:      @pointerDown
-        pointerIn:        @pointerDown
+        pointerDown:      @pointerDownHandler
+        pointerIn:        @pointerDownHandler
         pointerUp:        @pointerUp
         pointerCancel:    @pointerUp
         pointerOut:       @pointerUp
-        pointerUpInside:  customAction || @doAction || @action || @props.action
+        pointerUpInside:  (event) ->
+          event.target.capturePointerEvents()
+          (customAction || element.doAction || element.action || element.props.action)? event
+
+      pointerHandlers: -> @buttonHandlers
 
       hoverHandlers: ->
         # CafScript could do: {} @mouseIn @mouseOut

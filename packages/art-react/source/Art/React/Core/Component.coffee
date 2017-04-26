@@ -30,6 +30,7 @@ React = require './namespace'
 {HotLoader} = require 'art-foundation/dev_tools/webpack'
 {runHot} = HotLoader
 
+StateFieldsMixin = require './StateFieldsMixin'
 
 if ArtEngineCore = Neptune.Art.Engine.Core
   {StateEpoch, GlobalEpochCycle} = ArtEngineCore
@@ -93,7 +94,7 @@ fixed a bug where @state got altered without going through preprocessState first
 when state changes after the component was unmounted. How should I TEST this???
 
 ###
-defineModule module, -> class Component extends InstanceFunctionBindingMixin VirtualNode
+defineModule module, -> class Component extends StateFieldsMixin InstanceFunctionBindingMixin VirtualNode
   @abstractClass()
 
   @nonBindingFunctions: "getInitialState
@@ -182,18 +183,6 @@ defineModule module, -> class Component extends InstanceFunctionBindingMixin Vir
 
   @instantiateAsTopComponent = (props, options) ->
     new @(props).instantiateAsTopComponent options
-
-  @extendableProperty stateFields: {}
-
-  @stateFields: sf = (fields) ->
-    @extendStateFields fields
-    for field, initialValue of fields
-      do (field) =>
-        @addSetter field, (v) -> @setState field, v
-        @addGetter field, -> @state[field]
-
-  # ALIAS
-  @stateField: sf
 
   @createdComponents: null
   @pushCreatedComponent: (c)->
