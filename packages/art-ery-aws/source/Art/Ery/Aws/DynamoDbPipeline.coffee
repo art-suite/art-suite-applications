@@ -109,7 +109,7 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
         data: all fields with their current values (returnValues: 'allNew')
 
     TODO:
-      support request.props.add and request.props.setDefaults
+      support request.props.add and request.props.setDefault
         for both: requireOriginatedOnServer
     ###
     update: (request) ->
@@ -130,7 +130,13 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
                     oldData: item
                     data: request.requestDataWithKey
               else
-                mergeInto request.requestDataWithKey, item
+                modifiedFields = merge request.data, request.props.add, request.props.setDefault
+                request.success
+                  props:
+                    data: data = mergeInto request.requestDataWithKey, item
+                    updatedData: object data,
+                      when: (v, k) -> modifiedFields[k]?
+
             .catch (error) ->
               if error.message.match /ConditionalCheckFailedException/
                 request.missing "Attempted to update a non-existant record."
