@@ -1,10 +1,13 @@
 # TODO: rename to ApplicationStateModel
-Foundation = require 'art-foundation'
 FluxCore = require '../Core'
-{clone, BaseObject, log, isString, isPlainObject, merge, propsEq, mergeInto, Unique, defineModule, CommunicationStatus} = Foundation
+{
+  lowerCamelCase
+  each, clone, BaseObject, log, isString, isPlainObject, merge, propsEq, mergeInto, Unique, defineModule
+} = require 'art-standard-lib'
 {FluxStore, FluxModel} = FluxCore
 {fluxStore} = FluxStore
-{pending, success, failure, missing} = CommunicationStatus
+{pending, success, failure, missing} = require "art-communication-status"
+{StateFieldsMixin} = require 'art-react'
 
 ###
 A state-store with the same state API as React Components:
@@ -52,7 +55,7 @@ NEW:
         TextElement text: "showingWelcome: #{@ozAppState.showingWelcome}"
 ###
 
-defineModule module, class ApplicationState extends FluxModel
+defineModule module, class ApplicationState extends StateFieldsMixin FluxModel
   @abstractClass()
   @persistant: -> @_persistant = true
 
@@ -73,22 +76,6 @@ defineModule module, class ApplicationState extends FluxModel
         log "new state field added": field: k, value: v
 
     ret
-
-  ###
-  Declare state fields you intend to use.
-  IN: fields
-    map from field names to initial values
-
-  EFFECTS:
-    initializes @state
-    declares @getters and @setters for each field
-  ###
-  @stateFields: (fields) ->
-    @_stateFields = mergeInto @_stateFields, fields
-    for field, initialValue of fields
-      do (field) =>
-        @_addSetter @::, field, (v) -> @setState field, v
-        @_addGetter @::, field, -> @state[field]
 
   constructor: ->
     super
@@ -201,4 +188,4 @@ defineModule module, class ApplicationState extends FluxModel
       localStorage.setItem @localStorageKey, JSON.stringify @savableState
 
   _getInitialState: (loadFromLocalStorage = true) ->
-    @_updateAllState merge @getInitialState(), @class._stateFields, loadFromLocalStorage && try @_loadFromLocalStorage()
+    @_updateAllState merge @getInitialState(), @getStateFields(), loadFromLocalStorage && try @_loadFromLocalStorage()
