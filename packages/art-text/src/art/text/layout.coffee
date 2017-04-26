@@ -281,9 +281,10 @@ module.exports = class Layout extends BaseObject
         text = text.slice 0, text.length - 1
         textWithEllipsis = text + "…"
 
-      m.setLayoutLocationFrom peek @_fragments
-      @_fragments[@_fragments.length - 1] = m
-      @_expandArea m
+      if m
+        m.setLayoutLocationFrom peek @_fragments
+        @_fragments[@_fragments.length - 1] = m
+        @_expandArea m
 
   _resetLayout: ->
     @_fragments = @_area = @_size = @_drawArea = null
