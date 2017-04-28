@@ -11,6 +11,6 @@ module.exports = [
   [Matrix,    "matrix", "identityMatrix"]
   [Perimeter, "perimeter", "perimeter0"]
 
-  package: _package = require "art-atomic/package.json"
+  package: _package = require "../../../package.json"
   version: _package.version
 ]
