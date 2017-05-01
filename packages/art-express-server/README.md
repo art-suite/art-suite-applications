@@ -1,1 +1,3 @@
-Initialized with Art-Build-Configurator
+# ArtExpressServer
+
+Extensible, Promise-based HTTP Server based on Express
