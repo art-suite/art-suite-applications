@@ -1,14 +1,20 @@
 module.exports =
   target:
-    ###
-    configures for standard node-targeted library
-    NOTE: node-targeted libraries can also be built into broswer-targeted libraries.
-      They just can't be used *directly* in the browser
-    ###
     node: true
 
-  npm:
-    description: 'TODO'
+  package:
+    scripts:
+      testServer: "coffee ./TestServer.coffee"
+
+    description: "
+      Extensible, Promise-based HTTP Server based on Express
+      "
+
+    dependencies:
+      express:              "^4.14.0"
+      compress:             "^0.99.0"
+      throng:               "^4.0.0"
+      jsonwebtoken:         "^7.2.1"
 
   webpack:
     # common properties are merged into each target's properties
