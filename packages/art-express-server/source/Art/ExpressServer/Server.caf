@@ -1,4 +1,5 @@
 import &ArtStandardLib, &ArtCommunicationStatus
+&colors
 
 class ExpressServer extends &LoggingMixin &ArtClassSystem.BaseClass
 
@@ -25,7 +26,18 @@ class ExpressServer extends &LoggingMixin &ArtClassSystem.BaseClass
 
           The merged options-object passed into start is passed to each getMiddleware call.
 
-    {numWorkers} = @options = merge ExpressServer.defaults, manyOptions...
+        allowAllCors: true
+          If set, then headers and OPTIONS requests will be handled in such a way
+          that ALL requests are accepted, regardless of CORS.
+
+          This is the way the interenet should work. The problem is COOKIES.
+
+          If your client uses COOKIES, then don't use this, but if you maintain your
+          sessions some other way, it is safe to do.
+
+          SEE: http://www.essenceandartifact.com/2017/01/why-cors-why.html
+
+    {numWorkers} = @options = @_allowAllCors merge ExpressServer.defaults, manyOptions...
 
     @logVerbose start: {}
       env:      object v, k from process.env when k.match /^art/
@@ -44,6 +56,19 @@ class ExpressServer extends &LoggingMixin &ArtClassSystem.BaseClass
   ##################
   # PRIVATE
   ##################
+  _allowAllCors: (options) ->
+    if options.allowAllCors
+      merge
+        options
+        commonResponseHeaders: merge
+          &AllowAllCorsHandler.commonResponseHeaders
+          options.commonResponseHeaders
+
+        handlers: compactFlatten []
+          &AllowAllCorsHandler
+          options.handlers
+    else options
+
   _startOneServer: ->
 
     {port, handlers, commonResponseHeaders} = @options
