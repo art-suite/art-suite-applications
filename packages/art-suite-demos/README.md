@@ -1,6 +1,6 @@
 # Art.Suite.Demos
 
-See what ArtSuite can do.
+See what ArtSuite can do: [Live Demo](http://imikimi.github.io/art-suite-demos/)
 
 ### Install and Run
 
