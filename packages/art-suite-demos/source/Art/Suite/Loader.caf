@@ -1,0 +1,109 @@
+import &ArtSuite
+
+Demos = &Demos
+
+textStyle =
+  fontFamily: :Helvetica
+  fontSize:   16
+  color:      #fffc
+
+class DemoButton extends PointerActionsMixin Component
+
+  doAction: ->
+    @props.setSelectedDemo @props.name
+
+  render: ->
+    {pointerIsDown, hover} = @state
+    {name} = @props
+
+    Element
+      size: ww: 1, hch: 1
+
+      RectangleElement
+        color:      if hover then #fff else #fff0
+        animators:  :color
+
+      TextElement
+        textStyle
+        size:     ww:1, hch:1
+        cursor:   :pointer
+        color:    #0007
+        text:     name
+        padding:  10
+        on:       @buttonHandlers
+
+class BackButton extends PointerActionsMixin Component
+
+  render: ->
+    {pointerIsDown, hover} = @state
+    {name} = @props
+    Element
+      size: cs: 1
+      clip: true
+      animators: size: toFrom: hch:1, w: 0
+
+      RectangleElement
+        color:      if hover then #999 else #555
+        animators:  :color
+        radius:     5
+
+      TextElement
+        textStyle
+        size: cs: 1
+        cursor:   :pointer
+        text:     :back
+        padding:  10
+        on: @getButtonHandlers @props.back
+
+class Loader extends Component
+
+  @stateFields selectedDemo: null
+
+  back: -> @selectedDemo = null
+
+  render: ->
+    {selectedDemo} = @state
+
+    # selectedDemo = null
+
+    Element
+      childrenLayout: :column
+
+      Element
+        size: ww:1, h:50
+        childrenLayout: :row
+        childrenAlignment: :centerLeft
+        RectangleElement inFlow: false color: #333 padding: -10
+        padding: 10
+
+        if selectedDemo
+          # TextElement textStyle, text: :hi
+          BackButton {@back}
+
+        TextElement
+          textStyle
+          fontSize: 20
+          margin:   10
+          text:     selectedDemo || "" art-react-demos
+
+      # if false
+      Element
+        RectangleElement color: :white
+        if selectedDemo
+          Element
+            key: "" demo-#{selectedDemo}
+            clip: true
+            animators: axis: toFrom: point -1, 0
+
+            Demos[selectedDemo].Main()
+        else
+
+          Element
+            key: :select-demo
+            childrenLayout: :column
+            animators: axis: toFrom: :topRight
+
+            RectangleElement inFlow: false, color: :#eee
+            array name in Demos.getNamespaceNames()
+              DemoButton {name, @setSelectedDemo}
+
