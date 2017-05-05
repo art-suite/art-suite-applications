@@ -84,7 +84,7 @@ class Loader extends Component
           textStyle
           fontSize: 20
           margin:   10
-          text:     selectedDemo || "" art-react-demos
+          text:     selectedDemo || "" Art Suite Demos
 
       # if false
       Element

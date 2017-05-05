@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 599);
+/******/ 	return __webpack_require__(__webpack_require__.s = 600);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -55848,10 +55848,6 @@ module.exports = Browser = (function() {
     return browserIsMobile = !!(isMobileBrowserRegExp1.test(agent) || isMobileBrowserRegExp2.test(agent.substr(0, 4)));
   };
 
-  Browser.openLinkInNewWindow = function(link) {
-    return window.open(link, "_blank");
-  };
-
   return Browser;
 
 })();
@@ -57664,7 +57660,7 @@ module.exports = ObjectTreeFactory = (function() {
   /*
   IN:
     options:
-      mergePropsInto: (props, ...) ->
+      mergePropsInto: (intoProps, fromProps) ->
         function to merge arguments 1 on into props
         default: mergeIntoBasic
   
@@ -70103,7 +70099,7 @@ Caf.defMod(module, () => {
           TextElement(textStyle, {
             fontSize: 20,
             margin: 10,
-            text: selectedDemo || "art-react-demos"
+            text: selectedDemo || "Art Suite Demos"
           })
         ),
         Element(
@@ -70165,7 +70161,7 @@ ref = __webpack_require__(0), compact = ref.compact, array = ref.array, object =
 
 ref1 = __webpack_require__(3), rgb256Color = ref1.rgb256Color, rgbColor = ref1.rgbColor, hslColor = ref1.hslColor;
 
-quantize = __webpack_require__(598);
+quantize = __webpack_require__(599);
 
 defineModule(module, function() {
   var Swatch, Vibrant, colorTolerences, countWeight, getMatchQuality, invertDiff, lumaDarkMax, lumaDarkMin, lumaDarkTarget, lumaLightMax, lumaLightMin, lumaLightTarget, lumaNormalMax, lumaNormalMin, lumaNormalTarget, lumaWeight, satMutedMax, satMutedMin, satMutedTarget, satVibrantMax, satVibrantMin, satVibrantTarget, saturationWeight;
@@ -71911,7 +71907,7 @@ getColorMap = function(bitmap) {
 ref2 = [10, 5], previewBitmapScale = ref2[0], previewBitmapBlur = ref2[1];
 
 module.exports = {
-  version: version = (__webpack_require__(597)).version,
+  version: version = (__webpack_require__(598)).version,
   getColorMapBitmap: getColorMapBitmap = function(colorMap) {
     var b256, color, colorMapBitmap, data, g256, i, imageData, j, len, r256, ref3;
     imageData = (colorMapBitmap = new Bitmap(3)).imageData;
@@ -74352,11 +74348,23 @@ __webpack_require__(538);
 /* 593 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(596);
+module.exports = __webpack_require__(597);
 
 
 /***/ }),
 /* 594 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(global) {var g;
+
+g = typeof window !== "undefined" && window !== null ? window : typeof self !== "undefined" && self !== null ? self : global;
+
+g.global = g;
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6)))
+
+/***/ }),
+/* 595 */
 /***/ (function(module, exports) {
 
 var arrayIterableTest, each, extendedEach, isNonNegativeInt;
@@ -74522,7 +74530,7 @@ module.exports = {
 
 
 /***/ }),
-/* 595 */
+/* 596 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {var _import, compactFlatten, getSuper, isDirectPrototypeOf, isFalse, isFunction, isPlainArray, isPlainObject, isTrue, ref,
@@ -74530,6 +74538,8 @@ module.exports = {
   modulo = function(a, b) { return (+a % (b = +b) + b) % b; };
 
 ref = __webpack_require__(541), compactFlatten = ref.compactFlatten, isPlainArray = ref.isPlainArray, isPlainObject = ref.isPlainObject;
+
+__webpack_require__(594);
 
 global.__definingModule = null;
 
@@ -74767,7 +74777,7 @@ module.exports = {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6)))
 
 /***/ }),
-/* 596 */
+/* 597 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var k, out, ref, ref1, ref2, v;
@@ -74780,13 +74790,13 @@ for (k in ref) {
   out[k] = v;
 }
 
-ref1 = __webpack_require__(594);
+ref1 = __webpack_require__(595);
 for (k in ref1) {
   v = ref1[k];
   out[k] = v;
 }
 
-ref2 = __webpack_require__(595);
+ref2 = __webpack_require__(596);
 for (k in ref2) {
   v = ref2[k];
   out[k] = v;
@@ -74794,7 +74804,7 @@ for (k in ref2) {
 
 
 /***/ }),
-/* 597 */
+/* 598 */
 /***/ (function(module, exports) {
 
 module.exports = {
@@ -74829,7 +74839,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 598 */
+/* 599 */
 /***/ (function(module, exports) {
 
 /*
@@ -75325,7 +75335,7 @@ module.exports = MMCQ.quantize
 
 
 /***/ }),
-/* 599 */
+/* 600 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__(542);
