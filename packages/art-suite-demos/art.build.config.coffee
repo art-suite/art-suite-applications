@@ -1,6 +1,7 @@
 module.exports =
   webpack:
-    common: {}
+    common:
+      output: path: "./docs"
     targets:
       Demos: {}
       HelloWorld: {}
