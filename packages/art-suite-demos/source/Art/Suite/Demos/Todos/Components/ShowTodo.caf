@@ -1,0 +1,31 @@
+import &ArtSuite
+
+class ShowTodo extends FluxComponent
+
+  toggleTodo: -> @models.todos.toggleTodo @props.key
+  deleteTodo: -> @models.todos.deleteTodo @props.key
+
+  render: ->
+    {description, completed} = @props
+    Element
+      clip: true
+      size: ww: 1, hch: 1
+      animators:
+        size: toFrom: ww:1, h: 0
+
+      Element
+        &StyleProps.line
+
+        TextElement
+          &StyleProps.text
+          cursor: :pointer
+          on:     pointerClick: @toggleTodo
+          size:   ps: 1
+          text:   "#{if completed then :☑ else :☐︎} #{description}"
+          align:  :centerLeft
+          color:  if completed then #0007 else :black
+
+        TextElement
+          cursor: :pointer
+          on:     pointerClick: @deleteTodo
+          text:   :🗑

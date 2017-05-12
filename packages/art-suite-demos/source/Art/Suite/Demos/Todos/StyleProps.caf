@@ -1,0 +1,16 @@
+
+class StyleProps extends &ArtReact.HotStyleProps
+  @text:
+    fontFamily:         :Arial
+    fontSize:           18
+
+  @line:
+    size:               ww: 1, h: 40
+    padding:            10
+    childrenLayout:     :row
+    childrenAlignment:  :centerRight
+
+  @background:
+    padding:            -10
+    color:              #00bcd4
+    radius:             5

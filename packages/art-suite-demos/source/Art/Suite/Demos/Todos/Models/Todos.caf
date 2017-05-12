@@ -1,0 +1,23 @@
+import &ArtSuite
+
+class Todos extends ApplicationState
+
+  addTodo: (description) ->
+    @setState
+      key = randomString()
+      {}
+        description
+        key
+        completed:  false
+
+    key
+
+  toggleTodo: (key) ->
+    @setState
+      key
+      merge
+        @state[key]
+        completed: !@state[key].completed
+
+  deleteTodo: (key) ->
+    @setState key, null

@@ -1,0 +1,9 @@
+import &ArtSuite
+
+class VisibilityButton extends FluxComponent
+  @subscriptions :viewState.completedTodosVisible
+
+  render: ->
+    &ButtonLine
+      text: "" completed todos: #{if @completedTodosVisible then 'visible' else 'hidden'}
+      action: @models.viewState.toggleCompletedTodosVisible

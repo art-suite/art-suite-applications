@@ -1,0 +1,16 @@
+import &ArtSuite
+
+class MyComponent extends Component
+
+  render: ->
+    Element
+
+      RectangleElement
+        color: :white
+
+      Element
+        padding: 5
+        childrenLayout: :column
+        &Components/AddTodo()
+        &Components/ShowTodos()
+        &Components/VisibilityButton()
