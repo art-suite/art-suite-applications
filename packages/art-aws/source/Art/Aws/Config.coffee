@@ -20,6 +20,7 @@ defineModule module, class ArtAwsConfig extends Configurable
     dynamoDb:
       maxRetries: 5
 
+    elasticsearch: {}
 
   @getNormalizedDynamoDbConfig: =>
     @getNormalizedConfig "dynamoDb"
