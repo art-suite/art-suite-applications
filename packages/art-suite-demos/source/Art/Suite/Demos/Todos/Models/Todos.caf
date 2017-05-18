@@ -5,19 +5,12 @@ class Todos extends ApplicationState
   addTodo: (description) ->
     @setState
       key = randomString()
-      {}
-        description
-        key
-        completed:  false
-
-    key
+      {} description, key, completed: false
 
   toggleTodo: (key) ->
-    @setState
-      key
-      merge
-        @state[key]
-        completed: !@state[key].completed
+    @setState key, merge
+      @state[key]
+      completed: !@state[key].completed
 
   deleteTodo: (key) ->
     @setState key, null

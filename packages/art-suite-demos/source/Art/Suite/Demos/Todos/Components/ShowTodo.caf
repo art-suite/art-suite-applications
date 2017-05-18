@@ -10,8 +10,7 @@ class ShowTodo extends FluxComponent
     Element
       clip: true
       size: ww: 1, hch: 1
-      animators:
-        size: toFrom: ww:1, h: 0
+      animators: size: toFrom: ww:1, h: 0
 
       Element
         &StyleProps.line
@@ -21,8 +20,8 @@ class ShowTodo extends FluxComponent
           cursor: :pointer
           on:     pointerClick: @toggleTodo
           size:   ps: 1
-          text:   "#{if completed then :☑ else :☐︎} #{description}"
           align:  :centerLeft
+          text:   "#{if completed then :☑ else :☐︎} #{description}"
           color:  if completed then #0007 else :black
 
         TextElement

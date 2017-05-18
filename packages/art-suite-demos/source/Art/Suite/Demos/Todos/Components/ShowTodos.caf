@@ -1,9 +1,7 @@
 import &ArtSuite
 
 class ShowTodos extends FluxComponent
-  @subscriptions
-    :todos.todos
-    :viewState.completedTodosVisible
+  @subscriptions :todos.todos :viewState.completedTodosVisible
 
   render: ->
     PagingScrollElement
