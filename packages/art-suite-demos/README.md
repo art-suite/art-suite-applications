@@ -2,7 +2,7 @@
 
 ### Live, Online
 
-Launch [Art Suite Demos](http://imikimi.github.io/art-suite-demos/)
+[Launch Art Suite Demos](http://imikimi.github.io/art-suite-demos/)
 
 ### Install and Run Locally
 
