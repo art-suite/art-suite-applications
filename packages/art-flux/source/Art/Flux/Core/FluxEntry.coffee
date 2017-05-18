@@ -35,8 +35,9 @@ defineModule module, class FluxEntry extends BaseObject
     dataChanged: -> !propsEq @_fluxRecord?.data, @_previousFluxRecord?.data
     fluxRecordChanged: -> !propsEq @_fluxRecord, @_previousFluxRecord
     subscriberCount: -> @_subscribers.length
-    key: -> @_fluxRecord.key
-    modelName: -> @_fluxRecord.modelName
+    key:             -> @_fluxRecord.key
+    modelName:       -> @_fluxRecord.modelName
+    status:          -> @_fluxRecord.status
 
   @setter
     fluxRecord: (newFluxRecord)->
