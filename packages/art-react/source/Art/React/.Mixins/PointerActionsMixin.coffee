@@ -1,11 +1,19 @@
 {defineModule, log} = require 'art-standard-lib'
+{point} = require 'art-atomic'
 
 defineModule module, ->
   (superClass) -> class PointerActionsMixin extends superClass
 
+    constructor: ->
+      super
+      @_pointerDownAt = point()
+
     @stateFields
       hover: false
-      pointerIsDown: false
+      pointerIsDown:  false
+      dragOffset:     point()
+
+    @property "pointerDownAt"
 
     mouseIn:            -> @setState hover: true
     mouseOut:           -> @setState hover: false
@@ -14,27 +22,11 @@ defineModule module, ->
     pointerUp:          -> @setState pointerIsDown: false
 
     @getter
-      hover: -> @state.hover
-      pointerIsDown: -> @state.pointerIsDown
       pointerDown: -> @pointerIsDown
 
       buttonHandlers: (customAction) ->
         element = @
-        ###
-          CafScript could do: {}
-            @mouseIn
-            @mouseOut
 
-            pointerDown:
-            pointerIn:      @pointerDown
-
-            pointerUp:
-            pointerOut:
-            pointerCancel:  @pointerUp
-        ###
-        # this might be needed when we go back to using the webworker
-        # preprocess: pureMerge newProps.on?.preprocess,
-        #   pointerUpInside: newProps.preprocessAction
         mouseIn:          @mouseIn
         mouseOut:         @mouseOut
         pointerDown:      @pointerDownHandler
@@ -42,13 +34,35 @@ defineModule module, ->
         pointerUp:        @pointerUp
         pointerCancel:    @pointerUp
         pointerOut:       @pointerUp
-        pointerUpInside:  (event) ->
+        pointerUpInside:  (event) =>
           event.target.capturePointerEvents()
-          (customAction || element.doAction || element.action || element.props.action)? event
+          (customAction || @doAction || @action || @props.action)? event
 
       pointerHandlers: -> @buttonHandlers
 
-      hoverHandlers: ->
-        # CafScript could do: {} @mouseIn @mouseOut
-        mouseIn:          @mouseIn
-        mouseOut:         @mouseOut
+      hoverHandlers: -> {@mouseIn, @mouseOut}
+
+      dragHandlers: ->
+        mouseIn:      @mouseIn
+        mouseOut:     @mouseOut
+        pointerDown:  @dragPointerDownHandler
+        pointerMove:  @dragPointerMoveHandler
+        pointerUp:    @dragPointerUpHandler
+
+    dragMove:   (event, dragDelta) ->
+    dragStart:  (event) ->
+    dragEnd:    (event, dragDelta) ->
+
+    dragPointerDownHandler: (event) =>
+      @pointerDownAt = event.parentLocation
+      @dragStart event
+      @pointerIsDown = true
+      @dragMove event, @dragOffset = point()
+
+    dragPointerMoveHandler: (event) =>
+      @dragMove event, @dragOffset = event.parentLocation.sub @pointerDownAt
+
+    dragPointerUpHandler: (event) ->
+      @dragEnd event, event.parentLocation.sub @pointerDownAt
+      @dragOffset = point()
+      @pointerIsDown = false
