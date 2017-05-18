@@ -18,3 +18,8 @@ Then go to: [http://localhost:8080/webpack-dev-server/](http://localhost:8080/we
 ### Learn More
 
 See the [Art Suite Wiki](https://github.com/imikimi/art-suite/wiki)
+
+### Demo READMEs
+
+Some demos have their own READMEs:
+
