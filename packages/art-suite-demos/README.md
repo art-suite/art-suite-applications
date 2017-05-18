@@ -24,3 +24,4 @@ See the [Art Suite Wiki](https://github.com/imikimi/art-suite/wiki)
 Some demos have their own READMEs:
 
 * [FluxChallenge README](source/Art/Suite/Demos/FluxChallenge)
+* [Todos README](source/Art/Suite/Demos/Todos)
