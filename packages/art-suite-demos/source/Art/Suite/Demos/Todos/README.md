@@ -7,5 +7,12 @@ I built this demo to compares against Facebook React and Redux. See there implem
 
 ### Comparison
 
-* Redux + React: 300 lines of JavaScript, unstyled
+Overall
+
+* ReduxReact: 300 lines of JavaScript, unstyled
 * ArtSuite: 165 lines of CaffeineScript, styled
+
+Flux/Redux-Specific Code
+
+* ReduxReact: 76 lines
+* ArtSuite: 18 lines

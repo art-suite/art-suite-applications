@@ -1,8 +1,10 @@
 # Art.Suite.Demos
 
-See what ArtSuite can do: [Live Demo](http://imikimi.github.io/art-suite-demos/)
+### Live, Online
 
-### Install and Run
+Launch [Art Suite Demos](http://imikimi.github.io/art-suite-demos/)
+
+### Install and Run Locally
 
 * Get the latest [Node.js](https://nodejs.org/)
 
