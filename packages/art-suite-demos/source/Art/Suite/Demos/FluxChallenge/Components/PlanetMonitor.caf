@@ -1,0 +1,18 @@
+import &ArtSuite
+
+class PlanetMonitor extends FluxComponent
+  @subscriptions :obiWan.location
+
+  render: ->
+
+    Element
+      size: ww: 1 hch: 1
+      margin: &StyleProps.basePadding
+      RectangleElement
+        &StyleProps.planetMonitorBackground
+        FillElement()
+        OutlineElement &StyleProps.planetMonitorOutline
+
+      TextElement
+        &StyleProps.planetMonitorText
+        text: @location?.name || "unknown"

@@ -1,0 +1,42 @@
+import &ArtSuite
+
+class App extends FluxComponent
+  @subscriptions :paginator.paginator :obiWan.location
+
+  render: ->
+    {pageDownEnabled, pageUpEnabled, loadDirection, startDarkJediId, loadedSlots} = @paginator
+
+    if find darkJedi in loadedSlots when darkJedi?.homeworld.id == @location.id
+      pageUpEnabled = pageDownEnabled = false
+
+    Element
+      size: ww: 1, hch: 1, max: w: 800
+      axis: :centerCenter
+      location: ps: :centerCenter
+
+      RectangleElement
+        radius: 2
+        OutlineElement &StyleProps.appOutline
+
+      Element
+        size: ww:1, hch:1
+        childrenLayout: :column
+        padding: &StyleProps.basePadding
+
+        &PlanetMonitor()
+
+        Element
+          size: ww:1, hch:1
+          childrenLayout: :row
+
+          &Slot {}
+            darkJediId:     startDarkJediId
+            slotIndex:      if loadDirection < 0 then 4 else 0
+            loadDirection
+
+          Element
+            size: w: 100 hh: 1
+            childrenLayout: :column
+            &Button action: pageUpEnabled    && @models.paginator.pageUp, up: true
+            &Button action: pageDownEnabled  && @models.paginator.pageDown
+

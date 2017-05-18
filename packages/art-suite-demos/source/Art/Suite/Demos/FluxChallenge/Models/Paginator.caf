@@ -1,0 +1,31 @@
+import &ArtSuite
+
+class Paginator extends ApplicationState
+  @stateFields
+    loadDirection:            1
+    startDarkJediId:          3616
+    loadedSlots:              []
+    pageUpEnabled:            false
+    pageDownEnabled:          false
+
+  loaded: (slotNumber, darkJedi) ->
+    @loadedSlots = newSlots = arrayWithElementReplaced @loadedSlots, darkJedi, slotNumber
+    first = last = null
+    each v in newSlots
+      first ||= v
+      last = v if v?
+    @pageUpEnabled = first?.master?
+    @pageDownEnabled = last?.apprentice?
+
+  @getter
+    nextStart: -> @loadedSlots[2]
+
+  pageUp: ->
+    if @nextStart && @pageUpEnabled
+      @startDarkJediId  = @nextStart.id
+      @loadDirection    = -1
+
+  pageDown: ->
+    if @nextStart && @pageDownEnabled
+      @startDarkJediId  = @nextStart.id
+      @loadDirection    = 1

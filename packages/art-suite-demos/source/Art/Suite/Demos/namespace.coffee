@@ -13,6 +13,7 @@ require './Chat/namespace';
 require './Clock/namespace';
 require './ColorExtractor/namespace';
 require './ColorPicker/namespace';
+require './FluxChallenge/namespace';
 require './Physics/namespace';
 require './Quixx/namespace';
 require './ScrollingDynamic/namespace';

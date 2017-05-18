@@ -1,0 +1,7 @@
+import &ArtSuite
+
+class ArtSuiteDemos extends Component
+  render: ->
+    Element
+      RectangleElement &StyleProps.background
+      &Components/App()
