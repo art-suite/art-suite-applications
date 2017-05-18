@@ -58,11 +58,11 @@ ReactArtEngine: "Instantiation"
 This is not a concept in React.js. It isn't important to the client, but it
 is useful to understand in the implementation.
 
-In-short: an non-instantiated component only has properties. It doesn't have
+In-short: a non-instantiated component only has properties. It doesn't have
 state and it isn't rendered. An instantiated component has state and gets
 rendered at least once.
 
-When a component is used in a render function, and with every re-render, it
+When a component is used in a render function, and with every re-render,
 an instance-object is created with standard javascript "new ComponentType."
 However, that component instance is only a shell - it contains the
 properties passed into the constructor and nothing else.
@@ -481,7 +481,8 @@ defineModule module, -> class Component extends StateFieldsMixin InstanceFunctio
   _setPendingState: (state) ->
     ###
     2016-12: I can't decide! Should we allow state updates on unmounted components or not?!?!
-    RELVANCE: allowing state updates allows us to update animating-out Art.Engine Elements. This is useful, for example, to hide the TextInput Dom element
+    RELVANCE: allowing state updates allows us to update animating-out Art.Engine Elements.
+    This is useful, for example, to hide the TextInput Dom element
 
     I'm generally against updating unmounted components:
       - they don't get new props. Logically, since they are unmounted,
@@ -509,8 +510,7 @@ defineModule module, -> class Component extends StateFieldsMixin InstanceFunctio
         the component will get no more renders - since it will then be unmounted and unmounted components don't
         get rendered.
 
-      - Further, when we do this final render, we can signal it is "final" via @props. Options:
-        - have a fixed, standard prop: finalRender: true
+      - Further, when we do this final render, we can signal it is "final" via @props.
         - have the component get a final-render notification (via a member function override).
           That function takes as inputs the last-good @props, and returns the final-render @props.
           If it returns null, there will be no final render. This is the default implementation.
