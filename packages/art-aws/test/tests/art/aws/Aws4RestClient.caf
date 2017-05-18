@@ -1,0 +1,21 @@
+import &ArtStandardLib, Neptune.Art.Aws
+suite: ->
+  test :basics ->
+    assert.isClass Aws4RestClient
+
+  test :sign ->
+    client = new Aws4RestClient
+      service:            :myAwsService
+      credentials:
+        accessKeyId:      :myAccessKeyId
+        secretAccessKey:  :mySecretAccessKey
+
+    url = "http://foo.com/bar"
+    signed = client.sign {} url
+
+    assert.eq signed.url, url
+    assert.isString signed.headers[:X-Amz-Date]
+    assert.isString signed.headers.Authorization
+    assert.match
+      signed.headers.Authorization
+      /// Credential=myAccessKeyId[-_0-9a-z\/]+myAwsService.*SignedHeaders=.*Signature=

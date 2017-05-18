@@ -4,5 +4,6 @@
 module.exports = require './namespace'
 module.exports
 .addModules
-  DynamoDb: require './DynamoDb'
+  Aws4RestClient: require './Aws4RestClient'
+  DynamoDb:       require './DynamoDb'      
 require './StreamlinedDynamoDbApi'

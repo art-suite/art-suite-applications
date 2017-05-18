@@ -7,7 +7,9 @@ Corsproxy is needed because dynamoDb-local has a bug that causes it to not retur
 when errors occur.
 ###
 
-require 'art-aws/Client'
+require 'caffeine-mc/register'
+
+require 'art-aws/Server'
 require '../'
 require "art-foundation/testing"
 .init

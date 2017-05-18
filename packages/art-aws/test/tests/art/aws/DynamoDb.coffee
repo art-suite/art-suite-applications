@@ -14,7 +14,7 @@ defineModule module, suite: "real requests to dynamoDb": ->
     .then ({TableNames}) ->
       list = for table in TableNames
         if table == testTableName
-          log "tests/Art.Ery.Aws.DynamoDb.live: Deleting test table '#{testTableName}'"
+          # log "tests/Art.Ery.Aws.DynamoDb.live: Deleting test table '#{testTableName}'"
           dynamoDb.deleteTable TableName: table
         # else
         #   log "NOT deleting non-test-table: #{table}"
@@ -41,7 +41,6 @@ defineModule module, suite: "real requests to dynamoDb": ->
     dynamoDb.listTables()
     .then (tables) ->
       assert.eq true, isPlainArray tables.TableNames
-      # log tables
 
 
   suite "table operations", ->
@@ -56,7 +55,6 @@ defineModule module, suite: "real requests to dynamoDb": ->
           chatRoom:  "string"
         key: "chatRoom/createdAt"
       .then (result) ->
-        # log createResult: result
         data =
           createdAt: Date.now()
           updatedAt: Date.now()

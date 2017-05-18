@@ -5,8 +5,9 @@ module.exports = require './namespace'
 module.exports
 .includeInNamespace require './Aws'
 .addModules
-  Config:        require './Config'       
-  DynamoDb:      require './DynamoDb'     
-  Elasticsearch: require './Elasticsearch'
-  S3:            require './S3'           
+  Aws4RestClient: require './Aws4RestClient'
+  Config:         require './Config'        
+  DynamoDb:       require './DynamoDb'      
+  Elasticsearch:  require './Elasticsearch' 
+  S3:             require './S3'            
 require './StreamlinedDynamoDbApi'
