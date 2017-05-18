@@ -210,6 +210,13 @@ defineModule module, class FluxModel extends InstanceFunctionBindingMixin BaseOb
 
   fluxStoreGet: (key) -> fluxStore.get @_name, key
 
+  # IN: key
+  # OUT: promise.then data
+  # EFFECT: if already loaded in fluxStore, just returns what's in fluxstore
+  get: (key) ->
+    Promise.then => @fluxStoreGet(key) || @loadPromise key
+    .then ({data})-> data
+
   # Override to support non-string keys
   # return: string representation of key
   toKeyString: (key) ->
