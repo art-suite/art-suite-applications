@@ -1,10 +1,7 @@
 import &ArtSuite
 
-class PlanetMonitor extends FluxComponent
-  @subscriptions :obiWan.location
-
+class PlanetMonitor extends Component
   render: ->
-
     Element
       size: ww: 1 hch: 1
       margin: &StyleProps.basePadding
@@ -15,4 +12,4 @@ class PlanetMonitor extends FluxComponent
 
       TextElement
         &StyleProps.planetMonitorText
-        text: @location?.name || "unknown"
+        text: @props.location?.name || "unknown"

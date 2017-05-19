@@ -23,20 +23,21 @@ class App extends FluxComponent
         childrenLayout: :column
         padding: &StyleProps.basePadding
 
-        &PlanetMonitor()
+        &PlanetMonitor {} @location
 
         Element
           size: ww:1, hch:1
           childrenLayout: :row
 
-          &Slot {}
-            darkJediId:     startDarkJediId
-            slotIndex:      if loadDirection < 0 then 4 else 0
-            loadDirection
+          Element
+            size: ww:1, hch:1
+            childrenLayout: :column
+            margin: &StyleProps.basePadding
+            array darkJedi in loadedSlots
+              &Slot {} darkJedi, alert: darkJedi?.homeworld.id == @location?.id
 
           Element
             size: w: 100 hh: 1
             childrenLayout: :column
             &Button action: pageUpEnabled    && @models.paginator.pageUp, up: true
             &Button action: pageDownEnabled  && @models.paginator.pageDown
-

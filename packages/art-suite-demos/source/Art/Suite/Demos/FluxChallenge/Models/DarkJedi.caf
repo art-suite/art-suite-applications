@@ -3,15 +3,23 @@ import &ArtSuite
 class DarkJedi extends FluxModel
 
   loadData: (key) ->
-    # store the outstanding request in the pending fluxRecord
-    @updateFluxStore key, status: pending, request: "" request-#{key}
+    aborted = false
+
+    @updateFluxStore key, status: pending, abort: ->
+      # simulate abort
+      aborted = true
+      log.warn "DarkJedi: abort: #{key}"
 
     # simulate remote async request
+    log "DarkJedi: pending: #{key}..."
     timeout 500 intRand 500
-    .then -> &Data/DarkJedi[key]
+    .then ->
+      unless aborted
+        # simulate successful load
+        log "DarkJedi: loaded: #{key}"
+        &Data/DarkJedi[key]
 
   toKeyString: (a) -> "#{a}"
 
   fluxStoreEntryRemoved: (entry) ->
-    if entry.status == pending
-      log.warn "DarkJedi: fake-abort '#{entry.fluxRecord.request}' request"
+    entry.fluxRecord.abort?()

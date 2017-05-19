@@ -1,52 +1,28 @@
 import &ArtSuite
 
-SlotFactory = class Slot extends FluxComponent
-  @subscriptions :darkJedi :obiWan.location
-
-  preprocessState: (newState) ->
-    @models.paginator.loaded @props.slotIndex, newState.darkJedi
-    super
-
+class Slot extends Component
   render: ->
-    {loadDirection, slotIndex, darkJediId} = @props
-
-    slotTextStyle = &StyleProps.slotTextStyle @darkJedi?.homeworld.id == @location?.id
+    {darkJedi, alert} = @props
+    slotTextStyle = &StyleProps.slotTextStyle alert
 
     Element
       margin: &StyleProps.basePadding
       size: ww: 1 hch: 1
-      childrenLayout: :column
 
-      if loadDirection < 0 && slotIndex > 0
-        SlotFactory {}
-          loadDirection
-          darkJediId: @darkJedi?.master
-          slotIndex: slotIndex - 1
+      RectangleElement
+        radius: 1
+        OutlineElement &StyleProps.slotOutline
 
       Element
-        margin: &StyleProps.basePadding
         size: ww: 1 hch: 1
+        childrenLayout: :column
+        padding: &StyleProps.textPadding
 
-        RectangleElement
-          radius: 1
-          OutlineElement &StyleProps.slotOutline
+        TextElement
+          slotTextStyle
+          text: darkJedi?.name || ''
 
-        Element
-          size: ww: 1 hch: 1
-          childrenLayout: :column
-          padding: &StyleProps.textPadding
-
-          TextElement
-            slotTextStyle
-            text: @darkJedi?.name || ''
-
-          TextElement
-            slotTextStyle
-            &StyleProps.slotSmallText
-            text: @darkJedi?.homeworld.name || ''
-
-      if loadDirection > 0 && slotIndex < 4
-        SlotFactory {}
-          loadDirection
-          darkJediId: @darkJedi?.apprentice
-          slotIndex: slotIndex + 1
+        TextElement
+          slotTextStyle
+          &StyleProps.slotSmallText
+          text: darkJedi?.homeworld.name || ''
