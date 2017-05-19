@@ -3,7 +3,7 @@ import &ArtSuite
 class Paginator extends FluxSubscriptionsMixin ApplicationState
   slotsPerPage = 5
   @stateFields
-    slotIds:                  [] null null null null null
+    slotIds:                  []
     loadedSlots:              [] null null null null null
     pageUpEnabled:            false
     pageDownEnabled:          false
@@ -11,38 +11,42 @@ class Paginator extends FluxSubscriptionsMixin ApplicationState
   constructor: ->
     super
     @onModelRegistered :darkJedi
-    .then -> @updateSubscriptions [] 3616 null null null null
+    .then -> @_update [] 3616 null null null null
 
-  getLoadedSlots: (slotIds) ->
-    array key, index in slotIds
-      @models.darkJedi.fluxStoreGet(key)?.data if key?
+  pageUp:   -> @pageUpEnabled   && @_update flatten null null @slotIds.slice 0, slotsPerPage - 2
+  pageDown: -> @pageDownEnabled && @_update flatten (@slotIds.slice 2, slotsPerPage), null null
 
-  updateSubscriptions: (slotIds)->
-    loadedSlots = @getLoadedSlots slotIds ||= @slotIds
+  ###############
+  # PRIVATE
+  ###############
+  _update: (slotIds)->
+    loadedSlots = @_getLoadedSlots slotIds ||= @slotIds
     @slotIds = slotIds = array slotId, index from slotIds
       slotId
       ? loadedSlots[index - 1]?.apprentice
       ? loadedSlots[index + 1]?.master
 
-    @unsubscribeAll()
+    @_updateSubscriptions slotIds
+    @_updatePageUpDownEnabled @loadedSlots = @_getLoadedSlots slotIds
 
+  _getLoadedSlots: (slotIds) ->
+    array key, index in slotIds
+      @models.darkJedi.fluxStoreGet(key)?.data if key?
+
+  _updateSubscriptions: (slotIds) ->
+    @unsubscribeAll()
     each key, index in slotIds when key?
       @subscribe {}
         subscriptionKey: "darkJedi-#{key}"
         modelName: :darkJedi
         key
-        updatesCallback: ({data:darkJedi}) -> darkJedi && @updateSubscriptions()
+        updatesCallback: ({data:darkJedi}) -> darkJedi && @_update()
 
-    @updatePageUpDownEnabled @loadedSlots = @getLoadedSlots slotIds
-
-  updatePageUpDownEnabled: (newSlotsLoaded)->
+  _updatePageUpDownEnabled: (loadedSlots)->
     first = last = null
-    middle = !!newSlotsLoaded[slotsPerPage / 2 | 0]
-    each v in newSlotsLoaded
+    middle = !!loadedSlots[slotsPerPage / 2 | 0]
+    each v in loadedSlots
       first ||= v
       last = v if v?
     @pageUpEnabled   = middle && !!first?.master?
     @pageDownEnabled = middle && !!last?.apprentice?
-
-  pageUp:   -> @pageUpEnabled   && @updateSubscriptions flatten null null @slotIds.slice 0, slotsPerPage - 2
-  pageDown: -> @pageDownEnabled && @updateSubscriptions flatten (@slotIds.slice 2, slotsPerPage), null null
