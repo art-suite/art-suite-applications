@@ -23,7 +23,7 @@ class ExpressHandler extends &LoggingMixin &ArtClassSystem.BaseClass
     @handleUrlRegex?.test request.url
 
   handleApiRequest:   null
-  handleHttpRequest:  null  # (request, jsonData) -> promise.
+  handleHtmlRequest:  null  # (request, jsonData) -> promise.then (htmlString) ->
 
   handleRequest: (request, requestData) ->
     ##
@@ -50,8 +50,8 @@ class ExpressHandler extends &LoggingMixin &ArtClassSystem.BaseClass
       when @handleApiRequest
         @_handleApiRequestWrapper request, requestData
 
-      when @handleHttpRequest
-        @handleHttpRequest request, requestData
+      when @handleHtmlRequest
+        @_handleHtmlRequestWrapper request, requestData
 
       else null
 
@@ -145,6 +145,12 @@ class ExpressHandler extends &LoggingMixin &ArtClassSystem.BaseClass
     @logVerbose done: {request.method, request.url, accept, responseData, headers, encodedData}
     response.end encodedData
 
+  _handleHtmlRequestWrapper: (request, requestData) ->
+    Promise.then ->
+      @handleHtmlRequest request, requestData
+    .then (data) ->
+      if data then {data} else status: missing
+
   _handleApiRequestWrapper: (request, requestData) ->
 
     Promise.then -> JSON.parse requestData || "{}"
@@ -163,4 +169,5 @@ class ExpressHandler extends &LoggingMixin &ArtClassSystem.BaseClass
     .then (parsedData) ->
       @handleApiRequest request, parsedData
 
-    .then (data) -> {data}
+    .then (data) ->
+      if data then {data} else status: missing

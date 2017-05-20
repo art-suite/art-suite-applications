@@ -1,18 +1,22 @@
 import &ArtStandardLib, &ArtCommunicationStatus
 &colors
 
-class ExpressServer extends &LoggingMixin &ArtClassSystem.BaseClass
+class Server extends &LoggingMixin &ArtClassSystem.BaseClass
 
   @defaults:
     port:   8085
     server: :http://localhost
 
   @start: (manyOptions...) ->
-    new ExpressServer
+    new Server
     .start manyOptions...
 
   start: (manyOptions...) ->
     ##
+      ENV:
+        WEB_CONCURRENCY: number -> sets options.numWorkers
+        PORT:            number -> sets options.port
+
       IN: options: one or more options objects, merged
         port:     (number) port to listen on
 
@@ -20,11 +24,25 @@ class ExpressServer extends &LoggingMixin &ArtClassSystem.BaseClass
           root:   path to static assets to serve
           headers: {} # headers to return with every request
 
-        handlers: [getMiddleware()] -
-          Array objects that implement 'getMiddleware(options)' which returns the value
-          to pass to `express.use`.
+        handlers:
+          single or array of objects that implement:
 
-          The merged options-object passed into start is passed to each getMiddleware call.
+            getMiddleware: (options) -> express-use-function
+
+          Example:
+            class MyInfoHandler extends &PrimseHandler
+              @getter handleUrlRegex: -> /// \/ info
+
+              handleApiRequest: (request, requestData) ->
+                info: "" Result from MyInfoHandler
+
+            &ArtExpressServer.start handlers: MyInfoHandler
+
+          NOTE: The final, merged options-object is passed into
+            start is also passed to each getMiddleware() call.
+
+        numWorkers: number
+          if > 1, will spawn that many workers to handle requests
 
         allowAllCors: true
           If set, then headers and OPTIONS requests will be handled in such a way
@@ -37,7 +55,11 @@ class ExpressServer extends &LoggingMixin &ArtClassSystem.BaseClass
 
           SEE: http://www.essenceandartifact.com/2017/01/why-cors-why.html
 
-    {numWorkers} = @options = @_allowAllCors merge ExpressServer.defaults, manyOptions...
+    {numWorkers} = @options = @_allowAllCors merge
+        Server.defaults
+        numWorkers:   process.env.WEB_CONCURRENCY || 1
+        port:         process.env.PORT
+        manyOptions...
 
     @logVerbose start: {}
       env:      object v, k from process.env when k.match /^art/
@@ -88,5 +110,5 @@ class ExpressServer extends &LoggingMixin &ArtClassSystem.BaseClass
             response.setHeader k, v
         staticOptions
 
-    app.listen port, =>
+    app.listen port | 0, =>
       @log "" listening on: http://localhost:#{port}
