@@ -20,7 +20,21 @@ defineModule module, class Config extends Configurable
     dynamoDb:
       maxRetries: 5
 
-    elasticsearch: {}
+  @awsServiceToConfigNameMap: awsServiceToConfigNameMap =
+    es: "elasticsearch"
+
+  ###
+  Search order:
+    @config[service].credentials
+    @config[awsServiceToConfigNameMap[service]].credentials
+    @config.credentials
+  ###
+  @getAwsCredentials: (service) =>
+    @getAwsServiceConfig(service)?.credentials ||
+    @config.credentials
+
+  @getAwsServiceConfig: (service) =>
+    @config[service] || @config[awsServiceToConfigNameMap[service]]
 
   @getNormalizedDynamoDbConfig: =>
     @getNormalizedConfig "dynamoDb"

@@ -1,9 +1,9 @@
 RestClient = require 'art-rest-client'
-{compactFlatten, mergeInto, object, log, present, defineModule, parseUrl, peek, Promise,merge} = require 'art-standard-lib'
+{compactFlatten, mergeInto, clone, object, log, present, defineModule, parseUrl, peek, Promise,merge} = require 'art-standard-lib'
 
 {config} = Config = require "./Config"
 
-aws4 = require 'aws4'
+Aws4RestClient = require './Aws4RestClient'
 
 {BaseClass} = require 'art-class-system'
 
@@ -11,7 +11,7 @@ defineModule module, class Elasticsearch extends BaseClass
   constructor: (options) ->
     super
     {@host, @index, @type, @parentField, @routingField} = @options = merge config.elasticsearch, options
-    [__, @protocol, __, @domain, __, @port] = @host.match urlRegexp
+    # [__, @protocol, __, @domain, __, @port] = @host.match urlRegexp
 
     # @client = new (require 'elasticsearch').Client {@host}
 
@@ -20,15 +20,22 @@ defineModule module, class Elasticsearch extends BaseClass
   #     @client[key] options
 
   # IN: options: type, index, id
-  get: (params) ->
-    # {index, type, id, routing, parent} = @normalizeEntryRequestParams params
+  get: (options) ->
     # @client.get {index, type, id, routing, parent}
-    aws4.sign
-      host: @domain
-      service: 'es'
-      path:'/'
 
-    RestClient.getJson @getEntryUrl options
+    # aws4.sign
+    #   host: @domain
+    #   service: 'es'
+    #   path:'/'
+
+    # RestClient.getJson @getEntryUrl {index, type, id, routing, parent}
+
+    @aws4RestClient.getJson @getEntryUrl @normalizeEntryRequestParams options
+
+  @getter
+    aws4RestClient: -> @_aws4RestClient ||= new Aws4RestClient merge
+      service: 'es'
+      config.elasticsearch
 
   indicesGet: (params) ->
 
@@ -61,18 +68,19 @@ defineModule module, class Elasticsearch extends BaseClass
 
   normalizeEntryRequestParams: (params) ->
     {data} = params
+    out = clone params
 
     if @routingField
       unless present routingValue = data?[@routingField]
         throw new Error "routing field '#{@routingField}' is not present in data: #{formattedInspect data}"
-      params.routing = data[@routingField]
+      out.routing = data[@routingField]
 
     if @parentField
       unless present parentValue = data?[@parentField]
         throw new Error "parent field '#{@parentField}' is not present in data: #{formattedInspect data}"
 
-      params.parent = data[@parentField]
+      out.parent = data[@parentField]
 
-    params.index   = @index
-    params.type    = @type
-    params
+    out.index   = @index
+    out.type    = @type
+    out
