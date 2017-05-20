@@ -1,4 +1,4 @@
-require 'art-aws/Client'
+require 'art-aws/Server'
 require '../'
 require "art-foundation/testing"
 .init
