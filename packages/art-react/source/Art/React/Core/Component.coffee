@@ -177,7 +177,7 @@ defineModule module, -> class Component extends StateFieldsMixin InstanceFunctio
         props.children = children if children.length > 0
 
         instance = new @ props
-        instance._validateChildren props?.children # TODO: only in dev mode!
+        # instance._validateChildren props?.children # TODO: only in dev mode!
 
         instance
 
