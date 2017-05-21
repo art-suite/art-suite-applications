@@ -208,12 +208,17 @@ defineModule module, class FluxModel extends InstanceFunctionBindingMixin BaseOb
   # shortcut for updating the fluxStore for the current model
   updateFluxStore: (key, fluxRecord) -> fluxStore.update @_name, key, fluxRecord
 
-  fluxStoreGet: (key) -> fluxStore.get @_name, key
+  onModelRegistered: (modelName) -> ModelRegistry.onModelRegistered modelName
+
+  fluxStoreGet: (key) ->
+    key = @toKeyString key
+    fluxStore.get @_name, key
 
   # IN: key
   # OUT: promise.then data
   # EFFECT: if already loaded in fluxStore, just returns what's in fluxstore
   get: (key) ->
+    key = @toKeyString key
     Promise.then => @fluxStoreGet(key) || @loadPromise key
     .then ({data})-> data
 
