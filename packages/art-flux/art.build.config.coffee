@@ -1,6 +1,11 @@
-module.exports = (require "art-foundation/configure_webpack")
-  entries: "index web_worker test"
-  dirname: __dirname
+module.exports =
+  webpack:
+    common: {}
+    targets:
+      index: {}
+      web_worker: {}
+      test: {}
+
   package:
     dependencies:
       "art-foundation": "git://github.com/imikimi/art-foundation.git"
