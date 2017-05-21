@@ -6,4 +6,3 @@ module.exports
 .includeInNamespace require './Flux'
 require './Core'
 require './Models'
-require './React'

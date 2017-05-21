@@ -6,5 +6,4 @@ module.exports = Art.Flux ||
 Art.addNamespace 'Flux', class Flux extends Neptune.Base
   ;
 require './Core/namespace';
-require './Models/namespace';
-require './React/namespace'
+require './Models/namespace'

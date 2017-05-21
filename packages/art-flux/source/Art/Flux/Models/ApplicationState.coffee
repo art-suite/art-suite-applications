@@ -7,7 +7,7 @@ FluxCore = require '../Core'
 {FluxStore, FluxModel} = FluxCore
 {fluxStore} = FluxStore
 {pending, success, failure, missing} = require "art-communication-status"
-{StateFieldsMixin} = require 'art-react'
+StateFieldsMixin = require 'art-react/StateFieldsMixin'
 
 ###
 A state-store with the same state API as React Components:
