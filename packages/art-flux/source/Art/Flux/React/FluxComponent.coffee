@@ -28,28 +28,10 @@ TODO: _prepareSubscription should be triggered via createWithPostCreate rather t
 defineModule module, class FluxComponent extends FluxSubscriptionsMixin Component
   @abstractClass()
 
-  @createFluxComponentFactory: (spec) ->
-    log.error "createFluxComponentFactory is DEPRICATED. Use: createWithPostCreate or defineModule"
-    ###
-    DEPRICATED: createComponentFactory myDefinition
-
-      # USE:
-      {createWithPostCreate} = Art.Foundation
-      createWithPostCreate class MyClass extends FluxComponent
-        myDefinition
-
-      # OR:
-      {defineModule} = Art.Foundation
-      defineModule module, class MyClass extends FluxComponent
-        myDefinition
-
-      # When CafScript arrives, createWithPostCreate is implied
-      # Just use:
-      class MyClass extends FluxComponent
-        myDefinition
-
-    ###
-    createComponentFactory spec, FluxComponent
+  @postCreateConcreteClass: ->
+    @subscriptions @::subscriptions if @::subscriptions
+    @_subscriptionsPrepared = false
+    super
 
   ##########################
   # Constructor
@@ -155,11 +137,6 @@ defineModule module, class FluxComponent extends FluxSubscriptionsMixin Componen
         key
       else
         -> key
-
-  @postCreateConcreteClass: ->
-    @subscriptions @::subscriptions if @::subscriptions
-    @_subscriptionsPrepared = false
-    super
 
   @_prepareSubscriptions: ->
     return if @_subscriptionsPrepared
