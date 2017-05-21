@@ -88,7 +88,6 @@ defineModule module, class Aws4RestClient extends require 'art-rest-client'
           path
           headers: select headers, "content-type", "Content-Type"
           body
-          signQuery: !!query
         }
 
   _getSignatureHeaders: (signOptions) ->
