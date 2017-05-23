@@ -62,7 +62,6 @@ defineModule module, class Aws4RestClient extends require 'art-rest-client'
 
   sign: (options) ->
     {url, headers, body, method} = options
-    # log "SIGN OPTIONS": options
     unless urlRegexp.test url
       unless @endpoint
         throw new Error "url does not have a host and no endpoint specified for service. #{formattedInspect {@service, url}}"
@@ -75,9 +74,6 @@ defineModule module, class Aws4RestClient extends require 'art-rest-client'
     if query
       path = "#{path}?#{query}"
 
-    # log {url, host, headers, path, matched}
-
-    # log "SIGNED",
     merge options,
       url: url
       headers:
@@ -91,7 +87,6 @@ defineModule module, class Aws4RestClient extends require 'art-rest-client'
         }
 
   _getSignatureHeaders: (signOptions) ->
-    # log "SUPER SIGNED", aws4.sign(signOptions, @credentials)
     objectWithout aws4.sign(signOptions, @credentials).headers, "Host", "Content-Length"
 
   _normalizedRestRequest: (options) -> super @sign options
