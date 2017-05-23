@@ -14,10 +14,10 @@ class AllowAllCorsHandler extends &PromiseHandler
 
   canHandleRequest: ({method}) -> method == :OPTIONS
 
-  handleRequest: ->
+  handleRequest: (request)->
     status: :success
     headers:
       Access-Control-Allow-Origin:  "" *
-      Access-Control-Allow-Methods: "" GET, POST, PUT, UPDATE, DELETE
-      Access-Control-Allow-Headers: ""
+      Access-Control-Allow-Methods: request.headers["access-control-request-method"]  || "" GET, POST, PUT, UPDATE, DELETE
+      Access-Control-Allow-Headers: request.headers["access-control-request-headers"] || ""
       Content-Type:                 "" text/html; charset=utf-8
