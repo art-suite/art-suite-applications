@@ -5,14 +5,18 @@ class DarkJedi extends FluxModel
   loadData: (key) ->
     aborted = false
 
-    @updateFluxStore key, status: pending, abort: ->
-      # simulate abort
-      aborted = true
-      log.warn "DarkJedi: abort: #{key}"
+    # simulate remote request pending
+    log "DarkJedi: pending: #{key}..."
+    @updateFluxStore
+      key
+      status: pending
+      abort: ->
+        # simulate abort request
+        aborted = true
+        log.warn "DarkJedi: abort: #{key}"
 
     # simulate remote async request
-    log "DarkJedi: pending: #{key}..."
-    timeout 500 intRand 500
+    timeout 500 + intRand 500
     .then ->
       unless aborted
         # simulate successful load

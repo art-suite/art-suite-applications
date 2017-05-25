@@ -11,16 +11,16 @@ class Paginator extends FluxSubscriptionsMixin ApplicationState
   constructor: ->
     super
     @onModelRegistered :darkJedi
-    .then -> @_update [] 3616 null null null null
+    .then -> @_updateSlots [] 3616 null null null null
 
-  pageUp:   -> @pageUpEnabled   && @_update flatten null null @slotIds.slice 0, slotsPerPage - 2
-  pageDown: -> @pageDownEnabled && @_update flatten (@slotIds.slice 2, slotsPerPage), null null
+  pageUp:   -> @pageUpEnabled   && @_updateSlots null null @slotIds.slice 0, slotsPerPage - 2
+  pageDown: -> @pageDownEnabled && @_updateSlots (@slotIds.slice 2, slotsPerPage), null null
 
   ###############
   # PRIVATE
   ###############
-  _update: (slotIds)->
-    loadedSlots = @_getLoadedSlots slotIds ||= @slotIds
+  _updateSlots: (slotIds)->
+    loadedSlots = @_getLoadedSlots flatten slotIds ||= @slotIds
     @slotIds = slotIds = array slotId, index from slotIds
       slotId
       ? loadedSlots[index - 1]?.apprentice
@@ -40,7 +40,7 @@ class Paginator extends FluxSubscriptionsMixin ApplicationState
         subscriptionKey: "darkJedi-#{key}"
         modelName: :darkJedi
         key
-        updatesCallback: ({data:darkJedi}) -> darkJedi && @_update()
+        updatesCallback: ({data:darkJedi}) -> darkJedi && @_updateSlots()
 
   _updatePageUpDownEnabled: (loadedSlots)->
     first = last = null
