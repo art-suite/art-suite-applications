@@ -64,11 +64,12 @@ class ExpressHandler extends &LoggingMixin &ArtClassSystem.BaseClass
         @logVerbose start: {request.method, request.url}
 
         dataChunks = []
+        requestData = null
         request.on :data (chunk) -> dataChunks.push chunk
 
         request.on :end ->
           Promise.then ->
-            @handleRequest request, dataChunks.join ''
+            @handleRequest request, requestData = dataChunks.join ''
 
           .catch (error) ->
             @logError internalError: {request, error}
@@ -83,15 +84,16 @@ class ExpressHandler extends &LoggingMixin &ArtClassSystem.BaseClass
 
             responseData = data
 
-            response.statusCode =
-              encodeHttpStatus status
-              || if data then 200 else 404
+            response.statusCode = if statusCode = encodeHttpStatus status
+              statusCode
+            else
+              statusCode = if data then 200 else 404
 
             if (statusCode/100 | 0) == 5
               @logError
                 url:              request.url
-                requestData:      (try JSON.parse requestData    ) || requestData
-                requestResponse:  (try JSON.parse requestResponse) || requestResponse
+                requestData:      (try JSON.parse requestData ) || requestData
+                responseData:     (try JSON.parse responseData) || responseData
 
             @_encodeOutput request, response, headers, responseData
 

@@ -8,6 +8,8 @@ import &ArtStandardLib, &ArtCommunicationStatus
   For more thoughts on moiving beyond the tradgedy that is CORS:
   SEE: http://www.essenceandartifact.com/2017/01/why-cors-why.html
 
+method = null # CaffeineScript bug-hack
+
 class AllowAllCorsHandler extends &PromiseHandler
   @commonResponseHeaders:
     Access-Control-Allow-Origin: :*
