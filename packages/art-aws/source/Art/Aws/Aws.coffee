@@ -1,3 +1,12 @@
+{isNode} = require 'art-standard-lib'
+
+if isNode
+  # prevent webpack from including Server code
+  nodeOnlyRequire = eval 'require'
+  global.AWS = nodeOnlyRequire 'aws-sdk'
+else
+  require '../../../Client'
+
 unless self.AWS
   throw new Error """
     Art.Aws: global.AWS required
