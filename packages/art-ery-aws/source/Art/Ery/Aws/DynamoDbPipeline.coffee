@@ -298,8 +298,10 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
       # higher priority
       returnValues = options.returnValues if options.returnValues
 
-      # defaults
-      returnValues ||= "allNew" if requestType == "update" && add || setDefault
+      # DEFAULTS
+      # NOTE: Art-Ery-Elasicsearch often needs additional fields beyond the ID and updated fields
+      # in order to do its update. That means 'allNew' is often the most efficient option for updates.
+      returnValues ||= "allNew" if requestType == "update"
       conditionExpression ||= mustExist && key
 
       objectWithExistingValues {
