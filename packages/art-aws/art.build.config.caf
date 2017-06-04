@@ -1,0 +1,13 @@
+target: node: true
+webpack:
+  common: {}
+  targets:
+    index: {}
+    test: {}
+
+package:
+  description: "" Streamlined APIs for AWS SDK with Promises and Art.Foundation
+  dependencies:
+    aws-sdk:        :^2.62.0
+    dynamodb-local: :^0.0.18
+    corsproxy:      :^1.5.0
