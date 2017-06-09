@@ -1,7 +1,7 @@
 {
   defineModule
   log
-  Element, RectangleElement, TextInput, TextElement, Component
+  Element, RectangleElement, TextInputElement, TextElement, Component
   FluxComponent
   rgbColor
 } = require 'art-suite'
@@ -33,7 +33,7 @@ defineModule module, class ColorPreview extends FluxComponent
             margin: 10
             size: hch:1, ww:1
             RectangleElement inFlow: false, key:"ColorPreview_background#{hue}", color: clr
-            TextInput
+            TextInputElement
               on: focus: @selectAll
               padding: 10
               size: ww:1, h: 50

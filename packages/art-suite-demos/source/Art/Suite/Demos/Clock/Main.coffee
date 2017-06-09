@@ -21,9 +21,8 @@ defineModule module, ->
         size: yh: length, w:width
         axis: "bottomCenter"
         location: ps: .5
-        animate:
-          f: "easeInBounce"
-          to: angle: angle
+        angle: angle
+        animators: angle: f: "easeInBounce"
 
         RectangleElement
           color: color
@@ -61,7 +60,6 @@ defineModule module, ->
     @subscriptions "currentTime.second"
 
     render: ->
-      log "render clock"
       {total} = @models.currentTime
       Element
         size: (ps) -> ps.min()

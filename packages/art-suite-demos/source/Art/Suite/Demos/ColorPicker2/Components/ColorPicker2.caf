@@ -1,0 +1,52 @@
+import &ArtSuite
+
+twoPi = Math.PI * 2
+
+class ColorPicker2 extends FluxComponent
+  @subscriptions :currentColor.color
+
+  arcStep = twoPi / 512
+
+  arcPath = (context, size) ->
+    {w, h} = size
+    y = h * .5
+    context.beginPath()
+    context.moveTo 0, y
+    context.lineTo w, y
+    context.arc 0, y, w, 0, arcStep * 1.1
+    context.lineTo 0, y + w * .01
+    context.lineTo 0, y
+    context.closePath()
+
+  increments = []
+  i = 0
+  while i < twoPi
+    increments.push i
+    i += arcStep
+
+  render: ->
+    Element
+      RectangleElement color: #777
+
+      Element
+        size: (ps) -> ps.min()
+        axis: .5
+        location: ps: .5
+
+        # scale: x: 1, y: .5
+        # color: @color
+        # radius: 10000
+
+        Element
+          scale: x: 1, y: .5
+          cacheDraw: true
+          array i from increments
+            ShapeElement
+              # RectangleElement
+              color: :white hslColor i / twoPi, 1, 1
+              to: :topRight
+              axis: :centerLeft
+              location: ps: .5
+              size: hh: .02, ww: .5
+              path: arcPath
+              angle: i

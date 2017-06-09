@@ -1,0 +1,161 @@
+import &ArtSuite
+
+StyleProps =
+  standardSpacing: 10
+  mediumText:
+    fontFamily: :sans-serif
+    fontSize:   16
+    color:      #0009
+
+class Button extends PointerActionsMixin Component
+  render: ->
+    {text, disabled} = @props
+    enabled = !disabled
+
+    Element
+      size: ww:1, hch:1
+      cursor: if enabled then "pointer" else null
+      margin: StyleProps.standardSpacing
+      opacity: if enabled then 1 else .5
+      on: if enabled then @buttonHandlers else {}
+      childrenLayout: :column
+      childrenAlignment: :centerCenter
+
+      RectangleElement
+        color: if @pointerDown then #0004 else if @hover then #0002 else #0001
+        radius: 3
+        inFlow: false
+        animators: color: true
+
+      TextElement
+        StyleProps.mediumText
+        size: ww:1, hch:1
+        padding: StyleProps.standardSpacing
+        align: "center"
+        text: text
+
+class Main extends Component
+
+  defaultValue = :orange
+  @stateFields
+    errorInfo: null
+    currentValue:     defaultValue
+    backgroundColor:  defaultValue
+
+  showParseError: (c) ->
+    @errorInfo = 'invalid color: #{c}'
+    timeout 1000, -> @errorInfo = null
+
+  setColorFromString: (colorString) ->
+    c = rgbColor colorString
+    if c.parseError
+      @showParseError colorString
+    else
+      @backgroundColor = c
+
+  resetColor: ->
+    @setColorFromString @currentValue = defaultValue
+
+  render: ->
+    Element
+      RectangleElement color: "grey"
+
+      Element
+        size: w:300, hch:1
+        location: ps: .5
+        axis: .5
+        childrenLayout: :column
+
+        RectangleElement
+          inFlow: false
+          color:  :white
+          # animators: color: true
+          radius: 5
+          shadow: offsetY: 5 blur: 5 color: #0007
+
+        Element
+          size: hch: 1 h: StyleProps.standardSpacing
+
+          RectangleElement color: #0001
+
+          TextElement
+            StyleProps.mediumText
+            size: ww: 1 hch: 1
+            padding: 10
+            align: :center
+            text: "" Color Preview Form Demo
+            location: ps: .5
+            axis: .5
+
+        Element
+          padding: StyleProps.standardSpacing
+          size: hch: 1
+          childrenLayout: :column
+
+          TextElement
+            StyleProps.mediumText
+            size: cs: 1
+            margin: StyleProps.standardSpacing
+            text: "Instructions:\n  Type in an HTML color\n  Press Enter"
+
+          Element
+            size: ww: 1, h: 30
+            RectangleElement
+              color: @backgroundColor
+              animators: :color
+              shadow: offsetY: 5 blur: 5 color: #0007
+            Element
+              clip: true
+
+              TextElement
+                StyleProps.mediumText
+                axis: .5
+                location: ps: .5
+                text: @backgroundColor.toString()
+                color:
+                  if @backgroundColor.perceptualLightness >= .8
+                    #0008
+                  else
+                    #fffd
+
+          Element
+            margin: StyleProps.standardSpacing
+            size: ww:1, h:40
+            if @errorInfo?
+              TextElement
+                StyleProps.mediumText
+                text: @errorInfo
+                location: ps: .5
+                color: "red"
+                axis: point .5
+            else
+              TextInputElement
+                StyleProps.mediumText
+                fontSize: 24
+                placeholder: "type in color"
+                size: ww:1, hh:1
+                value: @currentValue
+                align: "center"
+                on:
+                  enter: (e) -> @setColorFromString e.target.value
+                  valueChanged: (e) -> @currentValue = e.props.value
+                  domElementAttached: ({target}) ->
+                    target.focus()
+                    target.selectAll()
+                RectangleElement color: rgbColor #0001
+
+          Element
+            size: ww: 1 hch: 1
+            childrenLayout: :row
+
+            Button
+              text: :submit
+              size: hch:1, ww:1
+              disabled: @currentValue.length == 0 || rgbColor(@currentValue).eq @backgroundColor
+              action: -> @setColorFromString @currentValue
+
+            Button
+              text: :reset
+              size: hch:1, ww:1
+              disabled: rgbColor(:orange).eq @backgroundColor
+              action: @resetColor

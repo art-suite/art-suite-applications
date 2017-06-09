@@ -3,7 +3,7 @@ StyleProps = require './StyleProps'
 
 {
   defineModule, Element, RectangleElement, TextElement,
-  TextInput
+  TextInputElement
   log
   point
   Component

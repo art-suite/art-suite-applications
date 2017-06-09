@@ -24,7 +24,7 @@ class AddTodo extends FluxComponent
 
         RectangleElement color: :white, padding: -5, radius: 5
 
-        TextInput
+        TextInputElement
           &StyleProps.text
           key:          :textInput
           size:         ww: 1
