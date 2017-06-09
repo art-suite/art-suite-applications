@@ -8,8 +8,6 @@
   ArtEryFluxModel
   initArtSuiteApp
 } = require 'art-suite'
-ArtAws = require 'art-aws'
-{DynamoDbPipeline} = require 'art-ery-aws'
 
 defineModule module, class Client
 

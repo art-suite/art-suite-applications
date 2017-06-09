@@ -8,8 +8,6 @@ target:
 npm:
   description: "" Art.Suite.App
   dependencies:
-    art-aws:      "" git://github.com/imikimi/art-aws
-    art-ery-aws:  "" git://github.com/imikimi/art-ery-aws
     art-suite:    "" git://github.com/imikimi/art-suite
 
 webpack:

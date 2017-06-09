@@ -12,10 +12,8 @@ Example user:
 
 ###
 
-require 'art-aws/Server'
-require 'art-aws'
 require 'art-ery'
-{Validator, merge, log, Promise} = require 'art-foundation'
+{merge, log, Promise} = require 'art-standard-lib'
 
 module.exports = class Server
   @start: (options) ->

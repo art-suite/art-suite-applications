@@ -28,4 +28,4 @@ module.exports = (options)->
       .then ->
         options
 
-    actions: (require './src/Art/Suite/App/Tools').modules
+    actions: (require './source/Art/Suite/App/Tools').modules
