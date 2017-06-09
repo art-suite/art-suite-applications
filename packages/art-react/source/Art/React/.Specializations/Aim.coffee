@@ -16,7 +16,7 @@ standardArtEngineElementClassNames = "
   RectangleElement
   ShadowElement
   TextElement
-  TextInput
+  TextInputElement
   "
 
 module.exports = class Aim
