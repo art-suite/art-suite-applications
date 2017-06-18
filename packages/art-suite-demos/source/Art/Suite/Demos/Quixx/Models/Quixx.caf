@@ -24,7 +24,7 @@ scoreMaps =
 
 class Quixx extends ApplicationState
 
-  @stateFields defaults =
+  @stateFields
     score: 0
     subScores:
       red:    0
