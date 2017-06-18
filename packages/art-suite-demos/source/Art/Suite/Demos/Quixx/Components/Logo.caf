@@ -1,0 +1,32 @@
+import &ArtSuite
+
+class Logo extends Component
+
+  render: ->
+    Element
+      size: ww: 1 h: 80
+
+      RectangleElement
+        colors: #002 #369
+
+      TextElement
+        text:       :Qwixx
+        location:   ps: .5
+        axis:       .5
+        color:      :white
+        fontWeight: :bold
+        fontFamily: :Chewy
+        fontSize:   48
+
+        FillElement()
+
+        OutlineElement
+          color:          #0247
+          lineWidth:      3
+          compositeMode:  :destOver
+
+        OutlineElement
+          lineJoin:       :round
+          color:          #48ca
+          lineWidth:      5
+          compositeMode:  :destOver

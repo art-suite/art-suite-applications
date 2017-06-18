@@ -1,0 +1,37 @@
+import &ArtSuite
+StyleProps = &StyleProps
+
+class ColorCheckBox extends FluxComponent
+  toggleCheckbox: ->
+    @models.quixx.toggleCheckbox @props.color, @props.index
+
+  render: ->
+    Element
+      size: 40
+      padding: 1
+      cursor: "pointer"
+      on: pointerClick: @toggleCheckbox
+
+      RectangleElement
+
+        radius: if @props.text != "L" then 5 else 1000
+        color: "white"
+
+      if @props.checked
+        TextElement
+          key: "x"
+          location: ps:.5
+          size: cs:1
+          axis: .5
+          animators: opacity: toFromVoid: 0
+          fontFamily: "arial"
+          text: "╳"
+          color: StyleProps.textColorMap[@props.color]
+          layoutMode: "tight"
+          fontSize: 38
+
+      TextElement
+        StyleProps.numberStyle
+        angle: if @props.text != "L" then 0 else Math.PI/12
+        text: @props.text
+        color: StyleProps.textColorMap[@props.color]

@@ -1,0 +1,26 @@
+import &ArtSuite
+StyleProps = &StyleProps
+
+class ColorScore extends Component
+
+  getInitialState: -> score: @props.score
+
+  @setter score: (score) -> @setState "score", iPart score
+
+  render: ->
+    Element
+      size: w: @props.width || 45, h:35
+      margin: 7
+
+      RectangleElement
+
+        radius: 10
+        FillElement color: "white"
+        OutlineElement
+          lineWidth: 4
+          color: StyleProps.textColorMap[@props.color] || @props.color
+
+      TextElement
+        StyleProps.numberStyle
+        text: @props.score
+        color: StyleProps.textColorMap[@props.color] || @props.color

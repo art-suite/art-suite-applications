@@ -5,4 +5,5 @@ Demos = require '../namespace'
 module.exports = Demos.Quixx ||
 Demos.addNamespace 'Quixx', class Quixx extends Neptune.Base
   ;
+require './Components/namespace';
 require './Models/namespace'

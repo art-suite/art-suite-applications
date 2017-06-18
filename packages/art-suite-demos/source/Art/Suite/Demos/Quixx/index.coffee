@@ -4,5 +4,7 @@
 module.exports = require './namespace'
 module.exports
 .addModules
-  Main: require './Main'
+  Main:       require './Main'      
+  StyleProps: require './StyleProps'
+require './Components'
 require './Models'

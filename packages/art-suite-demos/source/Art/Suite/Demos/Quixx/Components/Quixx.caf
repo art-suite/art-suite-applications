@@ -1,0 +1,82 @@
+import &ArtSuite
+
+boardNums =
+  red:    2  3  4   5  6  7  8  9  10 11 12 :L
+  yellow: 2  3  4   5  6  7  8  9  10 11 12 :L
+  green:  12 11 10  9  8  7  6  5  4  3  2  :L
+  blue:   12 11 10  9  8  7  6  5  4  3  2  :L
+  grey:   -5 -5 -5 -5
+
+colors = Object.keys boardNums
+
+StyleProps  = &StyleProps
+ColorScore  = &ColorScore
+ColorRow    = &ColorRow
+
+class Quixx extends FluxComponent
+
+  @subscriptions "" quixx.board quixx.subScores quixx.score
+
+  render: ->
+    {board, subScores, score} = @state
+
+    Element
+      RectangleElement color: StyleProps.backgroundColor, inFlow: false
+
+      PagingScrollElement
+
+        Element
+          size:             ww: 1 hch: 1
+          childrenLayout:   :column
+
+          &Logo()
+
+          Element
+            key:            :board
+            size:           ww: 1 hch: 1
+            padding:        10
+            childrenLayout: :column
+
+            array nums, c in board
+              ColorRow
+                checks: board[c]
+                color:  c
+                nums:   boardNums[c]
+
+          Element
+            key:            :scores
+            size:           ww: 1 hch: 1
+
+            RectangleElement color: #999 inFlow: false
+
+            Element
+              size:           ww: 1 hch: 1
+              padding:        10
+              childrenLayout: :row
+              childrenAlignment: .5
+
+              array c, i in colors with []
+                ColorScore color: c, score: subScores[c]
+
+                TextElement
+                  size:       cs: 1
+                  text:       if i == colors.length - 1 then "=" else "+"
+                  color:      #777
+                  fontFamily: :Arial
+                  fontSize:   28
+
+              ColorScore width: 100 color: :black score: score
+
+          Element
+            key:      :reset
+            size:     ww: 1 h:60
+            padding:  10
+            cursor:   :pointer
+            on: pointerClick: @models.quixx.reset
+
+            RectangleElement color: StyleProps.textColorMap.grey, radius: 5
+
+            TextElement
+              StyleProps.numberStyle
+              text:   :reset
+              color:  StyleProps.colorMap.grey
