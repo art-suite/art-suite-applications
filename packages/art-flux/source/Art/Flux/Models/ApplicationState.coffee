@@ -79,7 +79,7 @@ defineModule module, class ApplicationState extends StateFieldsMixin FluxModel
 
   constructor: ->
     super
-    @state = @_getInitialState()
+    @_updateAllState @state = @_getInitialState()
 
   ###
   provided for consistency with React Components
@@ -174,10 +174,9 @@ defineModule module, class ApplicationState extends StateFieldsMixin FluxModel
       log _loadFromLocalStorage:v
       v
 
-  _updateAllState: (state = @state)->
-    @state = state
+  _updateAllState: ->
     @load @name
-    state
+    @state
 
   @getter
     savableState: -> merge @state
@@ -188,4 +187,4 @@ defineModule module, class ApplicationState extends StateFieldsMixin FluxModel
       localStorage.setItem @localStorageKey, JSON.stringify @savableState
 
   _getInitialState: (loadFromLocalStorage = true) ->
-    @_updateAllState merge @getInitialState(), @getStateFields(), loadFromLocalStorage && try @_loadFromLocalStorage()
+    merge @getInitialState(), @getStateFields(), loadFromLocalStorage && try @_loadFromLocalStorage()
