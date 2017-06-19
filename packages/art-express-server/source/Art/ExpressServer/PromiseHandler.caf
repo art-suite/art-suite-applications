@@ -84,7 +84,7 @@ class ExpressHandler extends &LoggingMixin &ArtClassSystem.BaseClass
 
             responseData = data
 
-            response.statusCode = if statusCode = encodeHttpStatus status
+            response.statusCode = statusCode || if status && statusCode = encodeHttpStatus status
               statusCode
             else
               statusCode = if data then 200 else 404
