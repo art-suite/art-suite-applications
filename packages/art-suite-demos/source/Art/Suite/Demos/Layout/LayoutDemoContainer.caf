@@ -1,0 +1,62 @@
+import &StandardImport
+
+class LayoutDemoContainer extends Component
+  @stateFields
+    demoLocation: :centerCenter
+
+  renderButton: (location, props) ->
+    Button
+      props
+      size: w: 150 h:50
+      @props.buttonProps location
+
+  render: ->
+    Element
+      childrenLayout: :row
+
+      Element
+        size: hh: 1 w: 50
+
+        Element
+          axis: .5
+          location: ps: .5
+          angle: Math.PI / 2
+          childrenLayout: :row
+          size: cs: 1
+          renderButton :centerLeft
+          renderButton :centerCenter
+
+      Element
+        childrenLayout: :column
+        margin: 10
+        Element
+          childrenLayout: :row
+          size: ww: 1, hch: 1
+          margin: 10
+          renderButton :topLeft
+          Element()
+          renderButton :topCenter
+          Element()
+          renderButton :topRight
+
+        Element
+          # padding: 10
+          clip: true
+
+          RectangleElement inFlow: false, color: veryDarkMuted, padding: -10
+
+          @props.children
+
+        Element
+          childrenLayout: :row
+          size: ww: 1, hch: 1
+          margin: 10
+          renderButton :bottomLeft
+          Element()
+          renderButton :bottomCenter
+          Element()
+          renderButton :bottomRight
+
+      Element
+        size: hh: 1, w: 50
+        renderButton :centerRight, rotated: true

@@ -1,0 +1,13 @@
+import &ArtSuite
+
+class MyComponent extends Component
+
+  render: ->
+    Element
+
+      RectangleElement
+        color:      #222222
+
+      Element
+        padding: 10
+        &BasicLayoutDemo()

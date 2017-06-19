@@ -7,7 +7,6 @@ Suite.addNamespace 'Demos', class Demos extends Neptune.Base
   ;
 require './Animations/namespace';
 require './Basic/namespace';
-require './BasicHotLoading/namespace';
 require './CandyStripe/namespace';
 require './Chat/namespace';
 require './Clock/namespace';
@@ -16,6 +15,7 @@ require './ColorPicker/namespace';
 require './ColorPicker2/namespace';
 require './FluxChallenge/namespace';
 require './Form/namespace';
+require './Layout/namespace';
 require './Physics/namespace';
 require './Quixx/namespace';
 require './ScrollingDynamic/namespace';

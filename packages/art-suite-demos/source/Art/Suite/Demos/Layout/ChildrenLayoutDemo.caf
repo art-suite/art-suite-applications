@@ -1,0 +1,117 @@
+import &StandardImport
+Button = &Button
+
+class DemoElement extends Component
+
+  @stateFields
+    fixedWidth: false
+    weight: 1
+
+  cycleWeight: ->
+    @mode = :variableWidth
+    @weight = if @weight >= 3 then 1 else @weight + 1
+
+  render: ->
+    {hh} = @props
+    Element
+      animators: :layoutWeight
+      childrenLayout: :column
+      childrenAlignment: :center
+      cursor: :pointer
+      margin: 5
+      padding: 10
+      on: pointerClick: @cycleMode
+
+      size:
+        if @fixedWidth
+          w: 70, hh: hh
+        else
+          ww: 1 hh: hh
+
+      layoutWeight: @weight
+
+      RectangleElement
+        inFlow: false
+        color: vibrant
+        padding: -10
+
+      Button
+        size: h: 50, ww: 1
+        text: if @fixedWidth then "w: 70" else "ww: 1"
+        fontSize: 10
+        action: @toggleFixedWidth
+
+      !@fixedWidth && Button
+        size: h: 50, ww: 1
+        text: "weight: #{@weight}"
+        fontSize: 10
+        action: @cycleWeight
+
+class ChildrenLayoutDemo extends Component
+  @stateFields
+    childrenAlignment: :topLeft
+
+  render: ->
+    AlignButton = (alignment, props) ->
+      Button
+        props
+        size: w: 150 h:50
+        text: "childrenAlignment:\n:#{alignment}"
+        action: -> @childrenAlignment = alignment
+
+    Element
+      childrenLayout: :column
+      TextElement
+        mediumText
+        text:
+          """
+            childrenLayout: :row
+            When set to :row, children are laid out left to right, much like FlexBox layout in other frameworks.
+        color: muted
+        margin: 10
+
+      Element
+        childrenLayout: :row
+
+        Element
+          size: hh: 1, w: 50
+          AlignButton :centerLeft rotated: true
+
+        Element
+          childrenLayout: :column
+          margin: 10
+          Element
+            childrenLayout: :row
+            size: ww: 1, hch: 1
+            margin: 10
+            AlignButton :topLeft
+            Element()
+            AlignButton :topCenter
+            Element()
+            AlignButton :topRight
+
+          Element
+            childrenLayout: :row
+            childrenAlignment: @childrenAlignment
+            animators: :childrenAlignment
+            padding: 10
+
+            RectangleElement inFlow: false, color: veryDarkMuted, padding: -10
+
+            DemoElement hh: .75
+            DemoElement hh: 1
+            DemoElement hh: .5
+
+          Element
+            childrenLayout: :row
+            size: ww: 1, hch: 1
+            margin: 10
+            AlignButton :bottomLeft
+            Element()
+            AlignButton :bottomCenter
+            Element()
+            AlignButton :bottomRight
+
+        Element
+          size: hh: 1, w: 50
+          AlignButton :centerRight, rotated: true

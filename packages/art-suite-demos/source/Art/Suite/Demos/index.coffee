@@ -3,9 +3,12 @@
 
 module.exports = require './namespace'
 module.exports
+.addModules
+  DemoPalette:    require './DemoPalette'   
+  DemoTextStyles: require './DemoTextStyles'
+  StandardImport: require './StandardImport'
 require './Animations'
 require './Basic'
-require './BasicHotLoading'
 require './CandyStripe'
 require './Chat'
 require './Clock'
@@ -14,6 +17,7 @@ require './ColorPicker'
 require './ColorPicker2'
 require './FluxChallenge'
 require './Form'
+require './Layout'
 require './Physics'
 require './Quixx'
 require './ScrollingDynamic'

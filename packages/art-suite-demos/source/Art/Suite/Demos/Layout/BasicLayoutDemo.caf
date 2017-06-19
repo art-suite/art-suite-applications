@@ -1,0 +1,120 @@
+import &StandardImport
+Button = &Button
+
+class DemoElement extends Component
+
+  @stateFields
+    axis: :centerCenter
+
+  render: ->
+    {hh} = @props
+    AxisButton = (axis, text) ->
+      Button size: 50, text: "axis:\n#{text}" || axis, action: -> @axis = axis
+
+    Element
+      animators: :axis :location
+      axis: @axis
+      location: ps: @props.location || :centerCenter
+
+      size: 190
+      clip: true
+
+      RectangleElement
+        inFlow: false
+        color: vibrant
+
+      RectangleElement
+        inFlow: false
+        location: ps: @axis
+        size: 60
+        radius: 30
+        axis: .5
+        animators: :location
+        color: darkVibrant
+
+      Element
+        padding: 10
+        childrenLayout: :flow
+
+        AxisButton :topLeft         :TL
+        AxisButton :topCenter       :TC
+        AxisButton :topRight        :TR
+        AxisButton :centerLeft      :CL
+        AxisButton :centerCenter    :CC
+        AxisButton :centerRight     :CR
+        AxisButton :bottomLeft      :BL
+        AxisButton :bottomCenter    :BC
+        AxisButton :bottomRight     :BR
+
+class BasicLayoutDemo extends Component
+  @stateFields
+    demoLocation: :centerCenter
+
+  render: ->
+    SetLocationButton = (location, props) ->
+      Button
+        props
+        size: w: 150 h:50
+        text: "location: ps:\n:#{location}"
+        action: -> @demoLocation = location
+
+    Element
+      childrenLayout: :column
+      TextElement
+        mediumText
+        size: ww: 1 hch: 1
+        text:
+          """
+            Location
+            If the parent element does not have childrenLayout set, then the Element's location is based on its `axis` and `location` properties.
+        color: muted
+        margin: 10
+
+      Element
+        childrenLayout: :row
+
+        Element
+          size: hh: 1, w: 50
+          Element
+            axis: .5
+            location: ps: .5
+            angle: Math.PI / 2
+            childrenLayout: :row
+            size: cs: 1
+            SetLocationButton :centerLeft
+            SetLocationButton :centerCenter
+
+        Element
+          childrenLayout: :column
+          margin: 10
+          Element
+            childrenLayout: :row
+            size: ww: 1, hch: 1
+            margin: 10
+            SetLocationButton :topLeft
+            Element()
+            SetLocationButton :topCenter
+            Element()
+            SetLocationButton :topRight
+
+          Element
+            # padding: 10
+            clip: true
+
+            RectangleElement inFlow: false, color: veryDarkMuted, padding: -10
+
+            DemoElement location: @demoLocation
+
+          Element
+            childrenLayout: :row
+            size: ww: 1, hch: 1
+            margin: 10
+            SetLocationButton :bottomLeft
+            Element()
+            SetLocationButton :bottomCenter
+            Element()
+            SetLocationButton :bottomRight
+
+        Element
+          size: hh: 1, w: 50
+          SetLocationButton :centerRight, rotated: true

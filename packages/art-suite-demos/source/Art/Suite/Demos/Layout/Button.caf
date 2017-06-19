@@ -1,0 +1,29 @@
+import &StandardImport
+
+class Button extends PointerActionsMixin Component
+  render: ->
+    Element
+      cacheDraw: true
+      size: @props.size || 50
+      on: @buttonHandlers
+      cursor: :pointer
+      margin: 10
+      if @props.rotated
+        angle: Math.PI / 2
+        axis: :bottomCenter
+        location: hh: .5
+
+      RectangleElement
+        color: if @pointerIsDown then darkVibrant else if @hover then darkMuted else veryDarkMuted
+        animators: :color
+        radius: 5
+
+      TextElement
+        mediumText
+        fontSize: @props.fontSize || mediumText.fontSize
+        location: ps: .5
+        axis: :centerCenter
+        align: :center
+        padding: 10
+        color: muted
+        text: @props.text || "button"
