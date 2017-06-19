@@ -1,14 +1,16 @@
 import &StandardImport
+Button = &Button
 
 class LayoutDemoContainer extends Component
   @stateFields
     demoLocation: :centerCenter
 
-  renderButton: (location, props) ->
+  renderButton: (location) ->
     Button
-      props
       size: w: 150 h:50
-      @props.buttonProps location
+      selected: @demoLocation == location
+      @props.buttonProps? location
+      action: -> @demoLocation = location
 
   render: ->
     Element
@@ -20,11 +22,11 @@ class LayoutDemoContainer extends Component
         Element
           axis: .5
           location: ps: .5
-          angle: Math.PI / 2
+          angle: -Math.PI / 2
           childrenLayout: :row
           size: cs: 1
-          renderButton :centerLeft
-          renderButton :centerCenter
+          @renderButton :centerLeft
+          @renderButton :centerCenter
 
       Element
         childrenLayout: :column
@@ -33,30 +35,39 @@ class LayoutDemoContainer extends Component
           childrenLayout: :row
           size: ww: 1, hch: 1
           margin: 10
-          renderButton :topLeft
+          @renderButton :topLeft
           Element()
-          renderButton :topCenter
+          @renderButton :topCenter
           Element()
-          renderButton :topRight
+          @renderButton :topRight
 
         Element
-          # padding: 10
           clip: true
 
-          RectangleElement inFlow: false, color: veryDarkMuted, padding: -10
+          RectangleElement inFlow: false, color: veryDarkMuted
 
-          @props.children
+          Element
+            padding: 10
+            @props.containerProps? @demoLocation
+            @props.renderChildren? @demoLocation
 
         Element
           childrenLayout: :row
           size: ww: 1, hch: 1
           margin: 10
-          renderButton :bottomLeft
+          @renderButton :bottomLeft
           Element()
-          renderButton :bottomCenter
+          @renderButton :bottomCenter
           Element()
-          renderButton :bottomRight
+          @renderButton :bottomRight
 
       Element
-        size: hh: 1, w: 50
-        renderButton :centerRight, rotated: true
+        size: hh: 1 w: 50
+
+        Element
+          axis: .5
+          location: ps: .5
+          angle: Math.PI / 2
+          childrenLayout: :row
+          size: cs: 1
+          @renderButton :centerRight

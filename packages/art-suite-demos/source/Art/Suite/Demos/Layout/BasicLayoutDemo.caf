@@ -9,7 +9,7 @@ class DemoElement extends Component
   render: ->
     {hh} = @props
     AxisButton = (axis, text) ->
-      Button size: 50, text: "axis:\n#{text}" || axis, action: -> @axis = axis
+      Button size: 50, selected: axis == @axis, text: "axis:\n#{text}" || axis, action: -> @axis = axis
 
     Element
       animators: :axis :location
@@ -26,8 +26,8 @@ class DemoElement extends Component
       RectangleElement
         inFlow: false
         location: ps: @axis
-        size: 60
-        radius: 30
+        size: 80
+        radius: 40
         axis: .5
         animators: :location
         color: darkVibrant
@@ -51,13 +51,6 @@ class BasicLayoutDemo extends Component
     demoLocation: :centerCenter
 
   render: ->
-    SetLocationButton = (location, props) ->
-      Button
-        props
-        size: w: 150 h:50
-        text: "location: ps:\n:#{location}"
-        action: -> @demoLocation = location
-
     Element
       childrenLayout: :column
       TextElement
@@ -70,51 +63,10 @@ class BasicLayoutDemo extends Component
         color: muted
         margin: 10
 
-      Element
-        childrenLayout: :row
+      &LayoutDemoContainer
+        buttonProps: (location) ->
+          text: "location: ps:\n:#{location}"
+          action: -> @demoLocation = location
 
-        Element
-          size: hh: 1, w: 50
-          Element
-            axis: .5
-            location: ps: .5
-            angle: Math.PI / 2
-            childrenLayout: :row
-            size: cs: 1
-            SetLocationButton :centerLeft
-            SetLocationButton :centerCenter
-
-        Element
-          childrenLayout: :column
-          margin: 10
-          Element
-            childrenLayout: :row
-            size: ww: 1, hch: 1
-            margin: 10
-            SetLocationButton :topLeft
-            Element()
-            SetLocationButton :topCenter
-            Element()
-            SetLocationButton :topRight
-
-          Element
-            # padding: 10
-            clip: true
-
-            RectangleElement inFlow: false, color: veryDarkMuted, padding: -10
-
-            DemoElement location: @demoLocation
-
-          Element
-            childrenLayout: :row
-            size: ww: 1, hch: 1
-            margin: 10
-            SetLocationButton :bottomLeft
-            Element()
-            SetLocationButton :bottomCenter
-            Element()
-            SetLocationButton :bottomRight
-
-        Element
-          size: hh: 1, w: 50
-          SetLocationButton :centerRight, rotated: true
+        renderChildren: (location) ->
+          DemoElement {location}

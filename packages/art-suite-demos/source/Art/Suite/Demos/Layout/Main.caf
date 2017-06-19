@@ -2,6 +2,9 @@ import &ArtSuite
 
 class MyComponent extends Component
 
+  @stateFields
+    childrenLayoutDemo: true
+
   render: ->
     Element
 
@@ -10,4 +13,15 @@ class MyComponent extends Component
 
       Element
         padding: 10
-        &BasicLayoutDemo()
+        childrenLayout: :column
+        Element
+          size: ww: 1 hch: 1
+          childrenLayout: :row
+          margin: 10
+          &Button text: "childrenLayout demo" selected: @childrenLayoutDemo,  action: @toggleChildrenLayoutDemo, size: ww: 1 h: 50
+          &Button text: "normal layout demo"  selected: !@childrenLayoutDemo, action: @toggleChildrenLayoutDemo, size: ww: 1 h: 50
+
+        if @childrenLayoutDemo
+          &ChildrenLayoutDemo()
+        else
+          &BasicLayoutDemo()

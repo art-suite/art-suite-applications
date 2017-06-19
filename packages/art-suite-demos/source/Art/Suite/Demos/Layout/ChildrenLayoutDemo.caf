@@ -52,13 +52,6 @@ class ChildrenLayoutDemo extends Component
     childrenAlignment: :topLeft
 
   render: ->
-    AlignButton = (alignment, props) ->
-      Button
-        props
-        size: w: 150 h:50
-        text: "childrenAlignment:\n:#{alignment}"
-        action: -> @childrenAlignment = alignment
-
     Element
       childrenLayout: :column
       TextElement
@@ -70,48 +63,17 @@ class ChildrenLayoutDemo extends Component
         color: muted
         margin: 10
 
-      Element
-        childrenLayout: :row
+      &LayoutDemoContainer
+        buttonProps: (alignment) ->
+          text: "childrenAlignment:\n:#{alignment}"
 
-        Element
-          size: hh: 1, w: 50
-          AlignButton :centerLeft rotated: true
+        containerProps: (location) ->
+          childrenLayout: :row
+          childrenAlignment: location
+          animators: :childrenAlignment
 
-        Element
-          childrenLayout: :column
-          margin: 10
-          Element
-            childrenLayout: :row
-            size: ww: 1, hch: 1
-            margin: 10
-            AlignButton :topLeft
-            Element()
-            AlignButton :topCenter
-            Element()
-            AlignButton :topRight
-
-          Element
-            childrenLayout: :row
-            childrenAlignment: @childrenAlignment
-            animators: :childrenAlignment
-            padding: 10
-
-            RectangleElement inFlow: false, color: veryDarkMuted, padding: -10
-
-            DemoElement hh: .75
+        renderChildren: (location) ->
+          []
+            DemoElement hh: .85
             DemoElement hh: 1
-            DemoElement hh: .5
-
-          Element
-            childrenLayout: :row
-            size: ww: 1, hch: 1
-            margin: 10
-            AlignButton :bottomLeft
-            Element()
-            AlignButton :bottomCenter
-            Element()
-            AlignButton :bottomRight
-
-        Element
-          size: hh: 1, w: 50
-          AlignButton :centerRight, rotated: true
+            DemoElement hh: .7

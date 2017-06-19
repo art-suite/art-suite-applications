@@ -14,7 +14,11 @@ class Button extends PointerActionsMixin Component
         location: hh: .5
 
       RectangleElement
-        color: if @pointerIsDown then darkVibrant else if @hover then darkMuted else veryDarkMuted
+        color: color =
+          if @pointerIsDown then vibrant
+          else if @hover then darkVibrant
+          else if @props.selected then vibrant
+          else veryDarkMuted
         animators: :color
         radius: 5
 
@@ -25,5 +29,5 @@ class Button extends PointerActionsMixin Component
         axis: :centerCenter
         align: :center
         padding: 10
-        color: muted
+        color: if color == vibrant then lightMuted else muted
         text: @props.text || "button"
