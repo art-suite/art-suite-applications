@@ -1,4 +1,4 @@
-import &ArtSuite
+import &StandardImport
 
 class App extends FluxComponent
   @subscriptions :paginator.paginator :obiWan.location
@@ -10,29 +10,29 @@ class App extends FluxComponent
       pageUpEnabled = pageDownEnabled = false
 
     Element
-      size: ww: 1, hch: 1, max: w: 800
+      size: ww: 1 hch: 1 max: w: 800
       axis: :centerCenter
       location: ps: :centerCenter
 
       RectangleElement
         radius: 2
-        OutlineElement &StyleProps.appOutline
+        OutlineElement appOutlineStyle
 
       Element
-        size: ww:1, hch:1
+        size: ww: 1 hch: 1
         childrenLayout: :column
-        padding: &StyleProps.basePadding
+        padding: basePadding
 
         &PlanetMonitor {} @location
 
         Element
-          size: ww:1, hch:1
+          size: ww: 1 hch: 1
           childrenLayout: :row
 
           Element
-            size: ww:1, hch:1
+            size: ww: 1 hch: 1
             childrenLayout: :column
-            margin: &StyleProps.basePadding
+            margin: basePadding
             array darkJedi in loadedSlots
               &Slot {} darkJedi, alert: darkJedi?.homeworld.id == @location?.id
 

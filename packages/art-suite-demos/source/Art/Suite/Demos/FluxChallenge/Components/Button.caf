@@ -1,4 +1,4 @@
-import &ArtSuite
+import &StandardImport
 
 class Button extends PointerActionsMixin Component
 
@@ -6,19 +6,19 @@ class Button extends PointerActionsMixin Component
     enabled = !!@props.action
 
     Element
-      margin: &StyleProps.basePadding
+      margin: basePadding
       on: @pointerHandlers
       opacity: if enabled then 1 else .5
       animators: opacity: true
       enabled && cursor: :pointer
 
       RectangleElement
-        color: &StyleProps.buttonBackgoundColor {enabled, @pointerIsDown, @hover}
+        color: getButtonBackgoundColor {enabled, @pointerIsDown, @hover}
         radius: 1
         animators: color: true
         FillElement()
-        OutlineElement &StyleProps.buttonOutline
+        OutlineElement buttonOutlineStyle
 
       TextElement
-        &StyleProps.buttonText
+        buttonTextStyle
         text: if @props.up then :⥣ else :⥥

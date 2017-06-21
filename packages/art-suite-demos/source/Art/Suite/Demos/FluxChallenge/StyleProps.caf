@@ -4,60 +4,59 @@ class StyleProps extends HotStyleProps
 
   colorAndShadow = (color) -> {} color, shadow: {} offset: 0, radius: 10, color
 
-  @text:
+  @basePadding: 10
+  @textPadding: 14
+  @buttonColor: #69F0D2
+
+  @baseTextStyle:
     fontFamily: "" Lucida Console, Monaco5, monospace
     fontSize: 26
 
-  @background:
+  @backgroundStyle:
     colors: #1b3061 #192b55
 
-  @basePadding: 10
-  @textPadding: 14
-
-  @buttonColor: #69F0D2
-
-  @appOutline: merge
+  @appOutlineStyle: merge
     lineWidth: 3
     colorAndShadow #35769A
 
-  @buttonOutline: merge
+  @buttonOutlineStyle: merge
     lineWidth: 5
     colorAndShadow @buttonColor
 
-  @planetMonitorOutline: merge
+  @planetMonitorOutlineStyle: merge
     lineWidth: 5
     colorAndShadow #87AFE7
 
-  @planetMonitorText: merge
-    @text
+  @planetMonitorTextStyle: merge
+    @baseTextStyle
     colorAndShadow #EDE66A
     padding: @textPadding
 
-  @planetMonitorBackground:
+  @planetMonitorBackgroundStyle:
     radius: 2
     color: #2F5093
 
-  @buttonText: merge
-    @text
+  @buttonTextStyle: merge
+    @baseTextStyle
     location: ps: .5
     axis:     .5
     colorAndShadow @buttonColor
 
-  @buttonBackgoundColor: ({enabled, pointerIsDown, hover})->
+  @getButtonBackgoundColor: ({enabled, pointerIsDown, hover})->
     if enabled && pointerIsDown then :white
     else if enabled && hover then #60c7b1
     else #39697A
 
-  @slotOutline: merge
+  @slotOutlineStyle: merge
     lineWidth: 5
     colorAndShadow #6af0d3
 
-  @slotTextStyle: (red) ->
+  @getSlotTextStyle: (red) =>
     merge
-      @text
+      @baseTextStyle
       fontSize: 18
       colorAndShadow if red then :red else #6af0d3
 
-  @slotSmallText:
+  @slotSmallTextStyle:
     margin: 2
     fontSize: 12

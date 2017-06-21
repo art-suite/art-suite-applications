@@ -3,5 +3,5 @@ import &ArtSuite
 class ArtSuiteDemos extends Component
   render: ->
     Element
-      RectangleElement &StyleProps.background
+      RectangleElement &StyleProps.backgroundStyle
       &Components/App()

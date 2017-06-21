@@ -1,28 +1,28 @@
-import &ArtSuite
+import &StandardImport
 
 class Slot extends Component
   render: ->
     {darkJedi, alert} = @props
-    slotTextStyle = &StyleProps.slotTextStyle alert
+    slotTextStyleForAlert = getSlotTextStyle alert
 
     Element
-      margin: &StyleProps.basePadding
+      margin: basePadding
       size: ww: 1 hch: 1
 
       RectangleElement
         radius: 1
-        OutlineElement &StyleProps.slotOutline
+        OutlineElement slotOutlineStyle
 
       Element
         size: ww: 1 hch: 1
         childrenLayout: :column
-        padding: &StyleProps.textPadding
+        padding: textPadding
 
         TextElement
-          slotTextStyle
+          slotTextStyleForAlert
           text: darkJedi?.name || ''
 
         TextElement
-          slotTextStyle
-          &StyleProps.slotSmallText
+          slotTextStyleForAlert
+          slotSmallTextStyle
           text: darkJedi?.homeworld.name || ''

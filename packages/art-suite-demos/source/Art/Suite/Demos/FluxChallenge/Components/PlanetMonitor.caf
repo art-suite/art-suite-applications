@@ -1,15 +1,15 @@
-import &ArtSuite
+import &StandardImport
 
 class PlanetMonitor extends Component
   render: ->
     Element
       size: ww: 1 hch: 1
-      margin: &StyleProps.basePadding
+      margin: basePadding
       RectangleElement
-        &StyleProps.planetMonitorBackground
+        planetMonitorBackgroundStyle
         FillElement()
-        OutlineElement &StyleProps.planetMonitorOutline
+        OutlineElement planetMonitorOutlineStyle
 
       TextElement
-        &StyleProps.planetMonitorText
+        planetMonitorTextStyle
         text: @props.location?.name || "unknown"
