@@ -1,0 +1,104 @@
+import &ArtSuite
+
+fontSize = 128
+c1 = rgbColor :red
+c2 = c1.withLightness c1.l * .75
+c3 = rgbColor :white
+
+medianWeight = fontSize * .1
+
+class MyComponent extends PointerActionsMixin Component
+
+  @getter
+    text: ->
+      unless @pointerIsDown
+        "" Love
+      else
+        "" and War
+
+  renderEffect: (number)->
+    [
+
+      FillElement color: c1, c2, c1
+
+      ShadowElement
+        key: "shadow1-#{number}"
+        color:    :black
+        opacity:  .4
+        inverted: true
+        compositeMode: :sourceIn
+        location: point 0, -medianWeight * .25
+
+      ShadowElement
+        key: "shadow2-#{number}"
+        color: "white"
+        opacity: .4
+        inverted: true
+        compositeMode: "sourceIn"
+        location: point 0, medianWeight * .25
+
+      OutlineElement
+        color: c3
+        lineWidth: medianWeight * .9
+        location: point 0, medianWeight * .2
+        lineJoin:      :round
+        compositeMode: :destOver
+
+      ShadowElement
+        key: "shadow3-#{number}"
+        color:    :black
+        opacity:  .4
+        location: point 0, medianWeight * .5
+    ]
+
+  render: ->
+
+    Element
+      on: @buttonHandlers
+      cursor: :pointer
+
+      RectangleElement
+        color:      if @pointerIsDown then :red else :pink
+        animators:  color: d: 1
+
+      Element
+        axis: :centerCenter
+        location: ps: :centerCenter
+        scale: if @pointerIsDown then 1.25 else 1
+
+        animators: scale: d: 1
+        size: cs: 1
+
+        TextElement
+          color:      c1
+          text:       :Yummy
+          fontSize:   fontSize
+          fontFamily: "" HoeflerText-BlackItalic, serif
+          fontWeight: :bold
+          layoutMode: :tight0
+          align:      :center
+
+          @renderEffect 1
+
+        Element
+          location: y: 115
+          size: w: 348, h: 30
+
+          RectangleElement
+            inFlow: false
+            # padding: -10
+            color: c1, c2, c1
+            radius: 100
+            clip: false
+            @renderEffect 2
+
+          TextElement
+            location: ps: .5
+            axis: .5
+            fontFamily: "" AvenirNext-Bold, sans-serif
+            fontWeight: :bold
+            fontStyle:  :italic
+            fontSize:   18
+            layoutMode: :tight0
+            color: :white
+            text: "" breakfast for tummies

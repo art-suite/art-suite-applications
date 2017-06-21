@@ -20,5 +20,6 @@ require './Physics/namespace';
 require './Quixx/namespace';
 require './ScrollingDynamic/namespace';
 require './ScrollingInfinite/namespace';
+require './Style/namespace';
 require './Todos/namespace';
 require './VoidProps/namespace'

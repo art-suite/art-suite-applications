@@ -5,6 +5,14 @@ class DemoElement extends Component
 
   @stateFields
     axis: :centerCenter
+    angle: 0
+    scale: 1
+
+  rotateLeft: -> @angle -= Math.PI/6
+  rotateRight: -> @angle += Math.PI/6
+  scaleUp:   -> @scale *= 1.25
+  scaleDown: -> @scale /= 1.25
+  reset: -> @angle = 0; @scale = 1; @axis = .5
 
   render: ->
     {hh} = @props
@@ -12,11 +20,23 @@ class DemoElement extends Component
       Button size: 50, selected: axis == @axis, text: "axis:\n#{text}" || axis, action: -> @axis = axis
 
     Element
-      animators: :axis :location
+      animators:
+        axis: true
+        location: true
+        angle:
+          f: :easeInBounce
+          d: .4
+        scale:
+          f: :easeInElastic
+          d: 1
+
       axis: @axis
+      angle: @angle
+      scale: @scale
+      skew: 1
       location: ps: @props.location || :centerCenter
 
-      size: 190
+      size: w: 310, h: 190
       clip: true
 
       RectangleElement
@@ -37,13 +57,21 @@ class DemoElement extends Component
         childrenLayout: :flow
 
         AxisButton :topLeft         :TL
+        Button size: 50   text: :⬆︎  action: @scaleUp
         AxisButton :topCenter       :TC
+        Element size: 50
         AxisButton :topRight        :TR
+
         AxisButton :centerLeft      :CL
+        Button size: 50   text: :⟲  action: @rotateLeft
         AxisButton :centerCenter    :CC
+        Button size: 50   text: :⟳  action: @rotateRight
         AxisButton :centerRight     :CR
+
         AxisButton :bottomLeft      :BL
+        Button size: 50   text: :⬇︎  action: @scaleDown
         AxisButton :bottomCenter    :BC
+        Button size: 50   text: :reset  action: @reset
         AxisButton :bottomRight     :BR
 
 class BasicLayoutDemo extends Component
