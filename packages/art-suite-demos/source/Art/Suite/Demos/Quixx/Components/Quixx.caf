@@ -52,18 +52,23 @@ class Quixx extends FluxComponent
             Element
               size:           ww: 1 hch: 1
               padding:        10
-              childrenLayout: :row
-              childrenAlignment: .5
+              childrenLayout: :flow
+              childrenAlignment: :center
 
               array c, i in colors with []
-                ColorScore color: c, score: subScores[c]
+                Element
+                  size: cs: 1
+                  childrenLayout: :row
+                  margin: 7
+                  ColorScore color: c, score: subScores[c]
 
-                TextElement
-                  size:       cs: 1
-                  text:       if i == colors.length - 1 then "=" else "+"
-                  color:      #777
-                  fontFamily: :Arial
-                  fontSize:   28
+                  TextElement
+                    size:       wcw: 1 hh: 1
+                    align:      :centerCenter
+                    text:       if i == colors.length - 1 then "=" else "+"
+                    color:      #777
+                    fontFamily: :Arial
+                    fontSize:   28
 
               ColorScore width: 100 color: :black score: score
 

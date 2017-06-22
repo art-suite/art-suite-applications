@@ -9,7 +9,7 @@ class ColorScore extends Component
 
   render: ->
     Element
-      size: w: @props.width || 45, h:35
+      size: w: @props.width || 45, h: 35
       margin: 7
 
       RectangleElement
