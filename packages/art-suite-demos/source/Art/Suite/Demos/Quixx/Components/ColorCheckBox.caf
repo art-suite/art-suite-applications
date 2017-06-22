@@ -6,6 +6,7 @@ class ColorCheckBox extends FluxComponent
     @models.quixx.toggleCheckbox @props.color, @props.index
 
   render: ->
+    isLock = !/^-?[0-9]+$/.test @props.text
     Element
       size: 40
       padding: 1
@@ -14,8 +15,14 @@ class ColorCheckBox extends FluxComponent
 
       RectangleElement
 
-        radius: if @props.text != "L" then 5 else 1000
+        radius: if isLock then 1000 else 5
         color: "white"
+
+      TextElement
+        StyleProps.numberStyle
+        angle: if isLock then Math.PI/12 else 0
+        text: @props.text
+        color: StyleProps.textColorMap[@props.color]
 
       if @props.checked
         TextElement
@@ -29,9 +36,3 @@ class ColorCheckBox extends FluxComponent
           color: StyleProps.textColorMap[@props.color]
           layoutMode: "tight"
           fontSize: 38
-
-      TextElement
-        StyleProps.numberStyle
-        angle: if @props.text != "L" then 0 else Math.PI/12
-        text: @props.text
-        color: StyleProps.textColorMap[@props.color]

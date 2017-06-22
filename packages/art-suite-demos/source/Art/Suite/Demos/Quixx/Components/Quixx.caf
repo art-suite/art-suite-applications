@@ -1,10 +1,10 @@
 import &ArtSuite
 
 boardNums =
-  red:    2  3  4   5  6  7  8  9  10 11 12 :L
-  yellow: 2  3  4   5  6  7  8  9  10 11 12 :L
-  green:  12 11 10  9  8  7  6  5  4  3  2  :L
-  blue:   12 11 10  9  8  7  6  5  4  3  2  :L
+  red:    2  3  4   5  6  7  8  9  10 11 12 :🔓
+  yellow: 2  3  4   5  6  7  8  9  10 11 12 :🔓
+  green:  12 11 10  9  8  7  6  5  4  3  2  :🔓
+  blue:   12 11 10  9  8  7  6  5  4  3  2  :🔓
   grey:   -5 -5 -5 -5
 
 colors = Object.keys boardNums
