@@ -4,4 +4,6 @@ class ArtSuiteDemos extends Component
   render: ->
     Element
       RectangleElement &StyleProps.backgroundStyle
-      &Components/App()
+      Element
+        padding: 5
+        &Components/App()

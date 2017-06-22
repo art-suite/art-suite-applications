@@ -1,1 +1,3 @@
-&ArtSuite.merge &ArtSuite, &StyleProps
+&ArtSuite.merge
+  &ArtSuite
+  &StyleProps
