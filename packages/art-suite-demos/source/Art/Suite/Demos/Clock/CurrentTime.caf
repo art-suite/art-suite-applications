@@ -1,10 +1,6 @@
-Foundation = require 'art-foundation'
-Flux = require 'art-flux'
+import &ArtSuite
 
-{log, createWithPostCreate, shallowClone, timeout} = Foundation
-{ApplicationState} = Flux
-
-createWithPostCreate module, class CurrentTime extends ApplicationState
+class CurrentTime extends ApplicationState
   @stateFields
     second: 0
     minute: 0
