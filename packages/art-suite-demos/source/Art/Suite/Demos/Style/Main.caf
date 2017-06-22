@@ -1,20 +1,13 @@
 import &ArtSuite
 
-fontSize = 128
 c1 = rgbColor :red
 c2 = c1.withLightness c1.l * .75
 c3 = rgbColor :white
 
+fontSize     = 128
 medianWeight = fontSize * .1
 
 class MyComponent extends PointerActionsMixin Component
-
-  @getter
-    text: ->
-      unless @pointerIsDown
-        "" Love
-      else
-        "" and War
 
   renderEffect: (number)->
     [
