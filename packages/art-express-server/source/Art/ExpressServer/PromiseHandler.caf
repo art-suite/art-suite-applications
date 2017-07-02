@@ -1,7 +1,7 @@
 import &ArtStandardLib, &ArtCommunicationStatus
 querystring = &querystring
 
-class ExpressHandler extends &LoggingMixin &ArtClassSystem.BaseClass
+class PromiseHandler extends &LoggingMixin &ArtClassSystem.BaseClass
 
   @getMiddleware: (options) ->
     new @ options
@@ -151,7 +151,13 @@ class ExpressHandler extends &LoggingMixin &ArtClassSystem.BaseClass
     Promise.then ->
       @handleHtmlRequest request, requestData
     .then (data) ->
-      if data then {data} else status: missing
+      switch
+      when !data? then status: missing
+      when isPlainObject data then data
+      when isString(data) || data = data.toString?()
+        {data}
+      else
+        throw new Error "ArtExpressServer.PromiseHandler#_handleHtmlRequestWrapper - expected string, plainObject, object with toString() or null response"
 
   _handleApiRequestWrapper: (request, requestData) ->
 
