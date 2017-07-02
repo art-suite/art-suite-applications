@@ -252,7 +252,9 @@ module.exports = suite:
 
         c = new MyComponent
         assert.eq c.state, {}
-        assert.eq c._instantiate().state, falsy: false, zero: 0, nully: null, undefinedish: undefined
+        assert.isFunction c.getUndefinedish
+        # NOTE: _instantiate uses 'merge' to add in stateFields and 'merge' now skips 'undefined' values
+        assert.eq c._instantiate().state, falsy: false, zero: 0, nully: null
 
       test "getters and setters", ->
         class MyComponent extends Component
