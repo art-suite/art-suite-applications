@@ -45,5 +45,5 @@
     "testInBrowser": "webpack-dev-server --progress",
     "testServer": "coffee ./TestServer.coffee"
   },
-  "version": "0.3.3"
+  "version": "0.3.4"
 }
