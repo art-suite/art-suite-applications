@@ -1,2 +1,2 @@
 require 'caffeine-mc/register'
-module.exports = require "./source/Art/ExpressServer"
+module.exports = require "./source/Art.ExpressServer"
