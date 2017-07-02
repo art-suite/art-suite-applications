@@ -14,6 +14,7 @@ ModelRegistry = require './ModelRegistry'
   Promise
   formattedInspect
   isPlainObject
+  ErrorWithInfo
 , defineModule} = Foundation
 
 defineModule module, class FluxModel extends InstanceFunctionBindingMixin BaseObject
@@ -184,10 +185,13 @@ defineModule module, class FluxModel extends InstanceFunctionBindingMixin BaseOb
       Promise.then    => @loadData key
       .then (data)    => @updateFluxStore key, if data? then status: success, data: data else status: missing
       .catch (error)  =>
-        if validStatus error
-          @updateFluxStore key, status: error
-        else
-          @updateFluxStore key, status: failure, error: error
+        status = if validStatus status = error?.info?.status || error
+          status
+        else failure
+        info = error?.info
+        error = null unless error instanceof Error
+        @updateFluxStore key, {status, info, error}
+
     else if @loadFluxRecord
       @loadFluxRecord key
       .then (fluxRecord) => @updateFluxStore key, fluxRecord
@@ -220,7 +224,11 @@ defineModule module, class FluxModel extends InstanceFunctionBindingMixin BaseOb
   get: (key) ->
     key = @toKeyString key
     Promise.then => @fluxStoreGet(key) || @loadPromise key
-    .then ({data})-> data
+    .then (fluxRecord)->
+      {status, data} = fluxRecord
+      if status != pending && status != success
+        throw new ErrorWithInfo "FluxModel#get: Error getting data. Status: #{status}.", {status, fluxRecord}
+      data
 
   # Override to support non-string keys
   # return: string representation of key
