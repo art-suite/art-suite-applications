@@ -1,1 +1,1 @@
-module.exports = require "./src/art/canvas"
+module.exports = require "./source/Art.Canvas"

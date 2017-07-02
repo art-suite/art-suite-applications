@@ -10,9 +10,10 @@ Foundation = require 'art-foundation'
 Atomic = require 'art-atomic'
 
 {point, point0, Point, rect, Rectangle, matrix, Matrix, rgbColor, Color} = Atomic
-{inspect, nextTick, BaseObject, Binary, pureMerge, isString, isNumber, log, bound, merge} = Foundation
+{inspect, nextTick, Binary, pureMerge, isString, isNumber, log, bound, merge} = Foundation
 {round, floor, ceil, max, min} = Math
 {BinaryString} = Binary
+{BaseClass} = require 'art-class-system'
 
 toChannelNumberMap = 0:0, 1:1, 2:2, 3:3, r:0, g:1, b:2, a:3, red:0, green:1, blue:2, alpha:3
 alphaChannelOffset = 3
@@ -21,7 +22,7 @@ pixelStep = 4
 quarterPoint = point 1/4
 halfPoint = point 1/2
 
-module.exports = class BitmapBase extends BaseObject
+module.exports = class BitmapBase extends BaseClass
   @bitmapsCreated: 0
   compositeModeSupported: (mode) -> @supportedCompositeModes.indexOf(mode) >= 0
   @pixelSnapDefault = true

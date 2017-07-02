@@ -1,3 +1,3 @@
 require '../'
-require "art-foundation/testing"
+require "art-testbench/testing"
 .init defineTests: -> require './tests'

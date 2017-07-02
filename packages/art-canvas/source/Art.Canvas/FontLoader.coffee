@@ -1,6 +1,6 @@
 {present, isPlainObject, object, merge, defineModule, formattedInspect, log, timeout} = Foundation = require 'art-foundation'
 {point} = require 'art-atomic'
-Bitmap = require './bitmap'
+Bitmap = require './Bitmap'
 
 {Div, Link, Style} = Foundation.Browser.DomElementFactories
 

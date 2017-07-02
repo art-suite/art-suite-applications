@@ -16,10 +16,10 @@
 #   http://creativejs.com/2011/12/day-5-blur-that-canvas/
 Atomic = require "art-atomic"
 Foundation = require "art-foundation"
-GradientFillStyle = require "./gradient_fill_style"
-BitmapBase = require "./bitmap_base"
-Paths = require "./paths"
-StackBlur = require "./stack_blur"
+GradientFillStyle = require "./GradientFillStyle"
+BitmapBase = require "./BitmapBase"
+Paths = require "./Paths"
+StackBlur = require "./StackBlur"
 
 
 {

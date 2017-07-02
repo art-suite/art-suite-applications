@@ -1,14 +1,14 @@
 Atomic = require 'art-atomic'
 Foundation = require 'art-foundation'
 {Canvas} = Neptune.Art
-commonBitmapTests = require './common_bitmap_tests'
+CommonBitmapTests = require './CommonBitmapTests'
 {each, w, Binary, log, eq, defineModule} = Foundation
 {point, point0, point1, rect, rgbColor, matrix, Matrix} = Atomic
 {Bitmap} = Canvas
 
 array = (a) -> i for i in a
 
-commonBitmapTests Bitmap, "Canvas.Bitmap"
+CommonBitmapTests Bitmap, "Canvas.Bitmap"
 
 reducedRange = (data, factor = 32) ->
   Math.round a / factor for a in data

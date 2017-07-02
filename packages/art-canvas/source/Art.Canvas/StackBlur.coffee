@@ -72,7 +72,7 @@ Canvas = require './namespace'
 {point, matrix, rect, color} = require 'art-atomic'
 {defineModule, inspect, nextTick} = require 'art-standard-lib'
 {BaseClass} = require 'art-class-system'
-require './bitmap_base'
+require './BitmapBase'
 
 defineModule module, ->
   class BlurStack
