@@ -6,19 +6,19 @@ class Button extends PointerActionsMixin Component
     enabled = !!@props.action
 
     Element
-      margin: basePadding
+      margin: &StyleProps.basePadding
       on: @pointerHandlers
       opacity: if enabled then 1 else .5
       animators: opacity: true
       enabled && cursor: :pointer
 
       RectangleElement
-        color: getButtonBackgoundColor {enabled, @pointerIsDown, @hover}
+        color: &StyleProps.getButtonBackgoundColor {enabled, @pointerIsDown, @hover}
         radius: 1
         animators: color: true
         FillElement()
-        OutlineElement buttonOutlineStyle
+        OutlineElement &StyleProps.buttonOutlineStyle
 
       TextElement
-        buttonTextStyle
+        &StyleProps.buttonTextStyle
         text: if @props.up then :⥣ else :⥥
