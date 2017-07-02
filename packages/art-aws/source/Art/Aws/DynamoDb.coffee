@@ -98,7 +98,7 @@ module.exports = class DynamoDb extends BaseObject
 
   constructor: (options = {}) ->
     config = merge Config.getNormalizedDynamoDbConfig(), options
-    if config.accessKeyId == Config.getDefaults().credentials.accessKeyId && !config.endpoint
+    if config.accessKeyId == Config.getDefaultConfig().credentials.accessKeyId && !config.endpoint
       log.error """
         Art.Aws.DynamoDb invalid configuration. Please set one of:
         - Art.Aws.credentails for connection to AWS
