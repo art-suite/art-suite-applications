@@ -11,13 +11,17 @@ for textual, have two areas:
     since we have no concrete information on this, we'll just make it something like 2x textualArea - or more
 
 ###
-Foundation = require 'art-foundation'
-Atomic = require 'art-atomic'
-Canvas = require 'art-canvas'
-TextLayoutFragment = require './text_layout_fragment'
-{point, rect, point0, Rectangle} = Atomic
-{defineModule, merge, log, logL, inspect, max, min, isObject, isString, allIndexes, eachMatch, clone} = Foundation
 {floor, ceil} = Math
+{
+  defineModule, merge, log, logL, inspect
+  max, min, isObject, isString, allIndexes, eachMatch, clone
+} = require 'art-standard-lib'
+{BaseClass} = require 'art-class-system'
+
+{Bitmap} = require 'art-canvas'
+{point, rect, point0, Rectangle} = require 'art-atomic'
+
+TextLayoutFragment = require './TextLayoutFragment'
 
 defineModule module, ->
 
@@ -25,7 +29,7 @@ defineModule module, ->
   pixelStep = 4
   tightThreshold = 127
 
-  class Text.Metrics extends Foundation.BaseObject
+  class Metrics extends BaseClass
     @defaultFontSizeProportionalDrawAreaPadding: .45
     @defaultFontOptions: defaultFontOptions =
       fontStyle   : 'normal'
@@ -263,7 +267,7 @@ defineModule module, ->
       )
 
     @classGetter
-      scratchCanvasBitmap: -> @_scratchCanvasBitmap ||= new Canvas.Bitmap point(10,10)
+      scratchCanvasBitmap: -> @_scratchCanvasBitmap ||= new Bitmap point(10,10)
 
     # if you draw the text, with the specified options, at location 0, 0...
     # This function makes a pessimistic, 99%+ correct guess...
@@ -308,7 +312,7 @@ defineModule module, ->
 
       scratchBitmapSize = @_scratchBitmap?.size || point0
       if !scratchBitmapSize.gt size
-        @_scratchBitmap = new Canvas.Bitmap scratchBitmapSize.max size
+        @_scratchBitmap = new Bitmap scratchBitmapSize.max size
       else
         @_scratchBitmap.clear() #context.clearRect 0, 0, size.x, size.y
 
@@ -326,7 +330,7 @@ defineModule module, ->
       [@_scratchBitmap, size,  point x, y]
 
     @debug: (area, bitmap, location, options) ->
-      image = new Canvas.Bitmap(bitmap.size)
+      image = new Bitmap(bitmap.size)
       image.clear "white"
       image.drawRectangle location, area, "#ddf"
       image.drawRectangle location, rect(area.location.x, 0, area.size.x, 1), "red"

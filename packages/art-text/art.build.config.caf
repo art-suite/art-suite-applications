@@ -1,0 +1,12 @@
+
+npm:
+  description: "" Art.Text
+  dependencies:
+    art-canvas: :git://github.com/imikimi/art-canvas.git
+
+webpack:
+  # common properties are merged into each target's properties
+  common: {}
+
+  # each target's individual properties
+  targets: test: {}

@@ -1,7 +1,7 @@
 Foundation = require "art-foundation"
 {Bitmap} = require "art-canvas"
 Atomic = require 'art-atomic'
-Metrics = require './metrics'
+Metrics = require './Metrics'
 {rect, matrix, Matrix, Rectangle, point} = Atomic
 {floor, ceil} = Math
 
