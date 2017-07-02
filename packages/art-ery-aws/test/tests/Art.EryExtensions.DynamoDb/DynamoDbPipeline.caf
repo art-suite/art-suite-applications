@@ -1,12 +1,9 @@
-{Ery, Foundation} = Neptune.Art
-
-{Promise, CommunicationStatus, isString, log, merge, createWithPostCreate, randomString} = Foundation
-{success, clientFailure, missing} = CommunicationStatus
-
-{session, pipelines} = Ery
-{AfterEventsFilter} = Ery.Filters
-{DynamoDbPipeline} = Ery.Aws
-
+import
+  &ArtStandardLib
+  &ArtCommunicationStatus
+  &ArtEry
+  &ArtEry.Filters
+  &source
 
 sharedAfterEventTests = (setupUserWith) ->
 
@@ -15,7 +12,7 @@ sharedAfterEventTests = (setupUserWith) ->
     Neptune.Art.Ery.PipelineRegistry._reset()
 
     User = null
-    createWithPostCreate class User extends DynamoDbPipeline
+    class User extends DynamoDbPipeline
       @addDatabaseFilters
         name:               "required trimmedstring"
         postCount:          "number"
@@ -23,7 +20,7 @@ sharedAfterEventTests = (setupUserWith) ->
 
     setupUserWith User
 
-    createWithPostCreate class Post extends DynamoDbPipeline
+    class Post extends DynamoDbPipeline
       @addDatabaseFilters
         userOwned: true
         text:       "trimmedstring"
@@ -70,12 +67,12 @@ sharedAfterEventTests = (setupUserWith) ->
 myTable = MyTable = null
 setupWithMyTable = ->
   Neptune.Art.Ery.PipelineRegistry._reset()
-  {myTable} = createWithPostCreate class MyTable extends DynamoDbPipeline
+  {myTable} = class MyTable extends DynamoDbPipeline
     @addDatabaseFilters
       name:   "required string"
       email:  "required email"
 
-  {myCompoundKeyTable} = createWithPostCreate class MyCompoundKeyTable extends DynamoDbPipeline
+  {myCompoundKeyTable} = class MyCompoundKeyTable extends DynamoDbPipeline
     @keyFields "userId/postId"
     @addDatabaseFilters
       user:   "link"
@@ -86,7 +83,7 @@ setupWithMyTable = ->
     myTable._vivifyTable()
   ])
 
-module.exports = suite:
+suite:
 
   basic: ->
     setup setupWithMyTable
@@ -104,7 +101,6 @@ module.exports = suite:
         myTable.get key: data
         .then (getData) ->
           assert.eq getData, data
-
 
     test "delete", ->
       createData = null
@@ -190,7 +186,7 @@ module.exports = suite:
     myManyToManyTable = null
     setup ->
       Neptune.Art.Ery.PipelineRegistry._reset()
-      {myManyToManyTable} = createWithPostCreate class MyManyToManyTable extends DynamoDbPipeline
+      {myManyToManyTable} = class MyManyToManyTable extends DynamoDbPipeline
         @primaryKey "userId/postId"
         @addDatabaseFilters
           user: "required link"
@@ -259,9 +255,8 @@ module.exports = suite:
         test "basic", ->
           assert.eq
             foo: key: "foo", set: bar: 123
-          , DynamoDbPipeline._mergeUpdateProps [
-            {key: "foo", set: bar: 123}
-          ]
+            DynamoDbPipeline._mergeUpdateProps []
+              key: "foo", set: bar: 123
 
         test "distinct actions for same key", ->
           assert.eq
@@ -269,26 +264,24 @@ module.exports = suite:
               key:        "foo"
               set:        bar: 123
               setDefault: baz: 456
-          , DynamoDbPipeline._mergeUpdateProps [
-            {key: "foo", set: bar: 123}
-            {key: "foo", setDefault: baz: 456}
-          ]
+            DynamoDbPipeline._mergeUpdateProps []
+              key: "foo", set: bar: 123
+              key: "foo", setDefault: baz: 456
 
         test "two keys with overlapping actions", ->
           assert.eq
             foo: key: "foo", set: name: "alice"
             bar: key: "bar", set: name: "bill"
-          , DynamoDbPipeline._mergeUpdateProps [
-            {key: "foo", set: name: "alice"}
-            {key: "bar", set: name: "bill"}
-          ]
+            DynamoDbPipeline._mergeUpdateProps []
+              key: "foo", set: name: "alice"
+              key: "bar", set: name: "bill"
 
         test "array of updates", ->
           assert.eq
             foo: key: "foo", set: name: "alice", address: "123 Street"
             bar: key: "bar", set: name: "bill"
-          , DynamoDbPipeline._mergeUpdateProps [
-            [{key: "foo", set: name: "alice"}
-            {key: "bar", set: name: "bill"}]
-            {key: "foo", set: address: "123 Street"}
-          ]
+            DynamoDbPipeline._mergeUpdateProps []
+              []
+                key: "foo", set: name: "alice"
+                key: "bar", set: name: "bill"
+              key: "foo", set: address: "123 Street"

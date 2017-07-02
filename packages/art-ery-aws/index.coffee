@@ -1,1 +1,1 @@
-module.exports = require './source/Art/Ery/Aws'
+module.exports = require './source/Art.EryExtensions.DynamoDb'
