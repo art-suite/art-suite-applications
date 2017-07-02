@@ -11,9 +11,6 @@ module.exports = [
 
   onNextReady: (callback) -> reactArtEngineEpoch.onNextReady callback
 
-  package: _package = require "art-react/package.json"
-  version: _package.version
-
   objectTreeFactoryOptions:
     mergePropsInto: (into, props) ->
       for k, v of props
