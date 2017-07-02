@@ -1,1 +1,1 @@
-module.exports = require "./source/Art/Suite/App/Client"
+module.exports = require "./source/Art.App/Client"
