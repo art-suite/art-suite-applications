@@ -269,6 +269,17 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
   ###
   IN:
     request:
+      requestProps:
+        key
+        data: {key: value}
+          NOTE: null values are moved for CREATE and converted to REMOVE (attribute)
+            actions for UPDATE.
+
+        add: {key: value to add} -> dynamodb ADD action
+        setDefault: {key: value} -> set attribute if not present
+        conditionExpresssion: dynamodb update-of condition expressiong
+        returnValues:         art.aws.dynamodb return value selector type
+
     requiresKey: true/false
       true:  key and data will be normalized using the primaryKey fields
       false: there willbe no key
@@ -295,6 +306,11 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
         data = @dataWithoutKeyFields data
         key  = @toKeyObject request.key
 
+      if requestType == "update"
+        remove = (k for k, v of data when v == null)
+      data = objectWithExistingValues data
+
+
       # higher priority
       returnValues = options.returnValues if options.returnValues
 
@@ -310,6 +326,7 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
         key
 
         # requireServerOrigin
+        remove                  # remove attributes
         add
         setDefault
         returnValues
