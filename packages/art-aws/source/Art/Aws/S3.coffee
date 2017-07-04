@@ -30,6 +30,17 @@ defineModule module, class S3 extends BaseClass
         location: url
         response: response
 
+
+    @delete: (url) =>
+      {bucket, key} = @parseS3Url url
+      # log s3Delete: {bucket, key}
+      Promise.withCallback (callback) =>
+        @getS3().deleteObject merge(
+            Bucket: @_normalizeBucket bucket
+            Key: key
+          ),
+          callback
+
     @_normalizeBucket: (bucket) -> config.s3Buckets[bucket] || bucket
     @_denormalizeBucket: (bucket) ->
       for k, v of config.s3Buckets
@@ -55,6 +66,8 @@ defineModule module, class S3 extends BaseClass
     @copy: ({key, toBucket, fromBucket, params}) ->
       toBucket = @_normalizeBucket toBucket
       fromBucket = @_normalizeBucket fromBucket
+
+      # log s3Copy: {key, fromBucket, toBucket}
 
       # http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#copyObject-property
       Promise.withCallback (callback) =>
