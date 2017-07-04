@@ -68,22 +68,25 @@ module.exports = class UpdateItem extends TableApiBaseClass
       @_addExpressionAttributeValue valueAlias, attributeValue
       "#{attributeAlias} #{valueAlias}"
 
-    removeActions = for attributeName in remove || []
+    removeAttributes = for attributeName in remove || []
       uniqueId = @_getNextUniqueExpressionAttributeId @_target
       attributeAlias = "#attr#{uniqueId}"
       @_addExpressionAttributeName attributeAlias, attributeName
-      "REMOVE #{attributeAlias}"
+      attributeAlias
 
     unless actions.length + setDefaultActions.length + addActions.length > 0
       throw new Error "at least one 'item/set/data', 'add' or 'defaults/setDefault' entry required"
 
     if actions.length + setDefaultActions.length > 0
-      setExpression = "SET #{compactFlatten([actions, setDefaultActions, removeActions]).join ', '}"
+      setExpression = "SET #{compactFlatten([actions, setDefaultActions]).join ', '}"
 
     if addActions.length > 0
       addExpression = "ADD #{addActions.join ', '}"
 
-    updateExpression = compactFlatten([setExpression, addExpression]).join ' '
+    if removeAttributes.length > 0
+      removeExpression = "REMOVE #{removeAttributes.join ', '}"
+
+    updateExpression = compactFlatten([setExpression, addExpression, removeExpression]).join ' '
 
     @_target.UpdateExpression = updateExpression
     @_target
