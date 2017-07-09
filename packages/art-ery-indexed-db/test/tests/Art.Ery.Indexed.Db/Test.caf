@@ -1,0 +1,3 @@
+&StandardImport
+suite: ->
+  test 'Db' -> assert.eq 1, 1

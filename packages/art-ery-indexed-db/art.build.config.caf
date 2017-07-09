@@ -1,0 +1,10 @@
+npm:
+  description: "" Art.Ery.IndexedDb
+  dependencies: {}
+
+webpack:
+  # common properties are merged into each target's properties
+  common: {}
+
+  # each target's individual properties
+  targets: index: {}

@@ -1,0 +1,42 @@
+import &StandardImport
+IndexedDb = &IndexeddbPromised
+
+globalIndexDb = null
+
+getGlobalIndexDb = ->
+  if globalIndexDb
+    globalIndexDb
+  else
+    globalIndexDb = new IndexedDb :IndexedDbPipeline
+    dbVersion = 0
+    each pipeline in pipelines when pipeline instanceof IndexedDbPipeline
+      dbVersion += pipeline.dbVersion || 1
+      globalIndexDb.addObjectStore
+        name: pipeline.pipelineName
+        keyType: keyPath: :id
+
+class IndexedDbPipeline extends KeyFieldsMixin UpdateAfterMixin Pipeline
+
+  @getter
+    objectStore: ->
+      @_objectStore ||= getGlobalIndexDb()[@pipelineName]
+
+  @handlers
+    create: (request) ->
+      @objectStore.add request.data
+      .then -> request.data
+
+    update: (request) ->
+      @objectStore.get request.key
+      .then (oldData) ->
+        @objectStore.put newData = merge oldData, request.data
+        .then -> newData
+
+    get: (request) ->
+      @objectStore.get request.key
+
+    delete: (request) ->
+      @objectStore.get request.key
+      .then (oldData) ->
+        @objectStore.delete request.key
+        .then -> oldData
