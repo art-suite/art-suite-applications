@@ -7,6 +7,7 @@ module.exports
 .addModules
   Component:           require './Component'          
   HotStyleProps:       require './HotStyleProps'      
+  PropFieldsMixin:     require './PropFieldsMixin'    
   ReactArtEngineEpoch: require './ReactArtEngineEpoch'
   StateFieldsMixin:    require './StateFieldsMixin'   
   VirtualElement:      require './VirtualElement'     

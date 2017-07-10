@@ -233,6 +233,20 @@ module.exports = suite:
         assert.eq c.state, foo:"bar"
         assert.eq c.element.pendingName, "bar"
 
+  propFields:
+    basic: ->
+      test "default values and getters", ->
+        class MyComponent extends Component
+          @propFields foo: "bar"
+          render: -> Element()
+
+        c = new MyComponent baz: "boom"
+        assert.eq c.props, baz: "boom"
+        c._instantiate()
+        assert.eq c.props, foo: "bar", baz: "boom"
+        assert.eq c.foo, "bar"
+        assert.eq c.baz, undefined
+
   stateFields:
     basic: ->
       test "basics", ->

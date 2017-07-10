@@ -31,6 +31,7 @@ React = require './namespace'
 {runHot} = HotLoader
 
 StateFieldsMixin = require './StateFieldsMixin'
+PropFieldsMixin = require './PropFieldsMixin'
 
 if ArtEngineCore = Neptune.Art.Engine.Core
   {StateEpoch, GlobalEpochCycle} = ArtEngineCore
@@ -94,7 +95,7 @@ fixed a bug where @state got altered without going through preprocessState first
 when state changes after the component was unmounted. How should I TEST this???
 
 ###
-defineModule module, -> class Component extends StateFieldsMixin InstanceFunctionBindingMixin VirtualNode
+defineModule module, -> class Component extends PropFieldsMixin StateFieldsMixin InstanceFunctionBindingMixin VirtualNode
   @abstractClass()
 
   @nonBindingFunctions: "getInitialState
@@ -724,6 +725,7 @@ defineModule module, -> class Component extends StateFieldsMixin InstanceFunctio
       @componentWillReceiveProps newProps
 
   _preprocessProps: (props) ->
+    props = super props # triggers PropFieldsMixin - which will include any default values from @propFields
     return props if defaultPreprocessProps == @preprocessProps
     timePerformance "reactLC", =>
       props = @preprocessProps props

@@ -58,7 +58,7 @@ module.exports = class PagingScrollElement
     {firstPageIndex, lastPageIndex} = lastPageIndexes
 
     newFirstPageIndex = focusedPageIndex - suggestedPageSpread - maxPrerender
-    newLastPageIndex = focusedPageIndex + suggestedPageSpread + maxPrerender
+    newLastPageIndex  = focusedPageIndex + suggestedPageSpread + maxPrerender
 
     firstPageIndex = max minPageIndex, bound newFirstPageIndex - maxKeep, firstPageIndex, newFirstPageIndex
     lastPageIndex  = min maxPageIndex, bound newLastPageIndex, lastPageIndex, newLastPageIndex  + maxKeep
@@ -75,5 +75,4 @@ module.exports = class PagingScrollElement
     if firstPageIndex == lastPageIndexes.firstPageIndex && lastPageIndex == lastPageIndexes.lastPageIndex
       null
     else
-      firstPageIndex: firstPageIndex
-      lastPageIndex: lastPageIndex
+      {firstPageIndex, lastPageIndex}
