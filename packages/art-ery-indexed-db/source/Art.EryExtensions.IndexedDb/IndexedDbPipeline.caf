@@ -22,6 +22,9 @@ class IndexedDbPipeline extends KeyFieldsMixin UpdateAfterMixin Pipeline
       @_objectStore ||= getGlobalIndexDb()[@pipelineName]
 
   @handlers
+    get: (request) ->
+      @objectStore.get request.key
+
     create: (request) ->
       @objectStore.add request.data
       .then -> request.data
@@ -31,9 +34,6 @@ class IndexedDbPipeline extends KeyFieldsMixin UpdateAfterMixin Pipeline
       .then (oldData) ->
         @objectStore.put newData = merge oldData, request.data
         .then -> newData
-
-    get: (request) ->
-      @objectStore.get request.key
 
     delete: (request) ->
       @objectStore.get request.key

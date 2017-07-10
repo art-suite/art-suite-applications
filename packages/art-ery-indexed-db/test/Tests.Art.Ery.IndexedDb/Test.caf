@@ -1,0 +1,6 @@
+import &StandardImport
+
+suite: ->
+  test 'Db' ->
+    class Foo extends IndexedDbPipeline
+    assert.eq 1, 1

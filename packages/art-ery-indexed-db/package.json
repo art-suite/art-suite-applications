@@ -31,13 +31,13 @@
     "webpack-merge": "^4.1.0",
     "webpack-node-externals": "^1.6.0"
   },
-  "description": "Art.Ery.Indexed.Db",
+  "description": "Art.Ery.IndexedDb",
   "license": "ISC",
   "name": "art-ery-indexed-db",
   "scripts": {
     "build": "webpack --progress",
     "start": "webpack-dev-server --hot --inline --progress",
-    "test": "nn -s;mocha -u tdd --compilers coffee:coffee-script/register",
+    "test": "webpack-dev-server --progress",
     "testInBrowser": "webpack-dev-server --progress"
   }
 }
