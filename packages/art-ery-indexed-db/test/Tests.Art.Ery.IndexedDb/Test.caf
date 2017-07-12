@@ -1,6 +1,41 @@
 import &StandardImport
 
 suite: ->
-  test 'Db' ->
-    class Foo extends IndexedDbPipeline
-    assert.eq 1, 1
+  class Food extends IndexedDbPipeline
+    dbVersion: 1
+    dbName: :FoodNetwork
+    @addDatabaseFilters
+      name: "required :trimmedString"
+
+  test 'create get' ->
+    pipelines.food.create data: name: :Shane
+    .then (out) ->
+      assert.eq out.name, :Shane
+      assert.isNumber out.createdAt
+      assert.isNumber out.updatedAt
+      assert.isPresent out.id
+      pipelines.food.get key: out.id
+    .then (out) ->
+      assert.eq out.name, :Shane
+      assert.isNumber out.createdAt
+      assert.eq out.createdAt, out.updatedAt
+      assert.isPresent out.id
+
+  test 'update' ->
+    pipelines.food.create data: name: :Shane
+    .then (out) ->
+      pipelines.food.update key: out.id, data: name: "" #{out.name} Delamore
+    .then (out) ->
+      pipelines.food.get key: out.id
+    .then (out) ->
+      assert.eq out.name, "" Shane Delamore
+      assert.neq out.createdAt, out.updatedAt
+      assert.isPresent out.id
+
+  test 'delete' ->
+    pipelines.food.create data: name: :Shane
+    .then (out) ->
+      pipelines.food.delete key: out.id
+      .then (deleted) ->
+        assert.eq out.id, deleted.id
+        assert.rejects pipelines.food.get key: out.id

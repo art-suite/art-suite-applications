@@ -1,5 +1,6 @@
 &ArtStandardLib.merge
   &ArtStandardLib
   &ArtClassSystem
+  &ArtEry
   &ArtEryIndexedDb
   test: (args...) -> global.test args...

@@ -4,18 +4,24 @@ IndexedDb = &IndexeddbPromised
 globalIndexDb = null
 
 getGlobalIndexDb = ->
-  if globalIndexDb
-    globalIndexDb
-  else
-    globalIndexDb = new IndexedDb :IndexedDbPipeline
+  unless globalIndexDb
     dbVersion = 0
+    dbName = null
     each pipeline in pipelines when pipeline instanceof IndexedDbPipeline
       dbVersion += pipeline.dbVersion || 1
-      globalIndexDb.addObjectStore
-        name: pipeline.pipelineName
-        keyType: keyPath: :id
+      dbName ||= pipeline.dbName
+    globalIndexDb = new IndexedDb dbName ||= :IndexedDbPipeline
+    globalIndexDb.setVersion dbVersion
+    each pipeline in pipelines when pipeline instanceof IndexedDbPipeline
+      {name} = pipeline
+      keyType = keyPath: :id
+      # log addObjectStore: {dbVersion, dbName, name, keyType}
+      globalIndexDb.addObjectStore {dbVersion, dbName, name, keyType}
+    globalIndexDb = globalIndexDb.build()
+  globalIndexDb
 
 class IndexedDbPipeline extends KeyFieldsMixin UpdateAfterMixin Pipeline
+  @abstractClass()
 
   @getter
     objectStore: ->
