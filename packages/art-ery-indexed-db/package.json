@@ -40,5 +40,6 @@
     "start": "webpack-dev-server --hot --inline --progress",
     "test": "webpack-dev-server --progress",
     "testInBrowser": "webpack-dev-server --progress"
-  }
+  },
+  "version": "0.1.0"
 }
