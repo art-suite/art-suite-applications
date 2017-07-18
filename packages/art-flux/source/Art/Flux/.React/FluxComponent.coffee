@@ -75,7 +75,7 @@ defineModule module, class FluxComponent extends FluxSubscriptionsMixin Componen
   # Lifecycle
   ##########################
 
-  preprocessProps: (newProps) ->
+  _preprocessProps: (newProps) ->
     @_updateAllSubscriptions newProps = super
     newProps
 
