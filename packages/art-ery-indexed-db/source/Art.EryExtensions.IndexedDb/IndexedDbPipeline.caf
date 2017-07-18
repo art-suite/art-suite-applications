@@ -14,9 +14,18 @@ getGlobalIndexDb = ->
     globalIndexDb.setVersion dbVersion
     each pipeline in pipelines when pipeline instanceof IndexedDbPipeline
       {name} = pipeline
+      {_indexes} = pipeline.class
       keyType = keyPath: :id
       # log addObjectStore: {dbVersion, dbName, name, keyType}
-      globalIndexDb.addObjectStore {dbVersion, dbName, name, keyType}
+      indexes = if _indexes
+        array indexKey, queryModelName from _indexes
+          [selectBy, orderBy] = indexKey.split "/"
+          name: queryModelName
+          keyPath: [selectBy, orderBy]
+          options: unique: false
+
+      log addObjectStore: {dbVersion, dbName, name, keyType, indexes}
+      globalIndexDb.addObjectStore {dbVersion, dbName, name, keyType, indexes}
     globalIndexDb = globalIndexDb.build()
   globalIndexDb
 
@@ -27,6 +36,41 @@ class IndexedDbPipeline extends KeyFieldsMixin UpdateAfterMixin Pipeline
     objectStore: ->
       @_objectStore ||= getGlobalIndexDb()[@pipelineName]
 
+  ########################
+  # indexes
+  ########################
+  @indexes: (indexes) ->
+    @_indexes = indexes
+    @query @_getAutoDefinedQueries indexes
+
+  @_getAutoDefinedQueries: (indexes) ->
+    queries = {}
+
+    each indexKey, queryModelName from indexes
+      [selectBy, orderBy] = indexKey.split "/"
+      whereClause = {}
+      queries[queryModelName] =
+        query: (request) ->
+          whereClause[selectBy] = request.key
+          request.pipeline.queryDynamoDb
+            index: queryModelName
+            where: whereClause
+          .then ({items}) -> items
+
+        dataToKeyString: (data) ->
+          data[selectBy]
+
+        localSort: (queryData) -> withSort queryData, (a, b) ->
+          if 0 == ret = compare a[orderBy], b[orderBy]
+            compare a.id, b.id
+          else
+            ret
+
+    queries
+
+  ########################
+  # handlers
+  ########################
   @handlers
     get: (request) ->
       @objectStore.get request.key
