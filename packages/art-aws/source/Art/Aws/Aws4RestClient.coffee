@@ -5,7 +5,7 @@
 # https://github.com/mhart/aws4
 aws4 = require 'aws4'
 
-defineModule module, class Aws4RestClient extends require 'art-rest-client'
+defineModule module, class Aws4RestClient extends (require 'art-rest-client').RestClientClass
   @singletonClass()
 
   ###

@@ -70,7 +70,6 @@ HELPERS
         projection:   # see translateProjection
 ###
 
-Foundation = require 'art-foundation'
 {
   merge
   isPlainObject, isPlainArray, isBoolean, isString, isNumber, inspect
@@ -78,13 +77,20 @@ Foundation = require 'art-foundation'
   decapitalize
   lowerCamelCase
   wordsArray
+  array
   log
   eq
-  BaseObject
   formattedInspect
   objectHasKeys
   Promise
-} = Foundation
+  objectDiff
+  objectDiffReport
+  object
+  diff
+  objectKeyCount
+  each
+} = require 'art-standard-lib'
+{BaseClass} = require 'art-class-system'
 
 {config} = Config = require "./Config"
 
@@ -93,7 +99,7 @@ StreamlinedDynamoDbApi = require './StreamlinedDynamoDbApi'
 {Query, CreateTable, PutItem, UpdateItem, DeleteItem, GetItem, TableApiBaseClass} = StreamlinedDynamoDbApi
 {decodeDynamoItem} = TableApiBaseClass
 
-module.exports = class DynamoDb extends BaseObject
+module.exports = class DynamoDb extends BaseClass
   @singletonClass()
 
   constructor: (options = {}) ->
@@ -116,7 +122,7 @@ module.exports = class DynamoDb extends BaseObject
 
     @_awsDynamoDb = new AWS.DynamoDB config
 
-  nonInternalErrorsRegex = /ConditionalCheckFailedException/
+  nonInternalErrorsRegex = /ConditionalCheckFailedException|ResourceNotFoundException/
   invokeAws: (name, params) ->
     Promise.withCallback (callback) => @_awsDynamoDb[name] params, callback
     .catch (error) =>
@@ -146,6 +152,58 @@ module.exports = class DynamoDb extends BaseObject
       catch e
         log createTableInputParams: params
         throw e
+
+    createNewGlobalSecondaryIndexes: (createTableParams) ->
+      {TableName} = TableApiBaseClass.translateParams createTableParams
+
+      Promise.all([
+        @getTableChanges createTableParams
+        @getTableStatus createTableParams
+      ]).then ([{GlobalSecondaryIndexes: {added}}, {TableStatus}]) =>
+        return info: "no new GlobalSecondaryIndexes" unless 0 < objectKeyCount added
+        return info: "Can't modify indexes until TableStatus is ACTIVE" if TableStatus != "ACTIVE"
+        {GlobalSecondaryIndexes, TableName, AttributeDefinitions} = CreateTable.translateParams createTableParams
+        normalizedGsisByName = object GlobalSecondaryIndexes, key: (index) -> index.IndexName
+        requiredAttributes = {}
+        AttributeDefinitionsByName = object AttributeDefinitions,
+          key: ({AttributeName}) -> AttributeName
+
+        GlobalSecondaryIndexUpdates = array added, ({KeySchema, IndexName}) ->
+          each KeySchema, ({AttributeName}) -> requiredAttributes[AttributeName] = true
+          Create: normalizedGsisByName[IndexName]
+
+        AttributeDefinitions = array requiredAttributes, (truth, key) ->
+          AttributeDefinitionsByName[key]
+
+        @invokeAws "updateTable", {TableName, GlobalSecondaryIndexUpdates, AttributeDefinitions}
+        .then (info) ->
+          creating: added
+          info: info
+      .then (out) =>
+        @getTableStatus createTableParams
+        .then (status) ->
+          merge out, {status}
+
+    deleteOldGlobalSecondaryIndexes: (createTableParams) ->
+      {TableName} = TableApiBaseClass.translateParams createTableParams
+      Promise.all([
+        @getTableChanges createTableParams
+        @getTableStatus createTableParams
+      ]).then ([{GlobalSecondaryIndexes: {removed}}, {TableStatus}]) =>
+        return info: "no old GlobalSecondaryIndexes" unless 0 < objectKeyCount removed
+        return info: "Can't modify indexes until TableStatus is ACTIVE" if TableStatus != "ACTIVE"
+
+        GlobalSecondaryIndexUpdates = array removed, ({IndexName}) ->
+          Delete: {IndexName}
+
+        @invokeAws "updateTable", {TableName, GlobalSecondaryIndexUpdates}
+        .then (info) ->
+          deleting: removed
+          info: info
+      .then (out) =>
+        @getTableStatus createTableParams
+        .then (status) ->
+          merge out, {status}
 
     ###
     IN: see Query.translateQueryParams
@@ -198,6 +256,59 @@ module.exports = class DynamoDb extends BaseObject
     describeTable: (params) -> @invokeAws "describeTable", TableApiBaseClass.translateParams params
     deleteTable:   (params) -> @invokeAws "deleteTable",   TableApiBaseClass.translateParams params
     waitFor:       (params) -> @invokeAws "waitFor",       TableApiBaseClass.translateParams params
+
+    getTableChanges: (newCreateTableParams) ->
+      {TableName} = TableApiBaseClass.translateParams newCreateTableParams
+      compareIndexes = (newIndexes, currentIndexes) ->
+        toByName = (indexes) ->
+          object indexes,
+            key: (index) -> index.IndexName
+            with: (index) ->
+              {IndexName, KeySchema, Projection} = index
+              {IndexName, KeySchema, Projection}
+
+        objectDiffReport(
+          toByName newIndexes
+          toByName currentIndexes
+          eq
+        )
+
+      compareAttribues = (newAttrs, currentAttrs) ->
+        toByName = (indexes) ->
+          object indexes,
+            key: (index) -> index.AttributeName
+
+        objectDiffReport(
+          toByName newAttrs
+          toByName currentAttrs
+          eq
+        )
+
+      @describeTable {TableName}
+      .then (currentTableDescription) ->
+        {KeySchema, GlobalSecondaryIndexes, LocalSecondaryIndexes, TableStatus} = currentTableDescription.Table
+        out =
+          KeySchema:              compareAttribues  newCreateTableParams.KeySchema,               KeySchema
+          GlobalSecondaryIndexes: compareIndexes    newCreateTableParams.GlobalSecondaryIndexes,  GlobalSecondaryIndexes
+          LocalSecondaryIndexes:  compareIndexes    newCreateTableParams.LocalSecondaryIndexes,   LocalSecondaryIndexes
+        count = 0
+        out = object out, when: (value) -> value? && ++count
+        if count > 0
+          out.TableStatus = TableStatus
+          out
+        else if TableStatus != "ACTIVE"
+          {TableStatus}
+        else
+          "up to date"
+
+    getTableStatus: (params) ->
+      {TableName} = TableApiBaseClass.translateParams params
+      @describeTable {TableName}
+      .then ({Table:currentTableDescription}) ->
+        TableStatus:                currentTableDescription.TableStatus
+        GlobalSecondaryIndexStatus: object currentTableDescription.GlobalSecondaryIndexes,
+          key:  (index) -> index.IndexName
+          with: (index) -> index.IndexStatus
 
     scan: (params) ->
       @invokeAws "scan",
