@@ -39,7 +39,6 @@ defineModule module, -> (superClass) -> class PropFieldsMixin extends superClass
   # could use: pureMerge @getPropFields(), props
   # but I'm concerned about performance.
   _preprocessProps: (props) ->
-    log PropFieldsMixin: _preprocessProps: {props, @propFields}
     if propFields = @getPropFields()
       out = {}
       out[k] = v for k, v of propFields
