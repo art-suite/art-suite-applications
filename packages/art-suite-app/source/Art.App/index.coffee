@@ -4,7 +4,8 @@
 module.exports = require './namespace'
 module.exports
 .addModules
-  Client: require './Client'
-  Node:   require './Node'  
-  Server: require './Server'
+  Client:     require './Client'    
+  Node:       require './Node'      
+  Server:     require './Server'    
+  ToolHelper: require './ToolHelper'
 require './Tools'

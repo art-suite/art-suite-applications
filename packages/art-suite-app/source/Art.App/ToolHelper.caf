@@ -1,0 +1,22 @@
+applyPipelineTool: applyPipelineTool = (pipelineName, action) ->
+  if pipelineName
+    pipeline = &ArtEry.pipelines[pipelineName]
+    throw new Error "pipeline not found: #{pipelineName}" unless pipeline
+    action pipeline
+  else
+    {DynamoDbPipeline} = &ArtEryAws
+    {Promise} = &ArtSuite
+    Promise.deepAll
+      each pipeline in &ArtEry.pipelines into map = {} when pipeline instanceof DynamoDbPipeline
+        map[pipeline.pipelineName] =
+          Promise.then -> action pipeline
+          .catch (error) ->
+            if error.message.match :ResourceNotFoundException
+              "table does not exist"
+            else throw error
+
+createPipelineCommand: (help, action) ->
+  params: "[pipelineName]"
+  help: help
+  action: ({args:[pipelineName]}) ->
+    applyPipelineTool pipelineName, action

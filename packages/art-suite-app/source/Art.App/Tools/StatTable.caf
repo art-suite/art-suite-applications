@@ -1,0 +1,3 @@
+&ToolHelper.createPipelineCommand
+  "show the current DynamoDb status for the specified pipeline(s)"
+  (pipeline) -> &ArtAws.DynamoDb.singleton.getTableStatus pipeline.createTableParams

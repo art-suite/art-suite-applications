@@ -1,6 +1,7 @@
 
 module.exports =
   params: "[pipelineName]"
+  help: "invoke 'initialize' on every pipeline (creates tables)"
   action: (options) ->
     {array, log, wordsArray, lowerCamelCase, isPlainObject, merge, isString} = require 'art-foundation'
     {args:[pipelineName]} = options
