@@ -1,0 +1,58 @@
+commands =
+  createIndexes: true
+  deleteIndexes: true
+
+params: "[see help]"
+help: "create or delete DynamoDb global indexes. Params: pipelineName-(createIndexes-or-deleteIndexes)-confirmed"
+action: ({args:[pipelineName]}) ->
+  {merge, compactFlatten, log, objectKeyCount, pipelines} = &ArtSuite
+  [pipelineName, command, confirm] = pipelineName.split '-' if pipelineName
+  unless pipeline = pipelines[pipelineName]
+    if pipelineName?
+      "" Pipeline '#{pipelineName}' not found.
+    else
+      "" Please specify a pipeline.
+  else unless commands[command]
+    &ArtAws.DynamoDb.singleton.getTableChanges pipeline.createTableParams
+    .then ({GlobalSecondaryIndexes}) ->
+      {added, removed} = GlobalSecondaryIndexes
+      message: "Please select an option."
+      actionTaken: :none
+      option: merge
+        if 0 < objectKeyCount added
+          "#{pipelineName}-createIndexes": creates: added
+        if 0 < objectKeyCount removed
+          "#{pipelineName}-deleteIndexes": deletes: removed
+
+  else unless confirm == "confirmed"
+    &ArtAws.DynamoDb.singleton.getTableChanges pipeline.createTableParams
+    .then ({GlobalSecondaryIndexes}) ->
+      {added, removed} = GlobalSecondaryIndexes
+      switch command
+      when :createIndexes
+        if 0 < objectKeyCount added
+          message: "Please confirm schema modification. Use: '#{pipelineName}-#{command}-confirmed'"
+          actionTaken: :none
+          creates: added
+
+        else
+          log.warn "" no indexes to add
+      when :deleteIndexes
+        if 0 < objectKeyCount removed
+          message: "Please confirm schema modification. Use: '#{pipelineName}-#{command}-confirmed'"
+          actionTaken: :none
+          creates: removed
+
+        else
+          log.warn "" no indexes to delete
+
+  else
+    switch command
+    when :createIndexes
+      &ArtAws.DynamoDb.singleton.createNewGlobalSecondaryIndexes pipeline.createTableParams
+    when :deleteIndexes
+      &ArtAws.DynamoDb.singleton.deleteOldGlobalSecondaryIndexes pipeline.createTableParams
+    .then (actionTaken) -> {}
+      pipelineName
+      command
+      actionTaken
