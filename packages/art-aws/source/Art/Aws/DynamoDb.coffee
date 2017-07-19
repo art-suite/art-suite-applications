@@ -159,7 +159,8 @@ module.exports = class DynamoDb extends BaseClass
       Promise.all([
         @getTableChanges createTableParams
         @getTableStatus createTableParams
-      ]).then ([{GlobalSecondaryIndexes: {added}}, {TableStatus}]) =>
+      ]).then ([{GlobalSecondaryIndexes}, {TableStatus}]) =>
+        {added} = GlobalSecondaryIndexes if GlobalSecondaryIndexes
         return info: "no new GlobalSecondaryIndexes" unless 0 < objectKeyCount added
         return info: "Can't modify indexes until TableStatus is ACTIVE" if TableStatus != "ACTIVE"
         {GlobalSecondaryIndexes, TableName, AttributeDefinitions} = CreateTable.translateParams createTableParams
@@ -189,7 +190,8 @@ module.exports = class DynamoDb extends BaseClass
       Promise.all([
         @getTableChanges createTableParams
         @getTableStatus createTableParams
-      ]).then ([{GlobalSecondaryIndexes: {removed}}, {TableStatus}]) =>
+      ]).then ([{GlobalSecondaryIndexes}, {TableStatus}]) =>
+        {removed} = GlobalSecondaryIndexes if GlobalSecondaryIndexes
         return info: "no old GlobalSecondaryIndexes" unless 0 < objectKeyCount removed
         return info: "Can't modify indexes until TableStatus is ACTIVE" if TableStatus != "ACTIVE"
 
