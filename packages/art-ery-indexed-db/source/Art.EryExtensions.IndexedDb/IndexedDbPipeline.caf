@@ -51,11 +51,10 @@ class IndexedDbPipeline extends KeyFieldsMixin UpdateAfterMixin Pipeline
       whereClause = {}
       queries[queryModelName] =
         query: (request) ->
-          whereClause[selectBy] = request.key
-          request.pipeline.queryDynamoDb
-            index: queryModelName
-            where: whereClause
-          .then ({items}) -> items
+          {key} = request
+          request.pipeline.objectStore.getAll()
+          .then (items) ->
+            array item from items when item[selectBy] == key
 
         dataToKeyString: (data) ->
           data[selectBy]
@@ -74,6 +73,9 @@ class IndexedDbPipeline extends KeyFieldsMixin UpdateAfterMixin Pipeline
   @handlers
     get: (request) ->
       @objectStore.get request.key
+
+    getAll: (request) ->
+      @objectStore.getAll()
 
     create: (request) ->
       @objectStore.add request.data
