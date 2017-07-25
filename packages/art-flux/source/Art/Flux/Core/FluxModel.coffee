@@ -223,11 +223,15 @@ defineModule module, class FluxModel extends InstanceFunctionBindingMixin BaseOb
   # EFFECT: if already loaded in fluxStore, just returns what's in fluxstore
   get: (key) ->
     key = @toKeyString key
-    Promise.then => @fluxStoreGet(key) || @loadPromise key
+    Promise.then =>
+      if currentFluxRecord = @fluxStoreGet(key)
+        if currentFluxRecord.status == pending
+          currentFluxRecord = null
+      currentFluxRecord || @loadPromise key
     .then (fluxRecord)->
       {status, data} = fluxRecord
-      if status != pending && status != success
-        throw new ErrorWithInfo "FluxModel#get: Error getting data. Status: #{status}.", {status, fluxRecord}
+      unless status == success
+        new ErrorWithInfo "FluxModel#get: Error getting data. Status: #{status}.", {status, fluxRecord}
       data
 
   # Override to support non-string keys
