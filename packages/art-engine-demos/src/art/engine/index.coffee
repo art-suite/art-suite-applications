@@ -5,4 +5,3 @@ module.exports = require './namespace'
 module.exports
 .addModules
   Loader: require './loader'
-require './demos'

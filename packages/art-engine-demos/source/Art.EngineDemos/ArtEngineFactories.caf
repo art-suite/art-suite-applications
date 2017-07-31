@@ -1,0 +1,17 @@
+import &ArtEngine
+&ArtObjectTreeFactory.createObjectTreeFactories
+  ""
+    BitmapElement
+    BlurElement
+    CanvasElement
+    ShapeElement
+    Element
+    FillElement
+    OutlineElement
+    PagingScrollElement
+    RectangleElement
+    ShadowElement
+    TextElement
+    TextInputElement
+
+  (nodeName, props, children) -> newElement nodeName, props, children

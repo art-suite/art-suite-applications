@@ -3,4 +3,3 @@
 
 module.exports = (require '../namespace').addNamespace 'Engine', class Engine extends Neptune.PackageNamespace
   @version: require('../../../package.json').version
-require './demos/namespace'
