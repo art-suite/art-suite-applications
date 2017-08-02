@@ -1,17 +1,10 @@
-import &ArtEngine
-&ArtObjectTreeFactory.createObjectTreeFactories
-  ""
-    BitmapElement
-    BlurElement
-    CanvasElement
-    ShapeElement
-    Element
-    FillElement
-    OutlineElement
-    PagingScrollElement
-    RectangleElement
-    ShadowElement
-    TextElement
-    TextInputElement
+import &ArtStandardLib, &ArtEngine
+{elementClasses} = ElementFactory
 
-  (nodeName, props, children) -> newElement nodeName, props, children
+&ArtObjectTreeFactory.createObjectTreeFactories
+  array klass from elementClasses
+    klass.getName()
+
+  (className, props, children) ->
+    elementClass = elementClasses[className]
+    new elementClass props, children

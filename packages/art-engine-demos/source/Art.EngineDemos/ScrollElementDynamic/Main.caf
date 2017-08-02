@@ -1,0 +1,91 @@
+import &ArtStandardLib, &ArtAtomic, &ArtEngine, &ArtEngineFactories
+
+scroll = ({vertical:"vertical", horizontal:"horizontal"}[parseQuery().scroll]) || "vertical"
+log
+  PagingScrollElementDemo:
+    scroll: scroll
+    options:
+      dev: "?dev=true/false"
+      scroll: "?scroll=vertical/horizontal"
+
+generatedChildrenMap = {}
+generateChildren = (centerIndex, spread = 2)->
+  oldGeneratedChildrenMap = generatedChildrenMap
+  generatedChildrenMap = {}
+  startIndex = max 0, centerIndex - spread
+  endIndex = centerIndex + spread
+  out = []
+  pageIndex = startIndex
+  while pageIndex <= endIndex
+    h = modulo pageIndex / 24, 1
+    # log h:h
+    text = round(h * 360) + "°"
+    key = pageIndex.toString()
+    out.push generatedChildrenMap[key] = oldGeneratedChildrenMap[key] || Element
+      size:
+        if scroll == "horizontal"
+          hh:1, w:300
+        else
+          ww:1, h:300
+      key: key
+      # margin: 10
+      RectangleElement color: hslColor h, 1, 1
+      TextElement
+        location: ps: .5
+        axis: .5
+        fontSize: 128
+        color: "#0007"
+        text: text
+    pageIndex++
+  out
+
+Button = ({text, action}) ->
+  Element
+    size: cs: 1
+    on: pointerClick: action
+    cursor: :pointer
+    margin: 10
+    RectangleElement color: #333
+    TextElement padding: 10, text: text, color: #eee fontFamily: :arial
+
+TestElement = ->
+  hch = 1
+  element = Element
+    size: ww: 1, hch: hch
+    childrenLayout: :row
+    animators: size: toFrom: ww: 1, h: 0
+    clip: true
+    margin: 10
+    RectangleElement
+      color: hslColor random(), 1, 1
+      inFlow: false
+    Element
+      size: ww: 1, hch: 1
+      childrenLayout: :row
+      padding: 10
+      Button text: "Add above" action: ->
+        {children} = element.parent
+        index = children.indexOf element
+        element.parent.children = arrayWithInsertedValue children, index, TestElement()
+      Button text: "Add below" action: ->
+        {children} = element.parent
+        index = children.indexOf element
+        element.parent.children = arrayWithInsertedValue children, index + 1, TestElement()
+      Button text: "Expand" action: -> hch *= 2; element.size = ww: 1, hch: hch
+      Button text: "Reduce" action: -> hch = max 1, hch / 2; element.size = ww: 1, hch: hch
+      Button text: "Delete" action: -> element.removeFromParent()
+
+->
+  CanvasElement
+    RectangleElement color: "#333"
+    ScrollElement
+      padding: 5
+      scroll: scroll
+      childrenAlignment: :bottom
+      # childrenLayout: :column
+      TestElement()
+
+    TextElement
+      color: "#fffc"
+      location: 10
+      text: "PagingScrollElement Demo"

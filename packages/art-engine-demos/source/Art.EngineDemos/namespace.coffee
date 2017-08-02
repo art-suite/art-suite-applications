@@ -6,4 +6,5 @@ module.exports = (require 'neptune-namespaces').addNamespace 'Art.EngineDemos', 
 require './Basic/namespace';
 require './Clipping/namespace';
 require './Form/namespace';
-require './PagingScrollElement/namespace'
+require './PagingScrollElement/namespace';
+require './ScrollElementDynamic/namespace'
