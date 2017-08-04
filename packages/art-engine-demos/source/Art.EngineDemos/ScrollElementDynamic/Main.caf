@@ -41,17 +41,20 @@ generateChildren = (centerIndex, spread = 2)->
 
 Button = ({text, action}) ->
   Element
-    size: cs: 1
+    size: hh: 1, wcw: 1
     on: pointerClick: action
     cursor: :pointer
     margin: 10
-    RectangleElement color: #333
+    clip: true
+    childrenLayout: :row
+    childrenAlignment: :centerLeft
+    RectangleElement color: #333, inFlow: false
     TextElement padding: 10, text: text, color: #eee fontFamily: :arial
 
 TestElement = ->
-  hch = 1
+  height = 100
   element = Element
-    size: ww: 1, hch: hch
+    size: ww: 1, h: height
     childrenLayout: :row
     animators: size: toFrom: ww: 1, h: 0
     clip: true
@@ -60,8 +63,9 @@ TestElement = ->
       color: hslColor random(), 1, 1
       inFlow: false
     Element
-      size: ww: 1, hch: 1
+      size: ww: 1, hh: 1
       childrenLayout: :row
+      childrenAlignment: :centerLeft
       padding: 10
       Button text: "Add above" action: ->
         {children} = element.parent
@@ -71,21 +75,33 @@ TestElement = ->
         {children} = element.parent
         index = children.indexOf element
         element.parent.children = arrayWithInsertedValue children, index + 1, TestElement()
-      Button text: "Expand" action: -> hch *= 2; element.size = ww: 1, hch: hch
-      Button text: "Reduce" action: -> hch = max 1, hch / 2; element.size = ww: 1, hch: hch
+      Button text: "Expand" action: -> height *= 1.5; element.size = ww: 1, h: height
+      Button text: "Reduce" action: -> height = max 50, height / 1.5; element.size = ww: 1, h: height
       Button text: "Delete" action: -> element.removeFromParent()
+      Element
+        key: "focusedText"
+        size: cs: 1
+        visible: false
+        RectangleElement color: #fff7
+        TextElement
+          padding: 10
+          fontFamily: "arial"
+          color: :white
+          text: :focused
 
 ->
   CanvasElement
     RectangleElement color: "#333"
-    ScrollElement
-      padding: 5
-      scroll: scroll
-      childrenAlignment: :bottom
+    global.scrollElement = ScrollElement
+      padding: 10
+      # childrenAlignment: :bottom
+      track: "bottom"
       # childrenLayout: :column
-      TestElement()
+      on: scrollUpdate: ({props, target}) ->
+        {focusedChild} = props
+        each child in target.find "focusedText"
+          if child.parent.parent == focusedChild
+            log "found focusd: #{child.uniqueId}"
+          child.visible = child.parent.parent == focusedChild
 
-    TextElement
-      color: "#fffc"
-      location: 10
-      text: "PagingScrollElement Demo"
+      TestElement()
