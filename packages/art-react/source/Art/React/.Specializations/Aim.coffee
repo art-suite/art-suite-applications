@@ -4,6 +4,8 @@ React = require '../Core'
 {VirtualElement, objectTreeFactoryOptions} = React
 {getNextPageIndexes} = require "./PagingScrollElement"
 
+# Note, this needs to work in the main AND worker threads...
+# That's why this doesn't use ArtEngine.ElementFactory.elementClasses.
 standardArtEngineElementClassNames = "
   BitmapElement
   BlurElement
@@ -17,6 +19,7 @@ standardArtEngineElementClassNames = "
   ShadowElement
   TextElement
   TextInputElement
+  ScrollElement
   "
 
 module.exports = class Aim
