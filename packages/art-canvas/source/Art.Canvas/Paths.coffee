@@ -19,7 +19,11 @@ module.exports = class Paths
     return rectangle context, r unless radius
 
     if isPlainObject radius
-      {tl, tr, bl, br} = radius
+      {tl, tr, bl, br, top, bottom, left, right} = radius
+      tr ?= top ? right
+      tl ?= top ? left
+      br ?= bottom ? right
+      bl ?= bottom ? left
     else
       tl = tr = bl = br = radius
 
