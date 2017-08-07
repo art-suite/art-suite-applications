@@ -468,13 +468,19 @@ module.exports = (bitmapFactory, bitmapClassName) ->
       .then (image) ->
         loadedBitmap = bitmapFactory.newBitmap image
         assert.eq loadedBitmap.size, point 256, 256
-        bitmapSample = bitmapFactory.newBitmap point 3
-        bitmapSample.drawBitmap null, loadedBitmap
+        bitmapSample = loadedBitmap.resize 3
+        # bitmapSample.drawBitmap null, loadedBitmap
         log {bitmapSample, loadedBitmap}
 
+        referenceData = [
+          114, 126, 139, 255,   175, 178, 173, 255,   99, 107, 93, 255
+          101, 142, 146, 255,   111, 131, 120, 255,   174, 170, 161, 255
+          55, 105, 112, 255,    193, 168, 163, 255,   149, 111, 83, 255
+        ]
         # this is the top-left 3x3 pixels of sample.jpg - a picture of carpet samples
-        data = (Math.round(v/16) for v in bitmapSample.getImageDataArray())
-        assert.eq data, [5, 7, 10, 16, 5, 7, 9, 16, 5, 7, 9, 16, 4, 6, 9, 16, 3, 5, 8, 16, 3, 5, 7, 16, 3, 5, 8, 16, 2, 5, 7, 16, 3, 6, 8, 16]
+        for v, i in bitmapData = bitmapSample.getImageDataArray()
+          ref = referenceData[i]
+          assert.within v, ref - 24, ref + 24, {i, v, ref, bitmapData}
 
     test "compositing target_alphmask is alphamask in the other order", ->
       a = bitmapFactory.newBitmap point 3
@@ -625,7 +631,7 @@ module.exports = (bitmapFactory, bitmapClassName) ->
       # parseInt(val/120) is used for an approximage comparison - webGL gradients aren't exactly the same (should they be?)
       log bitmap.getImageDataArray("red")
       assert.within bitmap.getImageDataArray("red"),
-        [0, 48, 118, 159, 186]
+        [0, 47, 118, 159, 186]
         [6, 48, 127, 159, 191]
       # I'm pretty certain the "48" is right. It should be rgbColor(.5, 0, 0, (.5 + .25)/2)
       # Then pre-multiply it to get 0.1875 for the r channel
@@ -665,7 +671,14 @@ module.exports = (bitmapFactory, bitmapClassName) ->
         48, 143, 143, 48,
         16, 48,  48,  16
       ]
-      referenceDataColor = [
+      referenceDataColorLow = [
+        0,0,0,0
+        0,254,254,0
+        0,254,254,0
+        0,0,0,0
+      ]
+
+      referenceDataColorHigh = [
         0,0,0,0
         0,255,255,0
         0,255,255,0
@@ -673,9 +686,9 @@ module.exports = (bitmapFactory, bitmapClassName) ->
       ]
 
       assert.eq referenceDataAlpha, bitmap.getImageDataArray "alpha"
-      assert.eq referenceDataColor, bitmap.getImageDataArray "red"
-      assert.eq referenceDataColor, bitmap.getImageDataArray "green"
-      assert.eq referenceDataColor, bitmap.getImageDataArray "blue"
+      assert.within (bitmap.getImageDataArray "red"), referenceDataColorLow, referenceDataColorHigh, "red"
+      assert.within (bitmap.getImageDataArray "green"), referenceDataColorLow, referenceDataColorHigh, "green"
+      assert.within (bitmap.getImageDataArray "blue"), referenceDataColorLow, referenceDataColorHigh, "blue"
 
     test "blur with clone", ->
       bitmap = bitmapFactory.newBitmap point 4, 4
@@ -710,10 +723,10 @@ module.exports = (bitmapFactory, bitmapClassName) ->
         b=reducedRange bitmap2.getImageDataArray()
         assert.eq a, b
 
-    test "toPng from HTMLImage element", ->
-      Bitmap.get "https://upload.wikimedia.org/wikipedia/en/2/24/Lenna.png"
-      .then (bitmap) ->
-        testToPng bitmap
+    # test "toPng from HTMLImage element", ->
+    #   Bitmap.get "https://upload.wikimedia.org/wikipedia/en/2/24/Lenna.png"
+    #   .then (bitmap) ->
+    #     testToPng bitmap
 
     test "toPng", ->
       bitmap = bitmapFactory.newBitmap point 16

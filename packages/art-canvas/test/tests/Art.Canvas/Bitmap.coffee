@@ -101,9 +101,9 @@ defineModule module, suite:
       bitmap.drawLine null, point0, point(3), color: "black"
       log bitmap, "drawLine"
       assert.within (v * 8 / 255 | 0 for v in bitmap.getImageDataArray("alpha")), [
-        7,1,0
-        1,7,1
-        0,1,7
+        6,1,0
+        1,6,1
+        0,1,6
       ], [
         8,0,0
         0,8,0
@@ -113,7 +113,11 @@ defineModule module, suite:
     test "drawBorder", ->
       bitmap = new Bitmap point 3
       bitmap.drawBorder null, rect(0,0,3,3), color: "white"
-      assert.eq (v * 8 / 255 | 0 for v in bitmap.getImageDataArray("red")), [
+      assert.within (v * 8 / 255 | 0 for v in bitmap.getImageDataArray("red")), [
+        7,8,7
+        8,0,8
+        7,8,7
+      ], [
         8,8,8
         8,0,8
         8,8,8
@@ -158,10 +162,10 @@ defineModule module, suite:
       b2 = new Bitmap bitmap.size.mul scale
       b2.imageSmoothing = false
       b2.drawBitmap Matrix.scale(scale), bitmap
-      opts.color = "#0fff"
+      opts.color = "#0ff"
       opts.compositeMode = "add"
       b2.pixelSnap = false
-      b2.strokeRectangle m.scale(scale), r, opts
+      # b2.strokeRectangle m.scale(scale), r, opts
       log b2
       bitmap
 
@@ -178,12 +182,19 @@ defineModule module, suite:
 
     test "strokeRectangle pixelSnap=true lineWidth:.5 ", ->
       bitmap = renderStrokeRectangleWithSnap null, rect(1, 1, 4, 4), color:"red", lineWidth:.5
-      assert.eq reducedRange(bitmap.getImageDataArray("red")), [
+      assert.within reducedRange(bitmap.getImageDataArray("red")), [
         0, 0, 0, 0, 0, 0,
         0, 6, 4, 4, 6, 0,
         0, 4, 0, 0, 4, 0,
         0, 4, 0, 0, 4, 0,
         0, 6, 4, 4, 6, 0,
+        0, 0, 0, 0, 0, 0
+      ], [
+        0, 0, 0, 0, 0, 0,
+        0, 8, 8, 8, 8, 0,
+        0, 8, 0, 0, 8, 0,
+        0, 8, 0, 0, 8, 0,
+        0, 8, 8, 8, 8, 0,
         0, 0, 0, 0, 0, 0
       ]
 
