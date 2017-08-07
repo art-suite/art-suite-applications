@@ -146,7 +146,9 @@ suite "Art.Text.Layout", ->
     layout = new Text.Layout "Sing?!?"
     bitmap = layout.toBitmap()
     log oneWordBasic:bitmap, size: bitmap.size
-    assert.eq layout.drawArea.rounded, rect -8, -8, 65, 32
+    assert.within layout.drawArea.rounded,
+      rect -8, -8, 64, 32
+      rect -8, -8, 65, 32
 
 
   test "leading", ->

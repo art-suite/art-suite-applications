@@ -71,12 +71,13 @@ suite "Art.Text.Metrics", ->
       {layoutArea: rect(0, 0, 19, 16), ascender: 12, descender: 4}
       {layoutArea: rect(0, 0, 20, 16), ascender: 12, descender: 4}
 
-    testMetrics text, fontOptions, "tight",  layoutArea: rect(0, 0, 24, 18), ascender: 14, descender: 4
+    testMetrics text, fontOptions, "tight",  layoutArea: rect(0, 0, 22, 16), ascender: 13, descender: 4
 
   test "get ascender", ->
     fontOptions = fontFamily:"Times New Roman", fontSize:16
     text = "Hello"
     testMetrics text, fontOptions, "tight",
+      {layoutArea: rect(0, 0, 37, 15), ascender: 14, descender: 1}
       {layoutArea: rect(0, 0, 38, 15), ascender: 14, descender: 1}
     testMetrics text, fontOptions, "textual",
       {layoutArea: rect(0, 0, 35, 16), ascender: 12, descender: 4}
@@ -94,7 +95,9 @@ suite "Art.Text.Metrics", ->
   test "get large", ->
     text = "hi"
     fontOptions = fontFamily:"Impact", fontSize:64
-    testMetrics text, fontOptions, "tight",   layoutArea: rect(0, 0, 51, 54), ascender: 54, descender: 0
+    testMetrics text, fontOptions, "tight",
+      {layoutArea: rect(0, 0, 48, 52), ascender: 52, descender: 0}
+      {layoutArea: rect(0, 0, 49, 54), ascender: 54, descender: 0}
     testMetrics text, fontOptions, "textual",
       {layoutArea: rect(0, 0, 51, 64), ascender: 48, descender: 16}
       {layoutArea: rect(0, 0, 52, 64), ascender: 48, descender: 16}
@@ -103,6 +106,7 @@ suite "Art.Text.Metrics", ->
     text = longText
     fontOptions = fontFamily:"Times New Roman", fontSize:6
     testMetrics text, fontOptions, "tight",
+      {layoutArea: rect(0, 0, 117, 8),  ascender: 7, descender: 2}
       {layoutArea: rect(0, 0, 118, 9),  ascender: 7, descender: 3}
     testMetrics text, fontOptions, "textual",
       {layoutArea: rect(0, 0, 115, 6), ascender: 5, descender: 2}
