@@ -52,14 +52,14 @@ suite "Art.Text.Layout", ->
     layout = new Text.Layout "Sing!?!", {fontSize:64}, {layoutMode:"tight"}
     bitmap = layout.toBitmap()
     log bitmap
-    assert.eq bitmap.size, point 183, 61
+    assert.within bitmap.size, point(180, 61), point(183, 61)
 
   test "layoutMode:tight areas", ->
     layout = new Text.Layout "Sing!?!", {fontSize:64}, {layoutMode:"tight"}
     bitmap = layout.toBitmap()
     log bitmap
-    assert.eq layout.area, rect(0, 0, 183, 61), "area"
-    assert.eq layout.drawArea, rect(0, 0, 183, 61), "drawArea"
+    assert.within layout.area,      rect(0, 0, 180, 61), rect(0, 0, 183, 61), "area"
+    assert.within layout.drawArea,  rect(0, 0, 180, 61), rect(0, 0, 183, 61), "drawArea"
 
   test "precision", ->
     layout = new Text.Layout "hi", fontFamily:"Impact", fontSize:64, layoutMode:"tight"
