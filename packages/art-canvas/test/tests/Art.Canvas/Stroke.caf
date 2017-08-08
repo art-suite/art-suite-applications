@@ -1,0 +1,155 @@
+import &StandardImport
+
+reducedRange = (bitmap, factor = 32) ->
+  array a in bitmap.getImageDataArray :red
+    Math.round a / factor
+
+suite: ->
+
+  test "drawLine", ->
+    bitmap = new Bitmap point 3
+    bitmap.drawLine null, point0, point(3), color: "black"
+    log bitmap, "drawLine"
+    assert.within
+      array v in bitmap.getImageDataArray "alpha" with v * 8 / 255 | 0
+      6 1 0,
+      1 6 1,
+      0 1 6
+
+      8 0 0,
+      0 8 0,
+      0 0 8
+
+  test "drawBorder", ->
+    bitmap = new Bitmap point 3
+    bitmap.drawBorder null, rect(0,0,3,3), color: "white"
+    assert.within
+      array v in bitmap.getImageDataArray "red" with v * 8 / 255 | 0
+      7 8 7,
+      8 0 8,
+      7 8 7
+
+      8 8 8,
+      8 0 8,
+      8 8 8
+
+  test "strokeRectangle lineWidth:1", ->
+    bitmap = new Bitmap point(6, 6)
+    bitmap.clear "black"
+    bitmap.pixelSnap = false
+    bitmap.strokeRectangle null, rect(1, 1, 4, 4), color:"red", lineWidth:1, lineJoin:"miter"
+    log bitmap
+    data =
+    assert.within
+      reducedRange bitmap
+      0, 4, 4, 4, 4, 0,
+      4, 6, 4, 4, 6, 4,
+      4, 4, 0, 0, 4, 4,
+      4, 4, 0, 0, 4, 4,
+      4, 6, 4, 4, 6, 4,
+      0, 4, 4, 4, 4, 0
+
+      2, 4, 4, 4, 4, 2,
+      4, 8, 4, 4, 8, 4,
+      4, 4, 0, 0, 4, 4,
+      4, 4, 0, 0, 4, 4,
+      4, 8, 4, 4, 8, 4,
+      2, 4, 4, 4, 4, 2
+
+
+  renderStrokeRectangleWithSnap = (where, r, opts) ->
+    m = matrix where
+    r2 = m.transform r.br
+    size = r2.add(point (opts.lineWidth/2 || 1)).ceil()
+    log size:size
+    bitmap = new Bitmap size
+    bitmap.pixelSnap = true
+    bitmap.clear "black"
+    opts.color = "#f00"
+    bitmap.strokeRectangle where, r, opts
+    scale = 20
+    b2 = new Bitmap bitmap.size.mul scale
+    b2.imageSmoothing = false
+    b2.drawBitmap Matrix.scale(scale), bitmap
+    opts.color = "#0ff"
+    opts.compositeMode = "add"
+    b2.pixelSnap = false
+    # b2.strokeRectangle m.scale(scale), r, opts
+    log b2
+    bitmap
+
+  test "strokeRectangle pixelSnap=true lineWidth:1 ", ->
+    bitmap = renderStrokeRectangleWithSnap null, rect(1, 1, 4, 4), color:"red", lineWidth:1
+    assert.eq
+      reducedRange bitmap
+      0, 0, 0, 0, 0, 0,
+      0, 8, 8, 8, 8, 0,
+      0, 8, 0, 0, 8, 0,
+      0, 8, 0, 0, 8, 0,
+      0, 8, 8, 8, 8, 0,
+      0, 0, 0, 0, 0, 0
+
+  test "strokeRectangle pixelSnap=true lineWidth:.5 ", ->
+    bitmap = renderStrokeRectangleWithSnap null, rect(1, 1, 4, 4), color:"red", lineWidth:.5
+    assert.within
+      reducedRange bitmap
+      0, 0, 0, 0, 0, 0,
+      0, 6, 4, 4, 6, 0,
+      0, 4, 0, 0, 4, 0,
+      0, 4, 0, 0, 4, 0,
+      0, 6, 4, 4, 6, 0,
+      0, 0, 0, 0, 0, 0
+
+      0, 0, 0, 0, 0, 0,
+      0, 8, 8, 8, 8, 0,
+      0, 8, 0, 0, 8, 0,
+      0, 8, 0, 0, 8, 0,
+      0, 8, 8, 8, 8, 0,
+      0, 0, 0, 0, 0, 0
+
+  test "strokeRectangle pixelSnap=true lineWidth:1.5 ", ->
+    bitmap = renderStrokeRectangleWithSnap null, rect(1, 1, 4, 4), color:"red", lineWidth:1.5
+    assert.eq
+      reducedRange bitmap
+      2, 4, 4, 4, 4, 2,
+      4, 8, 8, 8, 8, 4,
+      4, 8, 0, 0, 8, 4,
+      4, 8, 0, 0, 8, 4,
+      4, 8, 8, 8, 8, 4,
+      2, 4, 4, 4, 4, 2
+
+  test "strokeRectangle pixelSnap=true lineWidth:1, scale:1.5,1", ->
+    bitmap = renderStrokeRectangleWithSnap log(Matrix.scaleXY(1.5, 1)), rect(.5, 1, 3, 4), color:"red", lineWidth:1, lineJoin:"miter"
+    assert.eq
+      reducedRange bitmap
+      0, 0, 0, 0, 0, 0,
+      0, 8, 8, 8, 8, 0,
+      0, 8, 4, 4, 8, 0,
+      0, 8, 4, 4, 8, 0,
+      0, 8, 8, 8, 8, 0,
+      0, 0, 0, 0, 0, 0
+
+  test "strokeRectangle pixelSnap=true lineWidth:2", ->
+    bitmap = renderStrokeRectangleWithSnap null, rect(1, 1, 4, 4), color:"red", lineWidth:2, lineJoin:"miter"
+    assert.eq
+      reducedRange bitmap
+      8, 8, 8, 8, 8, 8,
+      8, 8, 8, 8, 8, 8,
+      8, 8, 0, 0, 8, 8,
+      8, 8, 0, 0, 8, 8,
+      8, 8, 8, 8, 8, 8,
+      8, 8, 8, 8, 8, 8
+
+  test "strokeRectangle pixelSnap=true lineWidth:3", ->
+    bitmap = renderStrokeRectangleWithSnap null, rect(2, 2, 5, 5), color:"red", lineWidth:3, lineJoin:"miter"
+    assert.eq
+      reducedRange bitmap
+      0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 8, 8, 8, 8, 8, 8, 8, 0,
+      0, 8, 8, 8, 8, 8, 8, 8, 0,
+      0, 8, 8, 8, 8, 8, 8, 8, 0,
+      0, 8, 8, 8, 0, 8, 8, 8, 0,
+      0, 8, 8, 8, 8, 8, 8, 8, 0,
+      0, 8, 8, 8, 8, 8, 8, 8, 0,
+      0, 8, 8, 8, 8, 8, 8, 8, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0

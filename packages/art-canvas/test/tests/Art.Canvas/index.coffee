@@ -12,3 +12,4 @@ module.exports
   GoogleFontLoader:  require './GoogleFontLoader' 
   GradientFillStyle: require './GradientFillStyle'
   StackBlur:         require './StackBlur'        
+  Stroke:            require './Stroke'           
