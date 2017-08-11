@@ -6,7 +6,7 @@ Atomic = require 'art-atomic'
 {GoogleFontLoader} = Canvas
 {googleFontLoader} = GoogleFontLoader
 
-suite "Art.Canvas.GoogleFontLoader", ->
+module.exports = suite: ->
   test "load Euphoria Script", (done)->
     googleFontLoader.load (name = "Euphoria Script"), (assets, sources, info) ->
       assert.ok assets[name]

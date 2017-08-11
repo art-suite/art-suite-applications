@@ -12,7 +12,7 @@ testDrawLog = (testName, setup) ->
     test? bitmap
 
 
-suite "Art.Canvas.Bitmap.drawGradient", ->
+module.exports = suite: ->
   test "basic", ->
     b = new Bitmap 128
     b.drawRectangle null, 128, colors: ["blue", "white"]

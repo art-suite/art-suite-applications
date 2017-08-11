@@ -2,7 +2,7 @@
 {log} = require 'art-foundation'
 {GradientFillStyle} = Neptune.Art.Canvas
 
-suite "Art.Canvas.GradientFillStyle", ->
+module.exports = suite: ->
   test "explicit 3-step gradient", ->
     gfs = new GradientFillStyle point(0,0), point(100,0), 0:"#000", .75:"#f00", 1:"#0f0"
     assert.eq gfs.colors, [{c: "#000", n: 0}, {n: 0.75, c: "#f00"}, {c: "#0f0", n: 1}]

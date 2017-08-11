@@ -14,7 +14,7 @@ testBitmap = (name, bitmapTest) ->
     bitmapTest bitmap
     log name, bitmap
 
-suite "Art.Canvas.Bitmap Clipping", ->
+module.exports = suite: ->
   testBitmap "nested clipping", (bitmap)->
     r1 = rect(10, 10, 40, 80)
     r2 = rect(10, 10, 80, 40)

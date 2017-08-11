@@ -14,7 +14,7 @@ exactFill = (bitmap, r, g, b, a) ->
     data[i++] = a
   bitmap.putImageData iData
 
-suite "Art.Canvas.StackBlurOriginal", ->
+module.exports = suite: ->
   # test "StackBlurOriginal", ->
   #   bitmap = new Canvas.Bitmap point 128, 128
   #   bitmap.drawRectangle null, rect(32, 32, 64, 64), radius:32

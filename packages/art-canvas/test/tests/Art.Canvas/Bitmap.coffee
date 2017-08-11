@@ -2,13 +2,11 @@ Atomic = require 'art-atomic'
 Foundation = require 'art-foundation'
 {Canvas} = Neptune.Art
 CommonBitmapTests = require './CommonBitmapTests'
-{each, w, Binary, log, eq, defineModule} = Foundation
+{each, w, Binary, log, eq, defineModule, merge} = Foundation
 {point, point0, point1, rect, rgbColor, matrix, Matrix} = Atomic
 {Bitmap} = Canvas
 
 array = (a) -> i for i in a
-
-CommonBitmapTests Bitmap, "Canvas.Bitmap"
 
 reducedRange = (data, factor = 32) ->
   Math.round a / factor for a in data
@@ -45,7 +43,7 @@ generateTestBitmap3 = (c = "#00f")->
   result.drawRectangle point(30,30), point(60,60), color:c
   result
 
-defineModule module, suite:
+defineModule module, suite: merge CommonBitmapTests(Bitmap, "Canvas.Bitmap"),
   basic: ->
     test "allocate", ->
       bitmap = new Bitmap point(400, 300)

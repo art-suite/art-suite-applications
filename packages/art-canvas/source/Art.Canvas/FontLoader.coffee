@@ -58,6 +58,7 @@ defineModule module, class FontLoader
 
   # IN: see 'fonts' above
   @loadFonts: (fonts) ->
+    log formattedInspect loadFonts: fonts
     if !isPlainObject fonts
       throw new Error "ArtCanvas.FontLoader.loadFonts: fonts should be an object"
 
@@ -100,13 +101,13 @@ defineModule module, class FontLoader
     tempBitmap = new Bitmap point x + fontOptions.fontSize * (loadedTestText.length - 1), x
     tempBitmap.clear backgroundColor = "#eee"
     tempBitmap.drawText point(x * 1/3, x * 2 / 3), loadedTestText, referenceOptions = merge fontOptions, fontFamily: "Sans Serif", color: "black"
-    # log referenceBitmap: tempBitmap.clone(), referenceOptions: referenceOptions
+    log referenceBitmap: tempBitmap.clone(), referenceOptions: referenceOptions
     referenceData = tempBitmap.imageData.data
 
     tempBitmap.clear backgroundColor
     tempBitmap.drawText point(x * 1/3, x * 2 / 3), loadedTestText, testOptions = merge fontOptions, fontFamily: "#{fontOptions.fontFamily}, Sans Serif", color: "black"
 
-    # log testBitmap: tempBitmap.clone(), testOptions: testOptions
+    log testBitmap: tempBitmap.clone(), testOptions: testOptions
     testData = tempBitmap.imageData.data
 
     # log {testData, referenceData}
