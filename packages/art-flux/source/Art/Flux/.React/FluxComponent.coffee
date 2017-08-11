@@ -11,6 +11,7 @@ FluxCore = require '../Core'
   rubyFalse
   compactFlatten
   Validator
+  formattedInspect
 , defineModule, CommunicationStatus} = Foundation
 
 {ModelRegistry, FluxSubscriptionsMixin} = FluxCore
@@ -111,14 +112,13 @@ defineModule module, class FluxComponent extends FluxSubscriptionsMixin Componen
 
     subscriptionValidator.validateSync subscriptionOptions
 
-    throw new Error "stateField subscription already defined" if @getSubscriptionProperties()[stateField]
+    throw new Error "subscription already defined for: #{formattedInspect {stateField}}" if @getSubscriptionProperties()[stateField]
 
     @extendSubscriptionProperties stateField, subscriptionOptions
 
     existingGetters = /element/ # TODO: make a list of all existing getters and don't replace them!
     unless stateField.match existingGetters
       @addGetter stateField, -> @state[stateField]
-
 
   @_prepareSubscription: (subscription) ->
     {stateField, model, key} = subscription
