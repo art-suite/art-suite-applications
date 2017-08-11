@@ -1,8 +1,10 @@
-{present, isPlainObject, object, merge, defineModule, formattedInspect, log, timeout} = Foundation = require 'art-foundation'
+{
+  present, isPlainObject, object, merge, defineModule, formattedInspect, log, timeout, Promise
+} = require 'art-standard-lib'
 {point} = require 'art-atomic'
 Bitmap = require './Bitmap'
 
-{Div, Link, Style} = Foundation.Browser.DomElementFactories
+{Div, Link, Style} = require("art-foundation").Browser.DomElementFactories
 
 defaultLoadedTestText = "aA"
 ###
@@ -28,9 +30,9 @@ defineModule module, class FontLoader
     timeoutRemaining = initialTimeoutRemaining = 1000
     new Promise (resolve, reject) ->
       testFonts = ->
-        if initialTimeoutRemaining - timeoutRemaining >= 100
-          # font taking more than 100ms to load
-          log.warn formattedInspect FontLoader: allFontsLoaded: {fonts, waited: initialTimeoutRemaining - timeoutRemaining}
+        # if initialTimeoutRemaining - timeoutRemaining >= 100
+        #   # font taking more than 100ms to load
+        #   log.warn formattedInspect FontLoader: allFontsLoaded: {fonts, waited: initialTimeoutRemaining - timeoutRemaining}
 
         if FontLoader.allFontsLoadedSync fonts
           resolve object fonts, -> true
@@ -42,6 +44,8 @@ defineModule module, class FontLoader
           timeout 25, testFonts
 
       testFonts()
+    .then =>
+      @_cleanup()
 
   # IN: see 'fonts' above
   # OUT: immediatly returns T/F
@@ -92,7 +96,7 @@ defineModule module, class FontLoader
   #   log getTestImageData: {options, text, bitmap: bitmap.clone()}
   #   bitmap.imageData.data
 
-  loadedWidthBasedTest = (bitmap, fontFamily, loadedTestText) ->
+  loadedWidthBasedTest = (bitmap, fontFamily, loadedTestText, expectedTestWidth) ->
     {context} = bitmap
     context.font = "12px sans serif"
     referenceWidth = context.measureText(loadedTestText).width
@@ -100,18 +104,21 @@ defineModule module, class FontLoader
     context.font = "12px #{fontFamily}, sans serif"
     testWidth = context.measureText(loadedTestText).width
 
-    testWidth > 0 && testWidth != referenceWidth
+    log "loading #{fontFamily}": {testWidth, referenceWidth, expectedTestWidth}
+
+    if expectedTestWidth?
+      Math.abs(expectedTestWidth - testWidth) < .9 &&
+      Math.abs(expectedTestWidth - referenceWidth) > .1
+    else
+      testWidth > 0 && testWidth != referenceWidth
 
   loadingTestBitmap = null
   # returns true if font is loaded
   @fontLoaded: (fontOptions, fontFamily) ->
-    throw new Error "fontOption 'text' is DEPRICATED: use loadedTestText" if fontOptions.text
-    {loadedTestText} = fontOptions
-    loadedTestText = fontOptions.loadedTestText || "aA"
-    fontOptions = merge
-      fontFamily: fontFamily
-      fontSize: 12
-      fontOptions
+    {loadedTestText, expectedTestWidth} = fontOptions
+    throw new Error "loadedTestText required" unless loadedTestText?
 
-    loadingTestBitmap ||= new Bitmap point(1)
-    return loadedWidthBasedTest loadingTestBitmap, fontFamily, fontOptions.loadedTestText
+    loadingTestBitmap ||= new Bitmap point 1
+    loadedWidthBasedTest loadingTestBitmap, fontFamily, loadedTestText, expectedTestWidth
+
+  @_cleanup: -> loadingTestBitmap = null
