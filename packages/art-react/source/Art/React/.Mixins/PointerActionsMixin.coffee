@@ -36,7 +36,7 @@ defineModule module, ->
         pointerOut:       @pointerUp
         pointerUpInside:  (event) =>
           event.target.capturePointerEvents()
-          (customAction || @doAction || @action || @props.action)? event
+          (customAction || @doAction || @action || @props.action)? event, @props
 
       pointerHandlers: -> @buttonHandlers
 
