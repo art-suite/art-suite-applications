@@ -86,6 +86,24 @@ defineModule module, class FontLoader
 
     @allFontsLoaded fonts
 
+  # getTestImageData = (options, text, bitmap) ->
+  #   bitmap.clear backgroundColor = "#fee"
+  #   bitmap.drawText point(5, bitmap.size.y * 2/3), text, merge options, color: "black"
+  #   log getTestImageData: {options, text, bitmap: bitmap.clone()}
+  #   bitmap.imageData.data
+
+  loadedWidthBasedTest = (bitmap, fontFamily, loadedTestText) ->
+    {context} = bitmap
+    context.font = "12px sans serif"
+    referenceWidth = context.measureText(loadedTestText).width
+
+    context.font = "12px #{fontFamily}, sans serif"
+    testWidth = context.measureText(loadedTestText).width
+
+    testWidth > 0 && testWidth != referenceWidth
+
+  loadingTestBitmap = null
+  # returns true if font is loaded
   @fontLoaded: (fontOptions, fontFamily) ->
     throw new Error "fontOption 'text' is DEPRICATED: use loadedTestText" if fontOptions.text
     {loadedTestText} = fontOptions
@@ -95,22 +113,5 @@ defineModule module, class FontLoader
       fontSize: 12
       fontOptions
 
-    # log renderTest: {fontOptions}
-
-    x = fontOptions.fontSize * 3
-    tempBitmap = new Bitmap point x + fontOptions.fontSize * (loadedTestText.length - 1), x
-    tempBitmap.clear backgroundColor = "#eee"
-    tempBitmap.drawText point(x * 1/3, x * 2 / 3), loadedTestText, referenceOptions = merge fontOptions, fontFamily: "Sans Serif", color: "black"
-    log referenceBitmap: tempBitmap.clone(), referenceOptions: referenceOptions
-    referenceData = tempBitmap.imageData.data
-
-    tempBitmap.clear backgroundColor
-    tempBitmap.drawText point(x * 1/3, x * 2 / 3), loadedTestText, testOptions = merge fontOptions, fontFamily: "#{fontOptions.fontFamily}, Sans Serif", color: "black"
-
-    log testBitmap: tempBitmap.clone(), testOptions: testOptions
-    testData = tempBitmap.imageData.data
-
-    # log {testData, referenceData}
-    for v, i in referenceData
-      return true if v != testData[i]
-    false
+    loadingTestBitmap ||= new Bitmap point(1)
+    return loadedWidthBasedTest loadingTestBitmap, fontFamily, fontOptions.loadedTestText
