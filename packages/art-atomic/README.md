@@ -10,6 +10,10 @@ Atomic Types Included:
 * Rectangle
 * Perimeter
 
+# Wiki
+
+Learn more on the [Wiki](https://github.com/art-suite/art-atomic/wiki).
+
 # Install
 
 ```shell
