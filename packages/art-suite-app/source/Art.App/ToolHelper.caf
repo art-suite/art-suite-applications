@@ -5,9 +5,9 @@ applyPipelineTool: applyPipelineTool = (pipelineName, action) ->
     action pipeline
   else
     {DynamoDbPipeline} = &ArtEryAws
-    {Promise} = &ArtSuite
+    {Promise, pipelines} = &ArtSuite/Node
     Promise.deepAll
-      each pipeline in &ArtEry.pipelines into map = {} when pipeline instanceof DynamoDbPipeline
+      each pipeline in pipelines into map = {} when pipeline instanceof DynamoDbPipeline
         map[pipeline.pipelineName] =
           Promise.then -> action pipeline
           .catch (error) ->

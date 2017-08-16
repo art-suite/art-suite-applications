@@ -3,8 +3,9 @@ module.exports =
   params: "[pipelineName]"
   help: "invoke 'initialize' on every pipeline (creates tables)"
   action: (options) ->
-    {array, log, wordsArray, lowerCamelCase, isPlainObject, merge, isString} = require 'art-foundation'
+    {array, log, wordsArray, lowerCamelCase, isPlainObject, merge, isString} = require 'art-standard-lib'
     {args:[pipelineName]} = options
+    pipelineName = null unless isString pipelineName
     {pipelines} = require 'art-ery'
     ArtAws = require 'art-aws'
 
