@@ -75,6 +75,8 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
       @_vivifyTable()
       .then -> message: "success"
 
+    getInitializeParams: -> @createTableParams
+
     ################################
     # Direct DynamoDb requests
     ################################
