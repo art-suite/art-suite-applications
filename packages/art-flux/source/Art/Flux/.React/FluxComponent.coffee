@@ -154,18 +154,11 @@ defineModule module, class FluxComponent extends FluxSubscriptionsMixin Componen
 
   _updateSubscription: (stateField, key, model, props) ->
 
-    # DO WE NEED THIS???
-    # I think subscribe calls setState synchronously
-    # AND I think during Component init, setStates are sync, not async....
-    # Need to test!
-    unless @state[stateField]
-      @state[stateField] = initialData = props[stateField]
-
     @subscribe stateField,
       model.modelName
       key
       stateField: stateField
-      initialFluxRecord: if initialData
+      initialFluxRecord: if initialData = props[stateField]
         status: success
         data:   initialData
 
@@ -184,4 +177,3 @@ defineModule module, class FluxComponent extends FluxSubscriptionsMixin Componen
         @_updateSubscription stateField, keyFunction(props), model, props
 
     null
-

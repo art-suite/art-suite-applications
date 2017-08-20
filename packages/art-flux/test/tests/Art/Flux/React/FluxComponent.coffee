@@ -199,3 +199,20 @@ defineModule module, suite:
           Element()
 
       MyComponent()._instantiate()
+
+    test "props value for subscription shows up for first render", -> new Promise (resolve, reject) ->
+      class Post extends FluxModel
+        @register()
+        load: (key) -> data: key, status: success
+
+      MyComponent = createWithPostCreate class MyComponent extends FluxComponent
+        @subscriptions "post"
+
+        render: ->
+          if @post?.foo == "bar"
+            resolve()
+          else
+            reject()
+          Element()
+
+      MyComponent(post: foo: "bar")._instantiate()
