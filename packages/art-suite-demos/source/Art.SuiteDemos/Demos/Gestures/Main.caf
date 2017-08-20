@@ -1,8 +1,11 @@
 import &ArtSuite, &ArtEngine.Events.GestureRecognizer
 
 class HorizontalThingy extends Component
+  @propFields
+    yPos: 0
+
   @stateFields
-    pos: 0
+    xPos: 0
     moving: false
 
   getInitialState: ->
@@ -10,15 +13,15 @@ class HorizontalThingy extends Component
       createGestureRecognizer
         horizontal:
           begin:  (e) -> @moving = true
-          move:   (e) -> @pos = e.totalParentDelta.x
-          end:    (e) -> @pos = 0; @moving = false
+          move:   (e) -> @xPos = e.totalParentDelta.x
+          end:    (e) -> @xPos = 0; @moving = false
 
   render: ->
     Element
-      location: ps: .5, x: @pos
+      location: ps: .5, x: @xPos
       axis: .5
       size: 150
-      animators: @pos == 0 && location: true
+      animators: @xPos == 0 && location: true
       on: @state.handlers
       RectangleElement
         animators: color: true
@@ -30,7 +33,8 @@ class HorizontalThingy extends Component
         radius: 20
         clip: true
         TextElement
-          location: ps: .5, x: -@pos, y: -@props.pos
+          location: ps: .5, x: -@xPos, y: -@yPos
+          animators: @xPos == 0 && @yPos == 0 && location: true
           axis: .5
           text: :🙂
           fontSize: 64
@@ -38,7 +42,7 @@ class HorizontalThingy extends Component
 
 class VerticalThingy extends Component
   @stateFields
-    pos: 0
+    yPos: 0
     moving: false
 
   getInitialState: ->
@@ -46,16 +50,16 @@ class VerticalThingy extends Component
       createGestureRecognizer
         vertical:
           begin:  (e) -> @moving = true
-          move:   (e) -> @pos = e.totalParentDelta.y
-          end:    (e) -> @pos = 0; @moving = false
+          move:   (e) -> @yPos = e.totalParentDelta.y
+          end:    (e) -> @yPos = 0; @moving = false
 
   render: ->
     Element
       cursor: :move
-      location: ps: .5, y: @pos
+      location: ps: .5, y: @yPos
       axis: .5
       size: 200
-      animators: location: true
+      animators: @yPos == 0 && location: true
       on: @state.handlers
       RectangleElement
         radius: 20
@@ -69,7 +73,7 @@ class VerticalThingy extends Component
         text: :😉
         fontSize: 64
         size: cs: 1
-      HorizontalThingy {@pos}
+      HorizontalThingy {@yPos}
 
 class MyComponent extends Component
 
