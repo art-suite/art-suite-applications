@@ -6,7 +6,6 @@ class Button extends PointerActionsMixin Component
     enabled = !!@props.action
 
     Element
-      margin: &StyleProps.basePadding
       on: @pointerHandlers
       opacity: if enabled then 1 else .5
       animators: opacity: true

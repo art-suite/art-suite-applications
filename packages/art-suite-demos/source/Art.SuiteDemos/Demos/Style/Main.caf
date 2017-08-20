@@ -58,6 +58,7 @@ class MyComponent extends PointerActionsMixin Component
         axis: :centerCenter
         location: ps: :centerCenter
         scale: if @pointerIsDown then 1.25 else 1
+        cacheDraw: true
 
         animators: scale: d: 1
         size: cs: 1

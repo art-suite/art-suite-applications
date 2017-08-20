@@ -99,7 +99,7 @@ class Loader extends Component
             Demos[selectedDemo].Main()
         else
 
-          PagingScrollElement
+          ScrollElement
             key: :select-demo
             childrenLayout: :column
             animators: axis: toFrom: :topRight

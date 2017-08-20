@@ -6,7 +6,6 @@ class Slot extends Component
     slotTextStyleForAlert = getSlotTextStyle alert
 
     Element
-      margin: basePadding
       size: ww: 1 hch: 1
 
       RectangleElement

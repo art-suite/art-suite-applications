@@ -1,0 +1,97 @@
+import &ArtSuite, &ArtEngine.Events.GestureRecognizer
+
+class HorizontalThingy extends Component
+  @stateFields
+    pos: 0
+    moving: false
+
+  getInitialState: ->
+    handlers:
+      createGestureRecognizer
+        horizontal:
+          begin:  (e) -> @moving = true
+          move:   (e) -> @pos = e.totalParentDelta.x
+          end:    (e) -> @pos = 0; @moving = false
+
+  render: ->
+    Element
+      location: ps: .5, x: @pos
+      axis: .5
+      size: 150
+      animators: @pos == 0 && location: true
+      on: @state.handlers
+      RectangleElement
+        animators: color: true
+        radius: 20
+        color: if @moving then :white else #ff8400
+        shadow: blur: 20
+
+      RectangleElement
+        radius: 20
+        clip: true
+        TextElement
+          location: ps: .5, x: -@pos, y: -@props.pos
+          axis: .5
+          text: :🙂
+          fontSize: 64
+          size: cs: 1
+
+class VerticalThingy extends Component
+  @stateFields
+    pos: 0
+    moving: false
+
+  getInitialState: ->
+    handlers:
+      createGestureRecognizer
+        vertical:
+          begin:  (e) -> @moving = true
+          move:   (e) -> @pos = e.totalParentDelta.y
+          end:    (e) -> @pos = 0; @moving = false
+
+  render: ->
+    Element
+      cursor: :move
+      location: ps: .5, y: @pos
+      axis: .5
+      size: 200
+      animators: location: true
+      on: @state.handlers
+      RectangleElement
+        radius: 20
+        animators: color: true
+        color: if @moving then #fff else #ffd400
+        shadow: blur: 20
+
+      TextElement
+        location: ps: .5
+        axis: .5
+        text: :😉
+        fontSize: 64
+        size: cs: 1
+      HorizontalThingy {@pos}
+
+class MyComponent extends Component
+
+  @getter
+    text: ->
+      unless @pointerIsDown
+        "" Love
+      else
+        "" and War
+
+  render: ->
+    Element
+      on: @buttonHandlers
+
+      RectangleElement
+        color:      #777777
+
+      TextElement
+        location: ps: .5
+        axis: .5
+        text: :😍
+        fontSize: 64
+        size: cs: 1
+
+      VerticalThingy()

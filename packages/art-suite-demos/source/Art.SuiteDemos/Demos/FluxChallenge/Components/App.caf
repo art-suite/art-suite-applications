@@ -22,22 +22,25 @@ class App extends FluxComponent
         size: ww: 1 hch: 1
         childrenLayout: :column
         padding: basePadding
+        childrenMargins: basePadding
 
         &PlanetMonitor {} @location
 
         Element
           size: ww: 1 hch: 1
           childrenLayout: :row
+          childrenMargins: basePadding
 
           Element
             size: ww: 1 hch: 1
             childrenLayout: :column
-            margin: basePadding
+            childrenMargins: basePadding
             array darkJedi in loadedSlots
               &Slot {} darkJedi, alert: darkJedi?.homeworld.id == @location?.id
 
           Element
             size: w: 100 hh: 1
             childrenLayout: :column
+            childrenMargins: basePadding
             &Button action: pageUpEnabled    && @models.paginator.pageUp, up: true
             &Button action: pageDownEnabled  && @models.paginator.pageDown

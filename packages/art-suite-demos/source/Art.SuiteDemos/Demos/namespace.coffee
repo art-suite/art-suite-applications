@@ -13,6 +13,7 @@ require './ColorPicker2/namespace';
 require './FaceDetector/namespace';
 require './FluxChallenge/namespace';
 require './Form/namespace';
+require './Gestures/namespace';
 require './Layout/namespace';
 require './Physics/namespace';
 require './Quixx/namespace';
