@@ -84,7 +84,8 @@ defineModule module, ->
       @unsubscribe subscriptionKey
 
       # unless key and modelName are present, clear stateFields and return after unsubscribing
-      return @setStateFromFluxRecord stateField, initialFluxRecord || status: success unless rubyTrue(key) && modelName
+      unless rubyTrue(key) && modelName
+        return @setStateFromFluxRecord stateField, initialFluxRecord || status: success
 
       unless model = @models[modelName]
         throw new Error "No model registered with the name: #{modelName}. Registered models:\n  #{Object.keys(@models).join "\n  "}"
@@ -100,6 +101,7 @@ defineModule module, ->
       # NOTE: subscriptionFunction is the 'handle' needed later to unsubscribe from the fluxStore
       @setStateFromFluxRecord stateField,
         fluxStore.subscribe modelName, fluxKey, subscriptionFunction, initialFluxRecord
+        initialFluxRecord
 
     ###
     IN: same as @subscribe
@@ -134,7 +136,9 @@ defineModule module, ->
     ################################
     # Helpers
     ################################
-    setStateFromFluxRecord: (stateField, fluxRecord) ->
+    setStateFromFluxRecord: (stateField, fluxRecord, initialFluxRecord) ->
+      if fluxRecord?.status != success && initialFluxRecord?.status == success
+        fluxRecord = initialFluxRecord
       if stateField && isFunction @setState
         @setState stateField, fluxRecord?.data
         @setState stateField + "Status",   fluxRecord.status   if fluxRecord.status
