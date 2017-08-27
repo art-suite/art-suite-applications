@@ -29,9 +29,15 @@ TODO: _prepareSubscription should be triggered via createWithPostCreate rather t
 defineModule module, class FluxComponent extends FluxSubscriptionsMixin Component
   @abstractClass()
 
-  @postCreateConcreteClass: ->
+  _componentDidHotReload: ->
+    @unsubscribeAll()
+    @_updateAllSubscriptions()
+    super
+
+  @postCreateConcreteClass: ({hotReloaded})->
     @subscriptions @::subscriptions if @::subscriptions
     @_subscriptionsPrepared = false
+    @_prepareSubscriptions() if hotReloaded
     super
 
   ##########################
@@ -163,7 +169,6 @@ defineModule module, class FluxComponent extends FluxSubscriptionsMixin Componen
         data:   initialData
 
   _updateAllSubscriptions: (props = @props) ->
-
     for stateField, subscriptionProps of @class.getSubscriptionProperties()
       {keyFunction, model} = subscriptionProps
 
