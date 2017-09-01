@@ -116,7 +116,7 @@ defineModule module, class FluxComponent extends FluxSubscriptionsMixin Componen
 
     subscriptionOptions = normalizeSubscriptionOptions stateField, subscriptionOptions
 
-    subscriptionValidator.validateSync subscriptionOptions
+    subscriptionValidator.validate subscriptionOptions
 
     throw new Error "subscription already defined for: #{formattedInspect {stateField}}" if @getSubscriptionProperties()[stateField]
 
