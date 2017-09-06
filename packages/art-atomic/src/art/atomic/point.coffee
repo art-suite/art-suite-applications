@@ -223,8 +223,13 @@ module.exports = class Point extends AtomicBase
   proposed rename: scaledJustLte
   ###
   fitInto: (into) ->
-    xr = into.x / @x
-    yr = into.y / @y
+    return @ unless into?
+    if isNumber into
+      x = y = into
+    else
+      {x, y} = into
+    xr = x / @x
+    yr = y / @y
     @mul min xr, yr
 
   ###
@@ -237,8 +242,12 @@ module.exports = class Point extends AtomicBase
   proposed rename: scaledJustGte
   ###
   fill: (into) ->
-    xr = into.x / @x
-    yr = into.y / @y
+    if isNumber into
+      x = y = into
+    else
+      {x, y} = into
+    xr = x / @x
+    yr = y / @y
     @mul max xr, yr
 
   ###
