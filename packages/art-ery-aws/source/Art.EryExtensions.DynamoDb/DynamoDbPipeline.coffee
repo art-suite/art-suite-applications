@@ -87,6 +87,13 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
           @dynamoDb.getItem params
           .then (result) -> result.item || request.missing()
 
+    # inefficient; only use in dev
+    getAll: (request) ->
+      @scanDynamoDb()
+      .then ({items}) ->
+        log getAll: items: items?.length
+        items
+
     # TODO: make create fail if the item already exists
     # WHY? we have after-triggers that need to only trigger on a real create - not a replace
     # AND filters like ValidationFilter assume create is a real create and update is a real update...
