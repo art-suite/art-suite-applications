@@ -1,3 +1,0 @@
-params: "[pipelineName]"
-action: ({args:[pipelineName]}) ->
-  &ArtEry.pipelines[pipelineName].createTableParams
