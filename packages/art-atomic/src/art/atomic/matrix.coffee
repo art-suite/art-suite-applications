@@ -60,7 +60,7 @@ Rectangle  = require "./rectangle"
 
 {point} = Point
 {rect} = Rectangle
-{ceil, floor} = Math
+{ceil, floor, sqrt} = Math
 {inspect, simplifyNum, float32Eq, compact, log, isNumber, defineModule} = Foundation
 
 defineModule module, class Matrix extends AtomicBase
@@ -150,8 +150,10 @@ defineModule module, class Matrix extends AtomicBase
     sh:  -> point @shx, @shy
     xsv: -> point @sx, @shx
     ysv: -> point @sy, @shy
+    xsvMagnitude: -> sqrt @sx * @sx + @shx * @shx
+    ysvMagnitude: -> sqrt @sy * @sy + @shy * @shy
     exactScale: -> @_exactScale ||= point @xsv.magnitude, @ysv.magnitude
-    exactScaler: -> @_exactScaler ||= @exactScale.average()
+    exactScaler: -> @_exactScaler ||= (@getXsvMagnitude() + @getYsvMagnitude()) / 2
     inv: -> @invert()
     locationX: -> @tx
     locationY: -> @ty
