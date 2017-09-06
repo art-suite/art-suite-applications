@@ -465,6 +465,10 @@ module.exports = class Color extends AtomicBase
       hexString(@s256) +
       hexString(@b256)
 
+    autoRgbaHexString: ->
+      if colorFloatEq(1, @a) then   @getHexString()
+      else                          @rgbaHexString
+
     rgbaHexString: ->
       "#" + @getRawRgbaHexString()
 
