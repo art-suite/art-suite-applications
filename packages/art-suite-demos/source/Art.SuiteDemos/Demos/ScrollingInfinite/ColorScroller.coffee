@@ -24,7 +24,6 @@ defineModule module, ->
 
       Element
         size:     ww:1, h:160
-        animate:  to: size: ww:1, h:height
         key:      key
         on:       pointerClick: @click
 
