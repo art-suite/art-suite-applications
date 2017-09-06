@@ -138,14 +138,17 @@ module.exports = suite:
     test "exactScale identity matrix", ->
       m = new Matrix
       assert.eq m.exactScaler, 1
+      assert.floatEq m.exactScaler, m.exactScale.average()
 
     test "exactScale rotated matrix", ->
       m = Matrix.rotate Math.PI / 4
       assert.floatEq m.exactScaler, 1
+      assert.floatEq m.exactScaler, m.exactScale.average()
 
     test "exactScale scaled, rotated matrix", ->
       m = Matrix.scale(1.5).rotate Math.PI / 4
       assert.floatEq m.exactScaler, 1.5
+      assert.floatEq m.exactScaler, m.exactScale.average()
 
     test "transformVector", ->
       a = point 2, 3
