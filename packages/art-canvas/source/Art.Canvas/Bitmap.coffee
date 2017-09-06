@@ -148,6 +148,17 @@ module.exports = class Bitmap extends BitmapBase
       @_context.restore()
       @_clippingArea = previousClippingArea
 
+  # returns lastClippingInfo
+  openClipping: (area, drawMatrix) ->
+    @_context.save()
+    lastClippingInfo = @_clippingArea
+    @setClippingArea area, drawMatrix
+    lastClippingInfo
+
+  closeClipping: (lastClippingInfo) ->
+    @_context.restore()
+    @_clippingArea = lastClippingInfo
+
   # set all pixels to exactly the specified color
   # signatures:
   #   () -> clr == "#0000"
@@ -178,6 +189,8 @@ module.exports = class Bitmap extends BitmapBase
   #     the lower-right corner is floored
   strokeRectangle: (where, rectangle, options = emptyOptions) ->
     r = rect rectangle
+    {radius} = options
+    {_context} = @
 
     if @shouldPixelSnap where
       lineWidth = options.lineWidth || 1
@@ -191,13 +204,15 @@ module.exports = class Bitmap extends BitmapBase
 
       r = r.grow grow if !floatEq0 grow
 
-    if options.radius
-      @strokeShape where, options, =>
-        Paths.roundedRectangle @_context, r, min options.radius, r.w/2, r.h/2
-    else
-      if @_setupDraw where, options, true
-        @_context.strokeRect r.x, r.y, r.w, r.h
-        @_cleanupDraw options
+    if @_setupDraw where, options, true
+      if radius > 0 || isPlainObject radius
+        _context.beginPath()
+        Paths.roundedRectangle _context, r, radius
+        _context.stroke()
+
+      else
+        _context.strokeRect r.x, r.y, r.w, r.h
+      @_cleanupDraw options
     @
 
   strokeShape: (where, options, pathFunction) ->
