@@ -13,10 +13,14 @@ defineModule module, ->
       pointerIsDown:  false
       dragOffset:     point()
 
+    setHover: (bool) ->
+      @setState "hover", bool
+      try (@hoverAction || @props.hoverAction)? bool
+
     @property "pointerDownAt"
 
-    mouseIn:            -> @setState hover: true
-    mouseOut:           -> @setState hover: false
+    mouseIn:            -> @setHover true
+    mouseOut:           -> @setHover false
     pointerDownHandler: -> @setState pointerIsDown: true
 
     pointerUp:          -> @setState pointerIsDown: false
