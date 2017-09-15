@@ -102,7 +102,7 @@ module.exports = class Bitmap extends BitmapBase
 
   initFromImage: (image) ->
     # log "Canvas.Bitmap: initFromImage - keep it an HTMLImageElement"
-    @_size = point image.width, image.height
+    @_size = point image.naturalWidth || image.width, image.naturalHeight || image.height
     @_htmlImageElement = image
 
   @setter

@@ -157,8 +157,8 @@ module.exports = class BitmapBase extends BaseClass
   initFromImage: (image) ->
     # in chrome, HTMLImageElements are much faster to draw FROM than CanvasElements
     # we should support "optimized" Art.Bitmaps (which can't be drawn to because they are HTMLImageElements)
-    # console.log "BitmapBase: initFromImage #{image.width}, #{image.height}"
-    @_size = point image.width, image.height
+    @_size = point image.naturalWidth || image.width, image.naturalHeight || image.height
+    # console.log "BitmapBase: initFromImage #{image.width}, #{image.height}, naturals: #{image.naturalWidth}, #{image.naturalHeight}, size: #{@_size}"
     @initNewCanvas @size
     @drawBitmap point(), image
 
