@@ -27,21 +27,27 @@ defineModule module, class FontLoader
       object is keys -> true or false for which fonts have and havenot been loaded
   ###
   @allFontsLoaded: (fonts) ->
-    timeoutRemaining = initialTimeoutRemaining = 1000
+    timeExpired = 0
     new Promise (resolve, reject) ->
       testFonts = ->
-        # if initialTimeoutRemaining - timeoutRemaining >= 100
-        #   # font taking more than 100ms to load
-        #   log.warn formattedInspect FontLoader: allFontsLoaded: {fonts, waited: initialTimeoutRemaining - timeoutRemaining}
+        try
+          verbose = timeExpired >= 1000 && timeExpired % 1000 == 0
 
-        if FontLoader.allFontsLoadedSync fonts
-          resolve object fonts, -> true
-        else if timeoutRemaining <= 0
-          reject new Error "timeout loading fonts: #{formattedInspect fonts}"
-        else
-          # log "waiting for fonts: #{formattedInspect fonts}"
-          timeoutRemaining -= 25
-          timeout 25, testFonts
+          if FontLoader.allFontsLoadedSync fonts, verbose
+            if timeExpired >= 100
+              log.warn formattedInspect FontLoader: success: milliseconds: timeExpired, fonts: Object.keys fonts
+            resolve object fonts, -> true
+          # else if timeoutRemaining <= 0
+          #   reject new Error "timeout loading fonts: #{formattedInspect fonts}"
+          else
+            if verbose
+              log.warn formattedInspect FontLoader: waiting: milliseconds: timeExpired, fonts: Object.keys fonts
+
+            # log "waiting for fonts: #{formattedInspect fonts}"
+            timeExpired += 25
+            timeout 25, testFonts
+        catch e
+          log {e}
 
       testFonts()
     .then =>
@@ -49,16 +55,16 @@ defineModule module, class FontLoader
 
   # IN: see 'fonts' above
   # OUT: immediatly returns T/F
-  @allFontsLoadedSync: (fonts) ->
-    for k, loaded of FontLoader.fontsLoadedSync fonts
+  @allFontsLoadedSync: (fonts, verbose) ->
+    for k, loaded of FontLoader.fontsLoadedSync fonts, verbose
       return false unless loaded
     true
 
   # IN: see 'fonts' above
   # OUT: promise.then (loadedMap) ->
   #   IN: ladedMap: object keys are from fonts, values are true/false if that font is loaded
-  @fontsLoadedSync: (fonts) ->
-    object fonts, FontLoader.fontLoaded
+  @fontsLoadedSync: (fonts, verbose) ->
+    object fonts, (fontName, fontFamily) -> FontLoader.fontLoaded fontName, fontFamily, verbose
 
   # IN: see 'fonts' above
   @loadFonts: (fonts) ->
@@ -96,7 +102,7 @@ defineModule module, class FontLoader
   #   log getTestImageData: {options, text, bitmap: bitmap.clone()}
   #   bitmap.imageData.data
 
-  loadedWidthBasedTest = (bitmap, fontFamily, loadedTestText, expectedTestWidth) ->
+  loadedWidthBasedTest = (bitmap, fontFamily, loadedTestText, expectedTestWidth, verbose) ->
     {context} = bitmap
     context.font = "12px sans serif"
     referenceWidth = context.measureText(loadedTestText).width
@@ -104,7 +110,7 @@ defineModule module, class FontLoader
     context.font = "12px #{fontFamily}, sans serif"
     testWidth = context.measureText(loadedTestText).width
 
-    log "loading #{fontFamily}": {testWidth, referenceWidth, expectedTestWidth}
+    verbose && log "loading #{fontFamily}": {fontFamily, loadedTestText, expectedTestWidth, testWidth, referenceWidth}
 
     if expectedTestWidth?
       Math.abs(expectedTestWidth - testWidth) < .9 &&
@@ -114,11 +120,11 @@ defineModule module, class FontLoader
 
   loadingTestBitmap = null
   # returns true if font is loaded
-  @fontLoaded: (fontOptions, fontFamily) ->
+  @fontLoaded: (fontOptions, fontFamily, verbose) ->
     {loadedTestText, expectedTestWidth} = fontOptions
     throw new Error "loadedTestText required" unless loadedTestText?
 
     loadingTestBitmap ||= new Bitmap point 1
-    loadedWidthBasedTest loadingTestBitmap, fontFamily, loadedTestText, expectedTestWidth
+    loadedWidthBasedTest loadingTestBitmap, fontFamily, loadedTestText, expectedTestWidth, verbose
 
   @_cleanup: -> loadingTestBitmap = null
