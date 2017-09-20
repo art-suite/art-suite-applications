@@ -11,6 +11,7 @@ defineModule module, ->
     @stateFields
       hover: false
       pointerIsDown:  false
+      mouseIsIn:      false
       dragOffset:     point()
 
     setHover: (bool) ->
@@ -19,11 +20,10 @@ defineModule module, ->
 
     @property "pointerDownAt"
 
-    mouseIn:            -> @setHover true
-    mouseOut:           -> @setHover false
-    pointerDownHandler: -> @setState pointerIsDown: true
-
-    pointerUp:          -> @setState pointerIsDown: false
+    mouseIn:            -> @setState(mouseIsIn: true);      @setHover true
+    mouseOut:           -> @setState(mouseIsIn: false);     @setHover @pointerIsDown
+    pointerDownHandler: -> @setState(pointerIsDown: true);  @setHover true
+    pointerUp:          -> @setState(pointerIsDown: false); @setHover @mouseIsIn
 
     @getter
       pointerDown: -> @pointerIsDown
