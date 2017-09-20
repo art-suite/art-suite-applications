@@ -601,18 +601,17 @@ defineModule module, -> class Component extends PropFieldsMixin StateFieldsMixin
   emptyArray = []
   _renderCaptureRefs: ->
     ret = null
-    timePerformance "reactRender", =>
-      globalCount "ReactComponent_Rendered"
-      VirtualNode.assignRefsTo = @refs = {}
-      Component.resetCreatedComponents()
+    globalCount "ReactComponent_Rendered"
+    VirtualNode.assignRefsTo = @refs = {}
+    Component.resetCreatedComponents()
 
-      # log "render component: #{@className}"
+    # log "render component: #{@className}"
 
-      ret = @render()
-      throw new Error "#{@className}: render must return a VirtualNode. Got: #{inspect ret}" unless ret instanceof VirtualNode
+    ret = @render()
+    throw new Error "#{@className}: render must return a VirtualNode. Got: #{inspect ret}" unless ret instanceof VirtualNode
 
-      @subComponents = Component.createdComponents || emptyArray
-      VirtualNode.assignRefsTo = null
+    @subComponents = Component.createdComponents || emptyArray
+    VirtualNode.assignRefsTo = null
 
     ret
 
@@ -633,6 +632,8 @@ defineModule module, -> class Component extends PropFieldsMixin StateFieldsMixin
 
   # renders the component and updates the Virtual-AIM as needed.
   _reRenderComponent: ->
+
+    oldRefs = @refs
 
     newRenderResult = @_renderCaptureRefs()
 
@@ -721,26 +722,21 @@ defineModule module, -> class Component extends PropFieldsMixin StateFieldsMixin
   #   We could also enable mixins this way.
   _componentWillReceiveProps: (newProps) ->
     return if defaultComponentWillReceiveProps == @componentWillReceiveProps
-    timePerformance "reactLC", =>
-      @componentWillReceiveProps newProps
+    @componentWillReceiveProps newProps
 
   _preprocessProps: (props) ->
     props = super props # triggers PropFieldsMixin - which will include any default values from @propFields
     return props if defaultPreprocessProps == @preprocessProps
-    timePerformance "reactLC", =>
-      props = @preprocessProps props
-    props
+    @preprocessProps props
+
 
   _preprocessState: (state) ->
     return state if defaultPreprocessState == @preprocessState
-    timePerformance "reactLC", =>
-      state = @preprocessState state
-    state
+    @preprocessState state
 
   _componentWillMount: ->
     return if defaultComponentWillMount == @componentWillMount
-    timePerformance "reactLC", =>
-      @componentWillMount()
+    @componentWillMount()
 
   _componentDidHotReload: ->
     @bindFunctionsToInstance()
@@ -748,22 +744,18 @@ defineModule module, -> class Component extends PropFieldsMixin StateFieldsMixin
 
   _componentWillUnmount: ->
     return if  defaultComponentWillUnmount == @componentWillUnmount
-    timePerformance "reactLC", =>
-      @componentWillUnmount()
+    @componentWillUnmount()
 
   _componentWillUpdate: (newProps, newState)->
     return unless defaultComponentWillUpdate
-    timePerformance "reactLC", =>
-      @componentWillUpdate newProps, newState
+    @componentWillUpdate newProps, newState
 
   _componentDidMount: ->
     return if defaultComponentDidMount == @componentDidMount
     @onNextReady =>
-      timePerformance "reactLC", =>
-        @componentDidMount()
+      @componentDidMount()
 
   _componentDidUpdate: (oldProps, oldState)->
     return if defaultComponentDidUpdate == @componentDidUpdate
     @onNextReady =>
-      timePerformance "reactLC", =>
-        @componentDidUpdate oldProps, oldState
+      @componentDidUpdate oldProps, oldState
