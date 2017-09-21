@@ -24,7 +24,7 @@ defineModule module, ->
   lumaWeight        = 12
   countWeight       = 1
 
-  lumaDarkMin       = 0
+  lumaDarkMin       = 0.1
   lumaDarkTarget    = 0.3
   lumaDarkMax       = 0.4
 
@@ -34,15 +34,15 @@ defineModule module, ->
 
   lumaLightMin      = 0.6
   lumaLightTarget   = 0.85
-  lumaLightMax      = 1
+  lumaLightMax      = 1.01
 
   satMutedMin       = 0
   satMutedTarget    = 0.15
-  satMutedMax       = 0.20
+  satMutedMax       = 0.4
 
   satVibrantMin     = 0.4
   satVibrantTarget  = 1
-  satVibrantMax     = 1
+  satVibrantMax     = 1.01
 
   colorTolerences =
     darkMuted:      targetLuma: lumaDarkTarget,    minLuma: lumaDarkMin,     maxLuma: lumaDarkMax,   targetSat: satMutedTarget,   minSat: satMutedMin,    maxSat: satMutedMax
@@ -52,7 +52,7 @@ defineModule module, ->
     vibrant:        targetLuma: lumaNormalTarget,  minLuma: lumaNormalMin,   maxLuma: lumaNormalMax, targetSat: satVibrantTarget, minSat: satVibrantMin,  maxSat: satVibrantMax
     lightVibrant:   targetLuma: lumaLightTarget,   minLuma: lumaLightMin,    maxLuma: lumaLightMax,  targetSat: satVibrantTarget, minSat: satVibrantMin,  maxSat: satVibrantMax
 
-  getMatchQuality = (saturation, targetSat, luma, targetLuma, count, maxCount) ->
+  getMatchQuality = ({targetSat, targetLuma}, saturation, luma, count, maxCount) ->
     saturationWeight * invertDiff(saturation, targetSat ) +
     lumaWeight       * invertDiff(luma,       targetLuma) +
     countWeight      * count / maxCount
@@ -89,8 +89,8 @@ defineModule module, ->
         minSat
         maxSat
       } = tolerences
-      (minLuma <= @luma <= maxLuma) &&
-      (minSat <= @sat <= maxSat)
+      (minLuma <= @luma < maxLuma) &&
+      (minSat <= @sat < maxSat)
 
   class Vibrant extends BaseObject
 
@@ -131,6 +131,7 @@ defineModule module, ->
           new Swatch vbox.color, count
 
       # log {@_inputSwatches}
+      log inputColors: (s.color for s in @_inputSwatches)
 
     @getter
       debugSwatches: ->
@@ -146,29 +147,63 @@ defineModule module, ->
           when: (swatch) -> swatch.qualifiesFor tolerences
           with: (swatch) -> swatch.color
 
-        if variation = @_findColorVariation name
-          @_selectSwatch name, variation
+        if @_selectSwatch name, variation = @_findColorVariation name
+          @_selectSwatch "#{name}2", @_findMaxDifferentVariation name, variation
+
+    _findMaxDifferentVariation: (name, selectedVariation) ->
+      tolerences = colorTolerences[name]
+      maxHueDifference = 0
+      maxLumaDifference = 0
+      bestLumaSwatch = null
+      bestHueSwatch = null
+
+      for swatch in @_inputSwatches when !@_isSelected(swatch) && swatch.qualifiesFor tolerences
+
+        if maxHueDifference < hueDiff = selectedVariation.color.getHueDifference swatch.color
+          bestHueSwatch = swatch
+          maxHueDifference = hueDiff
+
+        if maxLumaDifference < lumaDiff = Math.abs selectedVariation.luma - swatch.luma
+          bestLumaSwatch = swatch
+          maxLumaDifference = lumaDiff
+
+      if maxHueDifference > .05
+        # log {
+        #   name
+        #   maxHueDifference
+        #   "#{name}": {color: selectedVariation.color, hue: selectedVariation.color.hue}
+        #   "#{name}2": {color: bestHueSwatch.color, hue: bestHueSwatch.color.hue}
+        # }
+        bestHueSwatch
+
+      else if maxLumaDifference > .05
+        # log {
+        #   maxLumaDifference
+        #   "#{name}": {color: selectedVariation.color, hue: selectedVariation.color.hue}
+        #   "#{name}2": {color: bestLumaSwatch.color, hue: bestLumaSwatch.color.hue}
+        # }
+        bestLumaSwatch
+      else
+        # log "#{name}": {color: selectedVariation.color, hue: selectedVariation.color.hue}
+        null
 
     _selectSwatch: (name, swatch) ->
-      @_selectedSwatches[name] = swatch
-      @_selectedSwatchesList.push swatch
+      if swatch
+        @_selectedSwatches[name] = swatch
+        @_selectedSwatchesList.push swatch
+      swatch
 
     _isSelected: (swatch) -> swatch in @_selectedSwatchesList
 
     _findColorVariation: (name) ->
-      {targetLuma, minLuma, maxLuma, targetSat, minSat, maxSat} = colorTolerences[name]
+      tolerences = colorTolerences[name]
       bestSwatch = null
       maxQuality = -1
 
-      for swatch in @_inputSwatches when !@_isSelected swatch
+      for swatch in @_inputSwatches when !@_isSelected(swatch) && swatch.qualifiesFor tolerences
         {sat, luma} = swatch
-
-        if minSat <= sat <= maxSat and minLuma <= luma <= maxLuma
-
-          if maxQuality < quality = getMatchQuality sat, targetSat, luma, targetLuma, swatch.count, @_maxCount
-            bestSwatch = swatch
-            maxQuality = quality
-
-          # log {name, quality, swatch}
+        if maxQuality < quality = getMatchQuality tolerences, sat, luma, swatch.count, @_maxCount
+          bestSwatch = swatch
+          maxQuality = quality
 
       bestSwatch
