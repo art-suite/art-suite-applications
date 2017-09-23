@@ -11,4 +11,9 @@ import &ArtStandardLib
   @getter
     logTime:    -> dateFormat :UTC:yyyy-mm-dd_HH-MM-ss
     verbose:    -> @_verbose || @options?.verbose
-    logHeader:  -> "#{@logTime} #{@class.getName()}"
+    logHeader:  ->
+      compactFlatten []
+        @logTime
+        @workerId && "worker#{@workerId}"
+        @class.getName()
+      .join ' '
