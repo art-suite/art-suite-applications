@@ -106,11 +106,11 @@ class PromiseHandler extends &LoggingMixin &ArtClassSystem.BaseClass
   # PRIVATE
   ###################
   _encodeJson: (responseHeaders, responseData) ->
-    responseHeaders[:Content-Type] = :application/json
+    responseHeaders[:Content-Type] = "" application/json; charset=UTF-8
     JSON.stringify responseData
 
   _encodeHtml: (responseHeaders, responseData) ->
-    responseHeaders[:Content-Type] = :text/html
+    responseHeaders[:Content-Type] = "" text/html; charset=UTF-8
     if isString responseData
       responseData
     else
@@ -127,7 +127,7 @@ class PromiseHandler extends &LoggingMixin &ArtClassSystem.BaseClass
         </body></html>
 
   _encodePlain: (responseHeaders, responseData) ->
-    responseHeaders[:Content-Type] = :text/plain
+    responseHeaders[:Content-Type] = "" text/plain; charset=UTF-8
     if isString responseData
       responseData
     else
