@@ -66,12 +66,18 @@ class Server extends &LoggingMixin &ArtClassSystem.BaseClass
       Neptune: Neptune.getVersions()
       @options
 
+    @log ArtExpressServer: {}
+      @options
+      process.env.WEB_CONCURRENCY
+      process.env.WEB_MEMORY
+      process.env.MEMORY_AVAILABLE
+      process.env.PORT
+
+    numWorkers = numWorkers | 0 if numWorkers?
+
     if numWorkers > 1
       @log start: throng: workers: numWorkers
-      &throng
-        start:    fastBind @_startOneServer, @
-        workers:  numWorkers
-        lifetime: Infinity
+      &throng numWorkers, fastBind @_startOneServer, @
     else
       @_startOneServer()
 
@@ -91,13 +97,16 @@ class Server extends &LoggingMixin &ArtClassSystem.BaseClass
           options.handlers
     else options
 
-  _startOneServer: ->
+  _startOneServer: (@workerId) ->
 
-    {port, handlers, commonResponseHeaders} = @options
+    {port, handlers, middleware, commonResponseHeaders} = @options
     staticOptions = @options.static
 
     app = &express()
     app.use &compression()
+
+    each mw in if middleware is Array then middleware else [middleware]
+      app.use mw
 
     each handler in if isArray handlers then handlers else [handlers]
       app.use handler.getMiddleware @options
@@ -105,7 +114,10 @@ class Server extends &LoggingMixin &ArtClassSystem.BaseClass
     if staticOptions
       app.use &express.static staticOptions.root, merge
         maxAge:       3600 * 24 * 7 # 1 week
-        setHeaders: (response) ->
+        setHeaders: (response, path) ->
+          switch &path.extname(path).toLowerCase()
+            when :.js then response.setHeader "Content-Type", "application/javascript; charset=UTF-8"
+
           each v, k from merge commonResponseHeaders, staticOptions.headers
             response.setHeader k, v
         staticOptions
