@@ -17,9 +17,10 @@ require 'art-ery'
 
 module.exports = class Server
   @start: (options) ->
-    {loadPipelines} = options
+    {loadPipelines, postConfigInit} = options
     Promise.then -> (require './Node').init options
-    .then -> loadPipelines?()
+    .then loadPipelines
+    .then postConfigInit
     .then ->
       (require 'art-ery/Server').start merge options,
         numWorkers:   process.env.WEB_CONCURRENCY || 1
