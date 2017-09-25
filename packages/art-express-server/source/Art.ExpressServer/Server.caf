@@ -62,16 +62,16 @@ class Server extends &LoggingMixin &ArtClassSystem.BaseClass
         manyOptions...
 
     @logVerbose start: {}
-      env:      object v, k from process.env when k.match /^art/
+      @options
+      env:
+        merge
+          object v, k from process.env when k.match /^art/
+          {}
+          process.env.WEB_CONCURRENCY
+          process.env.WEB_MEMORY
+          process.env.MEMORY_AVAILABLE
+          process.env.PORT
       Neptune: Neptune.getVersions()
-      @options
-
-    @log ArtExpressServer: {}
-      @options
-      process.env.WEB_CONCURRENCY
-      process.env.WEB_MEMORY
-      process.env.MEMORY_AVAILABLE
-      process.env.PORT
 
     numWorkers = numWorkers | 0 if numWorkers?
 
@@ -105,10 +105,10 @@ class Server extends &LoggingMixin &ArtClassSystem.BaseClass
     app = &express()
     app.use &compression()
 
-    each mw in if middleware is Array then middleware else [middleware]
+    each mw in compactFlatten [middleware]
       app.use mw
 
-    each handler in if isArray handlers then handlers else [handlers]
+    each handler in compactFlatten [handlers]
       app.use handler.getMiddleware @options
 
     if staticOptions
