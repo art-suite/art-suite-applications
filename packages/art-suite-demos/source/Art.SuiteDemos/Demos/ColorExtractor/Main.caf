@@ -66,7 +66,7 @@ class MyComponent extends PointerActionsMixin Component
         margin: layoutWeight
         childrenAlignment: "center"
         childrenLayout: "row"
-        array colorInfo.colors, (v, k) =>
+        array v, k from colorInfo.colors
           Element
             cursor: :pointer
             padding: layoutWeight

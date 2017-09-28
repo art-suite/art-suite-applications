@@ -6,10 +6,10 @@ class Button extends PointerActionsMixin Component
     enabled = !!@props.action
 
     Element
-      on: @pointerHandlers
-      opacity: if enabled then 1 else .5
-      animators: opacity: true
-      enabled && cursor: :pointer
+      on:         @pointerHandlers
+      opacity:    if enabled then 1 else .5
+      animators:  opacity: true
+      cursor:     enabled && :pointer
 
       RectangleElement
         color: &StyleProps.getButtonBackgoundColor {enabled, @pointerIsDown, @hover}
