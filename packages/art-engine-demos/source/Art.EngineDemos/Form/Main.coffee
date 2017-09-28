@@ -6,7 +6,7 @@ Canvas = require 'art-canvas'
 {point, color} = Atomic
 {inspect, log, timeout, nextTick, merge} = Foundation
 {Forms, Element, CanvasElement, TextElement, FillElement, RectangleElement} = Engine
-{TextInput} = Forms
+{TextInputElement} = Forms
 
 module.exports = ->
 
@@ -135,7 +135,7 @@ module.exports = ->
             location: ps: .5
             color: "red"
             axis: point .5
-          input = new TextInput
+          input = new TextInputElement
             size: ww:1, hh:1
             value: "orange"
             align: "center"
