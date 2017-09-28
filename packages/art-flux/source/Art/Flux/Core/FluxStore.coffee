@@ -166,6 +166,11 @@ defineModule module, class FluxStore extends Epoch
     entry = @_getEntry modelName, key
     unless entry
       entry = @_addEntry modelName, key
+
+      unless initialFluxRecord
+        if data = global.artFluxInit?[modelName]?[key]
+          initialFluxRecord = {status: success, data}
+
       if initialFluxRecord
         entry.setFluxRecord initialFluxRecord
       else

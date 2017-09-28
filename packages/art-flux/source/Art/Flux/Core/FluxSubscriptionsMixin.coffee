@@ -28,10 +28,11 @@ defineModule module, ->
     subscribe OR update a subscription
 
     IN:
-      subscriptionKey: string (REQUIRED)
+      subscriptionKey: string (REQUIRED - if no stateField OR modelName)
         Provide a unique key for each active subscription.
         To update the suscription, call @subscribe again with the same subscriptionKey.
         To unsubscribe, call @unsubscribe with the same subscriptionKey.
+        DEFAULT: stateField || modelName
 
       modelName: lowerCamelCase string
         if modelName is null/undefined then
