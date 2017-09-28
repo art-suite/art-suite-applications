@@ -444,7 +444,7 @@ module.exports = class Color extends AtomicBase
     premultiplied: -> new Color @r * @a, @g * @a, @b * @a, @a
     demultiplied: -> new Color @r / @a, @g / @a, @b / @a, @a
 
-    cssString: -> "rgba(" + [@r256, @g256, @b256, @aClamped].join(', ') + ")"
+    cssString: -> "rgba(" + [@r256, @g256, @b256, @aClamped.toFixed 3].join(', ') + ")"
     rgbaString: -> "rgbColor(" + [@r256, @g256, @b256, @a256].join('/255, ') + "/255)"
 
     hexString: ->
@@ -486,6 +486,16 @@ module.exports = class Color extends AtomicBase
     @_htmlColorString ||=
     if colorFloatEq(1, @a) then @getHexString()
     else                         @getCssString()
+
+
+  # OUT: number between -.5 and .5
+  getHueDelta: (c) ->
+    d = @hue - c.hue
+    if d < -.5 then d + 1
+    else if d > .5 then d - 1
+    else d
+
+  getHueDifference: (c) -> Math.abs @getHueDelta c
 
   @getter
     plainObjects: -> if @a < 1 then @rgbaHexString else @hexString
