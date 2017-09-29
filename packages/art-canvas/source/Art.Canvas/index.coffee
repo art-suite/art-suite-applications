@@ -3,6 +3,7 @@
 
 module.exports = require './namespace'
 module.exports
+.includeInNamespace require './Canvas'
 .addModules
   Bitmap:            require './Bitmap'           
   BitmapBase:        require './BitmapBase'       

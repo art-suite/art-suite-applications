@@ -19,6 +19,8 @@ toChannelNumberMap = 0:0, 1:1, 2:2, 3:3, r:0, g:1, b:2, a:3, red:0, green:1, blu
 alphaChannelOffset = 3
 pixelStep = 4
 
+{HTMLImageElement, HTMLCanvasElement} = global
+
 quarterPoint = point 1/4
 halfPoint = point 1/2
 
@@ -29,6 +31,9 @@ module.exports = class BitmapBase extends BaseClass
 
   defaultColor: rgbColor "black"
   defaultColorString: "black"
+
+  @isImage: isImage = (e) -> e instanceof HTMLImageElement
+  @isCanvas: isCanvas = (e) -> e instanceof HTMLCanvasElement
 
   constructor: (a, b) ->
     super
@@ -45,10 +50,10 @@ module.exports = class BitmapBase extends BaseClass
 
     BitmapBase.bitmapsCreated++
     a = point a, b if b
-    if      a instanceof BitmapBase         then @populateClone @
-    else if a instanceof HTMLCanvasElement  then @initFromCanvas a
-    else if a instanceof HTMLImageElement   then @initFromImage a
-    else                                         @initNewCanvas point a, b
+    if      a instanceof BitmapBase then @populateClone @
+    else if isCanvas a              then @initFromCanvas a
+    else if isImage a               then @initFromImage a
+    else                                 @initNewCanvas point a, b
 
   @getter
     hasAlpha: ->
