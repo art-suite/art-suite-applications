@@ -444,7 +444,7 @@ module.exports = class Color extends AtomicBase
     premultiplied: -> new Color @r * @a, @g * @a, @b * @a, @a
     demultiplied: -> new Color @r / @a, @g / @a, @b / @a, @a
 
-    cssString: -> a = @aClamped; "rgba(" + [@r256, @g256, @b256, if a == a | 0 then a else a.toFixed 3].join(', ') + ")"
+    cssString: -> a = @aClamped; "rgba(" + [@r256, @g256, @b256, a.toFixed(3).replace(/\.?0+$/, '')].join(', ') + ")"
     rgbaString: -> "rgbColor(" + [@r256, @g256, @b256, @a256].join('/255, ') + "/255)"
 
     hexString: ->
