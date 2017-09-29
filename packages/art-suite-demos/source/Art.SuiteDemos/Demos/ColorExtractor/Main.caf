@@ -65,7 +65,7 @@ class MyComponent extends PointerActionsMixin Component
         size: ww:1, hch:1
         margin: layoutWeight
         childrenAlignment: "center"
-        childrenLayout: "row"
+        childrenLayout: "flow"
         array v, k from colorInfo.colors
           Element
             cursor: :pointer
