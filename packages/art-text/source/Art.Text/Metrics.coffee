@@ -128,7 +128,7 @@ defineModule module, ->
           trailingSpace = blankString
           trailingSpacePixelWidth = 0
 
-      eachMatch text, /(\s*[^\s]+)(\s*)/g, (result) ->
+      eachMatch text, /(\s*[^-\s]+-*|\s*-+)(\s*)/g, (result) ->
         wordStart = result.index
         [_, word, space] = result
         wordLength = word.length
