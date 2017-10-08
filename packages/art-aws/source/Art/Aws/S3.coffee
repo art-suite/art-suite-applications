@@ -1,5 +1,5 @@
 RestClient = require 'art-rest-client'
-{log, present, defineModule, parseUrl, peek, Promise,merge} = require 'art-standard-lib'
+{isString, log, present, defineModule, parseUrl, peek, Promise,merge} = require 'art-standard-lib'
 
 # npm querystring doesn't implement escape and unescape, which aws4 needs
 QuertyString = require 'querystring'
@@ -31,9 +31,11 @@ defineModule module, class S3 extends BaseClass
         response: response
 
 
-    @delete: (url) =>
-      {bucket, key} = @parseS3Url url
-      log s3Delete: {bucket, key, url}
+    @delete: (urlOrBucketKey) =>
+      if isString
+        {bucket, key} = @parseS3Url urlOrBucketKey
+      else
+        {bucket, key} = urlOrBucketKey
       Promise.withCallback (callback) =>
         @getS3().deleteObject merge(
             Bucket: @_normalizeBucket bucket
