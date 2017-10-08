@@ -33,7 +33,7 @@ defineModule module, class S3 extends BaseClass
 
     @delete: (url) =>
       {bucket, key} = @parseS3Url url
-      # log s3Delete: {bucket, key}
+      log s3Delete: {bucket, key, url}
       Promise.withCallback (callback) =>
         @getS3().deleteObject merge(
             Bucket: @_normalizeBucket bucket
@@ -54,7 +54,7 @@ defineModule module, class S3 extends BaseClass
     @parseS3Url: (url) =>
       {host, pathName} = parseUrl url
       key: peek pathName.split "/"
-      bucket: @_denormalizeBucket host.split(".")[0]
+      bucket: @_denormalizeBucket host.split(".s3.amazonaws")[0]
 
     @putSdk: ({bucket, key, body}) ->
       Promise.withCallback (callback) => @getS3().putObject
