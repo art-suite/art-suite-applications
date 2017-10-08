@@ -170,6 +170,7 @@ defineModule module, ->
         trailingSpacePixelWidth = whiteSpacePixelWidth
 
       nextLine()
+      lines[0]?.firstFragment = true
       lines
 
     ##################

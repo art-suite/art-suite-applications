@@ -37,6 +37,7 @@ defineModule module, class TextLayoutFragment extends BaseClass
         @drawAreaW
         @drawAreaH
       ) ->
+    @firstFragment = false
     @layoutX = @layoutY = 0
     @alignmentOffsetX = 0
     @alignmentOffsetY = 0

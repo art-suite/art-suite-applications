@@ -31,6 +31,7 @@ module.exports = class Layout extends BaseObject
   @defaultText: defaultText = ""
   @defaultLayoutOptions: defaultLayoutOptions =
     leading:    1.25
+    paragraphLeading: null # set to override leading for ever line started with '\n'
     align:      point "left"
     layoutMode: "textualBaseline"
     overflow:   "ellipsis" # "visible", "clipped" or "ellipsis"
@@ -67,6 +68,7 @@ module.exports = class Layout extends BaseObject
     @_ellipsis = @_overflow == "ellipsis"
     @_align = point layoutOptions.align
     @_leading = layoutOptions.leading
+    @_paragraphLeading = layoutOptions.paragraphLeading
     # @_vAlign = layoutOptions.vAlign
     @_maxLines = layoutOptions.maxLines
     @_layoutMode = layoutOptions.layoutMode
@@ -84,6 +86,7 @@ module.exports = class Layout extends BaseObject
     fontSize:       -> @_fontOptions.fontSize
 
     leading:        -> @_leading
+    paragraphLeading:-> @_paragraphLeading
     align:          -> @_align
     layoutMode:     -> @_layoutMode
 
@@ -241,6 +244,7 @@ module.exports = class Layout extends BaseObject
     offsetX = 0
     offsetY = 0
     effectiveLeading = @getFontSize() * @getLeading()
+    effectiveParagraphLeadingDelta = ((@getParagraphLeading() ? @getLeading()) * @getFontSize()) - effectiveLeading
 
     allFragments = @_fragments
 
@@ -248,6 +252,8 @@ module.exports = class Layout extends BaseObject
       @_fragments = @_fragments.slice 0, _maxLines
 
     for fragment, i in @_fragments
+      if i > 0 && fragment.firstFragment
+        offsetY += effectiveParagraphLeadingDelta
 
       fragment.move offsetX, offsetY
 

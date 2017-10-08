@@ -159,6 +159,14 @@ suite "Art.Text.Layout", ->
     log leading_2_00:layout.toBitmap()
     assert.eq (parseInt fragment.layoutArea.y for fragment in layout.fragments), [0, 32]
 
+  test "paragraphLeading", ->
+    layout = new Text.Layout "Testing one two three!\nParagraph 2.", {}, null, 100
+    log leading_1_25:layout.toBitmap()
+    assert.eq (parseInt fragment.layoutArea.y for fragment in layout.fragments), [0, 20, 40]
+    layout = new Text.Layout "Testing one two three!\nParagraph 2.", {}, paragraphLeading: 2, 100
+    log leading_2_00:layout.toBitmap()
+    assert.eq (parseInt fragment.layoutArea.y for fragment in layout.fragments), [0, 20, 52]
+
   test "layoutAreaWidth, align:'center' and drawArea", ->
     layout = new Text.Layout "hi", {}, align: "center", 300
     log "layout align center":layout.toBitmap()
