@@ -62,7 +62,9 @@ TODO:
 
 Vibrant    = require './Vibrant'
 
-{log, object, merge, toPlainObjects} = require 'art-foundation'
+{log, object, merge, toPlainObjects, isString, isArray
+currentSecond
+} = require 'art-standard-lib'
 
 {rgb256Color, rgbColor, point, Matrix} = require 'art-atomic'
 {Bitmap} = require 'art-canvas'
@@ -97,9 +99,23 @@ module.exports =
 
     colorMapBitmap.putImageData imageData
 
-  generatePreviewBitmap: ({colorMap})->
+  generatePreviewBitmap: generatePreviewBitmap = (colorInfo)->
+    if isString(colorInfo) && colorInfo.length == 54
+      colorMap = unpackColorMap colorInfo
+    else if isArray(colorInfo) && colorInfo.length == 9
+      colorMap = colorInfo
+    else
+      if colorInfo?.colorMap
+        return generatePreviewBitmap colorInfo.colorMap
+      throw new Error "invalid colorInfo"
+
     getColorMapBitmap(colorMap).scale previewBitmapScale
     .blur previewBitmapBlur
+
+  packColorMap: (colorMap) -> colorMap.join('').replace /#/g, ''
+  unpackColorMap: unpackColorMap = (colorMap) ->
+    "##{c}" for c in colorMap.match /[0-9a-f]{6}/g
+
 
   mipmapSize: mipmapSize = 64
 
@@ -122,13 +138,20 @@ module.exports =
       7 8 9
     colors: {} # named colors
   ###
-  extractColors: extractColors = (bitmap) ->
+  extractColors: extractColors = (bitmap, options) ->
     bitmap = bitmap.getMipmap mipmapSize
     {data} = bitmap.imageData
 
-    merge
+    startTime = currentSecond()
+    out = merge
       version:    version.split(".")[0] | 0
-      colorMap:   getColorMap bitmap
-      colors:     new Vibrant(data).colors
+      colorMap:   getColorMap bitmap unless options?.noColorMap
+      colors:     new Vibrant(data, options).colors
+
+    if options?.verbose
+      log
+        extractColors: out
+        milliseconds: (currentSecond() - startTime) * 1000 | 0
+    out
 
   extractColorsAsPlainObjects: (bitmap) => toPlainObjects extractColors bitmap

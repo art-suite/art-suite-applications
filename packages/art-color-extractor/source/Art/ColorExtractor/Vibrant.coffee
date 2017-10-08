@@ -94,7 +94,8 @@ defineModule module, ->
 
   class Vibrant extends BaseObject
 
-    constructor: (pixels, colorCount = 32, quality = 1) ->
+    constructor: (pixels, options = {}) ->
+      {colorCount = 32, quality = 1, @verbose} = options
       @_selectedSwatches = {}
       @_selectedSwatchesList = []
 
@@ -131,7 +132,7 @@ defineModule module, ->
           new Swatch vbox.color, count
 
       # log {@_inputSwatches}
-      log inputColors: (s.color for s in @_inputSwatches)
+      @verbose && log inputColors: (s.color for s in @_inputSwatches)
 
     @getter
       debugSwatches: ->
@@ -143,7 +144,7 @@ defineModule module, ->
 
     _generateVariationColors: ->
       for name, tolerences of colorTolerences
-        log "qualifying swatches for #{name}": array @_inputSwatches,
+        @verbose && log "qualifying swatches for #{name}": array @_inputSwatches,
           when: (swatch) -> swatch.qualifiesFor tolerences
           with: (swatch) -> swatch.color
 
