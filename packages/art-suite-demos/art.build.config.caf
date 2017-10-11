@@ -4,6 +4,7 @@ webpack:
   targets:
     Demos: {}
     HelloWorld: {}
+    HelloWorldForIE11: {}
 
 package:
   description: "See what ArtSuite can do."
