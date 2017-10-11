@@ -8,4 +8,7 @@ webpack:
   common: {}
 
   # each target's individual properties
-  targets: index: {}
+  targets:
+    Demos: {}
+    HelloWorld: {}
+    FullScreenHelloWorld: {}
