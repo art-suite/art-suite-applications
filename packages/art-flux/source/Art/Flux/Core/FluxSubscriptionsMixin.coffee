@@ -68,6 +68,12 @@ defineModule module, ->
 
       If there was already a subscription in this object with they same subscriptionKey,
       then @unsubscribe subscriptionKey will be called before setting up the new subscription.
+
+      NOTE:
+        updateCallback only gets called when fluxRecord changes. It will not be called with the
+        current value. HOWEVER, the current fluxRecord is returned from the subscribe call.
+
+        If you need to update anything based on the current value, use the return result.
     ###
     subscribe: (subscriptionKey, modelName, key, options) ->
 
