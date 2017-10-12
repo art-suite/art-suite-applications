@@ -12,10 +12,15 @@ React.addElementFactories = (elementClassNames) ->
 
 class React.VirtualElementArtEngine extends React.VirtualElement
 
+  elementTemp = null
+  addedOrChanged  = (k, v) -> elementTemp.setProperty k, v
+  removed         = (k, v) -> elementTemp.resetProperty k
+
   _updateElementProps: (newProps) ->
-    addedOrChanged  = (k, v) => @element.setProperty k, v
-    removed         = (k, v) => @element.resetProperty k
-    @_updateElementPropsHelper newProps, addedOrChanged, removed
+    elementTemp = @element
+    out = @_updateElementPropsHelper newProps, addedOrChanged, removed
+    elementTemp = null
+    out
 
   _setElementChildren: (childElements) -> @element.setChildren childElements
 
