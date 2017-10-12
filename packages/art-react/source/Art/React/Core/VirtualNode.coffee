@@ -102,6 +102,11 @@ defineModule module, class VirtualNode extends BaseObject
     # return true if an existing prop changed
     for k, v of @props
       _propsLength++
+      # global.propsEq = (global.propsEq | 0) + 1 if propsEq v, newProps[k]
+      # global.justEq = (global.justEq | 0) + 1 if v == newProps[k]
+      # global.testEq = (global.testEq | 0) + 1
+
+      # return true unless v == newProps[k] # propsEq - seems to be more overhead than its worth
       return true unless propsEq v, newProps[k]
     @_propsLength = _propsLength
 
