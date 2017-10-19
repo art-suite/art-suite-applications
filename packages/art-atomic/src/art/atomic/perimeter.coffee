@@ -14,6 +14,7 @@ Point      = require './point'
   isString
 } = Foundation
 {point} = Point
+{rect} = require './rectangle'
 
 module.exports = class Perimeter extends AtomicBase
   @defineAtomicClass fieldNames: "left right top bottom"
@@ -61,6 +62,7 @@ module.exports = class Perimeter extends AtomicBase
     height: -> @top + @bottom
     w: -> @left + @right
     h: -> @top + @bottom
+    needsTranslation: -> @left != 0 || @top != 0
 
   subtractedFromSize: (size) ->
     w = @getWidth()
@@ -88,3 +90,24 @@ module.exports = class Perimeter extends AtomicBase
 
   for k, v of @namedPerimeters
     @[k] = v
+
+  pad: (rectangle) ->
+    {x, y, w, h} = rectangle
+    {left, right, top, bottom} = @
+    rectangle.with(
+      x - left
+      y - top
+      w + left + right
+      h + top + bottom
+    )
+
+  translate: (rectangle) ->
+    {x, y, w, h} = rectangle
+    {left, top} = @
+    rectangle.with(
+      x + left
+      y + top
+      w
+      h
+    )
+
