@@ -46,7 +46,7 @@ OUT:
 ###
 module.exports = class Point extends AtomicBase
   @defineAtomicClass fieldNames: "x y"
-  @isPoint: (v) -> v instanceof Point
+  @isPoint: (v) -> v?.constuctor == Point
 
   pointWithAspectRatioAndArea = ({aspectRatio, area}) ->
     sqrtArea = Math.sqrt area / aspectRatio
@@ -92,10 +92,13 @@ module.exports = class Point extends AtomicBase
   @getter
     top: -> 0
     left: -> 0
+
     right: -> @x
     bottom: -> @y
     centerX: -> @x * .5
     centerY: -> @y * .5
+    hCenter: -> @getCenterX()
+    vCenter: -> @getCenterY()
 
     # abbreviated corner names
     tl: -> point0
