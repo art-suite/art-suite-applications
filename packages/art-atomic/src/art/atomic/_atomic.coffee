@@ -5,9 +5,9 @@ Matrix     = require './matrix'
 Perimeter  = require './perimeter'
 
 module.exports = [
-  [Color,     "newColor", "color", "hslColor", "rgb256Color", "rgbColor", "colorNames", "colorNamesMap"]
+  [Color,     "isColor", "newColor", "color", "hslColor", "rgb256Color", "rgbColor", "colorNames", "colorNamesMap"]
   [Point,     "point", "point0", "point1", "isPoint", "pointWithAspectRatioAndArea"]
-  [Rectangle, "rect", "nothing", "everything"]
+  [Rectangle, "rect", "nothing", "everything", "isRect"]
   [Matrix,    "matrix", "identityMatrix"]
   [Perimeter, "perimeter", "perimeter0"]
 
