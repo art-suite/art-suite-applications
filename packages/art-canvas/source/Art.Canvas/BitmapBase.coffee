@@ -6,13 +6,10 @@
 # http://mudcu.be/journal/2011/04/globalcompositeoperation/
 # Canvas Spec: http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html
 # http://dev.w3.org/fxtf/compositing-1/#porterduffcompositingoperators_srcover
-Foundation = require 'art-foundation'
-Atomic = require 'art-atomic'
-
-{point, point0, Point, rect, Rectangle, matrix, Matrix, rgbColor, Color} = Atomic
-{inspect, nextTick, Binary, pureMerge, isString, isNumber, log, bound, merge} = Foundation
+{point, point0, Point, rect, Rectangle, matrix, Matrix, rgbColor, Color, isPoint} = require 'art-atomic'
+{inspect, nextTick, pureMerge, isString, isNumber, log, bound, merge} = require 'art-standard-lib'
 {round, floor, ceil, max, min} = Math
-{BinaryString} = Binary
+{BinaryString, EncodedImage} = (require 'art-foundation').Binary
 {BaseClass} = require 'art-class-system'
 
 toChannelNumberMap = 0:0, 1:1, 2:2, 3:3, r:0, g:1, b:2, a:3, red:0, green:1, blue:2, alpha:3
@@ -83,26 +80,23 @@ module.exports = class BitmapBase extends BaseClass
   shouldPixelSnap: (where) ->
     @pixelSnap && (
       (!where) ||
-      (where instanceof Point) ||
+      (isPoint where) ||
       where.isTranslateAndPositiveScaleOnly
       # NOTE: we could switch back to just isTranslateAndScaleOnly, but then we would need a draw matrix
       # for negative scales
     )
 
-  pixelSnapWhere: (where) ->
-    if where instanceof Point
-      where.rounded
-    else if where
-      where.withRoundedTranslation
+  # double-dispatch - used in ArtEngine to allow drawChildren to both DRAW the children AND compute drawAreas
+  draw: (drawable, where) ->
+    drawable.draw @, where
 
   pixelSnapRectangle: (where, r) ->
-    right  = (x = r.x) + (w = r.w)
-    bottom = (y = r.y) + (h = r.h)
+    {left, right, bottom, top} = r
 
     isx = isy = sx = sy = 1
     tx = ty = 0
 
-    if where instanceof Point
+    if isPoint where
       tx = where.x
       ty = where.y
     else if where
@@ -111,16 +105,16 @@ module.exports = class BitmapBase extends BaseClass
       sx = where.sx; isx = 1/sx
       sy = where.sy; isy = 1/sy
 
-    x = (Math.round( (x  * sx) + tx) - tx) * isx
-    y = (Math.round( (y  * sy) + ty) - ty) * isy
-    w = (Math.round( (right  * sx) + tx) - tx) * isx - x
-    h = (Math.round( (bottom * sy) + ty) - ty) * isy - y
+    x = (Math.round( (left    * sx) + tx) - tx) * isx
+    y = (Math.round( (top     * sy) + ty) - ty) * isy
+    w = (Math.round( (right   * sx) + tx) - tx) * isx - x
+    h = (Math.round( (bottom  * sy) + ty) - ty) * isy - y
     rect x, y, w, h
 
   pixelSnapAndTransformRectangle: (where, r) ->
     console.error "no r" unless r
     {left, right, top, bottom} = r
-    if where instanceof Point
+    if isPoint where
       left += where.x
       right += where.x
       top += where.y
@@ -288,7 +282,7 @@ module.exports = class BitmapBase extends BaseClass
         @_htmlImageElement
       else
         url = @toMemoryBitmap().canvas.toDataURL()
-        Binary.EncodedImage.toImage url
+        EncodedImage.toImage url
         .then (image) =>
           {w, h} = @pointSize
           image.width  = w
