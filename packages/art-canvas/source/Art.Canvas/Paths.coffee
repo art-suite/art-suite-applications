@@ -1,6 +1,20 @@
 {isRect} = require 'art-atomic'
 {log, floatEq, min, max, isNumber, isPlainObject, isFunction, float32Eq0, bound} = require 'art-standard-lib'
 
+###
+Path functions all take the same signature:
+  context: the HTML5 2d-canvas context
+  pathArea: a point or rectangle
+    ALL PATHS SHOULD BE 100% INSIDE
+    THE AREA SPECIFIEDY BY 'SIZE'
+    Paths should scale to just fit within
+    the pathArea specified.
+
+  options: optional options-object
+    Example: rectanglePath takes a 'radius' parameter
+
+EXCEPTION: linePath - is special for now
+###
 module.exports = class Paths
 
   @linePath: (context, fromPoint, toPoint) ->
@@ -8,15 +22,25 @@ module.exports = class Paths
     context.lineTo toPoint.x, toPoint.y
 
   # TODO: options for pie-charts
-  @circlePath: (context, size, options) ->
-    {hCenter, vCenter, w, h} = size
+  @circlePath: (context, pathArea, options) ->
+    {hCenter, vCenter, w, h} = pathArea
     radius = min(w, h) / 2
     context.arc hCenter, vCenter, radius, 0, Math.PI*2, true
     context.closePath()
   @circlePath.obtuse = true
 
-  @rectanglePath: (context, size, options) ->
-    roundedRectanglePath context, size, options?.radius
+  ###
+  options:
+    radius:
+      number >= 0
+      OR
+      object:
+        With one or more number props:
+          tl, tr, bl, br, bottomLeft, bottomRight, topLeft, topRight, top, bottom, left, right
+        Each specifies one or two corners to set the radius for
+  ###
+  @rectanglePath: (context, pathArea, options) ->
+    roundedRectanglePath context, pathArea, options?.radius
   @rectanglePath.obtuse = true
 
   @roundedRectanglePath: roundedRectanglePath = (context, r, radius) ->

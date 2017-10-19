@@ -135,35 +135,40 @@ module.exports = class Bitmap extends BitmapBase
       path-function
   ###
 
-  setClippingArea: (area, drawMatrix, pathSize, pathOptions) ->
+  setClippingArea: (area, drawMatrix, pathArea, pathOptions) ->
+    {_context} = @
     @_setTransform drawMatrix
     if isFunction area
-      @_context.beginPath()
-      area @_context, pathSize, pathOptions
-      @_context.clip()
-    else
+      pathFunction = area unless isSimpleRectangle area
+      area = pathArea
+
+    if area
       area = @pixelSnapRectangle drawMatrix, area
       @_clippingArea = area.intersection @_clippingArea
-      @_context.beginPath()
-      @_context.rect area.x, area.y, area.w, area.h
-      @_context.clip()
+
+    _context.beginPath()
+    if pathFunction
+      pathFunction _context, pathArea, pathOptions
+    else
+      _context.rect area.x, area.y, area.w, area.h
+    _context.clip()
 
   # execs function "f" while clipping
-  clippedTo: (area, f, drawMatrix, pathSize, pathOptions) ->
+  clippedTo: (area, f, drawMatrix, pathArea, pathOptions) ->
     @_context.save()
     previousClippingArea = @_clippingArea
     try
-      @setClippingArea area, drawMatrix, pathSize, pathOptions
+      @setClippingArea area, drawMatrix, pathArea, pathOptions
       f()
     finally
       @_context.restore()
       @_clippingArea = previousClippingArea
 
   # returns lastClippingInfo
-  openClipping: (area, drawMatrix, pathSize, pathOptions) ->
+  openClipping: (area, drawMatrix, pathArea, pathOptions) ->
     @_context.save()
     lastClippingInfo = @_clippingArea
-    @setClippingArea area, drawMatrix, pathSize, pathOptions
+    @setClippingArea area, drawMatrix, pathArea, pathOptions
     lastClippingInfo
 
   closeClipping: (lastClippingInfo) ->
@@ -226,15 +231,15 @@ module.exports = class Bitmap extends BitmapBase
       @_cleanupDraw options
     @
 
-  strokeShape: (where, options, pathFunction, pathSize, pathOptions) ->
+  strokeShape: (where, options, pathFunction, pathArea, pathOptions) ->
     {_context} = @
     if @_setupDraw where, options, true
       if isSimpleRectangle pathFunction, pathOptions
-        {top, left, w, h} = pathSize
+        {top, left, w, h} = pathArea
         _context.strokeRect left, top, w, h
       else
         _context.beginPath()
-        pathFunction _context, pathSize, pathOptions
+        pathFunction _context, pathArea, pathOptions
         _context.stroke()
       @_cleanupDraw options
     @
@@ -288,15 +293,15 @@ module.exports = class Bitmap extends BitmapBase
       @_cleanupDraw options
     @
 
-  fillShape: (where, options, pathFunction, pathSize, pathOptions) ->
+  fillShape: (where, options, pathFunction, pathArea, pathOptions) ->
     {_context} = @
     if @_setupDraw where, options
       if isSimpleRectangle pathFunction, pathOptions
-        {top, left, w, h} = pathSize
+        {top, left, w, h} = pathArea
         _context.fillRect left, top, w, h
       else
         _context.beginPath()
-        pathFunction _context, pathSize, pathOptions
+        pathFunction _context, pathArea, pathOptions
         _context.fill options.fillRule || "nonzero"
       @_cleanupDraw options
     @
