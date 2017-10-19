@@ -9,6 +9,7 @@ Point       = require './point'
   isNumber, isArray, isString, isFunction
   stringToNumberArray
   floatEq0
+  float32Precision
 } = Foundation
 {point} = Point
 
@@ -24,6 +25,7 @@ Point       = require './point'
 #   4 number arguments:  (x, y, w, h)
 module.exports = class Rectangle extends AtomicBase
   @defineAtomicClass fieldNames: "x y w h", constructorFunctionName: "rect"
+  @isRect: (v) -> v?.constructor == Rectangle
 
   @rect: rect = (a, b, c, d) ->
     return a if a instanceof Rectangle
@@ -181,7 +183,8 @@ module.exports = class Rectangle extends AtomicBase
 
   # if edges are within k of a multiple of m, round to that multiple
   # Otherwise, round towards the nearest multiple of m that is just outside the original rectangle
-  roundOut: (m = 1, k = 0)->
+  # IN: roundingFactor = if a value is with roundingFactor of a whole number, it will snap that number
+  roundOut: (m = 1, k = float32Precision)->
     x = floor @x + k, m
     y = floor @y + k, m
     w = ceil(@x + @w - k, m) - x
@@ -190,7 +193,7 @@ module.exports = class Rectangle extends AtomicBase
 
   # if edges are within k of a multiple of m, round to that multiple
   # Otherwise, round towards the nearest multiple of m that is within the original rectangle
-  roundIn: (m = 1, k = 0)->
+  roundIn: (m = 1, k = float32Precision)->
     x = ceil @x - k, m
     y = ceil @y - k, m
     w = floor(@x + @w + k, m) - x
@@ -207,7 +210,7 @@ module.exports = class Rectangle extends AtomicBase
     @with x, y, w, h
 
   unionInto: (into) ->
-    return new Rectangle @x, @y, @w, @h unless into
+    return new Rectangle @x, @y, @w, @h unless into?
     area = @getArea()
     intoArea = into.getArea()
 
@@ -227,7 +230,7 @@ module.exports = class Rectangle extends AtomicBase
     into
 
   intersectInto: (into) ->
-    return new Rectangle @x, @y, @w, @h unless into
+    return new Rectangle @x, @y, @w, @h unless into?
     area = @getArea()
     intoArea = into.getArea()
 
