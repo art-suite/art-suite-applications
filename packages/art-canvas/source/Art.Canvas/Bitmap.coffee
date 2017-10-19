@@ -148,7 +148,7 @@ module.exports = class Bitmap extends BitmapBase
 
     _context.beginPath()
     if pathFunction
-      pathFunction _context, pathArea, pathOptions
+      pathFunction _context, area, pathOptions
     else
       _context.rect area.x, area.y, area.w, area.h
     _context.clip()
