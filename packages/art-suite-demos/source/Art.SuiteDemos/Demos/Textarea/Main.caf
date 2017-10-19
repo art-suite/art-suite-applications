@@ -1,0 +1,35 @@
+import &ArtSuite
+
+class Main extends Component
+
+  render: ->
+    Element
+      drawOrder: :grey
+
+      Element
+        size: w: 320, hch: 1
+        axis: .5
+        location: ps: .5
+        drawOrder:
+          rectangle: radius: 10
+          color: #fff shadow: blur: 100 offset: y: 10
+        childrenLayout: :column
+        Element
+          size: ww:1, hch:1
+          padding: 10
+          drawOrder:
+            rectangle: radius: tl: 10 tr: 10
+            #dfd
+            outline: #0002
+          TextElement
+            fontFamily: "Monaco, Courier New"
+            """
+              TextInputElement
+                type: "textarea"
+                size: ww:1 hch:1 max: h:100
+        TextInputElement
+          padding: 10
+          size: ww: 1, hch: 1, max: h: 100
+          type: :textarea
+          placeholder: "" start typing here
+
