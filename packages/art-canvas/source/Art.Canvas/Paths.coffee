@@ -1,7 +1,8 @@
-Foundation = require 'art-foundation'
-{log, floatEq, min, max, isNumber, isPlainObject, float32Eq0, bound} = Foundation
+{isRect} = require 'art-atomic'
+{log, floatEq, min, max, isNumber, isPlainObject, isFunction, float32Eq0, bound} = require 'art-standard-lib'
 
 module.exports = class Paths
+  # TODO: DEPRICATE THIS
   @rectangle: rectangle = (context, r) ->
     {left, right, top, bottom} = r
 
@@ -15,8 +16,22 @@ module.exports = class Paths
     context.moveTo fromPoint.x, fromPoint.y
     context.lineTo toPoint.x, toPoint.y
 
+  # TODO: options for pie-charts
+  @circlePath: (context, size, options) ->
+    {hCenter, vCenter, w, h} = size
+    radius = min(w, h) / 2
+    context.arc hCenter, vCenter, radius, 0, Math.PI*2, true
+    context.closePath()
+  @circlePath.obtuse = true
+
+  @rectanglePath: (context, size, options) ->
+    roundedRectangle context, size, options?.radius
+  @rectanglePath.obtuse = true
+
+  # TODO: DEPRICATE THIS NAME - use rectanglePath
+  # IN: r: rectangle OR point-as-size
   @roundedRectangle: roundedRectangle = (context, r, radius) ->
-    return rectangle context, r unless radius
+    return rectangle context, r unless radius? && !float32Eq0 radius
 
     if isPlainObject radius
       {tl, tr, bl, br, bottomLeft, bottomRight, topLeft, topRight, top, bottom, left, right} = radius
@@ -58,6 +73,7 @@ module.exports = class Paths
 
     context.closePath()
 
+  # DEPRICATE
   @curriedRoundedRectangle: (r, radius) ->
     (context) ->
       roundedRectangle context, r, radius
