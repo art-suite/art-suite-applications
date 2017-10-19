@@ -2,17 +2,8 @@
 {log, floatEq, min, max, isNumber, isPlainObject, isFunction, float32Eq0, bound} = require 'art-standard-lib'
 
 module.exports = class Paths
-  # TODO: DEPRICATE THIS
-  @rectangle: rectangle = (context, r) ->
-    {left, right, top, bottom} = r
 
-    context.moveTo left , top
-    context.lineTo right, top
-    context.lineTo right, bottom
-    context.lineTo left , bottom
-    context.closePath()
-
-  @line: (context, fromPoint, toPoint) ->
+  @linePath: (context, fromPoint, toPoint) ->
     context.moveTo fromPoint.x, fromPoint.y
     context.lineTo toPoint.x, toPoint.y
 
@@ -25,12 +16,10 @@ module.exports = class Paths
   @circlePath.obtuse = true
 
   @rectanglePath: (context, size, options) ->
-    roundedRectangle context, size, options?.radius
+    roundedRectanglePath context, size, options?.radius
   @rectanglePath.obtuse = true
 
-  # TODO: DEPRICATE THIS NAME - use rectanglePath
-  # IN: r: rectangle OR point-as-size
-  @roundedRectangle: roundedRectangle = (context, r, radius) ->
+  @roundedRectanglePath: roundedRectanglePath = (context, r, radius) ->
     return rectangle context, r unless radius? && !float32Eq0 radius
 
     if isPlainObject radius
@@ -72,8 +61,26 @@ module.exports = class Paths
     context.arcTo  left  ,          bottom,                 left  ,           bottom - bl,      bl
 
     context.closePath()
+  @roundedRectanglePath.obtuse = true
 
-  # DEPRICATE
+  # DEPRICATED
+  @roundedRectangle: (a, b, c) ->
+    log.error "DEPRIACTED - use roundedRectanglePath"
+    roundedRectanglePath a, b, c
+
+  # DEPRICATED
+  @rectangle: rectangle = (context, r) ->
+    log.error "DEPRIACTED - use rectanglePath"
+    {left, right, top, bottom} = r
+
+    context.moveTo left , top
+    context.lineTo right, top
+    context.lineTo right, bottom
+    context.lineTo left , bottom
+    context.closePath()
+
+  # DEPRICATED
   @curriedRoundedRectangle: (r, radius) ->
+    log.error "DEPRICATED - use roundedRectanglePath && pathOptions"
     (context) ->
-      roundedRectangle context, r, radius
+      roundedRectanglePath context, r, radius

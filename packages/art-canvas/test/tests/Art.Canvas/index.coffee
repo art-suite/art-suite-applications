@@ -9,6 +9,7 @@ module.exports
   Clipping:          require './Clipping'         
   CommonBitmapTests: require './CommonBitmapTests'
   DrawGradient:      require './DrawGradient'     
+  FillShape:         require './FillShape'        
   GoogleFontLoader:  require './GoogleFontLoader' 
   GradientFillStyle: require './GradientFillStyle'
   StackBlur:         require './StackBlur'        

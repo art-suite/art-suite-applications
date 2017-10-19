@@ -144,12 +144,28 @@ suite: ->
     bitmap = renderStrokeRectangleWithSnap null, rect(2, 2, 5, 5), color:"red", lineWidth:3, lineJoin:"miter"
     assert.eq
       reducedRange bitmap
-      0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 8, 8, 8, 8, 8, 8, 8, 0,
-      0, 8, 8, 8, 8, 8, 8, 8, 0,
-      0, 8, 8, 8, 8, 8, 8, 8, 0,
-      0, 8, 8, 8, 0, 8, 8, 8, 0,
-      0, 8, 8, 8, 8, 8, 8, 8, 0,
-      0, 8, 8, 8, 8, 8, 8, 8, 0,
-      0, 8, 8, 8, 8, 8, 8, 8, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0
+      compactFlatten []
+        0 0 0 0 0 0 0 0 0
+        0 8 8 8 8 8 8 8 0
+        0 8 8 8 8 8 8 8 0
+        0 8 8 8 8 8 8 8 0
+        0 8 8 8 0 8 8 8 0
+        0 8 8 8 8 8 8 8 0
+        0 8 8 8 8 8 8 8 0
+        0 8 8 8 8 8 8 8 0
+        0 0 0 0 0 0 0 0 0
+
+  test "strokeShape circlePath" ->
+    bitmap = new Bitmap point 6
+    bitmap.clear #000
+    bitmap.strokeShape null, (color: :red), circlePath, rect 1, 1, 4, 4
+    log {bitmap}
+    assert.eq
+      reducedRange bitmap
+      compactFlatten []
+        0 0 3 3 0 0
+        0 6 5 5 6 0
+        3 5 0 0 5 3
+        3 5 0 0 5 3
+        0 6 5 5 6 0
+        0 0 3 3 0 0

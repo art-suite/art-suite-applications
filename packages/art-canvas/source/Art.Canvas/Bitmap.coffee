@@ -18,9 +18,12 @@ Atomic = require "art-atomic"
 Foundation = require "art-foundation"
 GradientFillStyle = require "./GradientFillStyle"
 BitmapBase = require "./BitmapBase"
-Paths = require "./Paths"
 StackBlur = require "./StackBlur"
+{roundedRectanglePath, rectanglePath, linePath} = require "./Paths"
 
+isSimpleRectangle = (pathFunction, pathOptions) ->
+  (pathFunction == rectanglePath || pathFunction == roundedRectanglePath) &&
+  (!(radius = pathOptions?.radius)? || radius == 0)
 
 {
   inspect, log, min, max, Binary, isFunction, isPlainObject, eq, currentSecond, round, isNumber, floatEq0
@@ -124,11 +127,19 @@ module.exports = class Bitmap extends BitmapBase
   # CLIPPING
   ################
 
-  setClippingArea: (area, drawMatrix) ->
+  ###
+  IN:
+    area is either:
+      rectangle or point
+      OR
+      path-function
+  ###
+
+  setClippingArea: (area, drawMatrix, pathSize, pathOptions) ->
     @_setTransform drawMatrix
     if isFunction area
       @_context.beginPath()
-      area @_context
+      area @_context, pathSize, pathOptions
       @_context.clip()
     else
       area = @pixelSnapRectangle drawMatrix, area
@@ -138,21 +149,21 @@ module.exports = class Bitmap extends BitmapBase
       @_context.clip()
 
   # execs function "f" while clipping
-  clippedTo: (area, f, drawMatrix) ->
+  clippedTo: (area, f, drawMatrix, pathSize, pathOptions) ->
     @_context.save()
     previousClippingArea = @_clippingArea
     try
-      @setClippingArea area, drawMatrix
+      @setClippingArea area, drawMatrix, pathSize, pathOptions
       f()
     finally
       @_context.restore()
       @_clippingArea = previousClippingArea
 
   # returns lastClippingInfo
-  openClipping: (area, drawMatrix) ->
+  openClipping: (area, drawMatrix, pathSize, pathOptions) ->
     @_context.save()
     lastClippingInfo = @_clippingArea
-    @setClippingArea area, drawMatrix
+    @setClippingArea area, drawMatrix, pathSize, pathOptions
     lastClippingInfo
 
   closeClipping: (lastClippingInfo) ->
@@ -207,7 +218,7 @@ module.exports = class Bitmap extends BitmapBase
     if @_setupDraw where, options, true
       if radius > 0 || isPlainObject radius
         _context.beginPath()
-        Paths.roundedRectangle _context, r, radius
+        roundedRectanglePath _context, r, radius
         _context.stroke()
 
       else
@@ -215,11 +226,16 @@ module.exports = class Bitmap extends BitmapBase
       @_cleanupDraw options
     @
 
-  strokeShape: (where, options, pathFunction) ->
+  strokeShape: (where, options, pathFunction, pathSize, pathOptions) ->
+    {_context} = @
     if @_setupDraw where, options, true
-      @_context.beginPath()
-      pathFunction @_context
-      @_context.stroke()
+      if isSimpleRectangle pathFunction, pathOptions
+        {top, left, w, h} = pathSize
+        _context.strokeRect left, top, w, h
+      else
+        _context.beginPath()
+        pathFunction _context, pathSize, pathOptions
+        _context.stroke()
       @_cleanupDraw options
     @
 
@@ -233,17 +249,18 @@ module.exports = class Bitmap extends BitmapBase
       a = a1.grow g
 
       @_context.beginPath()
-      Paths.rectangle @_context, a
+      rectanglePath @_context, a
 
       @_context.stroke()
       @_cleanupDraw options
     @
 
   drawLine: (where, fromPoint, toPoint, options = emptyOptions) ->
+    {_context} = @
     if @_setupDraw where, options, true
-      @_context.beginPath()
-      Paths.line @_context, fromPoint, toPoint
-      @_context.stroke()
+      _context.beginPath()
+      linePath _context, fromPoint, toPoint
+      _context.stroke()
       @_cleanupDraw options
     @
 
@@ -262,7 +279,7 @@ module.exports = class Bitmap extends BitmapBase
 
       if radius > 0 || isPlainObject radius
         _context.beginPath()
-        Paths.roundedRectangle _context, r, radius
+        roundedRectanglePath _context, r, radius
         _context.fill fillRule || "nonzero"
 
       else
@@ -271,12 +288,16 @@ module.exports = class Bitmap extends BitmapBase
       @_cleanupDraw options
     @
 
-  fillShape: (where, options, pathFunction) ->
+  fillShape: (where, options, pathFunction, pathSize, pathOptions) ->
     {_context} = @
     if @_setupDraw where, options
-      _context.beginPath()
-      pathFunction _context
-      _context.fill options.fillRule || "nonzero"
+      if isSimpleRectangle pathFunction, pathOptions
+        {top, left, w, h} = pathSize
+        _context.fillRect left, top, w, h
+      else
+        _context.beginPath()
+        pathFunction _context, pathSize, pathOptions
+        _context.fill options.fillRule || "nonzero"
       @_cleanupDraw options
     @
 
