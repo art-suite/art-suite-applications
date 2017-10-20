@@ -276,6 +276,8 @@ module.exports = class Rectangle extends AtomicBase
   @nothing:     Object.freeze new Rectangle 0, 0, 0, 0
   @everything:  Object.freeze new Rectangle 0, 0, Infinity, Infinity
 
+  withRect: (a,b,c,d) -> @with a,b,c,d
+
   # return an array of rectangles of what remains when we cut out "r" from this rectangle
   cutout: (r) ->
     return [@] unless @overlaps r

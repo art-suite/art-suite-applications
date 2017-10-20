@@ -58,6 +58,22 @@ module.exports = class Perimeter extends AtomicBase
       else throw new Error "invalid number of arguments: #{inspect arguments}"
 
   @getter
+    exportedValue: ->
+      {left, right, top, bottom} = @
+      if (left == right) && (left == top) && (left == bottom)
+        left
+      else
+        out = {}
+        if left == right
+          out.h = left if left != 0
+        else
+          out.left = left if left != 0
+          out.right = right if right !=0
+        if top == bottom
+          out.v = top if top != 0
+        else
+          out.top = top if top != 0
+          out.bottom = bottom if bottom != 0
     width: -> @left + @right
     height: -> @top + @bottom
     w: -> @left + @right
@@ -92,22 +108,22 @@ module.exports = class Perimeter extends AtomicBase
     @[k] = v
 
   pad: (rectangle) ->
-    {x, y, w, h} = rectangle
+    {left:x, top:y, w, h} = rectangle
     {left, right, top, bottom} = @
-    rectangle.with(
-      x - left
-      y - top
-      w + left + right
-      h + top + bottom
-    )
-
-  translate: (rectangle) ->
-    {x, y, w, h} = rectangle
-    {left, top} = @
-    rectangle.with(
+    rectangle.withRect(
       x + left
       y + top
-      w
-      h
+      w - left - right
+      h - top  - bottom
     )
+
+  # translate: (rectangle) ->
+  #   {x, y, w, h} = rectangle
+  #   {left, top} = @
+  #   rectangle.with(
+  #     x + left
+  #     y + top
+  #     w
+  #     h
+  #   )
 

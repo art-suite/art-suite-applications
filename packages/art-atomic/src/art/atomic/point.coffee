@@ -5,6 +5,7 @@
 
 Foundation = require 'art-foundation'
 AtomicBase = require './base'
+Namespace = require './namespace'
 {
   inspect, bound, floatEq, log, isNumber, isArray, isString, isFunction, stringToNumberArray, nearInfinity
   inspectedObjectLiteral
@@ -90,6 +91,15 @@ module.exports = class Point extends AtomicBase
     @y = o.y || 0
 
   @getter
+    exportedValue: ->
+      {x, y} = @
+      if x == y
+        x
+      else
+        out = {}
+        out.x = x if x != 0
+        out.y = y if y != 0
+        out
     top: -> 0
     left: -> 0
 
@@ -264,6 +274,12 @@ module.exports = class Point extends AtomicBase
   withAspectRatio: (aspectRatio) ->
     return @ if floatEq aspectRatio, @aspectRatio
     point {aspectRatio, @area}
+
+  withRect: (a,b,c,d) ->
+    if d? && a == 0 && b == 0
+      @with c, d
+    else
+      Namespace.rect a,b,c,d
 
   ##################
   # Named Instances

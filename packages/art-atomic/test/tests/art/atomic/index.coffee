@@ -6,6 +6,6 @@ module.exports
 .addModules
   Color:     require './color'    
   Matrix:    require './matrix'   
-  Perimeter: require './perimeter'
+  Perimeter: require './Perimeter'
   Point:     require './point'    
   Rectangle: require './rectangle'
