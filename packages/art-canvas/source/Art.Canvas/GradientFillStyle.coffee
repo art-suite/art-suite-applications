@@ -48,13 +48,13 @@ module.exports = class GradientFillStyle extends Foundation.BaseObject
         "#f00"
       )
   ###
-  @colorsToObjectsAndStringColors: (colors) ->
+  @colorsToObjectsAndColorObjects: (colors) ->
     for clr in colors
       if isPlainObject clr
         n: clr.n
-        c: String rgbColor clr.c
+        c: rgbColor clr.c
       else
-        c: String rgbColor clr
+        c: rgbColor clr
 
   @colorsFromObjects: (colors) ->
     ret = []
@@ -129,11 +129,18 @@ module.exports = class GradientFillStyle extends Foundation.BaseObject
     colors.sort (a, b) -> a.n - b.n
 
   @normalizeColors: (colors) ->
-    colors = @colorsFromObjects colors
-    colors = @colorsToObjectsAndStringColors colors
-    colors = @interpolateColorPositions colors
-    colors = @sortColorsByN colors
-    colors
+    if isPlainArray colors
+      @sortColorsByN @interpolateColorPositions @colorsToObjectsAndColorObjects @colorsFromObjects colors
+    else if isPlainObject colors
+      colors = for k, v of colors
+        n: k * 1
+        c: if isString v then v else String rgbColor v
+      @interpolateColorPositions @sortColorsByN colors
+    else
+      [
+        n: 0, c: rgbColor "black"
+        n: 1, c: rgbColor "white"
+      ]
 
   constructor: (@from, @to, colors, @radius1, @radius2)->
     @setColors @inputColors = colors
