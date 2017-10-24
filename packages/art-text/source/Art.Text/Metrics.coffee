@@ -15,6 +15,7 @@ for textual, have two areas:
 {
   defineModule, merge, log, logL, inspect
   max, min, isObject, isString, allIndexes, eachMatch, clone
+  present
 } = require 'art-standard-lib'
 {BaseClass} = require 'art-class-system'
 
@@ -180,6 +181,8 @@ defineModule module, ->
     @_tightFontMetricCache: {}
 
     @_getTightFontMetrics: (text, tightThreshold, fontOptions, fontCss)  ->
+      return new TextLayoutFragment text, fontOptions unless present text
+
       tightFontMetricCacheKey = "#{text}:#{tightThreshold}:#{fontCss ||= toFontCss fontOptions}"
       previousResult = @_tightFontMetricCache[tightFontMetricCacheKey] ||= if text.length <= 3
         upScale = 2

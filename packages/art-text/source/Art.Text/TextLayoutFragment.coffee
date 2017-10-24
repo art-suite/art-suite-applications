@@ -24,6 +24,29 @@ defineModule module, class TextLayoutFragment extends BaseClass
   constructor: (
         @text
         @font
+        @ascender = 0
+        @descender = 0
+
+        @textOffsetX = 0
+        @textOffsetY = 0
+        @layoutW = 0
+        @layoutH = 0
+
+        @drawAreaX = 0
+        @drawAreaY = 0
+        @drawAreaW = 0
+        @drawAreaH = 0
+      ) ->
+    @firstFragment = false
+    @layoutX = @layoutY = 0
+    @alignmentOffsetX = 0
+    @alignmentOffsetY = 0
+
+  @getter
+    inspectedObjects: ->
+      [
+        @text
+        @font
         @ascender
         @descender
 
@@ -36,12 +59,7 @@ defineModule module, class TextLayoutFragment extends BaseClass
         @drawAreaY
         @drawAreaW
         @drawAreaH
-      ) ->
-    @firstFragment = false
-    @layoutX = @layoutY = 0
-    @alignmentOffsetX = 0
-    @alignmentOffsetY = 0
-
+      ]
   toString: ->
     inspect @toPlainObject()
 
