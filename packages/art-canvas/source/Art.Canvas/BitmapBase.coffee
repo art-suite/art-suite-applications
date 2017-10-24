@@ -222,6 +222,21 @@ module.exports = class BitmapBase extends BaseClass
 
     @
 
+  drawBitmapWithSubtract: (b) ->
+    a = @toMemoryBitmap()
+    aImageData = a.imageData
+    bImageData = b.imageData
+    aPixels = aImageData.data
+    bPixels = bImageData.data
+    for ar, i in aPixels by 4
+      alpha = (65536 * bPixels[i+3]) / 255 | 0
+      aPixels[i]    = ar           - (bPixels[i]   * alpha) / 65536
+      aPixels[i+1]  = aPixels[i+1] - (bPixels[i+1] * alpha) / 65536
+      aPixels[i+2]  = aPixels[i+2] - (bPixels[i+2] * alpha) / 65536
+    a.context.putImageData aImageData
+    a
+
+  # keywords: pixelData pixel data
   getImageDataArray: (channel=null) ->
     data = @getImageData().data
     if (channel = toChannelNumberMap[channel])?
@@ -638,17 +653,18 @@ module.exports = class BitmapBase extends BaseClass
         pos += lineStep
       posX -= pixelStep
 
-  getAutoCropRectangle: (threshold = 0)->
-    {size, context} = @
-    data = context.getImageData(0, 0, size.x, size.y).data
+  @getter
+    autoCropRectangle: (threshold = 0)->
+      {size, context} = @
+      data = context.getImageData(0, 0, size.x, size.y).data
 
-    top    = calculateTop    data, size, threshold
-    return rect() if top == size.y
-    bottom = calculateBottom data, size, threshold, top
-    left   = calculateLeft   data, size, threshold, top, bottom
-    right  = calculateRight  data, size, threshold, top, bottom, left
+      top    = calculateTop    data, size, threshold
+      return rect() if top == size.y
+      bottom = calculateBottom data, size, threshold, top
+      left   = calculateLeft   data, size, threshold, top, bottom
+      right  = calculateRight  data, size, threshold, top, bottom, left
 
-    rect left, top, right - left + 1, bottom - top + 1
+      rect left, top, right - left + 1, bottom - top + 1
 
   emptyOptions = {}
   ###

@@ -239,6 +239,8 @@ module.exports = class Bitmap extends BitmapBase
     {_context} = @
     if @_setupDraw where, options, true
       if isSimpleRectangle pathFunction, pathOptions
+        if @shouldPixelSnap where
+          pathArea = @pixelSnapRectangle where, pathArea
         {top, left, w, h} = pathArea
         _context.strokeRect left, top, w, h
       else
@@ -301,6 +303,9 @@ module.exports = class Bitmap extends BitmapBase
     {_context} = @
     if @_setupDraw where, options
       if isSimpleRectangle pathFunction, pathOptions
+        if @shouldPixelSnap where
+          pathArea = @pixelSnapRectangle where, pathArea
+
         {top, left, w, h} = pathArea
         _context.fillRect left, top, w, h
       else
