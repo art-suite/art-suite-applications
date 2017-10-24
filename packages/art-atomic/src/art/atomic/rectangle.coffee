@@ -31,6 +31,12 @@ module.exports = class Rectangle extends AtomicBase
     return a if a instanceof Rectangle
     new Rectangle a, b, c, d
 
+  _initFromObject: (o) ->
+    @x = o.x || 0
+    @y = o.y || 0
+    @w = o.w || 0
+    @h = o.h || 0
+
   _init: (a, b, c, d) ->
     @x = @y = @w = @h = 0 # ensure consistent object construction
     if d?
