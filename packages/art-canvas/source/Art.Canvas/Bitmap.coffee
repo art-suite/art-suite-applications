@@ -137,17 +137,16 @@ module.exports = class Bitmap extends BitmapBase
 
   setClippingArea: (area, drawMatrix, pathArea, pathOptions) ->
     {_context} = @
-    @_setTransform drawMatrix
     if isFunction area
       pathFunction = area unless simple = isSimpleRectangle area, pathOptions
       area = pathArea
 
     if area
-      area = @pixelSnapRectangle drawMatrix, area
-      targetArea = if drawMatrix
-        drawMatrix.transformBoundingRect area
-      else area
-      @_clippingArea = targetArea.intersection @_clippingArea
+      @_setTransform()
+      area = @transformAndPixelSnapRectangle drawMatrix, area
+      @_clippingArea = area.intersection @_clippingArea
+    else
+      @_setTransform drawMatrix
 
     _context.beginPath()
     if pathFunction

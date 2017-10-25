@@ -111,6 +111,27 @@ module.exports = class BitmapBase extends BaseClass
     h = (Math.round( (bottom  * sy) + ty) - ty) * isy - y
     rect x, y, w, h
 
+  transformAndPixelSnapRectangle: (where, r) ->
+    {left, right, bottom, top} = r
+
+    isx = isy = sx = sy = 1
+    tx = ty = 0
+
+    if isPoint where
+      tx = where.x
+      ty = where.y
+    else if where
+      tx = where.tx
+      ty = where.ty
+      sx = where.sx; isx = 1/sx
+      sy = where.sy; isy = 1/sy
+
+    x = Math.round (left    * sx) + tx
+    y = Math.round (top     * sy) + ty
+    r = Math.round (right   * sx) + tx
+    b = Math.round (bottom  * sy) + ty
+    rect x, y, r - x, b - y
+
   pixelSnapAndTransformRectangle: (where, r) ->
     console.error "no r" unless r
     {left, right, top, bottom} = r
