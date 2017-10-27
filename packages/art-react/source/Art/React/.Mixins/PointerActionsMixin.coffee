@@ -16,7 +16,7 @@ defineModule module, ->
 
     setHover: (bool) ->
       @setState "hover", bool
-      try (@hoverAction || @props.hoverAction)? bool
+      try (@hoverAction || @props.hoverAction)? bool, @props
 
     @property "pointerDownAt"
 
