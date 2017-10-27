@@ -600,6 +600,8 @@ defineModule module, -> class Component extends PropFieldsMixin StateFieldsMixin
 
   emptyArray = []
   _renderCaptureRefs: ->
+    start = globalEpochCycle?.startTimePerformance()
+
     ret = null
     globalCount "ReactComponent_Rendered"
     VirtualNode.assignRefsTo = @refs = {}
@@ -613,6 +615,7 @@ defineModule module, -> class Component extends PropFieldsMixin StateFieldsMixin
     @subComponents = Component.createdComponents || emptyArray
     VirtualNode.assignRefsTo = null
 
+    globalEpochCycle?.endTimePerformance "reactRender", start
     ret
 
   _updateRefsAfterReRender: ->
