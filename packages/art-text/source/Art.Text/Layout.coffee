@@ -261,7 +261,6 @@ module.exports = class Layout extends BaseObject
       if i == 0
         @_setArea fragment
       else
-        @_expandArea fragment
         if _clipped
           # include last partial line
           # Why? So the last text line can be draw-clipped
@@ -273,6 +272,7 @@ module.exports = class Layout extends BaseObject
           if fragment.getBottom() - @_top > _layoutAreaHeight
             @_fragments = @_fragments.slice 0, i
             break
+        @_expandArea fragment
 
       offsetY += effectiveLeading
 
