@@ -134,6 +134,8 @@ defineModule module, class TextLayoutFragment extends BaseClass
   setLayoutLocationFrom: (fragment) ->
     @layoutX = fragment.layoutX
     @layoutY = fragment.layoutY
+    @drawAreaX = fragment.drawAreaX
+    @drawAreaY = fragment.drawAreaY
 
   @getter
     left:   -> @getAlignedLayoutX()
