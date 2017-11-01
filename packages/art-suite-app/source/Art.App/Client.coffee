@@ -16,7 +16,7 @@ defineModule module, class Client
       initArtSuiteApp options
 
       specifically, you should see:
-        Art.Foundation.ConfigRegistry.configure options
+        Art.Config.configure options
         Art.Engine.FullScreenApp.init options
 
   EFFECT: Does everything initArtSuiteApp does PLUS initializes Ery
