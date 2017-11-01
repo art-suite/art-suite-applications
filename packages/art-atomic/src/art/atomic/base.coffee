@@ -264,6 +264,11 @@ module.exports = class Base extends BaseObject
         return new this.class(#{fieldList});
       """
 
+    @_definePrototypeMethodViaEval "clone", '',
+      """
+      return new this.class(#{("this.#{field}" for field in fields).join ','});
+      """
+
     for field in fields
       @_definePrototypeMethodViaEval "with#{upperCamelCase field}", field,
         """
