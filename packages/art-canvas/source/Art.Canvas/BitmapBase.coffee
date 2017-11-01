@@ -111,7 +111,15 @@ module.exports = class BitmapBase extends BaseClass
     h = (Math.round( (bottom  * sy) + ty) - ty) * isy - y
     rect x, y, w, h
 
-  transformAndPixelSnapRectangle: (where, r) ->
+  pixelSnapMatrix: (m) ->
+    x = m.transformX 0, 0
+    y = m.transformY 0, 0
+    x -= Math.round x
+    y -= Math.round y
+
+    m.translateXY -x, -y
+
+  transformAndRoundOutRectangle: (where, r) ->
     {left, right, bottom, top} = r
 
     isx = isy = sx = sy = 1
@@ -126,10 +134,10 @@ module.exports = class BitmapBase extends BaseClass
       sx = where.sx; isx = 1/sx
       sy = where.sy; isy = 1/sy
 
-    x = Math.round (left    * sx) + tx
-    y = Math.round (top     * sy) + ty
-    r = Math.round (right   * sx) + tx
-    b = Math.round (bottom  * sy) + ty
+    x = Math.floor (left    * sx) + tx
+    y = Math.floor (top     * sy) + ty
+    r = Math.ceil (right   * sx) + tx
+    b = Math.ceil (bottom  * sy) + ty
     rect x, y, r - x, b - y
 
   pixelSnapAndTransformRectangle: (where, r) ->

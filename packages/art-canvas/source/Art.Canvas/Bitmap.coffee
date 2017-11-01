@@ -143,7 +143,7 @@ module.exports = class Bitmap extends BitmapBase
 
     if area
       @_setTransform()
-      area = @transformAndPixelSnapRectangle drawMatrix, area
+      area = @transformAndRoundOutRectangle drawMatrix, a1 = area
       @_clippingArea = area.intersection @_clippingArea
     else
       @_setTransform drawMatrix
@@ -172,7 +172,7 @@ module.exports = class Bitmap extends BitmapBase
     @_context.save()
     lastClippingInfo = @_clippingArea
     @setClippingArea area, drawMatrix, pathArea, pathOptions
-    lastClippingInfo
+    lastClippingInfo || rect @size
 
   closeClipping: (lastClippingInfo) ->
     @_context.restore()
