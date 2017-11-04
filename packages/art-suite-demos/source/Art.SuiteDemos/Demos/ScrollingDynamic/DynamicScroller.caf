@@ -1,0 +1,111 @@
+import &ArtSuite
+StyleProps = &StyleProps
+
+class LineItem extends FluxComponent
+
+  removeItem: ->
+    log remove: @props.text
+    @props.removeItem @props.text
+
+  render: ->
+    {text} = @props
+    Element
+      size: cs: 1
+      margin: 5
+      animators:
+        size:   toFrom: wcw:1, h: 0
+        margin: toFrom: 0
+      on: pointerClick: @removeItem
+      clip: true
+      RectangleElement color: StyleProps.palette.lightPrimaryBackground
+      Element
+        size: cs: 1
+        padding: 20
+        TextElement StyleProps.largeText, text: text
+
+class PseDemo extends FluxComponent
+
+  render: ->
+    {alignment, items, track, removeItem} = @props
+
+    Element
+      drawOrder:
+        color: #ff7
+      padding: 10
+      childrenLayout: "column"
+      childrenMargins: 10
+      size: ww:1, hch:1, max: hh: 1
+      TextElement
+        StyleProps.mediumText
+        text: "" Containing Element
+      ScrollElement
+        clip:               true
+        track:              track
+        location:           alignment
+        axis:               alignment
+        size:               hch: 1, max: hh: 1
+        childrenAlignment:  alignment
+        animators:          :childrenAlignment :axis :location
+        drawOrder:          #fff
+        # padding: 10
+        array item in items
+          LineItem removeItem: removeItem, key: "Item:#{item}", text: item
+
+class SimpleButton extends PointerActionsMixin FluxComponent
+
+  render: ->
+    {text, selected} = @props
+    color = rgbColor #00b4ff
+    Element
+      size: cs: 1
+      cursor: "pointer"
+      on: @buttonHandlers
+      drawOrder:
+        rectangle: radius: 100
+        fill:
+          color: if @pointerIsDown then color.withSat 0 else if selected then color.withSat .5 else color
+          shadow: if @pointerIsDown
+            blur: 1, offset: y: 1
+          else
+            blur: 2, offset: y: 2
+
+      TextElement
+        StyleProps.mediumText
+        padding: 10
+        text: text
+
+class DynamicScroller extends FluxComponent
+
+  @stateFields
+    alignment:  :bottomLeft
+    track:      :bottom
+    items:
+      "" Line 1
+      "" Line 2
+
+  count = 3
+  addItem:             -> @items = arrayWith @items, "Line #{count++}"
+  removeItem: (string) -> @items = arrayWithoutValue @items, string
+
+  render: ->
+    Element
+      childrenLayout: :row
+      childrenMargins: 10
+      padding: 10
+      drawOrder: StyleProps.palette.grayBackground
+      PseDemo @state, removeItem: @removeItem
+      Element
+        childrenMargins: 10
+        childrenLayout: "column"
+        SimpleButton text: "add element",         action: @addItem
+        array alignment in :topLeft :topRight :bottomLeft :bottomRight
+          SimpleButton
+            selected: @alignment == alignment
+            action:   -> @alignment = alignment
+            text:     "align #{alignment}"
+
+        array track in :top :bottom
+          SimpleButton
+            selected: @track == track
+            action:   -> @track = track
+            text:     "track #{track}"
