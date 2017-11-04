@@ -17,7 +17,7 @@ require './Gestures/namespace';
 require './Layout/namespace';
 require './Physics/namespace';
 require './Quixx/namespace';
-require './ScrollingDynamic/namespace';
+require './ScrollingElement/namespace';
 require './ScrollingInfinite/namespace';
 require './Style/namespace';
 require './Textarea/namespace';
