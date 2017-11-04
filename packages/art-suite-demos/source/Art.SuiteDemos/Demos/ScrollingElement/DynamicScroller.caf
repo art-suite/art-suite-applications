@@ -3,6 +3,12 @@ StyleProps = &StyleProps
 
 class LineItem extends FluxComponent
 
+  @stateFields
+    height: 50
+
+  expand: -> @height *= 2
+  collapse: -> @height = max @height / 2, 50
+
   removeItem: ->
     log remove: @props.text
     @props.removeItem @props.text
@@ -15,18 +21,26 @@ class LineItem extends FluxComponent
       animators:
         size:   toFrom: wcw:1, h: 0
         margin: toFrom: 0
-      on: pointerClick: @removeItem
       clip: true
-      RectangleElement color: StyleProps.palette.lightPrimaryBackground
+      drawOrder: StyleProps.palette.lightPrimaryBackground
       Element
-        size: cs: 1
+        size: wcw:1, h: @height
+        animators: :size
+        childrenLayout: :row
+        childrenAlignment: :centerLeft
+        childrenMargins: 15
         padding: 20
-        TextElement StyleProps.largeText, text: text
+        TextElement
+          StyleProps.largeText
+          text: text
+        SimpleButton text: "delete", action: @removeItem
+        SimpleButton text: "add", action: @expand
+        SimpleButton text: "sub", action: @collapse
 
 class PseDemo extends FluxComponent
 
   render: ->
-    {alignment, items, track, removeItem} = @props
+    {alignment, items, tight, track, removeItem} = @props
 
     Element
       drawOrder:
@@ -34,7 +48,8 @@ class PseDemo extends FluxComponent
       padding: 10
       childrenLayout: "column"
       childrenMargins: 10
-      size: ww:1, hch:1, max: hh: 1
+      size: if tight then ww:1, hch:1, max: hh: 1 else ps: 1
+      animators: :size
       TextElement
         StyleProps.mediumText
         text: "" Containing Element
@@ -48,6 +63,10 @@ class PseDemo extends FluxComponent
         animators:          :childrenAlignment :axis :location
         drawOrder:          #fff
         # padding: 10
+        TextElement
+          StyleProps.mediumText
+          text: "ScrollElement"
+          padding: 10
         array item in items
           LineItem removeItem: removeItem, key: "Item:#{item}", text: item
 
@@ -79,6 +98,7 @@ class DynamicScroller extends FluxComponent
   @stateFields
     alignment:  :bottomLeft
     track:      :bottom
+    tight:      false
     items:
       "" Line 1
       "" Line 2
@@ -95,6 +115,7 @@ class DynamicScroller extends FluxComponent
       drawOrder: StyleProps.palette.grayBackground
       PseDemo @state, removeItem: @removeItem
       Element
+        size: wcw:1
         childrenMargins: 10
         childrenLayout: "column"
         SimpleButton text: "add element",         action: @addItem
@@ -109,3 +130,8 @@ class DynamicScroller extends FluxComponent
             selected: @track == track
             action:   -> @track = track
             text:     "track #{track}"
+
+        SimpleButton
+          selected: @tight
+          action:   @toggleTight
+          text:     "" size: #{if @tight then "hch: 1 max: hh: 1" else "hh: 1"}
