@@ -20,12 +20,11 @@ class Button extends PointerActionsMixin Component
       on: if enabled then @buttonHandlers else {}
       childrenLayout: :column
       childrenAlignment: :centerCenter
+      animators: :drawOrder
 
-      RectangleElement
+      drawOrder:
         color: if @pointerDown then #0004 else if @hover then #0002 else #0001
-        radius: 3
-        inFlow: false
-        animators: color: true
+        rectangle: radius: 3
 
       TextElement
         StyleProps.mediumText
@@ -58,7 +57,7 @@ class Main extends Component
 
   render: ->
     Element
-      RectangleElement color: "grey"
+      drawOrder: "grey"
 
       Element
         size: w:300, hch:1
@@ -66,17 +65,16 @@ class Main extends Component
         axis: .5
         childrenLayout: :column
 
-        RectangleElement
-          inFlow: false
-          color:  :white
-          # animators: color: true
-          radius: 5
-          shadow: offsetY: 5 blur: 5 color: #0007
+        drawOrder:
+          rectangle: radius: 5
+          fill:
+            color:  :white
+            shadow: offsetY: 5 blur: 5 color: #0007
 
         Element
           size: hch: 1 h: StyleProps.standardSpacing
 
-          RectangleElement color: #0001
+          drawOrder: #0001
 
           TextElement
             StyleProps.mediumText
@@ -100,10 +98,11 @@ class Main extends Component
 
           Element
             size: ww: 1, h: 30
-            RectangleElement
+            drawOrder:
               color: @backgroundColor
-              animators: :color
               shadow: offsetY: 5 blur: 5 color: #0007
+            animators: :drawOrder
+
             Element
               clip: true
 
