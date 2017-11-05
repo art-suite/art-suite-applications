@@ -3,7 +3,7 @@ import &ArtSuite
 class ArtSuiteDemos extends Component
   render: ->
     Element
-      RectangleElement &StyleProps.backgroundStyle
+      drawOrder: &StyleProps.backgroundStyle
       Element
         padding: 5
         &Components/App()

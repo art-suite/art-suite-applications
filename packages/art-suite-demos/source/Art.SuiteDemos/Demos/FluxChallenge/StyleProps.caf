@@ -15,17 +15,15 @@ class StyleProps extends HotStyleProps
   @backgroundStyle:
     colors: #1b3061 #192b55
 
-  @appOutlineStyle: merge
-    lineWidth: 3
-    colorAndShadow #35769A
+  @appOutlineStyle:
+    rectangle: radius: 2
+    outline: merge
+      lineWidth: 3
+      colorAndShadow #35769A
 
   @buttonOutlineStyle: merge
     lineWidth: 5
     colorAndShadow @buttonColor
-
-  @planetMonitorOutlineStyle: merge
-    lineWidth: 5
-    colorAndShadow #87AFE7
 
   @planetMonitorTextStyle: merge
     @baseTextStyle
@@ -33,8 +31,11 @@ class StyleProps extends HotStyleProps
     padding: @textPadding
 
   @planetMonitorBackgroundStyle:
-    radius: 2
+    rectangle: radius: 2
     color: #2F5093
+    outline: merge
+      lineWidth: 5
+      colorAndShadow #87AFE7
 
   @buttonTextStyle: merge
     @baseTextStyle
@@ -47,9 +48,11 @@ class StyleProps extends HotStyleProps
     else if enabled && hover then #60c7b1
     else #39697A
 
-  @slotOutlineStyle: merge
-    lineWidth: 5
-    colorAndShadow #6af0d3
+  @slotOutlineStyle:
+    rectangle: radius: 1
+    outline: merge
+      lineWidth: 5
+      colorAndShadow #6af0d3
 
   @getSlotTextStyle: (red) =>
     merge

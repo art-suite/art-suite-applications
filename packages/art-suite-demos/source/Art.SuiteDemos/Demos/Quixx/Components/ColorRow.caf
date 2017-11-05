@@ -19,10 +19,8 @@ class ColorRow extends Component
           boardComponent: @props.boardComponent
 
     Element
-      size:     ww: 1 hch: 1
-      padding:  2
-
-      RectangleElement color: StyleProps.colorMap[color], inFlow: false
+      size:       ww: 1 hch: 1
+      drawOrder:  padding: 2 color: StyleProps.colorMap[color]
 
       if color != :grey
         TextElement
@@ -46,11 +44,9 @@ class ColorRow extends Component
         padding:        4
         childrenLayout: :flow
 
-        RectangleElement
-          radius:   7
-          padding:  -1
-
-          inFlow:   false
+        drawOrder:
+          rectangle: radius:   7
+          padding:  3
           color:    #0004
 
         Element

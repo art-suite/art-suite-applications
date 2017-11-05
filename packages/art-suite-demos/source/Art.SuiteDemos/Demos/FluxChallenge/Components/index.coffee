@@ -4,8 +4,7 @@
 module.exports = require './namespace'
 module.exports
 .addModules
-  App:            require './App'           
-  Button:         require './Button'        
-  PlanetMonitor:  require './PlanetMonitor' 
-  Slot:           require './Slot'          
-  StandardImport: require './StandardImport'
+  App:           require './App'          
+  Button:        require './Button'       
+  PlanetMonitor: require './PlanetMonitor'
+  Slot:          require './Slot'         

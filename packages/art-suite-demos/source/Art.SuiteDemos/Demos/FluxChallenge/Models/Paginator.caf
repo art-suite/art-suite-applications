@@ -37,10 +37,10 @@ class Paginator extends FluxSubscriptionsMixin ApplicationState
     @unsubscribeAll()
     each key, index in slotIds when key?
       @subscribe {}
-        subscriptionKey: "darkJedi-#{key}"
-        modelName: :darkJedi
+        subscriptionKey:  "darkJedi-#{key}"
+        modelName:        :darkJedi
         key
-        updatesCallback: ({data:darkJedi}) -> darkJedi && @_updateSlots()
+        updatesCallback:  ({data:darkJedi}) -> darkJedi && @_updateSlots()
 
   _updatePageUpDownEnabled: (loadedSlots)->
     first = last = null

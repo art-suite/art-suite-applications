@@ -6,11 +6,8 @@ class Slot extends Component
     slotTextStyleForAlert = getSlotTextStyle alert
 
     Element
-      size: ww: 1 hch: 1
-
-      RectangleElement
-        radius: 1
-        OutlineElement slotOutlineStyle
+      size:       ww: 1 hch: 1
+      drawOrder:  slotOutlineStyle
 
       Element
         size: ww: 1 hch: 1

@@ -12,13 +12,10 @@ class ColorScore extends Component
       size: w: @props.width || 45, h: 35
       margin: 7
 
-      RectangleElement
-
-        radius: 10
-        FillElement color: "white"
-        OutlineElement
-          lineWidth: 4
-          color: StyleProps.textColorMap[@props.color] || @props.color
+      drawOrder:
+        rectangle:  radius: 10
+        fill:       :white
+        outline:    lineWidth: 4 color: StyleProps.textColorMap[@props.color] || @props.color
 
       TextElement
         StyleProps.numberStyle

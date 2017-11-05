@@ -7,7 +7,9 @@ class ButtonLine extends Component
     Element
       &StyleProps.line
 
-      RectangleElement &StyleProps.background, inFlow: false
+      drawOrder:
+        rectangle:  radius: 5
+        #00bcd4
 
       children
 

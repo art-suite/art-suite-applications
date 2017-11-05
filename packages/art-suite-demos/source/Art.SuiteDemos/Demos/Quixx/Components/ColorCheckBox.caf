@@ -9,14 +9,13 @@ class ColorCheckBox extends FluxComponent
     isLock = !/^-?[0-9]+$/.test @props.text
     Element
       size: 40
-      padding: 1
       cursor: "pointer"
       on: pointerClick: @toggleCheckbox
 
-      RectangleElement
-
-        radius: if isLock then 1000 else 5
-        color: "white"
+      drawOrder:
+        padding: 1
+        rectangle: radius: if isLock then 1000 else 5
+        "white"
 
       TextElement
         StyleProps.numberStyle

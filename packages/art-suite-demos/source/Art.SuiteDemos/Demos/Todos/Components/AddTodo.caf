@@ -21,8 +21,10 @@ class AddTodo extends FluxComponent
 
       Element
         margin: 15
-
-        RectangleElement color: :white, padding: -5, radius: 5
+        drawOrder:
+          padding: -5
+          rectangle: radius: 5
+          :white
 
         TextInputElement
           &StyleProps.text

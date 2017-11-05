@@ -1,5 +1,5 @@
-import &ArtSuite
-StyleProps = &StyleProps
+import &StandardImport
+Button = &Button
 
 class LineItem extends FluxComponent
 
@@ -22,7 +22,7 @@ class LineItem extends FluxComponent
         size:   toFrom: wcw:1, h: 0
         margin: toFrom: 0
       clip: true
-      drawOrder: StyleProps.palette.lightPrimaryBackground
+      drawOrder: vibrant
       Element
         size: wcw:1, h: @height
         animators: :size
@@ -31,11 +31,12 @@ class LineItem extends FluxComponent
         childrenMargins: 15
         padding: 20
         TextElement
-          StyleProps.largeText
+          mediumText
           text: text
-        SimpleButton text: "delete", action: @removeItem
-        SimpleButton text: "add", action: @expand
-        SimpleButton text: "sub", action: @collapse
+          color: lightMuted
+        Button text: "delete", action: @removeItem
+        Button text: "add", action: @expand
+        Button text: "sub", action: @collapse
 
 class PseDemo extends FluxComponent
 
@@ -44,15 +45,16 @@ class PseDemo extends FluxComponent
 
     Element
       drawOrder:
-        color: #ff7
+        color: veryDarkMuted
       padding: 10
-      childrenLayout: "column"
+      childrenLayout: :column
       childrenMargins: 10
       size: if tight then ww:1, hch:1, max: hh: 1 else ps: 1
       animators: :size
       TextElement
-        StyleProps.mediumText
+        mediumText
         text: "" Containing Element
+        color: lightMuted
       ScrollElement
         clip:               true
         track:              track
@@ -61,37 +63,15 @@ class PseDemo extends FluxComponent
         size:               hch: 1, max: hh: 1
         childrenAlignment:  alignment
         animators:          :childrenAlignment :axis :location
-        drawOrder:          #fff
+        drawOrder:          darkMuted
         # padding: 10
         TextElement
-          StyleProps.mediumText
+          mediumText
           text: "ScrollElement"
           padding: 10
+          color: lightMuted
         array item in items
           LineItem removeItem: removeItem, key: "Item:#{item}", text: item
-
-class SimpleButton extends PointerActionsMixin FluxComponent
-
-  render: ->
-    {text, selected} = @props
-    color = rgbColor #00b4ff
-    Element
-      size: cs: 1
-      cursor: "pointer"
-      on: @buttonHandlers
-      drawOrder:
-        rectangle: radius: 100
-        fill:
-          color: if @pointerIsDown then color.withSat 0 else if selected then color.withSat .5 else color
-          shadow: if @pointerIsDown
-            blur: 1, offset: y: 1
-          else
-            blur: 2, offset: y: 2
-
-      TextElement
-        StyleProps.mediumText
-        padding: 10
-        text: text
 
 class DynamicScroller extends FluxComponent
 
@@ -112,26 +92,26 @@ class DynamicScroller extends FluxComponent
       childrenLayout: :row
       childrenMargins: 10
       padding: 10
-      drawOrder: StyleProps.palette.grayBackground
+      drawOrder: darkBackground
       PseDemo @state, removeItem: @removeItem
       Element
         size: wcw:1
         childrenMargins: 10
         childrenLayout: "column"
-        SimpleButton text: "add element",         action: @addItem
+        Button text: "add element",         action: @addItem
         array alignment in :topLeft :topRight :bottomLeft :bottomRight
-          SimpleButton
+          Button
             selected: @alignment == alignment
             action:   -> @alignment = alignment
             text:     "align #{alignment}"
 
         array track in :top :bottom
-          SimpleButton
+          Button
             selected: @track == track
             action:   -> @track = track
             text:     "track #{track}"
 
-        SimpleButton
+        Button
           selected: @tight
           action:   @toggleTight
           text:     "" size: #{if @tight then "hch: 1 max: hh: 1" else "hh: 1"}

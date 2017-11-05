@@ -3,12 +3,9 @@ import &StandardImport
 class PlanetMonitor extends Component
   render: ->
     Element
-      size: ww: 1 hch: 1
-      RectangleElement
-        planetMonitorBackgroundStyle
-        FillElement()
-        OutlineElement planetMonitorOutlineStyle
+      size:       ww: 1 hch: 1
+      drawOrder:  &StyleProps.planetMonitorBackgroundStyle
 
       TextElement
         planetMonitorTextStyle
-        text: @props.location?.name || "unknown"
+        text: @props.location?.name || :unknown

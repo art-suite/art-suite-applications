@@ -4,6 +4,6 @@
 module.exports = require './namespace'
 module.exports
 .addModules
+  Button:          require './Button'         
   DynamicScroller: require './DynamicScroller'
   Main:            require './Main'           
-  StyleProps:      require './StyleProps'     

@@ -10,37 +10,34 @@ class App extends FluxComponent
       pageUpEnabled = pageDownEnabled = false
 
     Element
-      size: ww: 1 hch: 1 max: w: 800
-      axis: :centerCenter
-      location: ps: :centerCenter
-
-      RectangleElement
-        radius: 2
-        OutlineElement appOutlineStyle
+      size:       ww: 1 hch: 1 max: w: 800
+      axis:       :centerCenter
+      location:   ps: :centerCenter
+      drawOrder:  appOutlineStyle
 
       Element
-        size: ww: 1 hch: 1
-        childrenLayout: :column
-        padding: basePadding
-        childrenMargins: basePadding
+        size:             ww: 1 hch: 1
+        childrenLayout:   :column
+        padding:          basePadding
+        childrenMargins:  basePadding
 
         &PlanetMonitor {} @location
 
         Element
-          size: ww: 1 hch: 1
-          childrenLayout: :row
-          childrenMargins: basePadding
+          size:             ww: 1 hch: 1
+          childrenLayout:   :row
+          childrenMargins:  basePadding
 
           Element
-            size: ww: 1 hch: 1
-            childrenLayout: :column
-            childrenMargins: basePadding
+            size:             ww: 1 hch: 1
+            childrenLayout:   :column
+            childrenMargins:  basePadding
             array darkJedi in loadedSlots
               &Slot {} darkJedi, alert: darkJedi?.homeworld.id == @location?.id
 
           Element
-            size: w: 100 hh: 1
-            childrenLayout: :column
-            childrenMargins: basePadding
+            size:             w: 100 hh: 1
+            childrenLayout:   :column
+            childrenMargins:  basePadding
             &Button action: pageUpEnabled    && @models.paginator.pageUp, up: true
             &Button action: pageDownEnabled  && @models.paginator.pageDown

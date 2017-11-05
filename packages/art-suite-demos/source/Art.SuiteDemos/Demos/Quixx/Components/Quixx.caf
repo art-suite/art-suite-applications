@@ -1,10 +1,10 @@
 import &ArtSuite
 
 boardNums =
-  red:    2  3  4   5  6  7  8  9  10 11 12 :🔓
-  yellow: 2  3  4   5  6  7  8  9  10 11 12 :🔓
-  green:  12 11 10  9  8  7  6  5  4  3  2  :🔓
-  blue:   12 11 10  9  8  7  6  5  4  3  2  :🔓
+  red:    2  3  4  5  6  7  8  9  10 11 12 :🔓
+  yellow: 2  3  4  5  6  7  8  9  10 11 12 :🔓
+  green:  12 11 10 9  8  7  6  5  4  3  2  :🔓
+  blue:   12 11 10 9  8  7  6  5  4  3  2  :🔓
   grey:   -5 -5 -5 -5
 
 colors = Object.keys boardNums
@@ -21,7 +21,7 @@ class Quixx extends FluxComponent
     {board, subScores, score} = @state
 
     Element
-      RectangleElement color: StyleProps.backgroundColor, inFlow: false
+      drawOrder: StyleProps.backgroundColor
 
       PagingScrollElement
 
@@ -46,8 +46,7 @@ class Quixx extends FluxComponent
           Element
             key:            :scores
             size:           ww: 1 hch: 1
-
-            RectangleElement color: #999 inFlow: false
+            drawOrder:      #999
 
             Element
               size:           ww: 1 hch: 1
@@ -75,11 +74,10 @@ class Quixx extends FluxComponent
           Element
             key:      :reset
             size:     ww: 1 h:60
-            padding:  10
             cursor:   :pointer
             on: pointerClick: @models.quixx.reset
 
-            RectangleElement color: StyleProps.textColorMap.grey, radius: 5
+            drawOrder: padding: 10, color: StyleProps.textColorMap.grey, rectangle: radius: 5
 
             TextElement
               StyleProps.numberStyle

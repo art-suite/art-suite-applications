@@ -1,4 +1,4 @@
-import &ArtSuite
+import &StandardImport
 
 class MyComponent extends Component
 
@@ -9,7 +9,7 @@ class MyComponent extends Component
     Element
 
       RectangleElement
-        color:      #222222
+        color:      darkBackground
 
       Element
         padding: 10

@@ -1,0 +1,27 @@
+import &StandardImport
+
+class Button extends PointerActionsMixin FluxComponent
+
+  render: ->
+    {text, selected} = @props
+    color = rgbColor vibrant
+    Element
+      size: cs: 1
+      cursor: "pointer"
+      on: @buttonHandlers
+      drawOrder:
+        rectangle: radius: 100
+        fill:
+          color: color =
+            if @pointerIsDown then vibrant
+            else if @hover then darkVibrant
+            else if @props.selected then vibrant
+            else veryDarkMuted
+      animators: :drawOrder
+
+      TextElement
+        mediumText
+        padding: 10
+        text: text
+        animators: :color
+        color: if color == vibrant || color == darkVibrant then lightMuted else muted
