@@ -377,6 +377,11 @@ module.exports = class Color extends AtomicBase
   withSat: withSat = (v) -> hslColor @h, v, @l, @a
   withSaturation: withSat
 
+  withScaledLightness:  (s) -> hslColor @h, @s, s * @l, @a
+  withScaledSaturation: (s) -> hslColor @h, s * @s, @l, @a
+
+  withScaledLAndS:  (l, s) -> hslColor @h, s * @s, l * @l, @a
+
   withChannel: (c, v) ->
     switch c
       when "r", "red" then new Color v, @g, @b, @a
@@ -449,10 +454,10 @@ module.exports = class Color extends AtomicBase
     rgbaString: -> "rgbColor(" + [@r256, @g256, @b256, @a256].join('/255, ') + "/255)"
 
     hexString: ->
-      "#" +
-      hexString(@r256) +
-      hexString(@g256) +
-      hexString(@b256)
+      "#" + @rawHexString
+
+    rgbaHexString: ->
+      "#" + @getRawRgbaHexString()
 
     hex16String: ->
       "#" +
@@ -470,8 +475,10 @@ module.exports = class Color extends AtomicBase
       if colorFloatEq(1, @a) then   @getHexString()
       else                          @rgbaHexString
 
-    rgbaHexString: ->
-      "#" + @getRawRgbaHexString()
+    rawHexString: ->
+      hexString(@r256) +
+      hexString(@g256) +
+      hexString(@b256)
 
     rawRgbaHexString: ->
       hexString(@r256) +
@@ -500,7 +507,7 @@ module.exports = class Color extends AtomicBase
 
   @getter
     plainObjects: -> if @a < 1 then @rgbaHexString else @hexString
-    inspectedObjects: -> if colorFloatEq(1, @a) then @hexString else @rgbaHexString
+    inspectedObjects: -> "<color #{if colorFloatEq(1, @a) then @hexString else @rgbaHexString}>"
 
   # vivafy HSL on request
   @getter
