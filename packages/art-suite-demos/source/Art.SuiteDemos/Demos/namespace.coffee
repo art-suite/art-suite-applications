@@ -20,6 +20,7 @@ require './Quixx/namespace';
 require './ScrollingElement/namespace';
 require './ScrollingInfinite/namespace';
 require './Style/namespace';
+require './TextInputMobileTest/namespace';
 require './Textarea/namespace';
 require './Todos/namespace';
 require './VoidProps/namespace'
