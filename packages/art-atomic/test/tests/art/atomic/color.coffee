@@ -6,7 +6,7 @@ suite "Art.Atomic.Color", ->
     assert.equal red.toString(), "#ff0000"
 
   test "inspectedObjects", ->
-    assert.equal rgbColor().inspectedObjects, "#000000"
+    assert.match rgbColor().inspectedObjects, /\#000000/
 
   test "red transparent", ->
     red = new Color 1,0,0,0.5
