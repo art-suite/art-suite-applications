@@ -80,3 +80,20 @@ suite: ->
         sqs.deleteMessage
           queue: queueUrl
           receiptHandle: messages[0].ReceiptHandle
+
+  test "receiveMessage, wait 1s, then sendMessage", ->
+    randomBody = null
+    Promise.all []
+      sqs.receiveMessage
+        queue: queueUrl
+        wait: 10
+      timeout 1000, ->
+        sqs.sendMessage
+          queue: queueUrl
+          body: randomBody = randomString()
+    .then ([messages]) ->
+      assert.eq messages.length, 1
+      assert.eq messages[0].body, randomBody
+      sqs.deleteMessage
+        queue: queueUrl
+        receiptHandle: messages[0].ReceiptHandle
