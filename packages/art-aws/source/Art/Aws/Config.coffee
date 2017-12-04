@@ -20,6 +20,10 @@ defineModule module, class Config extends Configurable
     dynamoDb:
       maxRetries: 5
 
+    sqs:
+      queueUrlPrefix: null # REQUIRED. Example: https://sqs.us-east-1.amazonaws.com/123456789
+
+  # I should really just use 'elasticsearch' everywhere...
   @awsServiceToConfigNameMap: awsServiceToConfigNameMap =
     es: "elasticsearch"
 
@@ -36,13 +40,35 @@ defineModule module, class Config extends Configurable
   @getAwsServiceConfig: (service) =>
     @config[service] || @config[awsServiceToConfigNameMap[service]]
 
-  @getNormalizedDynamoDbConfig: =>
-    @getNormalizedConfig "dynamoDb"
+  @getNormalizedConfig: (forService, options) =>
+    defaultCredentials = @getDefaultConfig().credentials
+    rawServiceConfig = @getAwsServiceConfig forService
 
-  @getNormalizedConfig: (forService) =>
-    merge
+    config = merge
       accessKeyId:      @config.credentials.accessKeyId
       secretAccessKey:  @config.credentials.secretAccessKey
       region:           @config.region
       maxRetries:       5
-      @config[forService]
+      rawServiceConfig?.credentials
+      rawServiceConfig
+      options
+
+    if config.accessKeyId == defaultCredentials.accessKeyId && !config.endpoint
+      log.error """
+        Art.Aws invalid configuration for #{forService}.
+
+        Please set one of:
+        - Art.Aws.credentails for connection to AWS
+        - Art.Aws.#{forService}.endpoint for connection to a local server.
+
+        #{
+        if options && objectHasKeys options
+          formattedInspect "Art.Aws.config":config, options: options, "merged config": config
+        else
+          formattedInspect "Art.Aws.config":config
+        }
+
+        """
+      throw new Error "invalid config options"
+
+    config

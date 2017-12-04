@@ -103,24 +103,7 @@ module.exports = class DynamoDb extends BaseClass
   @singletonClass()
 
   constructor: (options = {}) ->
-    config = merge Config.getNormalizedDynamoDbConfig(), options
-    if config.accessKeyId == Config.getDefaultConfig().credentials.accessKeyId && !config.endpoint
-      log.error """
-        Art.Aws.DynamoDb invalid configuration. Please set one of:
-        - Art.Aws.credentails for connection to AWS
-        - Art.Aws.dynamoDb.endpoint for connection to a local DynamoDB.
-
-        #{
-        if objectHasKeys options
-          formattedInspect "Art.Aws.config":config, options: options, "merged config": config
-        else
-          formattedInspect "Art.Aws.config":config
-        }
-
-        """
-      throw new Error "invalid config options"
-
-    @_awsDynamoDb = new AWS.DynamoDB config
+    @_awsDynamoDb = new AWS.DynamoDB merge Config.getNormalizedConfig "dynamoDb", options
 
   nonInternalErrorsRegex = /ConditionalCheckFailedException|ResourceNotFoundException/
   invokeAws: (name, params) ->

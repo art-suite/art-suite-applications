@@ -1,0 +1,19 @@
+# This file can be set up with your private credentials.
+# This file is required for testing.
+## To init:
+  > cp artConfig.private.template.caf artConfig.private.caf
+
+  # add to .gitignore
+  echo "" >> .gitignore
+  echo "artConfig.private.caf" >> .gitignore
+
+Test:
+  Art: Aws:
+    credentials:
+      accessKeyId:      'blah'
+      secretAccessKey:  'blahblah'
+
+    region:             'us-east-1'
+
+    dynamoDb:
+      endpoint:         'http://localhost:1337/localhost:8081'
