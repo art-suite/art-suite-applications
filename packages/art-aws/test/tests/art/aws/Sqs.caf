@@ -1,0 +1,82 @@
+import &StandardImport
+
+suite: ->
+  testQueueName = :ArtAwsSqsTestQueue
+
+  @timeout 20000
+
+  softPurge = ->
+    sqs.receiveMessage
+      queue: queueUrl
+      wait: 0
+      limit: 10
+    .then (messages) ->
+      deleteCount = 0
+      if messages.length > 0
+        Promise.all array message in messages
+          log "deleteMessage body: #{message.body}"
+          sqs.deleteMessage
+            queue: queueUrl
+            receiptHandle: message.ReceiptHandle
+          .then -> deleteCount++
+        .then ->
+          softPurge()
+          .then (dc) -> dc + deleteCount
+      else
+        Promise.resolve deleteCount
+
+  sqs = null
+  queueUrl = null
+  setup ->
+    sqs = new Sqs
+
+    sqs.listQueues()
+    .then (queues) ->
+      # log {queues}
+      assert.isArray queues
+      testQueueExists = false
+      regexp = /// #{testQueueName}$
+      find url in queues when regexp.test url
+        queueUrl = url
+        testQueueExists = true
+
+      if testQueueExists
+        log "Queue exists, purging queue": queueUrl
+        softPurge()
+        # sqs.purgeQueue queue: queueUrl
+      else
+        log "CreateQueue"
+        sqs.createQueue name: testQueueName
+        .then (url) ->
+          queueUrl = url
+          log "CreateQueue SUCCESS": queueUrl
+      # .then ->
+      #   log {testQueueExists, testQueueExists, queueUrl}
+
+  test "sendMessage", ->
+    sqs.sendMessage
+      queue: queueUrl
+      body: "hi"
+
+  test "receiveMessage", ->
+    sqs.receiveMessage
+      queue: queueUrl
+      wait: 0
+      limit: 10
+    .then (messages) ->
+      assert.isArray messages
+
+  test "sendMessage then receiveMessage", ->
+    sqs.sendMessage
+      queue: queueUrl
+      body: randomBody = randomString()
+    .then ->
+      sqs.receiveMessage
+        queue: queueUrl
+        wait: 10
+      .then (messages) ->
+        assert.eq messages.length, 1
+        assert.eq messages[0].body, randomBody
+        sqs.deleteMessage
+          queue: queueUrl
+          receiptHandle: messages[0].ReceiptHandle

@@ -7,4 +7,5 @@ module.exports
   Aws4RestClient: require './Aws4RestClient'
   DynamoDb:       require './DynamoDb'      
   S3:             require './S3'            
+  Sqs:            require './Sqs'           
 require './StreamlinedDynamoDbApi'

@@ -17,3 +17,7 @@ Test:
 
     dynamoDb:
       endpoint:         'http://localhost:1337/localhost:8081'
+
+    sqs:
+      accessKeyId:      'sqs-blah'
+      secretAccessKey:  'sqs-blahblah'

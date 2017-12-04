@@ -1,15 +1,11 @@
 {
-  w
   merge
   Promise
   each
 } = require 'art-standard-lib'
 {BaseClass} = require 'art-class-system'
 
-{
-  preprocessSqsCommand
-  postprocessSqsCommand
-} = require './StreamlinedSqsApi'
+{sqsCommands} = require './StreamlinedSqsApi'
 Config = require "./Config"
 
 module.exports = class Sqs extends BaseClass
@@ -18,15 +14,14 @@ module.exports = class Sqs extends BaseClass
   constructor: (options = {}) ->
     @_awsSqs = new AWS.SQS merge Config.getNormalizedConfig "sqs", options
 
+  emptyObject = {}
   identifyFunction = (a) -> a
-  each w("sendMessage receiveMessage deleteMessage listQueues"),
-    (command) =>
-      preprocess  = preprocessSqsCommand[command]  || identifyFunction
-      postprocess = postprocessSqsCommand[command] || identifyFunction
+  each sqsCommands,
+    ({preprocess = identifyFunction, postprocess = identifyFunction}, command) =>
       @::[command] = (params) ->
         Promise.withCallback (callback) =>
-          @_awsSqs[command] preprocess(params), (err, data) ->
-            callback err, postprocess data
+          @_awsSqs[command] preprocess(params ? emptyObject), (err, data) ->
+            callback err, postprocess data ? emptyObject
 
   # sendMessage: (params) ->
   #   Promise.withCallback (callback) =>
