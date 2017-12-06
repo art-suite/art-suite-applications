@@ -109,10 +109,12 @@ module.exports = class DynamoDb extends BaseClass
   invokeAws: (name, params) ->
     Promise.withCallback (callback) => @_awsDynamoDb[name] params, callback
     .catch (error) =>
-      if config.verbose || !error.message.match nonInternalErrorsRegex
+      if config.verbose || !nonInternalErrorsRegex.test error.message
         log.error "Art.Aws.DynamoDb": {
-          message: "request was rejected"
-          name
+          method: name
+          status: "request was rejected"
+          message: error.message
+          verbose: config.verbose
           params
           error
         }
