@@ -87,8 +87,8 @@ module.exports = class BitmapBase extends BaseClass
     )
 
   # double-dispatch - used in ArtEngine to allow drawChildren to both DRAW the children AND compute drawAreas
-  draw: (drawable, where) ->
-    drawable.draw @, where
+  drawDrawable: (drawable, where) ->
+    drawable.drawOnBitmap @, where
 
   pixelSnapRectangle: (where, r) ->
     {left, right, bottom, top} = r
