@@ -22,6 +22,9 @@ defineModule module, class Config extends Configurable
 
     sqs:
       queueUrlPrefix: null # REQUIRED. Example: https://sqs.us-east-1.amazonaws.com/123456789
+      # queueUrl: null          # queue URI
+      # accessKeyId:
+      # secretAccessKey:
 
   # I should really just use 'elasticsearch' everywhere...
   @awsServiceToConfigNameMap: awsServiceToConfigNameMap =

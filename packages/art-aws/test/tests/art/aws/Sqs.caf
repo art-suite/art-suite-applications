@@ -1,5 +1,14 @@
 import &StandardImport
 
+##
+  NOTE: make sure to configure artConfig.private.caf for you test queue
+  Test:
+    Art: Aws:
+      sqs:
+        accessKeyId:      :ABC
+        secretAccessKey:  :DEF
+        queue:            :https://sqs.us-east-1.amazonaws.com/123/ABC
+
 suite: ->
   testQueueName = :ArtAwsSqsTestQueue
 
@@ -14,7 +23,6 @@ suite: ->
       deleteCount = 0
       if messages.length > 0
         Promise.all array message in messages
-          log "deleteMessage body: #{message.body}"
           sqs.deleteMessage
             queue: queueUrl
             receiptHandle: message.ReceiptHandle
@@ -26,41 +34,19 @@ suite: ->
         Promise.resolve deleteCount
 
   sqs = null
-  queueUrl = null
+  {queueUrl} = Neptune.Art.Aws.config.sqs
   setup ->
     sqs = new Sqs
 
-    sqs.listQueues()
-    .then (queues) ->
-      # log {queues}
-      assert.isArray queues
-      testQueueExists = false
-      regexp = /// #{testQueueName}$
-      find url in queues when regexp.test url
-        queueUrl = url
-        testQueueExists = true
-
-      if testQueueExists
-        log "Queue exists, purging queue": queueUrl
-        softPurge()
-        # sqs.purgeQueue queue: queueUrl
-      else
-        log "CreateQueue"
-        sqs.createQueue name: testQueueName
-        .then (url) ->
-          queueUrl = url
-          log "CreateQueue SUCCESS": queueUrl
-      # .then ->
-      #   log {testQueueExists, testQueueExists, queueUrl}
+    throw new Error "set config.sqs.queueUrl" unless queueUrl
+    softPurge()
 
   test "sendMessage", ->
     sqs.sendMessage
-      queue: queueUrl
       body: "hi"
 
   test "receiveMessage", ->
     sqs.receiveMessage
-      queue: queueUrl
       wait: 0
       limit: 10
     .then (messages) ->
@@ -68,32 +54,26 @@ suite: ->
 
   test "sendMessage then receiveMessage", ->
     sqs.sendMessage
-      queue: queueUrl
       body: randomBody = randomString()
     .then ->
       sqs.receiveMessage
-        queue: queueUrl
         wait: 10
       .then (messages) ->
         assert.eq messages.length, 1
         assert.eq messages[0].body, randomBody
         sqs.deleteMessage
-          queue: queueUrl
           receiptHandle: messages[0].ReceiptHandle
 
   test "receiveMessage, wait 1s, then sendMessage", ->
     randomBody = null
     Promise.all []
       sqs.receiveMessage
-        queue: queueUrl
         wait: 10
       timeout 1000, ->
         sqs.sendMessage
-          queue: queueUrl
           body: randomBody = randomString()
     .then ([messages]) ->
       assert.eq messages.length, 1
       assert.eq messages[0].body, randomBody
       sqs.deleteMessage
-        queue: queueUrl
         receiptHandle: messages[0].ReceiptHandle

@@ -1,14 +1,14 @@
-{findUrlRegExp, object, present, pathJoin, merge} = require 'art-standard-lib'
+{log, findUrlRegExp, object, present, pathJoin, merge} = require 'art-standard-lib'
 {config} = require './Config'
 
 module.exports = class StreamlinedSqsApi
 
-  @normalizeQueueUrl: normalizeQueueUrl = (queue) ->
+  @normalizeQueueUrl: normalizeQueueUrl = (queue = config?.sqs?.queueUrl) ->
     if findUrlRegExp.test queue
       queue
     else
       {queueUrlPrefix} = config
-      throw new Error "queueUrlPrefix required" unless present queueUrlPrefix
+      throw new Error "queue (config.Art.Aws.sqs.queueUrl) or queueUrlPrefix required" unless present queueUrlPrefix
       pathJoin queueUrlPrefix, queue.replace /[^-_a-zA-Z0-9]/g, '-'
 
   doesntStartLowercase = /^[^a-z]/
