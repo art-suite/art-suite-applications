@@ -8,7 +8,7 @@
   objectWithExistingValues
   present
   isString
-} = require 'art-foundation'
+} = require 'art-standard-lib'
 
 {Pipeline, KeyFieldsMixin, pipelines, UpdateAfterMixin} = require 'art-ery'
 {DynamoDb} = ArtAws = require 'art-aws'
@@ -94,10 +94,29 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
         log getAll: items: items?.length
         items
 
-    # TODO: make create fail if the item already exists
-    # WHY? we have after-triggers that need to only trigger on a real create - not a replace
-    # AND filters like ValidationFilter assume create is a real create and update is a real update...
-    # NOTE: replace should be considered an update...
+    ###
+    TODO: make create fail if the item already exists
+      WHY? we have after-triggers that need to only trigger on a real create - not a replace
+      AND filters like ValidationFilter assume create is a real create and update is a real update...
+      NOTE: replace should be considered an update...
+      NOTE: We have createOrUpdate if you really want both.
+
+      ADD "replaceOk" prop
+        Only replace existing items if explicitly requested:
+        {replaceOk} = request.props
+        This will mostly be used internally. Use createOrUpdate for
+        that behavior externally.
+
+    HOW to do 'replaceOk':
+
+      http://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_PutItem.html
+      To prevent a new item from replacing an existing item, use a conditional
+      expression that contains the attribute_not_exists function with the name of
+      the attribute being used as the partition key for the table. Since every
+      record must contain that attribute, the attribute_not_exists function will
+      only succeed if no matching item exists.
+
+    ###
     create: (request) ->
       @_artEryToDynamoDbRequest request, then: (params) =>
         @dynamoDb.putItem params
@@ -187,9 +206,31 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
         result ? request.success data: request.requestDataWithKey
 
     ###
-    This calls 'update' and possibly 'create', so hooks on update an create will be triggered.
+    This calls 'update' and possibly 'create', so hooks on update OR create will be correctly triggered.
     NOTE: Only after-update OR after-create filters/events will be processed - NOT BOTH!
-      Which is the whole reason this exists, really - you the correct after-filters-events fire.
+      Which is the whole reason this exists, really - so the correct after-filters-events fire.
+
+    TODO:
+      The new version should do this:
+      get {key, returnNullIfMissing: true}
+      .then (exists) ->
+        if exists
+          update {key, data}
+          .catch (doesntExists???) ->
+            Promise.reject raceConditionOccured: true if doesntExists
+          # NOTE - ignoring the race-condition with 'delete'
+        else
+          create {key, data}
+          .catch (exists???) ->
+            Promise.reject raceConditionOccured: true if exists
+      .catch ({raceConditionOccured}) ->
+        if raceConditionOccured && 3 > retryCount = 1 + props.retryCount ? 0
+          createOrUpdate {
+            key
+            props: merge props, {retryCount}
+          }
+        else
+          throw original-error
     ###
     createOrUpdate: (request) ->
       request.requireServerOrigin()

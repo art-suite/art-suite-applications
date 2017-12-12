@@ -1,0 +1,161 @@
+import &StandardImport
+
+myTable = MyTable = null
+setupWithMyTable = ->
+  Neptune.Art.Ery.PipelineRegistry._reset()
+  {myTable} = class MyTable extends DynamoDbPipeline
+    @addDatabaseFilters
+      name:   "required string"
+      email:  "required email"
+      rank:               :number
+      attributes:         :array
+
+  {myCompoundKeyTable} = class MyCompoundKeyTable extends DynamoDbPipeline
+    @keyFields "userId/postId"
+    @addDatabaseFilters
+      user:   "link"
+      post:   "link"
+
+  Promise.all([
+    myCompoundKeyTable._vivifyTable()
+    myTable._vivifyTable()
+  ])
+
+suite:
+
+  basic: ->
+    setup setupWithMyTable
+
+    test "create then get", ->
+      myTable.create
+        data:
+          name: "John"
+          email: "foo@bar.com"
+
+      .then (data) ->
+        assert.isString data.id
+        assert.isNumber data.createdAt
+        assert.isNumber data.updatedAt
+        myTable.get key: data
+        .then (getData) ->
+          assert.eq getData, data
+
+    test "delete", ->
+      createData = null
+
+      myTable.create
+        data:
+          name: "John"
+          email: "foo@bar.com"
+          rank: 123
+          attributes: ["adventurous", "charming"]
+
+      .then (_createData) ->
+        createData = _createData
+        myTable.delete key: createData.id
+
+      .then ->
+        assert.rejects myTable.get key: createData.id
+
+      .then (expectedError)->
+        {response} = expectedError.info
+        assert.eq response.status, missing
+        "triggered catch"
+
+    test "describeTable", ->
+      myTable.dynamoDb.describeTable TableName: myTable.tableName
+      .then ({Table}) ->
+        assert.eq Table.AttributeDefinitions, [
+          AttributeName: "id"
+          AttributeType: "S"
+        ]
+
+  update: ->
+    setup setupWithMyTable
+
+    test "using keys", ->
+
+      createData = null
+
+      myTable.create
+        data:
+          name: "John"
+          email: "foo@bar.com"
+          rank: 123
+          attributes: ["adventurous", "charming"]
+
+      .then (createData) ->
+        myTable.update
+          key: createData.id
+          data: rank: 456
+
+        .then (updatedData)->
+          myTable.get key: createData.id
+          .then (data)->
+            assert.eq data, merge createData, updatedData
+
+    test "non-existant record fails with status: missing", ->
+      assert.rejects myTable.update
+        key: randomString()
+        data: rank: 123
+      .then (rejectsWith) ->
+        assert.eq rejectsWith.info.response.status, missing
+
+    test "with createOk rejected without originatedOnServer", ->
+      assert.rejects myTable.update
+        props:
+          createOk: true
+          key: randomString()
+          data: rank: 123
+      .then (rejectsWith) ->
+        assert.eq rejectsWith.info.response.status, clientFailure
+
+    test "non-existant record works with createOk and originatedOnServer", ->
+      pipelines.myCompoundKeyTable.update
+        returnResponseObject: true
+        originatedOnServer: true
+        props:
+          createOk: true
+          key: userId: "123", postId: "abc"
+      .then (response) ->
+        assert.eq response.status, success
+
+  "compound primary key": ->
+    myManyToManyTable = null
+    setup ->
+      Neptune.Art.Ery.PipelineRegistry._reset()
+      {myManyToManyTable} = class MyManyToManyTable extends DynamoDbPipeline
+        @primaryKey "userId/postId"
+        @addDatabaseFilters
+          user: "required link"
+          post: "required link"
+          rank: :number
+
+      myManyToManyTable.createTable()
+
+    test "create, get and update", ->
+
+      myManyToManyTable.create
+        data:
+          rank: 123
+          userId: "abc123"
+          postId: "xyz123"
+
+      .then (data) ->
+        assert.doesNotExist data.id
+        myManyToManyTable.get key: data
+        .then ({rank}) -> assert.eq rank, 123
+        .then         -> myManyToManyTable.update key: data, data: merge data, rank: 456
+        .then         -> myManyToManyTable.get key: data
+        .then ({rank}) -> assert.eq rank, 456
+
+    test "create fails with missing required field", ->
+
+      assert.rejects myManyToManyTable.create
+        data:
+          rank:   123
+          userId: :abc123
+
+      .then (expectedError) ->
+        assert.eq expectedError.info.response.status, clientFailure
+
