@@ -66,9 +66,9 @@ defineModule module, class Config extends Configurable
 
         #{
         if options && objectHasKeys options
-          formattedInspect "Art.Aws.config":config, options: options, "merged config": config
+          formattedInspect "Art.Aws.config":@config, options: options, "merged config": config
         else
-          formattedInspect "Art.Aws.config":config
+          formattedInspect "Art.Aws.config":@config, "merged config": config
         }
 
         """
