@@ -1,16 +1,10 @@
 {
   defineModule
-  mergeInto
-  Promise, object, isPlainObject, deepMerge, compactFlatten, inspect
-  log, merge, compare, Validator, isString, isFunction, withSort
-  formattedInspect
-  mergeIntoUnless
-  objectWithExistingValues
-  present
-  isString
+  Promise
+  log, merge
 } = require 'art-standard-lib'
 
-{Pipeline, KeyFieldsMixin, pipelines, UpdateAfterMixin} = require 'art-ery'
+{Pipeline} = require 'art-ery'
 {Sqs} = ArtAws = require 'art-aws'
 
 defineModule module, class SqsPipeline extends Pipeline
@@ -34,7 +28,6 @@ defineModule module, class SqsPipeline extends Pipeline
         queue: @tableName
         {limit: 1, visibilityTimeout, wait}
       .then (messages) -> messages[0]
-
 
     # IN: request.data:
     #   visibilityTypeout: time in seconds before the job is requeued
