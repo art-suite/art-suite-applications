@@ -2,6 +2,8 @@
 FluxCore = require '../Core'
 {
   lowerCamelCase
+  timeout
+  object
   each, clone, BaseObject, log, isString, isPlainObject, merge, propsEq, mergeInto, Unique, defineModule
 } = require 'art-standard-lib'
 {FluxStore, FluxModel} = FluxCore
@@ -65,15 +67,14 @@ defineModule module, class ApplicationState extends StateFieldsMixin FluxModel
     if hotReloaded
       {liveClass, hotUpdatedFromClass} = classModuleState
 
-      tempInstance = new hotUpdatedFromClass
       liveInstance = liveClass.getSingleton()
-      newDefaultState = tempInstance.state
+      newDefaultState = (new hotUpdatedFromClass).state
       currentState = liveInstance.state
+      mergedState = merge newDefaultState, currentState
+      stateDelta = object mergedState, when: (v, k) -> currentState[k] != v
 
-      log "Flux.ApplicationState: model hot-reloaded": model: liveInstance.name
-      for k, v of newDefaultState when !currentState.hasOwnProperty k
-        liveInstance.setState k, v
-        log "new state field added": field: k, value: v
+      log "Flux.ApplicationState: model hot-reloaded": {model: liveInstance.name, stateDelta}
+      timeout 0, => liveInstance.setState stateDelta
 
     ret
 
