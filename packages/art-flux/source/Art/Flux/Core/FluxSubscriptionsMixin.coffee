@@ -80,7 +80,7 @@ defineModule module, ->
       if isPlainObject allOptions = subscriptionKey
         {subscriptionKey, modelName, key, stateField, initialFluxRecord, updatesCallback, callback} = allOptions
         updatesCallback ||= callback
-        subscriptionKey ||= stateField || modelName
+        subscriptionKey ||= stateField || "#{modelName} #{key}"
       else
         {stateField, initialFluxRecord, updatesCallback} = options
 
@@ -118,12 +118,12 @@ defineModule module, ->
       other models when they are constructed. This solves the
       loading-order problem.
     ###
-    subscribeOnModelRegistered: (subscriptionKey, modelName, fluxKey, options) ->
-      if isPlainObject subscriptionKey
-        {modelName} = subscriptionKey
+    subscribeOnModelRegistered: (subscriptionKeyOrOptions, modelName, fluxKey, options) ->
+      if isPlainObject subscriptionKeyOrOptions
+        {modelName} = subscriptionKeyOrOptions
 
       ModelRegistry.onModelRegistered modelName
-      .then => @subscribe subscriptionKey, modelName, fluxKey, options
+      .then => @subscribe subscriptionKeyOrOptions, modelName, fluxKey, options
 
     ################################
     # Unsubscribe
