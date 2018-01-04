@@ -1,17 +1,13 @@
-define [
-  'art-foundation'
-  'art-atomic'
-  'art-engine'
-  'art-react'
-], (Foundation, Atomic, Engine, React) ->
-  {log} = Foundation
-  {point} = Atomic
-  {StateEpoch} = Engine.Core
-  {stateEpoch} = StateEpoch
+{log} = require 'art-foundation'
+{point} = require 'art-atomic'
+Engine = require('art-engine')
+{StateEpoch} = Engine.Core
+{stateEpoch} = StateEpoch
 
-  {createComponentFactory, VirtualElement, VirtualNode, Component, Element, RectangleElement} = React
+{createComponentFactory, VirtualElement, VirtualNode, Component, Element, RectangleElement} = require 'art-react'
 
-  suite "Art.React.VirtualElement", ->
+module.exports = suite:
+  basic: ->
     test "new VirtualElement from createVirtualElementFactory()", ->
       a = Element {}
       assert.ok a instanceof VirtualElement
@@ -65,7 +61,7 @@ define [
       assert.eq a.props, a:1, b:2
       assert.eq ["child1", "child2"], (child.props.name for child in a.children)
 
-  suite "Art.React.VirtualElement.instantiate", ->
+  instantiate: ->
     test "instantiate VirtualElement with props", ->
       a = Element size: 123
       a._instantiate {}
@@ -86,7 +82,7 @@ define [
         assert.eq ["child1", "child2"], (child.name for child in a.element.children)
 
 
-  suite "Art.React.VirtualElement._canUpdateFrom", ->
+  _canUpdateFrom: ->
     test "_canUpdateFrom matching elementClasses == true", ->
       a = Element name: "foo"
       b = Element name: "bar"
@@ -102,7 +98,7 @@ define [
       b = Element key: "bar"
       assert.eq false, a._canUpdateFrom b
 
-  suite "Art.React.VirtualElement._updateFrom", ->
+  _updateFrom: ->
     test "_updateFrom changed props", ->
       a = Element name: "foo"
       b = Element name: "bar"

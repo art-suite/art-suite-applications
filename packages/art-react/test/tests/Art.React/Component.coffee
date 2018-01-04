@@ -115,6 +115,46 @@ module.exports = suite:
       assert.eq c.element.pendingChildren[0].pendingName, "subfoo"
       assert.eq c.element.pendingChildren[0].pendingChildren.length, 0
 
+  regressions: ->
+    test "render empty children", ->
+
+      class MyComponent extends Component
+        render: ->
+          Element
+            name: "foo"
+            false
+            null
+            undefined
+            []
+            {}
+            [{}, [], undefined, null]
+
+      c = new MyComponent
+      rendered = c.render()
+      assert.eq rendered.children.length, 0
+
+    test "props in nested array", ->
+
+      class MyComponent extends Component
+        render: ->
+          Element
+            name: "foo"
+            [name: "bar"]
+
+      c = new MyComponent
+      rendered = c.render()
+      assert.eq rendered.props.name, "bar"
+
+    test "children prop is ignored", ->
+
+      class MyComponent extends Component
+        render: ->
+          Element
+            children: [1,2,3]
+
+      c = new MyComponent
+      c._instantiate()
+
   getInitialState: ->
     test "basic", ->
       class MyComponent extends Component

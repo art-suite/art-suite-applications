@@ -1,4 +1,4 @@
-{log, isPlainObject, Promise} = require 'art-foundation'
+{objectWithout, log, isPlainObject, Promise} = require 'art-foundation'
 Engine = require 'art-engine'
 React = require "../index"
 {ElementFactory, Element, CanvasElement, FullScreenApp} = Engine
@@ -16,8 +16,8 @@ React.addElementFactories = (elementClassNames) ->
 class React.VirtualElementArtEngine extends React.VirtualElement
 
   elementTemp = null
-  addedOrChanged  = (k, v) -> elementTemp.setProperty k, v
-  removed         = (k, v) -> elementTemp.resetProperty k
+  addedOrChanged  = (k, v) -> elementTemp.setProperty k, v unless k == "children"
+  removed         = (k, v) -> elementTemp.resetProperty k unless k == "children"
 
   _updateElementProps: (newProps) ->
     elementTemp = @element
@@ -29,6 +29,8 @@ class React.VirtualElementArtEngine extends React.VirtualElement
 
   _newElement: (elementClassName, props, childElements, bindToOrCreateNewParentElementProps)->
     start = globalEpochCycle?.startTimePerformance()
+    if props.children
+      props = objectWithout props, "children"
     element = ElementFactory.newElement @elementClassName, props, childElements
 
     if bindToOrCreateNewParentElementProps
