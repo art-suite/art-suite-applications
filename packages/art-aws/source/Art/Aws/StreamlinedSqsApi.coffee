@@ -37,7 +37,7 @@ module.exports = class StreamlinedSqsApi
 
         merge removeLowerCaseParams(params),
           QueueUrl:               normalizeQueueUrl queue
-          MessageBody:            body
+          MessageBody:            JSON.stringify body
           DelaySeconds:           delaySeconds
           MessageDeduplicationId: deduplicationId
           MessageGroupId:         groupId
@@ -60,9 +60,13 @@ module.exports = class StreamlinedSqsApi
         {Messages} = data
         for message in Messages || []
           {MessageId, Body, ReceiptHandle} = message
+          body = try
+            JSON.parse Body
+          catch
+            Body
           merge message,
             id: MessageId
-            body: Body
+            body: body
             receiptHandle: ReceiptHandle
 
     deleteMessage:

@@ -64,6 +64,31 @@ suite: ->
         sqs.deleteMessage
           receiptHandle: messages[0].ReceiptHandle
 
+
+  test "sendMessage then receiveMessage object", ->
+    sqs.sendMessage
+      body: {randomBody: randomBody = randomString()}
+    .then ->
+      sqs.receiveMessage
+        wait: 10
+      .then (messages) ->
+        assert.eq messages.length, 1
+        assert.eq messages[0].body, {randomBody}
+        sqs.deleteMessage
+          receiptHandle: messages[0].ReceiptHandle
+
+  test "sendMessage then receiveMessage array", ->
+    sqs.sendMessage
+      body: [randomBody = randomString()]
+    .then ->
+      sqs.receiveMessage
+        wait: 10
+      .then (messages) ->
+        assert.eq messages.length, 1
+        assert.eq messages[0].body, [randomBody]
+        sqs.deleteMessage
+          receiptHandle: messages[0].ReceiptHandle
+
   test "receiveMessage, wait 1s, then sendMessage", ->
     randomBody = null
     Promise.all []
