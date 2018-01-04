@@ -1,3 +1,4 @@
+require './register'
 ###
 IN: options:
   load: [required] ->
