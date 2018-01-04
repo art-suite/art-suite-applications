@@ -7,5 +7,5 @@ module.exports
   Color:     require './color'    
   Matrix:    require './matrix'   
   Perimeter: require './Perimeter'
-  Point:     require './point'    
+  Point:     require './Point'    
   Rectangle: require './rectangle'

@@ -1,3 +1,4 @@
+require '../register'
 require '../'
 require "art-testbench/testing"
 .init

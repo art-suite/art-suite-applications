@@ -281,6 +281,9 @@ module.exports = class Point extends AtomicBase
     else
       Namespace.rect a,b,c,d
 
+  minRatio: (b) -> min @x / b.x, @y / b.y
+  maxRatio: (b) -> max @x / b.x, @y / b.y
+
   ##################
   # Named Instances
   ##################
