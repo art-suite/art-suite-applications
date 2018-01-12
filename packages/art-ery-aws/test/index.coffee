@@ -1,3 +1,5 @@
+require('../register');
+require './StandardImport'
 require 'art-aws/Server'
 require '../'
 require "art-foundation/testing"

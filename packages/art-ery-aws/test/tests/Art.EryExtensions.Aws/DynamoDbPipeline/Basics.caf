@@ -1,25 +1,26 @@
 import &StandardImport
 
 myTable = MyTable = null
+setupPromise = null
 setupWithMyTable = ->
-  Neptune.Art.Ery.PipelineRegistry._reset()
-  {myTable} = class MyTable extends DynamoDbPipeline
-    @addDatabaseFilters
-      name:   "required string"
-      email:  "required email"
-      rank:               :number
-      attributes:         :array
+  setupPromise ||= Promise.then ->
+    Neptune.Art.Ery.PipelineRegistry._reset()
+    {myTable} = class MyTable extends DynamoDbPipeline
+      @addDatabaseFilters
+        name:   "required string"
+        email:  "required email"
+        rank:               :number
+        attributes:         :array
 
-  {myCompoundKeyTable} = class MyCompoundKeyTable extends DynamoDbPipeline
-    @keyFields "userId/postId"
-    @addDatabaseFilters
-      user:   "link"
-      post:   "link"
+    {myCompoundKeyTable} = class MyCompoundKeyTable extends DynamoDbPipeline
+      @keyFields "userId/postId"
+      @addDatabaseFilters
+        user:   "link"
+        post:   "link"
 
-  Promise.all([
-    myCompoundKeyTable._vivifyTable()
-    myTable._vivifyTable()
-  ])
+    Promise.all []
+      myCompoundKeyTable._vivifyTable()
+      myTable._vivifyTable()
 
 suite:
 
@@ -69,6 +70,57 @@ suite:
           AttributeName: "id"
           AttributeType: "S"
         ]
+
+  scan: ->
+    setup ->
+      setupWithMyTable()
+      .then ->
+        # delete all
+        myTable.getAll()
+        .then (users) ->
+          each user in users
+            myTable.delete user.id
+
+    test "createX2 then scan" ->
+      Promise.all []
+        myTable.create data: name: :Alice email: :alice@gmail.com
+        myTable.create data: name: :Bill  email: :bill@gmail.com
+      .then -> myTable.getAll()
+      .then (users)->
+        assert.eq 2 users.length
+        assert.eq
+          :Alice :Bill
+          array user from users with user.name
+          .sort()
+
+    test "multiple pages" ->
+      Promise.all []
+        myTable.create data: name: :Alice email: :alice@gmail.com
+        myTable.create data: name: :Bill  email: :bill@gmail.com
+      .then -> myTable.getAll returnResponse: true props: limit: 1
+      .then ({props:{lastEvaluatedKey},data: users})->
+        assert.eq 1 users.length
+        # log {lastEvaluatedKey, users}
+        assert.isObject lastEvaluatedKey
+        myTable.getAll returnResponse: true props: {} limit: 1, lastEvaluatedKey
+        .then ({props:{lastEvaluatedKey2},data: users2})->
+          # log {lastEvaluatedKey2, users2}
+          assert.doesNotExist lastEvaluatedKey2
+          assert.eq
+            :Alice :Bill
+            array user from compactFlatten [users, users2] with user.name
+            .sort()
+
+
+
+    # test "createX3 then scan all pages" ->
+    #   Promise.all []
+    #     myTable.create data: name: :Alice email: :alice@gmail.com
+    #     myTable.create data: name: :Bill  email: :bill@gmail.com
+    #     myTable.create data: name: :Craig email: :craig@gmail.com
+    #   .then -> myTable.getAll returnResponse: true props: limit: 1
+    #   .then (users)->
+    #     assert.eq 1 users.length
 
   update: ->
     setup setupWithMyTable
