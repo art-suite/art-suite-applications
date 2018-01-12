@@ -20,7 +20,7 @@ parseRGBColorComponent = (str) ->
 
 module.exports = class Color extends AtomicBase
   @defineAtomicClass fieldNames: "r g b a", constructorFunctionName: "rgbColor"
-  @isColor: (c) -> c?.constructor == Color
+  @isColor: (c) -> !!(c?.constructor == Color)
 
   @colorNames:   colorNames = [
     'AliceBlue', 'AntiqueWhite', 'Aqua', 'Aquamarine', 'Azure',
