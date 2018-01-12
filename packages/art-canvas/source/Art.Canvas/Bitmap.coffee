@@ -370,7 +370,9 @@ module.exports = class Bitmap extends BitmapBase
 
     endTime = currentSecond()
     if endTime - startTime > .1
+      global.slowDraw = target: @, source: bitmap, where: where, options: options
       log Canvas_Bitmap_drawBitmap:
+        message: "details: global.slowDraw"
         slowDraw: "#{(endTime - startTime) * 1000 | 0}ms"
         time2: "#{(endTime - aboutToDrawTime) * 1000 | 0}ms"
         where: where
