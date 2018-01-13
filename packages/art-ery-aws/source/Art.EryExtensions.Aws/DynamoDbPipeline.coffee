@@ -87,19 +87,21 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
           @dynamoDb.getItem params
           .then (result) -> result.item || request.missing()
 
-    # inefficient; only use in dev
-    getAll: (request) ->
+    ###
+    limit: number (optional)
+    lastEvaluatedKey:
+      use the lastEvaluatedKey that was returned from the previous call, if it was set
+    ###
+    scan: (request) ->
       {limit, lastEvaluatedKey} = request.props
-
       @scanDynamoDb {limit, lastEvaluatedKey}
       .then ({lastEvaluatedKey, items}) ->
-        # log getAll: {items: items?.length, lastEvaluatedKey}
         request.success
-          data: items
-          props: {lastEvaluatedKey}
-        # .then (response) ->
-        #   log scanDynamoDb: {response}
-        #   response
+          data:   items
+          props:  {lastEvaluatedKey}
+
+    getAll: (request) ->
+      request.subrequest request.pipeline, "scan", returnResponse: true, props: request.props
 
     ###
     TODO: make create fail if the item already exists
