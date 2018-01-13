@@ -11,5 +11,6 @@ module.exports
   GetItem:           require './GetItem'          
   PutItem:           require './PutItem'          
   Query:             require './Query'            
+  Scan:              require './Scan'             
   TableApiBaseClass: require './TableApiBaseClass'
   UpdateItem:        require './UpdateItem'       

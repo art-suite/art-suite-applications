@@ -96,7 +96,7 @@ HELPERS
 
 StreamlinedDynamoDbApi = require './StreamlinedDynamoDbApi'
 
-{Query, CreateTable, PutItem, UpdateItem, DeleteItem, GetItem, TableApiBaseClass} = StreamlinedDynamoDbApi
+{Scan, Query, CreateTable, PutItem, UpdateItem, DeleteItem, GetItem, TableApiBaseClass} = StreamlinedDynamoDbApi
 {decodeDynamoItem} = TableApiBaseClass
 
 module.exports = class DynamoDb extends BaseClass
@@ -297,14 +297,31 @@ module.exports = class DynamoDb extends BaseClass
           key:  (index) -> index.IndexName
           with: (index) -> index.IndexStatus
 
+    ###
+    IN:
+      params:
+        limit: number (optional)
+
+        exclusiveStartKey: (optional)
+        lastEvaluatedKey: (alias)
+          use the lastEvaluatedKey that was returned from the previous call, if it was set
+    ###
     scan: (params) ->
-      @invokeAws "scan",
-        log "scanParams", TableApiBaseClass.translateParams params
+      # log dynamoDb: scan: params: Scan.translateParams params
+      @invokeAws "scan", Scan.translateParams params
       .then (res) ->
-        {Items, Count, ScannedCount} = res
-        items: (decodeDynamoItem item for item in Items)
-        count: Count
-        scannedCount: ScannedCount
+        {Items, Count, ScannedCount, LastEvaluatedKey} = res
+        # log dynamoDb: scan: result:
+        #   items: Items.length
+        #   count: Count
+        #   lastEvaluatedKey: decodeDynamoItem LastEvaluatedKey
+        #   scannedCount: ScannedCount
+
+        merge
+          items:            (decodeDynamoItem item for item in Items)
+          count:            Count
+          lastEvaluatedKey: LastEvaluatedKey && decodeDynamoItem LastEvaluatedKey
+          scannedCount:     ScannedCount
 
     ###
     Non-table-operations

@@ -102,6 +102,14 @@ module.exports = class TableApiBaseClass
   _translateConsistentRead: (params) ->
     @_target.ConsistentRead = true if params.consistentRead
 
+  _translateLimit: (params) ->
+    @_target.Limit = params.limit if params.limit
+
+  _translateExclusiveStartKey: (params) ->
+    {exclusiveStartKey, lastEvaluatedKey} = params
+    if exclusiveStartKey ||= lastEvaluatedKey
+      @_target.ExclusiveStartKey = @_encodeItem exclusiveStartKey
+
   _translateConsumedCapacity: (params) ->
     @_translateConstantParam params, "returnConsumedCapacity"
 
