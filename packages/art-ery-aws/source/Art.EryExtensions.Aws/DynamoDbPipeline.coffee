@@ -61,6 +61,30 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
   scanDynamoDb:   (params)         -> @dynamoDb.scan       merge params, table: @tableName
   withDynamoDb:   (action, params) -> @dynamoDb[action]    merge params, table: @tableName
 
+  ###
+  iterate over entire table
+  IN:
+    f: (listOfRecords) -> # out ignored; throw to abort
+    options:
+      limit: stop after this many entries found
+      batchLimit: limit the number of entries returned per batch
+  OUT: count
+  ###
+  batchedEach: (f, options = {}) ->
+    {lastEvaluatedKey, limit, batchLimit} = options
+    inLastEvaluatedKey = lastEvaluatedKey
+    @getAll returnResponse: true, props: {lastEvaluatedKey, limit: batchLimit}
+    .then ({props:{lastEvaluatedKey}, data}) =>
+      getMore = (!limit || limit > data.length) && !!lastEvaluatedKey
+      log "got #{data.length} records. #{formattedInspect {getMore, limit, lastEvaluatedKey}}"
+      if lastEvaluatedKey?
+        throw new Error "same last-key #{inLastEvaluatedKey}" if inLastEvaluatedKey == lastEvaluatedKey
+      f data
+      if getMore
+        @batchedEach f, merge options, {lastEvaluatedKey, limit: limit? && limit - data.length}
+        .then (count) -> count + data.length
+      else data.length
+
   ###########################################
   # Handlers
   ###########################################
