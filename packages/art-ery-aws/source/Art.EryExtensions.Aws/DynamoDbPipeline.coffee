@@ -378,7 +378,7 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
     {requiresKey, mustExist} = options
     requiresKey = true if mustExist
 
-    {key, data, add, setDefault, conditionExpression, returnValues} = request.props
+    {key, data, add, setDefault, conditionExpression, returnValues, consistentRead} = request.props
     {requestType} = request
 
     Promise
@@ -403,6 +403,9 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
       returnValues ||= "allNew" if requestType == "update"
       conditionExpression ||= mustExist && key
 
+      consistentRead = true if consistentRead
+
+
       objectWithExistingValues {
         @tableName
         data
@@ -414,6 +417,7 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
         setDefault
         returnValues
         conditionExpression
+        consistentRead
       }
 
     .then options.then
