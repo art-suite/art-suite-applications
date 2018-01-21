@@ -41,6 +41,25 @@ suite:
         .then (getData) ->
           assert.eq getData, data
 
+    test "number type can create and update factional valuyes" ->
+      myTable.create
+        data:
+          name: "John"
+          email: "foo@bar.com"
+          rank: .25
+      .then (record) ->
+        assert.eq record.rank, .25  "" create
+        myTable.get record.id
+      .then (record) ->
+        assert.eq record.rank, .25  "" create-get
+        myTable.update key: record.id, data: rank: .75
+      .then (record) ->
+        assert.eq record.rank, .75  "" update
+        myTable.get record.id
+      .then (record) ->
+        assert.eq record.rank, .75  "" update-get
+
+
     test "delete", ->
       createData = null
 
