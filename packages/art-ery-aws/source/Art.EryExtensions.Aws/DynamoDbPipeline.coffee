@@ -288,13 +288,12 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
     for queryModelName, indexKey of indexes when isString indexKey
       do (queryModelName, indexKey) =>
         [hashKey, sortKey] = indexKey.split "/"
-        whereClause = {}
+
         queries[queryModelName] =
           query: (request) ->
-            whereClause[hashKey] = request.key
             request.pipeline.queryDynamoDb
               index: queryModelName
-              where: whereClause
+              where: "#{hashKey}": request.key
             .then ({items}) -> items
 
           dataToKeyString: (data) ->
