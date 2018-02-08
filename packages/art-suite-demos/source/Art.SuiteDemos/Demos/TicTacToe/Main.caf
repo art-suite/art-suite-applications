@@ -2,7 +2,7 @@ import &ArtSuite # 2 # 282 tokens + 10 parsed in-string-tokens = 292
 
 textStyle =
   fontFamily: "" "Century Gothic", Futura, sans-serif
-  fontSize:   16
+  fontSize:   14
   margin:     10
   size:       cs: 1
 
