@@ -5,6 +5,7 @@ module.exports = require './namespace'
 module.exports
 require './Animations'
 require './Basic'
+require './Basic copy'
 require './CandyStripe'
 require './Chat'
 require './Clock'

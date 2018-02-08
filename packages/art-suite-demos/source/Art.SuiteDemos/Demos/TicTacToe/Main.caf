@@ -1,0 +1,75 @@
+import &ArtSuite
+
+class Style
+  @textStyle:
+    fontFamily: "" "Century Gothic", Futura, sans-serif
+    fontSize:   16
+    margin:     10
+    size:       cs: 1
+
+  @cellStyle: merge
+    @textStyle
+    fontWeight: :bold
+    fontSize:   24
+
+class TicTacToe extends ApplicationState
+  @stateFields
+    current: 0
+    history: []
+      label:    "" game start
+      board:    Array(9).fill null
+      player:   :X
+
+  play: (i) ->
+    {board, player, winner} = @history[current = @current]
+    unless winner || board[i]
+      @history = arrayWith
+        @history.slice 0, @current = current + 1
+        label:  "" move ##{current + 1}
+        board:  board = arrayWithElementReplaced board, player, i
+        player: if player == :X then :O else :X
+        winner:
+          find [i1, i2, i3] in
+              0 1 2
+              3 4 5
+              6 7 8
+              0 3 6
+              1 4 7
+              2 5 8
+              0 4 8
+              2 4 6
+            (v1 = board[i1]) == board[i2] && v1 == board[i3] && v1
+
+class Square extends FluxComponent
+  render: ->
+    Element
+      size: 50
+      draw: outline: :black
+      on:   pointerClick: => @models.ticTacToe.play @props.i
+      TextElement
+        Style.cellStyle
+        size:   ps: 1
+        align:  .5
+        @props.cell
+
+class TTTComponent extends FluxComponent
+  @subscriptions :ticTacToe.history :ticTacToe.current
+  render: ->
+    {winner, board, player} = @history[@current]
+    Element
+      size:           w: 180
+      padding:        10
+      childrenLayout: :flow
+
+      array cell, i in board with Square {} cell, i
+
+      TextElement
+        Style.textStyle
+        if winner then  "" Winner: #{winner}
+        else            "" Next player: #{player}
+
+      array {label}, i in @history
+        TextElement
+          Style.textStyle
+          on: pointerClick: => @models.ticTacToe.current = i
+          "" Go to #{label}
