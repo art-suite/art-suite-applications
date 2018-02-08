@@ -4,7 +4,6 @@
 module.exports = (require '../namespace').addNamespace('Demos', class Demos extends Neptune.PackageNamespace)
 require './Animations/namespace';
 require './Basic/namespace';
-require './Basic copy/namespace';
 require './CandyStripe/namespace';
 require './Chat/namespace';
 require './Clock/namespace';
@@ -23,5 +22,6 @@ require './ScrollingInfinite/namespace';
 require './Style/namespace';
 require './TextInputMobileTest/namespace';
 require './Textarea/namespace';
+require './TicTacToe/namespace';
 require './Todos/namespace';
 require './VoidProps/namespace'

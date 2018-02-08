@@ -1,55 +1,58 @@
-body {
+// Total tokens: 801
+// CSS tokens: 117
+body { // 15
   font: 14px "Century Gothic", Futura, sans-serif;
   margin: 20px;
 }
 
-ol, ul {
+ol, ul { // 8
   padding-left: 30px;
 }
 
-.board-row:after {
-  clear: both;
-  content: "";
-  display: table;
+.board-row:after { // 14
+  clear:    both;
+  content:  "";
+  display:  table;
 }
 
-.status {
+.status { // 6
   margin-bottom: 10px;
 }
 
-.square {
-  background: #fff;
-  border: 1px solid #999;
-  float: left;
-  font-size: 24px;
-  font-weight: bold;
-  line-height: 34px;
-  height: 34px;
+.square { // 41
+  background:   #fff;
+  border:       1px solid #999;
+  float:        left;
+  font-size:    24px;
+  font-weight:  bold;
+  line-height:  34px;
+  height:       34px;
   margin-right: -1px;
-  margin-top: -1px;
-  padding: 0;
-  text-align: center;
-  width: 34px;
+  margin-top:   -1px;
+  padding:      0;
+  text-align:   center;
+  width:        34px;
 }
 
-.square:focus {
+.square:focus { // 8
   outline: none;
 }
 
-.kbd-navigation .square:focus {
+.kbd-navigation .square:focus { // 9
   background: #ddd;
 }
 
-.game {
+.game { // 9
   display: flex;
   flex-direction: row;
 }
 
-.game-info {
+.game-info { // 7
   margin-left: 20px;
 }
 
-function Square(props) {
+// JSX tokens: 684
+function Square(props) { // 33
   return (
     <button className="square" onClick={props.onClick}>
       {props.value}
@@ -57,8 +60,8 @@ function Square(props) {
   );
 }
 
-class Board extends React.Component {
-  renderSquare(i) {
+class Board extends React.Component { // 166
+  renderSquare(i) { // 39
     return (
       <Square
         value={this.props.squares[i]}
@@ -67,7 +70,7 @@ class Board extends React.Component {
     );
   }
 
-  render() {
+  render() { // 119
     return (
       <div>
         <div className="board-row">
@@ -88,10 +91,10 @@ class Board extends React.Component {
       </div>
     );
   }
-}
+} // 1
 
-class Game extends React.Component {
-  constructor(props) {
+class Game extends React.Component { // 7 => 372 total
+  constructor(props) { // 39
     super(props);
     this.state = {
       history: [
@@ -104,7 +107,7 @@ class Game extends React.Component {
     };
   }
 
-  handleClick(i) {
+  handleClick(i) { // 117
     const history = this.state.history.slice(0, this.state.stepNumber + 1);
     const current = history[history.length - 1];
     const squares = current.squares.slice();
@@ -123,14 +126,14 @@ class Game extends React.Component {
     });
   }
 
-  jumpTo(step) {
+  jumpTo(step) { // 25
     this.setState({
       stepNumber: step,
       xIsNext: (step % 2) === 0
     });
   }
 
-  render() {
+  render() { // 183
     const history = this.state.history;
     const current = history[this.state.stepNumber];
     const winner = calculateWinner(current.squares);
@@ -168,12 +171,12 @@ class Game extends React.Component {
       </div>
     );
   }
-}
+}  // 1
 
-ReactDOM.render(<Game />, document.getElementById("root"));
+ReactDOM.render(<Game />, document.getElementById("root")); // 17
 
-function calculateWinner(squares) {
-  const lines = [
+function calculateWinner(squares) { // 6 => 146
+  const lines = [ // 69
     [0, 1, 2],
     [3, 4, 5],
     [6, 7, 8],
@@ -183,7 +186,7 @@ function calculateWinner(squares) {
     [0, 4, 8],
     [2, 4, 6]
   ];
-  for (let i = 0; i < lines.length; i++) {
+  for (let i = 0; i < lines.length; i++) { // 71
     const [a, b, c] = lines[i];
     if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
       return squares[a];
