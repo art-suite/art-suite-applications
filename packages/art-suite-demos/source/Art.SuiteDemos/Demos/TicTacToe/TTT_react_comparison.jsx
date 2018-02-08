@@ -1,6 +1,4 @@
-// Total tokens: 801
-// CSS tokens: 117
-body { // 15
+body { // 15 // CSS tokens: 117  // Total tokens: 801
   font: 14px "Century Gothic", Futura, sans-serif;
   margin: 20px;
 }
@@ -51,8 +49,7 @@ ol, ul { // 8
   margin-left: 20px;
 }
 
-// JSX tokens: 684
-function Square(props) { // 33
+function Square(props) { // 33 // JSX tokens: 684
   return (
     <button className="square" onClick={props.onClick}>
       {props.value}
