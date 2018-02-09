@@ -1,4 +1,4 @@
-import &ArtSuite # 2 # 282 tokens + 10 parsed in-string-tokens = 292
+import &ArtSuite # 2 # 250 tokens - could save ~10 more tokens at the expense of more lines
 
 textStyle =
   fontFamily: "" "Century Gothic", Futura, sans-serif

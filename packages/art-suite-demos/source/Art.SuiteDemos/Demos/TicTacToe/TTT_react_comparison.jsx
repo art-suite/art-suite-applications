@@ -1,4 +1,4 @@
-body { // 15 // CSS tokens: 117  // Total tokens: 801
+body { // 10 // CSS tokens: 112  // Total tokens: 796
   font: 14px "Century Gothic", Futura, sans-serif;
   margin: 20px;
 }
