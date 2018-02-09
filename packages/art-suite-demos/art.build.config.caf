@@ -1,6 +1,6 @@
 webpack:
-  common:
-    output: path: "#{__dirname}/docs"
+  # common:
+  #   output: path: "#{__dirname}/docs"
   targets:
     Demos: {}
     HelloWorld: {}
