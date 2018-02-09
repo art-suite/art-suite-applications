@@ -57,7 +57,7 @@ class BackButton extends PointerActionsMixin Component
 
 class Loader extends Component
 
-  @stateFields selectedDemo: null
+  @stateFields selectedDemo: if Demos[getEnv().demo]? then getEnv().demo else null
 
   back: -> @selectedDemo = null
 
