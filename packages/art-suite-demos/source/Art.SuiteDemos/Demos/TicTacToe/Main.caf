@@ -1,4 +1,4 @@
-import &ArtSuite # 2 tokens | 246 tokens in total
+import &ArtSuite # 2 tokens | 245 tokens in total
 
 textStyle =                         # 11 tokens
   fontFamily: "" "Century Gothic", Futura, sans-serif
@@ -32,7 +32,7 @@ class Square extends Component      # 27 tokens
         align:  .5
         @props.cell
 
-class TicTacToe extends Component   # 136 tokens
+class TicTacToe extends Component   # 135 tokens
   @stateFields stepNumber: 0 history: [] Array(9).fill null
 
   play: (i, player) ->
@@ -42,7 +42,7 @@ class TicTacToe extends Component   # 136 tokens
 
   render: ->
     winner = calculateWinner board = @history[@stepNumber]
-    player = [:X :O][@stepNumber % 2]
+    player = if @stepNumber % 2 then :X else :O
     Element
       size:           w: 125
       padding:        10
