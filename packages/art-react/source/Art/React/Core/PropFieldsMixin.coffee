@@ -7,11 +7,13 @@ defineModule module, -> (superClass) -> class PropFieldsMixin extends superClass
 
   @extendableProperty(
     propFields: null
-    (addPropFields) ->
-      # NOTE, if propFields is null, @ will be global (window/self). Silly JavaScript.
-      #   If @ as null, as it should be, we could just do:
-      #     mergeInto @ ? {}, addPropFields
-      mergeInto (if (isPlainObject @) then @ else {}), addPropFields
+
+    # custom extender here only so propFiles can be initialized to null, not {}.
+    # This is a performance optimization, but I'm dubious about if it does anything.
+    # Need a concrete perf test to be sure, but I think we can just simplified all this down to propFields: {}
+    # SBD (2018-Feb)
+    extend: (extendedValue, addPropFields) ->
+      mergeInto extendedValue ? {}, addPropFields
   )
 
   ###
