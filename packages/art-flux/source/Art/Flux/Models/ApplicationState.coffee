@@ -119,6 +119,8 @@ defineModule module, class ApplicationState extends StateFieldsMixin FluxModel
     @_removeFromFluxStore key
     ret = @state[key]
     delete @state[key]
+
+    @_saveToLocalStorage()
     ret
 
   ###
@@ -130,6 +132,8 @@ defineModule module, class ApplicationState extends StateFieldsMixin FluxModel
       @_removeFromFluxStore k
 
     @state = {}
+
+    @_saveToLocalStorage()
 
   resetState: ->
     @replaceState @_getInitialState false
