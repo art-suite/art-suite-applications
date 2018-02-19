@@ -14,6 +14,9 @@ module.exports = class Sqs extends BaseClass
   ###
   Option defaults are read out of Art.Aws.config.sqs, but can be overridden here:
   options:
+    queueUrl:
+      Example: https://sqs.us-east-1.amazonaws.com/465118458885/ZoMigrationDev
+
     queueUrlPrefix: null
       Example: https://sqs.us-east-1.amazonaws.com/123456789
 
