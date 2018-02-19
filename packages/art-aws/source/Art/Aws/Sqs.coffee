@@ -11,6 +11,15 @@ Config = require "./Config"
 module.exports = class Sqs extends BaseClass
   @singletonClass()
 
+  ###
+  Option defaults are read out of Art.Aws.config.sqs, but can be overridden here:
+  options:
+    queueUrlPrefix: null
+      Example: https://sqs.us-east-1.amazonaws.com/123456789
+
+    accessKeyId:
+    secretAccessKey:
+  ###
   constructor: (options = {}) ->
     @_awsSqs = new AWS.SQS merge @sqsConfig = Config.getNormalizedConfig "sqs", options
 
