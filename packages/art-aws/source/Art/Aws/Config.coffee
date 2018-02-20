@@ -21,8 +21,9 @@ defineModule module, class Config extends Configurable
       maxRetries: 5
 
     sqs:
-      queueUrlPrefix: null # REQUIRED. Example: https://sqs.us-east-1.amazonaws.com/123456789
-      # queueUrl: null          # queue URI
+      queueUrlPrefix: null  # REQUIRED if no queueUrl. Example: https://sqs.us-east-1.amazonaws.com/123456789
+      # queueUrl: null      # REQIORED of no queueUrlPrefix
+      # queue: null         # appended to queueUrlPrefix if no queueUrl
       # accessKeyId:
       # secretAccessKey:
 

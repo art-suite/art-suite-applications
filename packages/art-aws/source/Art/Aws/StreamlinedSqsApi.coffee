@@ -1,15 +1,16 @@
-{log, findUrlRegExp, object, present, pathJoin, merge} = require 'art-standard-lib'
+{log, findUrlRegExp, object, present, urlJoin, merge} = require 'art-standard-lib'
 {config} = require './Config'
 
 module.exports = class StreamlinedSqsApi
 
-  @normalizeQueueUrl: normalizeQueueUrl = (queue = config?.sqs?.queueUrl) ->
-    if findUrlRegExp.test queue
+  @normalizeQueueUrl: normalizeQueueUrl = (queue, options) ->
+    queue ||= options?.queue ? options?.queueUrl ? config?.sqs?.queue ? config?.sqs?.queueUrl
+    if queue && findUrlRegExp.test queue
       queue
     else
-      {queueUrlPrefix} = config
-      throw new Error "queue (config.Art.Aws.sqs.queueUrl) or queueUrlPrefix required" unless present queueUrlPrefix
-      pathJoin queueUrlPrefix, queue.replace /[^-_a-zA-Z0-9]/g, '-'
+      queueUrlPrefix = options?.queueUrlPrefix ? config?.sqs?.queueUrlPrefix
+      throw new Error "queueUrlPrefix && queue OR queueUrl required" unless present(queueUrlPrefix) && present queue
+      urlJoin queueUrlPrefix, queue.replace /[^-_a-zA-Z0-9]/g, '-'
 
   doesntStartLowercase = /^[^a-z]/
   removeLowerCaseParams = (params) ->
@@ -22,7 +23,7 @@ module.exports = class StreamlinedSqsApi
     #   visibilityTimeout: seconds (Number)
     # OUT: queueUrl (string)
     createQueue:
-      preprocess: (params) ->
+      preprocess: (params, options) ->
         {name, visibilityTimeout} = params
         merge removeLowerCaseParams(params),
           QueueName: name
@@ -32,11 +33,11 @@ module.exports = class StreamlinedSqsApi
       postprocess: ({QueueUrl}) -> QueueUrl
 
     sendMessage:
-      preprocess: (params) ->
+      preprocess: (params, options) ->
         {body, queue, delaySeconds, deduplicationId, groupId} = params
 
         merge removeLowerCaseParams(params),
-          QueueUrl:               normalizeQueueUrl queue
+          QueueUrl:               normalizeQueueUrl queue, options
           MessageBody:            JSON.stringify body
           DelaySeconds:           delaySeconds
           MessageDeduplicationId: deduplicationId
@@ -47,11 +48,11 @@ module.exports = class StreamlinedSqsApi
         merge data, id: MessageId
 
     receiveMessage:
-      preprocess: (params) ->
+      preprocess: (params, options) ->
         {queue, visibilityTimeout, wait, limit} = params
 
         merge removeLowerCaseParams(params),
-          QueueUrl:               normalizeQueueUrl queue
+          QueueUrl:               normalizeQueueUrl queue, options
           MaxNumberOfMessages:    limit
           VisibilityTimeout:      visibilityTimeout # note: you can set a queue-wide default
           WaitTimeSeconds:        wait ? 5
@@ -70,14 +71,14 @@ module.exports = class StreamlinedSqsApi
             receiptHandle: ReceiptHandle
 
     deleteMessage:
-      preprocess: (params) ->
+      preprocess: (params, options) ->
         {receiptHandle, queue} = params
         merge removeLowerCaseParams(params),
-          QueueUrl:       normalizeQueueUrl queue
+          QueueUrl:       normalizeQueueUrl queue, options
           ReceiptHandle:  receiptHandle
 
     listQueues:
-      preprocess: (params) ->
+      preprocess: (params, options) ->
         {QueueNamePrefix} = params
         merge removeLowerCaseParams(params),
           prefix: QueueNamePrefix
@@ -85,6 +86,6 @@ module.exports = class StreamlinedSqsApi
       postprocess: ({QueueUrls}) -> QueueUrls
 
     purgeQueue:
-      preprocess: (params) ->
+      preprocess: (params, options) ->
         merge removeLowerCaseParams(params),
-          QueueUrl: normalizeQueueUrl params.queue
+          QueueUrl: normalizeQueueUrl params.queue, options
