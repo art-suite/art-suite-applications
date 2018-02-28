@@ -305,6 +305,24 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
             else
               ret
 
+        queries[queryModelName+"Desc"] =
+          query: (request) ->
+            request.pipeline.queryDynamoDb
+              index: queryModelName
+              where: "#{hashKey}": request.key
+              descending: true
+            .then ({items}) -> items
+
+          dataToKeyString: (data) ->
+            data[hashKey]
+
+          localSort: (queryData) -> withSort queryData, (b, a) ->
+            if 0 == ret = compare a[sortKey], b[sortKey]
+              compare a.id, b.id
+            else
+              ret
+
+
     queries
 
   _vivifyTable: ->
