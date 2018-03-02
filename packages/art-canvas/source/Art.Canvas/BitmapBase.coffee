@@ -51,6 +51,7 @@ module.exports = class BitmapBase extends BaseClass
     else if isCanvas a              then @initFromCanvas a
     else if isImage a               then @initFromImage a
     else                                 @initNewCanvas point a, b
+    # console.log "new Art.Canvas.Bitmap #{@size}"
 
   @getter
     hasAlpha: ->
