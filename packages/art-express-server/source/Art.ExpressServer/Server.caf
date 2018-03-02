@@ -99,7 +99,7 @@ class Server extends &LoggingMixin &ArtClassSystem.BaseClass
 
   _startOneServer: (@workerId) ->
 
-    {port, handlers, middleware, commonResponseHeaders} = @options
+    {port, handlers, postmiddleware, middleware, commonResponseHeaders} = @options
     staticOptions = @options.static
 
     app = &express()
@@ -121,6 +121,9 @@ class Server extends &LoggingMixin &ArtClassSystem.BaseClass
           each v, k from merge commonResponseHeaders, staticOptions.headers
             response.setHeader k, v
         staticOptions
+
+    each mw in compactFlatten [postmiddleware]
+      app.use mw
 
     app.listen port | 0, =>
       @log "" listening on: http://localhost:#{port}
