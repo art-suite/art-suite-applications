@@ -41,6 +41,10 @@ class PromiseHandler extends &LoggingMixin &ArtClassSystem.BaseClass
 
         if plainResponseObject is null, a 'missing' or '404' status is returned.
 
+        for redirects:
+          statusCode: 3xx
+          data:       URL to redirect to
+
       OVERRIDE this for handling all requests
 
     Promise.then ->
@@ -89,13 +93,17 @@ class PromiseHandler extends &LoggingMixin &ArtClassSystem.BaseClass
             else
               statusCode = if data then 200 else 404
 
+
             if (statusCode/100 | 0) == 5
               @logError
                 url:              request.url
                 requestData:      (try JSON.parse requestData ) || requestData
                 responseData:     (try JSON.parse responseData) || responseData
 
-            @_encodeOutput request, response, headers, responseData
+            if (statusCode/100 | 0) == 3
+              response.redirect statusCode, data
+            else
+              @_encodeOutput request, response, headers, responseData
 
       else
         # @logVerbose {} notHandled: request.url, @handleUrlRegex
