@@ -25,6 +25,9 @@ These are designed to be compatible with Heroku.
 ```
 WEB_CONCURRENCY=number # set the default numWorkers
 PORT=number            # set the default port
+
+ART_EXPRESS_SERVER_MAX_AGE_SECONDS=number  # if set, will restart workers after that many seconds
+ART_EXPRESS_SERVER_MAX_SIZE_MB=number      # if set, will restart workers which use more than the specified number of megabytes
 ```
 
 NOTE - in order for WEB_CONCURRENCY>1 to work, starting your server with "caf YourServer.caf" won't work due to a bug in CaffeineScript and forking. You should either:
