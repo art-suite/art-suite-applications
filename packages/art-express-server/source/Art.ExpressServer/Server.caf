@@ -63,6 +63,21 @@ class Server extends &LoggingMixin &ArtClassSystem.BaseClass
         port:         getEnv().PORT
         manyOptions...
 
+    numWorkers = numWorkers | 0 if numWorkers?
+
+    if numWorkers > 1
+      &throng
+        workers: numWorkers
+        master: ->
+          @logEnvironment()
+          @log start: throng: workers: numWorkers
+
+        start: fastBind @_startOneServer, @
+    else
+      @logEnvironment()
+      @_startOneServer()
+
+  @logEnvironment: ->
     @logVerbose start: {}
       @options
       env:
@@ -78,13 +93,6 @@ class Server extends &LoggingMixin &ArtClassSystem.BaseClass
 
       Neptune: Neptune.getVersions()
 
-    numWorkers = numWorkers | 0 if numWorkers?
-
-    if numWorkers > 1
-      @log start: throng: workers: numWorkers
-      &throng numWorkers, fastBind @_startOneServer, @
-    else
-      @_startOneServer()
 
   ##################
   # PRIVATE
