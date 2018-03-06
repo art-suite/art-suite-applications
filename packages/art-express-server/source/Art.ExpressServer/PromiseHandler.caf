@@ -20,7 +20,10 @@ class PromiseHandler extends &LoggingMixin &ArtClassSystem.BaseClass
 
   # override for more control over which requests you handle
   canHandleRequest: (request) ->
-    @handleUrlRegex?.test request.url
+    if @handleUrlRegex
+      @handleUrlRegex.test request.url
+    else
+      true
 
   handleApiRequest:   null
   handleHtmlRequest:  null  # (request, jsonData) -> promise.then (htmlString) ->
