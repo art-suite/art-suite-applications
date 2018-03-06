@@ -547,9 +547,9 @@ Caf.defMod(module, () => {
     [
       "merge",
       "getEnv",
+      "fastBind",
       "process",
       "Neptune",
-      "fastBind",
       "compactFlatten",
       "Math",
       "timeout",
@@ -560,9 +560,9 @@ Caf.defMod(module, () => {
     (
       merge,
       getEnv,
+      fastBind,
       process,
       Neptune,
-      fastBind,
       compactFlatten,
       Math,
       timeout,
@@ -594,7 +594,24 @@ Caf.defMod(module, () => {
                   ...manyOptions
                 )
               ));
-              this.logVerbose({
+              if (numWorkers != null) {
+                numWorkers = numWorkers | 0;
+              }
+              return numWorkers > 1
+                ? __webpack_require__(26)({
+                    workers: numWorkers,
+                    master: () => {
+                      this.logEnvironment();
+                      return this.log({
+                        start: { throng: { workers: numWorkers } }
+                      });
+                    },
+                    start: fastBind(this._startOneServer, this)
+                  })
+                : (this.logEnvironment(), this._startOneServer());
+            };
+            this.prototype.logEnvironment = function() {
+              return this.logVerbose({
                 start: {
                   options: this.options,
                   env: merge(
@@ -617,16 +634,6 @@ Caf.defMod(module, () => {
                   Neptune: Neptune.getVersions()
                 }
               });
-              if (numWorkers != null) {
-                numWorkers = numWorkers | 0;
-              }
-              return numWorkers > 1
-                ? (this.log({ start: { throng: { workers: numWorkers } } }),
-                  __webpack_require__(26)(
-                    numWorkers,
-                    fastBind(this._startOneServer, this)
-                  ))
-                : this._startOneServer();
             };
             this.prototype._allowAllCors = function(options) {
               return options.allowAllCors
@@ -677,7 +684,9 @@ Caf.defMod(module, () => {
                 );
                 timeout(maxAgeMs).then(() => {
                   this.log(
-                    `ART_EXPRESS_SERVER_MAX_AGE_SECONDS -> shutting down: ${Caf.toString(
+                    `ART_EXPRESS_SERVER_MAX_AGE_SECONDS=${Caf.toString(
+                      ART_EXPRESS_SERVER_MAX_AGE_SECONDS
+                    )} -> shutting down: ${Caf.toString(
                       maxAgeTimeString
                     )} expired`.red
                   );
@@ -709,7 +718,9 @@ Caf.defMod(module, () => {
                           (process.memoryUsage().rss / (1024 * 1024)) | 0)
                       ) {
                         this.log(
-                          `ART_EXPRESS_SERVER_MAX_SIZE_MB -> shutting down: MemoryUsage(${Caf.toString(
+                          `ART_EXPRESS_SERVER_MAX_SIZE_MB=${Caf.toString(
+                            ART_EXPRESS_SERVER_MAX_SIZE_MB
+                          )} -> shutting down: MemoryUsage(${Caf.toString(
                             rssMegabytes
                           )}MB) > ${Caf.toString(
                             ART_EXPRESS_SERVER_MAX_SIZE_MB
@@ -1237,7 +1248,7 @@ module.exports = {"author":"Shane Brinkman-Davis Delamore, Imikimi LLC","depende
 /* 21 */
 /***/ (function(module, exports) {
 
-module.exports = {"author":"Shane Brinkman-Davis Delamore, Imikimi LLC","dependencies":{"art-build-configurator":"*","art-class-system":"*","art-config":"*","art-standard-lib":"*","art-testbench":"*","bluebird":"^3.5.0","caffeine-script":"*","caffeine-script-runtime":"*","case-sensitive-paths-webpack-plugin":"^2.1.1","chai":"^4.0.1","coffee-loader":"^0.7.3","coffee-script":"^1.12.6","colors":"^1.1.2","commander":"^2.9.0","compression":"^1.6.2","css-loader":"^0.28.4","dateformat":"^2.0.0","detect-node":"^2.0.3","express":"^4.15.3","fs-extra":"^3.0.1","glob":"^7.1.2","glob-promise":"^3.1.0","json-loader":"^0.5.4","jsonwebtoken":"^7.4.1","mocha":"^3.4.2","neptune-namespaces":"*","script-loader":"^0.7.0","style-loader":"^0.18.1","throng":"^4.0.0","webpack":"^2.6.1","webpack-dev-server":"^2.4.5","webpack-merge":"^4.1.0","webpack-node-externals":"^1.6.0"},"description":"Extensible, Promise-based HTTP Server based on Express","license":"ISC","name":"art-express-server","scripts":{"build":"webpack --progress","start":"webpack-dev-server --hot --inline --progress","test":"nn -s;mocha -u tdd --compilers coffee:coffee-script/register","testInBrowser":"webpack-dev-server --progress","testServer":"caf ./TestServer"},"version":"0.5.0"}
+module.exports = {"author":"Shane Brinkman-Davis Delamore, Imikimi LLC","dependencies":{"art-build-configurator":"*","art-class-system":"*","art-config":"*","art-standard-lib":"*","art-testbench":"*","bluebird":"^3.5.0","caffeine-script":"*","caffeine-script-runtime":"*","case-sensitive-paths-webpack-plugin":"^2.1.1","chai":"^4.0.1","coffee-loader":"^0.7.3","coffee-script":"^1.12.6","colors":"^1.1.2","commander":"^2.9.0","compression":"^1.6.2","css-loader":"^0.28.4","dateformat":"^2.0.0","detect-node":"^2.0.3","express":"^4.15.3","fs-extra":"^3.0.1","glob":"^7.1.2","glob-promise":"^3.1.0","json-loader":"^0.5.4","jsonwebtoken":"^7.4.1","mocha":"^3.4.2","neptune-namespaces":"*","script-loader":"^0.7.0","style-loader":"^0.18.1","throng":"^4.0.0","webpack":"^2.6.1","webpack-dev-server":"^2.4.5","webpack-merge":"^4.1.0","webpack-node-externals":"^1.6.0"},"description":"Extensible, Promise-based HTTP Server based on Express","license":"ISC","name":"art-express-server","scripts":{"build":"webpack --progress","start":"webpack-dev-server --hot --inline --progress","test":"nn -s;mocha -u tdd --compilers coffee:coffee-script/register","testInBrowser":"webpack-dev-server --progress","testServer":"caf ./TestServer"},"version":"0.6.0"}
 
 /***/ }),
 /* 22 */
