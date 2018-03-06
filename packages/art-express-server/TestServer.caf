@@ -1,5 +1,11 @@
-&ArtExpressServer.start
+import &ArtExpressServer
+
+start
   # verbose: true
+  handlers:
+    class OzHtmlHandler extends PromiseHandler
+      handleHtmlRequest: (request, requestData) -> "Hello world."
+
   initWorker: (server) ->
     if process.env.ART_EXPRESS_SERVER_MAX_SIZE_MB
       import &ArtStandardLib

@@ -580,6 +580,7 @@ Caf.defMod(module, () => {
             __webpack_require__(9).BaseClass
           ) {},
           function(Server, classSuper, instanceSuper) {
+            let timeAgeString;
             this.defaults = { port: 8085, server: "http://localhost" };
             this.start = function(...manyOptions) {
               return new Server().start(...manyOptions);
@@ -659,6 +660,14 @@ Caf.defMod(module, () => {
                   })
                 : options;
             };
+            timeAgeString = function(actualAge, testAge) {
+              testAge != null ? testAge : (testAge = actualAge);
+              return testAge <= 60
+                ? `${Caf.toString(actualAge.toFixed(2))}s`
+                : testAge <= 60 * 60
+                  ? `${Caf.toString((actualAge / 60).toFixed(2))}m`
+                  : `${Caf.toString((actualAge / (60 * 60)).toFixed(2))}h`;
+            };
             this.prototype._initMonitors = function(server) {
               let ART_EXPRESS_SERVER_MAX_AGE_SECONDS,
                 ART_EXPRESS_SERVER_MAX_SIZE_MB,
@@ -677,14 +686,10 @@ Caf.defMod(module, () => {
                     ART_EXPRESS_SERVER_MAX_AGE_SECONDS *
                     (0.9 + Math.random() * 0.2)) |
                   0;
-                maxAgeTimeString =
-                  ART_EXPRESS_SERVER_MAX_AGE_SECONDS <= 60
-                    ? `${Caf.toString((maxAgeMs / 1000).toFixed(2))}s`
-                    : ART_EXPRESS_SERVER_MAX_AGE_SECONDS <= 60 * 60
-                      ? `${Caf.toString((maxAgeMs / 60000).toFixed(2))}m`
-                      : `${Caf.toString(
-                          (maxAgeMs / (60 * 60000)).toFixed(2)
-                        )}h`;
+                maxAgeTimeString = timeAgeString(
+                  maxAgeMs / 1000,
+                  ART_EXPRESS_SERVER_MAX_AGE_SECONDS
+                );
                 this.log(
                   `ART_EXPRESS_SERVER_MAX_AGE_SECONDS=${Caf.toString(
                     ART_EXPRESS_SERVER_MAX_AGE_SECONDS
@@ -734,7 +739,9 @@ Caf.defMod(module, () => {
                             rssMegabytes
                           )}MB) > ${Caf.toString(
                             ART_EXPRESS_SERVER_MAX_SIZE_MB
-                          )}. uptime: ${Caf.toString(this.uptime | 0)}s`.red
+                          )}. (uptime: ${Caf.toString(
+                            this.uptimeString
+                          )}, ${Caf.toString(this.requestCount)} requests)`.red
                         );
                         server.close();
                         process.exit(0);
@@ -746,7 +753,10 @@ Caf.defMod(module, () => {
                             rssMegabytes
                           )}MB) <= ${Caf.toString(
                             ART_EXPRESS_SERVER_MAX_SIZE_MB
-                          )}MB`.green
+                          )}MB (uptime: ${Caf.toString(
+                            this.uptimeString
+                          )}, ${Caf.toString(this.requestCount)} requests)`
+                            .green
                         );
                       }
                       return timeout(memoryCheckCycleMs, checkMemory);
@@ -757,6 +767,9 @@ Caf.defMod(module, () => {
             this.getter({
               uptime: function() {
                 return currentSecond() - this.startTime;
+              },
+              uptimeString: function() {
+                return timeAgeString(this.uptime);
               }
             });
             this.prototype._startOneServer = function(workerId) {
@@ -781,6 +794,11 @@ Caf.defMod(module, () => {
               } = this.options);
               this.app = __webpack_require__(10)();
               Caf.isF(initWorker) && initWorker(this);
+              this.requestCount = 0;
+              this.app.use((_a, _b, next) => {
+                this.requestCount++;
+                return next();
+              });
               this.app.use(__webpack_require__(23)());
               if (Caf.is(middleware, Object)) {
                 Caf.each(
@@ -920,37 +938,52 @@ Caf.defMod(module, () => {
 /* WEBPACK VAR INJECTION */(function(module) {
 let Caf = __webpack_require__(1);
 Caf.defMod(module, () => {
-  let process = global.process;
-  return __webpack_require__(12).start({
-    initWorker: function(server) {
-      return process.env.ART_EXPRESS_SERVER_MAX_SIZE_MB
-        ? Caf.importInvoke(
-            ["timeout", "Array", "Math", "process"],
-            [global, __webpack_require__(2)],
-            (timeout, Array, Math, process) => {
-              let makeItBig, alloc;
-              return (
-                (makeItBig = []),
-                timeout(
-                  1000,
-                  (alloc = () => {
-                    makeItBig.push(
-                      new Array((1024 * 1024 * Math.random()) | 0)
-                    );
-                    server.log(
-                      `simulating memory leak... (${Caf.toString(
-                        (process.memoryUsage().rss / (1024 * 1024)) | 0
-                      )}MB allocated)`.blue
-                    );
-                    return timeout(1000, alloc);
-                  })
-                )
-              );
-            }
-          )
-        : undefined;
+  let cafParentImports;
+  return Caf.importInvoke(
+    ["start", "PromiseHandler", "process"],
+    (cafParentImports = [global, __webpack_require__(12)]),
+    (start, PromiseHandler, process) => {
+      let OzHtmlHandler;
+      return start({
+        handlers: (OzHtmlHandler = Caf.defClass(
+          class OzHtmlHandler extends PromiseHandler {},
+          function(OzHtmlHandler, classSuper, instanceSuper) {
+            this.prototype.handleHtmlRequest = function(request, requestData) {
+              return "Hello world.";
+            };
+          }
+        )),
+        initWorker: function(server) {
+          return process.env.ART_EXPRESS_SERVER_MAX_SIZE_MB
+            ? Caf.importInvoke(
+                ["timeout", "Array", "Math", "process"],
+                [cafParentImports, __webpack_require__(2)],
+                (timeout, Array, Math, process) => {
+                  let makeItBig, alloc;
+                  return (
+                    (makeItBig = []),
+                    timeout(
+                      1000,
+                      (alloc = () => {
+                        makeItBig.push(
+                          new Array((1024 * 1024 * Math.random()) | 0)
+                        );
+                        server.log(
+                          `simulating memory leak... (${Caf.toString(
+                            (process.memoryUsage().rss / (1024 * 1024)) | 0
+                          )}MB allocated)`.blue
+                        );
+                        return timeout(1000, alloc);
+                      })
+                    )
+                  );
+                }
+              )
+            : undefined;
+        }
+      });
     }
-  });
+  );
 });
 
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
@@ -1260,7 +1293,7 @@ module.exports = {"author":"Shane Brinkman-Davis Delamore, Imikimi LLC","depende
 /* 21 */
 /***/ (function(module, exports) {
 
-module.exports = {"author":"Shane Brinkman-Davis Delamore, Imikimi LLC","dependencies":{"art-build-configurator":"*","art-class-system":"*","art-config":"*","art-standard-lib":"*","art-testbench":"*","bluebird":"^3.5.0","caffeine-script":"*","caffeine-script-runtime":"*","case-sensitive-paths-webpack-plugin":"^2.1.1","chai":"^4.0.1","coffee-loader":"^0.7.3","coffee-script":"^1.12.6","colors":"^1.1.2","commander":"^2.9.0","compression":"^1.6.2","css-loader":"^0.28.4","dateformat":"^2.0.0","detect-node":"^2.0.3","express":"^4.15.3","fs-extra":"^3.0.1","glob":"^7.1.2","glob-promise":"^3.1.0","json-loader":"^0.5.4","jsonwebtoken":"^7.4.1","mocha":"^3.4.2","neptune-namespaces":"*","script-loader":"^0.7.0","style-loader":"^0.18.1","throng":"^4.0.0","webpack":"^2.6.1","webpack-dev-server":"^2.4.5","webpack-merge":"^4.1.0","webpack-node-externals":"^1.6.0"},"description":"Extensible, Promise-based HTTP Server based on Express","license":"ISC","name":"art-express-server","scripts":{"build":"webpack --progress","start":"webpack-dev-server --hot --inline --progress","test":"nn -s;mocha -u tdd --compilers coffee:coffee-script/register","testInBrowser":"webpack-dev-server --progress","testServer":"caf ./TestServer"},"version":"0.6.1"}
+module.exports = {"author":"Shane Brinkman-Davis Delamore, Imikimi LLC","dependencies":{"art-build-configurator":"*","art-class-system":"*","art-config":"*","art-standard-lib":"*","art-testbench":"*","bluebird":"^3.5.0","caffeine-script":"*","caffeine-script-runtime":"*","case-sensitive-paths-webpack-plugin":"^2.1.1","chai":"^4.0.1","coffee-loader":"^0.7.3","coffee-script":"^1.12.6","colors":"^1.1.2","commander":"^2.9.0","compression":"^1.6.2","css-loader":"^0.28.4","dateformat":"^2.0.0","detect-node":"^2.0.3","express":"^4.15.3","fs-extra":"^3.0.1","glob":"^7.1.2","glob-promise":"^3.1.0","json-loader":"^0.5.4","jsonwebtoken":"^7.4.1","mocha":"^3.4.2","neptune-namespaces":"*","script-loader":"^0.7.0","style-loader":"^0.18.1","throng":"^4.0.0","webpack":"^2.6.1","webpack-dev-server":"^2.4.5","webpack-merge":"^4.1.0","webpack-node-externals":"^1.6.0"},"description":"Extensible, Promise-based HTTP Server based on Express","license":"ISC","name":"art-express-server","scripts":{"build":"webpack --progress","start":"webpack-dev-server --hot --inline --progress","test":"nn -s;mocha -u tdd --compilers coffee:coffee-script/register","testInBrowser":"webpack-dev-server --progress","testServer":"caf ./TestServer"},"version":"0.7.0"}
 
 /***/ }),
 /* 22 */

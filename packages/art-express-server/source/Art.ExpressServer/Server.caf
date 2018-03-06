@@ -113,18 +113,23 @@ class Server extends &LoggingMixin &ArtClassSystem.BaseClass
           options.handlers
     else options
 
+  timeAgeString = (actualAge, testAge) ->
+    testAge ?= actualAge
+
+    if testAge <= 60 # 1 minute
+      "#{(actualAge).toFixed 2}s"
+    else if testAge <= 60 * 60 # 1 hour
+      "#{(actualAge / 60).toFixed 2}m"
+    else
+      "#{(actualAge / (60 * 60)).toFixed 2}h"
+
   _initMonitors: (server) ->
     {ART_EXPRESS_SERVER_MAX_AGE_SECONDS, ART_EXPRESS_SERVER_MAX_SIZE_MB} = getEnv()
 
     if ART_EXPRESS_SERVER_MAX_AGE_SECONDS
       ART_EXPRESS_SERVER_MAX_AGE_SECONDS = ART_EXPRESS_SERVER_MAX_AGE_SECONDS | 0
       maxAgeMs = 1000 * ART_EXPRESS_SERVER_MAX_AGE_SECONDS * (.9 + Math.random() * .2) | 0
-      maxAgeTimeString = if ART_EXPRESS_SERVER_MAX_AGE_SECONDS <= 60 # 1 minute
-        "#{(maxAgeMs/1000).toFixed 2}s"
-      else if ART_EXPRESS_SERVER_MAX_AGE_SECONDS <= 60*60 # 1 hour
-        "#{(maxAgeMs / 60000).toFixed 2}m"
-      else
-        "#{(maxAgeMs / (60 * 60000)).toFixed 2}h"
+      maxAgeTimeString = timeAgeString maxAgeMs/1000, ART_EXPRESS_SERVER_MAX_AGE_SECONDS
       @log "ART_EXPRESS_SERVER_MAX_AGE_SECONDS=#{ART_EXPRESS_SERVER_MAX_AGE_SECONDS} -> shut down after #{maxAgeTimeString} (+/- 10% randomly)".green
 
       timeout maxAgeMs
@@ -139,16 +144,18 @@ class Server extends &LoggingMixin &ArtClassSystem.BaseClass
       @log "ART_EXPRESS_SERVER_MAX_SIZE_MB=#{ART_EXPRESS_SERVER_MAX_SIZE_MB} -> shut down when MemoryUsage(#{(process.memoryUsage().rss / (1024*1024))| 0}MB) > #{ART_EXPRESS_SERVER_MAX_SIZE_MB}MB (check every: #{memoryCheckCycleMs / 1000 | 0}s)".green
 
       timeout memoryCheckCycleMs, checkMemory = ->
+
         if ART_EXPRESS_SERVER_MAX_SIZE_MB < rssMegabytes = (process.memoryUsage().rss / (1024*1024)) | 0
-          @log "ART_EXPRESS_SERVER_MAX_SIZE_MB=#{ART_EXPRESS_SERVER_MAX_SIZE_MB} -> shutting down: MemoryUsage(#{rssMegabytes}MB) > #{ART_EXPRESS_SERVER_MAX_SIZE_MB}. uptime: #{@uptime|0}s".red
+          @log "ART_EXPRESS_SERVER_MAX_SIZE_MB=#{ART_EXPRESS_SERVER_MAX_SIZE_MB} -> shutting down: MemoryUsage(#{rssMegabytes}MB) > #{ART_EXPRESS_SERVER_MAX_SIZE_MB}. (uptime: #{@uptimeString}, #{@requestCount} requests)".red
           server.close()
           process.exit 0
 
-        else @logVerbose "ART_EXPRESS_SERVER_MAX_SIZE_MB=#{ART_EXPRESS_SERVER_MAX_SIZE_MB} -> tested OK! MemoryUsage(#{rssMegabytes}MB) <= #{ART_EXPRESS_SERVER_MAX_SIZE_MB}MB".green
+        else @logVerbose "ART_EXPRESS_SERVER_MAX_SIZE_MB=#{ART_EXPRESS_SERVER_MAX_SIZE_MB} -> tested OK! MemoryUsage(#{rssMegabytes}MB) <= #{ART_EXPRESS_SERVER_MAX_SIZE_MB}MB (uptime: #{@uptimeString}, #{@requestCount} requests)".green
         timeout memoryCheckCycleMs, checkMemory
 
   @getter
     uptime: -> currentSecond() - @startTime
+    uptimeString: -> timeAgeString @uptime
 
   _startOneServer: (@workerId) ->
     @startTime = currentSecond()
@@ -158,6 +165,10 @@ class Server extends &LoggingMixin &ArtClassSystem.BaseClass
     @app = &express()
 
     initWorker? @
+
+    @requestCount = 0
+
+    @app.use (_a, _b, next) -> @requestCount++;next()
 
     @app.use &compression()
 
