@@ -157,9 +157,9 @@ Caf.defMod(module, () => {
 let Caf = __webpack_require__(1);
 Caf.defMod(module, () => {
   return Caf.importInvoke(
-    ["String", "log", "dateFormat", "compactFlatten"],
+    ["String", "log", "dateFormat", "compactFlatten", "pad"],
     [global, __webpack_require__(2)],
-    (String, log, dateFormat, compactFlatten) => {
+    (String, log, dateFormat, compactFlatten, pad) => {
       return function(superClass) {
         let LoggingMixin;
         return (LoggingMixin = Caf.defClass(
@@ -179,6 +179,7 @@ Caf.defMod(module, () => {
             this.prototype.preprocessLog = function(toLog) {
               return { [`${Caf.toString(this.logHeader)}`]: toLog };
             };
+            this.setter("verbose");
             this.getter({
               logTime: function() {
                 return dateFormat("UTC:yyyy-mm-dd_HH-MM-ss");
@@ -193,7 +194,8 @@ Caf.defMod(module, () => {
               logHeader: function() {
                 return compactFlatten([
                   this.logTime,
-                  this.workerId && `worker${Caf.toString(this.workerId)}`,
+                  this.workerId &&
+                    `worker${Caf.toString(pad(this.workerId, 4, "0", true))}`,
                   this.class.getName()
                 ]).join(" ");
               }
@@ -545,8 +547,8 @@ let Caf = __webpack_require__(1);
 Caf.defMod(module, () => {
   return Caf.importInvoke(
     [
-      "merge",
       "getEnv",
+      "merge",
       "fastBind",
       "process",
       "Neptune",
@@ -558,8 +560,8 @@ Caf.defMod(module, () => {
     ],
     [global, __webpack_require__(2), __webpack_require__(7)],
     (
-      merge,
       getEnv,
+      merge,
       fastBind,
       process,
       Neptune,
@@ -583,14 +585,19 @@ Caf.defMod(module, () => {
               return new Server().start(...manyOptions);
             };
             this.prototype.start = function(...manyOptions) {
-              let numWorkers;
+              let WEB_CONCURRENCY, PORT, ART_EXPRESS_SERVER_VERBOSE, numWorkers;
+              ({
+                WEB_CONCURRENCY,
+                PORT,
+                ART_EXPRESS_SERVER_VERBOSE
+              } = getEnv());
+              if (ART_EXPRESS_SERVER_VERBOSE != null) {
+                this.verbose = true;
+              }
               ({ numWorkers } = this.options = this._allowAllCors(
                 merge(
                   Server.defaults,
-                  {
-                    numWorkers: getEnv().WEB_CONCURRENCY || 1,
-                    port: getEnv().PORT
-                  },
+                  { numWorkers: WEB_CONCURRENCY || 1, port: PORT },
                   ...manyOptions
                 )
               ));
@@ -614,6 +621,7 @@ Caf.defMod(module, () => {
               return this.logVerbose({
                 start: {
                   options: this.options,
+                  verbose: this.verbose,
                   env: merge(
                     Caf.each(process.env, {}, (v, k, cafInto) => {
                       if (k.match(/^art/)) {
@@ -628,7 +636,9 @@ Caf.defMod(module, () => {
                       ART_EXPRESS_SERVER_MAX_AGE_SECONDS: getEnv()
                         .ART_EXPRESS_SERVER_MAX_AGE_SECONDS,
                       ART_EXPRESS_SERVER_MAX_SIZE_MB: getEnv()
-                        .ART_EXPRESS_SERVER_MAX_SIZE_MB
+                        .ART_EXPRESS_SERVER_MAX_SIZE_MB,
+                      ART_EXPRESS_SERVER_VERBOSE: getEnv()
+                        .ART_EXPRESS_SERVER_VERBOSE
                     }
                   ),
                   Neptune: Neptune.getVersions()
@@ -730,10 +740,13 @@ Caf.defMod(module, () => {
                         process.exit(0);
                       } else {
                         this.logVerbose(
-                          `memory ok: ${Caf.toString(
+                          `ART_EXPRESS_SERVER_MAX_SIZE_MB=${Caf.toString(
+                            ART_EXPRESS_SERVER_MAX_SIZE_MB
+                          )} -> tested OK! MemoryUsage(${Caf.toString(
                             rssMegabytes
-                          )} < ${Caf.toString(ART_EXPRESS_SERVER_MAX_SIZE_MB)}`
-                            .green
+                          )}MB) <= ${Caf.toString(
+                            ART_EXPRESS_SERVER_MAX_SIZE_MB
+                          )}MB`.green
                         );
                       }
                       return timeout(memoryCheckCycleMs, checkMemory);
@@ -909,7 +922,6 @@ let Caf = __webpack_require__(1);
 Caf.defMod(module, () => {
   let process = global.process;
   return __webpack_require__(12).start({
-    verbose: true,
     initWorker: function(server) {
       return process.env.ART_EXPRESS_SERVER_MAX_SIZE_MB
         ? Caf.importInvoke(
@@ -1248,7 +1260,7 @@ module.exports = {"author":"Shane Brinkman-Davis Delamore, Imikimi LLC","depende
 /* 21 */
 /***/ (function(module, exports) {
 
-module.exports = {"author":"Shane Brinkman-Davis Delamore, Imikimi LLC","dependencies":{"art-build-configurator":"*","art-class-system":"*","art-config":"*","art-standard-lib":"*","art-testbench":"*","bluebird":"^3.5.0","caffeine-script":"*","caffeine-script-runtime":"*","case-sensitive-paths-webpack-plugin":"^2.1.1","chai":"^4.0.1","coffee-loader":"^0.7.3","coffee-script":"^1.12.6","colors":"^1.1.2","commander":"^2.9.0","compression":"^1.6.2","css-loader":"^0.28.4","dateformat":"^2.0.0","detect-node":"^2.0.3","express":"^4.15.3","fs-extra":"^3.0.1","glob":"^7.1.2","glob-promise":"^3.1.0","json-loader":"^0.5.4","jsonwebtoken":"^7.4.1","mocha":"^3.4.2","neptune-namespaces":"*","script-loader":"^0.7.0","style-loader":"^0.18.1","throng":"^4.0.0","webpack":"^2.6.1","webpack-dev-server":"^2.4.5","webpack-merge":"^4.1.0","webpack-node-externals":"^1.6.0"},"description":"Extensible, Promise-based HTTP Server based on Express","license":"ISC","name":"art-express-server","scripts":{"build":"webpack --progress","start":"webpack-dev-server --hot --inline --progress","test":"nn -s;mocha -u tdd --compilers coffee:coffee-script/register","testInBrowser":"webpack-dev-server --progress","testServer":"caf ./TestServer"},"version":"0.6.0"}
+module.exports = {"author":"Shane Brinkman-Davis Delamore, Imikimi LLC","dependencies":{"art-build-configurator":"*","art-class-system":"*","art-config":"*","art-standard-lib":"*","art-testbench":"*","bluebird":"^3.5.0","caffeine-script":"*","caffeine-script-runtime":"*","case-sensitive-paths-webpack-plugin":"^2.1.1","chai":"^4.0.1","coffee-loader":"^0.7.3","coffee-script":"^1.12.6","colors":"^1.1.2","commander":"^2.9.0","compression":"^1.6.2","css-loader":"^0.28.4","dateformat":"^2.0.0","detect-node":"^2.0.3","express":"^4.15.3","fs-extra":"^3.0.1","glob":"^7.1.2","glob-promise":"^3.1.0","json-loader":"^0.5.4","jsonwebtoken":"^7.4.1","mocha":"^3.4.2","neptune-namespaces":"*","script-loader":"^0.7.0","style-loader":"^0.18.1","throng":"^4.0.0","webpack":"^2.6.1","webpack-dev-server":"^2.4.5","webpack-merge":"^4.1.0","webpack-node-externals":"^1.6.0"},"description":"Extensible, Promise-based HTTP Server based on Express","license":"ISC","name":"art-express-server","scripts":{"build":"webpack --progress","start":"webpack-dev-server --hot --inline --progress","test":"nn -s;mocha -u tdd --compilers coffee:coffee-script/register","testInBrowser":"webpack-dev-server --progress","testServer":"caf ./TestServer"},"version":"0.6.1"}
 
 /***/ }),
 /* 22 */

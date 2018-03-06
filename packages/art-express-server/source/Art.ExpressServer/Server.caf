@@ -13,54 +13,55 @@ class Server extends &LoggingMixin &ArtClassSystem.BaseClass
     new Server
     .start manyOptions...
 
+  ##
+    ENV: SEE README.MD
+
+    IN: options: one or more options objects, merged
+      port:     (number) port to listen on
+
+      static:   # if present, serve static assets
+        root:   path to static assets to serve
+        headers: {} # headers to return with every request
+
+      handlers:
+        single or array of objects that implement:
+
+          getMiddleware: (options) -> express-use-function
+
+        Example:
+          class MyInfoHandler extends &PrimseHandler
+            @getter handleUrlRegex: -> /// \/ info
+
+            handleApiRequest: (request, requestData) ->
+              info: "" Result from MyInfoHandler
+
+          &ArtExpressServer.start handlers: MyInfoHandler
+
+        NOTE: The final, merged options-object is passed into
+          start is also passed to each getMiddleware() call.
+
+      numWorkers: number
+        if > 1, will spawn that many workers to handle requests
+
+      allowAllCors: true
+        If set, then headers and OPTIONS requests will be handled in such a way
+        that ALL requests are accepted, regardless of CORS.
+
+        This is the way the interenet should work. The problem is COOKIES.
+
+        If your client uses COOKIES, then don't use this, but if you maintain your
+        sessions some other way, it is safe to do.
+
+        SEE: http://www.essenceandartifact.com/2017/01/why-cors-why.html
   start: (manyOptions...) ->
-    ##
-      ENV:
-        WEB_CONCURRENCY: number -> sets options.numWorkers
-        PORT:            number -> sets options.port
+    {WEB_CONCURRENCY, PORT, ART_EXPRESS_SERVER_VERBOSE} = getEnv()
 
-      IN: options: one or more options objects, merged
-        port:     (number) port to listen on
-
-        static:   # if present, serve static assets
-          root:   path to static assets to serve
-          headers: {} # headers to return with every request
-
-        handlers:
-          single or array of objects that implement:
-
-            getMiddleware: (options) -> express-use-function
-
-          Example:
-            class MyInfoHandler extends &PrimseHandler
-              @getter handleUrlRegex: -> /// \/ info
-
-              handleApiRequest: (request, requestData) ->
-                info: "" Result from MyInfoHandler
-
-            &ArtExpressServer.start handlers: MyInfoHandler
-
-          NOTE: The final, merged options-object is passed into
-            start is also passed to each getMiddleware() call.
-
-        numWorkers: number
-          if > 1, will spawn that many workers to handle requests
-
-        allowAllCors: true
-          If set, then headers and OPTIONS requests will be handled in such a way
-          that ALL requests are accepted, regardless of CORS.
-
-          This is the way the interenet should work. The problem is COOKIES.
-
-          If your client uses COOKIES, then don't use this, but if you maintain your
-          sessions some other way, it is safe to do.
-
-          SEE: http://www.essenceandartifact.com/2017/01/why-cors-why.html
+    @verbose = true if ART_EXPRESS_SERVER_VERBOSE?
 
     {numWorkers} = @options = @_allowAllCors merge
         Server.defaults
-        numWorkers:   getEnv().WEB_CONCURRENCY || 1
-        port:         getEnv().PORT
+        numWorkers:   WEB_CONCURRENCY || 1
+        port:         PORT
         manyOptions...
 
     numWorkers = numWorkers | 0 if numWorkers?
@@ -80,6 +81,7 @@ class Server extends &LoggingMixin &ArtClassSystem.BaseClass
   logEnvironment: ->
     @logVerbose start: {}
       @options
+      @verbose
       env:
         merge
           object v, k from process.env when k.match /^art/
@@ -90,6 +92,7 @@ class Server extends &LoggingMixin &ArtClassSystem.BaseClass
             getEnv().PORT
             getEnv().ART_EXPRESS_SERVER_MAX_AGE_SECONDS
             getEnv().ART_EXPRESS_SERVER_MAX_SIZE_MB
+            getEnv().ART_EXPRESS_SERVER_VERBOSE
 
       Neptune: Neptune.getVersions()
 
@@ -141,7 +144,7 @@ class Server extends &LoggingMixin &ArtClassSystem.BaseClass
           server.close()
           process.exit 0
 
-        else @logVerbose "memory ok: #{rssMegabytes} < #{ART_EXPRESS_SERVER_MAX_SIZE_MB}".green
+        else @logVerbose "ART_EXPRESS_SERVER_MAX_SIZE_MB=#{ART_EXPRESS_SERVER_MAX_SIZE_MB} -> tested OK! MemoryUsage(#{rssMegabytes}MB) <= #{ART_EXPRESS_SERVER_MAX_SIZE_MB}MB".green
         timeout memoryCheckCycleMs, checkMemory
 
   @getter

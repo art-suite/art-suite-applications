@@ -1,5 +1,5 @@
 &ArtExpressServer.start
-  verbose: true
+  # verbose: true
   initWorker: (server) ->
     if process.env.ART_EXPRESS_SERVER_MAX_SIZE_MB
       import &ArtStandardLib

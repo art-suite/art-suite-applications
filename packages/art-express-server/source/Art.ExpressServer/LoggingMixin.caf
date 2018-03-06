@@ -13,12 +13,14 @@ import &ArtStandardLib
 
   preprocessLog: (toLog) -> "#{@logHeader}": toLog
 
+  @setter "verbose"
+
   @getter
     logTime:    -> dateFormat :UTC:yyyy-mm-dd_HH-MM-ss
     verbose:    -> @_verbose || @options?.verbose
     logHeader:  ->
       compactFlatten []
         @logTime
-        @workerId && "worker#{@workerId}"
+        @workerId && "worker#{pad @workerId, 4, "0", true}"
         @class.getName()
       .join ' '
