@@ -2,7 +2,12 @@ import &ArtStandardLib
 
 (superClass) -> class LoggingMixin extends superClass
 
-  log:        (toLog) -> log.withOptions {color: true}, @preprocessLog toLog
+  log: (toLog) ->
+    if toLog is String
+      log "#{@logHeader}: #{toLog}"
+    else
+      log.withOptions {color: true}, @preprocessLog toLog
+
   logError:   (toLog) -> log.error @preprocessLog toLog
   logVerbose: (toLog) -> @log toLog if @verbose
 

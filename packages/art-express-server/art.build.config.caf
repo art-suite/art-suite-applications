@@ -3,7 +3,7 @@ target:
 
 package:
   scripts:
-    testServer: "coffee ./TestServer.coffee"
+    testServer: "caf ./TestServer"
 
   description: ""
     Extensible, Promise-based HTTP Server based on Express
@@ -19,4 +19,4 @@ webpack:
   common: {}
 
   # each target's individual properties
-  targets: index: {}
+  targets: TestServer: {}

@@ -1,6 +1,8 @@
 import &ArtStandardLib, &ArtCommunicationStatus
 &colors
 
+memoryCheckCycleMs = 10000
+
 class Server extends &LoggingMixin &ArtClassSystem.BaseClass
 
   @defaults:
@@ -57,8 +59,8 @@ class Server extends &LoggingMixin &ArtClassSystem.BaseClass
 
     {numWorkers} = @options = @_allowAllCors merge
         Server.defaults
-        numWorkers:   process.env.WEB_CONCURRENCY || 1
-        port:         process.env.PORT
+        numWorkers:   getEnv().WEB_CONCURRENCY || 1
+        port:         getEnv().PORT
         manyOptions...
 
     @logVerbose start: {}
@@ -67,10 +69,13 @@ class Server extends &LoggingMixin &ArtClassSystem.BaseClass
         merge
           object v, k from process.env when k.match /^art/
           {}
-          process.env.WEB_CONCURRENCY
-          process.env.WEB_MEMORY
-          process.env.MEMORY_AVAILABLE
-          process.env.PORT
+            getEnv().WEB_CONCURRENCY
+            getEnv().WEB_MEMORY
+            getEnv().MEMORY_AVAILABLE
+            getEnv().PORT
+            getEnv().ART_EXPRESS_SERVER_MAX_AGE_SECONDS
+            getEnv().ART_EXPRESS_SERVER_MAX_SIZE_MB
+
       Neptune: Neptune.getVersions()
 
     numWorkers = numWorkers | 0 if numWorkers?
@@ -97,22 +102,67 @@ class Server extends &LoggingMixin &ArtClassSystem.BaseClass
           options.handlers
     else options
 
+  _initMonitors: (server) ->
+    {ART_EXPRESS_SERVER_MAX_AGE_SECONDS, ART_EXPRESS_SERVER_MAX_SIZE_MB} = getEnv()
+
+    if ART_EXPRESS_SERVER_MAX_AGE_SECONDS
+      ART_EXPRESS_SERVER_MAX_AGE_SECONDS = ART_EXPRESS_SERVER_MAX_AGE_SECONDS | 0
+      maxAgeMs = 1000 * ART_EXPRESS_SERVER_MAX_AGE_SECONDS * (.9 + Math.random() * .2) | 0
+      maxAgeTimeString = if ART_EXPRESS_SERVER_MAX_AGE_SECONDS <= 60 # 1 minute
+        "#{(maxAgeMs/1000).toFixed 2}s"
+      else if ART_EXPRESS_SERVER_MAX_AGE_SECONDS <= 60*60 # 1 hour
+        "#{(maxAgeMs / 60000).toFixed 2}m"
+      else
+        "#{(maxAgeMs / (60 * 60000)).toFixed 2}h"
+      @log "ART_EXPRESS_SERVER_MAX_AGE_SECONDS=#{ART_EXPRESS_SERVER_MAX_AGE_SECONDS} -> shut down after #{maxAgeTimeString} (+/- 10% randomly)".green
+
+      timeout maxAgeMs
+      .then ->
+        @log "ART_EXPRESS_SERVER_MAX_AGE_SECONDS -> shutting down: #{maxAgeTimeString} expired".red
+
+        server.close()
+        process.exit 0
+
+    if ART_EXPRESS_SERVER_MAX_SIZE_MB
+      ART_EXPRESS_SERVER_MAX_SIZE_MB = ART_EXPRESS_SERVER_MAX_SIZE_MB | 0
+      @log "ART_EXPRESS_SERVER_MAX_SIZE_MB=#{ART_EXPRESS_SERVER_MAX_SIZE_MB} -> shut down when MemoryUsage(#{(process.memoryUsage().rss / (1024*1024))| 0}MB) > #{ART_EXPRESS_SERVER_MAX_SIZE_MB}MB (check every: #{memoryCheckCycleMs / 1000 | 0}s)".green
+
+      timeout memoryCheckCycleMs, checkMemory = ->
+        if ART_EXPRESS_SERVER_MAX_SIZE_MB < rssMegabytes = (process.memoryUsage().rss / (1024*1024)) | 0
+          @log "ART_EXPRESS_SERVER_MAX_SIZE_MB -> shutting down: MemoryUsage(#{rssMegabytes}MB) > #{ART_EXPRESS_SERVER_MAX_SIZE_MB}. uptime: #{@uptime|0}s".red
+          server.close()
+          process.exit 0
+
+        else @logVerbose "memory ok: #{rssMegabytes} < #{ART_EXPRESS_SERVER_MAX_SIZE_MB}".green
+        timeout memoryCheckCycleMs, checkMemory
+
+  @getter
+    uptime: -> currentSecond() - @startTime
+
   _startOneServer: (@workerId) ->
+    @startTime = currentSecond()
 
-    {port, handlers, postmiddleware, middleware, commonResponseHeaders} = @options
-    staticOptions = @options.static
+    {static: staticOptions, initWorker, port, handlers, postmiddleware, middleware, commonResponseHeaders} = @options
 
-    app = &express()
-    app.use &compression()
+    @app = &express()
 
-    each mw in compactFlatten [middleware]
-      app.use mw
+    initWorker? @
+
+    @app.use &compression()
+
+    if middleware is Object
+      each callback, path in compactFlatten [middleware]
+        @app.use path, callback
+
+    else if middleware?
+      each mw in compactFlatten [middleware]
+        @app.use mw
 
     each handler in compactFlatten [handlers]
-      app.use handler.getMiddleware @options
+      @app.use handler.getMiddleware @options
 
     if staticOptions
-      app.use &express.static staticOptions.root, merge
+      @app.use &express.static staticOptions.root, merge
         maxAge:       3600 * 24 * 7 # 1 week
         setHeaders: (response, path) ->
           switch &path.extname(path).toLowerCase()
@@ -123,7 +173,9 @@ class Server extends &LoggingMixin &ArtClassSystem.BaseClass
         staticOptions
 
     each mw in compactFlatten [postmiddleware]
-      app.use mw
+      @app.use mw
 
-    app.listen port | 0, =>
+    server = @app.listen port | 0, =>
       @log "" listening on: http://localhost:#{port}
+
+    @_initMonitors server

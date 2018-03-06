@@ -1,0 +1,13 @@
+&ArtExpressServer.start
+  verbose: true
+  initWorker: (server) ->
+    if process.env.ART_EXPRESS_SERVER_MAX_SIZE_MB
+      import &ArtStandardLib
+      makeItBig = []
+      timeout 1000, alloc = ->
+        makeItBig.push new Array (1024*1024 * Math.random()) | 0
+        server.log "simulating memory leak... (#{(process.memoryUsage().rss / (1024 * 1024)) | 0}MB allocated)".blue
+        timeout 1000, alloc
+
+      # allowAllCors: true
+      # middleware:   &ExpressSharp baseHost: :https://zofiles.imikimi.com
