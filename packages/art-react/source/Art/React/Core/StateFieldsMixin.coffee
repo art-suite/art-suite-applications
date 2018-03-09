@@ -33,7 +33,13 @@ defineModule module, -> (superClass) -> class StateFieldsMixin extends superClas
       if initialValue == true || initialValue == false
         clearValue = false
         defaultSetValue = true
+
+        # OLD: setIsFoo
         @::[lowerCamelCase "set is #{field}"] = ->
+          @setState field, true
+
+        # NEW: triggerFoo
+        @::[lowerCamelCase "trigger #{field}"] = ->
           @setState field, true
 
         @::[lowerCamelCase "toggle #{field}"] = ->
