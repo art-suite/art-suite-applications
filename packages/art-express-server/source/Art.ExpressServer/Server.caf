@@ -153,6 +153,8 @@ class Server extends &LoggingMixin &ArtClassSystem.BaseClass
         else @logVerbose "ART_EXPRESS_SERVER_MAX_SIZE_MB=#{ART_EXPRESS_SERVER_MAX_SIZE_MB} -> tested OK! MemoryUsage(#{rssMegabytes}MB) <= #{ART_EXPRESS_SERVER_MAX_SIZE_MB}MB (uptime: #{@uptimeString}, #{@requestCount} requests)".green
         timeout memoryCheckCycleMs, checkMemory
 
+
+
   @getter
     uptime: -> currentSecond() - @startTime
     uptimeString: -> timeAgeString @uptime
@@ -168,7 +170,13 @@ class Server extends &LoggingMixin &ArtClassSystem.BaseClass
 
     @requestCount = 0
 
-    @app.use (_a, _b, next) -> @requestCount++;next()
+    if commonResponseHeaders && objectHasKeys commonResponseHeaders
+      @app.use (request, response, next) ->
+        each v, k from commonResponseHeaders
+          response.setHeader k, v
+        next()
+
+    @app.use (_a, _b, next) -> @requestCount++; next()
 
     @app.use &compression()
 
@@ -190,7 +198,7 @@ class Server extends &LoggingMixin &ArtClassSystem.BaseClass
           switch &path.extname(path).toLowerCase()
             when :.js then response.setHeader "Content-Type", "application/javascript; charset=UTF-8"
 
-          each v, k from merge commonResponseHeaders, staticOptions.headers
+          each v, k from staticOptions.headers
             response.setHeader k, v
         staticOptions
 
