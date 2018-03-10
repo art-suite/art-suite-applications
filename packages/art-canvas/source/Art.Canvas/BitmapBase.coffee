@@ -7,7 +7,7 @@
 # Canvas Spec: http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html
 # http://dev.w3.org/fxtf/compositing-1/#porterduffcompositingoperators_srcover
 {point, point0, Point, rect, Rectangle, matrix, Matrix, rgbColor, Color, isPoint} = require 'art-atomic'
-{inspect, nextTick, pureMerge, isString, isNumber, log, bound, merge} = require 'art-standard-lib'
+{inspect, Promise, nextTick, pureMerge, isString, isNumber, log, bound, merge} = require 'art-standard-lib'
 {round, floor, ceil, max, min} = Math
 {BinaryString, EncodedImage} = (require 'art-foundation').Binary
 {BaseClass} = require 'art-class-system'
@@ -54,6 +54,18 @@ module.exports = class BitmapBase extends BaseClass
     # console.log "new Art.Canvas.Bitmap #{@size}"
 
   @getter
+    isTainted: ->
+      if @_context
+        try
+          @_context.getImageData 0, 0, 1, 1
+          false
+        catch
+          true
+      else
+        @newBitmap 1
+        .drawBitmap null, @
+        .isTainted
+
     hasAlpha: ->
       {size} = @
       if size.x <= 128 && size.y <= 128
