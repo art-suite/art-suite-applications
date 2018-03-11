@@ -54,7 +54,7 @@ module.exports = class BitmapBase extends BaseClass
     # console.log "new Art.Canvas.Bitmap #{@size}"
 
   @getter
-    isTainted: ->
+    tainted: ->
       if @_context
         try
           @_context.getImageData 0, 0, 1, 1
@@ -64,7 +64,9 @@ module.exports = class BitmapBase extends BaseClass
       else
         @newBitmap 1
         .drawBitmap null, @
-        .isTainted
+        .tainted
+
+    isTainted: -> @tainted
 
     hasAlpha: ->
       {size} = @
@@ -252,7 +254,21 @@ module.exports = class BitmapBase extends BaseClass
   @getter
     imageData: (a, b, c, d) ->
       area = if a==null || a==undefined then rect @size else rect a, b, c, d
-      @toMemoryBitmap().context.getImageData area.x, area.y, area.w, area.h
+      memoryBitmap = null
+      try
+        memoryBitmap = @toMemoryBitmap()
+        memoryBitmap.context.getImageData area.x, area.y, area.w, area.h
+      catch error
+        log.error "ArtCanvas.BitmapBase.imageData": {
+          message: "context.getImageData error. May be tainted."
+          area
+          size:                 @_size
+          memoryBitmapOk:       !!memoryBitmap
+          haveHtmlImageElement: !!@_htmlImageElement
+          haveCanvas:           !!@_canvas
+          error
+        }
+        throw error
 
     imageDataBuffer: (a, b, c, d) -> @getImageData(a, b, c, d).data.buffer
 

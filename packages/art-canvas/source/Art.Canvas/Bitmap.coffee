@@ -96,12 +96,18 @@ module.exports = class Bitmap extends BitmapBase
       # file is a javascript File object
   ###
   @requestImage: ->
-    Foundation.Browser.File.request accept:"image/*"
+    Foundation.Browser.File.request accept: "image/*"
     .then ([file]) =>
       EncodedImage.toImage file
-      .then (image) =>
-        bitmap: new Bitmap image
-        file:   file
+      .then (image)  => new Bitmap image
+      .then (bitmap) =>
+
+        log ArtCanvasBitmap_requestImage:
+          size:     bitmap.size
+          tainted:  bitmap.tainted
+          type:     file.type
+
+        {bitmap, file, mimeType: file.type}
 
   initFromImage: (image) ->
     # log "Canvas.Bitmap: initFromImage - keep it an HTMLImageElement"
