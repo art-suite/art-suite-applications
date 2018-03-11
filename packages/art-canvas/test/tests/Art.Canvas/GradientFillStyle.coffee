@@ -1,4 +1,4 @@
-{point} = require 'art-atomic'
+{point, rgbColor} = require 'art-atomic'
 {log} = require 'art-foundation'
 {GradientFillStyle} = Neptune.Art.Canvas
 
@@ -9,10 +9,14 @@ module.exports = suite: ->
 
   test "implicit 3-step gradient", ->
     gfs = new GradientFillStyle point(0,0), point(100,0), ["#000", "#f00", "#0f0"]
-    assert.eq gfs.colors, [{c: "#000", n: 0}, {n: 0.5, c: "#f00"}, {c: "#0f0", n: 1}]
+    assert.eq gfs.colors, [
+      {n: 0,    c: rgbColor "#000"}
+      {n: 0.5,  c: rgbColor "#f00"}
+      {n: 1,    c: rgbColor "#0f0"}
+    ]
 
   test "regression > 10 colors with no positions", ->
-    colors = GradientFillStyle.colorsToObjectsAndStringColors [
+    colors = GradientFillStyle.colorsToObjectsAndColorObjects [
       "#f00"
       "#f70"
       "#ff0"
@@ -26,31 +30,31 @@ module.exports = suite: ->
       "#f0f"
       ]
     assert.eq colors, [
-      {c: "#f00"}
-      {c: "#f70"}
-      {c: "#ff0"}
-      {c: "#7f0"}
-      {c: "#0f0"}
-      {c: "#0f7"}
-      {c: "#0ff"}
-      {c: "#07f"}
-      {c: "#00f"}
-      {c: "#70f"}
-      {c: "#f0f"}
+      {c: rgbColor "#f00"}
+      {c: rgbColor "#f70"}
+      {c: rgbColor "#ff0"}
+      {c: rgbColor "#7f0"}
+      {c: rgbColor "#0f0"}
+      {c: rgbColor "#0f7"}
+      {c: rgbColor "#0ff"}
+      {c: rgbColor "#07f"}
+      {c: rgbColor "#00f"}
+      {c: rgbColor "#70f"}
+      {c: rgbColor "#f0f"}
     ], "colorsToObjectsAndStringColors"
     colors = GradientFillStyle.interpolateColorPositions colors
     assert.eq colors, [
-      {c: "#f00", n: .0}
-      {c: "#f70", n: .1}
-      {c: "#ff0", n: .2}
-      {c: "#7f0", n: .3}
-      {c: "#0f0", n: .4}
-      {c: "#0f7", n: .5}
-      {c: "#0ff", n: .6}
-      {c: "#07f", n: .7}
-      {c: "#00f", n: .8}
-      {c: "#70f", n: .9}
-      {c: "#f0f", n: 1}
+      {n: .0, c: rgbColor "#f00"}
+      {n: .1, c: rgbColor "#f70"}
+      {n: .2, c: rgbColor "#ff0"}
+      {n: .3, c: rgbColor "#7f0"}
+      {n: .4, c: rgbColor "#0f0"}
+      {n: .5, c: rgbColor "#0f7"}
+      {n: .6, c: rgbColor "#0ff"}
+      {n: .7, c: rgbColor "#07f"}
+      {n: .8, c: rgbColor "#00f"}
+      {n: .9, c: rgbColor "#70f"}
+      {n:  1, c: rgbColor "#f0f"}
     ], "interpolateColorPositions"
 
   test "regression 2", ->
