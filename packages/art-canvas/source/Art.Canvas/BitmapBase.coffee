@@ -68,6 +68,15 @@ module.exports = class BitmapBase extends BaseClass
 
     isTainted: -> @tainted
 
+    taintedInfo: ->
+      {
+        @size
+        @tainted
+        class:                @class.getName()
+        haveHtmlImageElement: !!@_htmlImageElement
+        haveCanvas:           !!@_canvas
+      }
+
     hasAlpha: ->
       {size} = @
       if size.x <= 128 && size.y <= 128
@@ -252,21 +261,31 @@ module.exports = class BitmapBase extends BaseClass
   toMemoryBitmap: -> @
   toMemoryDrawableBitmap: -> @
   @getter
+    memoryContext: ->
+      try
+        @toMemoryBitmap().context
+      catch error
+        log.error {
+          message: "ArtCanvas.BitmapBase.memoryContext failure"
+          @taintedInfo
+          error
+        }
+        throw error
+
     imageData: (a, b, c, d) ->
       area = if a==null || a==undefined then rect @size else rect a, b, c, d
-      memoryBitmap = null
+
       try
-        memoryBitmap = @toMemoryBitmap()
-        memoryBitmap.context.getImageData area.x, area.y, area.w, area.h
+        @memoryContext.getImageData area.x, area.y, area.w, area.h
+
       catch error
-        log.error "ArtCanvas.BitmapBase.imageData": {
-          message: "context.getImageData error. May be tainted."
-          area
-          size:                 @_size
-          memoryBitmapOk:       !!memoryBitmap
-          haveHtmlImageElement: !!@_htmlImageElement
-          haveCanvas:           !!@_canvas
+        {x, y, w, h} = area
+        log.error {
+          message: "ArtCanvas.BitmapBase.imageData failure"
+          @taintedInfo
+          area: {x, y, w, h}
           error
+          stack: error.stack
         }
         throw error
 

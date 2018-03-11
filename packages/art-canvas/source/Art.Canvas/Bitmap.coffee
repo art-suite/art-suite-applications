@@ -110,9 +110,9 @@ module.exports = class Bitmap extends BitmapBase
         {bitmap, file, mimeType: file.type}
 
   initFromImage: (image) ->
-    # log "Canvas.Bitmap: initFromImage - keep it an HTMLImageElement"
     @_size = point image.naturalWidth || image.width, image.naturalHeight || image.height
     @_htmlImageElement = image
+    # log "Canvas.Bitmap.initFromImage #{@_size}, tainted: #{@tainted}, #{image.src?.slice(0,100)}"
 
   @setter
     imageSmoothing: (bool) ->
