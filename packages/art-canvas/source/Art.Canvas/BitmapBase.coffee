@@ -73,7 +73,7 @@ module.exports = class BitmapBase extends BaseClass
         @size
         @tainted
         class:                @class.getName()
-        haveHtmlImageElement: !!@_htmlImageElement
+        src:                  @_htmlImageElement?.src?.slice 0, 100
         haveCanvas:           !!@_canvas
       }
 
