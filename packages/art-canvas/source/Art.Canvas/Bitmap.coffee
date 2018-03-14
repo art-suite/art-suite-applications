@@ -15,7 +15,6 @@
 # Otherwise there are some "optimized" pure javascript solutions:
 #   http://creativejs.com/2011/12/day-5-blur-that-canvas/
 Atomic = require "art-atomic"
-Foundation = require "art-foundation"
 GradientFillStyle = require "./GradientFillStyle"
 BitmapBase = require "./BitmapBase"
 StackBlur = require "./StackBlur"
@@ -30,8 +29,12 @@ isSimpleRectangle = (pathFunction, pathOptions) ->
   Promise
   isPlainObject
   isString
-} = Foundation
+  getEnv
+} = require 'art-standard-lib'
+
+{Binary, Browser} = require "art-foundation"
 {EncodedImage} = Binary
+
 {point, Point, rect, Rectangle, matrix, Matrix, rgbColor, Color, IdentityMatrix, point0} = Atomic
 
 emptyOptions = {}
@@ -96,7 +99,7 @@ module.exports = class Bitmap extends BitmapBase
       # file is a javascript File object
   ###
   @requestImage: ->
-    Foundation.Browser.File.request accept: "image/*"
+    Browser.File.request accept: "image/*"
     .then ([file]) =>
       EncodedImage.toImage file
       .then (image)  => new Bitmap image
@@ -112,7 +115,12 @@ module.exports = class Bitmap extends BitmapBase
   initFromImage: (image) ->
     @_size = point image.naturalWidth || image.width, image.naturalHeight || image.height
     @_htmlImageElement = image
-    # log "Canvas.Bitmap.initFromImage #{@_size}, tainted: #{@tainted}, #{image.src?.slice(0,100)}"
+    if getEnv().debugTaint
+      {tainted} = @
+      message = "Canvas.Bitmap.initFromImage #{@_size}, tainted: #{tainted}, #{image.src?.slice(0,100)}"
+      if tainted
+        log.error message
+      else log message
 
   @setter
     imageSmoothing: (bool) ->
