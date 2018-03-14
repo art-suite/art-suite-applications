@@ -162,7 +162,7 @@ class Server extends &LoggingMixin &ArtClassSystem.BaseClass
   _startOneServer: (@workerId) ->
     @startTime = currentSecond()
 
-    {static: staticOptions, initWorker, port, handlers, postmiddleware, middleware, commonResponseHeaders} = @options
+    {static: staticOptions, initWorker, port, posthandlers, handlers, postmiddleware, middleware, commonResponseHeaders} = @options
 
     @app = &express()
 
@@ -201,6 +201,9 @@ class Server extends &LoggingMixin &ArtClassSystem.BaseClass
           each v, k from staticOptions.headers
             response.setHeader k, v
         staticOptions
+
+    each handler in compactFlatten [posthandlers]
+      @app.use handler.getMiddleware @options
 
     each mw in compactFlatten [postmiddleware]
       @app.use mw
