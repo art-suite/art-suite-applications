@@ -1,11 +1,14 @@
 {
   present, isPlainObject, object, merge, defineModule, formattedInspect, log, timeout, Promise
+  each
+  find
 } = require 'art-standard-lib'
 {point} = require 'art-atomic'
 Bitmap = require './Bitmap'
 
 {Div, Link, Style} = require("art-foundation").Browser.DomElementFactories
 
+defaultTimeout = 30000
 defaultLoadedTestText = "aA"
 ###
 fonts:
@@ -28,30 +31,55 @@ defineModule module, class FontLoader
   ###
   @allFontsLoaded: (fonts) ->
     timeExpired = 0
-    new Promise (resolve, reject) ->
-      testFonts = ->
+    new Promise (resolve, reject) =>
+      testFonts = =>
         try
           verbose = timeExpired >= 1000 && timeExpired % 1000 == 0
 
-          if FontLoader.allFontsLoadedSync fonts, verbose
+          fontsLoaded = FontLoader.fontsLoadedSync fonts, verbose
+          haveUnloadedFonts = find fontsLoaded, (loaded) -> !loaded
+
+          unless haveUnloadedFonts
             if timeExpired >= 100
               log.warn formattedInspect FontLoader: success: milliseconds: timeExpired, fonts: Object.keys fonts
-            resolve object fonts, -> true
+            resolve fontsLoaded
           # else if timeoutRemaining <= 0
           #   reject new Error "timeout loading fonts: #{formattedInspect fonts}"
           else
             if verbose
               log.warn formattedInspect FontLoader: waiting: milliseconds: timeExpired, fonts: Object.keys fonts
 
-            # log "waiting for fonts: #{formattedInspect fonts}"
-            timeExpired += 25
-            timeout 25, testFonts
+            if @allFontLoadsExpired fontsLoaded, fonts, verbose, timeExpired
+              resolve fontsLoaded
+            else
+                # log "waiting for fonts: #{formattedInspect fonts}"
+              timeExpired += 25
+              timeout 25, testFonts
         catch e
           log {e}
 
       testFonts()
     .then =>
       @_cleanup()
+
+  @allFontLoadsExpired: (fontsLoaded, fonts, verbose, timeExpired) ->
+    allExpired = true
+    each fonts,
+      when: (fontOptions, fontFamily) ->  !fontsLoaded[fontFamily]
+      with: (fontOptions, fontFamily) ->
+        {timeout: timeoutMs = defaultTimeout, onTimeout, previouslyExpired} = fontOptions
+        if timeExpired > timeoutMs
+          unless previouslyExpired
+            onTimeout? {fontFamily, fontOptions, timeExpired, timeoutMs}
+            fontOptions.previouslyExpired = true
+
+        else
+          allExpired = false
+
+    allExpired
+
+
+
 
   # IN: see 'fonts' above
   # OUT: immediatly returns T/F
@@ -64,7 +92,7 @@ defineModule module, class FontLoader
   # OUT: promise.then (loadedMap) ->
   #   IN: ladedMap: object keys are from fonts, values are true/false if that font is loaded
   @fontsLoadedSync: (fonts, verbose) ->
-    object fonts, (fontName, fontFamily) -> FontLoader.fontLoaded fontName, fontFamily, verbose
+    object fonts, (fontOptions, fontFamily) -> FontLoader.fontLoaded fontOptions, fontFamily, verbose
 
   # IN: see 'fonts' above
   @loadFonts: (fonts) ->
