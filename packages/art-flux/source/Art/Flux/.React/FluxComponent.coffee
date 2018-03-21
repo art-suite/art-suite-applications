@@ -172,13 +172,26 @@ defineModule module, class FluxComponent extends FluxSubscriptionsMixin Componen
     for stateField, subscriptionProps of @class.getSubscriptionProperties()
       {keyFunction, model} = subscriptionProps
 
-      model = model props if isFunction model
+      model = try
+        if isFunction model
+          model props
+        else
+          model
+
+      catch error
+        log "UpdateSubscription modelFunction error": {FluxComponent: @, stateField, model, subscriptionProps, error}
+        null
 
       if isString model
         unless model = @models[model]
           console.error "Could not find model named #{inspect model} for subscription in component #{@inspectedName}"
 
       if model
-        @_updateSubscription stateField, keyFunction(props), model, props
+        key = try
+          keyFunction props
+        catch error
+          log "UpdateSubscription keyFunction error": {FluxComponent: @, stateField, model, subscriptionProps, error}
+          null
+        @_updateSubscription stateField, key, model, props
 
     null
