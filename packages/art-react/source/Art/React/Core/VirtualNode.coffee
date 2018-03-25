@@ -18,7 +18,7 @@ defineModule module, class VirtualNode extends BaseObject
     @_parentComponent = null
 
     @key = props.key
-    @props = props
+    @props = @_rawProps = props
     @_propsLength = -1
 
     # created once, then never changes
@@ -26,7 +26,7 @@ defineModule module, class VirtualNode extends BaseObject
 
     VirtualNode._assignRefs @
 
-  @getter
+  @getter "rawProps",
     propsLength: ->
       if @_propsLength >= 0
         @_propsLength
@@ -96,11 +96,11 @@ defineModule module, class VirtualNode extends BaseObject
     children
 
   _propsChanged: (virtualNode) ->
-    newProps = virtualNode.props
+    newProps = virtualNode.rawProps
     _propsLength = 0
 
     # return true if an existing prop changed
-    for k, v of @props
+    for k, v of @rawProps
       _propsLength++
       # global.propsEq = (global.propsEq | 0) + 1 if propsEq v, newProps[k]
       # global.justEq = (global.justEq | 0) + 1 if v == newProps[k]

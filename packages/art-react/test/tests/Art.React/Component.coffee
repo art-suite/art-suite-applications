@@ -1,9 +1,10 @@
-Foundation = require 'art-foundation'
 Engine = require 'art-engine'
 React = require 'art-react'
-{log, merge} = Foundation
+{log, merge} = require 'art-standard-lib'
+{createWithPostCreate} = require 'art-class-system'
 
 {stateEpoch} = Engine.Core.StateEpoch
+{ChainedTest} = require 'art-testbench'
 
 {Element, RectangleElement, createComponentFactory, Component, VirtualElement, ReactArtEngineEpoch} = React
 {reactArtEngineEpoch} = ReactArtEngineEpoch
@@ -84,36 +85,127 @@ module.exports = suite:
       assert.eq rendered.children[1].props, color: "blue"
       assert.eq rendered.children[1].children, []
 
-    test "render & instantiate with sub-components", ->
-      subComponentRenderCount = 0
-      class MySubComponent extends Component
-        render: ->
-          subComponentRenderCount++
-          Element name: @props.name
+  subcomponents:
+    basic: ->
+      test "render & instantiate with sub-components", ->
+        subRenderCount = 0
+        class MySubComponent extends Component
+          render: ->
+            subRenderCount++
+            Element name: @props.name
 
-      mySubComponentFactory = MySubComponent.toComponentFactory()
+        mySubComponentFactory = MySubComponent.toComponentFactory()
 
-      class MyComponent extends Component
-        render: ->
-          Element
-            name: "foo"
-            mySubComponentFactory name: "subfoo"
+        class MyComponent extends Component
+          render: ->
+            Element
+              name: "foo"
+              mySubComponentFactory name: "subfoo"
 
-      c = new MyComponent
-      rendered = c.render()
-      assert.eq subComponentRenderCount, 0
-      assert.eq rendered.props.name, "foo"
-      assert.eq rendered.children.length, 1
-      assert.eq rendered.children[0].props.name, "subfoo"
-      assert.ok rendered.children[0] instanceof MySubComponent
-      assert.eq rendered.children[0].element, null
+        c = new MyComponent
+        rendered = c.render()
+        assert.eq subRenderCount, 0
+        assert.eq rendered.props.name, "foo"
+        assert.eq rendered.children.length, 1
+        assert.eq rendered.children[0].props.name, "subfoo"
+        assert.ok rendered.children[0] instanceof MySubComponent
+        assert.eq rendered.children[0].element, null
 
-      c._instantiate()
-      assert.eq subComponentRenderCount, 1
-      assert.eq c.element.pendingName, "foo"
-      assert.eq c.element.pendingChildren.length, 1
-      assert.eq c.element.pendingChildren[0].pendingName, "subfoo"
-      assert.eq c.element.pendingChildren[0].pendingChildren.length, 0
+        c._instantiate()
+        assert.eq subRenderCount, 1
+        assert.eq c.element.pendingName, "foo"
+        assert.eq c.element.pendingChildren.length, 1
+        assert.eq c.element.pendingChildren[0].pendingName, "subfoo"
+        assert.eq c.element.pendingChildren[0].pendingChildren.length, 0
+
+    rerenderBasic: ->
+      defineCommonTests = (chainTestSetup) ->
+        chainTestSetup
+        .thenTest "instantiation should render both", ({testProps, TestRootComponent}) ->
+          testProps.rootRenderCount = 0
+          testProps.subRenderCount = 0
+
+          (testProps.instantiatedRootComponent = TestRootComponent())._instantiate()
+
+          assert.selectedEq
+            rootRenderCount: 1
+            subRenderCount: 1
+            testProps
+
+
+        .thenTest "subcomponent should NOT rerender just because root does", (__, {testProps})->
+          testProps.rootRenderCount = 0
+          testProps.subRenderCount = 0
+
+          testProps.instantiatedRootComponent.setState name: "not passed to sub"
+          testProps.instantiatedRootComponent.onNextReady()
+          .then ->
+            assert.selectedEq
+              rootRenderCount: 1
+              subRenderCount: 0
+              testProps
+
+        .thenTest "subcomponent SHOULD rerender when its props change", (__, {testProps})->
+          testProps.rootRenderCount = 0
+          testProps.subRenderCount = 0
+
+          testProps.instantiatedRootComponent.setState subname: "pass to sub"
+          testProps.instantiatedRootComponent.onNextReady()
+          .then ->
+            assert.selectedEq
+              rootRenderCount: 1
+              subRenderCount: 1
+              testProps
+
+      defineCommonTests ChainedTest.setup "subcomponent rerender tests", ->
+        testProps =
+          rootRenderCount: 0
+          subRenderCount: 0
+
+        TestSubcomponent = createWithPostCreate class TestSubcomponent extends Component
+          render: ->
+            testProps.subRenderCount++
+            Element name: @props.subname
+
+        TestRootComponent = createWithPostCreate class TestRootComponent extends Component
+          render: ->
+            testProps.rootRenderCount++
+            Element
+              name: @state.name ? "foo"
+              TestSubcomponent name: @state.subname ? "subfoo"
+
+        {
+          testProps
+          TestSubcomponent
+          TestRootComponent
+        }
+
+      defineCommonTests ChainedTest.setup "just because subcomponent has preprocessProps means it should rerender any different than without", ->
+        testProps =
+          rootRenderCount: 0
+          subRenderCount: 0
+
+        TestSubcomponent = createWithPostCreate class TestSubcomponent extends Component
+          # <THIS IS THE ONLY CHANGE>
+          preprocessProps: (props) -> merge props, addedProp: 123
+          # </>
+
+          render: ->
+            testProps.subRenderCount++
+            Element name: @props.subname
+
+        TestRootComponent = createWithPostCreate class TestRootComponent extends Component
+          render: ->
+            testProps.rootRenderCount++
+            Element
+              name: @state.name ? "foo"
+              TestSubcomponent name: @state.subname ? "subfoo"
+
+        {
+          testProps
+          TestSubcomponent
+          TestRootComponent
+        }
 
   regressions: ->
     test "render empty children", ->

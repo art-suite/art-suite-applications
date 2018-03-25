@@ -459,7 +459,8 @@ defineModule module, -> class Component extends PropFieldsMixin StateFieldsMixin
 
   @getter
     inspectedObjects: ->
-      "Component-#{@inspectedName} #{@_virtualAimBranch.inspectedName}": @_virtualAimBranch.inspectedObjectsContents
+      "Component-#{@inspectedName} #{@_virtualAimBranch?.inspectedName ? '(not instantiated)'}":
+        @_virtualAimBranch?.inspectedObjectsContents ? {@props}
 
   getPendingState: -> @_pendingState || @state
 
@@ -638,7 +639,9 @@ defineModule module, -> class Component extends PropFieldsMixin StateFieldsMixin
 
     oldRefs = @refs
 
-    newRenderResult = @_renderCaptureRefs()
+    unless newRenderResult = @_renderCaptureRefs()
+      log.error ComponentRenderError: @
+      throw new Error "Component render function returned: #{formattedInspect newRenderResult}"
 
     if @_virtualAimBranch._canUpdateFrom newRenderResult
       @_virtualAimBranch._updateFrom newRenderResult
@@ -685,13 +688,13 @@ defineModule module, -> class Component extends PropFieldsMixin StateFieldsMixin
     @_applyingPendingState = true
 
     if newProps
-      newProps = @_preprocessProps newProps
+      newProps = @_preprocessProps @_rawProps = newProps
       @_componentWillReceiveProps newProps
 
     oldProps = @props
     oldState = @state
-    newProps ||= oldProps
-    newState = @_pendingState || oldState
+    newProps ?= oldProps
+    newState = @_pendingState ? oldState
 
     @_componentWillUpdate newProps, newState
 
@@ -702,7 +705,7 @@ defineModule module, -> class Component extends PropFieldsMixin StateFieldsMixin
       the new state will not be visible in the remainder of that @componetWillUpdate call
       but it will be visible in any subsquent lifecycle call such as @render
     ###
-    newState = @_pendingState || oldState
+    newState = @_pendingState ? oldState
     @_pendingState = null
 
     @props = newProps
@@ -730,12 +733,19 @@ defineModule module, -> class Component extends PropFieldsMixin StateFieldsMixin
   _preprocessProps: (props) ->
     props = super props # triggers PropFieldsMixin - which will include any default values from @propFields
     return props if defaultPreprocessProps == @preprocessProps
-    @preprocessProps props
-
+    try
+      @preprocessProps props
+    catch error
+      log preprocessProps: {Component: @, error}
+      props
 
   _preprocessState: (state) ->
     return state if defaultPreprocessState == @preprocessState
-    @preprocessState state
+    try
+      @preprocessState state
+    catch error
+      log preprocessState: {Component: @, error}
+      state
 
   _componentWillMount: ->
     return if defaultComponentWillMount == @componentWillMount

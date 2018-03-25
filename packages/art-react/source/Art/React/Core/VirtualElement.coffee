@@ -203,6 +203,6 @@ defineModule module, class VirtualElement extends VirtualNode
     if newPropsLength == noChangeCount && oldPropsLength == newPropsLength
       false
     else
-      @props = newProps
+      @props = @_rawProps = newProps
       true
 
