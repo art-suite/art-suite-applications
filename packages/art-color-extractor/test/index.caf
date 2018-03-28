@@ -1,0 +1,11 @@
+import &ArtStandardLib
+
+global.Assets = &Assets
+global.HTMLCanvasElement = &Canvas
+global.HTMLImageElement = global.Image = global.HTMLCanvasElement.Image
+
+log {global.Image}
+
+&ArtColorExtractor
+&ArtTestbench/testing
+.init defineTests: -> &Tests

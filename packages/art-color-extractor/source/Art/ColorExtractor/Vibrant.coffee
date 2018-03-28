@@ -109,21 +109,32 @@ defineModule module, ->
     #####################
     # PRIVATE
     #####################
-    _populateSwatches: (pixels, colorCount, quality) ->
 
-      pixelCount = pixels.length / 4
-
+    _selectPixels = (pixels, sampleEveryN, minAlpha, maxRgb) ->
       allPixels = []
-      for r, i in pixels by 4 * quality
+      for r, i in pixels by 4 * sampleEveryN
         g = pixels[i + 1]
         b = pixels[i + 2]
         a = pixels[i + 3]
 
         # If pixel is mostly opaque and not white
-        if a >= 125 && !(r > 250 and g > 250 and b > 250)
+        if a >= minAlpha && r <= maxRgb and g <= maxRgb and b <= maxRgb
           allPixels.push [r, g, b]
 
+      allPixels
+
+    _populateSwatches: (pixels, colorCount, quality) ->
+
+      pixelCount = pixels.length / 4
+
+      allPixels = _selectPixels pixels, quality, 128, 250
+
+      # handle degenerate images
+      allPixels = _selectPixels pixels, quality, 32, 1000 if allPixels.length == 0
+      allPixels.push [0,0,0] if allPixels.length == 0
+
       cmap = quantize allPixels, colorCount
+
 
       @_maxCount = 0
       @_inputSwatches = compact cmap.vboxes.map (vbox) =>

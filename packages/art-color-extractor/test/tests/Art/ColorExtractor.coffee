@@ -1,6 +1,6 @@
 {extractColors, generatePreviewBitmap, mipmapSize} = Neptune.Art.ColorExtractor
 
-{log, toPlainObjects, w, array, object, isPlainObject, isPlainArray, isNumber, merge} = require 'art-foundation'
+{log, toPlainObjects, w, array, object, isPlainObject, colorRegExp, isPlainArray, isNumber, merge} = require 'art-foundation'
 {Bitmap} = require 'art-canvas'
 {hslColor, Color, Matrix, point, rgbColor} = require 'art-atomic'
 
@@ -88,15 +88,16 @@ module.exports = suite: ->
     test file, ->
       Assets.load file
       .then (bitmap) ->
+        {version, colors, colorMap} = colorInfo = extractColors bitmap
 
-        colorInfo = extractColors bitmap
+        assert.isNumber version
+        assert.isPlainArray colorMap
+        assert.eq colorMap.length, 9
 
-        assert.isNumber colorInfo.version
-        assert.isPlainArray colorInfo.colorMap
+        assert.eq true, color instanceof Color for color in colorMap
+        assert.eq true, color instanceof Color for color in colors
 
         previewBitmap = generatePreviewBitmap colorInfo
-
-        # upscale.drawBitmap Matrix.scale(upscale.size.div previewBitmap.size), previewBitmap
 
         log "#{file}": {
           bitmap

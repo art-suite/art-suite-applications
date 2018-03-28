@@ -15,6 +15,7 @@ module.exports = class Assets
     8mpSunset.jpg
     shane.jpg
     challenge.jpg
+    zo_mask_128.png
     "
 
   # An intersting test case that fails pretty bad for Vibrant is: animegalleries.jpg
@@ -28,7 +29,7 @@ module.exports = class Assets
   # OUT: promise -> {filename: bitmap, ...}
   @loadAll: =>
     @_loadPromise ||= Promise.deepAll object @files, (file) ->
-      Bitmap.get if file.match /http/ then file else testAssetRoot + "/" + file
+      Bitmap.get if file.match /http/ then file else 'test/assets/' + file
 
   # OUT: promise -> bitmap
   @load: (file) =>
