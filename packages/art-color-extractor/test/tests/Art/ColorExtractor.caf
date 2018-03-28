@@ -1,0 +1,53 @@
+import &StandardImport
+
+{verbose} = getEnv()
+if verbose
+  log 'verbose=true'
+else
+  log """
+
+    verbose=false
+      set ENV 'verbose=true' for verbose-mode
+
+suite: ->
+  test "perceptualLightness", ->
+    factor = 16
+    groups = []
+    array color in Color.colorNames
+      {perceptualLightness} = c = rgbColor color
+      luma = Math.round perceptualLightness * factor
+      (groups[luma] ||= []).push c
+
+    if verbose
+      groups = array group, luma from groups
+        (group || []).sort (a, b) -> a.s - b.s
+      log groups
+
+  p = ChainedTest.setup "load #{&Assets.files.length} assets", -> &Assets.loadAll()
+
+  array file in &Assets.files
+    p.thenTest file, (assets) ->
+      bitmap = assets[file]
+      assert.is bitmap, Bitmap
+
+      {version, colors, colorMap} = colorInfo = extractColors bitmap
+
+      assert.isNumber version
+      assert.isPlainArray colorMap
+      assert.eq colorMap.length, 9
+
+      array color in colorMap with assert.is color, Color
+      array color in colors   with assert.is color, Color
+
+      previewBitmap = generatePreviewBitmap colorInfo
+
+      assert.eq true, previewBitmap is Bitmap
+
+      if verbose
+        log "#{file}": {}
+          bitmap
+          colorInfo
+          previewBitmap
+          mipmap:         bitmap.getMipmap mipmapSize
+          upscale:        previewBitmap.scale point {} point(700).div(previewBitmap.size).area, bitmap.size.aspectRatio
+          json:           JSON.stringify toPlainObjects colorInfo
