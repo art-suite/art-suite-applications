@@ -5,11 +5,17 @@ FluxCore = require '../Core'
   timeout
   object
   each, clone, BaseObject, log, isString, isPlainObject, merge, propsEq, mergeInto, Unique, defineModule
+  Promise
+  formattedInspect
+  eq
 } = require 'art-standard-lib'
 {FluxStore, FluxModel} = FluxCore
 {fluxStore} = FluxStore
 {pending, success, failure, missing} = require "art-communication-status"
 StateFieldsMixin = require 'art-react/StateFieldsMixin'
+
+{JsonStore} = require 'art-foundation'
+{jsonStore} = JsonStore
 
 ###
 A state-store with the same state API as React Components:
@@ -174,10 +180,14 @@ defineModule module, class ApplicationState extends StateFieldsMixin FluxModel
 
   _loadFromLocalStorage: ->
     if @class._persistant
-      data = localStorage.getItem @localStorageKey
-      v = JSON.parse data if data
-      log _loadFromLocalStorage:v
-      v
+      Promise.then => jsonStore.getItem @localStorageKey
+      .then (loadedState) =>
+        unless eq loadedState, @state
+          log "ApplicationState " + formattedInspect loaded:
+            old: @state
+            new: loadedState
+
+          @replaceState loadedState
 
   _updateAllState: ->
     @load @name
@@ -189,7 +199,10 @@ defineModule module, class ApplicationState extends StateFieldsMixin FluxModel
 
   _saveToLocalStorage: (state = @state)->
     if @class._persistant
-      localStorage.setItem @localStorageKey, JSON.stringify @savableState
+      Promise.then =>
+        jsonStore.setItem @localStorageKey, @savableState
 
   _getInitialState: (loadFromLocalStorage = true) ->
-    merge @getInitialState(), @getStateFields(), loadFromLocalStorage && try @_loadFromLocalStorage()
+    @_loadFromLocalStorage() if loadFromLocalStorage
+
+    merge @getInitialState(), @getStateFields()
