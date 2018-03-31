@@ -1,19 +1,24 @@
-Foundation = require 'art-foundation'
-FluxEntry = require './FluxEntry'
-ModelRegistry = require './ModelRegistry'
-
 {
-  BaseObject, merge, removeFirstMatch
-  pushIfNotPresent, removeFirstMatch, Epoch, log, isFunction, Unique, clone
+  merge, removeFirstMatch
+  pushIfNotPresent, removeFirstMatch, log, isFunction, Unique, clone
   consistentJsonStringify
   isString
-  timeout
   globalCount
   time
   inspect
-, defineModule, CommunicationStatus} = Foundation
+  object
+  defineModule
+  currentSecond
+  min
+  max
+  ReschedulableTimer
+} = require 'art-standard-lib'
 
-{success, pending, missing, failure} = CommunicationStatus
+{success, pending, missing, failure} = require 'art-communication-status'
+{EpochClass} = require 'art-epoched-state'
+
+FluxEntry = require './FluxEntry'
+ModelRegistry = require './ModelRegistry'
 
 # FluxStore:
 #   a key-fields store
@@ -22,7 +27,7 @@ ModelRegistry = require './ModelRegistry'
 #   Updates to values result in NEW Objects. A Value object is never altered.
 #   Epoched
 #   Supports change-notificaiton subscriptions per key.
-defineModule module, class FluxStore extends Epoch
+defineModule module, class FluxStore extends EpochClass
   @singletonClass()
 
   constructor: ->
@@ -125,6 +130,14 @@ defineModule module, class FluxStore extends Epoch
       entrySubscribers: entrySubscribers
       models: modelCount
 
+  getEntriesByStatus: (status) ->
+    out = {}
+    for modelName, entryMap of @_entriesByModelName
+      filteredEntries = (entry for key, entry of entryMap when entry.status == status)
+      if filteredEntries.length > 0
+        out[modelName] = filteredEntries
+    out
+
   ########################
   # PRIVATE
   ########################
@@ -185,12 +198,6 @@ defineModule module, class FluxStore extends Epoch
           if @_getEntry modelName, key
             retryDelay *= 2 if retryDelay < 60 * 1000 # max is 1 minute
             console.warn "FluxStore retry is disabled"
-            # log FluxStore_get_retry:
-            #   delay: retryDelay
-            #   model:modelName
-            #   key:key
-            #   status: loadInfo.status
-            # timeout retryDelay, -> model.load key, loadRetryCallback
           else
             log FluxStore_get_retry:
               model:modelName
