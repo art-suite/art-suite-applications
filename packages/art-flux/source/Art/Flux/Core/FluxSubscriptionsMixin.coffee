@@ -1,5 +1,5 @@
 {isString, defineModule, isPlainObject, rubyTrue, CommunicationStatus, log, isFunction, BaseObject, nextTick, mergeInfo, capitalize, globalCount, time} = require 'art-foundation'
-{success} = CommunicationStatus
+{success, isFailure} = CommunicationStatus
 {fluxStore} = require './FluxStore'
 ModelRegistry = require './ModelRegistry'
 
@@ -143,11 +143,23 @@ defineModule module, ->
     ################################
     # Helpers
     ################################
+    getRetryNow = (modelName, key) ->
+      ->
+        fluxStore._getEntry modelName, key
+        .reload()
+
     setStateFromFluxRecord: (stateField, fluxRecord, initialFluxRecord) ->
       if fluxRecord?.status != success && initialFluxRecord?.status == success
         fluxRecord = initialFluxRecord
       if stateField && isFunction @setState
-        @setState stateField, fluxRecord?.data
-        @setState stateField + "Status",   fluxRecord.status   if fluxRecord.status
-        @setState stateField + "Progress", fluxRecord.progress if fluxRecord.progress?
+        {status = null, progress = null, data = null} = fluxRecord if fluxRecord
+        @setState stateField, data
+        @setState stateField + "Status",   status
+        @setState stateField + "Progress", progress
+        @setState stateField + "FailureInfo",
+          if fluxRecord && isFailure status
+            {reloadAt, tryCount, modelName, key} = fluxRecord
+            {reloadAt, tryCount, status, retryNow: getRetryNow modelName, key}
+          else null
+
       fluxRecord

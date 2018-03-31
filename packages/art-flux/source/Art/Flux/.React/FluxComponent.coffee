@@ -125,7 +125,9 @@ defineModule module, class FluxComponent extends FluxSubscriptionsMixin Componen
     existingGetters = /element/ # TODO: make a list of all existing getters and don't replace them!
     unless stateField.match existingGetters
       @addGetter stateField, -> @state[stateField]
-      @addGetter (statusField = stateField+"Status"), -> @state[statusField]
+      @addGetter (statusField = stateField + "Status"), -> @state[statusField]
+      @addGetter (progressField = stateField + "Progress"), -> @state[progressField]
+      @addGetter (failureInfoField = stateField + "FailureInfo"), -> @state[failureInfoField]
 
   @_prepareSubscription: (subscription) ->
     {stateField, model, key} = subscription
