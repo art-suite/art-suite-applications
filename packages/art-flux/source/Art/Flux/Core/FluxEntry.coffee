@@ -96,7 +96,7 @@ defineModule module, class FluxEntry extends BaseObject
     reloadAt: (reloadAt) ->
       if 0 < reloadAt
         delta = reloadAt - now = toSeconds()
-        rangePerterbation = if delta < 5 * 60 then 0 else 60
+        rangePerterbation = if delta < 80 then 0 else 15
         minRange = delta - rangePerterbation
         maxRange = delta + rangePerterbation
 
