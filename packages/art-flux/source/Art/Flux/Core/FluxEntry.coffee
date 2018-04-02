@@ -96,9 +96,9 @@ defineModule module, class FluxEntry extends BaseObject
     reloadAt: (reloadAt) ->
       if 0 < reloadAt
         delta = reloadAt - now = toSeconds()
-        rangePerterbation = if delta < 65 then 0 else .05
-        minRange = delta * (1 - rangePerterbation)
-        maxRange = delta * (1 + rangePerterbation)
+        rangePerterbation = if delta < 5 * 60 then 0 else 60
+        minRange = delta - rangePerterbation
+        maxRange = delta + rangePerterbation
 
         # queue reload if there isn't one already queued within [minRange, maxRange]
         unless @_reloadAt && (oldDelta = @_reloadAt - now) > minRange && oldDelta < maxRange
