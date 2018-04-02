@@ -59,7 +59,7 @@ module.exports = suite:
             initialFluxRecord: data: "myInitialData"
             stateField: "myStateField"
 
-      assert.eq
+      assert.selectedEq
         status:     pending
         data:       "myInitialData"
         key:        "myFluxKey"
@@ -80,7 +80,7 @@ module.exports = suite:
           @subscribe "mySubscriptionKey", "myModel", "myFluxKey",
             stateField: "myStateField"
 
-      assert.eq
+      assert.selectedEq
         status:     missing
         key:        "myFluxKey"
         modelName:  "myModel"

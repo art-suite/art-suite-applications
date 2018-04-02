@@ -1,12 +1,13 @@
 {log, merge, CommunicationStatus, createWithPostCreate} = require 'art-foundation'
-{Core:{FluxStore, FluxModel, ModelRegistry}} = require 'art-flux'
-{fluxStore} = FluxStore
+{Core:{FluxStore, FluxModel, ModelRegistry}, fluxStore, models} = require 'art-flux'
 {success, missing, pending} = CommunicationStatus
 
 reset = ->
   fluxStore._reset()
   ModelRegistry._reset()
   createWithPostCreate class MyModel extends FluxModel
+    ;
+  assert.eq true, !!models.myModel,{models}
 
 module.exports = suite: ->
   test "fluxStore.reset & length", ->
@@ -20,8 +21,18 @@ module.exports = suite: ->
 
     fluxStore.onNextReady ->
       assert.eq fluxStore.length, 1
-      assert.eq fluxStore.get("myModel", "myKey"), status: pending, bar: 1, key: "myKey", modelName: "myModel"
+      assert.selectedEq
+        entryCount:1
+        entrySubscribers:1
+        modelCount:1
+        fluxStore.status
 
+      assert.selectedEq
+        status: pending, bar: 1, key: "myKey", modelName: "myModel"
+        fluxRecord = fluxStore.get "myModel", "myKey"
+      assert.isNumber fluxRecord.updatedAt
+      assert.isNumber fluxRecord.createdAt
+      assert.lt fluxRecord.createdAt, fluxRecord.updatedAt
 
   test "fluxStore.update with no subscriber is noop", ->
     reset()
@@ -31,7 +42,6 @@ module.exports = suite: ->
       assert.eq fluxStore.length, 0
       assert.eq !!fluxStore._getEntry("myModel", "myKey"), false
 
-
   test "fluxStore.update twice replaces old value", ->
     reset()
     fluxStore.subscribe "myModel", "myKey", -> # required to make the record persist
@@ -40,7 +50,9 @@ module.exports = suite: ->
 
     fluxStore.onNextReady ->
       assert.eq fluxStore.length, 1
-      assert.eq fluxStore.get("myModel", "myKey"), status: pending, baz: 2, key: "myKey", modelName: "myModel"
+      assert.selectedEq
+        status: pending, baz: 2, key: "myKey", modelName: "myModel"
+        fluxStore.get "myModel", "myKey"
 
 
   test "fluxStore.getHasSubscribers", ->
@@ -61,7 +73,9 @@ module.exports = suite: ->
 
     fluxStore.onNextReady ->
       assert.eq fluxStore.length, 1
-      assert.eq fluxStore.get("myModel", "myKey"), status: pending, bar:1, baz: 2, key: "myKey", modelName: "myModel"
+      assert.selectedEq
+        status: pending, bar:1, baz: 2, key: "myKey", modelName: "myModel"
+        fluxStore.get "myModel", "myKey"
 
 
   test "fluxStore.update cant set key", ->
@@ -70,8 +84,9 @@ module.exports = suite: ->
     fluxStore.update "myModel", "myKey", bar:1, key: "boggle"
 
     fluxStore.onNextReady ->
-      assert.eq fluxStore.get("myModel", "myKey"), status: pending, bar: 1, key: "myKey", modelName: "myModel"
-
+      assert.selectedEq
+        status: pending, bar: 1, key: "myKey", modelName: "myModel"
+        fluxStore.get "myModel", "myKey"
 
   test "fluxStore.update cant update key", ->
     reset()
@@ -82,8 +97,9 @@ module.exports = suite: ->
       fluxStore.update "myModel", "myKey", bar:1, key: "boggle2"
 
       fluxStore.onNextReady ->
-        assert.eq fluxStore.get("myModel", "myKey"), status: pending, bar: 1, key: "myKey", modelName: "myModel"
-
+        assert.selectedEq
+          status: pending, bar: 1, key: "myKey", modelName: "myModel"
+          fluxStore.get "myModel", "myKey"
 
   test "fluxStore.subscribe basic", ->
     new Promise (resolve) ->
@@ -91,8 +107,13 @@ module.exports = suite: ->
       reset()
 
       fluxStore.subscribe "myModel", "myKey", (fluxRecord, previousFluxRecord) ->
-        assert.eq previousFluxRecord, status: missing, key: "myKey", modelName: "myModel"
-        assert.eq fluxRecord, status: pending, bar: 1, key: "myKey", modelName: "myModel"
+        assert.selectedEq
+          status: missing, key: "myKey", modelName: "myModel"
+          previousFluxRecord
+
+        assert.selectedEq
+          status: pending, bar: 1, key: "myKey", modelName: "myModel"
+          fluxRecord
         resolve()
 
       fluxStore.update "myModel", "myKey", bar: 1

@@ -148,6 +148,7 @@ defineModule module, suite:
 
   misc: ->
     setup myModelSetup
+    teardown -> fluxStore.onNextReady()
 
     test "manual subscriptions", -> new Promise (resolve) ->
 

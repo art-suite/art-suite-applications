@@ -21,9 +21,13 @@ module.exports = suite:
 
         res = fluxStore.subscribe "myBasicModel", "123", (fluxRecord) ->
           return unless fluxRecord.status != pending
-          assert.eq fluxRecord, status: missing, key: "123", modelName: "myBasicModel"
+          assert.selectedEq
+            status: missing, key: "123", modelName: "myBasicModel"
+            fluxRecord
           resolve()
-        assert.eq res, status: pending, key: "123", modelName: "myBasicModel"
+        assert.selectedEq
+          status: pending, key: "123", modelName: "myBasicModel"
+          res
 
 
     test "model with @loadFluxRecord", ->
@@ -36,9 +40,13 @@ module.exports = suite:
 
         res = fluxStore.subscribe "myBasicModel", "123", (fluxRecord) ->
           return unless fluxRecord.status != pending
-          assert.eq fluxRecord, status: missing, key: "123", modelName: "myBasicModel"
+          assert.selectedEq
+            status: missing, key: "123", modelName: "myBasicModel"
+            fluxRecord
           resolve()
-        assert.eq res, status: pending, key: "123", modelName: "myBasicModel"
+        assert.selectedEq
+          status: pending, key: "123", modelName: "myBasicModel"
+          res
 
     test "model with custom load - delayed", ->
       reset()
@@ -50,14 +58,20 @@ module.exports = suite:
 
       new Promise (resolve) ->
         res = fluxStore.subscribe "myBasicModel", "123", (fluxRecord) ->
-          assert.eq fluxRecord, status: success, key: "123", modelName: "myBasicModel", data: theKeyIs:"123"
+          assert.selectedEq
+            status: success, key: "123", modelName: "myBasicModel", data: theKeyIs:"123"
+            fluxRecord
           resolve()
-        assert.eq res, status: pending, key: "123", modelName: "myBasicModel"
+        assert.selectedEq
+          status: pending, key: "123", modelName: "myBasicModel"
+          res
 
       .then ->
         new Promise (resolve) ->
           fluxStore.subscribe "myBasicModel", "456", (fluxRecord) ->
-            assert.eq fluxRecord, status: success, key: "456", modelName: "myBasicModel", data: theKeyIs:"456"
+            assert.selectedEq
+              status: success, key: "456", modelName: "myBasicModel", data: theKeyIs:"456"
+              fluxRecord
             resolve()
 
     test "model with custom load - immediate", ->
@@ -71,23 +85,28 @@ module.exports = suite:
         res = fluxStore.subscribe "myBasicModel", "123", (fluxRecord) ->
           log.error "THIS SHOULDN'T HAPPEN!"
           reject()
-        assert.eq res, status: success, key: "123", modelName: "myBasicModel", data: theKeyIs:"123"
+        assert.selectedEq
+          status: success, key: "123", modelName: "myBasicModel", data: theKeyIs:"123"
+          res
         fluxStore.onNextReady -> resolve()
 
     test "model with @loadData", ->
       reset()
       createWithPostCreate class MyBasicModel extends FluxModel
-
         loadData: (key) -> Promise.resolve theKeyIs:key
 
       new Promise (resolve) ->
         fluxStore.subscribe "myBasicModel", "123", (fluxRecord) ->
-          assert.eq fluxRecord, status: success, key: "123", modelName: "myBasicModel", data: theKeyIs:"123"
+          assert.selectedEq
+            status: success, key: "123", modelName: "myBasicModel", data: theKeyIs:"123"
+            fluxRecord
           resolve()
       .then ->
         new Promise (resolve) ->
           fluxStore.subscribe "myBasicModel", "456", (fluxRecord) ->
-            assert.eq fluxRecord, status: success, key: "456", modelName: "myBasicModel", data: theKeyIs:"456"
+            assert.selectedEq
+              status: success, key: "456", modelName: "myBasicModel", data: theKeyIs:"456"
+              fluxRecord
             resolve()
 
   simultanious: ->
@@ -133,6 +152,10 @@ module.exports = suite:
         assert.eq counts, load: 2, sub1: 1, sub2: 1
 
   loadPromise: ->
+    # flux pending updates so following tests dont fail
+    # when this test model no longer exists.
+    teardown -> fluxStore.onNextReady()
+
     test "multiple loadPromises with the same key only load once", ->
       reset()
       loadCount = 0

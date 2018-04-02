@@ -1,10 +1,10 @@
 Foundation = require "art-foundation"
-{missing, success, pending, failure, validStatus, defineModule} = Foundation.CommunicationStatus
+{missing, success, pending, failure, validStatus, defineModule, isFailure} = Foundation.CommunicationStatus
 {fluxStore} = require "./FluxStore"
 ModelRegistry = require './ModelRegistry'
 
 {
-  log, BaseObject, decapitalize, pluralize, pureMerge, shallowClone, isString,
+  log, BaseObject, decapitalize, pluralize, merge, shallowClone, isString,
   emailRegexp, urlRegexp, isNumber, nextTick, capitalize, inspect, isFunction, pureMerge
   isoDateRegexp
   time
@@ -19,6 +19,19 @@ ModelRegistry = require './ModelRegistry'
 
 defineModule module, class FluxModel extends InstanceFunctionBindingMixin BaseObject
   @abstractClass()
+
+  @declarable
+    staleDataReloadSeconds:         null # if >0, reload stale data as soon as its older than this number in seconds
+    minNetworkFailureReloadSeconds: null # if >0, and isFailure(fluxRecord.status) is true, that record well get a model.reload(key) call within this number of seconds after the failure
+    maxNetworkFailureReloadSeconds: Infinity # repeated failed reloads retry with exponential fall offs; this caps the max interval for retrying
+    minServerFailureReloadSeconds:  null # if >0, and isFailure(fluxRecord.status) is true, that record well get a model.reload(key) call within this number of seconds after the failure
+    maxServerFailureReloadSeconds:  Infinity # repeated failed reloads retry with exponential fall offs; this caps the max interval for retrying
+
+  @getter
+    autoReloadEnabled: ->
+      @getStaleDataReloadSeconds() > 0 ||
+      @getMinNetworkFailureReloadSeconds() > 0 ||
+      @getMinServerFailureReloadSeconds() > 0
 
   # must call register to make model accessable to RestComponents
   # NOTE: @fields calls register for you, so if you use @fields, you don't need to call @register
@@ -182,7 +195,8 @@ defineModule module, class FluxModel extends InstanceFunctionBindingMixin BaseOb
       return p
 
     p = if @loadData
-      Promise.then    => @loadData key
+      Promise.then    => @loadingRecord key
+      .then           => @loadData key
       .then (data)    => @updateFluxStore key, if data? then status: success, data: data else status: missing
       .catch (error)  =>
         status = if validStatus status = error?.info?.status || error
@@ -207,7 +221,18 @@ defineModule module, class FluxModel extends InstanceFunctionBindingMixin BaseOb
   # reload guarantees fluxStore is updated
   # override reload if your load does not always updateFluxStore (eventually)
   reload: (key) ->
-    @load key
+    if @loadData || @loadFluxRecord
+      @loadPromise key
+    else
+      @load key
+
+  # called before actually calling @loadData within @loadPromise
+  # EFFECT: marks record status as pending if it was previously a failure
+  #   If it was previously a success, subscribers should keep showing the previously
+  #   successful load until the new one completes.
+  loadingRecord: (key) ->
+    if isFailure (fluxRecord = @fluxStoreGet key)?.status
+      @updateFluxStore key, merge fluxRecord, status: pending
 
   # shortcut for updating the fluxStore for the current model
   updateFluxStore: (key, fluxRecord) -> fluxStore.update @_name, key, fluxRecord
@@ -215,8 +240,7 @@ defineModule module, class FluxModel extends InstanceFunctionBindingMixin BaseOb
   onModelRegistered: (modelName) -> ModelRegistry.onModelRegistered modelName
 
   fluxStoreGet: (key) ->
-    key = @toKeyString key
-    fluxStore.get @_name, key
+    fluxStore.get @_name, @toKeyString key
 
   # IN: key
   # OUT: promise.then data
