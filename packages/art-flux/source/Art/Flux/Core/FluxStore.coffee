@@ -11,6 +11,7 @@
   currentSecond
   min
   max
+  toSeconds
   ReschedulableTimer
 } = require 'art-standard-lib'
 
@@ -121,14 +122,23 @@ defineModule module, class FluxStore extends EpochClass
     status: ->
       entrySubscribers = 0
       modelCount = 0
+      entryCount = 0
+      reloadsPending = 0
+      nextReload = Infinity
+      now = toSeconds()
+
       for model, entries of @_entriesByModelName
         modelCount++
+
         for key, entry of entries
+          entryCount++
           entrySubscribers += entry.subscriberCount
 
-      entries: @_length
-      entrySubscribers: entrySubscribers
-      models: modelCount
+          if entry.reloadAt > now
+            reloadsPending++
+            nextReload = Math.ceil min nextReload, entry.reloadAt - now
+
+      {entryCount, entrySubscribers, modelCount, reloadsPending, nextReload}
 
   getEntriesByStatus: (status) ->
     out = {}
