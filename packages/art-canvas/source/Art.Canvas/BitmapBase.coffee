@@ -7,7 +7,7 @@
 # Canvas Spec: http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html
 # http://dev.w3.org/fxtf/compositing-1/#porterduffcompositingoperators_srcover
 {point, point0, Point, rect, Rectangle, matrix, Matrix, rgbColor, Color, isPoint} = require 'art-atomic'
-{inspect, Promise, nextTick, pureMerge, isString, isNumber, log, bound, merge} = require 'art-standard-lib'
+{inspect, Promise, nextTick, pureMerge, isString, isNumber, log, bound, merge, isFunction} = require 'art-standard-lib'
 {round, floor, ceil, max, min} = Math
 {BinaryString, EncodedImage} = (require 'art-foundation').Binary
 {BaseClass} = require 'art-class-system'
@@ -29,8 +29,8 @@ module.exports = class BitmapBase extends BaseClass
   defaultColor: rgbColor "black"
   defaultColorString: "black"
 
-  @isImage: isImage = (e) -> e instanceof HTMLImageElement
-  @isCanvas: isCanvas = (e) -> e instanceof HTMLCanvasElement
+  @isImage:  isImage  = (e) -> (e?.constructor == HTMLImageElement ) || e instanceof HTMLImageElement
+  @isCanvas: isCanvas = (e) -> (e?.constructor == HTMLCanvasElement) || e instanceof HTMLCanvasElement
 
   constructor: (a, b) ->
     super
@@ -47,7 +47,7 @@ module.exports = class BitmapBase extends BaseClass
 
     BitmapBase.bitmapsCreated++
     a = point a, b if b
-    if      a instanceof BitmapBase then @populateClone @
+    if      isFunction a?.toMemoryBitmap then @populateClone @
     else if isCanvas a              then @initFromCanvas a
     else if isImage a               then @initFromImage a
     else                                 @initNewCanvas point a, b

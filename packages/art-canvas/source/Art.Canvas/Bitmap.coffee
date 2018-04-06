@@ -35,7 +35,7 @@ isSimpleRectangle = (pathFunction, pathOptions) ->
 {Binary, Browser} = require "art-foundation"
 {EncodedImage} = Binary
 
-{point, Point, rect, Rectangle, matrix, Matrix, rgbColor, Color, IdentityMatrix, point0} = Atomic
+{isPoint, isMatrix, point, Point, rect, Rectangle, matrix, Matrix, rgbColor, Color, IdentityMatrix, point0} = Atomic
 
 emptyOptions = {}
 
@@ -473,7 +473,7 @@ module.exports = class Bitmap extends BitmapBase
     # return if eq m, @_lastTransform
     if m
       @_lastTransform = m
-      if m instanceof Point
+      if isPoint m
         @_context.setTransform 1, 0, 0, 1, m.x, m.y
       else
         @_context.setTransform m.sx, m.shy, m.shx, m.sy, m.tx, m.ty
@@ -519,7 +519,6 @@ module.exports = class Bitmap extends BitmapBase
   _setFillStyleFromOptions: (options) ->
     @_setFillStyle @_getFillStyleFromOptions options
 
-
   _setupDraw: (where, options, stroke) ->
     {compositeMode, shadow, opacity} = options
     stroke ||= options.stroke
@@ -546,7 +545,7 @@ module.exports = class Bitmap extends BitmapBase
       _context.shadowBlur = blur if blur
       offsetX ||= 0
       offsetY ||= 0
-      if where instanceof Matrix
+      if isMatrix where
         ###
         Shadows seem to ignore scale and rotation transformations.
 
