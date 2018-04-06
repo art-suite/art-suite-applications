@@ -1,0 +1,5 @@
+
+getReducedChannel: getReducedChannel = (channel, bitmap) ->
+  array v from bitmap.getImageDataArray(channel) with v >> 4
+
+getReducedRedChannel: (bitmap) -> getReducedChannel :red bitmap

@@ -1,0 +1,43 @@
+import &StandardImport
+
+suite:
+  clear: ->
+    test "clearOutsideArea 1" ->
+      bitmap = new Bitmap point 4
+      bitmap.clear #800
+      bitmap.clearOutsideArea point 4, 2
+      assert.eq getReducedRedChannel(bitmap), compactFlatten []
+        8 8 8 8
+        8 8 8 8
+        0 0 0 0
+        0 0 0 0
+
+    test "clearOutsideArea 2" ->
+      bitmap = new Bitmap point 4
+      bitmap.clear #800
+      bitmap.clearOutsideArea point 2, 4
+      assert.eq getReducedRedChannel(bitmap), compactFlatten []
+        8 8 0 0
+        8 8 0 0
+        8 8 0 0
+        8 8 0 0
+
+    test "clearOutsideArea 3" ->
+      bitmap = new Bitmap point 4
+      bitmap.clear #800
+      bitmap.clearOutsideArea point 2, 3
+      assert.eq getReducedRedChannel(bitmap), compactFlatten []
+        8 8 0 0
+        8 8 0 0
+        8 8 0 0
+        0 0 0 0
+
+    test "clearOutsideArea 4" ->
+      bitmap = new Bitmap point 4
+      bitmap.clear #800
+      bitmap.clearOutsideArea point 3, 2
+      assert.eq getReducedRedChannel(bitmap), compactFlatten []
+        8 8 8 0
+        8 8 8 0
+        0 0 0 0
+        0 0 0 0
