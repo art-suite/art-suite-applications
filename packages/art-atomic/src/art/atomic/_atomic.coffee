@@ -5,11 +5,11 @@ Matrix     = require './matrix'
 Perimeter  = require './perimeter'
 
 module.exports = [
-  [Color,     "isColor", "newColor", "color", "hslColor", "rgb256Color", "rgbColor", "colorNames", "colorNamesMap"]
-  [Point,     "point", "point0", "point1", "isPoint", "pointWithAspectRatioAndArea"]
-  [Rectangle, "rect", "nothing", "everything", "isRect"]
-  [Matrix,    "matrix", "identityMatrix"]
-  [Perimeter, "perimeter", "perimeter0"]
+  [Color,     "isColor",    "rgbColor",     "newColor", "color", "hslColor", "rgb256Color", "colorNames", "colorNamesMap"]
+  [Point,     "isPoint",    "point",        "point0", "point1", "pointWithAspectRatioAndArea"]
+  [Rectangle, "isRect",     "rect",         "nothing", "everything"]
+  [Matrix,    "isMatrix",   "matrix",       "identityMatrix"]
+  [Perimeter, "perimeter",  "isPerimeter",  "perimeter0"]
 
   package: _package = require "../../../package.json"
   version: _package.version

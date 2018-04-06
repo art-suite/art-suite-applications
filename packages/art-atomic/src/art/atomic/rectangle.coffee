@@ -11,7 +11,7 @@ Point       = require './point'
   floatEq0
   float32Precision
 } = Foundation
-{point} = Point
+{point, isPoint} = Point
 
 # Rectangle supported constructor input signatures:
 # (string / toString[able]) -> split on ',' and converted to numbers, then interperted as arguments
@@ -25,10 +25,10 @@ Point       = require './point'
 #   4 number arguments:  (x, y, w, h)
 module.exports = class Rectangle extends AtomicBase
   @defineAtomicClass fieldNames: "x y w h", constructorFunctionName: "rect"
-  @isRect: (v) -> v?.constructor == Rectangle
+  @isRect: isRect = (v) -> v?.constructor == Rectangle
 
   @rect: rect = (a, b, c, d) ->
-    return a if a instanceof Rectangle
+    return a if isRect a
     new Rectangle a, b, c, d
 
   _initFromObject: (o) ->
@@ -45,7 +45,7 @@ module.exports = class Rectangle extends AtomicBase
       @w = c - 0
       @h = d - 0
     else if b?
-      if b instanceof Point
+      if isPoint b
         @x = a.x
         @y = a.y
         @w = b.w
@@ -53,7 +53,7 @@ module.exports = class Rectangle extends AtomicBase
       else
         @w = a - 0
         @h = b - 0
-    else if a instanceof Point
+    else if isPoint a
       @w = a.w
       @h = a.h
     else if a?
@@ -155,8 +155,8 @@ module.exports = class Rectangle extends AtomicBase
 
   overlaps: (val) ->
     return false unless val?
-    if val instanceof Point then @contains val
-    else if val instanceof Rectangle
+    if isPoint val then @contains val
+    else if isRect val
       val.getRight()   > @getLeft()  &&
       val.getBottom()  > @getTop()   &&
       val.getLeft()    < @getRight() &&
@@ -165,12 +165,12 @@ module.exports = class Rectangle extends AtomicBase
 
   contains: (val) ->
     return false unless val?
-    if val instanceof Point
+    if isPoint val
       val.x >= @x &&
       val.y >= @y &&
       val.x < @right &&
       val.y < @bottom
-    else if val instanceof Rectangle
+    else if isRect val
       val.x >= @x &&
       val.y >= @y &&
       val.right <= @right &&
@@ -268,7 +268,7 @@ module.exports = class Rectangle extends AtomicBase
       @with x, y, w, h
 
   grow: (a, b) ->
-    if a instanceof Point
+    if isPoint a
       {x, y} = a
     else
       x = a

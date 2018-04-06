@@ -18,10 +18,11 @@ Point      = require './point'
 
 module.exports = class Perimeter extends AtomicBase
   @defineAtomicClass fieldNames: "left right top bottom"
+  @isPerimeter: isPerimeter = (v) -> v?.constructor == Perimeter
 
   @perimeter: perimeter = (a, b, c, d) ->
     # just return if a already a Point
-    return a if a instanceof Perimeter
+    return a if isPerimeter a
     if isString(a) && p = namedPerimeters[a]
       return p
 

@@ -20,7 +20,7 @@ parseRGBColorComponent = (str) ->
 
 module.exports = class Color extends AtomicBase
   @defineAtomicClass fieldNames: "r g b a", constructorFunctionName: "rgbColor"
-  @isColor: (c) -> !!(c?.constructor == Color)
+  @isColor: isColor = (c) -> !!(c?.constructor == Color)
 
   @colorNames:   colorNames = [
     'AliceBlue', 'AntiqueWhite', 'Aqua', 'Aquamarine', 'Azure',
@@ -206,12 +206,12 @@ module.exports = class Color extends AtomicBase
   defaultAlpha = 1
 
   @rgbColor: rgbColor = (a, b, c, d) ->
-    return a if !b? && (a instanceof Color)
+    return a if !b? && isColor a
     return clr if isString(a) && clr = colorNamesMap[a] || parseCache[a]
     new Color a, b, c, d
 
   @rgb256Color: (a, b, c, d) ->
-    return a if !b? && (a instanceof Color)
+    return a if !b? && isColor a
     return clr if isString(a) && clr = colorNamesMap[a] || parseCache[a]
     defaultAlpha = 255
     out = new Color a, b, c, d
@@ -228,7 +228,7 @@ module.exports = class Color extends AtomicBase
     rgbColor a, b, c, d
 
   @hslColor: hslColor = (h, s, l, a = 1) ->
-    return h if h instanceof Color
+    return h if isColor h
 
     h = modulo h, 1
     phase = h * 6 | 0
@@ -374,6 +374,7 @@ module.exports = class Color extends AtomicBase
   withAlpha: (a) -> new Color @r, @g, @b, a
   withLightness: (v) -> hslColor @h, @s, v, @a
   withHue: (v) -> hslColor v, @s, @l, @a
+  withHueShift: (amount) -> hslColor @h + amount, @s, @l, @a
   withSat: withSat = (v) -> hslColor @h, v, @l, @a
   withSaturation: withSat
 

@@ -58,16 +58,17 @@ AtomicBase = require "./base"
 Point      = require "./point"
 Rectangle  = require "./rectangle"
 
-{point} = Point
+{point, isPoint} = Point
 {rect} = Rectangle
 {ceil, floor, sqrt} = Math
 {inspect, simplifyNum, float32Eq, compact, log, isNumber, defineModule} = Foundation
 
 defineModule module, class Matrix extends AtomicBase
   @defineAtomicClass fieldNames: "sx sy shx shy tx ty"
+  @isMatrix: isMatrix = (v) -> v?.constructor == Matrix
 
   @matrix: matrix = (a, b, c, d, e, f) ->
-    if a instanceof Matrix
+    if isMatrix a
       a
     else if a is null or a is undefined
       identityMatrix
@@ -132,8 +133,8 @@ defineModule module, class Matrix extends AtomicBase
   _init: (a, b, c, d, e, f) ->
     @initDefaults()
     return unless a?
-    if      a instanceof Point  then @_initFromPoint a
-    else if a instanceof Matrix then @_initFromMatrix a
+    if      isPoint a   then @_initFromPoint a
+    else if isMatrix a  then @_initFromMatrix a
     else
       @sx  = a - 0
       @sy  = b - 0 if b?

@@ -47,7 +47,7 @@ OUT:
 ###
 module.exports = class Point extends AtomicBase
   @defineAtomicClass fieldNames: "x y"
-  @isPoint: (v) -> v?.constuctor == Point
+  @isPoint: isPoint = (v) -> v?.constructor == Point
 
   pointWithAspectRatioAndArea = ({aspectRatio, area}) ->
     sqrtArea = Math.sqrt area / aspectRatio
@@ -58,7 +58,7 @@ module.exports = class Point extends AtomicBase
 
   @point: point = (a, b) ->
     # just return if a already a Point
-    return a if a instanceof Point
+    return a if isPoint a
     if isString(a) && p = namedPoints[a]
       return p
 
@@ -202,8 +202,8 @@ module.exports = class Point extends AtomicBase
   ceil:  -> @with ceil(@x),  ceil(@y)
 
   # b is point or rect
-  union: (b) -> if b instanceof Point then @max(b) else b.union @
-  intersection: (b) -> if b instanceof Point then @min(b) else b.intersection @
+  union: (b) -> if isPoint b then @max(b) else b.union @
+  intersection: (b) -> if isPoint b then @min(b) else b.intersection @
 
   min: (b = null) ->
     if b
