@@ -5,6 +5,7 @@ module.exports = require './namespace'
 module.exports
 .addModules
   Bitmap:            require './Bitmap'           
+  Bitmap2:           require './Bitmap2'          
   BitmapBase:        require './BitmapBase'       
   Clipping:          require './Clipping'         
   CommonBitmapTests: require './CommonBitmapTests'

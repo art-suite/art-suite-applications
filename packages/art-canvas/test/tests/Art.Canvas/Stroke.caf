@@ -22,14 +22,31 @@ suite: ->
 
   test "drawLine scaled", ->
     bitmap = new Bitmap point 3
-    bitmap.drawLine Matrix.scale(4), point0, point(3), color: "black"
+    bitmap.drawLine Matrix.scale(4), point0, point(3), color: #0008
     log bitmap, "drawLine"
     assert.eq
-      array v in bitmap.getImageDataArray "alpha" with v * 8 / 255 | 0
+      getReducedChannel :alpha bitmap
       compactFlatten []
         8 8 8
         8 8 8
         8 8 8
+
+  test "strokeRectangle scaled", ->
+    bitmap = new Bitmap point 9
+    bitmap.strokeRectangle Matrix.scale(3), point(3), color: #0008
+    log bitmap, "drawLine"
+    assert.eq
+      getReducedChannel :alpha  bitmap
+      compactFlatten []
+        8 8 8 8 8 8 8 8 8
+        8 8 8 8 8 8 8 8 8
+        8 8 8 8 8 8 8 8 8
+        8 8 8 0 0 0 8 8 8
+        8 8 8 0 0 0 8 8 8
+        8 8 8 0 0 0 8 8 8
+        8 8 8 8 8 8 8 8 8
+        8 8 8 8 8 8 8 8 8
+        8 8 8 8 8 8 8 8 8
 
   test "drawBorder", ->
     bitmap = new Bitmap point 3

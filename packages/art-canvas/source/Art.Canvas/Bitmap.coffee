@@ -193,25 +193,53 @@ module.exports = class Bitmap extends BitmapBase
     @_context.restore()
     @_clippingArea = lastClippingInfo
 
+  transparent = rgbColor "transparent"
+
   # set all pixels to exactly the specified color
   # signatures:
   #   () -> clr == "#0000"
   #   (a, b, c, d) -> clr == color a, b, c, d
   clear: (a, b, c, d) ->
-    clr = if a? then rgbColor a, b, c, d else rgbColor 0, 0, 0, 0
+    @clearArea null, if a? then rgbColor a, b, c, d else transparent
+    @
+
+  clearOutsideArea: (area, color) ->
+    return unless area
+    {left:x, top:y, w, h} = area
+    throw new Error "area(#{area}) must start in the top-right corner" unless x == 0 && y == 0
+
+    {w: currentWidth, h: currentHeight} = @size
+    w = min w, currentWidth
+    h = min h, currentHeight
+    return if w == currentWidth && h == currentHeight
+
+    if h == currentHeight
+      @clearArea rect w, 0, currentWidth - w, currentHeight
+    else if w == currentWidth
+      @clearArea rect 0, h, currentWidth, currentHeight - h
+    else
+      @clearArea rect w, 0, currentWidth - w, currentHeight
+      @clearArea rect 0, h, w, currentHeight - h
+
+  clearArea: (area, color = transparent) ->
+
+    if area
+      {left:x, top:y, w, h} = area
+    else
+      x = y = 0
+      {w, h} = @size
 
     @_clearTransform()
 
-    # set all pixels to transparent black, erasing any previously drawn content
-    @_context.clearRect 0, 0, @size.x, @size.y unless clr.a == 1.0
+    # pre-clear all pixels to 0-0-0-0
+    @_context.clearRect x, y, w, h unless color.a == 1.0
 
-    # set all pixels to transparent black, erasing any previously drawn content
-    unless clr.eq rgbColor 0, 0, 0, 0
+    # fill-all-pixels with the specified color
+    unless color.eq transparent
       @_context.globalCompositeOperation = "source-over"
-      @_setFillStyle clr
-      @_context.fillRect 0, 0, @size.x, @size.y
+      @_setFillStyle color
+      @_context.fillRect x, y, w, h
 
-    @
 
   #####################
   # STROKES
