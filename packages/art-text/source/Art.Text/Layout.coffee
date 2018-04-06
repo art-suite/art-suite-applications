@@ -2,7 +2,7 @@ Foundation = require "art-foundation"
 {Bitmap} = require "art-canvas"
 Atomic = require 'art-atomic'
 Metrics = require './Metrics'
-{rect, matrix, Matrix, Rectangle, point} = Atomic
+{isMatrix, rect, matrix, Matrix, Rectangle, point} = Atomic
 {floor, ceil} = Math
 
 {
@@ -11,6 +11,7 @@ Metrics = require './Metrics'
   float32Eq
   float32Eq0
 } = Foundation
+
 
 {toFontCss} = Metrics
 emptyOptions = {}
@@ -107,6 +108,11 @@ module.exports = class Layout extends BaseObject
     context = target.context2D
     return @drawToNonArtBitmap target, where, options unless context
     @_updateLayout()
+
+    # safari stroke-text-bug (still there 2018-04-06 - my birthday!)
+    if options.stroke && useSafariLineWidthFix && isMatrix where
+      scaler = max where.sx, where.sy
+      options.lineWidth = (options.lineWidth ? 1) * scaler
 
     if target._setupDraw where, options
 
@@ -313,3 +319,20 @@ module.exports = class Layout extends BaseObject
         @_alignFragments()
       null
 
+useSafariLineWidthFix = false
+
+shouldUseSafariLineWidthBugFix = ->
+  layout = new Layout "-",
+    {fontFamily:"Times New Roman", fontSize: 32}
+    {layoutMode:"tight"}
+  bitmap = layout.toBitmap
+    stroke: true
+    lineWidth: 5
+    scale: 5
+
+  {x, y} = bitmap.size
+  middle = x * (y / 2 | 0) + (x / 2 | 0)
+  bitmap.getImageDataArray("alpha")[middle] == 0
+
+if Foundation.Browser.isSafari()
+  useSafariLineWidthFix = shouldUseSafariLineWidthBugFix()
