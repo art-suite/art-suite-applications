@@ -1,0 +1,63 @@
+import &ArtSuite
+
+class LineButton extends PointerActionsMixin Component
+  render: ->
+    {color, text} = @props
+
+    Element
+      animators:
+        size: toFrom: h: 0
+        draw: true
+
+      size: :parentWidthChildrenHeight
+      draw:
+        color ? #0002
+        @hover && #fff1
+        :clip
+
+      padding: 10
+      on: @buttonHandlers
+      cursor: :pointer
+
+      TextElement {}
+        fontFamily: :sans-serif
+        fontSize:   20
+        size:       :parentWidthChildrenHeight
+        color:      #fffa
+        text
+
+class MyComponent extends Component
+
+  @stateFields
+    lines: 1 2 3 4 5 6 7 8 9 10
+
+  remove: (i) ->
+    @lines = arrayWithoutValue @lines, i
+
+  add: ->
+    @lines = arrayWith
+      @lines
+      peek @lines
+      + 1
+
+  render: ->
+    Element
+      draw: :grey
+
+      ScrollElement
+        Element
+          size:             :parentWidthChildrenHeight
+          padding:          10
+          childrenLayout:   :column
+          childrenMargins:  10
+
+          array i in @lines
+            LineButton
+              text:   i
+              key:    i
+              action: => @remove i
+
+          LineButton
+            key:    :add
+            text:   :add
+            action: @add

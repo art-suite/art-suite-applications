@@ -9,7 +9,7 @@ textStyle =
 
 class DemoButton extends PointerActionsMixin Component
 
-  doAction: ->
+  action: ->
     @props.setSelectedDemo @props.name
 
   render: ->
@@ -17,20 +17,19 @@ class DemoButton extends PointerActionsMixin Component
     {name} = @props
 
     Element
-      size: ww: 1, hch: 1
+      size: "parentWidthChildrenHeight"
 
-      RectangleElement
-        color:      if hover then #fff else #fff0
-        animators:  :color
+      draw: if hover then #fff else #fff0
+      animators:  :draw
+      cursor:     :pointer
+      on:         @buttonHandlers
 
       TextElement
         textStyle
-        size:     ww:1, hch:1
-        cursor:   :pointer
+        size:     "parentWidthChildrenHeight"
         color:    #0007
         text:     name
         padding:  10
-        on:       @buttonHandlers
 
 class BackButton extends PointerActionsMixin Component
 
@@ -42,14 +41,15 @@ class BackButton extends PointerActionsMixin Component
       clip: true
       animators: size: toFrom: hch:1, w: 0
 
-      RectangleElement
+      draw:
         color:      if hover then #999 else #555
-        animators:  :color
         radius:     5
+
+      animators:  :draw
 
       TextElement
         textStyle
-        size: cs: 1
+        size:     "childrenSize"
         cursor:   :pointer
         text:     :back
         padding:  10
@@ -82,6 +82,7 @@ class Loader extends Component
 
         TextElement
           textStyle
+          align: "centerLeft"
           fontSize: 20
           margin:   10
           text:     selectedDemo || "" Art Suite Demos

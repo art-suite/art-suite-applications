@@ -6,6 +6,7 @@ require './Animations/namespace';
 require './Basic/namespace';
 require './CandyStripe/namespace';
 require './Chat/namespace';
+require './ChildrenMarginAnimations/namespace';
 require './Clock/namespace';
 require './ColorExtractor/namespace';
 require './ColorPicker/namespace';
