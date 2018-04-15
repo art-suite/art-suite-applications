@@ -5,10 +5,6 @@ class LineButton extends PointerActionsMixin Component
     {color, text} = @props
 
     Element
-      animators:
-        size: toFrom: h: 0
-        draw: true
-
       size: :parentWidthChildrenHeight
       draw:
         color ? #0002
@@ -30,15 +26,16 @@ class MyComponent extends Component
 
   @stateFields
     lines: 1 2 3 4 5 6 7 8 9 10
+    next: 11
 
   remove: (i) ->
     @lines = arrayWithoutValue @lines, i
 
   add: ->
-    @lines = arrayWith
+    @lines = arrayWithElementInserted
       @lines
-      peek @lines
-      + 1
+      @next++
+      intRand @lines.length
 
   render: ->
     Element
@@ -50,6 +47,7 @@ class MyComponent extends Component
           padding:          10
           childrenLayout:   :column
           childrenMargins:  10
+          animate:          :childrenLayout  # this is the magic!
 
           array i in @lines
             LineButton
