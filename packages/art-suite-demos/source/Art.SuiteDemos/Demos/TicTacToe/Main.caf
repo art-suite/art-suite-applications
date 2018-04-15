@@ -1,15 +1,13 @@
-import &ArtSuite # 2 tokens | 245 tokens in total
+import &ArtSuite                  # 240 tokens in total
 
 textStyle =                         # 11 tokens
   fontFamily: "" "Century Gothic", Futura, sans-serif
   fontSize:   14
   margin:     10
   size:       cs: 1
-                                    # 9 tokens
-cellStyle = merge textStyle, fontWeight: :bold fontSize: 18
 
-calculateWinner = (board) ->        # 61 tokens
-  find [i1, i2, i3] in
+calculateWinner = (board) ->        # 62 tokens
+  find [i1, i2, i3] in []
       0 1 2
       3 4 5
       6 7 8
@@ -20,29 +18,31 @@ calculateWinner = (board) ->        # 61 tokens
       2 4 6
     (v1 = board[i1]) == board[i2] && v1 == board[i3] && v1
 
-class Square extends Component      # 27 tokens
+class Square extends Component      # 31 tokens
   render: ->
     Element
       size: 35
       draw: outline:      :black
       on:   pointerClick: @props.play
       TextElement
-        cellStyle
+        textStyle
+        fontWeight: :bold
+        fontSize: 18
         size:   ps: 1
         align:  .5
         @props.cell
 
 class TicTacToe extends Component   # 135 tokens
-  @stateFields stepNumber: 0 history: [] Array(9).fill null
+  @stateFields turnNumber: 0 history: [] Array(9).fill null
 
-  play: (i, player) ->
+  play: (i, player) ->                # 28 tokens
     @history = arrayWith
-      @history.slice 0, @stepNumber + 1
-      arrayWithElementReplaced @history[@stepNumber++], player, i
+      @history.slice 0, @turnNumber + 1
+      arrayWithElementReplaced @history[@turnNumber++], player, i
 
-  render: ->
-    winner = calculateWinner board = @history[@stepNumber]
-    player = if @stepNumber % 2 then :X else :O
+  render: ->                          # 91 tokens
+    winner = calculateWinner board = @history[@turnNumber]
+    player = if @turnNumber % 2 then :X else :O
     Element
       size:           w: 125
       padding:        10
@@ -60,6 +60,6 @@ class TicTacToe extends Component   # 135 tokens
       array {label}, i in @history
         TextElement
           textStyle
-          on: pointerClick: -> @stepNumber = i
+          on: pointerClick: -> @turnNumber = i
           if i then "" Go to move ##{i}
           else      "" Go to game start
