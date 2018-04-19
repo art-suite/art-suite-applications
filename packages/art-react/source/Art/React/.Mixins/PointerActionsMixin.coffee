@@ -41,7 +41,10 @@ defineModule module, ->
         pointerUpInside:  (event) =>
           event.target.capturePointerEvents()
           if !@props.disabled
-            (customAction || @doAction || @action || @props.action)? event, @props
+            log.error "DEPRICATED: @doAction is no longer supported, use @action" if @doAction
+            (customAction ? @action ? @props.action)? event, @props
+          else
+            (@disabledAction ? @props.disabledAction)? event, @props
 
       pointerHandlers: -> @buttonHandlers
 
