@@ -9,10 +9,10 @@ package:
     Extensible, Promise-based HTTP Server based on Express
 
   dependencies:
-    express:      :^4.15.3
-    compression:  :^1.6.2
+    express:      :^4.16.3
+    compression:  :^1.7.2
     throng:       :^4.0.0
-    jsonwebtoken: :^7.4.1
+    jsonwebtoken: :^8.2.1
 
 webpack:
   # common properties are merged into each target's properties
