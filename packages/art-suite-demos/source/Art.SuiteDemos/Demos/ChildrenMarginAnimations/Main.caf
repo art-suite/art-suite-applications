@@ -32,7 +32,7 @@ class MyComponent extends Component
     @lines = arrayWithoutValue @lines, i
 
   add: ->
-    @lines = arrayWithElementInserted
+    @lines = arrayWithInsertedValue
       @lines
       @next++
       intRand @lines.length
