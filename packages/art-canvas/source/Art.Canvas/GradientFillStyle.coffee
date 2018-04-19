@@ -142,7 +142,20 @@ module.exports = class GradientFillStyle extends Foundation.BaseObject
         n: 1, c: rgbColor "white"
       ]
 
+  generateStripes = (colors) ->
+    stripeColors = {}
+    lastColor = stripeColors[0] = colors[0]
+    stripeColors[1] = peek colors
+
+    for color, i in colors = colors.slice 1, colors.length
+      pos = (i + 1) / (colors.length + 1)
+      stripeColors[pos] = lastColor
+      stripeColors[pos + .0001] = lastColor = color
+    log stripeColors
+
   constructor: (@from, @to, colors, @radius1, @radius2)->
+    if stripes = colors?.stripes
+      colors = generateStripes stripes
     @setColors @inputColors = colors
 
   inspect2: -> "gradient(from:#{@from}, to:#{@to}, colors:#{inspect @inputColors})"
@@ -172,6 +185,11 @@ module.exports = class GradientFillStyle extends Foundation.BaseObject
           n: 0, c: rgbColor "black"
           n: 1, c: rgbColor "white"
         ]
+
+  @getter
+    inspectedObjects: ->
+      GradientFillStyle: {@from, @to, @colors, @radius1, @radius2}
+
 
   getColorAt: (atN) ->
     lastN = null

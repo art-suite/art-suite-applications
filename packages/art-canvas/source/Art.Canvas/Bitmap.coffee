@@ -493,17 +493,20 @@ module.exports = class Bitmap extends BitmapBase
       fillStyle.toString()
 
   _getFillStyleFromOptions: (options) ->
-    if options.colors
-      fromPoint = options.from || point0
-      gradientRadius1 = options.gradientRadius1 || options.gradientRadius
-      toPoint = options.to || if gradientRadius1? then fromPoint else @size
-      new GradientFillStyle(
-        fromPoint
-        toPoint
-        options.colors
-        gradientRadius1
-        options.gradientRadius2
-      )
+    if colors = options.colors
+      if colors.constructor == GradientFillStyle
+        colors
+      else
+        fromPoint = options.from || point0
+        gradientRadius1 = options.gradientRadius1 || options.gradientRadius
+        toPoint = options.to || if gradientRadius1? then fromPoint else @size
+        new GradientFillStyle(
+          fromPoint
+          toPoint
+          options.colors
+          gradientRadius1
+          options.gradientRadius2
+        )
     else
       options.fillStyle || options.color || @defaultColorString
 
