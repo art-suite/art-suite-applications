@@ -22,7 +22,7 @@ module.exports = [
 
     preprocessElement: (element) ->
       if isString element
-        text: [element]
+        text: element
       else
         element
 ]

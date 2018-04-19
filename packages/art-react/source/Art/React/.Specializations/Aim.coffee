@@ -1,6 +1,6 @@
 Foundation = require 'art-foundation'
 React = require '../Core'
-{log, createObjectTreeFactories, mergeInto, createObjectTreeFactory} = Foundation
+{log, createObjectTreeFactories, mergeInto} = Foundation
 {VirtualElement, objectTreeFactoryOptions} = React
 {getNextPageIndexes} = require "./PagingScrollElement"
 
