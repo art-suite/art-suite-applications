@@ -315,5 +315,7 @@ module.exports = class Point extends AtomicBase
     top:                    point0
     bottom:                 bottomLeft
 
-  for k, v of @namedPoints
+  for k, v of namedPoints
     @[k] = v
+
+  @namedValues = namedPoints

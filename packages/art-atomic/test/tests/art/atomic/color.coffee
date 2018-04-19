@@ -1,4 +1,5 @@
 {rgbColor, hslColor, Color} = Atomic = Neptune.Art.Atomic
+{log, formattedInspect} = require 'art-standard-lib'
 
 suite "Art.Atomic.Color", ->
   test "red", ->
@@ -6,7 +7,7 @@ suite "Art.Atomic.Color", ->
     assert.equal red.toString(), "#ff0000"
 
   test "inspectedObjects", ->
-    assert.match rgbColor().inspectedObjects, /\#000000/
+    assert.match "#{formattedInspect rgbColor()}", /black/
 
   test "red transparent", ->
     red = new Color 1,0,0,0.5

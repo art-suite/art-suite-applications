@@ -9,6 +9,7 @@
   floatEq
   wordsArray
   inspect
+  object
 } = require 'art-foundation'
 
 module.exports = class Base extends BaseObject
@@ -87,8 +88,22 @@ module.exports = class Base extends BaseObject
 
   @getter
     plainObjects: -> @toObject()
-    inspectedObjects: -> inspectedObjectLiteral @class.getConstructorFunctionName() + "(#{@toArray().join ', '})"
+    inspectedObjects: -> inspectedObjectLiteral @inspectedObjectString
+    inspectedObjectString: ->
+      value = @inspectedObjectStringRaw
+      @class.getNamedValuesByValue()[value] ? value
+
+    inspectedObjectStringRaw: ->
+      @class.getConstructorFunctionName() + "(#{@inspectedObjectInitializer})"
+
+    inspectedObjectInitializer: -> @toArray().join ', '
     array: -> @toArray()
+
+  @namedValues: {}
+  @getNamedValuesByValue: ->
+    @_namedValuesByValue ?= object @namedValues,
+      key: (v) -> v.inspectedObjectStringRaw
+      with: (v, k) -> k
 
   toPlainStructure: -> @getPlainObjects()
   toPlainEvalString: -> inspect @getPlainObjects()

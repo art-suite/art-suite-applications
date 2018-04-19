@@ -8,6 +8,7 @@ AtomicBase = require './base'
   rgbColorRegex
   rgbaColorRegex
   float32Eq0
+  object
 } = Foundation
 
 colorFloatEq = float32Eq #(n1, n2) -> Math.abs(n1 - n2) < 1/256
@@ -303,6 +304,8 @@ module.exports = class Color extends AtomicBase
       @g = clr.g
       @b = clr.b
       @a = clr.a
+    else if /^([a-f0-9]{3,4}|[a-f0-9]{6}|[a-f0-9]{8})$/i.test string
+      @_initFromString "#" + string
     else
       @log parseError:@parseError = "WARNING: Color.parse failure for #{inspect string}"
 
@@ -466,6 +469,8 @@ module.exports = class Color extends AtomicBase
       hexString(@g16, 1) +
       hexString(@b16, 1)
 
+    rgbaHex16String: -> @hex16String + hexString @a16, 1
+
     hslHexString: ->
       "#" +
       hexString(@h256) +
@@ -481,11 +486,7 @@ module.exports = class Color extends AtomicBase
       hexString(@g256) +
       hexString(@b256)
 
-    rawRgbaHexString: ->
-      hexString(@r256) +
-      hexString(@g256) +
-      hexString(@b256) +
-      hexString(@a256)
+    rawRgbaHexString: -> @rawHexString + hexString @a256
 
   inspect: ->
     a = if colorFloatEq(1, @a) then @hexString else @rgbaHexString
@@ -508,7 +509,7 @@ module.exports = class Color extends AtomicBase
 
   @getter
     plainObjects: -> if @a < 1 then @rgbaHexString else @hexString
-    inspectedObjects: -> "<color #{if colorFloatEq(1, @a) then @hexString else @rgbaHexString}>"
+    inspectedObjectInitializer: -> "'#{@autoRgbaHexString}1'"
 
   # vivafy HSL on request
   @getter
@@ -568,3 +569,5 @@ module.exports = class Color extends AtomicBase
 
   for k, v of colorNamesMap
     colorNamesMap[k] = rgbColor v
+
+  @namedValues: colorNamesMap
