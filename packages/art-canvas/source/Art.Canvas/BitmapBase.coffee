@@ -208,6 +208,9 @@ module.exports = class BitmapBase extends BaseClass
 
     @initContext()
 
+  # log the current bitmap size if getEnv().debugBitmapSize is true
+  # 2018-04-23: I'm trying to track down "aw snap" browser page crashes.
+  #   Sometimes I -think- this is due to allocating a too-large canvas.
   logBitmapSize: (context) ->
     if debugBitmapSize
       log "#{@class.getName()}##{context} #{@_size}"
