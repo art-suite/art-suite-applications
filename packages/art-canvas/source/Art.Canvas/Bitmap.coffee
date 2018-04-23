@@ -71,6 +71,7 @@ module.exports = class Bitmap extends BitmapBase
     context: ->
       if !@_context && @_htmlImageElement
         # console.log "Canvas.Bitmap: getContext src/neptune/test/lib/art/webgl/- initFromImage(#{@size}) convert HTMLImageElement to canvas"
+        @logBitmapSize "'context' getter needs to make a new canvas"
         @initNewCanvas @size
         @drawBitmap point(), @_htmlImageElement
         @_htmlImageElement = null
@@ -114,7 +115,9 @@ module.exports = class Bitmap extends BitmapBase
 
   initFromImage: (image) ->
     @_size = point image.naturalWidth || image.width, image.naturalHeight || image.height
+    @logBitmapSize "initFromImage"
     @_htmlImageElement = image
+
     if getEnv().debugTaint
       {tainted} = @
       message = "Canvas.Bitmap.initFromImage #{@_size}, tainted: #{tainted}, #{image.src?.slice(0,100)}"

@@ -7,7 +7,7 @@
 # Canvas Spec: http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html
 # http://dev.w3.org/fxtf/compositing-1/#porterduffcompositingoperators_srcover
 {point, point0, Point, rect, Rectangle, matrix, Matrix, rgbColor, Color, isPoint} = require 'art-atomic'
-{inspect, Promise, nextTick, pureMerge, isString, isNumber, log, bound, merge, isFunction} = require 'art-standard-lib'
+{inspect, Promise, getEnv, nextTick, pureMerge, isString, isNumber, log, bound, merge, isFunction} = require 'art-standard-lib'
 {round, floor, ceil, max, min} = Math
 {BinaryString, EncodedImage} = (require 'art-foundation').Binary
 {BaseClass} = require 'art-class-system'
@@ -20,6 +20,7 @@ pixelStep = 4
 
 quarterPoint = point 1/4
 halfPoint = point 1/2
+{debugBitmapSize} = getEnv()
 
 module.exports = class BitmapBase extends BaseClass
   @bitmapsCreated: 0
@@ -51,7 +52,6 @@ module.exports = class BitmapBase extends BaseClass
     else if isCanvas a              then @initFromCanvas a
     else if isImage a               then @initFromImage a
     else                                 @initNewCanvas point a, b
-    # console.log "new Art.Canvas.Bitmap #{@size}"
 
   @getter
     tainted: ->
@@ -204,13 +204,21 @@ module.exports = class BitmapBase extends BaseClass
   initFromCanvas: (canvas) ->
     @_canvas = canvas
     @_size = point @_canvas.width, @_canvas.height
+    @logBitmapSize "initFromCanvas"
+
     @initContext()
 
+  logBitmapSize: (context) ->
+    if debugBitmapSize
+      log "#{@class.getName()}##{context} #{@_size}"
+
+  # In chrome, HTMLImageElements are much faster to draw FROM than CanvasElements
+  # NOTE: 'initFromImage' is overloaded in 'Bitmap'
+  #   This implementation is only used by ArtCanvasGl
   initFromImage: (image) ->
-    # in chrome, HTMLImageElements are much faster to draw FROM than CanvasElements
-    # we should support "optimized" Art.Bitmaps (which can't be drawn to because they are HTMLImageElements)
     @_size = point image.naturalWidth || image.width, image.naturalHeight || image.height
-    # console.log "BitmapBase: initFromImage #{image.width}, #{image.height}, naturals: #{image.naturalWidth}, #{image.naturalHeight}, size: #{@_size}"
+    @logBitmapSize "initFromImage"
+
     @initNewCanvas @size
     @drawBitmap point(), image
 
@@ -218,6 +226,8 @@ module.exports = class BitmapBase extends BaseClass
     return if @_context
     throw new Error "invalid size=#{size} for Art.Canvas.Bitmap" unless size.gt point()
     @_size = size.floor()
+    @logBitmapSize "initNewCanvas"
+
     if global.document
       @_canvas = document.createElement 'canvas'
       @_canvas.width = @size.x
