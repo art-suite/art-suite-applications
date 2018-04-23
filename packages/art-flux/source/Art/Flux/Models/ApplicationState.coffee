@@ -8,6 +8,7 @@ FluxCore = require '../Core'
   Promise
   formattedInspect
   eq
+  neq
 } = require 'art-standard-lib'
 {FluxStore, FluxModel} = FluxCore
 {fluxStore} = FluxStore
@@ -182,7 +183,7 @@ defineModule module, class ApplicationState extends StateFieldsMixin FluxModel
     if @class._persistant
       Promise.then => jsonStore.getItem @localStorageKey
       .then (loadedState) =>
-        unless eq loadedState, @state
+        if loadedState && neq loadedState, @state
           log "ApplicationState " + formattedInspect loaded:
             old: @state
             new: loadedState
