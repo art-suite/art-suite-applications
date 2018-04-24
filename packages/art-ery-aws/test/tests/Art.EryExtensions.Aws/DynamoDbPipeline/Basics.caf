@@ -12,6 +12,13 @@ setupWithMyTable = ->
         rank:               :number
         attributes:         :array
 
+      @handlers
+        throwServiceUnavailable: (request)->
+          @_artEryToDynamoDbRequest
+            request
+            then: (params) =>
+              throw new Error "Service Unavailable"
+
     {myCompoundKeyTable} = class MyCompoundKeyTable extends DynamoDbPipeline
       @keyFields "userId/postId"
       @addDatabaseFilters
@@ -230,3 +237,9 @@ suite:
       .then (expectedError) ->
         assert.eq expectedError.info.response.status, clientFailure
 
+  errors: ->
+    setup setupWithMyTable
+    test "Service Unavailable errors return valid response with status networkFailure" ->
+      assert.rejects myTable.throwServiceUnavailable()
+      .then ({status}) ->
+        assert.eq status, networkFailure

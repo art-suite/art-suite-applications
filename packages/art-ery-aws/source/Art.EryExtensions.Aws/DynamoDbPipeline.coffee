@@ -10,6 +10,8 @@
   isString
 } = require 'art-standard-lib'
 
+{networkFailure} = require 'art-communication-status'
+
 {Pipeline, KeyFieldsMixin, pipelines, UpdateAfterMixin} = require 'art-ery'
 {DynamoDb} = ArtAws = require 'art-aws'
 
@@ -440,5 +442,10 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
         consistentRead
       }
 
-    .then options.then
-    , ({message}) -> request.clientFailure message
+    .then(
+      options.then
+      ({message}) -> request.clientFailure message
+    ).catch (error) ->
+      if error.message.match /Service *Unavailable/i
+        request.toResponse networkFailure
+        .then (response) -> response.toPromise()
