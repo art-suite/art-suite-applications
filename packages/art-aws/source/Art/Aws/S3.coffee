@@ -1,5 +1,5 @@
 RestClient = require 'art-rest-client'
-{isString, log, present, defineModule, parseUrl, peek, Promise,merge} = require 'art-standard-lib'
+{upperCamelCase, lowerCamelCase, object, isString, log, present, defineModule, parseUrl, peek, Promise,merge} = require 'art-standard-lib'
 
 # npm querystring doesn't implement escape and unescape, which aws4 needs
 QuertyString = require 'querystring'
@@ -84,3 +84,22 @@ defineModule module, class S3 extends BaseClass
       .then (res) ->
         copyObjectResult: res
         url: "https://#{toBucket}.s3.amazonaws.com/#{key}"
+
+    upperCamelCaseProps = (obj) -> object obj, key: (v, k) -> upperCamelCase k
+    lowerCamelCaseProps = (obj) -> object obj, key: (v, k) -> lowerCamelCase k
+    # IN: params, lowerCamelCaseParams {bucket, startAfter, prefix ...}
+    #     SEE https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#listObjectsV2-property
+    #     Same API except JavaScript standard lowerCamelCase props are also allowed
+    #       e.g. 'bucket' instead of 'Bucket'
+    # OUT: Same API except all props are JavaScript standard lowerCamelCase
+    @list: (params) ->
+      Promise.withCallback (callback) =>
+        @getS3().listObjectsV2(
+          upperCamelCaseProps params
+          callback
+        )
+      .then (res) ->
+        res = lowerCamelCaseProps res
+        res.contents = for item in res.contents
+          lowerCamelCaseProps item
+        res
