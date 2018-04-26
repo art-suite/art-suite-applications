@@ -1,5 +1,5 @@
 RestClient = require 'art-rest-client'
-{upperCamelCase, lowerCamelCase, object, isString, log, present, defineModule, parseUrl, peek, Promise,merge} = require 'art-standard-lib'
+{isArray, isPlainObject, upperCamelCase, lowerCamelCase, object, isString, log, present, defineModule, parseUrl, peek, Promise,merge} = require 'art-standard-lib'
 
 # npm querystring doesn't implement escape and unescape, which aws4 needs
 QuertyString = require 'querystring'
@@ -85,13 +85,26 @@ defineModule module, class S3 extends BaseClass
         copyObjectResult: res
         url: "https://#{toBucket}.s3.amazonaws.com/#{key}"
 
-    upperCamelCaseProps = (obj) -> object obj, key: (v, k) -> upperCamelCase k
-    lowerCamelCaseProps = (obj) -> object obj, key: (v, k) -> lowerCamelCase k
-    # IN: params, lowerCamelCaseParams {bucket, startAfter, prefix ...}
-    #     SEE https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#listObjectsV2-property
-    #     Same API except JavaScript standard lowerCamelCase props are also allowed
-    #       e.g. 'bucket' instead of 'Bucket'
-    # OUT: Same API except all props are JavaScript standard lowerCamelCase
+    renameProps = (obj, renameAction) ->
+      if isPlainObject obj
+        object obj,
+          key:  (v, k) -> renameAction k
+          with: (v)    -> renameProps v, renameAction
+
+      else if isArray obj
+        renameProps v, renameAction for v in obj
+
+      else
+        obj
+
+    upperCamelCaseProps = (obj) -> renameProps obj, upperCamelCase
+    lowerCamelCaseProps = (obj) -> renameProps obj, lowerCamelCase
+
+    # SEE https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#listObjectsV2-property
+    # IN:       params: Same API except JavaScript standard lowerCamelCase props are also allowed
+    # OUT:      promise.then -> Same API except all props are JavaScript standard lowerCamelCase
+    # NOTE:     VALUES are not altered, so if AWS requires an UpperCamelCase VALUE, you must privide it (i.e. 'Bulk' not 'bulk')
+    # EXAMPLE:  S3.list {bucket, startAfter, prefix}
     @list: (params) ->
       Promise.withCallback (callback) =>
         @getS3().listObjectsV2(
@@ -103,3 +116,23 @@ defineModule module, class S3 extends BaseClass
         res.contents = for item in res.contents
           lowerCamelCaseProps item
         res
+
+    # SEE: https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#restoreObject-property
+    # IN:       params: Same as AWS except JavaScript standard lowerCamelCase props are allowed
+    # OUT:      promise.then -> Same API except all props are JavaScript standard lowerCamelCase
+    # NOTE:     VALUES are not altered, so if AWS requires an UpperCamelCase VALUE, you must privide it (i.e. 'Bulk' not 'bulk')
+    # EXAMPLE:  S3.restore {} bucket, key, restoreRequest: days: 1 glacierJobParameters: tier: :Bulk
+    ###
+    2018-04-26
+                pricing     ETA/ETC
+    bulk:       $.0025/gb   5-12 hours
+    standard:   $.01/gb     3-5 hours
+    expedited:  $.03/gb     1-5 minutes
+    ###
+    @restore: (params) ->
+      Promise.withCallback (callback) =>
+        @getS3().restoreObject(
+          upperCamelCaseProps params
+          callback
+        )
+      .then lowerCamelCaseProps
