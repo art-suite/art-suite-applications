@@ -30,20 +30,39 @@ defineModule module, class S3 extends BaseClass
         location: url
         response: response
 
+    getBucketAndKey = (urlOrBucketKey) =>
+      {bucket, key} = if isString urlOrBucketKey
+        @parseS3Url urlOrBucketKey
+      else
+        urlOrBucketKey
+
+      Bucket: @_normalizeBucket bucket
+      Key:    key
+
+    ###
+    OUT: (NodeJs)
+      acceptRanges:  "bytes"
+      restore:       'ongoing-request="false", expiry-date="Fri, 08 Jun 2018 00:00:00 GMT"'
+      lastModified:  2015-10-17 21:05:44 UTC
+      contentLength: 1037232
+      eTag:          '"6c1e52458eaeaaf5f1cd361dda121d5a"'
+      contentType:   ""
+      metadata:      {}
+      storageClass:  "GLACIER"
+      body:          {Buffer length: 1037232}
+
+    ###
+    @get: (urlOrBucketKey) =>
+      log get: urlOrBucketKey
+      Promise.withCallback (callback) =>
+        @getS3().getObject getBucketAndKey(urlOrBucketKey), callback
+      .then lowerCamelCaseProps
 
     @delete: (urlOrBucketKey) =>
-      if isString
-        {bucket, key} = @parseS3Url urlOrBucketKey
-      else
-        {bucket, key} = urlOrBucketKey
       Promise.withCallback (callback) =>
-        @getS3().deleteObject merge(
-            Bucket: @_normalizeBucket bucket
-            Key: key
-          ),
-          callback
+        @getS3().deleteObject getBucketAndKey(urlOrBucketKey), callback
 
-    @_normalizeBucket: (bucket) -> config.s3Buckets[bucket] || bucket
+    @_normalizeBucket: _normalizeBucket = (bucket) -> config.s3Buckets[bucket] || bucket
     @_denormalizeBucket: (bucket) ->
       for k, v of config.s3Buckets
         if bucket == v
