@@ -14,10 +14,17 @@ setupWithMyTable = ->
 
       @handlers
         throwServiceUnavailable: (request)->
+          {numFailures} = request.props
+          attemptCount = 0
           @_artEryToDynamoDbRequest
             request
             then: (params) =>
-              throw new Error "Service Unavailable"
+              attemptCount++
+              if numFailures >= attemptCount
+                # 4 means it'll fail all retries on the first call, but
+                # will succeed in the second
+                throw new Error "Service Unavailable"
+              successfulOnAttempt: attemptCount
 
     {myCompoundKeyTable} = class MyCompoundKeyTable extends DynamoDbPipeline
       @keyFields "userId/postId"
@@ -240,6 +247,9 @@ suite:
   errors: ->
     setup setupWithMyTable
     test "Service Unavailable errors return valid response with status networkFailure" ->
-      assert.rejects myTable.throwServiceUnavailable()
-      .then ({status}) ->
-        assert.eq status, networkFailure
+      assert.rejects myTable.throwServiceUnavailable props: numFailures: 3
+      .then ({status}) -> assert.eq status, networkFailure
+
+    test "Service Unavailable errors are retried a limited number of times" ->
+      myTable.throwServiceUnavailable props: numFailures: 2
+      .then (rest) -> assert.eq rest, successfulOnAttempt: 3

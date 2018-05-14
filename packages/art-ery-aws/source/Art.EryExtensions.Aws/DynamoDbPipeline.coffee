@@ -8,6 +8,8 @@
   objectWithExistingValues
   present
   isString
+  timeout
+  intRand
 } = require 'art-standard-lib'
 
 {networkFailure} = require 'art-communication-status'
@@ -56,10 +58,17 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
       .catch -> "ERROR: could not connect to the table"
     dynamoDb: -> DynamoDb.singleton
 
+
   ###########################################
   # Helpers - not sure these should be public at all
   ###########################################
-  queryDynamoDb:  (params)         -> @dynamoDb.query      merge params, table: @tableName
+  queryDynamoDb:  (params) ->
+    log.warn "DEPRICATED: queryDynamoDb; use queryDynamoDbWithRequest"
+    @_retryIfServiceUnavailable null, => @dynamoDb.query merge params, table: @tableName
+
+  queryDynamoDbWithRequest:  (request, params) ->
+    @_retryIfServiceUnavailable request, => @dynamoDb.query merge params, table: @tableName
+
   scanDynamoDb:   (params)         -> @dynamoDb.scan       merge params, table: @tableName
   withDynamoDb:   (action, params) -> @dynamoDb[action]    merge params, table: @tableName
 
@@ -293,7 +302,7 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
 
         queries[queryModelName] =
           query: (request) ->
-            request.pipeline.queryDynamoDb
+            request.pipeline.queryDynamoDbWithRequest request,
               index: queryModelName
               where: "#{hashKey}": request.key
             .then ({items}) -> items
@@ -309,7 +318,7 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
 
         queries[queryModelName+"Desc"] =
           query: (request) ->
-            request.pipeline.queryDynamoDb
+            request.pipeline.queryDynamoDbWithRequest request,
               index: queryModelName
               where: "#{hashKey}": request.key
               descending: true
@@ -403,49 +412,67 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
     {key, data, add, setDefault, conditionExpression, returnValues, consistentRead} = request.props
     {requestType} = request
 
-    Promise
-    .then => request.requireServerOriginOr !(add || setDefault || conditionExpression || returnValues), "to use add, setDefault, returnValues, or conditionExpression props"
-    .then => request.require !(add || setDefault) || requestType == "update", "add and setDefault only valid for update requests"
-    .then =>
-      if requiresKey
-        data = @dataWithoutKeyFields data
-        key  = @toKeyObject request.key
+    @_retryIfServiceUnavailable request, =>
+      Promise
+      .then => request.requireServerOriginOr !(add || setDefault || conditionExpression || returnValues), "to use add, setDefault, returnValues, or conditionExpression props"
+      .then => request.require !(add || setDefault) || requestType == "update", "add and setDefault only valid for update requests"
+      .then =>
+        if requiresKey
+          data = @dataWithoutKeyFields data
+          key  = @toKeyObject request.key
 
-      if requestType == "update"
-        remove = (k for k, v of data when v == null)
-      data = objectWithExistingValues data
-
-
-      # higher priority
-      returnValues = options.returnValues if options.returnValues
-
-      # DEFAULTS
-      # NOTE: Art-Ery-Elasicsearch often needs additional fields beyond the ID and updated fields
-      # in order to do its update. That means 'allNew' is often the most efficient option for updates.
-      returnValues ||= "allNew" if requestType == "update"
-      conditionExpression ||= mustExist && key
-
-      consistentRead = true if consistentRead
+        if requestType == "update"
+          remove = (k for k, v of data when v == null)
+        data = objectWithExistingValues data
 
 
-      objectWithExistingValues {
-        @tableName
-        data
-        key
+        # higher priority
+        returnValues = options.returnValues if options.returnValues
 
-        # requireServerOrigin
-        remove                  # remove attributes
-        add
-        setDefault
-        returnValues
-        conditionExpression
-        consistentRead
-      }
+        # DEFAULTS
+        # NOTE: Art-Ery-Elasicsearch often needs additional fields beyond the ID and updated fields
+        # in order to do its update. That means 'allNew' is often the most efficient option for updates.
+        returnValues ||= "allNew" if requestType == "update"
+        conditionExpression ||= mustExist && key
 
-    .then(
-      options.then
-      ({message}) -> request.clientFailure message
-    ).catch (error) ->
-      if error.message.match /Service *Unavailable/i
-        request.toResponse networkFailure
-        .then (response) -> response.toPromise()
+        consistentRead = true if consistentRead
+
+
+        objectWithExistingValues {
+          @tableName
+          data
+          key
+
+          # requireServerOrigin
+          remove                  # remove attributes
+          add
+          setDefault
+          returnValues
+          conditionExpression
+          consistentRead
+        }
+
+      .then(
+        options.then
+        ({message}) -> request.clientFailure message
+      )
+
+  isServiceUnavailableError = (error) -> error.message.match /Service *Unavailable/i
+
+  _retryIfServiceUnavailable: retryIfServiceUnavailable = (request, action, retriesRemaining = 2) ->
+    Promise.then -> action()
+    .catch (error) ->
+      if isServiceUnavailableError error
+        if retriesRemaining > 0
+          timeout 10 + intRand 20
+          .then => retryIfServiceUnavailable request, action, retriesRemaining - 1
+
+        else if request
+          request.toResponse networkFailure
+          .then (response) -> response.toPromise()
+
+        else
+          throw error
+
+      else
+        throw error
