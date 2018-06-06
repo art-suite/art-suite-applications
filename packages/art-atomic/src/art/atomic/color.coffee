@@ -298,7 +298,7 @@ module.exports = class Color extends AtomicBase
 
     else if /^[a-z]+$/i.test(lcString = string.toLowerCase())
       unless clr = colorNamesMap[lcString]
-        return @log parseError:@parseError = "WARNING: Color.parse failure. Unknown rgbColor name: #{inspect string}"
+        return log parseError:@parseError = "WARNING: Color.parse failure. Unknown rgbColor name: #{inspect string}"
       @_htmlColorString = clr._htmlColorString
       @r = clr.r
       @g = clr.g
@@ -307,7 +307,7 @@ module.exports = class Color extends AtomicBase
     else if /^([a-f0-9]{3,4}|[a-f0-9]{6}|[a-f0-9]{8})$/i.test string
       @_initFromString "#" + string
     else
-      @log parseError:@parseError = "WARNING: Color.parse failure for #{inspect string}"
+      log parseError:@parseError = "WARNING: Color.parse failure for #{inspect string}"
 
   initProperties: ->
     @r = @g = @b = 0
