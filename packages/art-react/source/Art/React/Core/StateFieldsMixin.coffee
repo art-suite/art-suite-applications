@@ -15,10 +15,16 @@ defineModule module, -> (superClass) -> class StateFieldsMixin extends superClas
     for fieldName, declares:
       @getter :fieldName
       @setter :fieldName
-      clearFieldName: ->
 
       if initial value is true or false:
-      toggleFieldName: -> @fieldName = !@fieldName
+        toggleFieldName:  -> @fieldName = !@fieldName
+        setIsFieldName:   -> @fieldName = true
+        clearFieldName:   -> @fieldName = false
+        triggerFieldName: -> @fieldName = true
+
+      else
+        clearFieldName: -> @fieldName = null
+
   ###
   @stateFields: sf = (fields) ->
     @extendStateFields fields

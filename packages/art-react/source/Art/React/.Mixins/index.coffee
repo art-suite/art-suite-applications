@@ -4,4 +4,5 @@
 module.exports = require './namespace'
 module.exports
 .addModules
-  PointerActionsMixin: require './PointerActionsMixin'
+  PointerActionsMixin:   require './PointerActionsMixin'  
+  PollingComponentMixin: require './PollingComponentMixin'
