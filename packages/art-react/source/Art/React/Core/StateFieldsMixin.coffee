@@ -32,24 +32,39 @@ defineModule module, -> (superClass) -> class StateFieldsMixin extends superClas
       defaultSetValue = initialValue
       clearValue = null
 
-      @addSetter field, (v) ->
-        @setState field, if v == undefined then defaultSetValue else v
       @addGetter field, -> @state[field]
 
       if initialValue == true || initialValue == false
         clearValue = false
         defaultSetValue = true
 
-        # OLD: setIsFoo
+        # boolean setter
+        @addSetter field, (v) ->
+          @setState field, !!v
+
+        # boolean set-true: setIsFoo (DEPRICATED)
         @::[lowerCamelCase "set is #{field}"] = ->
+          log.warn "StateFieldsMixin #{lowerCamelCase "set is #{field}"} is DEPRICATED. Use: #{lowerCamelCase "trigger #{field}"}."
           @setState field, true
 
-        # NEW: triggerFoo
+        # boolean set-true: triggerFoo
         @::[lowerCamelCase "trigger #{field}"] = ->
           @setState field, true
 
+        # boolean toggle
         @::[lowerCamelCase "toggle #{field}"] = ->
           @setState field, !@state[field]
+
+      else
+        @addSetter field, (v) ->
+          # SBD 2018-06-22: I think we should change this:
+          #   v == null >> reset to default
+          #   v == undefined >> ignored
+          # OR
+          #   no interpretation - just a normal setter
+          #   I'm leaning towards this. I had a bug where I was setting a value with undefined and nothing happend.
+          #   That was unexpected, even though reasonable.
+          @setState field, if v == undefined then defaultSetValue else v
 
       @::[lowerCamelCase "clear #{field}"] = ->
         @setState field, clearValue
