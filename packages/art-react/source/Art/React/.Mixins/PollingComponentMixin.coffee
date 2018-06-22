@@ -11,6 +11,6 @@ defineModule module, ->
     componentWillMount: ->
       super
       @poll()
-      @_interval = interval @getPollInterval() * 1000, @poll
+      @_interval = interval @getPollInterval() * 1000, => @poll()
 
     componentWillUnmount: -> @_interval.stop()
