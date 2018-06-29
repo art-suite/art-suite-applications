@@ -165,8 +165,9 @@ module.exports = class CreateTable extends TableApiBaseClass
 
   _translateProjection: (params, target = {}) ->
     projection = params?.projection || type: 'all'
+    type = if isString projection then projection else projection.type
     target.Projection = out =
-      ProjectionType: @_normalizeConstant projection.type, if projection.attributes then 'INCLUDE' else 'ALL'
+      ProjectionType: @_normalizeConstant type, if projection.attributes then 'INCLUDE' else 'ALL'
     out.NonKeyAttributes = projection.attributes if projection.attributes
     out
 
