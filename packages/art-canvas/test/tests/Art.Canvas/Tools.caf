@@ -1,0 +1,41 @@
+import &StandardImport
+suite:
+  transformAndRoundOutRectangle:
+    identify: ->
+      test "where:null", ->
+        assert.eq
+          transformAndRoundOutRectangle
+            null
+            rect 10.5
+          rect 11
+
+      test "where:matrix", ->
+        assert.eq
+          transformAndRoundOutRectangle
+            matrix()
+            rect 10.5
+          rect 11
+
+      test "where:point", ->
+        assert.eq
+          transformAndRoundOutRectangle
+            point()
+            rect 10.5
+          rect 11
+
+    rotated: ->
+      test "rotated 90", ->
+        assert.eq
+          transformAndRoundOutRectangle
+            Matrix
+            .rotate Math.PI / 2
+            rect 10
+          rect -10 0 10 10
+
+      test "rotated 45", ->
+        assert.eq
+          transformAndRoundOutRectangle
+            Matrix
+            .rotate Math.PI / 4
+            rect 10
+          rect -8 0 16 15

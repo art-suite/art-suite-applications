@@ -1,2 +1,5 @@
 {isCanvas, isImage} = require './BitmapBase'
-module.exports = {isCanvas, isImage}
+module.exports = [
+  {isCanvas, isImage}
+  require './Tools'
+]

@@ -143,27 +143,6 @@ module.exports = class BitmapBase extends BaseClass
 
     m.translateXY -x, -y
 
-  transformAndRoundOutRectangle: (where, r) ->
-    {left, right, bottom, top} = r
-
-    isx = isy = sx = sy = 1
-    tx = ty = 0
-
-    if isPoint where
-      tx = where.x
-      ty = where.y
-    else if where
-      tx = where.tx
-      ty = where.ty
-      sx = where.sx; isx = 1/sx
-      sy = where.sy; isy = 1/sy
-
-    x = Math.floor (left    * sx) + tx
-    y = Math.floor (top     * sy) + ty
-    r = Math.ceil (right   * sx) + tx
-    b = Math.ceil (bottom  * sy) + ty
-    rect x, y, r - x, b - y
-
   pixelSnapAndTransformRectangle: (where, r) ->
     console.error "no r" unless r
     {left, right, top, bottom} = r

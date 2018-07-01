@@ -12,3 +12,4 @@ module.exports
   GradientFillStyle: require './GradientFillStyle'
   Paths:             require './Paths'            
   StackBlur:         require './StackBlur'        
+  Tools:             require './Tools'            

@@ -15,3 +15,4 @@ module.exports
   GradientFillStyle: require './GradientFillStyle'
   StackBlur:         require './StackBlur'        
   Stroke:            require './Stroke'           
+  Tools:             require './Tools'            

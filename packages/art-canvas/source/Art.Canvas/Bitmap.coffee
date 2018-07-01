@@ -19,6 +19,7 @@ GradientFillStyle = require "./GradientFillStyle"
 BitmapBase = require "./BitmapBase"
 StackBlur = require "./StackBlur"
 {roundedRectanglePath, rectanglePath, linePath} = require "./Paths"
+{transformAndRoundOutRectangle} = require './Tools'
 
 isSimpleRectangle = (pathFunction, pathOptions) ->
   (pathFunction == rectanglePath || pathFunction == roundedRectanglePath) &&
@@ -160,7 +161,7 @@ module.exports = class Bitmap extends BitmapBase
 
     if area
       @_setTransform drawMatrix
-      transformedArea = @transformAndRoundOutRectangle drawMatrix, area
+      transformedArea = transformAndRoundOutRectangle drawMatrix, area
       area = @pixelSnapRectangle drawMatrix, area
       @_clippingArea = transformedArea.intersection @_clippingArea
     else
