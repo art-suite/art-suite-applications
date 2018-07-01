@@ -161,8 +161,9 @@ module.exports = class Bitmap extends BitmapBase
 
     if area
       @_setTransform drawMatrix
+      if @shouldPixelSnap drawMatrix, area
+        area = @pixelSnapRectangle drawMatrix, area
       transformedArea = transformAndRoundOutRectangle drawMatrix, area
-      area = @pixelSnapRectangle drawMatrix, area
       @_clippingArea = transformedArea.intersection @_clippingArea
     else
       @_setTransform drawMatrix
