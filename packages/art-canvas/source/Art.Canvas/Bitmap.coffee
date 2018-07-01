@@ -163,6 +163,10 @@ module.exports = class Bitmap extends BitmapBase
       @_setTransform drawMatrix
       if @shouldPixelSnap drawMatrix, area
         area = @pixelSnapRectangle drawMatrix, area
+      else
+        # _context.rect has problems with non-pixel-snapped cropping, use a path-function
+        pathFunction ?= rectanglePath
+
       transformedArea = transformAndRoundOutRectangle drawMatrix, area
       @_clippingArea = transformedArea.intersection @_clippingArea
     else
