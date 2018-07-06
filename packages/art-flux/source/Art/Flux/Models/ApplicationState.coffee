@@ -179,10 +179,13 @@ defineModule module, class ApplicationState extends StateFieldsMixin FluxModel
   _removeFromFluxStore: (key) ->
     @updateFluxStore key, status: missing
 
+  postProcessLoadedState: (state) -> state
+
   _loadFromLocalStorage: ->
     if @class._persistant
       Promise.then => jsonStore.getItem @localStorageKey
       .then (loadedState) =>
+        loadedState = @postProcessLoadedState loadedState
         if loadedState && neq loadedState, @state
           log "ApplicationState " + formattedInspect loaded:
             old: @state
