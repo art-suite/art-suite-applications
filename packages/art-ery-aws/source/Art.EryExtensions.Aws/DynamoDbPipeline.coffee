@@ -287,7 +287,8 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
         {key, data, add, setDefault} = request.props
         request.subrequest @pipelineName, "update", returnNullIfMissing: true, props: {key, data, add, setDefault}
         .then (result) =>
-          result ? request.subrequest @pipelineName, "create", {key, data: merge setDefault, data, add}
+          keyFields = if isPlainObject(key) then key else if isString(key) && @toKeyObject then @toKeyObject key
+          result ? request.subrequest @pipelineName, "create", {key, data: merge keyFields, setDefault, data, add}
 
   #########################
   # PRIVATE
