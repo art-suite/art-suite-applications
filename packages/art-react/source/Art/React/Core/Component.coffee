@@ -22,10 +22,13 @@ ReactArtEngineEpoch = require './ReactArtEngineEpoch'
   formattedInspect
   getModuleBeingDefined
   InstanceFunctionBindingMixin
+  getEnv
 } = Foundation
 {reactArtEngineEpoch} = ReactArtEngineEpoch
 
 React = require './namespace'
+{artReactDebug} = getEnv()
+
 
 {HotLoader} = require 'art-foundation/dev_tools/webpack'
 {runHot} = HotLoader
@@ -608,7 +611,7 @@ defineModule module, -> class Component extends PropFieldsMixin StateFieldsMixin
     VirtualNode.assignRefsTo = @refs = {}
     Component.resetCreatedComponents()
 
-    # log "render component: #{@className}"
+    log "render component: #{@className}" if artReactDebug
 
     ret = @render()
     throw new Error "#{@className}: render must return a VirtualNode. Got: #{inspect ret}" unless ret instanceof VirtualNode
