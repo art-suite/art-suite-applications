@@ -456,7 +456,7 @@ defineModule module, class Matrix extends AtomicBase
   #   new Rectangle min, max.sub min
   transformBoundingRect: (r, roundOut = false) ->
     r = rect r
-    return r if r.infinite || @isIdentity
+    return r if (r.infinite || @isIdentity) && !roundOut
 
     if @shx == 0 && @shy == 0 #float32Eq(@shx, 0) && float32Eq(@shy, 0)
       # faster (probably) in the special case where there is no skew or rotation
