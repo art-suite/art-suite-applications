@@ -31,6 +31,7 @@ isSimpleRectangle = (pathFunction, pathOptions) ->
   isPlainObject
   isString
   getEnv
+  array
 } = require 'art-standard-lib'
 
 {Binary, Browser} = require "art-foundation"
@@ -100,19 +101,20 @@ module.exports = class Bitmap extends BitmapBase
       # bitmap is a Canvas.Bitmap
       # file is a javascript File object
   ###
-  @requestImage: ->
-    Browser.File.request accept: "image/*"
-    .then ([file]) =>
-      EncodedImage.toImage file
-      .then (image)  => new Bitmap image
-      .then (bitmap) =>
+  @requestImage: (options) ->
+    {multiple} = options if options
+    Browser.File.request accept: "image/*", multiple: !!multiple
+    .then (files) =>
+      Promise.all array files, (file) ->
+        EncodedImage.toImage file
+        .then (image)  => new Bitmap image
+        .then (bitmap) => {bitmap, file, mimeType: file.type}
 
-        log ArtCanvasBitmap_requestImage:
-          size:     bitmap.size
-          tainted:  bitmap.tainted
-          type:     file.type
-
-        {bitmap, file, mimeType: file.type}
+      .then (processedFiles) ->
+          if multiple
+            processedFiles
+          else
+            processedFiles[0]
 
   initFromImage: (image) ->
     @_size = point image.naturalWidth || image.width, image.naturalHeight || image.height
