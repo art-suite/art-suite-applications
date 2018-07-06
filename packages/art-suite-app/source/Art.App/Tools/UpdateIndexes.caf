@@ -15,14 +15,18 @@ action: ({args:[pipelineName]}) ->
   else unless commands[command]
     &ArtAws.DynamoDb.singleton.getTableChanges pipeline.createTableParams
     .then ({GlobalSecondaryIndexes}) ->
-      {added, removed} = GlobalSecondaryIndexes
-      message: "Please select an option."
-      actionTaken: :none
-      option: merge
-        if 0 < objectKeyCount added
-          "#{pipelineName}-createIndexes": creates: added
-        if 0 < objectKeyCount removed
-          "#{pipelineName}-deleteIndexes": deletes: removed
+      if GlobalSecondaryIndexes
+        {added, removed} = GlobalSecondaryIndexes
+        message: "Please select an option."
+        actionTaken: :none
+        option: merge
+          if 0 < objectKeyCount added
+            "#{pipelineName}-createIndexes": creates: added
+          if 0 < objectKeyCount removed
+            "#{pipelineName}-deleteIndexes": deletes: removed
+      else {}
+        message: "There are indexes that need updating."
+        pipeline.createTableParams
 
   else unless confirm == "confirmed"
     &ArtAws.DynamoDb.singleton.getTableChanges pipeline.createTableParams
