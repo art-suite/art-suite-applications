@@ -1,4 +1,4 @@
-{defineModule, log} = require 'art-standard-lib'
+{timeout, defineModule, log} = require 'art-standard-lib'
 {point} = require 'art-atomic'
 
 defineModule module, ->
@@ -8,11 +8,14 @@ defineModule module, ->
       super
       @_pointerDownAt = point()
 
+    deadZone: 3
+
     @stateFields
       hover: false
       pointerIsDown:  false
       mouseIsIn:      false
       dragOffset:     point()
+      dragging:       false
 
     setHover: (bool) ->
       @setState "hover", bool
@@ -24,6 +27,14 @@ defineModule module, ->
     mouseOut:           -> @setState(mouseIsIn: false);     @setHover @pointerIsDown
     pointerDownHandler: -> @setState(pointerIsDown: true);  @setHover true
     pointerUp:          -> @setState(pointerIsDown: false); @setHover @mouseIsIn
+
+    pointerUpInsideHandler: (event) =>
+      event.target.capturePointerEvents()
+      if !@props.disabled
+        log.error "DEPRICATED: @doAction is no longer supported, use @action" if @doAction
+        (customAction ? @action ? @props.action)? event, @props
+      else
+        (@disabledAction ? @props.disabledAction)? event, @props
 
     @getter
       pointerDown: -> @pointerIsDown
@@ -38,39 +49,69 @@ defineModule module, ->
         pointerUp:        @pointerUp
         pointerCancel:    @pointerUp
         pointerOut:       @pointerUp
-        pointerUpInside:  (event) =>
-          event.target.capturePointerEvents()
-          if !@props.disabled
-            log.error "DEPRICATED: @doAction is no longer supported, use @action" if @doAction
-            (customAction ? @action ? @props.action)? event, @props
-          else
-            (@disabledAction ? @props.disabledAction)? event, @props
+        pointerUpInside:  @pointerUpInsideHandler
 
       pointerHandlers: -> @buttonHandlers
 
       hoverHandlers: -> {@mouseIn, @mouseOut}
 
       dragHandlers: ->
-        mouseIn:      @mouseIn
-        mouseOut:     @mouseOut
-        pointerDown:  @dragPointerDownHandler
-        pointerMove:  @dragPointerMoveHandler
-        pointerUp:    @dragPointerUpHandler
+        mouseIn:        @mouseIn
+        mouseOut:       @mouseOut
+        pointerDown:    @dragPointerDownHandler
+        pointerMove:    @dragPointerMoveHandler
+        pointerUp:      @dragPointerUpHandler
 
-    dragMove:   (event, dragDelta) ->
-    dragStart:  (event) ->
-    dragEnd:    (event, dragDelta) ->
+        pointerUpInside: (event) =>
+          unless @dragging
+            @pointerUpInsideHandler event
+
+        pointerCancel:  (event) =>
+          @pointerUp()
+          if @dragging then @dragCanceled event, @dragOffset
+          @dragging = false
 
     dragPointerDownHandler: (event) =>
+      @dragPrepare event
+      @pointerDownHandler event
       @pointerDownAt = event.parentLocation
-      @dragStart event
-      @pointerIsDown = true
-      @dragMove event, @dragOffset = point()
+      @dragOffset = point()
+      @_pointerDownKey = pdk = (@_pointerDownKey ? 0) + 1
+      event = event.clone()
+      timeout 1000, =>
+        if !@dragging && @pointerIsDown && @_pointerDownKey == pdk
+          @_drag event
+
+    _drag: (event) =>
+      @dragOffset = offset = event.parentLocation.sub @pointerDownAt
+
+      unless @dragging
+        @dragging = true
+        event.target?.capturePointerEvents?()
+        @dragStart event, offset
+
+      @dragMove event, offset
 
     dragPointerMoveHandler: (event) =>
-      @dragMove event, @dragOffset = event.parentLocation.sub @pointerDownAt
+      offset = event.parentLocation.sub @pointerDownAt
+      if @dragging || Math.max(Math.abs(offset.x), Math.abs(offset.y)) > @deadZone
+        @_drag event
 
     dragPointerUpHandler: (event) ->
-      @dragEnd event, event.parentLocation.sub @pointerDownAt
-      @dragOffset = point()
-      @pointerIsDown = false
+      @pointerDownHandler event
+      if @dragging then @dragEnd event, event.parentLocation.sub @pointerDownAt
+      @dragOffset     = point()
+      @dragging       = false
+      @pointerIsDown  = false
+
+    ###########
+    # overrides
+    ###########
+
+    # touch/button just started, may become a drag action
+    dragPrepare:  (event) ->
+
+    dragMove:     (event, dragOffset) ->
+    dragStart:    (event, dragOffset) ->
+    dragEnd:      (event, dragOffset) ->
+    dragCanceled: (event, dragOffset) ->
