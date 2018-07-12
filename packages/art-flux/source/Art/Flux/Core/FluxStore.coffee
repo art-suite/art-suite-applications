@@ -97,9 +97,9 @@ defineModule module, class FluxStore extends EpochClass
   ###
   put updates or creates the record
   updateFunctionOrNewFluxRecord: can be:
-    1) an arbitrary function: (oldRecord) -> newRecord
-      oldRecord will be null/undefined only if the record has not been created.
-      do not alter oldRecord
+    1) an arbitrary function: (oldFluxRecord) -> newFluxRecord
+      oldFluxRecord will be null/undefined only if the record has not been created.
+      do not alter oldFluxRecord
       must return a new Object or null/undefined (in which case an empty Object is created)
     2) a new Object to replace the existing object
 
