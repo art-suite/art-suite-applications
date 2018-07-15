@@ -114,7 +114,10 @@ module.exports =
 
   packColorMap: (colorMap) -> colorMap.join('').replace /#/g, ''
   unpackColorMap: unpackColorMap = (colorMap) ->
-    "##{c}" for c in colorMap.match /[0-9a-f]{6}/g
+    if isString colorMap
+      "##{c}" for c in colorMap.match /[0-9a-f]{6}/g
+    else
+      colorMap
 
 
   mipmapSize: mipmapSize = 64
