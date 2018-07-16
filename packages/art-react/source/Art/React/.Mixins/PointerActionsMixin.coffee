@@ -1,5 +1,6 @@
 {timeout, defineModule, log} = require 'art-standard-lib'
 {point} = require 'art-atomic'
+{isMobileBrowser} = (require 'art-foundation').Browser
 
 defineModule module, ->
   (superClass) -> class PointerActionsMixin extends superClass
@@ -94,7 +95,7 @@ defineModule module, ->
 
     dragPointerMoveHandler: (event) =>
       offset = event.parentLocation.sub @pointerDownAt
-      if @dragging || Math.max(Math.abs(offset.x), Math.abs(offset.y)) > @deadZone
+      if @dragging || (!isMobileBrowser() && Math.max(Math.abs(offset.x), Math.abs(offset.y)) > @deadZone)
         @_drag event
 
     dragPointerUpHandler: (event) ->
