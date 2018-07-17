@@ -6,11 +6,18 @@ defineModule module, ->
 
     # override this:
     poll: ->
-      log.warn "PollingComponentMixin: @poll() not overridden."
+
+    @getter
+      pollCount: -> @state.pollCount ? 0
+
+    @setter
+      pollCount: (v) -> @setState "pollCount", v
 
     componentWillMount: ->
       super
-      @poll()
-      @_interval = interval @getPollInterval() * 1000, => @poll()
+      @poll @pollCount ? 0
+      @_interval = interval @getPollInterval() * 1000, =>
+        @pollCount = pc = (@pollCount ? 0) + 1
+        @poll pc
 
     componentWillUnmount: -> @_interval.stop()
