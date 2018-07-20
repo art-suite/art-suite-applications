@@ -14,8 +14,11 @@ module.exports = [
   objectTreeFactoryOptions:
     mergePropsInto: (into, props) ->
       for k, v of props
-        into[k] = if k == "text" && isPlainArray(v) && isPlainArray oldValue = into[k]
-          oldValue.concat v
+        into[k] = if k == "text" && (oldValue = into[k])?
+          if isPlainArray oldValue
+            oldValue.concat v
+          else
+            [oldValue, v]
         else
           v
       into

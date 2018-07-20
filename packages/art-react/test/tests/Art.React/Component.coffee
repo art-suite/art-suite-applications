@@ -42,11 +42,14 @@ module.exports = suite:
     test "strings become text: string", ->
       MyFactory = createComponentFactory render: -> Element()
       c = MyFactory "foo"
-      assert.eq c.props, text: ["foo"]
+      assert.eq c.props, text: "foo"
 
     test "multiple strings", ->
       MyFactory = createComponentFactory render: -> Element()
-      c = MyFactory "foo", bar: 123, "bad"
+      c = MyFactory
+        bar: 123
+        "foo"
+        "bad"
       assert.eq c.props, text: ["foo", "bad"], bar: 123
 
   render: ->
