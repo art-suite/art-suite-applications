@@ -6,17 +6,17 @@ class App extends FluxComponent
   render: ->
     {pageDownEnabled, pageUpEnabled, loadDirection, startDarkJediId, loadedSlots} = @paginator
 
-    if find darkJedi in loadedSlots when darkJedi?.homeworld.id == @location.id
+    find darkJedi in loadedSlots when darkJedi?.homeworld.id == @location.id
       pageUpEnabled = pageDownEnabled = false
 
     Element
       size:       ww: 1 hch: 1 max: w: 800
       axis:       :centerCenter
-      location:   ps: :centerCenter
-      drawOrder:  appOutlineStyle
+      location:   :centerCenter
+      draw:       appOutlineStyle
 
       Element
-        size:             ww: 1 hch: 1
+        size:             :parentWidthChildrenHeight
         childrenLayout:   :column
         padding:          basePadding
         childrenMargins:  basePadding
@@ -24,12 +24,12 @@ class App extends FluxComponent
         &PlanetMonitor {} @location
 
         Element
-          size:             ww: 1 hch: 1
+          size:             :parentWidthChildrenHeight
           childrenLayout:   :row
           childrenMargins:  basePadding
 
           Element
-            size:             ww: 1 hch: 1
+            size:             :parentWidthChildrenHeight
             childrenLayout:   :column
             childrenMargins:  basePadding
             array darkJedi in loadedSlots

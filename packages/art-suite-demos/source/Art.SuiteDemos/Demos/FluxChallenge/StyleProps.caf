@@ -9,6 +9,7 @@ class StyleProps extends HotStyleProps
   @buttonColor: #69F0D2
 
   @baseTextStyle:
+    size: :parentWidthChildrenHeight
     fontFamily: "" Lucida Console, Monaco5, monospace
     fontSize: 26
 
@@ -39,8 +40,8 @@ class StyleProps extends HotStyleProps
 
   @buttonTextStyle: merge
     @baseTextStyle
-    location: ps: .5
-    axis:     .5
+    size:     :parentSize
+    align:    :centerCenter
     colorAndShadow @buttonColor
 
   @getButtonBackgoundColor: ({enabled, pointerIsDown, hover})->

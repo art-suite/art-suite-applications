@@ -40,6 +40,7 @@ class BackButton extends PointerActionsMixin Component
       size: cs: 1
       clip: true
       animators: size: toFrom: hch:1, w: 0
+      on: @buttonHandlers
 
       draw:
         color:      if hover then #999 else #555
@@ -53,7 +54,6 @@ class BackButton extends PointerActionsMixin Component
         cursor:   :pointer
         text:     :back
         padding:  10
-        on: @getButtonHandlers @props.back
 
 class Loader extends Component
 
@@ -78,7 +78,7 @@ class Loader extends Component
 
         if selectedDemo
           # TextElement textStyle, text: :hi
-          BackButton {@back}
+          BackButton action: @back
 
         TextElement
           textStyle

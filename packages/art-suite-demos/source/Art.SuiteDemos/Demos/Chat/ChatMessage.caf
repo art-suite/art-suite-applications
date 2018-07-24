@@ -31,13 +31,11 @@ class ChatMessage extends Component
             axis:     x:  1
             location: xw: 1
 
-          RectangleElement
-            inFlow: false
-            color:
-              if currentUsersMessage
-                palette.lightPrimaryBackground
-              else
-                palette.grayBackground
+          draw:
+            if currentUsersMessage
+              palette.lightPrimaryBackground
+            else
+              palette.grayBackground
 
           TextElement
             mediumText
@@ -47,6 +45,7 @@ class ChatMessage extends Component
 
         TextElement
           smallText
+          size:   :childrenSize
           text:   user
           margin: 5
           color:  palette.text.black.secondary

@@ -1,5 +1,11 @@
 import &ArtSuite
 
+mediumText =
+  fontFamily: :sans-serif
+  fontSize:   20
+  size:       :parentWidthChildrenHeight
+  color:      #fffa
+
 class LineButton extends PointerActionsMixin Component
   render: ->
     {color, text} = @props
@@ -15,12 +21,9 @@ class LineButton extends PointerActionsMixin Component
       on: @buttonHandlers
       cursor: :pointer
 
-      TextElement {}
-        fontFamily: :sans-serif
-        fontSize:   20
-        size:       :parentWidthChildrenHeight
-        color:      #fffa
-        text
+      TextElement
+        mediumText
+        text: text
 
 class MyComponent extends Component
 
@@ -47,7 +50,9 @@ class MyComponent extends Component
           padding:          10
           childrenLayout:   :column
           childrenMargins:  10
-          animate:          :childrenLayout  # this is the magic!
+          animate:          :childrenLayout  # this will be where the magic happens
+
+          TextElement mediumText, "WIP! 'animate: :childrenLayout' not supported yet..."
 
           array i in @lines
             LineButton

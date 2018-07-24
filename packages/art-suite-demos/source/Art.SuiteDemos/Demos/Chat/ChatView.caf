@@ -15,12 +15,12 @@ class ChatView extends FluxComponent
       padding: 10
       childrenLayout: :column
 
-      RectangleElement chatViewBackground, inFlow: false
+      draw: chatViewBackground
 
       Element
         size: ww:1, hch:1
 
-        RectangleElement color: palette.primaryBackground
+        draw: color: palette.primaryBackground
 
         TextElement titleText, padding: 10, text: currentUser
 
@@ -41,8 +41,7 @@ class ChatView extends FluxComponent
 
       Element
         size: ww: 1, h: 45
-
-        RectangleElement color: palette.grayBackground
+        draw: palette.grayBackground
 
         TextInputElement
           mediumText

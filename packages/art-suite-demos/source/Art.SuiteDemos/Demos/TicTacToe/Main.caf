@@ -1,4 +1,4 @@
-import &ArtSuite # 2 tokens       - 236 tokens in total
+import &ArtSuite # 2 tokens         >> 231 total tokens
 
 textStyle =                         # 10 tokens
   fontFamily: "" "Century Gothic", Futura, sans-serif
@@ -6,7 +6,7 @@ textStyle =                         # 10 tokens
   margin:     10
   size:       :childrenSize
 
-calculateWinner = (board) ->        # 62 tokens
+calculateWinner = (board) ->        # 60 tokens
   find [i1, i2, i3] in []
       0 1 2
       3 4 5
@@ -16,9 +16,10 @@ calculateWinner = (board) ->        # 62 tokens
       2 5 8
       0 4 8
       2 4 6
-    (v1 = board[i1]) == board[i2] && v1 == board[i3] && v1
+    v1 = board[i1]
+    && v1 == board[i2] && v1 == board[i3] # << can -2 with chain-equality tests: v1 == board[i2] == board[i3]
 
-class Square extends Component      # 30 tokens
+class Square extends Component      # 28 tokens
   render: ->
     Element
       size: 35
@@ -30,10 +31,10 @@ class Square extends Component      # 30 tokens
         fontSize:   18
         size:       :parentSize
         align:      :centerCenter
-        @props.squareContents
+        @props
 
-class TicTacToe extends Component   # 132 tokens
-  @stateFields turnNumber: 0 history: [] Array(9).fill null
+class TicTacToe extends Component     # 131 tokens
+  @stateFields turnNumber: 0 history: [] array til 9 with null
 
   play: (player, boardIndex) ->       # 28 tokens
     @history = arrayWith
@@ -48,11 +49,11 @@ class TicTacToe extends Component   # 132 tokens
       padding:          10
       childrenLayout:   :flow
 
-      array squareContents, boardIndex in board
-        Square {} squareContents, play: unless winner || squareContents
+      array text, boardIndex in board
+        Square {} text, play: unless winner || text
           -> @play player, boardIndex
 
-      TextElement
+      TextElement                     # << can -3 with interpolation blocks: "" Winner: #{} winner
         textStyle
         if winner then  "" Winner: #{winner}
         else            "" Next player: #{player}

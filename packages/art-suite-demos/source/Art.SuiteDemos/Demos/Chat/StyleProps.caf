@@ -22,9 +22,11 @@ class StyleProps extends HotStyleProps
 
   @titleText: merge
     @mediumText
+    size: :childrenSize
     color: @palette.text.white.primary
 
   @chatViewBackground:
+    "padded"
     color:  :white
     shadow:
       blur:     10

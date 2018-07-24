@@ -8,14 +8,14 @@ class Button extends PointerActionsMixin Component
     Element
       on:           @pointerHandlers
       opacity:      if enabled then 1 else .5
-      animators:    :opacity :drawOrder
+      animators:    :opacity :draw
       cursor:       enabled && :pointer
 
-      drawOrder:
-        rectangle:  radius: 1
-        color:      &StyleProps.getButtonBackgoundColor {enabled, @pointerIsDown, @hover}
-        outline:    &StyleProps.buttonOutlineStyle
+      draw:
+        radius:     1
+        color:      getButtonBackgoundColor {} enabled, @pointerIsDown, @hover
+        outline:    buttonOutlineStyle
 
       TextElement
-        &StyleProps.buttonTextStyle
-        text: if @props.up then :⥣ else :⥥
+        buttonTextStyle
+        if @props.up then :⥣ else :⥥

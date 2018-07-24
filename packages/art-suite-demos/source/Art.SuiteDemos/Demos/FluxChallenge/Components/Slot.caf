@@ -1,24 +1,22 @@
 import &StandardImport
 
 class Slot extends Component
+
   render: ->
-    {darkJedi, alert} = @props
+    @props extract darkJedi, alert
     slotTextStyleForAlert = getSlotTextStyle alert
 
     Element
-      size:       ww: 1 hch: 1
-      drawOrder:  slotOutlineStyle
+      size:           :parentWidthChildrenHeight
+      childrenLayout: :column
+      padding:        textPadding
+      draw:           slotOutlineStyle
 
-      Element
-        size: ww: 1 hch: 1
-        childrenLayout: :column
-        padding: textPadding
+      TextElement
+        slotTextStyleForAlert
+        darkJedi?.name
 
-        TextElement
-          slotTextStyleForAlert
-          text: darkJedi?.name || ''
-
-        TextElement
-          slotTextStyleForAlert
-          slotSmallTextStyle
-          text: darkJedi?.homeworld.name || ''
+      TextElement
+        slotTextStyleForAlert
+        slotSmallTextStyle
+        darkJedi?.homeworld.name

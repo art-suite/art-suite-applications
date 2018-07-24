@@ -3,9 +3,9 @@ import &StandardImport
 class PlanetMonitor extends Component
   render: ->
     Element
-      size:       ww: 1 hch: 1
-      drawOrder:  &StyleProps.planetMonitorBackgroundStyle
+      size:  :parentWidthChildrenHeight
+      draw:  planetMonitorBackgroundStyle
 
       TextElement
         planetMonitorTextStyle
-        text: @props.location?.name || :unknown
+        @props.location?.name || :unknown
