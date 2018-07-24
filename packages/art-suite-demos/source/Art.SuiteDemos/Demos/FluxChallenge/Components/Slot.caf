@@ -10,7 +10,7 @@ class Slot extends Component
       size:           :parentWidthChildrenHeight
       childrenLayout: :column
       padding:        textPadding
-      draw:           slotOutlineStyle
+      draw:           &StyleProps.slotOutlineStyle
 
       TextElement
         slotTextStyleForAlert

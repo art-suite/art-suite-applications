@@ -9,15 +9,15 @@ class StyleProps extends HotStyleProps
   @buttonColor: #69F0D2
 
   @baseTextStyle:
-    size: :parentWidthChildrenHeight
+    size:       :parentWidthChildrenHeight
     fontFamily: "" Lucida Console, Monaco5, monospace
-    fontSize: 26
+    fontSize:   26
 
   @backgroundStyle:
     colors: #1b3061 #192b55
 
   @appOutlineStyle:
-    rectangle: radius: 2
+    radius: 2
     outline: merge
       lineWidth: 3
       colorAndShadow #35769A
@@ -32,7 +32,7 @@ class StyleProps extends HotStyleProps
     padding: @textPadding
 
   @planetMonitorBackgroundStyle:
-    rectangle: radius: 2
+    radius: 2
     color: #2F5093
     outline: merge
       lineWidth: 5
@@ -50,7 +50,7 @@ class StyleProps extends HotStyleProps
     else #39697A
 
   @slotOutlineStyle:
-    rectangle: radius: 1
+    radius: 1
     outline: merge
       lineWidth: 5
       colorAndShadow #6af0d3
