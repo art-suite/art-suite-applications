@@ -1,2 +1,4 @@
-class ViewState extends &ArtSuite.ApplicationState
+import &ArtSuite
+
+class ViewState extends ApplicationState
   @stateFields completedTodosVisible: true

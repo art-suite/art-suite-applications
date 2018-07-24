@@ -17,11 +17,11 @@ class AddTodo extends FluxComponent
   render: ->
     &ButtonLine
       action: @value && @enter
-      text: "" new todo
+      "" new todo
 
       Element
         margin: 15
-        drawOrder:
+        draw:
           padding: -5
           rectangle: radius: 5
           :white
@@ -29,6 +29,6 @@ class AddTodo extends FluxComponent
         TextInputElement
           &StyleProps.text
           key:          :textInput
-          size:         ww: 1
+          size:         :parentWidthChildrenHeight
           placeholder:  "" add todo
           on:           {} @enter, @valueChanged

@@ -13,25 +13,25 @@ class Button extends PointerActionsMixin Component
     enabled = !disabled
 
     Element
-      size: ww:1, hch:1
+      size: :parentWidthChildrenHeight
       cursor: if enabled then "pointer" else null
       margin: StyleProps.standardSpacing
       opacity: if enabled then 1 else .5
       on: if enabled then @buttonHandlers else {}
       childrenLayout: :column
       childrenAlignment: :centerCenter
-      animators: :drawOrder
+      animators: :draw
 
-      drawOrder:
+      draw:
         color: if @pointerDown then #0004 else if @hover then #0002 else #0001
-        rectangle: radius: 3
+        radius: 3
 
       TextElement
         StyleProps.mediumText
-        size: ww:1, hch:1
-        padding: StyleProps.standardSpacing
-        align: "center"
-        text: text
+        size:     :parentWidthChildrenHeight
+        padding:  StyleProps.standardSpacing
+        align:    :center
+        text
 
 class Main extends Component
 
@@ -42,7 +42,7 @@ class Main extends Component
     backgroundColor:  defaultValue
 
   showParseError: (c) ->
-    @errorInfo = 'invalid color: #{c}'
+    @errorInfo = "" invalid color: #{c}
     timeout 1000, -> @errorInfo = null
 
   setColorFromString: (colorString) ->
@@ -57,38 +57,38 @@ class Main extends Component
 
   render: ->
     Element
-      drawOrder: "grey"
+      draw: "grey"
 
       Element
-        size: w:300, hch:1
-        location: ps: .5
-        axis: .5
+        size: w: 300 hch: 1
+        location: :centerCenter
+        axis:     :centerCenter
         childrenLayout: :column
 
-        drawOrder:
-          rectangle: radius: 5
-          fill:
-            color:  :white
-            shadow: offsetY: 5 blur: 5 color: #0007
+        draw:
+          radius: 5
+          color:  :white
+          shadow:
+            offsetY: 5
+            blur: 5
+            color: #0007
 
         Element
-          size: hch: 1 h: StyleProps.standardSpacing
-
-          drawOrder: #0001
+          size: :parentWidthChildrenHeight
+          draw: #0001
 
           TextElement
             StyleProps.mediumText
-            size: ww: 1 hch: 1
-            padding: 10
-            align: :center
-            text: "" Color Preview Form Demo
-            location: ps: .5
-            axis: .5
+            size:     :parentWidthChildrenHeight
+            padding:  StyleProps.standardSpacing
+            align:    :centerCenter
+            "" Color Preview Form Demo
 
         Element
           padding: StyleProps.standardSpacing
           size: hch: 1
           childrenLayout: :column
+          childrenMargins: StyleProps.standardSpacing
 
           TextElement
             StyleProps.mediumText
@@ -98,16 +98,17 @@ class Main extends Component
 
           Element
             size: ww: 1, h: 30
-            drawOrder:
+            draw:
               color: @backgroundColor
               shadow: offsetY: 5 blur: 5 color: #0007
-            animators: :drawOrder
+            animators: :draw
 
             Element
               clip: true
 
               TextElement
                 StyleProps.mediumText
+                size: :childrenSize
                 axis: .5
                 location: ps: .5
                 text: @backgroundColor.toString()
@@ -120,6 +121,7 @@ class Main extends Component
           Element
             margin: StyleProps.standardSpacing
             size: ww:1, h:40
+
             if @errorInfo?
               TextElement
                 StyleProps.mediumText
@@ -127,6 +129,7 @@ class Main extends Component
                 location: ps: .5
                 color: "red"
                 axis: point .5
+
             else
               TextInputElement
                 StyleProps.mediumText
@@ -144,17 +147,17 @@ class Main extends Component
                 RectangleElement color: rgbColor #0001
 
           Element
-            size: ww: 1 hch: 1
+            size: :parentWidthChildrenHeight
             childrenLayout: :row
 
             Button
-              text: :submit
-              size: hch:1, ww:1
+              size: :parentWidthChildrenHeight
               disabled: @currentValue.length == 0 || rgbColor(@currentValue).eq @backgroundColor
               action: -> @setColorFromString @currentValue
+              :submit
 
             Button
-              text: :reset
-              size: hch:1, ww:1
+              size: :parentWidthChildrenHeight
               disabled: rgbColor(:orange).eq @backgroundColor
               action: @resetColor
+              :reset

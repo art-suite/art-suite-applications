@@ -43,8 +43,7 @@ class LayoutDemoContainer extends Component
 
         Element
           clip: true
-
-          RectangleElement inFlow: false, color: veryDarkMuted
+          draw: veryDarkMuted
 
           Element
             padding: 10

@@ -7,21 +7,17 @@ class MyComponent extends Component
 
   render: ->
     Element
-
-      RectangleElement
-        color:      darkBackground
-
+      draw: darkBackground
+      padding: 10
+      childrenLayout: :column
       Element
-        padding: 10
-        childrenLayout: :column
-        Element
-          size: ww: 1 hch: 1
-          childrenLayout: :row
-          margin: 10
-          &Button text: "normal layout demo"  selected: !@childrenLayoutDemo, action: @toggleChildrenLayoutDemo, size: ww: 1 h: 50
-          &Button text: "childrenLayout demo" selected: @childrenLayoutDemo,  action: @toggleChildrenLayoutDemo, size: ww: 1 h: 50
+        size: ww: 1 hch: 1
+        childrenLayout: :row
+        margin: 10
+        &Button text: "normal layout demo"  selected: !@childrenLayoutDemo, action: @toggleChildrenLayoutDemo, size: ww: 1 h: 50
+        &Button text: "childrenLayout demo" selected: @childrenLayoutDemo,  action: @toggleChildrenLayoutDemo, size: ww: 1 h: 50
 
-        if @childrenLayoutDemo
-          &ChildrenLayoutDemo()
-        else
-          &BasicLayoutDemo()
+      if @childrenLayoutDemo
+        &ChildrenLayoutDemo()
+      else
+        &BasicLayoutDemo()

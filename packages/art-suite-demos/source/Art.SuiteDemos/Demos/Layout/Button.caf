@@ -13,17 +13,19 @@ class Button extends PointerActionsMixin Component
         axis: :bottomCenter
         location: hh: .5
 
-      RectangleElement
+      draw:
         color: color =
           if @pointerIsDown then vibrant
           else if @hover then darkVibrant
           else if @props.selected then vibrant
           else veryDarkMuted
-        animators: :color
         radius: 5
+
+      animators: :draw
 
       TextElement
         mediumText
+        size: :childrenSize
         fontSize: @props.fontSize || mediumText.fontSize
         location: ps: .5
         axis: :centerCenter

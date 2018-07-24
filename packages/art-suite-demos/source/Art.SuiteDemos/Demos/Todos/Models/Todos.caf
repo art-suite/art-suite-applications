@@ -3,9 +3,10 @@ import &ArtSuite
 class Todos extends ApplicationState
 
   addTodo: (description) ->
-    @setState
-      key = randomString()
-      {} description, key, completed: false
+    @setState {}
+      key: randomString()
+      completed: false
+      description
 
   toggleTodo: (key) ->
     @setState key, merge

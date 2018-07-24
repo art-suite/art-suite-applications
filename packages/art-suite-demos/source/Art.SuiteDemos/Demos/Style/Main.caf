@@ -50,20 +50,19 @@ class MyComponent extends PointerActionsMixin Component
       on: @buttonHandlers
       cursor: :pointer
 
-      RectangleElement
-        color:      if @pointerIsDown then :red else :pink
-        animators:  color: d: 1
+      draw: if @pointerIsDown then :red else :pink
+      animators: draw: d: 1
 
       Element
-        axis: :centerCenter
-        location: ps: :centerCenter
-        scale: if @pointerIsDown then 1.25 else 1
-        cacheDraw: true
-
-        animators: scale: d: 1
-        size: cs: 1
+        axis:       :centerCenter
+        location:   :centerCenter
+        scale:      if @pointerIsDown then 1.25 else 1
+        cacheDraw:  true
+        animators:  scale: d: 1
+        size:       :childrenSize
 
         TextElement
+          size:       :childrenSize
           color:      c1
           text:       :Yummy
           fontSize:   fontSize
@@ -87,12 +86,13 @@ class MyComponent extends PointerActionsMixin Component
             @renderEffect 2
 
           TextElement
-            location: ps: .5
-            axis: .5
+            size:       :childrenSize
+            location:   :centerCenter
+            axis:       :centerCenter
             fontFamily: "" AvenirNext-Bold, sans-serif
             fontWeight: :bold
             fontStyle:  :italic
             fontSize:   18
             layoutMode: :tight0
-            color: :white
-            text: "" breakfast for tummies
+            color:      :white
+            "" breakfast for tummies

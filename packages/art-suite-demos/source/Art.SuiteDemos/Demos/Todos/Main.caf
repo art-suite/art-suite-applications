@@ -4,9 +4,7 @@ class MyComponent extends Component
 
   render: ->
     Element
-
-      RectangleElement
-        color: :white
+      draw: :white
 
       Element
         padding: 5

@@ -30,22 +30,19 @@ class DemoElement extends Component
 
       layoutWeight: @weight
 
-      RectangleElement
-        inFlow: false
-        color: vibrant
-        padding: -10
+      draw: vibrant
 
       Button
         size: h: 50, ww: 1
-        text: if @fixedWidth then "w: 70" else "ww: 1"
         fontSize: 10
         action: @toggleFixedWidth
+        if @fixedWidth then "w: 70" else "ww: 1"
 
       !@fixedWidth && Button
         size: h: 50, ww: 1
-        text: "weight: #{@weight}"
         fontSize: 10
         action: @cycleWeight
+        "weight: #{@weight}"
 
 class ChildrenLayoutDemo extends Component
   @stateFields
@@ -56,6 +53,7 @@ class ChildrenLayoutDemo extends Component
       childrenLayout: :column
       TextElement
         mediumText
+        size: :childrenSize
         text:
           """
             childrenLayout: :row
@@ -65,7 +63,7 @@ class ChildrenLayoutDemo extends Component
 
       &LayoutDemoContainer
         buttonProps: (alignment) ->
-          text: "childrenAlignment:\n:#{alignment}"
+          text: "" childrenAlignment:\n:#{alignment}
 
         containerProps: (location) ->
           childrenLayout: :row

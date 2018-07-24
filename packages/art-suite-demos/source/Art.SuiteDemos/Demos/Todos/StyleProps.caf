@@ -1,5 +1,6 @@
+import &ArtSuite
 
-class StyleProps extends &ArtReact.HotStyleProps
+class StyleProps extends HotStyleProps
   @text:
     fontFamily:         :Arial
     fontSize:           18

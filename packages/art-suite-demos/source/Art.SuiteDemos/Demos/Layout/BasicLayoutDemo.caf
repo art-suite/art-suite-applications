@@ -39,18 +39,18 @@ class DemoElement extends Component
       size: w: 310, h: 190
       clip: true
 
-      RectangleElement
-        inFlow: false
-        color: vibrant
+      draw:
+        vibrant
 
-      RectangleElement
+      Element
         inFlow: false
         location: ps: @axis
         size: 80
-        radius: 40
-        axis: .5
+        axis: :centerCenter
         animators: :location
-        color: darkVibrant
+        draw:
+          radius: 40
+          darkVibrant
 
       Element
         padding: 10
