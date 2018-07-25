@@ -47,9 +47,9 @@ module.exports = class BitmapBase extends BaseClass
     @_pixelsPerPoint = 1
 
     BitmapBase.bitmapsCreated++
-    a = point a, b if b
+    a = point a, b if isNumber b
     if      isFunction a?.toMemoryBitmap then @populateClone @
-    else if isCanvas a              then @initFromCanvas a
+    else if isCanvas a              then @initFromCanvas a, b
     else if isImage a               then @initFromImage a
     else                                 @initNewCanvas point a, b
 
@@ -180,12 +180,12 @@ module.exports = class BitmapBase extends BaseClass
     @newBitmap area.size
     .drawBitmap Matrix.translateXY(-area.x, -area.y), @
 
-  initFromCanvas: (canvas) ->
+  initFromCanvas: (canvas, contextAttributes) ->
     @_canvas = canvas
     @_size = point @_canvas.width, @_canvas.height
     @logBitmapSize "initFromCanvas"
 
-    @initContext()
+    @initContext contextAttributes
 
   # log the current bitmap size if getEnv().debugBitmapSize is true
   # 2018-04-23: I'm trying to track down "aw snap" browser page crashes.

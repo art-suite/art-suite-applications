@@ -66,8 +66,10 @@ module.exports = class Bitmap extends BitmapBase
 
   @artToCanvasCompositeModeMap: canvasBlenders
 
-  initContext: ->
-    @_context = @_canvas?.getContext "2d"
+  initContext: (contextAttributes)->
+    if contextAttributes
+      log {contextAttributes}
+    @_context = @_canvas?.getContext "2d", contextAttributes
 
   @getter
     context: ->
