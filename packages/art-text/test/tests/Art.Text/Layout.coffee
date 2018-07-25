@@ -203,3 +203,25 @@ defineModule module, suite:
         layout2: layout2.toBitmap()
       assert.eq layout1.drawArea.h, layout2.drawArea.h
 
+  regressions: ->
+    test "empty text", ->
+      fontOptions =
+        fontFamily: "Times"
+        fontSize: 20
+        fontStyle: "normal"
+        fontVariant: "normal"
+        fontWeight: "normal"
+
+      layoutOptions =
+        align: top
+        layoutMode: "textualBaseline"
+        leading: 1.25
+        paragraphLeading: null
+        maxLines: null
+        overflow: "ellipsis"
+
+      layout = new Layout "|", fontOptions, layoutOptions, 100
+      assert.eq layout.getSize().y, 15, "baseline using text: '|'"
+
+      layout = new Layout "", fontOptions, layoutOptions, 100
+      assert.eq layout.getSize().y, 15, "actual using text: ''"
