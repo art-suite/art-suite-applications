@@ -106,11 +106,11 @@ defineModule module, ->
 
     # layoutMode can be 'textual' or 'textualBaseline'
     @wrap: (text, fontOptions, wordWrapWidth, fontCss, layoutMode = "textual") ->
-      return [@_getTextualFontMetrics("", fontOptions, 0, fontCss)] if text == "" # HACK FIX for blank lines
+      areaIncludesDescender = layoutMode == "textual"
+
+      return [@_getTextualFontMetrics("", fontOptions, 0, fontCss, areaIncludesDescender)] if text == "" # HACK FIX for blank lines
 
       wordWrapWidth = 0 if wordWrapWidth < 0
-
-      areaIncludesDescender = layoutMode == "textual"
 
       context = @getScratchCanvasBitmap().context
       context.font = fontCss
