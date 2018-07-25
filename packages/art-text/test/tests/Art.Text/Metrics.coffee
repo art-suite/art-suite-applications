@@ -8,22 +8,27 @@ Atomic = require 'art-atomic'
 {Metrics} = Text
 
 longText = "Quickly the brown fox jumps over the lazy dog."
+testFontMetrics = ({text, fontOptions, tightShouldBe, tight0ShouldBe, textualShouldBe, drawAreaShouldBe, textualBaselineShouldBe})->
 
-testFontMetrics = (metaOptions)->
-  text = metaOptions.text
-  fontOptions = metaOptions.fontOptions
+  if tightShouldBe
+    assert.selectedEq tightShouldBe, Metrics.get text, fontOptions, "tight"
 
-  if tightShouldBe = metaOptions.tightShouldBe
-    assert.eq selectAll(Metrics.get(text, fontOptions, "tight"), Object.keys tightShouldBe), tightShouldBe
+  if tight0ShouldBe
+    assert.selectedEq tight0ShouldBe, Metrics.get text, fontOptions, "tight0"
 
-  if tight0ShouldBe = metaOptions.tight0ShouldBe
-    assert.eq selectAll(Metrics.get(text, fontOptions, "tight0"), Object.keys tight0ShouldBe), tight0ShouldBe
+  if textualShouldBe
+    assert.selectedEq textualShouldBe, Metrics.get text, fontOptions, "textual"
 
-  if textualShouldBe = metaOptions.textualShouldBe
-    assert.eq selectAll(Metrics.get(text, fontOptions, "textual"), Object.keys textualShouldBe), textualShouldBe
+  if textualBaselineShouldBe
+    assert.selectedEq textualShouldBe, Metrics.get text, fontOptions, "textualBaseline"
 
-  if drawAreaShouldBe = metaOptions.drawAreaShouldBe
-    assert.eq Metrics.get(text, fontOptions, "textual").drawArea, drawAreaShouldBe
+  if drawAreaShouldBe
+    assert.selectedEq drawAreaShouldBe, Metrics.get text, fontOptions, "textual"
+
+testLayoutModeMetrics = (optionsAndTests) ->
+  {text, fontOptions} = optionsAndTests
+  for layoutMode, shouldBe of optionsAndTests when !/^(text|fontOptions)$/.test layoutMode
+    assert.selectedEq shouldBe, Metrics.get text, fontOptions, layoutMode
 
 # loadGoogleFont = (fontFamily, done) ->
 #   googleFontLoader.load fontFamily, ->
@@ -121,9 +126,10 @@ suite "Art.Text.Metrics", ->
 
     assert.throws ->
       testFontMetrics
-        text:multiLineText
-        fontOptions: fontFamily:"Times New Roman", fontSize:"24"
-        testMetrics text, fontOptions, "tight", area: rect(1, -17, 461, 22), ascender: 18, descender: 4
+        text:         multiLineText
+        fontOptions:  fontFamily:"Times New Roman", fontSize:"24"
+
+      testMetrics   text, fontOptions, "tight", area: rect(1, -17, 461, 22), ascender: 18, descender: 4
 
   # test "exotic Fonts - Nosifer", (done)->
   #   loadGoogleFont "Nosifer", ->
@@ -245,3 +251,21 @@ suite "Art.Text.Metrics", ->
   testWrap 0,  "Well now.",                                       ["W", "e", "l", "l", "n", "o", "w", "."], 16
   testWrap 0,  "  now",                                           [" ", " ", "n", "o", "w"], 12
   testWrap -140,  "  now",                                           [" ", " ", "n", "o", "w"], 12
+
+  test "empty-string metrics", ->
+    fontOptions = {}
+    Metrics.normalizeFontOptions fontOptions
+
+    testLayoutModeMetrics
+      text:               ""
+      fontOptions:        fontOptions
+      tight:              layoutH: 0, layoutW: 0
+      textual:            layoutH: 16, layoutW: 0
+      textualBaseline:    layoutH: 12, layoutW: 0
+
+    # baseline comparison
+    testLayoutModeMetrics
+      text:               "|"
+      fontOptions:        fontOptions
+      textual:            layoutH: 16
+      textualBaseline:    layoutH: 12
