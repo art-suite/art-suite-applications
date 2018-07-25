@@ -21,7 +21,7 @@ class App extends FluxComponent
         padding:          basePadding
         childrenMargins:  basePadding
 
-        &PlanetMonitor {} @location
+        &YodasCurrentPlanet {} @location
 
         Element
           size:             :parentWidthChildrenHeight
@@ -33,7 +33,7 @@ class App extends FluxComponent
             childrenLayout:   :column
             childrenMargins:  basePadding
             array darkJedi in loadedSlots
-              &Slot {} darkJedi, alert: darkJedi?.homeworld.id == @location?.id
+              &ListItem {} darkJedi, alert: darkJedi?.homeworld.id == @location?.id
 
           Element
             size:             w: 100 hh: 1

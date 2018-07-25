@@ -1,6 +1,6 @@
 import &StandardImport
 
-class PlanetMonitor extends Component
+class YodasCurrentPlanet extends Component
   render: ->
     Element
       size:  :parentWidthChildrenHeight

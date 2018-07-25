@@ -4,7 +4,7 @@
 module.exports = require './namespace'
 module.exports
 .addModules
-  App:           require './App'          
-  Button:        require './Button'       
-  PlanetMonitor: require './PlanetMonitor'
-  Slot:          require './Slot'         
+  App:                require './App'               
+  Button:             require './Button'            
+  ListItem:           require './ListItem'          
+  YodasCurrentPlanet: require './YodasCurrentPlanet'
