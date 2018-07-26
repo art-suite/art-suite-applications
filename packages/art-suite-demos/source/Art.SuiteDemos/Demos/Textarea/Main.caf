@@ -22,6 +22,7 @@ class Main extends Component
             #dfd
             outline: #0002
           TextElement
+            size: :childrenSize
             fontFamily: "Monaco, Courier New"
             """
               TextInputElement
