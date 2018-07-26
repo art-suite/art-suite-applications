@@ -1,6 +1,4 @@
-import &ArtSuite
-
-Demos = &Demos
+import &ArtSuite, {} &Demos
 
 textStyle =
   fontFamily: :Helvetica
@@ -9,48 +7,39 @@ textStyle =
 
 class DemoButton extends PointerActionsMixin Component
 
-  action: ->
-    @props.setSelectedDemo @props.name
-
   render: ->
-    {pointerIsDown, hover} = @state
-    {name} = @props
-
     Element
-      size: "parentWidthChildrenHeight"
-
-      draw: if hover then #fff else #fff0
+      on:         @buttonHandlers
+      size:       :parentWidthChildrenHeight
       animators:  :draw
       cursor:     :pointer
-      on:         @buttonHandlers
+      draw:       if @hover then #fff else #fff0
 
       TextElement
         textStyle
-        size:     "parentWidthChildrenHeight"
+        size:     :parentWidthChildrenHeight
         color:    #0007
-        text:     name
         padding:  10
+        @props.name
 
 class BackButton extends PointerActionsMixin Component
 
   render: ->
-    {pointerIsDown, hover} = @state
-    {name} = @props
     Element
-      size: cs: 1
-      clip: true
-      animators: size: toFrom: hch:1, w: 0
-      on: @buttonHandlers
+      on:         @buttonHandlers
+      size:       :childrenSize
+      clip:       true
+      animators:  size: toFrom: hch: 1 w: 0
 
       draw:
-        color:      if hover then #999 else #555
+        color:      if @hover then #999 else #555
         radius:     5
 
       animators:  :draw
 
       TextElement
         textStyle
-        size:     "childrenSize"
+        size:     :childrenSize
         cursor:   :pointer
         text:     :back
         padding:  10
@@ -59,53 +48,47 @@ class Loader extends Component
 
   @stateFields selectedDemo: if Demos[getEnv().demo]? then getEnv().demo else null
 
-  back: -> @selectedDemo = null
-
   render: ->
-    {selectedDemo} = @state
-
-    # selectedDemo = null
+    {selectedDemo} = @
 
     Element
       childrenLayout: :column
 
       Element
-        size: ww:1, h:50
-        childrenLayout: :row
-        childrenAlignment: :centerLeft
-        RectangleElement inFlow: false color: #333 padding: -10
-        padding: 10
+        size:               ww: 1 h: 50
+        childrenLayout:     :row
+        childrenAlignment:  :centerLeft
+        draw:               #333
+        padding:            10
 
-        if selectedDemo
-          # TextElement textStyle, text: :hi
-          BackButton action: @back
+        BackButton action: @clearSelectedDemo if selectedDemo
 
         TextElement
           textStyle
-          align: "centerLeft"
+          align:    :centerLeft
           fontSize: 20
           margin:   10
           text:     selectedDemo || "" Art Suite Demos
 
-      # if false
       Element
         clip: true
         draw: :white
+
         if selectedDemo
           Element
-            key: "" demo-#{selectedDemo}
-            clip: true
-            animators: axis: toFrom: point -1, 0
+            key:        "" demo-#{selectedDemo}
+            clip:       true
+            animators:  axis: toFrom: point -1 0
 
             Demos[selectedDemo].Main()
+
         else
-
           ScrollElement
-            key: :select-demo
+            key:            :select-demo
             childrenLayout: :column
-            animators: axis: toFrom: :topRight
+            animators:      axis: toFrom: :topRight
+            draw:           :#eee
 
-            RectangleElement inFlow: false, color: :#eee
             array name in Demos.getNamespaceNames()
-              DemoButton {name, @setSelectedDemo}
+              DemoButton {} name, action: -> @setSelectedDemo name
 
