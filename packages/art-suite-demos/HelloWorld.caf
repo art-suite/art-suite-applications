@@ -3,14 +3,9 @@ import &ArtSuite
 initArtSuiteApp MainComponent: class MyHelloWorldComponent extends Component
 
   render: ->
-    # The top-most Element, and only the top-most Element, should be a CanvasElement.
     CanvasElement
+      draw: #eef
 
-      # background color
-      RectangleElement
-        color: #eef #bbf #ccf
-
-      # show some text
       TextElement
         padding: 10
-        text: "" Hello, world!
+        "" Hello, world!

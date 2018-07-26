@@ -90,7 +90,7 @@ class Loader extends Component
       # if false
       Element
         clip: true
-        RectangleElement color: :white
+        draw: :white
         if selectedDemo
           Element
             key: "" demo-#{selectedDemo}
