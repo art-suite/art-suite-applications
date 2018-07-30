@@ -9,6 +9,7 @@ FluxCore = require '../Core'
   formattedInspect
   eq
   neq
+  getEnv
 } = require 'art-standard-lib'
 {FluxStore, FluxModel} = FluxCore
 {fluxStore} = FluxStore
@@ -182,7 +183,7 @@ defineModule module, class ApplicationState extends StateFieldsMixin FluxModel
   postProcessLoadedState: (state) -> state
 
   _loadFromLocalStorage: ->
-    if @class._persistant
+    if @class._persistant && !getEnv().resetAppState
       Promise.then => jsonStore.getItem @localStorageKey
       .then (loadedState) =>
         loadedState = @postProcessLoadedState loadedState
