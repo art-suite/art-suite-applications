@@ -380,7 +380,7 @@ module.exports = class Bitmap extends BitmapBase
     bitmap = bitmap._canvas || bitmap._htmlImageElement || bitmap
     inputBitmapSize = inputBitmap.size || point inputBitmap.width, inputBitmap.height
 
-    drawed = ""
+    # drawed = ""
 
     if @shouldPixelSnap where
       {x, y, w, h} = @pixelSnapAndTransformRectangle where, sourceArea?.size || inputBitmapSize
@@ -396,7 +396,7 @@ module.exports = class Bitmap extends BitmapBase
         sh = inputBitmapSize.y
 
       if @_setupDraw null, options
-        drawed = "pixelSnap - #{inspect [sx, sy, sw, sh]}"
+        # drawed = "pixelSnap - #{inspect [sx, sy, sw, sh]}"
         aboutToDrawTime = currentSecond()
         @_context.drawImage(
           bitmap
@@ -408,7 +408,7 @@ module.exports = class Bitmap extends BitmapBase
       if @_setupDraw where, options
         aboutToDrawTime = currentSecond()
         if origSourceArea = sourceArea
-          drawed = "sourceArea"
+          # drawed = "sourceArea"
           {x, y, w, h} = sourceArea.intersection rect inputBitmap.size # chrome doesn't seem to need this, but FF does
           @_context.drawImage(
             bitmap,
@@ -416,7 +416,7 @@ module.exports = class Bitmap extends BitmapBase
             0, 0, w, h
           )
         else
-          drawed = "other"
+          # drawed = "other"
           @_context.drawImage bitmap, 0, 0
 
         @_cleanupDraw options
@@ -430,7 +430,7 @@ module.exports = class Bitmap extends BitmapBase
         time2: "#{(endTime - aboutToDrawTime) * 1000 | 0}ms"
         where: where
         options: options
-        drawed: drawed
+        # drawed: drawed
         bitmapSize: [bitmap._size, bitmap.width, bitmap.height]
 
     @
