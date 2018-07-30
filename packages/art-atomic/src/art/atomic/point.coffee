@@ -287,13 +287,13 @@ module.exports = class Point extends AtomicBase
   ##################
   # Named Instances
   ##################
-  point0       = Object.freeze new Point 0
-  point1       = Object.freeze new Point 1
-  topRight     = Object.freeze new Point 1  ,  0
-  topCenter    = Object.freeze new Point 0.5,  0
-  centerLeft   = Object.freeze new Point 0  ,  0.5
-  centerCenter = Object.freeze new Point 0.5
-  bottomLeft   = Object.freeze new Point 0  ,  1
+  point0       = (new Point 0).freeze()
+  point1       = (new Point 1).freeze()
+  topRight     = (new Point 1  ,  0).freeze()
+  topCenter    = (new Point 0.5,  0).freeze()
+  centerLeft   = (new Point 0  ,  0.5).freeze()
+  centerCenter = (new Point 0.5).freeze()
+  bottomLeft   = (new Point 0  ,  1).freeze()
   @namedPoints: namedPoints =
     point0:                 point0
     point1:                 point1
@@ -302,11 +302,11 @@ module.exports = class Point extends AtomicBase
     topRight:               topRight
     centerLeft:             centerLeft
     centerCenter:           centerCenter
-    centerRight:            Object.freeze new Point 1  ,  0.5
+    centerRight:            (new Point 1  ,  0.5).freeze()
     bottomLeft:             bottomLeft
-    bottomCenter:           Object.freeze new Point 0.5,  1
+    bottomCenter:           (new Point 0.5,  1).freeze()
     bottomRight:            point1
-    pointNearInfinity:      Object.freeze new Point nearInfinity
+    pointNearInfinity:      (new Point nearInfinity).freeze()
     # provided for layout alignment options
     # top & left are the default for the unspecified coordinates
     left:                   point0

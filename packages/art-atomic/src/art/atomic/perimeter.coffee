@@ -103,7 +103,7 @@ module.exports = class Perimeter extends AtomicBase
   Named Instances
   ###
   @namedPerimeters: namedPerimeters =
-    perimeter0: perimeter0 = Object.freeze new Perimeter 0
+    perimeter0: perimeter0 = (new Perimeter 0).freeze()
 
   for k, v of @namedPerimeters
     @[k] = v

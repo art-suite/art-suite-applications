@@ -277,8 +277,8 @@ module.exports = class Rectangle extends AtomicBase
     @with @x - x, @y - y, @w + 2 * x, @h + 2 * y
 
   # Common instances
-  @nothing:     Object.freeze new Rectangle 0, 0, 0, 0
-  @everything:  Object.freeze new Rectangle 0, 0, Infinity, Infinity
+  @nothing:     (new Rectangle 0, 0, 0, 0).freeze()
+  @everything:  (new Rectangle 0, 0, Infinity, Infinity).freeze()
 
   withRect: (a,b,c,d) -> @with a,b,c,d
 
