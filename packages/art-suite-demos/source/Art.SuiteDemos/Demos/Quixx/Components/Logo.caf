@@ -9,6 +9,7 @@ class Logo extends Component
       drawOrder: to: :bottomLeft colors: #002 #369
 
       TextElement
+        size: "childrenSize"
         text:       :Qwixx
         location:   ps: .5
         axis:       .5

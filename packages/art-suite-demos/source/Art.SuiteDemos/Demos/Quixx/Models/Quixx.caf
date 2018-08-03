@@ -35,9 +35,9 @@ class Quixx extends ApplicationState
 
     board:
       red:    false false false false false false false false false false false false
+      yellow: false false false false false false false false false false false false
       green:  false false false false false false false false false false false false
       blue:   false false false false false false false false false false false false
-      yellow: false false false false false false false false false false false false
       grey:   false false false false
 
   toggleCheckbox: (color, index) ->
