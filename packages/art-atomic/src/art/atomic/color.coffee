@@ -509,7 +509,7 @@ module.exports = class Color extends AtomicBase
 
   @getter
     plainObjects: -> if @a < 1 then @rgbaHexString else @hexString
-    inspectedObjectInitializer: -> "'#{@autoRgbaHexString}1'"
+    inspectedObjectInitializer: -> "'#{@autoRgbaHexString}'"
 
   # vivafy HSL on request
   @getter

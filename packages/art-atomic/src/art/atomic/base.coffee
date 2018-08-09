@@ -90,20 +90,25 @@ module.exports = class Base extends BaseObject
     plainObjects: -> @toObject()
     inspectedObjects: -> inspectedObjectLiteral @inspectedObjectString
     inspectedObjectString: ->
-      value = @inspectedObjectStringRaw
-      @class.getNamedValuesByValue()[value] ? value
+      value = @inspectedObjectInitializer
 
-    inspectedObjectStringRaw: ->
-      @class.getConstructorFunctionName() + "(#{@inspectedObjectInitializer})"
+      c = @class.getConstructorFunctionName()
+      c += "(#{value})"
+      if name = @class.getNamedValuesByValue()[value]
+        c += " '#{name}'"
+      c
 
     inspectedObjectInitializer: -> @toArray().join ', '
     array: -> @toArray()
 
   @namedValues: {}
   @getNamedValuesByValue: ->
-    @_namedValuesByValue ?= object @namedValues,
-      key: (v) -> v.inspectedObjectStringRaw
-      with: (v, k) -> k
+    return @_namedValuesByValue if @_namedValuesByValue?
+    @_namedValuesByValue = {}
+    for k,v of @namedValues
+      key = v.inspectedObjectInitializer
+      @_namedValuesByValue[key] ?= k
+    @_namedValuesByValue
 
   toPlainStructure: -> @getPlainObjects()
   toPlainEvalString: -> inspect @getPlainObjects()
