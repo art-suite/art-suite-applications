@@ -214,27 +214,40 @@ module.exports = class GradientFillStyle extends Foundation.BaseObject
 
   toCanvasStyle: (context)->
     context = context.context if context.context
+    gradientFrom = @from
+    gradientTo = @to
     gradient = if @radius1?
-      if @radius2?
+      if @radius1 == true
+        ###
+        SBD style!
+        There is no need for radius1 and radius 2. Let the colorstops
+        handle that. All we need is a radial gradient that goes from the
+        from-location to the to-location.
+        ###
+        gradientTo = gradientFrom
+        radius1 = 0
+        radius2 = @to.sub(@from).magnitude
+
+      else if @radius2?
         {radius1, radius2} = @
       else
         radius1 = 0
         radius2 = @radius1
 
       context.createRadialGradient(
-        @from.x
-        @from.y
+        gradientFrom.x
+        gradientFrom.y
         radius1
-        @to.x
-        @to.y
+        gradientTo.x
+        gradientTo.y
         radius2
       )
     else
       context.createLinearGradient(
-        @from.x
-        @from.y
-        @to.x
-        @to.y
+        gradientFrom.x
+        gradientFrom.y
+        gradientTo.x
+        gradientTo.y
       )
     for clr in @_colors
       n = bound 0, clr.n, 1

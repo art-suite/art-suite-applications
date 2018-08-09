@@ -508,16 +508,32 @@ module.exports = class Bitmap extends BitmapBase
       if colors.constructor == GradientFillStyle
         colors
       else
-        fromPoint = options.from || point0
-        gradientRadius1 = options.gradientRadius1 || options.gradientRadius
-        toPoint = options.to || if gradientRadius1? then fromPoint else @size
-        new GradientFillStyle(
-          fromPoint
-          toPoint
-          options.colors
-          gradientRadius1
-          options.gradientRadius2
-        )
+        fromPoint = options.from ? point0
+        toPoint = options.to ? @size
+
+        {radial, gradientRadius, gradientRadius1, gradientRadius2} = options
+
+        if radial
+          new GradientFillStyle(
+            fromPoint
+            toPoint
+            options.colors
+            true
+          )
+
+        else
+          gradientRadius1 ?= gradientRadius
+          if gradientRadius1? && !gradientRadius2?
+            gradientRadius2 = gradientRadius1
+            gradientRadius1 = 0
+
+          new GradientFillStyle(
+            fromPoint
+            toPoint
+            options.colors
+            gradientRadius1
+            gradientRadius2
+          )
     else
       options.fillStyle || options.color || @defaultColorString
 
