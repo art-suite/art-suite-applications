@@ -134,6 +134,8 @@ module.exports = class Point extends AtomicBase
     bottomLeft:   -> @mul 0  ,  1
     bottomCenter: -> @mul 0.5,  1
     bottomRight:  -> @
+    isFinite:     -> isFinite(@x) && isFinite(@y)
+    isInfinite:   -> !@isFinite
 
     w: -> @x
     width: -> @x
