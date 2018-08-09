@@ -1,7 +1,7 @@
 {Promise, timeout, log, formattedInspect, BaseObject, decapitalize, isClass, inspect, defineModule} = require "art-foundation"
 
 defineModule module, class ModelRegistry extends BaseObject
-  @models: models = {}
+  @models: global.artFluxModels = models = {}
   @_modelRegistrationPromiseResolvers: {}
 
   _registerModel = (name, model) ->
