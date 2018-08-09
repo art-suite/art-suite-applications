@@ -344,7 +344,7 @@ module.exports = class Bitmap extends BitmapBase
       if radius > 0 || isPlainObject radius
         _context.beginPath()
         roundedRectanglePath _context, r, radius
-        _context.fill fillRule || "nonzero"
+        _context.fill fillRule || "evenodd"
 
       else
         _context.fillRect r.x, r.y, r.w, r.h
@@ -364,7 +364,7 @@ module.exports = class Bitmap extends BitmapBase
       else
         _context.beginPath()
         pathFunction _context, pathArea, pathOptions
-        _context.fill options.fillRule || "nonzero"
+        _context.fill options.fillRule || "evenodd"
       @_cleanupDraw options
     @
 
