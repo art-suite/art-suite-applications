@@ -22,28 +22,6 @@ class DemoButton extends PointerActionsMixin Component
         padding:  10
         @props.name
 
-class BackButton extends PointerActionsMixin Component
-
-  render: ->
-    Element
-      on:         @buttonHandlers
-      size:       :childrenSize
-      clip:       true
-      animators:  size: toFrom: hch: 1 w: 0
-
-      draw:
-        color:      if @hover then #999 else #555
-        radius:     5
-
-      animators:  :draw
-
-      TextElement
-        textStyle
-        size:     :childrenSize
-        cursor:   :pointer
-        text:     :back
-        padding:  10
-
 class Loader extends Component
 
   @stateFields selectedDemo: if Demos[getEnv().demo]? then getEnv().demo else null
@@ -61,7 +39,7 @@ class Loader extends Component
         draw:               #333
         padding:            10
 
-        BackButton action: @clearSelectedDemo if selectedDemo
+        &Button text: :back action: @clearSelectedDemo if selectedDemo
 
         TextElement
           textStyle

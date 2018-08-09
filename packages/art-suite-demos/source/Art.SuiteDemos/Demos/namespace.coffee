@@ -16,6 +16,7 @@ require './FluxChallenge/namespace';
 require './Form/namespace';
 require './Gestures/namespace';
 require './Layout/namespace';
+require './MotivationalPoster/namespace';
 require './Physics/namespace';
 require './Quixx/namespace';
 require './ScrollingElement/namespace';

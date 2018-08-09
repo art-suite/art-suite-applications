@@ -1,0 +1,26 @@
+import &StandardImport, &DemoTextStyles
+
+class Button extends PointerActionsMixin Component
+
+  render: ->
+    {text} = @props
+
+    Element
+      on:         @buttonHandlers
+      size:       :childrenSize
+      clip:       true
+      animators:  size: toFrom: hch: 1 w: 0
+
+      draw:
+        color:      if @hover then #999 else #555
+        radius:     5
+
+      animators:  :draw
+
+      TextElement
+        mediumText
+        size:     :childrenSize
+        cursor:   :pointer
+        padding:  10
+        color:    #fffd
+        text

@@ -1,0 +1,166 @@
+import &ArtSuite
+
+class MyComponent extends Component
+
+  randomQuote = -> randomElement &Quotes
+  randomGroups = (text, dropPunctuation) ->
+    unless sentances = text.match /[^\.!;\?,]+($|[\.!;\?,])+/g
+      sentances = [text]
+
+    groups = []
+    each sentance in sentances
+      sentance = sentance.replace /[\.!;\?,]$/, '' if dropPunctuation
+      words = sentance.split /\s+/g
+      pos = 0
+
+      while pos < words.length
+        next = pos + 1 + intRand 5
+        groups.push words.slice pos, next
+        pos = next
+    groups
+
+  randomFontFamily = ->
+    randomElement []
+      "Arial Black"
+      "Times New Roman"
+      "Baskerville, Arial"
+      "Chalkduster"
+      "Copperplate"
+
+  randomize = -> {}
+    text = randomQuote()
+    dropPunctuation = true
+    invertLines     = true
+    allCaps         = 10
+    tight           = true
+    groups          = randomGroups text, dropPunctuation
+    fontFamily      = randomFontFamily()
+    inverts = array i til groups.length
+      0 == intRand 2
+
+  @stateFields merge
+    history: []
+    historyPos: null
+    # randomize()
+    text: "design is so simple, that is why it is so complicated"
+    dropPunctuation: true
+    invertLines: true
+    allCaps: 10
+    tight: true
+    groups:
+      []
+        "design"
+        "is"
+        "so"
+        "simple"
+      # [] ""
+      []
+        "that"
+        "is"
+        "why"
+        "it"
+        "is"
+        "so"
+        "complicated"
+
+    fontFamily: "Arial Black"
+    inverts:
+      false
+      true
+      false
+      false
+      true
+      true
+      false
+
+  randomize: ->
+    @history = arrayWith @history, objectWithout @state, :history
+    @historyPos = null
+    @setState randomize()
+
+  previous: ->
+    {historyPos} = @
+    historyPos ?= @history.length
+    @historyPos = max 0, historyPos - 1
+
+  next: ->
+    if @historyPos?
+      {historyPos = @history.length} = @
+      @historyPos = min @historyPos + 1, @history.length
+
+  @getter
+    haveNext: ->
+      @historyPos >= 0 && @historyPos < @history.length
+    havePrev: ->
+      !@historyPos || @historyPos > 0
+
+    current: ->
+      @history[@historyPos] ? @state
+
+  renderText: (text) ->
+    {invertLines, inverts, allCaps, dropPunctuation, tight, fontFamily, groups} = @current
+    tight = false if invertLines
+
+    lastLineInverted = false
+
+    Element
+      childrenLayout: "column"
+      childrenMargins: 20
+      size: w: 400, hch: 1
+      padding: 20
+      # elementToParentMatrix: matrix 1 1 0 -1/3, 0 0
+      draw:
+        {} outline: lineWidth: 20 lineJoin: :round
+        {} fill: "white"
+
+      array group, i in groups
+        invert = inverts[i]
+        invert = false if lastLineInverted
+        lastLineInverted = invert
+        text = group.join ' '
+        if present text
+          if allCaps == true || text.length <= allCaps
+            text = upperCase text
+
+          Element
+            size: "childrenSize"
+            draw: if invert then "black" # else "orange"
+            padding: if invert then 20
+            TextElement {}
+              size: "childrenSize"
+              layoutMode: "tight0"
+              fontSize: 64
+              fontFamily
+              text
+              scale: (ps, cs) -> ps.x / cs.x
+              color: if invert then "white"
+
+  action: ->
+    @text = randomQuote()
+
+  render: ->
+    # log current: objectWithout @current, "history"
+    Element
+      on:         @buttonHandlers
+      cursor:     :pointer
+      Element
+        padding: 10
+        childrenLayout: :row
+        childrenMargins: 10
+        &Button
+          text: "randomize"
+          action: @randomize
+        &Button
+          text: "previous"
+          action: @havePrev && @previous
+        &Button
+          text: "next"
+          action: @haveNext && @next
+        TextElement
+          text: @historyPos ? @history.length
+
+      Element
+        size:     "childrenSize"
+        location: "centerCenter"
+        axis:     "centerCenter"
+        @renderText @text

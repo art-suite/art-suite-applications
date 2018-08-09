@@ -4,6 +4,7 @@
 module.exports = require './namespace'
 module.exports
 .addModules
+  Button:         require './Button'        
   DemoPalette:    require './DemoPalette'   
   DemoTextStyles: require './DemoTextStyles'
   Loader:         require './Loader'        
