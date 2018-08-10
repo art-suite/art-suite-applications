@@ -1,0 +1,63 @@
+import &ArtSuite
+
+colorMatrix = require './ColorMatrix'
+
+class MyComponent extends Component
+
+  @stateFields
+    bitmap: null
+
+  requestImage: ->
+    log "requestImage"
+    Bitmap.requestImage()
+    .then ({bitmap}) =>
+      targetSize = 1024 * 1024
+      while bitmap.size.area / 4 > targetSize
+        bitmap = bitmap.mipmap
+
+      @setState {} bitmap
+      log {} bitmap.clone(), bitmap.size
+      bitmap.drawRectangle null, rect(bitmap.size),
+        colors: #804e0f #3b003b
+        from:   bitmap.centerCenter
+        to:     bitmap.centerRight
+        radial: true
+        compositeMode: "screen"
+
+      {imageData} = bitmap
+
+      &ColorMatrix.brightnessMatrix -30/100
+      .mul &ColorMatrix.contrastMatrix 30/100
+      .filter imageData
+
+      # &brightnessAndContrast imageData, contrast: 30, brightness: -30
+      bitmap.putImageData imageData
+      log {} bitmap
+      # @findFaces image
+    .catch (error) ->
+      log {error}
+
+  render: ->
+    Element
+      padding: 10
+      childrenLayout: "column"
+      childrenMargins: 10
+      &Button
+        action: @requestImage
+        "pick photo"
+
+      if @bitmap
+        BitmapElement
+          size: :childrenSize
+          bitmap: @bitmap
+          scale: (ps, cs) -> ps.minRatio cs
+      else
+        Element
+          size: 400
+          draw:
+            fill:
+              colors: #804e0f #3b003b
+              from:   "centerCenter"
+              to:     "bottomRight"
+              radial: true
+
