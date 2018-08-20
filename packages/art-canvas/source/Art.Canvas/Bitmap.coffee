@@ -32,6 +32,8 @@ isSimpleRectangle = (pathFunction, pathOptions) ->
   isString
   getEnv
   array
+  dashCase
+  w
 } = require 'art-standard-lib'
 
 {Binary, Browser} = require "art-foundation"
@@ -59,6 +61,29 @@ canvasBlenders =
   destOver: "destination-over"
   sourceIn: "source-atop"
   replace: "copy"
+
+# limited browser support
+# https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/globalCompositeOperation
+for blender in w "
+    screen
+    lighter
+    xor
+    darken
+    multiply
+    overlay
+    lighten
+    colorBurn
+    colorDodge
+    hardLight
+    softLight
+    difference
+    exclusion
+    hue
+    saturation
+    color
+    luminosity
+    "
+  canvasBlenders[blender] = dashCase blender
 
 module.exports = class Bitmap extends BitmapBase
   @supportedCompositeModes: (k for k, v of canvasBlenders)
