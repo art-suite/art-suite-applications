@@ -1,5 +1,4 @@
-Foundation = require 'art-foundation'
-{max, min, bound} = Foundation
+{log, max, min, bound} = require 'art-standard-lib'
 ###
 SBD: I'm not sure where best to put getNextPageIndexes, so I'm putting it here for now.
 It is potentially needed by any react component using PagingScrollElement. I'd put it on the
@@ -57,25 +56,30 @@ module.exports = class PagingScrollElement
 
     {firstPageIndex, lastPageIndex} = lastPageIndexes
 
-    newFirstPageIndex = focusedPageIndex - suggestedPageSpread - maxPrerender
-    newLastPageIndex  = focusedPageIndex + suggestedPageSpread + maxPrerender
+    focusedPageIndex = bound minPageIndex, focusedPageIndex ? 0, maxPageIndex
+    spread = min maxKeep / 2 | 0, suggestedPageSpread + maxPrerender
 
-    newFirstPageIndex = bound firstPageIndex - 1, newFirstPageIndex, firstPageIndex + 1 if firstPageIndex?
-    newLastPageIndex = bound lastPageIndex - 1, newLastPageIndex, lastPageIndex + 1 if lastPageIndex?
+    # start with the requested spread around focusedPageIndex
+    newFirstPageIndex = bound minPageIndex, focusedPageIndex - spread, maxPageIndex
+    newLastPageIndex  = bound minPageIndex, focusedPageIndex + spread, maxPageIndex
 
-    firstPageIndex = max minPageIndex, bound newFirstPageIndex - maxKeep, firstPageIndex, newFirstPageIndex
-    lastPageIndex  = min maxPageIndex, bound newLastPageIndex, lastPageIndex, newLastPageIndex  + maxKeep
+    # keep what we can within the maxKeep limit
+    if 0 < couldKeep = maxKeep - (newLastPageIndex - newFirstPageIndex)
+      if firstPageIndex < newFirstPageIndex
+        # log {couldKeep, firstPageIndex, newFirstPageIndex, newLastPageIndex}
+        newFirstPageIndex = max firstPageIndex, newFirstPageIndex - couldKeep
+        couldKeep = maxKeep - (newLastPageIndex - newFirstPageIndex)
 
-    # log getNextPageIndexes:
-    #   suggestedPagesBeforeFocusedPage: suggestedPagesBeforeFocusedPage
-    #   suggestedPagesAfterFocusedPage: suggestedPagesAfterFocusedPage
-    #   focusedPageIndex: focusedPageIndex
-    #   newFirstPageIndex: newFirstPageIndex
-    #   newLastPageIndex: newLastPageIndex
-    #   firstPageIndex: firstPageIndex
-    #   lastPageIndex: lastPageIndex
+      if 0 < couldKeep
+        # log {couldKeep, lastPageIndex, newFirstPageIndex, newLastPageIndex}
+        if lastPageIndex > newLastPageIndex
+          newLastPageIndex = min lastPageIndex, newLastPageIndex + couldKeep
+
+    # ensure don't ever go beyond the bounds
+    firstPageIndex = bound minPageIndex, newFirstPageIndex, maxPageIndex
+    lastPageIndex  = bound minPageIndex, newLastPageIndex , maxPageIndex
 
     if firstPageIndex == lastPageIndexes.firstPageIndex && lastPageIndex == lastPageIndexes.lastPageIndex
       null
     else
-      {firstPageIndex, lastPageIndex}
+      {firstPageIndex, focusedPageIndex, lastPageIndex}
