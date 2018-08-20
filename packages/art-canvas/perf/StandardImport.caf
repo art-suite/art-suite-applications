@@ -1,5 +1,7 @@
 &ArtStandardLib.merge
   &ArtStandardLib
   &ArtClassSystem
+  &ArtAtomic
+  &ArtCanvas
   require :../index
   test: (args...) -> global.test args...

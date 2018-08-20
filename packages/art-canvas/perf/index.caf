@@ -1,4 +1,5 @@
 &art-testbench/benchmark
 .init
   synchronous: true
-  defineTests: -> &perfs
+  defineTests: ->
+    &perfs

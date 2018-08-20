@@ -2,4 +2,4 @@
 # file: perfs/namespace.coffee
 
 module.exports = (require 'neptune-namespaces').vivifySubnamespace 'Perfs'
-require './Art.Canvas/namespace'
+require './Art/namespace'
