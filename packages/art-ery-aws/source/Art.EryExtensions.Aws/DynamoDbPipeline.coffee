@@ -297,42 +297,45 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
     return {} unless indexes
     queries = {}
 
-    for queryModelName, indexKey of indexes when isString indexKey
+    for queryModelName, indexKey of indexes
       do (queryModelName, indexKey) =>
-        [hashKey, sortKey] = indexKey.split "/"
+        if indexKey?.key
+          indexKey = indexKey.key
+        if isString indexKey
+          [hashKey, sortKey] = indexKey.split "/"
 
-        queries[queryModelName] =
-          query: (request) ->
-            request.pipeline.queryDynamoDbWithRequest request,
-              index: queryModelName
-              where: "#{hashKey}": request.key
-            .then ({items}) -> items
+          queries[queryModelName] =
+            query: (request) ->
+              request.pipeline.queryDynamoDbWithRequest request,
+                index: queryModelName
+                where: "#{hashKey}": request.key
+              .then ({items}) -> items
 
-          dataToKeyString: (data) ->
-            data[hashKey]
+            dataToKeyString: (data) ->
+              data[hashKey]
 
-          localSort: (queryData) -> withSort queryData, (a, b) ->
-            if 0 == ret = compare a[sortKey], b[sortKey]
-              compare a.id, b.id
-            else
-              ret
+            localSort: (queryData) -> withSort queryData, (a, b) ->
+              if 0 == ret = compare a[sortKey], b[sortKey]
+                compare a.id, b.id
+              else
+                ret
 
-        queries[queryModelName+"Desc"] =
-          query: (request) ->
-            request.pipeline.queryDynamoDbWithRequest request,
-              index: queryModelName
-              where: "#{hashKey}": request.key
-              descending: true
-            .then ({items}) -> items
+          queries[queryModelName+"Desc"] =
+            query: (request) ->
+              request.pipeline.queryDynamoDbWithRequest request,
+                index: queryModelName
+                where: "#{hashKey}": request.key
+                descending: true
+              .then ({items}) -> items
 
-          dataToKeyString: (data) ->
-            data[hashKey]
+            dataToKeyString: (data) ->
+              data[hashKey]
 
-          localSort: (queryData) -> withSort queryData, (b, a) ->
-            if 0 == ret = compare a[sortKey], b[sortKey]
-              compare a.id, b.id
-            else
-              ret
+            localSort: (queryData) -> withSort queryData, (b, a) ->
+              if 0 == ret = compare a[sortKey], b[sortKey]
+                compare a.id, b.id
+              else
+                ret
 
 
     queries
