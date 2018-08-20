@@ -1,6 +1,6 @@
 Component = require './Component'
 {reactArtEngineEpoch} = require './ReactArtEngineEpoch'
-{isPlainArray, isString, arrayWith, log} = require 'art-foundation'
+{isPlainArray, isString, arrayWith, log, isFunction} = require 'art-foundation'
 
 module.exports = [
   [Component, "createAndInstantiateTopComponent", "createComponentFactory"]
@@ -26,6 +26,8 @@ module.exports = [
     preprocessElement: (element) ->
       if isString element
         text: element
+      else if isFunction element
+        action: element
       else
         element
 ]
