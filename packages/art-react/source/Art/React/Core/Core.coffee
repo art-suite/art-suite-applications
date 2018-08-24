@@ -26,8 +26,14 @@ module.exports = [
     preprocessElement: (element) ->
       if isString element
         text: element
-      else if isFunction element
-        action: element
+
+      # DEPRICATED
+        # Why? It seemed like a good idea, but a better idea, is
+        # the possibility of passing a function for sub-rendering children.
+        # For example, I use this for my ButtonWrapper -  a child can be a function
+        # which takes a bool as input to signale if the cursor is currently hovering.
+      # else if isFunction element
+      #   action: element
       else
         element
 ]
