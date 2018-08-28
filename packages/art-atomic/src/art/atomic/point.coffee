@@ -203,6 +203,9 @@ module.exports = class Point extends AtomicBase
   floor: -> @with floor(@x), floor(@y)
   ceil:  -> @with ceil(@x),  ceil(@y)
 
+  scalerProjection: (ontoB) ->
+    a.dot(ontoB) / ontoB.magnitude
+
   # b is point or rect
   union: (b) -> if isPoint b then @max(b) else b.union @
   intersection: (b) -> if isPoint b then @min(b) else b.intersection @
