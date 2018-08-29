@@ -78,6 +78,10 @@ module.exports = class Base extends BaseObject
     else if a? && !isNumber(a) && !(a instanceof Base) && isFunction(a.toString) then @_initFromString a.toString()
     else                    @_init a, b, c, d, e, f, g
 
+    # Ensure all fields are numbers (possibly infinit, but not NaN)
+    # PERFORMANCE: ??? How much performance does this cost???
+    @validate()
+
   compare: (b) ->
     return 0 if @eq b
     return -1 if @lte b
@@ -157,12 +161,9 @@ module.exports = class Base extends BaseObject
       # console.log "#{@getName()}##{name}(#{paramsList}) defined:\n#{body}"
       nameInEval = if reservedWords[name] then "" else name
       @::[name] = eval body = """
-        (
-        function #{nameInEval}(#{paramsList}) {
-        #{body}
-        }
-        )
+        (function #{nameInEval}(#{paramsList}) {#{body}})
       """
+      # log {klass: @getName(), name, body}
     # catch e
     #   console.log "error defining function.\nname: #{name}\nparamsList: #{paramsList}\nbody:"
     #   console.log body
@@ -270,11 +271,26 @@ module.exports = class Base extends BaseObject
       return into._setAll(#{fieldList});
     """
 
+    @_definePrototypeMethodViaEval "validate", "",
+      (for field in fields
+        "if ((typeof this.#{field} != 'number') || isNaN(this.#{field})) {
+          throw new Error('#{field} is not a number: ' + this.#{field});
+        }"
+      ).join ';\n'
+
     @_definePrototypeMethodViaEval "_setAll", fieldList,
       """
       #{("this.#{f} = #{f}" for f in fields).join ";\n"};
       return this;
       """
+
+    @_definePrototypeMethodViaEval "_initFromObject", "o",
+      "return this._init(#{
+      (
+        for field in fields
+          "o.#{field} || 0"
+      ).join ', '
+      });"
 
     @_definePrototypeMethodViaEval "with", fieldList,
       """

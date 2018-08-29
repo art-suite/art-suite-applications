@@ -34,11 +34,12 @@ module.exports = class Perimeter extends AtomicBase
     @left = @right = @top = @bottom = 0
 
   _initFromObject: (obj) ->
-    @_initFields()
-    @left =    (obj.left   || 0) + (obj.l || 0) + (obj.h || 0) + (obj.horizontal || 0)
-    @right =   (obj.right  || 0) + (obj.r || 0) + (obj.h || 0) + (obj.horizontal || 0)
-    @top =     (obj.top    || 0) + (obj.t || 0) + (obj.v || 0) + (obj.vertical || 0)
-    @bottom =  (obj.bottom || 0) + (obj.b || 0) + (obj.v || 0) + (obj.vertical || 0)
+    @_init(
+      (obj.left   || 0) + (obj.l || 0) + (obj.h || 0) + (obj.horizontal || 0)
+      (obj.right  || 0) + (obj.r || 0) + (obj.h || 0) + (obj.horizontal || 0)
+      (obj.top    || 0) + (obj.t || 0) + (obj.v || 0) + (obj.vertical || 0)
+      (obj.bottom || 0) + (obj.b || 0) + (obj.v || 0) + (obj.vertical || 0)
+    )
 
   _init: (a, b, c, d) ->
     @_initFields()

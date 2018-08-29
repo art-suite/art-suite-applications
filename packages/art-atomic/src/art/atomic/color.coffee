@@ -250,12 +250,6 @@ module.exports = class Color extends AtomicBase
     throw new Error "existing feature is no longer supported" if existing
     new Artomic.Color string
 
-  _initFromObject: (obj) ->
-    {@r, @g, @b, @a} =  obj
-    # @r = obj.r
-    # log Color: _initFromObject: @rgbaHexString
-    # throw new Error "init from object not supported: #{inspect obj}"
-
   _initFromString: (string) ->
     @initProperties()
     parseCache[string] = @

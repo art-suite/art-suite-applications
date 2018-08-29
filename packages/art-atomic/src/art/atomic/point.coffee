@@ -86,10 +86,6 @@ module.exports = class Point extends AtomicBase
     @x = x - 0
     @y = y - 0
 
-  _initFromObject: (o) ->
-    @x = o.x || 0
-    @y = o.y || 0
-
   @getter
     exportedValue: ->
       {x, y} = @
