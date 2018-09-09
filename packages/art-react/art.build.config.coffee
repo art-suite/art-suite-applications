@@ -1,6 +1,7 @@
 module.exports =
   webpack:
-    common: {}
+    common:
+      mode: "development"
     targets:
       index: {}
       test: {}

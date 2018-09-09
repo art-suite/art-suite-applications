@@ -1,6 +1,7 @@
 Foundation = require 'art-foundation'
 module.exports = React = require "../index"
 {setDomElementProps, setDomElementProp, allDomElementNames} =  Foundation
+{createObjectTreeFactories} = require 'art-object-tree-factory'
 
 VirtualElementDom = class React.VirtualElementDom extends React.VirtualElement
 

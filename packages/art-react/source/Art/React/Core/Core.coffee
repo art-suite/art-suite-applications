@@ -1,6 +1,14 @@
 Component = require './Component'
 {reactArtEngineEpoch} = require './ReactArtEngineEpoch'
-{isPlainArray, isString, arrayWith, log, isFunction} = require 'art-foundation'
+{isPlainArray, isString, arrayWith, log, isFunction, isArray} = require 'art-foundation'
+
+getMergedTextPropValue = (oldValue, v) ->
+  if oldValue?
+    v = if isArray oldValue
+      oldValue.concat v
+    else
+      [oldValue, v]
+  else v
 
 module.exports = [
   [Component, "createAndInstantiateTopComponent", "createComponentFactory"]
@@ -12,20 +20,26 @@ module.exports = [
   onNextReady: (callback) -> reactArtEngineEpoch.onNextReady callback
 
   objectTreeFactoryOptions:
+
+    # NOTE: postProcessProps is ignored by objectTreeFactory - we must apply it oursevles
+    postProcessProps: (props) ->
+      if v = props?._textFromString
+        props.text = getMergedTextPropValue props.text, v
+        delete props._textFromString
+      props
+
     mergePropsInto: (into, props) ->
       for k, v of props
-        into[k] = if k == "text" && (oldValue = into[k])?
-          if isPlainArray oldValue
-            oldValue.concat v
-          else
-            [oldValue, v]
+        if k == "_textFromString"
+          into.text = getMergedTextPropValue into.text, v
         else
-          v
+          into[k] = v
+
       into
 
     preprocessElement: (element) ->
       if isString element
-        text: element
+        _textFromString: element
 
       # DEPRICATED
         # Why? It seemed like a good idea, but a better idea, is

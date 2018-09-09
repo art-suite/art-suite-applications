@@ -171,16 +171,22 @@ defineModule module, -> class Component extends PropFieldsMixin StateFieldsMixin
     @toComponentFactory()
 
   @toComponentFactory: ->
+    {objectTreeFactoryOptions} = React
+    {postProcessProps} = objectTreeFactoryOptions
 
-    createObjectTreeFactory (merge React.objectTreeFactoryOptions,
+    createObjectTreeFactory (merge objectTreeFactoryOptions,
         inspectedName: @getName() + "ComponentFactory"
         class: @
         bind: "instantiateAsTopComponent"
       ),
       (props, children) =>
-        props.children = children if children.length > 0
+        if children
+          if props
+            props.children = children
+          else
+            props = {children}
 
-        instance = new @ props
+        instance = new @ postProcessProps props
         # instance._validateChildren props?.children # TODO: only in dev mode!
 
         instance

@@ -19,12 +19,13 @@ defineModule module, class VirtualElement extends VirtualNode
   @instantiated = 0
 
   emptyProps = {}
+  emptyChildren = []
   constructor: (elementClassName, props, children) ->
     # globalCount "ReactVirtualElement_Created"
     VirtualElement.created++
     @elementClassName = elementClassName
     super props || emptyProps
-    @children = @_validateChildren compactFlatten children, keepIfRubyTrue
+    @children = @_validateChildren compactFlatten children || emptyChildren, keepIfRubyTrue
 
   #################
   # Inspect
