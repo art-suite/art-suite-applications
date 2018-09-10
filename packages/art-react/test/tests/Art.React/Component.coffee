@@ -351,6 +351,40 @@ module.exports = suite:
         assert.eq c.state, foo:"bar"
         assert.eq c.element.pendingName, "bar"
 
+
+    test "setState Function once", ->
+      class MyComponent extends Component
+        getInitialState: -> foo: "bar"
+        render: -> Element name: @state.foo
+
+      (c = new MyComponent)._instantiate()
+      assert.eq c.state, foo: "bar"
+      c.setState (state) -> merge state, foo: "baz"
+
+      c.onNextReady ->
+        assert.eq c.state, foo:"baz"
+        assert.eq c.element.pendingName, "baz"
+
+    test "setState Function twice", ->
+      class MyComponent extends Component
+        getInitialState: -> foo: 1
+        render: -> Element name: @state.foo
+
+      (c = new MyComponent)._instantiate()
+      callCount = 0
+      f = (state) -> callCount++; merge state, foo: state.foo + 1
+      c.setState f
+      c.setState f
+
+      c
+      .onNextReady()
+      .then -> c.onNextReady()
+      .then ->
+        assert.eq
+          callCount: 2
+          {callCount}
+        assert.eq c.state, foo: 3
+
     test "setState string, value", ->
       new Promise (resolve) ->
         class MyComponent extends Component

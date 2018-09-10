@@ -23,6 +23,7 @@ ReactArtEngineEpoch = require './ReactArtEngineEpoch'
   getModuleBeingDefined
   InstanceFunctionBindingMixin
   getEnv
+  mergeIntoUnless
 } = Foundation
 {reactArtEngineEpoch} = ReactArtEngineEpoch
 
@@ -208,11 +209,12 @@ defineModule module, -> class Component extends PropFieldsMixin StateFieldsMixin
     @state = {}
     @refs = null
     @_pendingState = null
+    @_pendingUpdates = null
     @_virtualAimBranch = null
     @_mounted = false
     @_wasMounted = false
     @_bindList = null
-    @_applyingPendingState = false
+    @_epochUpdateQueued = false
     Component.pushCreatedComponent @
 
   ###
@@ -256,28 +258,41 @@ defineModule module, -> class Component extends PropFieldsMixin StateFieldsMixin
   #     set one state
   #     returns: stateValue
   # callback is always called onNextReady
-  setState: (newState, callback, callbackB) ->
-    if isString newState
-      return @_setSingleState newState, callback, callbackB
+  setState: (a, b, c) ->
+    if isString a
+      c && @onNextReady c
+      return @_setSingleState a, b
 
-    @onNextReady callback
+    newState = a
+    callback = b
+
+    callback && @onNextReady callback
 
     if newState
-      testState = @_pendingState || @state
-      _state = null
-      for k, v of newState when testState[k] != v
-        _state ||= @_getStateToSet()
-        _state[k] = v
+      if isFunction newState
+        @_queueUpdate newState
+
+      else
+        testState = @state
+        _state = null
+        for k, v of newState when testState[k] != v
+          _state ||= @_getStateToSet()
+          _state[k] = v
 
     newState
 
+  # OUT: newState
   replaceState: (newState, callback) ->
     @_setPendingState newState
-    @onNextReady callback
+    callback && @onNextReady callback
+    newState
 
+  # OUT: true
   forceUpdate: (callback) ->
-    @_getPendingState()
-    @onNextReady callback
+    log.error "forceUpdate is DEPRICATED"
+    @_queueChangingComponentUpdates()
+    callback && @onNextReady callback
+    true
 
   # Called when the component is instantiated.
   # ReactArtEngine ONLY: you CAN call setState/setSingleState during getInitialState:
@@ -480,7 +495,6 @@ defineModule module, -> class Component extends PropFieldsMixin StateFieldsMixin
     if @_wasMounted then @_getPendingState() else @state
 
   _setSingleState: (stateKey, stateValue, callback) ->
-    @onNextReady callback
     if @_pendingState || @state[stateKey] != stateValue
       @_getStateToSet()[stateKey] = stateValue
 
@@ -489,7 +503,7 @@ defineModule module, -> class Component extends PropFieldsMixin StateFieldsMixin
   _queueRerender: ->
     @_getPendingState()
 
-  _setPendingState: (state) ->
+  _setPendingState: (pendingState) ->
     ###
     2016-12: I can't decide! Should we allow state updates on unmounted components or not?!?!
     RELVANCE: allowing state updates allows us to update animating-out Art.Engine Elements.
@@ -556,11 +570,20 @@ defineModule module, -> class Component extends PropFieldsMixin StateFieldsMixin
 
     To ENABLE updates on unmounted Components, remove: || !@_mounted
     ###
-    reactArtEngineEpoch.addChangingComponent @ unless @_pendingState || @_applyingPendingState || !@_mounted
-    @_pendingState = if state then shallowClone state else {}
+    @_queueChangingComponentUpdates()
+    @_pendingState = pendingState
+
+  _queueChangingComponentUpdates: ->
+    unless @_epochUpdateQueued
+      @_epochUpdateQueued = true
+      reactArtEngineEpoch.addChangingComponent @
+
+  _queueUpdate: (updateFunction) ->
+    @_queueChangingComponentUpdates()
+    (@_pendingUpdates ?= []).push updateFunction
 
   _getPendingState: ->
-    @_pendingState || @_setPendingState @state
+    @_pendingState || @_setPendingState {}
 
   _unmount: ->
     @_removeHotInstance()
@@ -691,20 +714,77 @@ defineModule module, -> class Component extends PropFieldsMixin StateFieldsMixin
 
     @
 
-  # NOTE: newProps got preprocessed when the Component instance this one is updating from was constructed.
-  _applyPendingState: (newProps) ->
-    return unless @_pendingState || newProps
-    @_applyingPendingState = true
+  ###
+  Clears out @_pendingUpdates and @_pendingState, applying them all to 'state' as passed-in.
 
-    if newProps
-      newProps = @_preprocessProps @_rawProps = newProps
-      @_componentWillReceiveProps newProps
+  NOTE:
+    This is a noop if @_pendingUpdates and @_pendingState are null.
+    OldState is returned without any work done.
+
+  ASSUMPTIONS:
+    if @_pendingState is set, it is an object we are allowed to mutate
+      It will be mutated and be the return-value of this function.
+
+  IN:
+    oldState - the state to update
+
+  EFFECTS:
+    oldState is NOT modified
+    @_pendingState and @_pendingUpdates are null and have been applied to oldState
+
+  OUT: state is returned as-is unless @_pendingState or @_pendingUpdates is set
+  ###
+  _resolvePendingUpdates: (oldState = @state)->
+    if @_pendingState
+      newState = mergeIntoUnless @_pendingState, oldState
+      @_pendingState = null
+
+    if @_pendingUpdates
+      newState ?= merge oldState
+
+      for updateFunction in @_pendingUpdates
+        newState = updateFunction.call @, newState
+
+      @_pendingUpdates = null
+
+    newState ? oldState
+
+
+  ###
+  NOTES:
+    - newProps is non-null if this component is being updated from a non-instantiated Component.
+    - This is where @props gets set for any update, but not where it gets set for component initializiation.
+  ###
+  _applyPendingState: (newProps) ->
+    return unless @_epochUpdateQueued || newProps
 
     oldProps = @props
     oldState = @state
-    newProps ?= oldProps
-    newState = @_pendingState ? oldState
 
+    if newProps
+      newProps = @_preprocessProps @_rawProps = newProps
+
+      # NOTE: User-overridable @componentWillReceiveProps is allowed to call @setState.
+      @_componentWillReceiveProps newProps
+    else
+      newProps = oldProps
+
+    @_updateComponent newProps, @_resolvePendingUpdates()
+
+    @_reRenderComponent()
+
+    # NOTE: Any updates state-changes triggered in @componentDidUpdate will be delayed until next epoch
+    @_componentDidUpdate oldProps, oldState
+
+
+  ###
+  IN:
+    newProps: if set, replaces props
+    newState:
+  ###
+  _updateComponent: (newProps, newState) ->
+
+    # NOTE: User-overridable @componentWillUpdate is allowed to call @setState.
     @_componentWillUpdate newProps, newState
 
     ###
@@ -713,17 +793,24 @@ defineModule module, -> class Component extends PropFieldsMixin StateFieldsMixin
       after a setState in @componentWillUpdate,
       the new state will not be visible in the remainder of that @componetWillUpdate call
       but it will be visible in any subsquent lifecycle call such as @render
+
+    NOTES:
+      @_resolvePendingUpdates is used here to immeidately apply any changes @_componentDidUpdate
+        caused. However, if it didn't cause any changes, it's a noop.
+        Performance FYI: If @_componentDidUpdate triggers any changes, one new object will be created.
+
+      @_epochUpdateQueued is cleared AFTER @_componentDidUpdate so calles to @setState won't
+        actually trigger an epoch.
     ###
-    newState = @_pendingState ? oldState
-    @_pendingState = null
+    newState = @_resolvePendingUpdates newState
+    @_epochUpdateQueued = false
 
+    # SAVE THE CHANGES NOW!
     @props = newProps
+
+    # NOTE: Any updates state-changes triggered in @preprocessState will be delayed until next epoch
+    # NOTE: @_preprocessState assumes @props has already been updated
     @state = @_preprocessState newState
-
-    @_applyingPendingState = false
-    @_reRenderComponent()
-
-    @_componentDidUpdate oldProps, oldState
 
   ########################
   # PRIVATE
