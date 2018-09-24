@@ -339,6 +339,16 @@ suite:
       assert.eq p.x, 0, "x"
       assert.eq p.y, 0, "y"
 
+  intersect: ->
+    test "intersect", ->
+      p = point 100
+      r = rect 10 -5 40 50
+      out = p.intersect r, r
+      assert.equal out, r
+      assert.eq
+        r
+        rect 10, 0, 40, 45
+
 
   ratios: ->
     test "minRatio" ->

@@ -215,37 +215,57 @@ module.exports = class Rectangle extends AtomicBase
     return into if area <= 0 || intoArea == Infinity
 
     if intoArea <= 0 || area == Infinity
-      into.x = @x
-      into.y = @y
-      into.w = @w
-      into.h = @h
+      into._setAll @x, @y, @w, @h
     else
       {x, y, w, h} = into
-      into.x = min x, @x
-      into.y = min y, @y
-      into.w = max(x + w, @x + @w) - into.x
-      into.h = max(y + h, @y + @h) - into.y
+      into._setAll(
+        _x = min x, @x
+        _y = min y, @y
+        max(x + w, @x + @w) - _x
+        max(y + h, @y + @h) - _y
+      )
     into
 
-  intersectInto: (into) ->
-    return new Rectangle @x, @y, @w, @h unless into?
-    area = @getArea()
-    intoArea = into.getArea()
 
-    return into if intoArea <= 0 || area == Infinity
+  _saveInto = (into, x, y, w, h) ->
 
-    if area <= 0 || intoArea == Infinity
-      into.x = @x
-      into.y = @y
-      into.w = @w
-      into.h = @h
+    if into
+      into._setAll x, y, w, h
     else
-      {x, y, w, h} = into
-      into.x = max x, @x
-      into.y = max y, @y
-      into.w = max 0, min(x + w, @x + @w) - into.x
-      into.h = max 0, min(y + h, @y + @h) - into.y
-      into
+      new Rectangle x, y, w, h
+
+  _returnOrSaveInto = (returnThisUnlessInto, into) ->
+    if into
+      {x, y, w, h} = returnThisUnlessInto
+    else
+      return returnThisUnlessInto
+
+    _saveInto into, x, y, w, h
+
+  @intersect: intersect = (fromX, fromY, fromW, fromH, withRect, into) ->
+    area = fromW * fromH
+    intoArea = withRect?.getArea() ? Infinity
+
+
+    if intoArea <= 0 || area == Infinity
+      _returnOrSaveInto withRect, into
+
+    else
+      if area <= 0 || intoArea == Infinity
+        _saveInto into, fromX, fromY, fromW, fromH
+
+      else
+        {x, y, w, h} = withRect
+        _saveInto(
+          into
+          _x = max x, fromX
+          _y = max y, fromY
+          max 0, min(x + w, fromX + fromW) - _x
+          max 0, min(y + h, fromY + fromH) - _y
+        )
+
+  intersectInto: (into) -> intersect @x, @y, @w, @h, into, into
+  intersect: (withRect, into) -> intersect @x, @y, @w, @h, withRect, into
 
   intersection: (b) ->
     return @ unless b?

@@ -60,7 +60,7 @@ Rectangle  = require "./rectangle"
 
 {point, isPoint} = Point
 {rect} = Rectangle
-{ceil, floor, sqrt} = Math
+{ceil, floor, sqrt, min, max} = Math
 {inspect, simplifyNum, float32Eq, compact, log, isNumber, defineModule} = Foundation
 
 defineModule module, class Matrix extends AtomicBase
@@ -454,9 +454,14 @@ defineModule module, class Matrix extends AtomicBase
   #     max = if max then max.max(c) else c
   #     min = if min then min.min(c) else c
   #   new Rectangle min, max.sub min
-  transformBoundingRect: (r, roundOut = false) ->
+  transformBoundingRect: (r, roundOut, into) ->
     r = rect r
-    return r if (r.infinite || @isIdentity) && !roundOut
+    if (r.infinite || @isIdentity) && !roundOut
+      if into
+        {x, y, w, h} = r
+        into._setAll x, y, w, h
+      else
+        r
 
     if @shx == 0 && @shy == 0 #float32Eq(@shx, 0) && float32Eq(@shy, 0)
       # faster (probably) in the special case where there is no skew or rotation
@@ -484,11 +489,11 @@ defineModule module, class Matrix extends AtomicBase
       x4 = transform1D left,    bottom, @sx, @shx, @tx
       y4 = transform1D bottom,  left,   @sy, @shy, @ty
 
-      x = Math.min x1, x2, x3, x4
-      w = Math.max(x1, x2, x3, x4) - x
+      x = min x1, x2, x3, x4
+      w = max(x1, x2, x3, x4) - x
 
-      y = Math.min y1, y2, y3, y4
-      h = Math.max(y1, y2, y3, y4) - y
+      y = min y1, y2, y3, y4
+      h = max(y1, y2, y3, y4) - y
 
     if roundOut
       right = ceil x + w
@@ -498,7 +503,10 @@ defineModule module, class Matrix extends AtomicBase
       w = right - x
       h = bottom - y
 
-    new Rectangle x, y, w, h
+    if into
+      into._setAll x, y, w, h
+    else
+      new Rectangle x, y, w, h
 
   # Common instances
   @identityMatrix: identityMatrix = new Matrix
