@@ -4,5 +4,13 @@
 module.exports = require './namespace'
 module.exports
 .addModules
-  Main:   require './Main'  
-  Quotes: require './Quotes'
+  Controls:              require './Controls'             
+  CreateRandomGenerator: require './createRandomGenerator'
+  Main:                  require './Main'                 
+  OptionsUi:             require './OptionsUi'            
+  PosterText:            require './PosterText'           
+  PosterTextPreview:     require './PosterTextPreview'    
+  Quotes:                require './Quotes'               
+require './Data'
+require './Models'
+require './Styles'

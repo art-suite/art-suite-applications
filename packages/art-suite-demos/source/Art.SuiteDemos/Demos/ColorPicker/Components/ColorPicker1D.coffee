@@ -41,7 +41,6 @@ defineModule module, class ColorPicker1D extends FluxComponent
     {channel, label} = @props
     value = @state.currentColor
 
-    keyPrefix = "ColorPicker1D_#{channel}_"
     Element
       on: @handlers
       size: wpw:1, h:46
@@ -49,7 +48,7 @@ defineModule module, class ColorPicker1D extends FluxComponent
       childrenLayout: "column"
       RectangleElement
         size: ww:1, h: 23
-        key: "#{keyPrefix}background"
+        key: "background"
         to: "topRight"
         colors: @colors
 
@@ -59,11 +58,12 @@ defineModule module, class ColorPicker1D extends FluxComponent
         clip: true
 
         TextElement
+          size: "childrenSize"
           text: "▲"
           color: "#999"
           fontSize: 20
           layoutMode: "tight"
-          key: "#{keyPrefix}handle"
+          key: "handle"
           location: xw: value, yh:.5
           animators: location: duration: .1
           axis: .5

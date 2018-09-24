@@ -1,0 +1,13 @@
+import &StandardImport
+
+class PosterTextPreview extends FluxComponent
+  @subscriptions "posterTextSettings.posterTextSettings"
+
+  render: ->
+    Element
+      Element
+        size:     "childrenSize"
+        location: "centerCenter"
+        axis:     "centerCenter"
+        scale: (ps, cs) -> ps.min() / (cs.max() + 40)
+        &PosterText @posterTextSettings.text

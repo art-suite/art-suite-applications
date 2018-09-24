@@ -2,3 +2,6 @@
 # file: Art.SuiteDemos/Demos/MotivationalPoster/namespace.coffee
 
 module.exports = (require '../namespace').addNamespace('MotivationalPoster', class MotivationalPoster extends Neptune.PackageNamespace)
+require './Data/namespace';
+require './Models/namespace';
+require './Styles/namespace'

@@ -40,6 +40,7 @@ class Main extends Component
     errorInfo: null
     currentValue:     defaultValue
     backgroundColor:  defaultValue
+    offset: point0
 
   showParseError: (c) ->
     @errorInfo = "" invalid color: #{c}
@@ -58,106 +59,116 @@ class Main extends Component
   render: ->
     Element
       draw: "grey"
+      padding: 20
 
       Element
-        size: w: 300 hch: 1
-        location: :centerCenter
-        axis:     :centerCenter
-        childrenLayout: :column
-
-        draw:
-          radius: 5
-          color:  :white
-          shadow:
-            offsetY: 5
-            blur: 5
-            color: #0007
+        draw: "#aaa"
+        clip: true
 
         Element
-          size: :parentWidthChildrenHeight
-          draw: #0001
-
-          TextElement
-            StyleProps.mediumText
-            size:     :parentWidthChildrenHeight
-            padding:  StyleProps.standardSpacing
-            align:    :centerCenter
-            "" Color Preview Form Demo
-
-        Element
-          padding: StyleProps.standardSpacing
-          size: hch: 1
+          size: w: 300 hch: 1
+          location:
+            ps: .5
+            plus: @offset
+          axis:     :centerCenter
           childrenLayout: :column
-          childrenMargins: StyleProps.standardSpacing
 
-          TextElement
-            StyleProps.mediumText
-            size: cs: 1
-            margin: StyleProps.standardSpacing
-            text: "Instructions:\n  Type in an HTML color\n  Press Enter"
-
-          Element
-            size: ww: 1, h: 30
-            draw:
-              color: @backgroundColor
-              shadow: offsetY: 5 blur: 5 color: #0007
-            animators: :draw
-
-            Element
-              clip: true
-
-              TextElement
-                StyleProps.mediumText
-                size: :childrenSize
-                axis: .5
-                location: ps: .5
-                text: @backgroundColor.toString()
-                color:
-                  if @backgroundColor.perceptualLightness >= .8
-                    #0008
-                  else
-                    #fffd
-
-          Element
-            margin: StyleProps.standardSpacing
-            size: ww:1, h:40
-
-            if @errorInfo?
-              TextElement
-                StyleProps.mediumText
-                text: @errorInfo
-                location: ps: .5
-                color: "red"
-                axis: point .5
-
-            else
-              TextInputElement
-                StyleProps.mediumText
-                fontSize: 24
-                placeholder: "type in color"
-                size: ww:1, hh:1
-                value: @currentValue
-                align: "center"
-                on:
-                  enter: (e) -> @setColorFromString e.target.value
-                  valueChanged: (e) -> @currentValue = e.props.value
-                  domElementAttached: ({target}) ->
-                    target.focus()
-                    target.selectAll()
-                RectangleElement color: rgbColor #0001
+          draw:
+            radius: 5
+            color:  :white
+            shadow:
+              offsetY: 5
+              blur: 5
+              color: #0007
 
           Element
             size: :parentWidthChildrenHeight
-            childrenLayout: :row
+            draw: #0001
+            cursor: "move"
+            on: pointerMove: ({delta}) =>
+              @offset = @offset.add delta
 
-            Button
-              size: :parentWidthChildrenHeight
-              disabled: @currentValue.length == 0 || rgbColor(@currentValue).eq @backgroundColor
-              action: -> @setColorFromString @currentValue
-              :submit
+            TextElement
+              StyleProps.mediumText
+              size:     :parentWidthChildrenHeight
+              padding:  StyleProps.standardSpacing
+              align:    :centerCenter
+              "" Color Preview Form Demo
 
-            Button
+          Element
+            padding: StyleProps.standardSpacing
+            size: hch: 1
+            childrenLayout: :column
+            childrenMargins: StyleProps.standardSpacing
+
+            TextElement
+              StyleProps.mediumText
+              size: cs: 1
+              margin: StyleProps.standardSpacing
+              text: "Instructions:\n  Type in an HTML color\n  Press Enter"
+
+            Element
+              size: ww: 1, h: 30
+              draw:
+                color: @backgroundColor
+                shadow: offsetY: 5 blur: 5 color: #0007
+              animators: :draw
+
+              Element
+                clip: true
+
+                TextElement
+                  StyleProps.mediumText
+                  size: :childrenSize
+                  axis: .5
+                  location: ps: .5
+                  text: @backgroundColor.toString()
+                  color:
+                    if @backgroundColor.perceptualLightness >= .8
+                      #0008
+                    else
+                      #fffd
+
+            Element
+              margin: StyleProps.standardSpacing
+              size: ww:1, h:40
+
+              if @errorInfo?
+                TextElement
+                  StyleProps.mediumText
+                  text: @errorInfo
+                  location: ps: .5
+                  color: "red"
+                  axis: point .5
+
+              else
+                TextInputElement
+                  StyleProps.mediumText
+                  fontSize: 24
+                  placeholder: "type in color"
+                  size: ww:1, hh:1
+                  value: @currentValue
+                  align: "center"
+                  on:
+                    enter: (e) -> @setColorFromString e.target.value
+                    valueChanged: (e) -> @currentValue = e.props.value
+                    domElementAttached: ({target}) ->
+                      target.focus()
+                      target.selectAll()
+                  RectangleElement color: rgbColor #0001
+
+            Element
               size: :parentWidthChildrenHeight
-              disabled: rgbColor(:orange).eq @backgroundColor
-              action: @resetColor
-              :reset
+              childrenLayout: :row
+
+              Button
+                size: :parentWidthChildrenHeight
+                disabled: @currentValue.length == 0 || rgbColor(@currentValue).eq @backgroundColor
+                action: -> @setColorFromString @currentValue
+                :submit
+
+              Button
+                size: :parentWidthChildrenHeight
+                disabled: rgbColor(:orange).eq @backgroundColor
+                action: @resetColor
+                :reset

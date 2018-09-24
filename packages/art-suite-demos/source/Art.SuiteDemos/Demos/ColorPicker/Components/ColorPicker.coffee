@@ -27,3 +27,4 @@ defineModule module, class ColorPicker extends FluxComponent
           ColorPicker1d
             channel:  channel.slice 0, 1
             label:    channel
+            key:      channel

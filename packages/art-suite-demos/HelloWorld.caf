@@ -1,11 +1,56 @@
 import &ArtSuite
 
+class MovingTextInput extends Component
+
+  @stateField offset: point()
+
+  render: ->
+    Element
+      location: @offset
+      size: w: 300, hch: 1
+      childrenLayout: :column
+      childrenMargins: 10
+      draw: :orange
+      padding: 10
+
+      Element
+        size: h: 30
+        draw: #fff7
+        cursor: :move
+        on: pointerMove: ({delta}) -> @offset = @offset.add delta
+        TextElement
+          fontFamily: "arial"
+          color: "black"
+          align: .5
+          "drag me"
+
+      TextElement
+        fontFamily: "arial"
+        color: "black"
+        size: :parentWidthChildrenHeight
+        "" Hello, world!
+
+      TextInputElement
+        fontFamily: "arial"
+        color: "black"
+        size: :parentWidthChildrenHeight
+        placeholder: "input text"
+
+
+
 initArtSuiteApp MainComponent: class MyHelloWorldComponent extends Component
 
   render: ->
     CanvasElement
       draw: #eef
 
-      TextElement
+      Element
         padding: 10
-        "" Hello, world!
+
+        Element
+          size: ww: .5, hh: 1
+          draw:
+            :children
+            outline: :black
+          clip: true
+          MovingTextInput()

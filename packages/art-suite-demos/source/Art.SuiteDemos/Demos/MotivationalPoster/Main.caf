@@ -1,6 +1,7 @@
 import &ArtSuite
 
-class MyComponent extends Component
+class Main extends FluxComponent
+  @subscriptions "posterTextSettings.posterTextSettings"
 
   randomQuote = -> randomElement &Quotes
   randomGroups = (text, dropPunctuation) ->
@@ -143,24 +144,30 @@ class MyComponent extends Component
     Element
       on:         @buttonHandlers
       cursor:     :pointer
-      Element
-        padding: 10
-        childrenLayout: :row
-        childrenMargins: 10
-        &Button
-          text: "randomize"
-          action: @randomize
-        &Button
-          text: "previous"
-          action: @havePrev && @previous
-        &Button
-          text: "next"
-          action: @haveNext && @next
-        TextElement
-          text: @historyPos ? @history.length
+      childrenLayout: :row
 
-      Element
-        size:     "childrenSize"
-        location: "centerCenter"
-        axis:     "centerCenter"
-        @renderText @text
+      &Controls()
+
+        # ScrollElement
+        #   clip: true
+        #   childrenLayout: :column
+        #   size: :childrenWidthParentHeight
+        #   &OptionsUi()
+      # Element
+      #   padding: 10
+      #   childrenLayout: :row
+      #   childrenMargins: 10
+      #   &Button
+      #     text: "randomize"
+      #     action: @randomize
+      #   &Button
+      #     text: "previous"
+      #     action: @havePrev && @previous
+      #   &Button
+      #     text: "next"
+      #     action: @haveNext && @next
+      #   TextElement
+      #     text: @historyPos ? @history.length
+
+      &PosterTextPreview()
+          # @renderText @text

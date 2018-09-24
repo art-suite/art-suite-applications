@@ -1,0 +1,9 @@
+
+theNorthernPeople:
+  characterSpacing: "" medium-tight to medium-loose
+  fonts: [] "" ArialLike
+  horizontalLines: "" 50% chance of one line
+  border: "" 10% chance of heavy, square border
+  borderPadding: "" 1-3x border weight
+  lineSpacing: "" medium-tight to medium-loose
+  wordBreaks: "" 2-3 words per line with full-width scale-up
