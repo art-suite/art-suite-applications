@@ -211,7 +211,7 @@ defineModule module, ->
       {left, right, top, bottom} = scratchBitmap.getAutoCropRectangle tightThreshold
 
       while left == 0 || top == 0 || right == size.x || bottom == size.y
-        @log "Art.Text.Metrics#_generateTightFontMetrics: #{inspect fontOptions, 1}, padding: #{padding} too small. scratchBitmap.size: #{scratchBitmap.size}"
+        log "Art.Text.Metrics#_generateTightFontMetrics: #{inspect fontOptions, 1}, padding: #{padding} too small. scratchBitmap.size: #{scratchBitmap.size}"
         padding *= 2
         [scratchBitmap, size, location] = @renderTextToScratchBitmap text, fontOptions, padding
         {left, right, top, bottom} = scratchBitmap.getAutoCropRectangle tightThreshold
@@ -340,4 +340,4 @@ defineModule module, ->
       image.drawRectangle location, rect(area.location.x, 0, area.size.x, 1), "red"
       image.drawRectangle location, rect(0, area.location.y, 1, area.size.y), "green"
       image.drawBitmap point(), bitmap
-      @log image, layoutMode: options.layoutMode
+      log image, layoutMode: options.layoutMode
