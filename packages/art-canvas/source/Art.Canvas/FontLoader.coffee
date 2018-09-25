@@ -2,6 +2,7 @@
   present, isPlainObject, object, merge, defineModule, formattedInspect, log, timeout, Promise
   each
   find
+  objectWithout
 } = require 'art-standard-lib'
 {point} = require 'art-atomic'
 Bitmap = require './Bitmap'
@@ -18,6 +19,7 @@ fonts:
     url:            URL to the font-file to load
     fontFamily:     font-family name [default: nameKey]
 ###
+global.fontLoaderLog = []
 defineModule module, class FontLoader
   ###
   IN: see 'fonts' above
@@ -29,34 +31,33 @@ defineModule module, class FontLoader
     OUT: promise.catch (object) ->
       object is keys -> true or false for which fonts have and havenot been loaded
   ###
-  @allFontsLoaded: (fonts) ->
+  @allFontsLoaded: (fonts, verbose) ->
     timeExpired = 0
     new Promise (resolve, reject) =>
       testFonts = =>
         try
-          verbose = timeExpired >= 1000 && timeExpired % 1000 == 0
+          timeoutTriggeredVerbose = timeExpired >= 1000 && timeExpired % 1000 == 0
 
-          fontsLoaded = FontLoader.fontsLoadedSync fonts, verbose
+          fontsLoaded = FontLoader.fontsLoadedSync fonts, timeoutTriggeredVerbose, verbose
           haveUnloadedFonts = find fontsLoaded, (loaded) -> !loaded
 
           unless haveUnloadedFonts
-            if timeExpired >= 100
-              log.warn formattedInspect FontLoader: success: milliseconds: timeExpired, fonts: Object.keys fonts
+            if timeExpired >= 100 || verbose
+              logFontLoaderStatus success: milliseconds: timeExpired, fonts: Object.keys fonts
             resolve fontsLoaded
           # else if timeoutRemaining <= 0
           #   reject new Error "timeout loading fonts: #{formattedInspect fonts}"
           else
-            if verbose
-              log.warn formattedInspect FontLoader: waiting: milliseconds: timeExpired, fonts: Object.keys fonts
+            if timeoutTriggeredVerbose
+              logFontLoaderStatus waiting: milliseconds: timeExpired, fonts: Object.keys fonts
 
-            if @allFontLoadsExpired fontsLoaded, fonts, verbose, timeExpired
+            if @allFontLoadsExpired fontsLoaded, fonts, timeoutTriggeredVerbose, timeExpired
               resolve fontsLoaded
             else
-                # log "waiting for fonts: #{formattedInspect fonts}"
               timeExpired += 25
               timeout 25, testFonts
-        catch e
-          log {e}
+        catch error
+          logFontLoaderStatus allFontsLoaded: {error}
 
       testFonts()
     .then =>
@@ -91,22 +92,23 @@ defineModule module, class FontLoader
   # IN: see 'fonts' above
   # OUT: promise.then (loadedMap) ->
   #   IN: ladedMap: object keys are from fonts, values are true/false if that font is loaded
-  @fontsLoadedSync: (fonts, verbose) ->
-    object fonts, (fontOptions, fontFamily) -> FontLoader.fontLoaded fontOptions, fontFamily, verbose
+  @fontsLoadedSync: (fonts, verbose, verboseOnSuccess) ->
+    object fonts, (fontOptions, fontFamily) -> FontLoader.fontLoaded fontOptions, fontFamily, verbose, verboseOnSuccess
 
   # IN: see 'fonts' above
   @loadFonts: (fonts) ->
-    log formattedInspect loadFonts: fonts
     if !isPlainObject fonts
       throw new Error "ArtCanvas.FontLoader.loadFonts: fonts should be an object"
 
-    log FontLoader: loading: fonts
+    # logFontLoaderStatus "ArtCanvas.FontLoader.loadFonts": {fonts, verbose} if verbose
 
-    fontsLoaded = @fontsLoadedSync fonts
-    for name, {fontFamily, loadedTestText, css, url} of fonts when !fontsLoaded[fontFamily]
+    fontsLoaded = @fontsLoadedSync fonts, verbose
+    for name, {fontFamily, loadedTestText, css, url, verbose} of fonts when !fontsLoaded[fontFamily]
       loadedTestText ||= defaultLoadedTestText
       fontFamily ||= name
-      log loading: {fontFamily}
+
+      logFontLoaderStatus loading: merge {fontFamily, css, url} if verbose
+
       if css
         document.head.appendChild Link
           rel: "stylesheet"
@@ -122,7 +124,7 @@ defineModule module, class FontLoader
           fontSize:   "0"
         loadedTestText
 
-    @allFontsLoaded fonts
+    @allFontsLoaded fonts, verbose
 
   # getTestImageData = (options, text, bitmap) ->
   #   bitmap.clear backgroundColor = "#fee"
@@ -130,7 +132,11 @@ defineModule module, class FontLoader
   #   log getTestImageData: {options, text, bitmap: bitmap.clone()}
   #   bitmap.imageData.data
 
-  loadedWidthBasedTest = (bitmap, fontFamily, loadedTestText, expectedTestWidth, verbose) ->
+  logFontLoaderStatus = (toLog) ->
+    fontLoaderLog.push toLog
+    log formattedInspect ArtCanvasFontLoader: toLog
+
+  loadedWidthBasedTest = (bitmap, fontFamily, loadedTestText, expectedTestWidth, verbose, verboseOnSuccess) ->
     {context} = bitmap
     context.font = "12px sans serif"
     referenceWidth = context.measureText(loadedTestText).width
@@ -138,21 +144,42 @@ defineModule module, class FontLoader
     context.font = "12px #{fontFamily}, sans serif"
     testWidth = context.measureText(loadedTestText).width
 
-    verbose && log "loading #{fontFamily}": {fontFamily, loadedTestText, expectedTestWidth, testWidth, referenceWidth}
-
     if expectedTestWidth?
-      Math.abs(expectedTestWidth - testWidth) < .9 &&
-      Math.abs(expectedTestWidth - referenceWidth) > .1
+      upperBoundTest = Math.abs(expectedTestWidth - testWidth) < .9
+      lowerBoundTest = Math.abs(expectedTestWidth - referenceWidth) > .1
+      notEqual = testWidth != referenceWidth
+      loaded = upperBoundTest && lowerBoundTest && notEqual
+      (verbose || loaded && verboseOnSuccess) && logFontLoaderStatus loadedWidthBasedTest_with_expectedTestWidth: {
+        fontFamily
+        loadedTestText
+        expectedTestWidth
+        testWidth
+        referenceWidth
+        upperBoundTest
+        lowerBoundTest
+        notEqual
+        loaded
+      }
+      loaded
     else
-      testWidth > 0 && testWidth != referenceWidth
+      loaded = testWidth > 0 && testWidth != referenceWidth
+      (verbose || loaded && verboseOnSuccess) && logFontLoaderStatus loadedWidthBasedTest: {
+        fontFamily
+        loadedTestText
+        testWidth
+        referenceWidth
+        loaded
+      }
+      loaded
+
 
   loadingTestBitmap = null
   # returns true if font is loaded
-  @fontLoaded: (fontOptions, fontFamily, verbose) ->
+  @fontLoaded: (fontOptions, fontFamily, verbose, verboseOnSuccess) ->
     {loadedTestText, expectedTestWidth} = fontOptions
     throw new Error "loadedTestText required" unless loadedTestText?
 
     loadingTestBitmap ||= new Bitmap point 1
-    loadedWidthBasedTest loadingTestBitmap, fontFamily, loadedTestText, expectedTestWidth, verbose
+    loadedWidthBasedTest loadingTestBitmap, fontFamily, loadedTestText, expectedTestWidth, verbose, verboseOnSuccess
 
   @_cleanup: -> loadingTestBitmap = null
