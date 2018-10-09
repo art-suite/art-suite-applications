@@ -1,0 +1,4 @@
+&ArtStandardLib.mergeWithSelf
+  &ArtClassSystem
+  &ArtSvgPathExtractor
+  test: (args...) -> global.test args...

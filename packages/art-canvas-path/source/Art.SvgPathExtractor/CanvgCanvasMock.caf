@@ -1,0 +1,116 @@
+import &StandardImport, &ArtAtomic
+
+class ContextState extends BaseObject
+
+  @property
+    :fillStyle
+    :strokeStyle
+    :lineWidth
+    :miterLimit
+    :lineCap
+    :lineJoin
+    :matrix
+
+  constructor: (prevState)->
+    if prevState
+      @fillStyle = prevState.fillStyle
+      @strokeStyle = prevState.strokeStyle
+      @lineWidth = prevState.lineWidth
+      @miterLimit = prevState.miterLimit
+      @lineCap = prevState.lineCap
+      @lineJoin = prevState.lineJoin
+      @matrix = prevState.matrix
+    else
+      @fillStyle
+      @strokeStyle
+      @lineWidth
+      @miterLimit
+      @lineCap
+      @lineJoin = null
+      @matrix = matrix()
+
+class CanvgCanvasContext2dMock extends BaseObject
+
+  constructor: (@canvas, @svgPathExtractor) ->
+    @stateStack = [] new ContextState
+
+  save: ->
+    log SAVE: {@matrix}
+    @stateStack.push new ContextState @currentState
+
+  restore: ->
+    @stateStack.pop()
+    log RESTORE: {@matrix}
+
+  transparentStyle = "rgba(0,0,0,0)"
+
+  fill: (v) ->
+    if @fillStyle? && @fillStyle != transparentStyle
+      {currentPath} = @svgPathExtractor
+      v ?= "nonzero"
+      log "ACTION: fill": @fillStyle
+      currentPath.fillRule = if v == "nonzero" then undefined else "evenodd"
+      currentPath.fillStyle = @fillStyle
+      currentPath.matrix = @matrix
+
+  stroke: ->
+    if @strokeStyle && @strokeStyle != transparentStyle
+      log "ACTION: stroke"
+      {currentPath} = @svgPathExtractor
+      currentPath.strokeStyle = @strokeStyle
+      currentPath.lineWidth = @lineWidth
+      currentPath.miterLimit = @miterLimit
+      currentPath.lineCap = @lineCap
+      currentPath.lineJoin = @_lineJoin
+      currentPath.matrix = @matrix
+
+  @getter
+    currentState: -> peek @stateStack
+    currentPath:  -> @svgPathExtractor.currentPath
+    fillStyle:    -> @currentState.fillStyle
+    strokeStyle:  -> @currentState.strokeStyle
+    lineWidth:    -> @currentState.lineWidth
+    miterLimit:   -> @currentState.miterLimit
+    lineCap:      -> @currentState.lineCap
+    lineJoin:     -> @currentState.lineJoin
+    matrix:       -> @currentState.matrix
+
+    width:        -> throw new Error "can't get width on this"
+    height:       -> throw new Error "can't get height on this"
+
+  @setter
+    fillStyle:    (v) -> @currentState.fillStyle = v
+    strokeStyle:  (v) -> @currentState.strokeStyle = v
+    lineWidth:    (v) -> @currentState.lineWidth = v
+    miterLimit:   (v) -> @currentState.miterLimit = v
+    lineCap:      (v) -> @currentState.lineCap = v
+    lineJoin:     (v) -> @currentState.lineJoin = v
+    matrix:       (v) -> @currentState.matrix = v
+
+    globalAlpha: (v) -> throw new Error "NOT SUPPORTED: globalAlpha???" if v < 254/256
+    globalCompositeOperation: -> throw new Error "NOT SUPPORTED: globalCompositeOperation???"
+
+  translate:  (x, y) -> log "MATRIX translate:  #{formattedInspect {} x, y}"; @matrix = @matrix.translateXY x, y
+  scale:      (x, y) -> log "MATRIX scale:      #{formattedInspect {} x, y}"; @matrix = @matrix.scaleXY x, y
+  transform: (xx, xy, yx, yy, x1, y1) -> log "MATRIX transform: #{formattedInspect {xx, xy, yx, yy, x1, y1}}"; @matrix = @matrix.mul matrix xx, yy, xy, yx, x1, y1
+
+  beginPath:  -> @svgPathExtractor.currentPath.beginPath()
+  moveTo:     (x, y) -> @svgPathExtractor.currentPath.moveTo x, y
+  lineTo:     ->
+  closePath:  ->
+
+  beginPath:         ->                     @svgPathExtractor.advancePathIfPainted().beginPath()
+  closePath:         ->                     @svgPathExtractor.advancePathIfPainted().closePath()
+  moveTo:            (a, b)             ->  @svgPathExtractor.advancePathIfPainted().moveTo           a, b
+  lineTo:            (a, b)             ->  @svgPathExtractor.advancePathIfPainted().lineTo           a, b
+  quadraticCurveTo:  (a, b, c, d)       ->  @svgPathExtractor.advancePathIfPainted().quadraticCurveTo a, b, c, d
+  bezierCurveTo:     (a, b, c, d, e, f) ->  @svgPathExtractor.advancePathIfPainted().bezierCurveTo    a, b, c, d, e, f
+  arc:               (a, b, c, d, e, f) ->  @svgPathExtractor.advancePathIfPainted().arc              a, b, c, d, e, f
+
+
+class CanvgCanvasMock
+
+  constructor: (@svgPathExtractor) ->
+
+  getContext: ->
+    new CanvgCanvasContext2dMock @, @svgPathExtractor

@@ -1,0 +1,48 @@
+import &StandardImport, &ArtXbd, &ArtBinary
+
+{PathsTag, PathTag} = createTagFactories "paths path"
+
+class SvgPathExtractor extends BaseClass
+
+  @extractSvgPath: (svg) ->
+    new SvgPathExtractor
+    .extract svg
+
+  constructor: ->
+    @_paths = [] new &SvgPath
+
+  _advancePath: ->
+    @_paths.push path = new &SvgPath
+    path
+
+  advancePathIfPainted: ->
+    if @currentPath.painted
+      @_advancePath()
+    else
+      @currentPath
+
+  @getter
+    :paths
+    currentPath: -> peek @_paths
+    inspectedObjects: ->
+      SvgPathExtractor: currentPath: @currentPath.inspectedObjects
+
+    encoded: -> array path in @paths with path.encoded
+
+    xbd: ->
+      PathsTag
+        array path in @paths
+          PathTag path.encoded
+
+  extract: (svg) ->
+    &canvg
+      new &CanvgCanvasMock @
+      svg
+      ignoreMouse: true       # ignore mouse events
+      ignoreAnimation: true   # ignore animations
+      ignoreDimensions: true  # does not try to resize canvas
+      ignoreClear: true       # does not clear canvas
+
+    each path in @paths
+      path.resolveMatrix()
+    @

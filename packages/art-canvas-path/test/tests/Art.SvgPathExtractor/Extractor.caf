@@ -1,0 +1,33 @@
+import &StandardImport
+
+suite: ->
+  test 'extractSvgPath' ->
+
+    out = extractSvgPath
+      """
+        <svg height="210" width="400">
+          <path d="M150 0 L75 200 L225 200 Z" />
+          Sorry, your browser does not support inline SVG.
+        </svg>
+    log {out}
+    log {} out.encoded
+    log {} out.xbd
+    out.xbd.toXbd()
+    .then (encodedXbd) ->
+      log {} encodedXbd
+
+  test 'largeTest1' ->
+    out = extractSvgPath &Data.beer
+    log {out}
+    log {} out.encoded
+    out.xbd.toXbd()
+    .then (encodedXbd) ->
+      log {} encodedXbd
+
+  test 'largeTest2' ->
+    out = extractSvgPath &Data.bracket
+    log {out}
+    log {} out.encoded
+    out.xbd.toXbd()
+    .then (encodedXbd) ->
+      log {} encodedXbd
