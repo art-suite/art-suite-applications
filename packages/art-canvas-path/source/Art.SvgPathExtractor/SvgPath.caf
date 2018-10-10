@@ -1,29 +1,5 @@
 import &StandardImport
 
-commandNames =
-  :noop
-  :beginPath
-  :closePath
-  :moveTo             # 2: x, y
-  :lineTo             # 2: x, y
-  :quadraticCurveTo   # 4: cpx, cpy, x, y
-  :bezierCurveTo      # 6: cp1x, cp1y, cp2x, cp2y, x, y
-  :arc                # 5: x, y, rad:radius, rad:startAngle, rad:endAngle (counterClockwise == false)
-  :antiArc            # 5: x, y, rad:radius, rad:startAngle, rad:endAngle (counterClockwise == true)
-
-## non-command-props:
-  :setLineWidth       # 1: lineWidth
-  :setMiterLimit      # 1: limit
-  :setLineEnumProp    # 1: lineCap / lineJoin enum
-
-  :stroke             # mostly, is it stroked?
-  :fill               # is it filled?
-  # Not used by canvg:
-  # :arcTo              # 5: x1, y1, x2, y2, rad:radius
-  # :rect               # 4: x, y, w, h
-
-commandMap = object v, i in commandNames with-key v with i
-
 class SvgPath extends BaseClass
 
   constructor: ->
@@ -63,6 +39,12 @@ class SvgPath extends BaseClass
   @getter
     stroke: -> @strokeStyle?
     fill:   -> @fillStyle?
+    drawArea: ->
+      rect
+        @_originalMinX
+        @_originalMinY
+        @_originalMaxX - @_originalMinX
+        @_originalMaxY - @_originalMinY
 
   _addPoint: (x, y) ->
     if @_pointData.length == 0
@@ -101,12 +83,13 @@ class SvgPath extends BaseClass
         subX = @_originalMinX
         subY = @_originalMinY
 
-        scaler = maxEncodingNumberValue / @originalScale
+        scalerX = maxEncodingNumberValue / (@_originalMaxX - @_originalMinX)
+        scalerY = maxEncodingNumberValue / (@_originalMaxY - @_originalMinY)
 
         each x, i in @_pointData by 2
           y = @_pointData[i + 1]
-          uintArray[i]   = scaler * (x - subX) | 0
-          uintArray[i+1] = scaler * (y - subY) | 0
+          uintArray[i]   = scalerX * (x - subX) + .5 | 0
+          uintArray[i+1] = scalerY * (y - subY) + .5 | 0
 
         uintArray
 
@@ -123,7 +106,7 @@ class SvgPath extends BaseClass
       if @_commands.length > 0
         each v, i from @_commands by 2 into out = new Uint8Array Math.ceil @_commands.length / 2
           v2 = @_commands[i + 1] ? 0
-          out[i] = (v << 4) + v2
+          out[i / 2] = (v << 4) + v2
 
     originalX:      -> @_originalMinX
     originalY:      -> @_originalMinY
@@ -136,14 +119,14 @@ class SvgPath extends BaseClass
     aspectRatio: -> @originalWidth / @originalHeight
 
     encoded: ->
-      merge {}
-        @encodedPointData
-        @encodedRadiiData
-        @encodedCommands
+      new &EncodedPath merge {}
+        points: @encodedPointData
+        radii: @encodedRadiiData
+        commands: @encodedCommands
         @aspectRatio
-        @originalX
-        @originalY
-        @originalScale
+        x: @originalX
+        y: @originalY
+        scale: @originalScale
         @fillStyle
         @strokeStyle
         @lineWidth
@@ -151,6 +134,7 @@ class SvgPath extends BaseClass
         @lineCap
         @lineJoin
         @matrix
+
 
   _addRadius:   (r) -> @_radiiData.push r
   _addCommand:  (commandName) -> @_commands.push commandMap[commandName]
@@ -160,8 +144,6 @@ class SvgPath extends BaseClass
   moveTo:            (a, b)             -> @_addCommand :moveTo          ; @_addPoint a, b
   lineTo:            (a, b)             -> @_addCommand :lineTo          ; @_addPoint a, b
   quadraticCurveTo:  (a, b, c, d)       -> @_addCommand :quadraticCurveTo; @_addPoint a, b; @_addPoint c, d
-  rect:              (a, b, c, d)       -> @_addCommand :rect            ; @_addPoint a, b; @_addPoint c, d
-  # arcTo:             (a, b, c, d, e)    -> @_addCommand :arcTo           ; @_addPoint a, b; @_addPoint c, d; @_addRadius e
   bezierCurveTo:     (a, b, c, d, e, f) -> @_addCommand :bezierCurveTo   ; @_addPoint a, b; @_addPoint c, d; @_addPoint e, f
   arc:               (x, y, r1, r2, r3, counterClockwise) ->
     @_addCommand if counterClockwise then :antiArc else :arc
@@ -169,3 +151,6 @@ class SvgPath extends BaseClass
     @_addRadius r1
     @_addRadius r2
     @_addRadius r3
+
+  # rect:              (a, b, c, d)       -> @_addCommand :rect            ; @_addPoint a, b; @_addPoint c, d
+  # arcTo:             (a, b, c, d, e)    -> @_addCommand :arcTo           ; @_addPoint a, b; @_addPoint c, d; @_addRadius e

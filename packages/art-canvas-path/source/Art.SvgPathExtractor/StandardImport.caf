@@ -1,1 +1,1 @@
-&ArtStandardLib.mergeWithSelf &ArtClassSystem, &ArtNanoGeometry
+&ArtStandardLib.mergeWithSelf &ArtClassSystem, &ArtNanoGeometry, &XbdFactories, &ArtAtomic, &EncodingLib

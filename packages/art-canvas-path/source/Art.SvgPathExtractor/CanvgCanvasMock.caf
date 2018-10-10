@@ -34,13 +34,8 @@ class CanvgCanvasContext2dMock extends BaseObject
   constructor: (@canvas, @svgPathExtractor) ->
     @stateStack = [] new ContextState
 
-  save: ->
-    log SAVE: {@matrix}
-    @stateStack.push new ContextState @currentState
-
-  restore: ->
-    @stateStack.pop()
-    log RESTORE: {@matrix}
+  save: -> @stateStack.push new ContextState @currentState
+  restore: -> @stateStack.pop()
 
   transparentStyle = "rgba(0,0,0,0)"
 
@@ -48,14 +43,12 @@ class CanvgCanvasContext2dMock extends BaseObject
     if @fillStyle? && @fillStyle != transparentStyle
       {currentPath} = @svgPathExtractor
       v ?= "nonzero"
-      log "ACTION: fill": @fillStyle
       currentPath.fillRule = if v == "nonzero" then undefined else "evenodd"
       currentPath.fillStyle = @fillStyle
       currentPath.matrix = @matrix
 
   stroke: ->
     if @strokeStyle && @strokeStyle != transparentStyle
-      log "ACTION: stroke"
       {currentPath} = @svgPathExtractor
       currentPath.strokeStyle = @strokeStyle
       currentPath.lineWidth = @lineWidth
@@ -90,9 +83,9 @@ class CanvgCanvasContext2dMock extends BaseObject
     globalAlpha: (v) -> throw new Error "NOT SUPPORTED: globalAlpha???" if v < 254/256
     globalCompositeOperation: -> throw new Error "NOT SUPPORTED: globalCompositeOperation???"
 
-  translate:  (x, y) -> log "MATRIX translate:  #{formattedInspect {} x, y}"; @matrix = @matrix.translateXY x, y
-  scale:      (x, y) -> log "MATRIX scale:      #{formattedInspect {} x, y}"; @matrix = @matrix.scaleXY x, y
-  transform: (xx, xy, yx, yy, x1, y1) -> log "MATRIX transform: #{formattedInspect {xx, xy, yx, yy, x1, y1}}"; @matrix = @matrix.mul matrix xx, yy, xy, yx, x1, y1
+  translate:  (x, y) -> @matrix = @matrix.translateXY x, y
+  scale:      (x, y) -> @matrix = @matrix.scaleXY x, y
+  transform: (xx, xy, yx, yy, x1, y1) -> @matrix = @matrix.mul matrix xx, yy, xy, yx, x1, y1
 
   beginPath:  -> @svgPathExtractor.currentPath.beginPath()
   moveTo:     (x, y) -> @svgPathExtractor.currentPath.moveTo x, y

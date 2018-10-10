@@ -1,33 +1,24 @@
 import &StandardImport
 
 suite: ->
-  test 'extractSvgPath' ->
+  pathTester = (name, svg) ->
+    test name, ->
+      out = extractSvgPath svg
+      out.xbd.toXbd().then (xbd) ->
+        out extract encoded
+        log {}
+          encoded
+          encodedDrawArea = encoded.drawArea
+          drawArea = out.drawArea
+          xbd
+        assert.true
+          expandedEncodedDrawArea = encodedDrawArea.grow encodedDrawArea.size.max() * .001
+          .contains drawArea
+          {}
+            message: "expanded encodedDrawArea should contain out.drawArea"
+            encodedDrawArea
+            drawArea
+            expandedEncodedDrawArea
 
-    out = extractSvgPath
-      """
-        <svg height="210" width="400">
-          <path d="M150 0 L75 200 L225 200 Z" />
-          Sorry, your browser does not support inline SVG.
-        </svg>
-    log {out}
-    log {} out.encoded
-    log {} out.xbd
-    out.xbd.toXbd()
-    .then (encodedXbd) ->
-      log {} encodedXbd
-
-  test 'largeTest1' ->
-    out = extractSvgPath &Data.beer
-    log {out}
-    log {} out.encoded
-    out.xbd.toXbd()
-    .then (encodedXbd) ->
-      log {} encodedXbd
-
-  test 'largeTest2' ->
-    out = extractSvgPath &Data.bracket
-    log {out}
-    log {} out.encoded
-    out.xbd.toXbd()
-    .then (encodedXbd) ->
-      log {} encodedXbd
+  each svg, name in &Data
+    pathTester name, svg

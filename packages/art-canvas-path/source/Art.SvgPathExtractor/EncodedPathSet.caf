@@ -1,0 +1,22 @@
+import &StandardImport
+
+class EncodedPathSet extends BaseClass
+  constructor: (@paths = [])->
+
+  @getter
+    xbd: ->
+      PathSetTag array path in @paths with path.xbd
+
+    inspectedObjects: ->
+      EncodedPathSet: array path in @paths with path.inspectedObjects
+
+    drawArea: ->
+      out = rect()
+      each path in @paths
+        path.drawArea.unionInto out
+      out
+
+  draw: (context, options) ->
+    each path in @paths
+      path.draw context, options
+

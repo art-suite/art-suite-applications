@@ -24,15 +24,20 @@ class SvgPathExtractor extends BaseClass
   @getter
     :paths
     currentPath: -> peek @_paths
+    drawArea: ->
+      out = rect()
+      each path in @paths
+        path.drawArea.unionInto out
+      out
+
     inspectedObjects: ->
       SvgPathExtractor: currentPath: @currentPath.inspectedObjects
 
-    encoded: -> array path in @paths with path.encoded
+    encoded: ->
+      new &EncodedPathSet array path in @paths with path.encoded
 
     xbd: ->
-      PathsTag
-        array path in @paths
-          PathTag path.encoded
+      @encoded.xbd
 
   extract: (svg) ->
     &canvg

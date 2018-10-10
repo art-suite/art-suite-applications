@@ -6,5 +6,10 @@ module.exports
 .includeInNamespace require './SvgPathExtractor'
 .addModules
   CanvgCanvasMock: require './CanvgCanvasMock'
+  EncodedPath:     require './EncodedPath'    
+  EncodedPathSet:  require './EncodedPathSet' 
+  EncodingLib:     require './EncodingLib'    
   StandardImport:  require './StandardImport' 
   SvgPath:         require './SvgPath'        
+  SvgPathSet:      require './SvgPathSet'     
+  XbdFactories:    require './XbdFactories'   

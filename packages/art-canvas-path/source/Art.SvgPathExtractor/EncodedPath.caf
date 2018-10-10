@@ -1,0 +1,73 @@
+import &StandardImport
+
+class EncodedPath extends BaseClass
+
+  constructor: (props) ->
+    @props = object v, k in props
+      if isNumber v
+        numberToTightString v, 5
+      else
+        v
+
+    @points = @props.points
+    @radii = @props.radii
+    @commands = @props.commands
+    @x = parseFloat @props.x ? 0
+    @y = parseFloat @props.y ? 0
+    @aspectRatio = parseFloat @props.aspectRatio ? 1
+    @scale = parseFloat @props.scale ? 1
+
+    @reset()
+
+  @getter
+    inspectedObjects: -> @props
+
+    xbd: -> PathTag @props
+
+    drawArea: ->
+      @reset()
+      {x, y} = @nextPoint
+      maxX = minX = x
+      maxY = minY = y
+      while p = @nextPoint
+        {x, y} = p
+        maxX = max maxX, x
+        maxY = max maxY, y
+        minX = min minX, x
+        minY = min minY, y
+
+      rect
+        minX
+        minY
+        maxX - minX
+        maxY - minY
+
+    nextPoint: ->
+      {points, _scaleY, _scaleX, _addX, _addY} = @
+      if @_pointIndex < points.length
+        x = points[@_pointIndex++]
+        y = points[@_pointIndex++]
+        x: x * _scaleX + _addX
+        y: y * _scaleY + _addY
+
+  reset: ->
+    @_pointIndex =
+    @_radiiIndex =
+    @_commandIndex = 0
+
+    @ extract x, y, aspectRatio, scale
+
+    @_scaleX =
+    @_scaleY = scale
+
+    if aspectRatio > 1
+      @_scaleY /= aspectRatio
+    else
+      @_scaleX *= aspectRatio
+
+    @_addX = x ? 0
+    @_addY = y ? 0
+
+    @_scaleX /= maxFixedPointValue
+    @_scaleY /= maxFixedPointValue
+
