@@ -21,5 +21,13 @@ suite: ->
             drawArea
             expandedEncodedDrawArea
 
+        encoded.normalize()
+        encoded.removeStyles()
+        encoded.xbd.toXbd().then (xbd) ->
+          log normalized: {}
+            encoded
+            reconstituted: new EncodedPathSet encoded.xbd
+            xbd
+
   each svg, name in &Data
     pathTester name, svg

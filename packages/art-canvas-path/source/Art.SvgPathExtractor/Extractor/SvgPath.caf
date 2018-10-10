@@ -78,7 +78,7 @@ class SvgPath extends BaseClass
     painted: -> @stroke || @fill
     encodedPointData: ->
       if @_pointData.length > 0
-        uintArray = new encodingNumberType @_pointData.length
+        uintArray = new valueArrayType @_pointData.length
         subX = @_originalMinX
         subY = @_originalMinY
 
@@ -94,7 +94,7 @@ class SvgPath extends BaseClass
 
     encodedRadiiData: ->
       if @_radiiData.length > 0
-        uintArray = new encodingNumberType @_radiiData.length
+        uintArray = new valueArrayType @_radiiData.length
         scaler = maxFixedPointValue / Math.PI * 2
         each r, i from-array @_radiiData
           uintArray[i] = scaler * r %% maxFixedPointValue | 0
@@ -103,7 +103,7 @@ class SvgPath extends BaseClass
 
     encodedCommands: ->
       if @_commands.length > 0
-        each v, i from @_commands by 2 into out = new Uint8Array Math.ceil @_commands.length / 2
+        each v, i from @_commands by 2 into out = new commandArrayType Math.ceil @_commands.length / 2
           v2 = @_commands[i + 1] ? 0
           out[i / 2] = (v << 4) + v2
 

@@ -3,6 +3,7 @@
 
 module.exports = require './namespace'
 module.exports
+.includeInNamespace require './SvgPathExtractor'
 .addModules
   StandardImport: require './StandardImport'
 require './Encoded'

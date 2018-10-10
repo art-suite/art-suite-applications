@@ -1,20 +1,42 @@
 import &StandardImport
 
 class EncodedPathSet extends BaseClass
-  constructor: (@paths = [])->
+  constructor: (a)->
+    if a instanceof XbdTag
+      @_initFromXbd a
+    else
+      @paths = if isArray a
+        a
+      else if a?
+        throw new Error "unsupported type constructing EncodedPathSet: #{formattedInspect a}"
+      else
+        []
+
+  _initFromXbd: (xbdTag) ->
+    @paths = array pathTag in xbdTag.tags
+      new &EncodedPath pathTag
 
   @getter
     xbd: ->
       PathSetTag array path in @paths with path.xbd
 
     inspectedObjects: ->
-      EncodedPathSet: array path in @paths with path.inspectedObjects
+      EncodedPathSet: toInspectedObjects @paths
 
     drawArea: ->
       out = rect()
       each path in @paths
         path.drawArea.unionInto out
       out
+
+  normalize: ->
+    {drawArea} = @
+    each path in @paths
+      path.normalize drawArea
+
+  removeStyles: ->
+    each path in @paths
+      path.removeStyles()
 
   draw: (context, options) ->
     each path in @paths

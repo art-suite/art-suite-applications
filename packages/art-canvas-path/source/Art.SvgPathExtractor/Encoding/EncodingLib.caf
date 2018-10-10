@@ -24,4 +24,5 @@ commandNames: commandNames =
 
 commandMap: object v, i in commandNames with-key v with i
 maxFixedPointValue: 65535
-encodingNumberType: Uint16Array
+valueArrayType: Uint16Array
+commandArrayType:  Uint8Array
