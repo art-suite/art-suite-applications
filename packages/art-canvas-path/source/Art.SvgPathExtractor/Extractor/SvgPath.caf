@@ -72,8 +72,7 @@ class SvgPath extends BaseClass
           m.transformY x, y
       @matrix = undefined
 
-  encodingNumberType = Uint16Array
-  maxEncodingNumberValue = 65535
+
 
   @getter
     painted: -> @stroke || @fill
@@ -83,8 +82,8 @@ class SvgPath extends BaseClass
         subX = @_originalMinX
         subY = @_originalMinY
 
-        scalerX = maxEncodingNumberValue / (@_originalMaxX - @_originalMinX)
-        scalerY = maxEncodingNumberValue / (@_originalMaxY - @_originalMinY)
+        scalerX = maxFixedPointValue / (@_originalMaxX - @_originalMinX)
+        scalerY = maxFixedPointValue / (@_originalMaxY - @_originalMinY)
 
         each x, i in @_pointData by 2
           y = @_pointData[i + 1]
@@ -96,9 +95,9 @@ class SvgPath extends BaseClass
     encodedRadiiData: ->
       if @_radiiData.length > 0
         uintArray = new encodingNumberType @_radiiData.length
-        scaler = maxEncodingNumberValue / Math.PI * 2
+        scaler = maxFixedPointValue / Math.PI * 2
         each r, i from-array @_radiiData
-          uintArray[i] = scaler * r %% maxEncodingNumberValue | 0
+          uintArray[i] = scaler * r %% maxFixedPointValue | 0
 
         uintArray
 
@@ -119,7 +118,7 @@ class SvgPath extends BaseClass
     aspectRatio: -> @originalWidth / @originalHeight
 
     encoded: ->
-      new &EncodedPath merge {}
+      new EncodedPath merge {}
         points: @encodedPointData
         radii: @encodedRadiiData
         commands: @encodedCommands

@@ -1,4 +1,5 @@
 import &StandardImport
+import Extractor
 
 suite: ->
   pathTester = (name, svg) ->
