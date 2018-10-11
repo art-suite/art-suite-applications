@@ -1,0 +1,3 @@
+import &StandardImport
+
+class EncodedNamedPathSet extends BaseClass

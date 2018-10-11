@@ -1,0 +1,50 @@
+import &StandardImport
+
+class EncodedPathSet extends BaseClass
+  constructor: (a)->
+    if a instanceof XbdTag
+      @_initFromXbd a
+    else
+      @paths = if isArray a
+        a
+      else if a?
+        throw new Error "unsupported type constructing EncodedPathSet: #{formattedInspect a}"
+      else
+        []
+
+  @property :aspectRatio
+
+  _initFromXbd: (xbdTag) ->
+    @paths = array pathTag in xbdTag.tags
+      new &EncodedPath pathTag
+
+  applyPath: (context, size) ->
+    each path in @paths
+      path.applyPath context, size
+
+  @getter
+    xbd: ->
+      PathSetTag
+        {@aspectRatio} if @aspectRatio?
+        array path in @paths with path.xbd
+
+    inspectedObjects: ->
+      EncodedPathSet: toInspectedObjects @paths
+
+    drawArea: ->
+      out = rect()
+      each path in @paths
+        path.drawArea.unionInto out
+      out
+
+  normalize: ->
+    {drawArea} = @
+    each path in @paths
+      path.normalize drawArea
+
+    @aspectRatio = drawArea.aspectRatio
+    @
+
+  removeStyles: ->
+    each path in @paths
+      path.removeStyles()

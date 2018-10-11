@@ -1,18 +1,14 @@
-import &StandardImport
+import &StandardImport, &CanvasPathBuilder
 
 {PathsTag, PathTag} = createTagFactories "paths path"
 
 class SvgPathExtractor extends BaseClass
 
-  @extractSvgPath: (svg) ->
-    new SvgPathExtractor
-    .extract svg
-
   constructor: ->
-    @_paths = [] new &SvgPath
+    @_paths = [] new IntermediateCanvasPath
 
   _advancePath: ->
-    @_paths.push path = new &SvgPath
+    @_paths.push path = new IntermediateCanvasPath
     path
 
   advancePathIfPainted: ->
@@ -41,7 +37,7 @@ class SvgPathExtractor extends BaseClass
 
   extract: (svg) ->
     &canvg
-      new &CanvgCanvasMock @
+      new Builder @
       svg
       ignoreMouse: true       # ignore mouse events
       ignoreAnimation: true   # ignore animations

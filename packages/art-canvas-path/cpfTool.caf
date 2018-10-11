@@ -1,0 +1,21 @@
+import &ArtStandardLib, &ArtSvgPathExtractor
+
+fs = &fsExtra
+&colors
+
+{output} = commander =
+  &commander
+  .version &package.version
+  .option '-o, --output',     "output file name"
+  .parse process.argv
+
+files = commander.args
+if files.length > 0
+  log inputs: files, output: output ? "<stdout>"
+  totalLength = 0
+  array file in files
+    svg = fs.readFileSync file
+    totalLength += svg.length
+  log {} totalLength
+else
+  commander.outputHelp()

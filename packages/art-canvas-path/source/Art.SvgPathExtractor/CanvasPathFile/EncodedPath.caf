@@ -1,0 +1,152 @@
+import &StandardImport
+
+class EncodedPath extends BaseClass
+
+  constructor: (a)->
+    if a instanceof XbdTag
+      @_initFromXbd a
+    else
+      @_initFromProps a
+
+  _initFromProps: (props) ->
+    @styleProps = extractStyleProps props
+
+    @points   = props.points
+    @radii    = props.radii
+    @commands = props.commands
+    @x            = parseFloat props.x ? 0
+    @y            = parseFloat props.y ? 0
+    @aspectRatio  = parseFloat props.aspectRatio ? 1
+    @scale        = parseFloat props.scale ? 1
+
+    @reset()
+
+  @property :styleProps :points :radii :commands :x :y :aspectRatio :scale
+
+  _initFromXbd: (xbdTag) ->
+    xbdTag.attrs extract commands, radii, points, x, y, scale, aspectRatio
+    @commands     = new commandArrayType commands.buffer
+    @points       = new valueArrayType points.buffer
+    @radii        = radii && new valueArrayType radii.buffer
+    @x            = parseFloat x?.toString()           ? 0
+    @y            = parseFloat y?.toString()           ? 0
+    @scale        = parseFloat scale?.toString()       ? 1
+    @aspectRatio  = parseFloat aspectRatio?.toString() ? 1
+    @styleProps   = object v, k from extractStyleProps xbdTag.attrs with v.toString()
+
+  extractStyleProps = (props) ->
+    merge {fillStyle, strokeStyle, lineWidth, miterLimit, lineCap, lineJoin} = props
+
+  @getter
+    props: ->
+      merge
+        @styleProps
+        {}
+          @commands
+          @points
+          @radii
+          x:            unless float32Eq0 @x then @x
+          y:            unless float32Eq0 @y then @y
+          scale:        unless float32Eq 1, @scale then @scale
+          aspectRatio:  unless float32Eq 1, @aspectRatio then @aspectRatio
+
+    inspectedObjects: -> @props
+
+    xbd: -> PathTag @props
+
+    drawArea: ->
+      @reset()
+      {x, y} = @nextPoint
+      maxX = minX = x
+      maxY = minY = y
+      while p = @nextPoint
+        {x, y} = p
+        maxX = max maxX, x
+        maxY = max maxY, y
+        minX = min minX, x
+        minY = min minY, y
+
+      rect
+        minX
+        minY
+        maxX - minX
+        maxY - minY
+
+    nextPoint: ->
+      {points, _scaleY, _scaleX, _addX, _addY} = @
+      if @_pointIndex < points.length
+        x = points[@_pointIndex++]
+        y = points[@_pointIndex++]
+        x: x * _scaleX + _addX
+        y: y * _scaleY + _addY
+
+    nextRadii: -> @radii[@_radiiIndex++]
+
+  getNextAreaScaledX: (size) -> size.x * @points[@_pointIndex++] * @_scaleX + @_addX
+  getNextAreaScaledY: (size) -> size.y * @points[@_pointIndex++] * @_scaleY + @_addY
+
+  removeStyles: ->
+    @styleProps = null
+
+  normalize: (drawArea = @drawArea)->
+    if @x != 0 || @y != 0 || @scale != 1 || @aspectRatio != 1 || drawArea.area != 1
+      @reset()
+      @ extract points
+      writeIndex = 0
+
+      writeXScaler = maxFixedPointValue / drawArea.w
+      subX = drawArea.x
+      writeYScaler = maxFixedPointValue / drawArea.h
+      subY = drawArea.y
+      while p = @nextPoint
+        {x, y} = p
+        points[writeIndex++] = wx = (x - subX) * writeXScaler + .5 | 0
+        points[writeIndex++] = wy = (y - subY) * writeYScaler + .5 | 0
+
+      @x = @y = 0
+      @scale = 1
+      @aspectRatio = 1 # EncodedPathSet will stor aspectRatio
+
+    @
+
+  applyPath: (context, size)->
+    @reset()
+    each i til @commands.length
+      commandPair = @commands[i]
+      @_applyCommand commandPair >> 4, context, size
+      @_applyCommand commandPair & 0xf, context, size
+
+  _applyCommand: (command, context, size) ->
+
+    switch command
+      when noopCommand             then null
+      when beginPathCommand        then null;# context.beginPath()
+      when closePathCommand        then null;# context.closePath()
+      when moveToCommand           then context.moveTo            @getNextAreaScaledX(size), @getNextAreaScaledY(size)
+      when lineToCommand           then context.lineTo            @getNextAreaScaledX(size), @getNextAreaScaledY(size)
+      when quadraticCurveToCommand then context.quadraticCurveTo  @getNextAreaScaledX(size), @getNextAreaScaledY(size), @getNextAreaScaledX(size), @getNextAreaScaledY(size)
+      when bezierCurveToCommand    then context.bezierCurveTo     @getNextAreaScaledX(size), @getNextAreaScaledY(size), @getNextAreaScaledX(size), @getNextAreaScaledY(size), @getNextAreaScaledX(size), @getNextAreaScaledY(size)
+      when arcCommand              then context.arc               @getNextAreaScaledX(size), @getNextAreaScaledY(size), @nextRadii, @nextRadii, @nextRadii
+      when antiArcCommand          then context.antiArc           @getNextAreaScaledX(size), @getNextAreaScaledY(size), @nextRadii, @nextRadii, @nextRadii, true
+
+  reset: ->
+    @_pointIndex =
+    @_radiiIndex =
+    @_commandIndex = 0
+
+    @ extract x, y, aspectRatio, scale
+
+    @_scaleX =
+    @_scaleY = scale
+
+    if aspectRatio > 1
+      @_scaleY /= aspectRatio
+    else
+      @_scaleX *= aspectRatio
+
+    @_addX = x ? 0
+    @_addY = y ? 0
+
+    @_scaleX /= maxFixedPointValue
+    @_scaleY /= maxFixedPointValue
+

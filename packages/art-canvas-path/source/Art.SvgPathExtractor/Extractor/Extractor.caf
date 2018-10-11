@@ -1,1 +1,7 @@
-{extractSvgPath} = &SvgPathExtractor
+extractSvgPath: extractSvgPath = (svg) ->
+  new &SvgPathExtractor
+  .extract svg
+
+encodeSvg: (svg) ->
+  extractSvgPath svg
+  .encoded.normalize()

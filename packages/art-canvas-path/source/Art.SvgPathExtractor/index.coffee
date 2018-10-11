@@ -6,6 +6,7 @@ module.exports
 .includeInNamespace require './SvgPathExtractor'
 .addModules
   StandardImport: require './StandardImport'
-require './Encoded'
+require './CanvasPathBuilder'
+require './CanvasPathFile'
 require './Encoding'
 require './Extractor'

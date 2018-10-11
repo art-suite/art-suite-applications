@@ -5,8 +5,5 @@ module.exports = require './namespace'
 module.exports
 .includeInNamespace require './Extractor'
 .addModules
-  CanvgCanvasMock:  require './CanvgCanvasMock' 
   StandardImport:   require './StandardImport'  
-  SvgPath:          require './SvgPath'         
   SvgPathExtractor: require './SvgPathExtractor'
-  SvgPathSet:       require './SvgPathSet'      

@@ -1,0 +1,8 @@
+#!/usr/bin/env node
+
+if (false) { // use build
+  require('./build/abcCommand');
+} else {
+  require('./register');
+  require('./cpfTool');
+}

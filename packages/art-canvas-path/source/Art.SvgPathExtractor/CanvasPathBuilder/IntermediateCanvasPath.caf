@@ -1,0 +1,153 @@
+import &StandardImport
+
+class IntermediateCanvasPath extends BaseClass
+
+  constructor: ->
+    @_originalMaxX = 0
+    @_originalMaxY = 0
+    @_originalMinX = 0
+    @_originalMinY = 0
+
+    @_commands = []
+    @_pointData = []
+    @_radiiData = []
+
+  @getter
+    :originalMaxX
+    :originalMaxY
+    :originalMinX
+    :originalMinY
+
+    :pointCount
+    originalMax: -> [] @_originalMaxX, @_originalMaxY
+    originalMin: -> [] @_originalMinX, @_originalMinY
+    :pointData
+    :commands
+
+    inspectedObjects: ->
+      svgPath: {} @originalMin, @originalMax, @pointCount, @pointData, @commands
+
+  @property
+    :fillStyle
+    :strokeStyle
+    :lineWidth
+    :miterLimit
+    :lineCap
+    :lineJoin
+    :matrix
+
+  @getter
+    stroke: -> @strokeStyle?
+    fill:   -> @fillStyle?
+    drawArea: ->
+      rect
+        @_originalMinX
+        @_originalMinY
+        @_originalMaxX - @_originalMinX
+        @_originalMaxY - @_originalMinY
+
+  _addPoint: (x, y) ->
+    if @_pointData.length == 0
+      @_originalMaxX =
+      @_originalMinX = x
+      @_originalMaxY =
+      @_originalMinY = y
+    else
+      @_originalMaxX = max x, @_originalMaxX
+      @_originalMaxY = max y, @_originalMaxY
+      @_originalMinX = min x, @_originalMinX
+      @_originalMinY = min y, @_originalMinY
+
+    @_pointData.push x
+    @_pointData.push y
+
+  resolveMatrix: ->
+    if m = @matrix
+      pointData = @_pointData
+      @_pointData = []
+      each x, i in pointData by 2
+        y = pointData[i + 1]
+        @_addPoint
+          m.transformX x, y
+          m.transformY x, y
+      @matrix = undefined
+
+  @getter
+    painted: -> @stroke || @fill
+    encodedPointData: ->
+      if @_pointData.length > 0
+        uintArray = new valueArrayType @_pointData.length
+        subX = @_originalMinX
+        subY = @_originalMinY
+
+        scalerX = maxFixedPointValue / (@_originalMaxX - @_originalMinX)
+        scalerY = maxFixedPointValue / (@_originalMaxY - @_originalMinY)
+
+        each x, i in @_pointData by 2
+          y = @_pointData[i + 1]
+          uintArray[i]   = scalerX * (x - subX) + .5 | 0
+          uintArray[i+1] = scalerY * (y - subY) + .5 | 0
+
+        uintArray
+
+    encodedRadiiData: ->
+      if @_radiiData.length > 0
+        uintArray = new valueArrayType @_radiiData.length
+        scaler = maxFixedPointValue / Math.PI * 2
+        each r, i from-array @_radiiData
+          uintArray[i] = scaler * r %% maxFixedPointValue | 0
+
+        uintArray
+
+    encodedCommands: ->
+      if @_commands.length > 0
+        each v, i from @_commands by 2 into out = new commandArrayType Math.ceil @_commands.length / 2
+          v2 = @_commands[i + 1] ? 0
+          out[i / 2] = (v << 4) + v2
+
+    originalX:      -> @_originalMinX
+    originalY:      -> @_originalMinY
+    originalWidth:  -> @_originalMaxX - @_originalMinX
+    originalHeight: -> @_originalMaxY - @_originalMinY
+    originalScale:  -> max @originalWidth, @originalHeight
+    encodedWidth:   -> @originalWidth / @originalScale
+    encodedHeight:  -> @originalHeight / @originalScale
+
+    aspectRatio: -> @originalWidth / @originalHeight
+
+    encoded: ->
+      new EncodedPath merge {}
+        points: @encodedPointData
+        radii: @encodedRadiiData
+        commands: @encodedCommands
+        @aspectRatio
+        x: @originalX
+        y: @originalY
+        scale: @originalScale
+        @fillStyle
+        @strokeStyle
+        @lineWidth
+        @miterLimit
+        @lineCap
+        @lineJoin
+        @matrix
+
+
+  _addRadius:   (r) -> @_radiiData.push r
+  _addCommand:  (commandName) -> @_commands.push commandMap[commandName]
+
+  beginPath:         -> # @_addCommand :beginPath       ;
+  closePath:         -> # @_addCommand :closePath       ;
+  moveTo:            (a, b)             -> @_addCommand :moveTo          ; @_addPoint a, b
+  lineTo:            (a, b)             -> @_addCommand :lineTo          ; @_addPoint a, b
+  quadraticCurveTo:  (a, b, c, d)       -> @_addCommand :quadraticCurveTo; @_addPoint a, b; @_addPoint c, d
+  bezierCurveTo:     (a, b, c, d, e, f) -> @_addCommand :bezierCurveTo   ; @_addPoint a, b; @_addPoint c, d; @_addPoint e, f
+  arc:               (x, y, r1, r2, r3, counterClockwise) ->
+    @_addCommand if counterClockwise then :antiArc else :arc
+    @_addPoint x, y
+    @_addRadius r1
+    @_addRadius r2
+    @_addRadius r3
+
+  # rect:              (a, b, c, d)       -> @_addCommand :rect            ; @_addPoint a, b; @_addPoint c, d
+  # arcTo:             (a, b, c, d, e)    -> @_addCommand :arcTo           ; @_addPoint a, b; @_addPoint c, d; @_addRadius e

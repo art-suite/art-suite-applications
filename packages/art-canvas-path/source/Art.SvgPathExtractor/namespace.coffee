@@ -3,6 +3,7 @@
 
 module.exports = (require 'neptune-namespaces').addNamespace 'Art.SvgPathExtractor', class SvgPathExtractor extends Neptune.PackageNamespace
   @version: require('../../package.json').version
-require './Encoded/namespace';
+require './CanvasPathBuilder/namespace';
+require './CanvasPathFile/namespace';
 require './Encoding/namespace';
 require './Extractor/namespace'
