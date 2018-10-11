@@ -1,7 +1,5 @@
 import &StandardImport, &CanvasPathBuilder
 
-{PathsTag, PathTag} = createTagFactories "paths path"
-
 class SvgPathExtractor extends BaseClass
 
   constructor: ->
@@ -30,7 +28,7 @@ class SvgPathExtractor extends BaseClass
       SvgPathExtractor: currentPath: @currentPath.inspectedObjects
 
     encoded: ->
-      new EncodedPathSet array path in @paths with path.encoded
+      new CanvasPathSet array path in @paths with path.encoded
 
     xbd: ->
       @encoded.xbd

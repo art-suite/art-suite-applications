@@ -1,6 +1,6 @@
 import &StandardImport
 
-class EncodedPathSet extends BaseClass
+class CanvasPathSet extends BaseClass
   constructor: (a)->
     if a instanceof XbdTag
       @_initFromXbd a
@@ -8,7 +8,7 @@ class EncodedPathSet extends BaseClass
       @paths = if isArray a
         a
       else if a?
-        throw new Error "unsupported type constructing EncodedPathSet: #{formattedInspect a}"
+        throw new Error "unsupported type constructing CanvasPathSet: #{formattedInspect a}"
       else
         []
 
@@ -16,7 +16,7 @@ class EncodedPathSet extends BaseClass
 
   _initFromXbd: (xbdTag) ->
     @paths = array pathTag in xbdTag.tags
-      new &EncodedPath pathTag
+      new &CanvasPath pathTag
 
   applyPath: (context, size) ->
     each path in @paths
@@ -24,21 +24,18 @@ class EncodedPathSet extends BaseClass
 
   @getter
     xbd: ->
-      PathSetTag
+      CanvasPathSetTag
         {@aspectRatio} if @aspectRatio?
         array path in @paths with path.xbd
 
     inspectedObjects: ->
-      EncodedPathSet: toInspectedObjects @paths
+      CanvasPathSet: toInspectedObjects @paths
 
     drawArea: ->
-      out = rect()
-      each path in @paths
-        path.drawArea.unionInto out
-      out
+      reduce area, p in @paths inject rect()
+        p.drawArea.unionInto area
 
-  normalize: ->
-    {drawArea} = @
+  normalize: (drawArea = @drawArea) ->
     each path in @paths
       path.normalize drawArea
 

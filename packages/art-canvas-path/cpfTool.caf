@@ -6,16 +6,36 @@ fs = &fsExtra
 {output} = commander =
   &commander
   .version &package.version
-  .option '-o, --output',     "output file name"
+  .option '-o, --output [file]',     "output file name"
   .parse process.argv
 
 files = commander.args
 if files.length > 0
   log inputs: files, output: output ? "<stdout>"
-  totalLength = 0
+  sbgSourceLength = 0
+
+  cpl = new CanvasPathLibrary
   array file in files
-    svg = fs.readFileSync file
-    totalLength += svg.length
-  log {} totalLength
+    svg =
+      fs.readFileSync file
+      .toString()
+
+    name = &path.parse(file).name
+    log encoding: name
+
+    cpl.add
+      name
+      svgToCanvasPathFile svg
+
+    sbgSourceLength += svg.length
+
+  log "" normalize cpl
+  cpl.normalize()
+  cpl.xbd.toXbd()
+  .then (cpfFile) ->
+    log {} sbgSourceLength, cpfFile
+    if output
+      log {} output
+      fs.writeFileSync output, cpfFile.nodeBuffer
 else
   commander.outputHelp()

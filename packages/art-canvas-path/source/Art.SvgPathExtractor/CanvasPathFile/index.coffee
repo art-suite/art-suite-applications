@@ -4,7 +4,7 @@
 module.exports = require './namespace'
 module.exports
 .addModules
-  EncodedNamedPathSet: require './EncodedNamedPathSet'
-  EncodedPath:         require './EncodedPath'        
-  EncodedPathSet:      require './EncodedPathSet'     
-  StandardImport:      require './StandardImport'     
+  CanvasPath:        require './CanvasPath'       
+  CanvasPathLibrary: require './CanvasPathLibrary'
+  CanvasPathSet:     require './CanvasPathSet'    
+  StandardImport:    require './StandardImport'   

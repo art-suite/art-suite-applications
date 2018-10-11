@@ -2,6 +2,9 @@ extractSvgPath: extractSvgPath = (svg) ->
   new &SvgPathExtractor
   .extract svg
 
-encodeSvg: (svg) ->
+
+svgToCanvasPathFile: svgToCanvasPathFile = (svg) ->
   extractSvgPath svg
-  .encoded.normalize()
+  .encoded
+
+encodeSvg: svgToCanvasPathFile

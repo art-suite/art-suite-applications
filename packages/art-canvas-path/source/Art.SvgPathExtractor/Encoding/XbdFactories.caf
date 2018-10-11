@@ -1,2 +1,2 @@
 import &ArtXbd
-createTagFactories "PathSet Path"
+createTagFactories "CanvasPathSet CanvasPath CanvasPathLibrary"

@@ -26,7 +26,7 @@ suite: ->
         encoded.xbd.toXbd().then (xbd) ->
           log normalized: {}
             encoded
-            reconstituted: new EncodedPathSet encoded.xbd
+            reconstituted: new CanvasPathSet encoded.xbd
             xbd
 
   each svg, name in &Data

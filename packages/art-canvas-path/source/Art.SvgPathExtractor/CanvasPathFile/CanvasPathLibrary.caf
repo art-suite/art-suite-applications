@@ -1,0 +1,25 @@
+import &StandardImport
+
+class CanvasPathLibrary extends BaseClass
+
+  constructor: ->
+    @_canvasPathSets = {}
+
+  @property :canvasPathSets
+
+  @getter
+    drawArea: ->
+      reduce area, p in @canvasPathSets inject rect()
+        p.drawArea.unionInto area
+
+    xbd: ->
+      CanvasPathLibraryTag
+        array p in @canvasPathSets with p.xbd
+
+  add: (name, pathSet) -> @canvasPathSets[name] = pathSet
+  get: (name) -> @canvasPathSets[name]
+  names: -> Object.keys @canvasPathSets
+
+  normalize: (drawArea = @drawArea) ->
+    each p in @canvasPathSets
+      p.normalize drawArea

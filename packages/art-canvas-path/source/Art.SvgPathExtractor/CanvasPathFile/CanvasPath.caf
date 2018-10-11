@@ -1,6 +1,6 @@
 import &StandardImport
 
-class EncodedPath extends BaseClass
+class CanvasPath extends BaseClass
 
   constructor: (a)->
     if a instanceof XbdTag
@@ -8,34 +8,7 @@ class EncodedPath extends BaseClass
     else
       @_initFromProps a
 
-  _initFromProps: (props) ->
-    @styleProps = extractStyleProps props
-
-    @points   = props.points
-    @radii    = props.radii
-    @commands = props.commands
-    @x            = parseFloat props.x ? 0
-    @y            = parseFloat props.y ? 0
-    @aspectRatio  = parseFloat props.aspectRatio ? 1
-    @scale        = parseFloat props.scale ? 1
-
-    @reset()
-
   @property :styleProps :points :radii :commands :x :y :aspectRatio :scale
-
-  _initFromXbd: (xbdTag) ->
-    xbdTag.attrs extract commands, radii, points, x, y, scale, aspectRatio
-    @commands     = new commandArrayType commands.buffer
-    @points       = new valueArrayType points.buffer
-    @radii        = radii && new valueArrayType radii.buffer
-    @x            = parseFloat x?.toString()           ? 0
-    @y            = parseFloat y?.toString()           ? 0
-    @scale        = parseFloat scale?.toString()       ? 1
-    @aspectRatio  = parseFloat aspectRatio?.toString() ? 1
-    @styleProps   = object v, k from extractStyleProps xbdTag.attrs with v.toString()
-
-  extractStyleProps = (props) ->
-    merge {fillStyle, strokeStyle, lineWidth, miterLimit, lineCap, lineJoin} = props
 
   @getter
     props: ->
@@ -52,13 +25,14 @@ class EncodedPath extends BaseClass
 
     inspectedObjects: -> @props
 
-    xbd: -> PathTag @props
+    xbd: -> CanvasPathTag @props
 
     drawArea: ->
-      @reset()
+      @_reset()
       {x, y} = @nextPoint
       maxX = minX = x
       maxY = minY = y
+
       while p = @nextPoint
         {x, y} = p
         maxX = max maxX, x
@@ -90,7 +64,7 @@ class EncodedPath extends BaseClass
 
   normalize: (drawArea = @drawArea)->
     if @x != 0 || @y != 0 || @scale != 1 || @aspectRatio != 1 || drawArea.area != 1
-      @reset()
+      @_reset()
       @ extract points
       writeIndex = 0
 
@@ -105,17 +79,20 @@ class EncodedPath extends BaseClass
 
       @x = @y = 0
       @scale = 1
-      @aspectRatio = 1 # EncodedPathSet will stor aspectRatio
+      @aspectRatio = 1 # Normalized aspectRatio is the same for all CanvasPaths in a CanvasPathSet. Therefor CanvasPathSet will store the aspectRatio once.
 
     @
 
   applyPath: (context, size)->
-    @reset()
+    @_reset()
     each i til @commands.length
       commandPair = @commands[i]
       @_applyCommand commandPair >> 4, context, size
       @_applyCommand commandPair & 0xf, context, size
 
+  ################
+      PRIVATE
+  ################
   _applyCommand: (command, context, size) ->
 
     switch command
@@ -129,7 +106,7 @@ class EncodedPath extends BaseClass
       when arcCommand              then context.arc               @getNextAreaScaledX(size), @getNextAreaScaledY(size), @nextRadii, @nextRadii, @nextRadii
       when antiArcCommand          then context.antiArc           @getNextAreaScaledX(size), @getNextAreaScaledY(size), @nextRadii, @nextRadii, @nextRadii, true
 
-  reset: ->
+  _reset: ->
     @_pointIndex =
     @_radiiIndex =
     @_commandIndex = 0
@@ -150,3 +127,29 @@ class EncodedPath extends BaseClass
     @_scaleX /= maxFixedPointValue
     @_scaleY /= maxFixedPointValue
 
+  _initFromProps: (props) ->
+    @styleProps = extractStyleProps props
+
+    @points   = props.points
+    @radii    = props.radii
+    @commands = props.commands
+    @x            = parseFloat props.x ? 0
+    @y            = parseFloat props.y ? 0
+    @aspectRatio  = parseFloat props.aspectRatio ? 1
+    @scale        = parseFloat props.scale ? 1
+
+    @_reset()
+
+  _initFromXbd: (xbdTag) ->
+    xbdTag.attrs extract commands, radii, points, x, y, scale, aspectRatio
+    @commands     = new commandArrayType commands.buffer
+    @points       = new valueArrayType points.buffer
+    @radii        = radii && new valueArrayType radii.buffer
+    @x            = parseFloat x?.toString()           ? 0
+    @y            = parseFloat y?.toString()           ? 0
+    @scale        = parseFloat scale?.toString()       ? 1
+    @aspectRatio  = parseFloat aspectRatio?.toString() ? 1
+    @styleProps   = object v, k from extractStyleProps xbdTag.attrs with v.toString()
+
+  extractStyleProps = (props) ->
+    merge {fillStyle, strokeStyle, lineWidth, miterLimit, lineCap, lineJoin} = props

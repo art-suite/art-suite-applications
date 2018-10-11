@@ -116,7 +116,7 @@ class IntermediateCanvasPath extends BaseClass
     aspectRatio: -> @originalWidth / @originalHeight
 
     encoded: ->
-      new EncodedPath merge {}
+      new CanvasPath merge {}
         points: @encodedPointData
         radii: @encodedRadiiData
         commands: @encodedCommands
