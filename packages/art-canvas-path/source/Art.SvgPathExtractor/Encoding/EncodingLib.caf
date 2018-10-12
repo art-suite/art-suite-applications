@@ -1,17 +1,6 @@
 import &ArtStandardLib
 
 out =
-  commandNames: commandNames =
-    :noop
-    :beginPath
-    :closePath
-    :moveTo             # 2: x, y
-    :lineTo             # 2: x, y
-    :quadraticCurveTo   # 4: cpx, cpy, x, y
-    :bezierCurveTo      # 6: cp1x, cp1y, cp2x, cp2y, x, y
-    :arc                # 5: x, y, rad:radius, rad:startAngle, rad:endAngle (counterClockwise == false)
-    :antiArc            # 5: x, y, rad:radius, rad:startAngle, rad:endAngle (counterClockwise == true)
-
   ## non-command-props:
     :setLineWidth       # 1: lineWidth
     :setMiterLimit      # 1: limit
@@ -23,12 +12,26 @@ out =
     # :arcTo              # 5: x1, y1, x2, y2, rad:radius
     # :rect               # 4: x, y, w, h
 
-  commandMap: object v, i in commandNames with-key v with i
+  commandMap: commandMap =
+    noop:              0
+    beginPath:         1
+    closePath:         2
+    moveTo:            3 # 2: x, y
+    lineTo:            4 # 2: x, y
+    quadraticCurveTo:  5 # 4: cpx, cpy, x, y
+    bezierCurveTo:     6 # 6: cp1x, cp1y, cp2x, cp2y, x, y
+    arc:               7 # 5: x, y, rad:radius, rad:startAngle, rad:endAngle (counterClockwise == false)
+    antiArc:           8 # 5: x, y, rad:radius, rad:startAngle, rad:endAngle (counterClockwise == true)
+
+  commandIdsToNames:
+    each id, name in commandMap into out = []
+      out[id] = name
+
   maxFixedPointValue: 65535
   valueArrayType: Uint16Array
   commandArrayType:  Uint8Array
 
-object id, name in out.commandMap into out with-key name + :Command
+object id, name in commandMap into out with-key name + :Command
   id
 
 out

@@ -2,21 +2,20 @@ import &StandardImport
 
 class CanvasPathSet extends BaseClass
   constructor: (a)->
-    if a instanceof XbdTag
+    @paths = if a instanceof XbdTag
       @_initFromXbd a
     else
-      @paths = if isArray a
+      if isArray a
         a
       else if a?
         throw new Error "unsupported type constructing CanvasPathSet: #{formattedInspect a}"
       else
         []
 
-  @property :aspectRatio
+  @property :aspectRatio :name
 
-  _initFromXbd: (xbdTag) ->
-    @paths = array pathTag in xbdTag.tags
-      new &CanvasPath pathTag
+  @getter
+    aspectRatio: -> @_aspectRatio ? 1
 
   applyPath: (context, size) ->
     each path in @paths
@@ -25,7 +24,9 @@ class CanvasPathSet extends BaseClass
   @getter
     xbd: ->
       CanvasPathSetTag
-        {@aspectRatio} if @aspectRatio?
+        merge
+          aspectRatio:  if @aspectRatio != 1 then @aspectRatio
+          name:         @name
         array path in @paths with path.xbd
 
     inspectedObjects: ->
@@ -34,6 +35,31 @@ class CanvasPathSet extends BaseClass
     drawArea: ->
       reduce area, p in @paths inject rect()
         p.drawArea.unionInto area
+
+    flattened: ->
+      totalCommands = totalPointValues = totalRadii = 0
+      each {commands, radii, points, normalized}, i in @paths
+        throw new Error "Path not normalized (i=#{i})" unless normalized
+        totalCommands += commands.length if commands
+        totalPointValues += points.length if points
+        totalRadii += radii.length if radii
+
+      _commands     = new commandArrayType totalCommands if totalCommands > 0
+      _points       = new valueArrayType totalPointValues if totalPointValues > 0
+      _radii        = new valueArrayType totalRadii if totalRadii > 0
+
+      ci = pi = ri = 0
+      each {commands, radii, points}, i in @paths
+        each v in commands  with _commands[ci++] = v
+        each v in points    with _points[pi++]   = v
+        each v in radii     with _radii[ri++]    = v
+
+      new &CanvasPath
+        commands:     _commands
+        points:       _points
+        radii:        _radii
+        name:         @name
+        aspectRatio:  @aspectRatio
 
   normalize: (drawArea = @drawArea) ->
     each path in @paths
@@ -45,3 +71,9 @@ class CanvasPathSet extends BaseClass
   removeStyles: ->
     each path in @paths
       path.removeStyles()
+
+  _initFromXbd: (xbdTag) ->
+    @aspectRatio = parseFloat xbdTag.attrs.aspectRatio.toString() ? 1
+    @name = xbdTag.attrs.name?.toString()
+    array pathTag in xbdTag.tags
+      new &CanvasPath pathTag

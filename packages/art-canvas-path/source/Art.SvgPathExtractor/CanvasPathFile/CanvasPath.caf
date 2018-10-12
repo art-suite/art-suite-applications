@@ -8,13 +8,20 @@ class CanvasPath extends BaseClass
     else
       @_initFromProps a
 
-  @property :styleProps :points :radii :commands :x :y :aspectRatio :scale
+  @property :styleProps :points :radii :commands :x :y :aspectRatio :scale :name
 
   @getter
+    normalized: ->
+      float32Eq @aspectRatio, 1
+      && float32Eq @scale, 1
+      && float32Eq0 @x
+      && float32Eq0 @y
+
     props: ->
       merge
         @styleProps
         {}
+          @name
           @commands
           @points
           @radii
@@ -23,9 +30,10 @@ class CanvasPath extends BaseClass
           scale:        unless float32Eq 1, @scale then @scale
           aspectRatio:  unless float32Eq 1, @aspectRatio then @aspectRatio
 
-    inspectedObjects: -> @props
+    inspectedObjects: -> CanvasPath: @props
 
-    xbd: -> CanvasPathTag @props
+    xbd: ->
+      CanvasPathTag @props
 
     drawArea: ->
       @_reset()
@@ -137,18 +145,20 @@ class CanvasPath extends BaseClass
     @y            = parseFloat props.y ? 0
     @aspectRatio  = parseFloat props.aspectRatio ? 1
     @scale        = parseFloat props.scale ? 1
+    @name         = props.name
 
     @_reset()
 
   _initFromXbd: (xbdTag) ->
-    xbdTag.attrs extract commands, radii, points, x, y, scale, aspectRatio
-    @commands     = new commandArrayType commands.buffer
-    @points       = new valueArrayType points.buffer
-    @radii        = radii && new valueArrayType radii.buffer
+    xbdTag.attrs extract commands, radii, points, x, y, scale, aspectRatio, name
+    @commands     = new commandArrayType commands.binaryString.buffer if commands?
+    @points       = new valueArrayType points.binaryString.buffer if points?
+    @radii        = new valueArrayType radii.binaryString.buffer if radii?
     @x            = parseFloat x?.toString()           ? 0
     @y            = parseFloat y?.toString()           ? 0
     @scale        = parseFloat scale?.toString()       ? 1
     @aspectRatio  = parseFloat aspectRatio?.toString() ? 1
+    @name         = name?.toString()
     @styleProps   = object v, k from extractStyleProps xbdTag.attrs with v.toString()
 
   extractStyleProps = (props) ->

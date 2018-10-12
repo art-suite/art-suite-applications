@@ -1,4 +1,4 @@
-import &StandardImport
+import &StandardImport, &ArtXbd
 import Extractor
 
 suite: ->
@@ -6,27 +6,31 @@ suite: ->
     test name, ->
       out = extractSvgPath svg
       out.xbd.toXbd().then (xbd) ->
-        out extract encoded
+        out extract canvasPath
+        # canvasPath.normalize()
         log {}
-          encoded
-          encodedDrawArea = encoded.drawArea
+          canvasPath
+          canvasPathDrawArea = canvasPath.drawArea
           drawArea = out.drawArea
           xbd
+
         assert.true
-          expandedEncodedDrawArea = encodedDrawArea.grow encodedDrawArea.size.max() * .001
+          expandedCanvasPathDrawArea = canvasPathDrawArea.grow canvasPathDrawArea.size.max() * .001
           .contains drawArea
           {}
             message: "expanded encodedDrawArea should contain out.drawArea"
-            encodedDrawArea
+            canvasPathDrawArea
             drawArea
-            expandedEncodedDrawArea
+            expandedCanvasPathDrawArea
 
-        encoded.normalize()
-        encoded.removeStyles()
-        encoded.xbd.toXbd().then (xbd) ->
+        canvasPath.normalize()
+        canvasPath.removeStyles()
+        canvasPath.xbd.toXbd().then (xbd) ->
           log normalized: {}
-            encoded
-            reconstituted: new CanvasPathSet encoded.xbd
+            canvasPath
+            encoded: canvasPath.xbd
+            decoded: fromXbd xbd
+            reconstituted: decodeCpf xbd
             xbd
 
   each svg, name in &Data

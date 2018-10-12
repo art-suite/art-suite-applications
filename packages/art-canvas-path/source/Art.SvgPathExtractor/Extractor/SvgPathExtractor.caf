@@ -27,11 +27,11 @@ class SvgPathExtractor extends BaseClass
     inspectedObjects: ->
       SvgPathExtractor: currentPath: @currentPath.inspectedObjects
 
-    encoded: ->
-      new CanvasPathSet array path in @paths with path.encoded
+    canvasPath: ->
+      new CanvasPathSet array path in @paths with path.canvasPath
 
     xbd: ->
-      @encoded.xbd
+      @canvasPath.xbd
 
   extract: (svg) ->
     &canvg

@@ -2,8 +2,10 @@ import &StandardImport
 
 class CanvasPathLibrary extends BaseClass
 
-  constructor: ->
+  constructor: (a) ->
     @_canvasPathSets = {}
+    if a instanceof XbdTag
+      @_initFromXbd a
 
   @property :canvasPathSets
 
@@ -14,12 +16,27 @@ class CanvasPathLibrary extends BaseClass
 
     xbd: ->
       CanvasPathLibraryTag
-        array p in @canvasPathSets with p.xbd
+        array p, name in @canvasPathSets with p.xbd
 
-  add: (name, pathSet) -> @canvasPathSets[name] = pathSet
-  get: (name) -> @canvasPathSets[name]
-  names: -> Object.keys @canvasPathSets
+    inspectedObjects: ->
+      CanvasPathLibrary: toInspectedObjects @_canvasPathSets
+
+    library: -> @_canvasPathSets
+
+  add: (name, pathSet) ->
+    @canvasPathSets[name] = pathSet
+    .name = name
 
   normalize: (drawArea = @drawArea) ->
     each p in @canvasPathSets
       p.normalize drawArea
+
+  flatten: ->
+    @_canvasPathSets = object p in @canvasPathSets
+      p.flattened
+
+  _initFromXbd: (xbdTag) ->
+    each pathTag in xbdTag.tags
+      if TagType = &namespace[pathTag.name]
+        tag = new TagType pathTag
+        @_canvasPathSets[tag.name] = tag

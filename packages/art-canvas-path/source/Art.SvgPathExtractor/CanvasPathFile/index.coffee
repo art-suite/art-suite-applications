@@ -3,6 +3,7 @@
 
 module.exports = require './namespace'
 module.exports
+.includeInNamespace require './CanvasPathFile'
 .addModules
   CanvasPath:        require './CanvasPath'       
   CanvasPathLibrary: require './CanvasPathLibrary'

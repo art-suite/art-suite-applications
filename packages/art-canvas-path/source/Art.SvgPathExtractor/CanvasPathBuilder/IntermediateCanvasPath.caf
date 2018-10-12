@@ -115,7 +115,7 @@ class IntermediateCanvasPath extends BaseClass
 
     aspectRatio: -> @originalWidth / @originalHeight
 
-    encoded: ->
+    canvasPath: ->
       new CanvasPath merge {}
         points: @encodedPointData
         radii: @encodedRadiiData
@@ -138,10 +138,10 @@ class IntermediateCanvasPath extends BaseClass
 
   beginPath:         -> # @_addCommand :beginPath       ;
   closePath:         -> # @_addCommand :closePath       ;
-  moveTo:            (a, b)             -> @_addCommand :moveTo          ; @_addPoint a, b
-  lineTo:            (a, b)             -> @_addCommand :lineTo          ; @_addPoint a, b
-  quadraticCurveTo:  (a, b, c, d)       -> @_addCommand :quadraticCurveTo; @_addPoint a, b; @_addPoint c, d
-  bezierCurveTo:     (a, b, c, d, e, f) -> @_addCommand :bezierCurveTo   ; @_addPoint a, b; @_addPoint c, d; @_addPoint e, f
+  moveTo:            (a, b)             -> @_addCommand :moveTo           ; @_addPoint a, b
+  lineTo:            (a, b)             -> @_addCommand :lineTo           ; @_addPoint a, b
+  quadraticCurveTo:  (a, b, c, d)       -> @_addCommand :quadraticCurveTo ; @_addPoint a, b; @_addPoint c, d
+  bezierCurveTo:     (a, b, c, d, e, f) -> @_addCommand :bezierCurveTo    ; @_addPoint a, b; @_addPoint c, d; @_addPoint e, f
   arc:               (x, y, r1, r2, r3, counterClockwise) ->
     @_addCommand if counterClockwise then :antiArc else :arc
     @_addPoint x, y

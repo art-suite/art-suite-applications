@@ -3,8 +3,8 @@ extractSvgPath: extractSvgPath = (svg) ->
   .extract svg
 
 
-svgToCanvasPathFile: svgToCanvasPathFile = (svg) ->
+svgToCanvasPath: svgToCanvasPath = (svg) ->
   extractSvgPath svg
-  .encoded
+  .canvasPath
 
-encodeSvg: svgToCanvasPathFile
+encodeSvg: svgToCanvasPath

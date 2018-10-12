@@ -6,7 +6,7 @@ fs = &fsExtra
 {output} = commander =
   &commander
   .version &package.version
-  .option '-o, --output [file]',     "output file name"
+  .option '-o, --output [file]',    "output file name"
   .parse process.argv
 
 files = commander.args
@@ -25,17 +25,19 @@ if files.length > 0
 
     cpl.add
       name
-      svgToCanvasPathFile svg
+      svgToCanvasPath svg
 
     sbgSourceLength += svg.length
 
-  log "" normalize cpl
   cpl.normalize()
+  cpl.flatten()
   cpl.xbd.toXbd()
   .then (cpfFile) ->
-    log {} sbgSourceLength, cpfFile
     if output
       log {} output
       fs.writeFileSync output, cpfFile.nodeBuffer
+    else
+      log {} cpl.xbd, sbgSourceLength, cpfFile
+
 else
   commander.outputHelp()
