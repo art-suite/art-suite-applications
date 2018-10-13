@@ -85,7 +85,7 @@ class CanvgCanvasContext2dMock extends BaseObject
 
   translate:  (x, y) -> @matrix = @matrix.translateXY x, y
   scale:      (x, y) -> @matrix = @matrix.scaleXY x, y
-  transform: (xx, xy, yx, yy, x1, y1) -> @matrix = matrix(xx, yy, xy, yx, x1, y1).mul @matrix
+  transform: (xx, yx, xy, yy, x1, y1) -> @matrix = matrix(xx, yy, xy, yx, x1, y1).mul @matrix
 
   beginPath:  -> @svgPathExtractor.currentPath.beginPath()
   moveTo:     (x, y) -> @svgPathExtractor.currentPath.moveTo x, y

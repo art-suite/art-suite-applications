@@ -64,8 +64,10 @@ class CanvasPath extends BaseClass
 
     nextRadii: -> @radii[@_radiiIndex++]
 
-  getNextAreaScaledX: (size) -> size.x * @points[@_pointIndex++] * @_scaleX + @_addX
-  getNextAreaScaledY: (size) -> size.y * @points[@_pointIndex++] * @_scaleY + @_addY
+  fixedPointScaler = 1 / maxFixedPointValue
+
+  getNextSizeScaledX: (size) -> size.x * @points[@_pointIndex++] * fixedPointScaler
+  getNextSizeScaledY: (size) -> size.y * @points[@_pointIndex++] * fixedPointScaler
 
   removeStyles: ->
     @styleProps = null
@@ -92,6 +94,7 @@ class CanvasPath extends BaseClass
     @
 
   applyPath: (context, size)->
+    # log applyPath: size
     @_reset()
     each i til @commands.length
       commandPair = @commands[i]
@@ -103,16 +106,18 @@ class CanvasPath extends BaseClass
   ################
   _applyCommand: (command, context, size) ->
 
+    # log commandIdsToNames[command]
+
     switch command
       when noopCommand             then null
       when beginPathCommand        then null;# context.beginPath()
       when closePathCommand        then null;# context.closePath()
-      when moveToCommand           then context.moveTo            @getNextAreaScaledX(size), @getNextAreaScaledY(size)
-      when lineToCommand           then context.lineTo            @getNextAreaScaledX(size), @getNextAreaScaledY(size)
-      when quadraticCurveToCommand then context.quadraticCurveTo  @getNextAreaScaledX(size), @getNextAreaScaledY(size), @getNextAreaScaledX(size), @getNextAreaScaledY(size)
-      when bezierCurveToCommand    then context.bezierCurveTo     @getNextAreaScaledX(size), @getNextAreaScaledY(size), @getNextAreaScaledX(size), @getNextAreaScaledY(size), @getNextAreaScaledX(size), @getNextAreaScaledY(size)
-      when arcCommand              then context.arc               @getNextAreaScaledX(size), @getNextAreaScaledY(size), @nextRadii, @nextRadii, @nextRadii
-      when antiArcCommand          then context.antiArc           @getNextAreaScaledX(size), @getNextAreaScaledY(size), @nextRadii, @nextRadii, @nextRadii, true
+      when moveToCommand           then context.moveTo            @getNextSizeScaledX(size), @getNextSizeScaledY(size)
+      when lineToCommand           then context.lineTo            @getNextSizeScaledX(size), @getNextSizeScaledY(size)
+      when quadraticCurveToCommand then context.quadraticCurveTo  @getNextSizeScaledX(size), @getNextSizeScaledY(size), @getNextSizeScaledX(size), @getNextSizeScaledY(size)
+      when bezierCurveToCommand    then context.bezierCurveTo     @getNextSizeScaledX(size), @getNextSizeScaledY(size), @getNextSizeScaledX(size), @getNextSizeScaledY(size), @getNextSizeScaledX(size), @getNextSizeScaledY(size)
+      when arcCommand              then context.arc               @getNextSizeScaledX(size), @getNextSizeScaledY(size), @nextRadii, @nextRadii, @nextRadii
+      when antiArcCommand          then context.antiArc           @getNextSizeScaledX(size), @getNextSizeScaledY(size), @nextRadii, @nextRadii, @nextRadii, true
 
   _reset: ->
     @_pointIndex =

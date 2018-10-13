@@ -34,7 +34,7 @@ if files.length > 0
   cpl.xbd.toXbd()
   .then (cpfFile) ->
     if output
-      log {} output
+      log {} output, size: cpfFile.length
       fs.writeFileSync output, cpfFile.nodeBuffer
     else
       log {} cpl.xbd, sbgSourceLength, cpfFile

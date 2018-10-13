@@ -1,0 +1,6 @@
+import &StandardImport, &ArtXbd
+import Extractor
+
+suite: ->
+  test "nonzero fill - flourishBracket" ->
+    log svgToCanvasPath &Data.flourishBracket

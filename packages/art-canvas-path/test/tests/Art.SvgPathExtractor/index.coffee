@@ -4,5 +4,6 @@
 module.exports = require './namespace'
 module.exports
 .addModules
-  Data:      require './Data'     
-  Extractor: require './Extractor'
+  ConvertAllExamples: require './ConvertAllExamples'
+  ConvertOutputTests: require './ConvertOutputTests'
+  Data:               require './Data'              

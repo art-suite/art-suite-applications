@@ -27,9 +27,9 @@ class CanvasPathLibrary extends BaseClass
     @canvasPathSets[name] = pathSet
     .name = name
 
-  normalize: (drawArea = @drawArea) ->
+  normalize: ->
     each p in @canvasPathSets
-      p.normalize drawArea
+      p.normalize()
 
   flatten: ->
     @_canvasPathSets = object p in @canvasPathSets
