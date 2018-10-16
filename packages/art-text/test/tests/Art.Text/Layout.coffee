@@ -45,29 +45,22 @@ defineModule module, suite:
       log bitmap
       assert.within bitmap.size, point(544, 133), point(550, 137)
 
-    test "layoutMode:tight", ->
-      layout = new Layout "Sing!?!", {fontSize:64}, {layoutMode:"tight"}
-      bitmap = layout.toBitmap()
-      log bitmap
-      assert.within bitmap.size, point(180, 61), point(183, 61)
-
-    test "layoutMode:tight areas", ->
-      layout = new Layout "Sing!?!", {fontSize:64}, {layoutMode:"tight"}
-      bitmap = layout.toBitmap()
-      log bitmap
-      assert.within layout.area,      rect(0, 0, 180, 61), rect(0, 0, 183, 61), "area"
-      assert.within layout.drawArea,  rect(0, 0, 180, 61), rect(0, 0, 183, 61), "drawArea"
-
     test "precision", ->
       layout = new Layout "hi", fontFamily:"Impact", fontSize:64, layoutMode:"tight"
       bitmap = layout.toBitmap()
       log bitmap
 
-    test "toBitmap scale:2", ->
+    test "toBitmap scale:2 textual", ->
       layout = new Layout oneLineText
       bitmap = layout.toBitmap scale:2
       log bitmap
-      assert.within bitmap.size, point(606, 24), point(614, 24)
+      assert.within bitmap.size, point(606, 24), point(615, 24)
+
+    test "toBitmap scale:2 tight", ->
+      layout = new Layout oneLineText, null, layoutMode: "tight"
+      bitmap = layout.toBitmap scale:2
+      log bitmap
+      assert.within bitmap.size, point(606, 24), point(615, 30)
 
     test "multi-lined", ->
       layout = new Layout "Testing multi-line layout.\nLine two."

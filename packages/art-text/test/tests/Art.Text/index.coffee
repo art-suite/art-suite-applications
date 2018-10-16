@@ -6,4 +6,5 @@ module.exports
 .addModules
   Draw:    require './Draw'   
   Layout:  require './Layout' 
+  Layout2: require './Layout2'
   Metrics: require './Metrics'

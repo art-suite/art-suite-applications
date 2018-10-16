@@ -6,7 +6,8 @@ npm:
 
 webpack:
   # common properties are merged into each target's properties
-  common: {}
+  common:
+    mode: "development"
 
   # each target's individual properties
   targets: test: {}

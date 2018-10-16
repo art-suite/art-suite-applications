@@ -1,0 +1,24 @@
+import &StandardImport
+
+suite: ->
+
+  test "layoutMode:tight 64pt", ->
+    layout = new Layout "Sing!?!", {fontSize:64}, {layoutMode:"tight"}
+    bitmap = layout.toBitmap()
+    log {bitmap, size: bitmap.size, layout}
+    log scaled: layout.toBitmap scale: 10
+    assert.within bitmap.size, point(180, 58), point(183, 61)
+
+  test "layoutMode:tight 16pt", ->
+    layout = new Layout "Sing!?!", {fontSize:16}, {layoutMode:"tight"}
+    bitmap = layout.toBitmap()
+    log {bitmap, size: bitmap.size, layout}
+    log scaled: layout.toBitmap scale: 10
+    assert.within bitmap.size, point(45, 15), point(45, 15)
+
+  test "layoutMode:tight areas", ->
+    layout = new Layout "Sing!?!", {fontSize:64}, {layoutMode:"tight"}
+    bitmap = layout.toBitmap()
+    log bitmap
+    assert.within layout.area,      rect(0, 0, 179, 57), rect(0, 0, 183, 61), "area"
+    assert.within layout.drawArea,  rect(0, 0, 179, 57), rect(0, 0, 183, 61), "drawArea"
