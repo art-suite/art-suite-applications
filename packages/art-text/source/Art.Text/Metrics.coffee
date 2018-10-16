@@ -208,28 +208,33 @@ defineModule module, ->
 
       # getAutoCropRectangle returns the exact bounding rectangle of all pixels >= tightThreshold
       # NOTE: for Atomic.Rectangles, right and bottom are EXCLUSIVE while LEFT and TOP are INCLUSIVE
-      {left, right, top, bottom} = scratchBitmap.getAutoCropRectangle tightThreshold
+      {left, right, top, bottom} = scratchBitmap.preciseContentArea
 
       while left == 0 || top == 0 || right == size.x || bottom == size.y
         log "Art.Text.Metrics#_generateTightFontMetrics: #{inspect fontOptions, 1}, padding: #{padding} too small. scratchBitmap.size: #{scratchBitmap.size}"
         padding *= 2
         [scratchBitmap, size, location] = @renderTextToScratchBitmap text, fontOptions, padding
-        {left, right, top, bottom} = scratchBitmap.getAutoCropRectangle tightThreshold
+        {left, right, top, bottom} = scratchBitmap.preciseContentArea
 
       # adjust top and left so all four point to the first blank column/row
-      top--
-      left--
 
-      textOffsetX = location.x - left
-      textOffsetY = location.y - top
-      layoutW     = right - left + 1
-      layoutH     = bottom - top + 1
-      area = rect left - location.x, top - location.y, right - left + 1, bottom - top + 1
+      # alphaFudgeFactor = 1/16
+      # left    = max left        | 0, left - alphaFudgeFactor
+      # top     = max top         | 0, top - alphaFudgeFactor
+      # right   = min right + 1   | 0, right + alphaFudgeFactor
+      # bottom  = min bottom + 1  | 0, bottom + alphaFudgeFactor
+
+      area = rect(
+        0 - textOffsetX = location.x - left
+        0 - textOffsetY = location.y - top
+        layoutW     = right - left
+        layoutH     = bottom - top
+      )
 
       ascender =   location.y - top + 1  # ascender + descender should == area.size.y
       descender =  bottom     - location.y
 
-      # log {scratchBitmap, text, fontOptions, ascender, descender, textOffsetX, textOffsetY, layoutW, layoutH}
+      # log {scratchBitmap:scratchBitmap.clone(), text, fontOptions, ascender, descender, textOffsetX, textOffsetY, layoutW, layoutH, left, right, top, bottom}
 
       new TextLayoutFragment(
         text
