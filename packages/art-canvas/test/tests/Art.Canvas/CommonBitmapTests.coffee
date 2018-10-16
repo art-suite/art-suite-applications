@@ -1,37 +1,34 @@
-Foundation = require 'art-foundation'
-Atomic = require 'art-atomic'
-{Canvas} = Neptune.Art
-
-{point, rect, rgbColor, matrix, Matrix} = Atomic
-{inspect, log, eq} = Foundation
-{Binary} = Foundation
-{EncodedImage} = Binary
-{BitmapBase, Bitmap, GradientFillStyle} = Canvas
+{point, point0, point1, rect, rgbColor, matrix, Matrix} = require 'art-atomic'
+{w, inspect, log, eq} = require 'art-standard-lib'
+{EncodedImage} = require 'art-binary'
+{BitmapBase, Bitmap, GradientFillStyle, supportedCompositeModes} = require 'art-canvas'
 
 module.exports = (bitmapFactory, bitmapClassName) ->
 
-  compositeModes = [
-    "add"
-    "normal"
-    "target_alphamask"
-    "alphamask"
-    "destover"
-    "sourcein"
-  ]
+  testCompositeModes = w "
+    sourceTopUnion
+    sourceTopInTarget
+    sourceTopIntersection
+    sourceWithoutTarget
+    targetTopUnion
+    targetTopInSource
+    targetTopIntersection
+    targetWithoutSource
+  "
 
   generateCompositingTestBitmap = (clearColor, c1, c2) ->
     a = bitmapFactory.newBitmap point 3
     a.clear clearColor
-    a.drawRectangle point(0), point(2), color:c1
+    a.drawRectangle point0, point(2), color:c1
 
     b = bitmapFactory.newBitmap point 3
     b.clear clearColor
-    b.drawRectangle point(1), point(2), color:c2
+    b.drawRectangle point1, point(2), color:c2
     s = b.size
     step = s
-    dest = bitmapFactory.newBitmap step.mul point(1, compositeModes.length)
+    dest = bitmapFactory.newBitmap step.mul point(1, testCompositeModes.length)
 
-    for compositeMode, mi in compositeModes
+    for compositeMode, mi in testCompositeModes
       p = point(0, mi).floor().mul step
       temp = bitmapFactory.newBitmap b.size
       temp.drawBitmap point(), a
@@ -118,12 +115,13 @@ module.exports = (bitmapFactory, bitmapClassName) ->
         supportedCompositeModes = bitmap.supportedCompositeModes
         assert.eq bitmap.supportedCompositeModes, bitmap.class.supportedCompositeModes
 
-        for mode in compositeModes
-          assert.ok supportedCompositeModes.indexOf(mode) >= 0
-          assert.ok bitmap.compositeModeSupported mode
+        log {supportedCompositeModes, testCompositeModes}
+        for mode in testCompositeModes
+          assert.eq true, supportedCompositeModes.indexOf(mode) >= 0, "#{mode} is in supportedCompositeModes"
+          assert.eq true, bitmap.compositeModeSupported(mode), "#{mode} is supported"
 
-        assert.ok !(supportedCompositeModes.indexOf("something funky") >= 0)
-        assert.ok !bitmap.compositeModeSupported "something funky"
+        assert.ok !(supportedCompositeModes.indexOf("something funky") >= 0), "'something funky' is not in supportedCompositeModes"
+        assert.ok !bitmap.compositeModeSupported "something funky", "'something funky' is not supported"
 
       test "clipping area", ->
         bitmap = bitmapFactory.newBitmap point 4
@@ -555,40 +553,51 @@ module.exports = (bitmapFactory, bitmapClassName) ->
 
 
       test "compositing modes", ->
-        dest1 = generateCompositingTestBitmap rgbColor(0,0,0,0), "#f00", "#00f"
+        dest1 = generateCompositingTestBitmap rgbColor(0,0,0,0), "#800", "#008"
         # dest2 = generateCompositingTestBitmap rgbColor(0,0,0,0), rgbColor(1, 0, 0, 1), rgbColor(0,0,1,.75)
         # dest3 = generateCompositingTestBitmap rgbColor(0,0,0,0), rgbColor(1, 0, 0, .75), rgbColor(0,0,1,.75)
 
-        logBitmap = bitmapFactory.newBitmap point dest1.size.x*2, dest1.size.y*2
-        logBitmap.drawBitmap point(0,0), dest1
+        # logBitmap = bitmapFactory.newBitmap point dest1.size.x*3, dest1.size.y
+        # logBitmap.drawBitmap point(0,0), dest1
         # logBitmap.drawBitmap point(dest1.size.x,0), dest2
         # logBitmap.drawBitmap point(dest1.size.x*2,0), dest3
-        log logBitmap, size: dest1.size, text: "#{bitmapClassName} compositeModes: #{compositeModes.join ', '}"
-        dataWithin (i / 32 | 0 for i in dest1.getImageDataArray()), [
-          7,0,0,7,  7,0,0,7,  0,0,0,0,
-          7,0,0,7,  7,0,7,7,  0,0,7,7,
-          0,0,0,0,  0,0,7,7,  0,0,7,7,
+        log dest1, size: dest1.size, text: "#{bitmapClassName} testCompositeModes: #{testCompositeModes.join ', '}"
+        assert.reducedRgbChannelsEq dest1, [
+        # r  g  b   r  g  b   r  g  b
+          8, 0, 0,  8, 0, 0,  0, 0, 0,
+          8, 0, 0,  0, 0, 8,  0, 0, 8,
+          0, 0, 0,  0, 0, 8,  0, 0, 8,
 
-          7,0,0,7,  7,0,0,7,  0,0,0,0,
-          7,0,0,7,  0,0,7,7,  0,0,7,7,
-          0,0,0,0,  0,0,7,7,  0,0,7,7,
+          8, 0, 0,  8, 0, 0,  0, 0, 0,
+          8, 0, 0,  0, 0, 8,  0, 0, 0,
+          0, 0, 0,  0, 0, 0,  0, 0, 0,
 
-          0,0,0,0,  0,0,0,0,  0,0,0,0,
-          0,0,0,0,  0,0,7,7,  0,0,0,0,
-          0,0,0,0,  0,0,0,0,  0,0,0,0,
+          0, 0, 0,  0, 0, 0,  0, 0, 0,
+          0, 0, 0,  0, 0, 8,  0, 0, 0,
+          0, 0, 0,  0, 0, 0,  0, 0, 0,
 
-          0,0,0,0,  0,0,0,0,  0,0,0,0,
-          0,0,0,0,  7,0,0,7,  0,0,0,0,
-          0,0,0,0,  0,0,0,0,  0,0,0,0,
+          0, 0, 0,  0, 0, 0,  0, 0, 0,
+          0, 0, 0,  0, 0, 0,  0, 0, 8,
+          0, 0, 0,  0, 0, 8,  0, 0, 8,
 
-          7,0,0,7,  7,0,0,7,  0,0,0,0,
-          7,0,0,7,  7,0,0,7,  0,0,7,7,
-          0,0,0,0,  0,0,7,7,  0,0,7,7,
+          8, 0, 0,  8, 0, 0,  0, 0, 0,
+          8, 0, 0,  8, 0, 0,  0, 0, 8,
+          0, 0, 0,  0, 0, 8,  0, 0, 8,
 
-          7,0,0,7,  7,0,0,7,  0,0,0,0,
-          7,0,0,7,  0,0,7,7,  0,0,0,0,
-          0,0,0,0,  0,0,0,0,  0,0,0,0
-        ],0
+          0, 0, 0,  0, 0, 0,  0, 0, 0,
+          0, 0, 0,  8, 0, 0,  0, 0, 8,
+          0, 0, 0,  0, 0, 8,  0, 0, 8,
+
+          0, 0, 0,  0, 0, 0,  0, 0, 0,
+          0, 0, 0,  8, 0, 0,  0, 0, 0,
+          0, 0, 0,  0, 0, 0,  0, 0, 0,
+
+          8, 0, 0,  8, 0, 0,  0, 0, 0,
+          8, 0, 0,  0, 0, 0,  0, 0, 0,
+          0, 0, 0,  0, 0, 0,  0, 0, 0
+
+
+        ],  "test #{testCompositeModes.length} compositeModes: #{testCompositeModes.join ', '}"
         # dataWithin dest2.getImageDataArray(), [255, 0, 0, 255, 255, 0, 0, 255, 0, 0, 0, 0, 255, 0, 0, 255, 255, 0, 191, 255, 0, 0, 255, 191, 0, 0, 0, 0, 0, 0, 255, 191, 0, 0, 255, 191, 255, 0, 0, 255, 255, 0, 0, 255, 0, 0, 0, 0, 255, 0, 0, 255, 64, 0, 191, 255, 0, 0, 254, 191, 0, 0, 0, 0, 0, 0, 254, 191, 0, 0, 254, 191, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 254, 191, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 254, 0, 0, 191, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255, 0, 0, 255, 255, 0, 0, 255, 0, 0, 0, 0, 255, 0, 0, 255, 255, 0, 0, 255, 0, 0, 254, 191, 0, 0, 0, 0, 0, 0, 254, 191, 0, 0, 254, 191], 2
         # dataWithin dest3.getImageDataArray(), [254, 0, 0, 191, 254, 0, 0, 191, 0, 0, 0, 0, 254, 0, 0, 191, 191, 0, 191, 255, 0, 0, 254, 191, 0, 0, 0, 0, 0, 0, 254, 191, 0, 0, 254, 191, 254, 0, 0, 191, 254, 0, 0, 191, 0, 0, 0, 0, 254, 0, 0, 191, 51, 0, 203, 239, 0, 0, 254, 191, 0, 0, 0, 0, 0, 0, 254, 191, 0, 0, 254, 191, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255, 143, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255, 0, 0, 143, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 254, 0, 0, 191, 254, 0, 0, 191, 0, 0, 0, 0, 254, 0, 0, 191, 203, 0, 51, 239, 0, 0, 254, 191, 0, 0, 0, 0, 0, 0, 254, 191, 0, 0, 254, 191], 2
 
@@ -705,7 +714,7 @@ module.exports = (bitmapFactory, bitmapClassName) ->
         .then (binaryEncoding) ->
           binaryEncoding.toDataUri()
         .then (dataURI) ->
-          Binary.EncodedImage.toImage dataURI
+          EncodedImage.toImage dataURI
         .then (img) ->
           bitmap2 = bitmapFactory.newBitmap img
           log bitmap2
@@ -716,7 +725,7 @@ module.exports = (bitmapFactory, bitmapClassName) ->
         .then (binaryEncoding) ->
           binaryEncoding.toDataUri()
         .then (dataURI) ->
-          Binary.EncodedImage.toImage dataURI
+          EncodedImage.toImage dataURI
         .then (img) ->
           bitmap2 = bitmapFactory.newBitmap img
           log bitmap2

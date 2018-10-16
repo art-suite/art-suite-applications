@@ -2,4 +2,5 @@
 module.exports = [
   {isCanvas, isImage}
   require './Tools'
+  require './CompositeModes'
 ]

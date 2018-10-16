@@ -33,7 +33,7 @@ isSimpleRectangle = (pathFunction, pathOptions) ->
   getEnv
   array
   dashCase
-  w
+  lowerCamelCase
 } = require 'art-standard-lib'
 
 {Binary, Browser} = require "art-foundation"
@@ -43,53 +43,11 @@ isSimpleRectangle = (pathFunction, pathOptions) ->
 
 emptyOptions = {}
 
-canvasBlenders =
-  add: "lighter"
-  normal: "source-over"
-
-  # old, HTML-canvas compatible names
-  target_alphamask: "source-in"
-  alphamask: "destination-in"
-  destover: "destination-over"
-  sourcein: "source-atop"
-  inverse_alphamask: "destination-out"
-
-  # lowerCamelCase names
-  alphaMask: "destination-in"
-  targetAlphaMask: "source-in"
-  inverseAlphaMask: "destination-out"
-  destOver: "destination-over"
-  sourceIn: "source-atop"
-  replace: "copy"
-
-# limited browser support
-# https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/globalCompositeOperation
-for blender in w "
-    screen
-    lighter
-    xor
-    darken
-    multiply
-    overlay
-    lighten
-    colorBurn
-    colorDodge
-    hardLight
-    softLight
-    difference
-    exclusion
-    hue
-    saturation
-    color
-    luminosity
-    "
-  canvasBlenders[blender] = dashCase blender
+{compositeModeMap} = require "./CompositeModes"
 
 module.exports = class Bitmap extends BitmapBase
-  @supportedCompositeModes: (k for k, v of canvasBlenders)
+  @supportedCompositeModes: Object.keys compositeModeMap
   @getter supportedCompositeModes: -> Bitmap.supportedCompositeModes
-
-  @artToCanvasCompositeModeMap: canvasBlenders
 
   initContext: (contextAttributes)->
     @_context = @_canvas?.getContext "2d", contextAttributes
@@ -588,7 +546,7 @@ module.exports = class Bitmap extends BitmapBase
       @_setFillStyleFromOptions options
 
     if compositeMode && compositeMode != "normal"
-      _context.globalCompositeOperation = canvasBlenders[compositeMode] || canvasBlenders.normal
+      _context.globalCompositeOperation = compositeModeMap[compositeMode] || compositeModeMap.normal
 
     if opacity < 1
       _context.globalAlpha = opacity
@@ -635,7 +593,7 @@ module.exports = class Bitmap extends BitmapBase
     {_context} = @
 
     if compositeMode && compositeMode != "normal"
-      _context.globalCompositeOperation = canvasBlenders.normal
+      _context.globalCompositeOperation = compositeModeMap.normal
 
     if opacity < 1
       _context.globalAlpha = 1

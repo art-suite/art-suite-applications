@@ -1,5 +1,63 @@
+import &ArtStandardLib
 
-getReducedChannel: getReducedChannel = (channel, bitmap) ->
-  array v from bitmap.getImageDataArray(channel) with v >> 4
+class Helpers
+  @reduceImageDataRange: (pixelData) => array v from pixelData with v >> 4
 
-getReducedRedChannel: (bitmap) -> getReducedChannel :red bitmap
+  @getReducedChannel:         (channel, bitmap) => @reduceImageDataRange bitmap.getImageDataArray channel
+  @getReducedImageDataArray:  (bitmap) => @reduceImageDataRange bitmap.getImageDataArray()
+  @getReducedRedChannel:      (bitmap) => @getReducedChannel :red bitmap
+  @getReducedRgbChannels:     (bitmap) => @getReducedChannel :rgb bitmap
+
+  oneDimensionArrayToTwoDimensions = (a, width) ->
+    array lineIndex til a.length by width
+      array i from lineIndex til lineIndex + width
+        a[i]
+
+  assert.eqWithExtraLogging = (bitmap, a, b, context) =>
+    if !eq a, b
+      log eq_false_bitmap: bitmap
+      if a.length != b.length
+        log
+          """
+            eq: false:
+
+            wrong data-length:
+
+            context: #{context}
+            actual:   #{a.length} bytes
+            expected: #{b.length} bytes
+
+      else
+        bitmap.size extract width
+
+        log.warn
+          """
+            eq: false:
+
+            context: #{context}
+
+            actual:   #{formattedInspect oneDimensionArrayToTwoDimensions(a, width), maxArrayLength: a.length}
+            expected: #{formattedInspect oneDimensionArrayToTwoDimensions(b, width), maxArrayLength: a.length}
+
+    assert.eq a, b, context
+
+  assert.reducedRedChannelEq = (bitmap, compare, context) =>
+    assert.eqWithExtraLogging
+      bitmap
+      @getReducedRedChannel bitmap
+      compactFlatten compare
+      context
+
+  assert.reducedRgbChannelsEq = (bitmap, compare, context) =>
+    assert.eqWithExtraLogging
+      bitmap
+      @getReducedRgbChannels bitmap
+      compactFlatten compare
+      context
+
+  assert.reducedImageDataEq = (bitmap, compare, context) =>
+    assert.eqWithExtraLogging
+      bitmap
+      @getReducedImageDataArray bitmap
+      compactFlatten compare
+      context

@@ -308,7 +308,15 @@ module.exports = class BitmapBase extends BaseClass
   # keywords: pixelData pixel data
   getImageDataArray: (channel=null) ->
     data = @getImageData().data
-    if (channel = toChannelNumberMap[channel])?
+
+    if channel == "rgb"
+      out = []
+      for r, i in data by 4
+        out.push r
+        out.push data[i+1]
+        out.push data[i+2]
+      out
+    else if (channel = toChannelNumberMap[channel])?
       i = channel
       end = data.length
       while i < end
@@ -722,10 +730,84 @@ module.exports = class BitmapBase extends BaseClass
         pos += lineStep
       posX -= pixelStep
 
+
+  getMaxAlphaOnLine = (data, startPos, step, endPosDelta) ->
+    pos = startPos
+    endPos = startPos + endPosDelta
+    maxAlpha = 0
+    while pos < endPos
+      alpha = data[pos]
+      maxAlpha = alpha if alpha > maxAlpha
+      pos += step
+
+    maxAlpha
+
+  ###
+  scans line after line in a rectangular region for the first
+  line with a non-zero alpha. Then it returns tha max alpha on that line.
+  ###
+  getFirstMaxAlphaInRegion = (data, lineStartPos, lineEndPos, lineStep, elementStep, elementEndPosDelta) ->
+    linePos = lineStartPos
+    blankLineCount = 0
+
+    if lineStep < 0
+      while linePos > lineEndPos
+        break if 0 < maxAlpha = getMaxAlphaOnLine data, linePos, elementStep, elementEndPosDelta
+        linePos += lineStep
+        blankLineCount++
+
+      # log getFirstMaxAlphaInRegion: {lineStartPos, lineEndPos, lineStep, elementStep, elementEndPosDelta, blankLineCount, maxAlpha},
+      blankLineCount + 1 - maxAlpha / 255
+
+    else
+      while linePos < lineEndPos
+        break if 0 < maxAlpha = getMaxAlphaOnLine data, linePos, elementStep, elementEndPosDelta
+        linePos += lineStep
+        blankLineCount++
+
+      # log getFirstMaxAlphaInRegion: {lineStartPos, lineEndPos, lineStep, elementStep, elementEndPosDelta, blankLineCount, maxAlpha},
+      blankLineCount + 1 - maxAlpha / 255
+
+  calculatePreciseTop = (data, size) ->
+    rowSize = size.x * pixelStep
+    getFirstMaxAlphaInRegion data,
+      alphaChannelOffset
+      data.length
+      rowSize
+      pixelStep
+      rowSize
+
+  calculatePreciseBottom = (data, size, top) ->
+    rowSize = size.x * pixelStep
+    size.y - getFirstMaxAlphaInRegion data,
+      data.length + alphaChannelOffset - rowSize
+      top * rowSize - 1
+      -rowSize
+      pixelStep
+      rowSize
+
+  calculatePreciseLeft = (data, size, top, bottom) ->
+    rowSize = size.x * pixelStep
+    getFirstMaxAlphaInRegion data,
+      rowSize * top + alphaChannelOffset
+      rowSize * top + rowSize
+      pixelStep
+      rowSize
+      rowSize * (bottom - top)
+
+  calculatePreciseRight = (data, size, top, bottom, left) ->
+    rowSize = size.x * pixelStep
+    size.x - getFirstMaxAlphaInRegion data,
+      rowSize * top + rowSize + alphaChannelOffset - pixelStep
+      rowSize * top + left * pixelStep
+      -pixelStep
+      rowSize
+      rowSize * (bottom - top)
+
   @getter
     autoCropRectangle: (threshold = 0)->
       {size, context} = @
-      data = context.getImageData(0, 0, size.x, size.y).data
+      {data} = context.getImageData 0, 0, size.x, size.y
 
       top    = calculateTop    data, size, threshold
       return rect() if top == size.y
@@ -734,6 +816,24 @@ module.exports = class BitmapBase extends BaseClass
       right  = calculateRight  data, size, threshold, top, bottom, left
 
       rect left, top, right - left + 1, bottom - top + 1
+
+    contentArea: -> @autoCropRectangle
+
+    preciseContentArea: ->
+      {size, context} = @
+      {data} = context.getImageData 0, 0, size.x, size.y
+
+      top     = floor preciseTop    = calculatePreciseTop     data, size
+      return rect() if top >= size.y
+      bottom  = ceil preciseBottom = calculatePreciseBottom  data, size, top
+      left    = floor preciseLeft  = calculatePreciseLeft    data, size, top, bottom
+      right   = ceil preciseRight  = calculatePreciseRight   data, size, top, bottom, left
+
+      # log
+      #   roundedOut: {top, bottom, left, right, w: right - left, h: bottom - top}
+      #   precise: {preciseTop, preciseBottom, preciseLeft, preciseRight, w:preciseRight - preciseLeft, h:preciseBottom - preciseTop}
+
+      rect preciseLeft, preciseTop, preciseRight - preciseLeft, preciseBottom - preciseTop
 
   emptyOptions = {}
   ###
@@ -762,7 +862,7 @@ module.exports = class BitmapBase extends BaseClass
     return unless bitmap
 
     {targetSize = @size, sourceArea, focus, aspectRatio, layout, opacity} = options
-    return if opacity < 1/256
+    return if opacity < 1/256 || targetSize.area <= 1/256
 
     if sourceArea
       sourceArea = sourceArea.mul bitmap.pixelsPerPoint if bitmap.pixelsPerPoint != 1

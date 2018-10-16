@@ -93,33 +93,6 @@ defineModule module, suite: merge CommonBitmapTests(Bitmap, "Canvas.Bitmap"),
       ]
 
   fill: ->
-    test "compositing", ->
-      a = generateTestBitmap2 "#f00"
-      log a
-      b = generateTestBitmap3 "#00f"
-      log b
-      modes = [
-        'source-over','source-in','source-out','source-atop',
-        'destination-over','destination-in','destination-out','destination-atop',
-        'lighter','darker','copy','xor'
-        'normal', 'multiply', 'screen', 'overlay',
-        'darken', 'lighten', 'color-dodge', 'color-burn',
-        'hard-light', 'soft-light', 'difference', 'exclusion'
-        'hue', 'saturation', 'color', 'luminocity'
-      ]
-      s = b.size
-      step = s.add 10
-      dest = new Bitmap step.mul point(4,(modes.length+3)/4)
-
-      for m, mi in modes
-        p = point(mi % 4, mi / 4).floor().mul step
-        temp = new Bitmap b.size
-        temp.drawBitmap point(), a
-        temp.drawBitmap point(), b, m
-        dest.drawBitmap p, temp
-        # dest.drawBitmap p, a
-        # dest.drawBitmap p, b, "source-atop"
-      log dest
 
     test "drawRectangle", ->
       bitmap = new Bitmap point(4, 4)

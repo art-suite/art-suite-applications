@@ -7,6 +7,7 @@ module.exports
 .addModules
   Bitmap:            require './Bitmap'           
   BitmapBase:        require './BitmapBase'       
+  CompositeModes:    require './CompositeModes'   
   FontLoader:        require './FontLoader'       
   GoogleFontLoader:  require './GoogleFontLoader' 
   GradientFillStyle: require './GradientFillStyle'
