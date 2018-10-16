@@ -6,11 +6,13 @@ Metrics = require './Metrics'
 {floor, ceil} = Math
 
 {
-  log, inspect, pureMerge, flatten, BaseObject, nearInfinity, nearInfinityResult, peek,
+  log, inspect, pureMerge, flatten, nearInfinity, nearInfinityResult, peek,
   min, max, merge, time, isNumber
   float32Eq
   float32Eq0
-} = Foundation
+  toInspectedObjects
+} = require 'art-standard-lib'
+{BaseObject} = require 'art-class-system'
 
 
 {toFontCss} = Metrics
@@ -98,6 +100,13 @@ module.exports = class Layout extends BaseObject
     fontCss:        -> @_fontCss ||= toFontCss @_fontOptions
     lineCount:      -> @_updateLayout(); @_fragments.length
 
+    inspectedObjects: ->
+      ArtTextLayout: toInspectedObjects {
+        @area
+        @drawArea
+        @fragments
+      }
+
   # used only for testing to get the actual location of all fragments
   _getFragmentLogicalAreas: (layoutHeight) ->
     layoutArea for {layoutArea} in @fragments
@@ -138,10 +147,10 @@ module.exports = class Layout extends BaseObject
 
   newBitmap: (options=emptyOptions) ->
     size = options.size || @getSize()
-    size = size.withX @_layoutAreaWidth if @_align.x > 0 && @_layoutAreaWidth < nearInfinityResult
+    size = size.withX @_layoutAreaWidth  if @_align.x > 0 && @_layoutAreaWidth < nearInfinityResult
     size = size.withY @_layoutAreaHeight if @_align.y > 0 && @_layoutAreaHeight < nearInfinityResult
     size = size.mul scale if scale = options.scale
-    new Bitmap size
+    new Bitmap size.ceil()
 
   #options:
   #  (all of draw's options)
