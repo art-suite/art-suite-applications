@@ -5,6 +5,7 @@ module.exports = require './namespace'
 module.exports
 .addModules
   Draw:    require './Draw'   
+  Fonts:   require './Fonts'  
   Layout:  require './Layout' 
   Layout2: require './Layout2'
   Metrics: require './Metrics'

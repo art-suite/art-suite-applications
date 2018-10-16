@@ -84,7 +84,7 @@ suite "Art.Text.Metrics", ->
     fontOptions = fontFamily:"Times New Roman", fontSize:16
     text = "Hello"
     testMetrics text, fontOptions, "tight",
-      {layoutArea: rect(0, 0, 34, 12), ascender: 12, descender: 0}
+      {layoutArea: rect(0, 0, 34, 11), ascender: 12, descender: 0}
       {layoutArea: rect(0, 0, 38, 15), ascender: 14, descender: 1}
     testMetrics text, fontOptions, "textual",
       {layoutArea: rect(0, 0, 35, 16), ascender: 12, descender: 4}
@@ -215,7 +215,7 @@ suite "Art.Text.Metrics", ->
       tight0:  Metrics.get text, fontOptions, "tight0"
       textual: Metrics.get text, fontOptions, "textual"
 
-    assert.within metrics.tight.layoutArea, rect(0, 0, 51, 8), rect(0, 0, 56, 11)
+    assert.within metrics.tight.layoutArea, rect(0, 0, 51, 7), rect(0, 0, 56, 11)
     assert.within metrics.tight.ascender, 8, 10
     assert.within metrics.tight.descender, 0, 1
 

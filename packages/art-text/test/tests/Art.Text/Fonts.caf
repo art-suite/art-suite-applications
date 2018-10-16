@@ -1,0 +1,203 @@
+import &ArtStandardLib, &artCanvas
+# {GoogleFontLoader} = require 'art-canvas'
+
+
+###
+  import &ArtStandardLib
+  object font in fonts with-key
+    {fontFamily} = font
+    [name] = fontFamily.match /'[a-z ]+/i
+    lowerCamelCase name
+
+class Fonts
+  @defaultFont: "arial"
+
+  ###
+    tags defined
+      paragraph:    suitable for us in long-form Text
+      sans:         sans-serif - no serifs
+      serif:        has serifs
+      light/medium/bold:  font-weight - all fonts should be in one of these categories
+      playful:      close to a "paragraph" font, but with some playfulness
+      theme:        connected to some culture theme: halloween, pirates, etc...
+      cursive:      writen without taking the pen off the paper (or almost, in the case of laBelleAurore)
+      handwritten:  appears to be done manually, with a pen, stylus or pencil
+      monospace:    characters all have equal width
+      slab:         chunky serifs
+
+  @fonts:
+    # guest fonts
+    arial:                tags: "sans medium paragraph",     fontFamily: "Arial, sans-serif", guest: true, builtIn: true
+    courierNew:           tags: "serif medium monospace",    fontFamily: "Courier New", guest: true, builtIn: true
+    timesNewRoman:        tags: "serif medium paragraph",    fontFamily: "Times New Roman", guest: true, builtIn: true
+    impact:               tags: "sans bold",                 fontFamily: "Impact, AvenirNext-Heavy, Helvetica,Neue-Bold, sans-serif", guest: true, builtIn: true
+
+    # member fonts
+    poppins:              tags: "sans medium paragraph",      fontFamily: "'Poppins', sans-serif"
+    aBeeZee:              tags: "sans medium paragraph",      fontFamily: "'ABeeZee', sans-serif"
+    openSans:             tags: "sans medium paragraph",      fontFamily: "'Open Sans', sans-serif"
+    raleway:              tags: "sans medium paragraph",      fontFamily: "'Raleway', sans-serif"
+    josefinSans:          tags: "sans medium paragraph",      fontFamily: "'Josefin Sans', sans-serif"
+    arimo:                tags: "sans medium paragraph",      fontFamily: "'Arimo', sans-serif"
+    titanOne:             tags: "sans bold",                  fontFamily: "'Titan One', cursive"
+    sigmarOne:            tags: "sans bold",                  fontFamily: "'Sigmar One', cursive"
+    fredokaOne:           tags: "sans bold",                  fontFamily: "'Fredoka One', cursive"
+    lobster:              tags: "sans bold",                  fontFamily: "'Lobster', cursive"
+    bangers:              tags: "sans bold",                  fontFamily: "'Bangers', cursive"
+    rammettoOne:          tags: "sans bold",                  fontFamily: "'Rammetto One', cursive"
+    balooTammudu:         tags: "sans bold",                  fontFamily: "'Baloo Tammudu', cursive"
+    playfairDisplay:      tags: "serif medium paragraph",     fontFamily: "'Playfair Display', serif"
+    alegreya:             tags: "serif medium paragraph",     fontFamily: "'Alegreya', serif"
+    cardo:                tags: "serif medium paragraph",     fontFamily: "'Cardo', serif"
+    cantataOne:           tags: "serif medium paragraph",     fontFamily: "'Cantata One', serif"
+    bellefair:            tags: "serif medium paragraph",     fontFamily: "'Bellefair', serif"
+    crimsonText:          tags: "serif medium paragraph",     fontFamily: "'Crimson Text', serif"
+    cormorantGaramond:    tags: "serif medium paragraph",     fontFamily: "'Cormorant Garamond', serif"
+    oldStandardTt:        tags: "serif medium paragraph",     fontFamily: "'Old Standard TT', serif"
+    specialElite:         tags: "serif medium dirty",         fontFamily: "'Special Elite', cursive"
+    stylish:              tags: "serif medium dirty",         fontFamily: "'Stylish', sans-serif"
+    anonymousPro:         tags: "serif medium monospace",     fontFamily: "'Anonymous Pro', monospace"
+    gabriela:             tags: "serif medium playful",       fontFamily: "'Gabriela', serif"
+    slabo:                tags: "serif medium slab",          fontFamily: "'Slabo 27px', serif"
+    portLligatSlab:       tags: "serif medium playful slab",  fontFamily: "'Port Lligat Slab', serif"
+    breeSerif:            tags: "serif slab bold",            fontFamily: "'Bree Serif', serif"
+    shrikhand:            tags: "serif slab bold",            fontFamily: "'Shrikhand', cursive"
+    alfaSlabOne:          tags: "serif slab bold",            fontFamily: "'Alfa Slab One', cursive"
+    ultra:                tags: "serif slab bold",            fontFamily: "'Ultra', serif"
+    fugazOne:             tags: "sans slab bold",             fontFamily: "'Fugaz One', cursive"
+    inknutAntiqua:        tags: "serif slab medium",          fontFamily: "'Inknut Antiqua', serif"
+    homemadeApple:        tags: "handwritten medium dirty cursive", fontFamily: "'Homemade Apple', cursive"
+    frederickaTheGreat:   tags: "handwritten medium dirty ",  fontFamily: "'Fredericka the Great', cursive"
+    laBelleAurore:        tags: "handwritten medium cursive", fontFamily: "'La Belle Aurore', cursive"
+    gamjaFlower:          tags: "handwritten medium",         fontFamily: "'Gamja Flower', cursive"
+    indieFlower:          tags: "handwritten medium",         fontFamily: "'Indie Flower', cursive"
+    emilysCandy:          tags: "handwritten medium dirty",   fontFamily: "'Emilys Candy', cursive"
+    sedgwickAveDisplay:   tags: "handwritten bold",           fontFamily: "'Sedgwick Ave Display', cursive"
+    barrio:               tags: "handwritten bold theme",     fontFamily: "'Barrio', cursive"
+    chelseaMarket:        tags: "handwritten medium dirty",   fontFamily: "'Chelsea Market', cursive"
+    loveYaLikeASister:    tags: "handwritten medium dirty",   fontFamily: "'Love Ya Like A Sister', cursive"
+    freckleFace:          tags: "handwritten bold ",          fontFamily: "'Freckle Face', cursive"
+    newRocker:            tags: "theme bold ",                fontFamily: "'New Rocker', cursive"
+    frijole:              tags: "theme bold dirty",           fontFamily: "'Frijole', cursive"
+    griffy:               tags: "theme medium dirty",         fontFamily: "'Griffy', cursive"
+    eater:                tags: "theme bold dirty",           fontFamily: "'Eater', cursive"
+    creepster:            tags: "theme bold dirty",           fontFamily: "'Creepster', cursive"
+    nosifer:              tags: "theme bold",                 fontFamily: "'Nosifer', cursive"
+    aclonica:             tags: "theme bold ",                fontFamily: "'Aclonica', sans-serif"
+    fasterOne:            tags: "theme bold ",                fontFamily: "'Faster One', cursive"
+    blackOpsOne:          tags: "theme bold",                 fontFamily: "'Black Ops One', cursive"
+    meriendaOne:          tags: "theme bold ",                fontFamily: "'Merienda One', cursive"
+    shojumaru:            tags: "theme bold",                 fontFamily: "'Shojumaru', cursive"
+    sancreek:             tags: "theme bold ",                fontFamily: "'Sancreek', cursive"
+    tradeWinds:           tags: "theme bold dirty",           fontFamily: "'Trade Winds', cursive"
+    jollyLodger:          tags: "theme bold ",                fontFamily: "'Jolly Lodger', cursive"
+    metalMania:           tags: "theme bold dirty",           fontFamily: "'Metal Mania', cursive"
+    pressStart2P:         tags: "theme bold",                 fontFamily: "'Press Start 2P', cursive", googleFontFamily: "Press Start 2P"
+    flavors:              tags: "theme bold dirty",           fontFamily: "'Flavors', cursive"
+    hennyPenny:           tags: "playful medium serif",       fontFamily: "'Henny Penny', cursive"
+    luckiestGuy:          tags: "playful sans bold",          fontFamily: "'Luckiest Guy', cursive"
+    rancho:               tags: "playful medium sans",        fontFamily: "'Rancho', cursive"
+    fontdinerSwanky:      tags: "playful bold serif",         fontFamily: "'Fontdiner Swanky', cursive"
+    peralta:              tags: "playful bold serif slab",    fontFamily: "'Peralta', cursive"
+    milonga:              tags: "playful medium serif",       fontFamily: "'Milonga', cursive"
+    risque:               tags: "playful medium serif",       fontFamily: "'Risque', cursive"
+    snowburstOne:         tags: "playful medium serif",       fontFamily: "'Snowburst One', cursive"
+    irishGrover:          tags: "playful medium serif",       fontFamily: "'Irish Grover', cursive"
+    spicyRice:            tags: "playful bold theme sans",    fontFamily: "'Spicy Rice', cursive"
+    ribeye:               tags: "playful bold serif",         fontFamily: "'Ribeye', cursive"
+    # blackAndWhitePicture: tags: "playful sans dirty",       fontFamily: "'Black And White Picture', sans-serif" # this is almost exactly the same as 'flavors'
+    rumRaisin:            tags: "playful medium sans",        fontFamily: "'Rum Raisin', sans-serif"
+    poiretOne:            tags: "theme light sans",           fontFamily: "'Poiret One', cursive"
+    unifrakturCook:       tags: "theme bold sans",            fontFamily: "'UnifrakturCook', cursive", googleFontFamily: "UnifrakturCook:700"
+    unifrakturMaguntia:   tags: "theme medium serif",         fontFamily: "'UnifrakturMaguntia', cursive"
+    limelight:            tags: "theme bold sans",            fontFamily: "'Limelight', cursive"
+    cinzelDecorative:     tags: "theme light serif",          fontFamily: "'Cinzel Decorative', cursive"
+    cinzel:               tags: "theme light serif",          fontFamily: "'Cinzel', serif"
+    ruthie:               tags: "cursive light",              fontFamily: "'Ruthie', cursive"
+    pinyonScript:         tags: "cursive medium",             fontFamily: "'Pinyon Script', cursive"
+    mrDafoe:              tags: "cursive bold",               fontFamily: "'Mr Dafoe', cursive"
+    monsieurLaDoulaise:   tags: "cursive light",              fontFamily: "'Monsieur La Doulaise', cursive"
+    italianno:            tags: "cursive medium",             fontFamily: "'Italianno', cursive"
+    dancingScript:        tags: "cursive medium",             fontFamily: "'Dancing Script', cursive"
+    satisfy:              tags: "cursive medium",             fontFamily: "'Satisfy', cursive"
+    greatVibes:           tags: "cursive medium",             fontFamily: "'Great Vibes', cursive"
+    kaushanScript:        tags: "cursive bold",               fontFamily: "'Kaushan Script', cursive"
+    sacramento:           tags: "cursive light",              fontFamily: "'Sacramento', cursive"
+    tangerine:            tags: "cursive light",              fontFamily: "'Tangerine', cursive"
+    badScript:            tags: "cursive light handwritten",  fontFamily: "'Bad Script', cursive"
+    playball:             tags: "cursive bold",               fontFamily: "'Playball', cursive"
+    alexBrush:            tags: "cursive medium",             fontFamily: "'Alex Brush', cursive"
+    allura:               tags: "cursive medium",             fontFamily: "'Allura', cursive"
+    rochester:            tags: "cursive medium",             fontFamily: "'Rochester', cursive"
+    rougeScript:          tags: "cursive medium",             fontFamily: "'Rouge Script', cursive"
+    stalemate:            tags: "cursive light",              fontFamily: "'Stalemate', cursive"
+    mrsSaintDelafield:    tags: "cursive light",              fontFamily: "'Mrs Saint Delafield', cursive"
+    molle:                tags: "cursive bold",               fontFamily: "'Molle', cursive", googleFontFamily: "Molle:400i"
+    pacifico:             tags: "cursive bold",               fontFamily: "'Pacifico', cursive"
+
+  @fontTags:  {}
+
+  @fonts: object font, key in @fonts
+    {fontFamily, googleFontFamily, tags} = font
+    tags = array tag in w tags
+      "#" + tag
+    each tag in tags
+      @fontTags[tag] = true
+
+    if /'/.test fontFamily
+      [__, name] = fontFamily.split "'"
+      googleFontFamily ?= name
+    else
+      name = upperCamelCase key, " "
+    googleFontFamily ?= fontFamily
+
+    search = "#{name} #{tags}"
+
+    merge font, {name, googleFontFamily, search, tags}
+
+  @fontTags = Object.keys @fontTags
+
+  @searchFonts:   (pattern) => array @fonts, when: (font) -> font.search.match pattern
+  @getFontFamily: (fontKey) => @fonts[fontKey].fontFamily
+  @getFontName:   (fontKey) => @fonts[fontKey].name
+
+  ###########################
+  # Load Fonts
+  ###########################
+  @loadAllFonts: =>
+    keys = Object.keys @fonts
+    log loadAllFonts: @fonts
+    @_allFontsLoadPromise = GoogleFontLoader.load array @fonts,
+      when: (font) -> !font.builtIn
+      with: (font) -> font.googleFontFamily
+    .then =>
+      each key in keys
+        @_loadedFonts[key] = true
+      keys
+
+    each key in keys
+      @_loadingFontPromises[key] = @_allFontsLoadPromise
+
+    @_allFontsLoadPromise
+
+  @getFontIsLoaded: (key) => !!@_loadedFonts[key]
+
+  @loadFont: (key) =>
+    throw new Error "invalid font key: #{key}" unless font = @fonts[key]
+    log loadFont: key
+    @_loadingFontPromises[key] ?= Promise.then =>
+      if @_loadedFonts[key]
+        true
+      else
+        GoogleFontLoader.load font.googleFontFamily
+        .then => @_loadedFonts[key] = true
+
+  ######################
+  # PRIVATE
+  ######################
+  @_loadedFonts: {}
+
+  each {builtIn}, k in @fonts
+    @_loadedFonts[k] = !!builtIn
+
+  @_loadingFontPromises: {}

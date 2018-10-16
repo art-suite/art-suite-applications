@@ -199,10 +199,23 @@ defineModule module, ->
       previousResult.clone()
 
     tempRectangleToCapturePessimisticDrawArea = new Rectangle
+    minTightRenderFontSize = 32
     @_generateTightFontMetrics: (text, tightThreshold, fontOptions, fontCss)  ->
       padding = Metrics.defaultFontSizeProportionalDrawAreaPadding * 2
+
+      {fontSize} = fontOptions
+      scale = 1
+      if fontSize < minTightRenderFontSize
+        scale = fontSize / minTightRenderFontSize
+        fontSize = minTightRenderFontSize
+
+      renderFontOptions = if scale != 1
+        merge fontOptions, {fontSize}
+      else
+        fontOptions
+
       # log _generateTightFontMetrics:padding:padding
-      [scratchBitmap, size, location] = @renderTextToScratchBitmap text, fontOptions, padding
+      [scratchBitmap, size, location] = @renderTextToScratchBitmap text, renderFontOptions, padding
       data = scratchBitmap.context.getImageData(0, 0, size.x, size.y).data
       # log _generateTightFontMetrics: scratchBitmap, fontOptions:fontOptions
 
@@ -210,11 +223,18 @@ defineModule module, ->
       # NOTE: for Atomic.Rectangles, right and bottom are EXCLUSIVE while LEFT and TOP are INCLUSIVE
       {left, right, top, bottom} = scratchBitmap.preciseContentArea
 
-      while left == 0 || top == 0 || right == size.x || bottom == size.y
+      while left < 1 || top < 1 || right > size.x - 1 || bottom > size.y - 1
         log "Art.Text.Metrics#_generateTightFontMetrics: #{inspect fontOptions, 1}, padding: #{padding} too small. scratchBitmap.size: #{scratchBitmap.size}"
         padding *= 2
-        [scratchBitmap, size, location] = @renderTextToScratchBitmap text, fontOptions, padding
+        [scratchBitmap, size, location] = @renderTextToScratchBitmap text, renderFontOptions, padding
         {left, right, top, bottom} = scratchBitmap.preciseContentArea
+
+      if scale != 1
+        location = location.mul scale
+        left *= scale
+        right *= scale
+        top *= scale
+        bottom *= scale
 
       # adjust top and left so all four point to the first blank column/row
 
