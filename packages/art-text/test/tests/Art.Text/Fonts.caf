@@ -166,7 +166,6 @@ class Fonts
   ###########################
   @loadAllFonts: =>
     keys = Object.keys @fonts
-    log loadAllFonts: @fonts
     @_allFontsLoadPromise = GoogleFontLoader.load array @fonts,
       when: (font) -> !font.builtIn
       with: (font) -> font.googleFontFamily
@@ -184,7 +183,6 @@ class Fonts
 
   @loadFont: (key) =>
     throw new Error "invalid font key: #{key}" unless font = @fonts[key]
-    log loadFont: key
     @_loadingFontPromises[key] ?= Promise.then =>
       if @_loadedFonts[key]
         true

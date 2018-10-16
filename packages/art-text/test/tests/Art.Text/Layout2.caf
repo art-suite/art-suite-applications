@@ -37,20 +37,22 @@ suite:
       assert.eq bitmap.size, point 60, 6
 
   fancyFonts: ->
+    global.suiteSetup ->
+      Promise.all
+        array {tags}, fontName in fonts when /light|dirty/.test tags
+          loadFont fontName
 
     testFancyFont = (font) ->
       test font, ->
-        loadFont font
-        .then ->
-          layout = new Layout
-            "" Sing!?!
-            fontSize: 16
-            fontFamily: fonts[font].fontFamily
-            {} layoutMode:"tight"
+        layout = new Layout
+          "" Sing!?!
+          fontSize: 16
+          fontFamily: fonts[font].fontFamily
+          {} layoutMode:"tight"
 
-          log {}
-            layout.toBitmap()
-            scaled: layout.toBitmap scale: 10
+        log {}
+          layout.toBitmap()
+          scaled: layout.toBitmap scale: 10
 
     each {tags}, fontName in fonts when /light|dirty/.test tags
       testFancyFont fontName
