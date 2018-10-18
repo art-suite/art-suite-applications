@@ -1,0 +1,14 @@
+import &StandardImport
+
+suite: ->
+  test "compositeModeMap is idempotent" ->
+    each v, k in compositeModeMap
+      assert.eq compositeModeMap[v], v
+
+  test "compositeModeMap values are all valid htmlCanvasCompositeModes" ->
+    each v in compositeModeMap
+      assert.eq true, v in htmlCanvasCompositeModes, v
+
+  test "normalizedCompositeModeMap keys are all valid htmlCanvasCompositeModes" ->
+    each v, k in normalizedCompositeModeMap
+      assert.eq true, k in htmlCanvasCompositeModes, k

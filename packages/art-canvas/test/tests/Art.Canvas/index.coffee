@@ -9,6 +9,7 @@ module.exports
   BitmapBase:        require './BitmapBase'       
   Clipping:          require './Clipping'         
   CommonBitmapTests: require './CommonBitmapTests'
+  CompositeModes:    require './CompositeModes'   
   DrawGradient:      require './DrawGradient'     
   FillShape:         require './FillShape'        
   GoogleFontLoader:  require './GoogleFontLoader' 
