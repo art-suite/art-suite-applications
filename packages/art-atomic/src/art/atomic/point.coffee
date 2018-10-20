@@ -49,7 +49,7 @@ module.exports = class Point extends AtomicBase
   @defineAtomicClass fieldNames: "x y"
   @isPoint: isPoint = (v) -> v?.constructor == Point
 
-  pointWithAspectRatioAndArea = ({aspectRatio, area}) ->
+  pointWithAspectRatioAndArea = ({aspectRatio, area = 1}) ->
     sqrtArea = Math.sqrt area / aspectRatio
     point(
       sqrtArea * aspectRatio
@@ -63,7 +63,7 @@ module.exports = class Point extends AtomicBase
       return p
 
     # pointWithAspectRatioAndArea
-    if a?.aspectRatio && a.area >= 0
+    if a?.aspectRatio
       return pointWithAspectRatioAndArea a
 
     # reuse point0 and point1
