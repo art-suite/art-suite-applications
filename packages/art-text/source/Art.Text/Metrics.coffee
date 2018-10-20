@@ -36,7 +36,7 @@ defineModule module, ->
       fontStyle   : 'normal'
       fontVariant : 'normal'
       fontWeight  : 'normal'
-      fontSize    : 16
+      fontSize    : 32
       fontFamily  : 'Times'
 
     @toFontCss: toFontCss = (fontOptions) ->
@@ -46,7 +46,7 @@ defineModule module, ->
        #{fontOptions.fontSize    || 16}px
        #{fontOptions.fontFamily  || 'Times'}, Times"
 
-    @normalizeFontOptions: (fontOptions)->
+    @normalizeFontOptions: normalizeFontOptions =(fontOptions)->
       fontOptions.fontStyle   ||= defaultFontOptions.fontStyle
       fontOptions.fontVariant ||= defaultFontOptions.fontVariant
       fontOptions.fontWeight  ||= defaultFontOptions.fontWeight
@@ -66,6 +66,9 @@ defineModule module, ->
     # fontOptions must be normalized (use @normalizeFontOptions)
     # fontCss is optional. It should == toFontCss fontOptions
     @get: (text, fontOptions = {}, layoutMode, fontCss) ->
+
+      unless fontOptions.fontSize
+        fontOptions = normalizeFontOptions fontOptions
 
       switch layoutMode
         when null, undefined, "textual" then @_getTextualFontMetrics text, fontOptions, null, fontCss
