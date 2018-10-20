@@ -54,6 +54,7 @@ module.exports = class Rectangle extends AtomicBase
       @w = @h = a - 0
 
   @getter
+    aspectRatio: -> @w / @h
     location: -> new Point @x, @y
     locationMatrix: -> Atomic.Matrix.translateXY @x, @y
     size: -> new Point @w, @h
