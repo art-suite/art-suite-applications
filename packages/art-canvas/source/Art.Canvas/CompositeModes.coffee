@@ -109,5 +109,8 @@ module.exports = class CompositeModes
 
     @normalizedCompositeModeMap[htmlCanvasName] ?= htmlCanvasName
 
+  for k, v of @compositeModeMap
+    @normalizedCompositeModeMap[k] = @normalizedCompositeModeMap[v]
+
   # DEPRIATED
   @artToCanvasCompositeModeMap: @compositeModeMap
