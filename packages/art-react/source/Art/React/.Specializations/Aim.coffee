@@ -21,6 +21,7 @@ standardArtEngineElementClassNames = "
   TextElement
   TextInputElement
   ScrollElement
+  FilterElement
   "
 
 {postProcessProps} = objectTreeFactoryOptions
