@@ -10,6 +10,7 @@
   wordsArray
   inspect
   object
+  numberToTightString
 } = require 'art-foundation'
 
 module.exports = class Base extends BaseObject
@@ -102,7 +103,11 @@ module.exports = class Base extends BaseObject
         c += " '#{name}'"
       c
 
-    inspectedObjectInitializer: -> @toArray().join ', '
+    inspectedObjectInitializer: ->
+      (
+        for e in @toArray()
+          numberToTightString e, 10
+      ).join ', '
     array: -> @toArray()
 
   @namedValues: {}
