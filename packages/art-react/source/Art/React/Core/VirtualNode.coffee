@@ -12,6 +12,7 @@ defineModule module, class VirtualNode extends BaseObject
   onNextReady: (f, forceEpoch = true) -> reactArtEngineEpoch.onNextReady f, forceEpoch, @
 
   @assignRefsTo: null
+  @currentlyRendering: null
 
   constructor: (props = emptyObject) ->
     @_updateTarget = null # used for updating refs when rerendering

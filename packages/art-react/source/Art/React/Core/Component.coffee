@@ -638,6 +638,7 @@ defineModule module, -> class Component extends PropFieldsMixin StateFieldsMixin
     ret = null
     globalCount "ReactComponent_Rendered"
     VirtualNode.assignRefsTo = @refs = {}
+    VirtualNode.currentlyRendering = @
     Component.resetCreatedComponents()
 
     log "render component: #{@className}" if artReactDebug
@@ -646,6 +647,7 @@ defineModule module, -> class Component extends PropFieldsMixin StateFieldsMixin
     throw new Error "#{@className}: render must return a VirtualNode. Got: #{inspect ret}" unless ret instanceof VirtualNode
 
     @subComponents = Component.createdComponents || emptyArray
+    VirtualNode.currentlyRendering =
     VirtualNode.assignRefsTo = null
 
     globalEpochCycle?.endTimePerformance "reactRender", start

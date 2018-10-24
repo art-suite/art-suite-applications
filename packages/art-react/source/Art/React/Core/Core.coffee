@@ -1,6 +1,7 @@
 Component = require './Component'
 {reactArtEngineEpoch} = require './ReactArtEngineEpoch'
 {isPlainArray, isString, arrayWith, log, isFunction, isArray} = require 'art-foundation'
+VirtualNode = require './VirtualNode'
 
 getMergedTextPropValue = (oldValue, v) ->
   if oldValue?
@@ -37,8 +38,9 @@ module.exports = [
 
       into
 
-    preprocessElement: (element) ->
+    preprocessElement: (element, Factory) ->
       if isString element
+        log.warn "ArtReact: string children are DEPRICATED. Use text: 'string'. Currently rendering: #{VirtualNode.currentlyRendering?.inspectedName || 'none'}. Factory: #{Factory.inspect()}"
         _textFromString: element
 
       # DEPRICATED
