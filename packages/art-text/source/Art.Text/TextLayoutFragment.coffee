@@ -43,23 +43,8 @@ defineModule module, class TextLayoutFragment extends BaseClass
     @alignmentOffsetY = 0
 
   @getter
-    inspectedObjects: ->
-      {
-        @text
-        @font
-        @ascender
-        @descender
+    inspectedObjects: -> @toPlainObject()
 
-        @textOffsetX
-        @textOffsetY
-        @layoutW
-        @layoutH
-
-        @drawAreaX
-        @drawAreaY
-        @drawAreaW
-        @drawAreaH
-      }
   toString: ->
     inspect @toPlainObject()
 
@@ -82,24 +67,26 @@ defineModule module, class TextLayoutFragment extends BaseClass
     )
 
   toPlainObject: ->
-    text:@text
-    font:@font
-    ascender:@ascender
-    descender:@descender
-    textOffsetX:@textOffsetX
-    textOffsetY:@textOffsetY
+    {
+      @text
+      @font
+      @ascender
+      @descender
+      @textOffsetX
+      @textOffsetY
 
-    layoutX:@layoutX
-    layoutY:@layoutY
+      @layoutX
+      @layoutY
 
-    layoutW:@layoutW
-    layoutH:@layoutH
-    drawAreaX:@drawAreaX
-    drawAreaY:@drawAreaY
-    drawAreaW:@drawAreaW
-    drawAreaH:@drawAreaH
-    alignmentOffsetX:@alignmentOffsetX
-    alignmentOffsetY:@alignmentOffsetY
+      @layoutW
+      @layoutH
+      @drawAreaX
+      @drawAreaY
+      @drawAreaW
+      @drawAreaH
+      @alignmentOffsetX
+      @alignmentOffsetY
+    }
 
   clone: ->
     new TextLayoutFragment(

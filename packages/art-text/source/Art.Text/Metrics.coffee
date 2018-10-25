@@ -257,7 +257,17 @@ defineModule module, ->
       ascender =   location.y - top + 1  # ascender + descender should == area.size.y
       descender =  bottom     - location.y
 
-      # log {scratchBitmap:scratchBitmap.clone(), text, fontOptions, ascender, descender, textOffsetX, textOffsetY, layoutW, layoutH, left, right, top, bottom}
+      # logBitmap = scratchBitmap.clone()
+      # logBitmap.drawRectangle null, rect(left/scale, top/scale, layoutW/scale, layoutH/scale),
+      #   color: "#f70"
+      #   compositeMode: "targetTop"
+      # log {
+      #   logBitmap
+      #   scale, text, fontOptions, ascender
+      #   descender, textOffsetX, textOffsetY
+      #   layoutW, layoutH, left, right, top, bottom
+      #   aspectRatio: layoutW / layoutH
+      # }
 
       new TextLayoutFragment(
         text

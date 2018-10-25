@@ -3,18 +3,20 @@ import &StandardImport, &Fonts
 suite:
   tight: ->
 
-    test "layoutMode:tight 64pt well? area and drawArea", ->
-      layout = new Layout "well?", {fontSize: 64, fontFamily: "AvenirNext-DemiBold"}, {layoutMode:"tight"}
+    # Safari bug tracker: https://bugs.webkit.org/show_bug.cgi?id=46987
+    test "layoutMode:tight 64pt well? area and drawArea - safari failes due to rounded fontSizes", ->
+      layout = new Layout "well?", {fontSize: 5.5}, {layoutMode:"tight"}
       bitmap = layout.toBitmap area: :drawArea, background: #ff0
-      log scaled: layout.toBitmap scale: 10 area: :drawArea, background: #ff0
+      log scaled: scaledBitmap = layout.toBitmap scale: 30 area: :drawArea, background: #ff0
+
 
       {area, drawArea} = layout
-      log {bitmap, size: bitmap.size, layout, area, drawArea}
+      log {bitmap, size: bitmap.size, layout, area, drawArea, area.aspectRatio}
 
       assert.within
         area
-        rect 0, 0, 153, 49
-        rect 0, 0, 154, 50
+        rect 0, 0, 11, 3
+        rect 0, 0, 12, 4
         :area
 
       assert.eq
@@ -23,6 +25,11 @@ suite:
         && drawArea.contains area.expand .5
         && area.expand(5).contains drawArea
         "drawArea"
+
+      assert.within
+        scaledBitmap.autoCropRectangle
+        rect(29, 28, 348, 116)
+        rect(29, 28, 350, 116)
 
 
     test "layoutMode:tight 64pt", ->
@@ -44,7 +51,7 @@ suite:
       bitmap = layout.toBitmap()
       log bitmap
       {area, drawArea} = layout
-      assert.within area,      rect(0, 0, 180, 58), rect(0, 0, 181, 59), "area"
+      assert.within area,      rect(0, 0, 179, 57), rect(0, 0, 181, 59), "area"
       assert.eq
         true
         neq drawArea, area
