@@ -44,7 +44,7 @@ defineModule module, class TextLayoutFragment extends BaseClass
 
   @getter
     inspectedObjects: ->
-      [
+      {
         @text
         @font
         @ascender
@@ -59,7 +59,7 @@ defineModule module, class TextLayoutFragment extends BaseClass
         @drawAreaY
         @drawAreaW
         @drawAreaH
-      ]
+      }
   toString: ->
     inspect @toPlainObject()
 

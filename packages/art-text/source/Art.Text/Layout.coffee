@@ -159,9 +159,17 @@ module.exports = class Layout extends BaseObject
   #  scale: 1               # number or Point - multiplies both size and drawMatrix
   toBitmap: (options=emptyOptions)->
     drawMatrix = options.drawMatrix || new Matrix
+    if options.area == "drawArea"
+      {drawArea} = @
+      options = merge options, size: drawArea.size
+      drawMatrix = drawMatrix.translateXY -drawArea.x, -drawArea.y
+
     if scale = options.scale
       drawMatrix = drawMatrix.mul Matrix.scale(scale)
     bitmap = @newBitmap options
+
+    if options.background
+      bitmap.drawRectangle drawMatrix, rect(@size), color: options.background
     @draw bitmap, drawMatrix, options
     bitmap
 

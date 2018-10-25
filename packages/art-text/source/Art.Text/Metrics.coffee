@@ -32,11 +32,12 @@ defineModule module, ->
 
   class Metrics extends BaseClass
     @defaultFontSizeProportionalDrawAreaPadding: .45
+    @tightDrawAreaPadding: 1
     @defaultFontOptions: defaultFontOptions =
       fontStyle   : 'normal'
       fontVariant : 'normal'
       fontWeight  : 'normal'
-      fontSize    : 32
+      fontSize    : 16
       fontFamily  : 'Times'
 
     @toFontCss: toFontCss = (fontOptions) ->
@@ -204,6 +205,7 @@ defineModule module, ->
     tempRectangleToCapturePessimisticDrawArea = new Rectangle
     minTightRenderFontSize = 32
     @_generateTightFontMetrics: (text, tightThreshold, fontOptions, fontCss)  ->
+      {tightDrawAreaPadding} = Metrics
       padding = Metrics.defaultFontSizeProportionalDrawAreaPadding * 2
 
       {fontSize} = fontOptions
@@ -247,12 +249,10 @@ defineModule module, ->
       # right   = min right + 1   | 0, right + alphaFudgeFactor
       # bottom  = min bottom + 1  | 0, bottom + alphaFudgeFactor
 
-      area = rect(
-        0 - textOffsetX = location.x - left
-        0 - textOffsetY = location.y - top
-        layoutW     = right - left
-        layoutH     = bottom - top
-      )
+      textOffsetX = location.x - left
+      textOffsetY = location.y - top
+      layoutW     = right - left
+      layoutH     = bottom - top
 
       ascender =   location.y - top + 1  # ascender + descender should == area.size.y
       descender =  bottom     - location.y
@@ -268,10 +268,10 @@ defineModule module, ->
         textOffsetY
         layoutW
         layoutH
-        0
-        0
-        layoutW
-        layoutH
+        -tightDrawAreaPadding
+        -tightDrawAreaPadding
+        layoutW + tightDrawAreaPadding * 2
+        layoutH + tightDrawAreaPadding * 2
       )
 
     @_getTextualFontMetrics: (text, fontOptions, alreadyComputedTextWidth, fontCss, areaIncludesDescender = true) ->

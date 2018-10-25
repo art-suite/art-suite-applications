@@ -3,6 +3,28 @@ import &StandardImport, &Fonts
 suite:
   tight: ->
 
+    test "layoutMode:tight 64pt well? area and drawArea", ->
+      layout = new Layout "well?", {fontSize: 64, fontFamily: "AvenirNext-DemiBold"}, {layoutMode:"tight"}
+      bitmap = layout.toBitmap area: :drawArea, background: #ff0
+      log scaled: layout.toBitmap scale: 10 area: :drawArea, background: #ff0
+
+      {area, drawArea} = layout
+      log {bitmap, size: bitmap.size, layout, area, drawArea}
+
+      assert.within
+        area
+        rect 0, 0, 153, 49
+        rect 0, 0, 154, 50
+        :area
+
+      assert.eq
+        true
+        neq drawArea, area
+        && drawArea.contains area.expand .5
+        && area.expand(5).contains drawArea
+        "drawArea"
+
+
     test "layoutMode:tight 64pt", ->
       layout = new Layout "Sing!?!", {fontSize:64}, {layoutMode:"tight"}
       bitmap = layout.toBitmap()
@@ -17,12 +39,18 @@ suite:
       log scaled: layout.toBitmap scale: 10
       assert.within bitmap.size, point(45, 15), point(45, 15)
 
-    test "layoutMode:tight areas", ->
+    test "layoutMode:tight area and drawArea", ->
       layout = new Layout "Sing!?!", {fontSize:64}, {layoutMode:"tight"}
       bitmap = layout.toBitmap()
       log bitmap
-      assert.within layout.area,      rect(0, 0, 179, 57), rect(0, 0, 183, 61), "area"
-      assert.within layout.drawArea,  rect(0, 0, 179, 57), rect(0, 0, 183, 61), "drawArea"
+      {area, drawArea} = layout
+      assert.within area,      rect(0, 0, 180, 58), rect(0, 0, 181, 59), "area"
+      assert.eq
+        true
+        neq drawArea, area
+        && drawArea.contains area.expand .5
+        && area.expand(5).contains drawArea
+        "drawArea"
 
   regressions: ->
     test "layoutMode:tight 16pt", ->
