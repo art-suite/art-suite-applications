@@ -1,4 +1,4 @@
-import &ArtStandardLib, &ArtSvgPathExtractor
+import &ArtStandardLib, &ArtCanvasPath
 
 fs = &fsExtra
 &colors

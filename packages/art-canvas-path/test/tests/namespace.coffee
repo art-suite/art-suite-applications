@@ -2,4 +2,4 @@
 # file: tests/namespace.coffee
 
 module.exports = (require 'neptune-namespaces').vivifySubnamespace 'Tests'
-require './Art.SvgPathExtractor/namespace'
+require './Art.CanvasPath/namespace'

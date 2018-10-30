@@ -1,9 +1,7 @@
-# Art.Svg.Path.Extractor
-
-> Initialized by Art.Build.Configurator
+# Art.CanvasPath
 
 ### Install
 
 ```coffeescript
-npm install art-svg-path-extractor
+npm install art-canvas-path
 ```
