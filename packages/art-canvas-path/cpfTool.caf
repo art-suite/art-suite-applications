@@ -3,10 +3,11 @@ import &ArtStandardLib, &ArtSvgPathExtractor
 fs = &fsExtra
 &colors
 
-{output} = commander =
+{extract: extractNamedPaths, output} = commander =
   &commander
   .version &package.version
-  .option '-o, --output [file]',    "output file name"
+  .option '-o, --output [file]',  "" output file name
+  .option '-e, --extract',        "" extract named paths from source SVG files
   .parse process.argv
 
 files = commander.args
@@ -21,11 +22,23 @@ if files.length > 0
       .toString()
 
     name = &path.parse(file).name
-    log encoding: name
 
-    cpl.add
-      name
-      svgToCanvasPath svg
+    if extractNamedPaths
+      each path, name in extractNamedSvgPaths svg
+        log encoding: name
+        cpl.add
+          name
+          svgToCanvasPath
+            """
+              <svg>
+              #{path}
+              </svg>
+
+    else
+      log encoding: name
+      cpl.add
+        name
+        svgToCanvasPath svg
 
     sbgSourceLength += svg.length
 

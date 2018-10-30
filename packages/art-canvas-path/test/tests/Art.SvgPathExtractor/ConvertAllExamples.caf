@@ -8,6 +8,7 @@ suite: ->
       out.xbd.toXbd().then (xbd) ->
         out extract canvasPath
         # canvasPath.normalize()
+        log {} canvasPath
         log {}
           canvasPath
           canvasPathDrawArea = canvasPath.drawArea

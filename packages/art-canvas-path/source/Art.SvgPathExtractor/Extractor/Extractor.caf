@@ -1,3 +1,16 @@
+import &StandardImport, &xmldom
+
+extractNamedChildren = (element, _into = {}) ->
+  each child in element.childNodes
+    if name = child.getAttribute? :id
+      if _into[name]
+        log.warn "named path '#{name}' already exists"
+      else
+        _into[name] = child
+    extractNamedChildren child, _into
+
+  _into
+
 extractSvgPath: extractSvgPath = (svg) ->
   new &SvgPathExtractor
   .extract svg
@@ -8,3 +21,11 @@ svgToCanvasPath: svgToCanvasPath = (svg) ->
   .canvasPath
 
 encodeSvg: svgToCanvasPath
+
+extractNamedSvgPaths: (svg) ->
+
+  doc =
+    new DOMParser
+    .parseFromString svg, :text/xml
+
+  extractNamedChildren doc.documentElement
