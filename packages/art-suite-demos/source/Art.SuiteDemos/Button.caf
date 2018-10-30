@@ -13,6 +13,7 @@ class Button extends PointerActionsMixin Component
       childrenAlignment: .5
       childrenMargins: 10
       padding:  10
+      cursor:   :pointer
 
       draw:
         color:      if @hover then #999 else #555
@@ -24,9 +25,8 @@ class Button extends PointerActionsMixin Component
       TextElement
         mediumText
         size:     :childrenSize
-        cursor:   :pointer
         color:    #fffd
-        text
+        text: text
 
       if toggled?
         Element

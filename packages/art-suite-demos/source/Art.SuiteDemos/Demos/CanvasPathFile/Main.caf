@@ -1,0 +1,168 @@
+import &StandardImport, &ArtCanvasPath
+
+analyzePath = ({points}) ->
+  vCount = 0
+  bitSum = 0
+  add = (v) ->
+    vCount++
+    bitSum += bits = 1 + Math.ceil Math.log2 Math.abs v
+    deltaBitsNeededHistogram[bits] = (deltaBitsNeededHistogram[bits] ? 0) + 1
+
+  deltaBitsNeededHistogram = {}
+  lastX = 2 ** 15
+  lastY = 2 ** 15
+  each i til points.length by 2
+    add lastX - x = points[i]
+    add lastY - y = points[i+1]
+
+  {} deltaBitsNeededHistogram, bitSum, vCount, average: bitSum / vCount, total: vCount * 16
+
+humanByteSize = (byteSize) ->
+  if byteSize < 1024
+    "#{byteSize} bytes"
+  else if byteSize < 10 * 1024
+    "#{(byteSize/1024).toFixed 1}k"
+  else if byteSize < 1024**2
+    "#{byteSize / 1024 | 0}k"
+  else if byteSize < 10 * 1024**2
+    "#{(byteSize/ 1024**2).toFixed 1}k"
+  else # if byteSize < 1024 * 1024
+    "#{byteSize / 1024**2 | 0}m"
+
+class MyComponent extends PointerActionsMixin Component
+
+  @stateFields
+    encoded:
+      svgToCanvasPath &ExampleSvg
+      .normalize()
+    error: null
+    svg: &ExampleSvg
+    pathSetName: null
+    encodedSize: null
+
+  drawSvg: ->
+    @svg = svg = @refs.textInput.element.value
+    @error = null
+    Promise.then ->
+      @encoded =
+        svgToCanvasPath svg
+        .normalize()
+      .xbd.toXbd()
+      .then (bin) -> @encodedSize = bin.length
+    .catch (error) ->
+      @error = error.message
+      timeout 5000, @clearError
+      log {error}
+
+  renderIconSet: ->
+    &ArtRestClient.getArrayBuffer "" /assets/exampleIconSet.cpf
+    .then (cpf) ->
+      @encoded = decodeCpf cpf
+
+  loadCpfFile: ->
+    &ArtFoundation.Browser.File.request accept: "*"
+    .then (files) ->
+      readFileAsArrayBuffer files[0]
+      .then (ab) ->
+        log {ab}
+        @encoded = decodeCpf binary ab
+
+
+
+  render: ->
+    Element
+
+      draw: #eee
+      childrenLayout: :row
+
+      Element
+        childrenLayout: :column
+        padding: 10
+        childrenMargins: 10
+        Element
+          childrenLayout: :row
+          childrenMargins: 10
+          size: :parentWidthChildrenHeight
+          &Button
+            text: "convert svg"
+            action: @drawSvg
+          &Button
+            text: "exampleIconSet.cpf"
+            action: @renderIconSet
+          &Button
+            text: "select cpf file"
+            action: @loadCpfFile
+
+        if @error
+          TextElement
+            mediumText
+            size: :parentWidthChildrenHeight
+            text: @error
+            color: :red
+            animators: size: toFrom: h: 0
+        TextInputElement
+          key: :textInput
+          padding: 10
+          type: :textarea
+          placeholder: "" paste SVG here
+          draw: "white"
+
+        if @encodedSize
+          TextElement
+            mediumText
+            size: :parentWidthChildrenHeight
+            text: if @encodedSize then "encoded svg size: #{humanByteSize @encodedSize} (svg: #{humanByteSize @svg.length}, reduced: #{100 * (@svg.length / @encodedSize) | 0}%)" else "put svg below"
+
+      if @encoded is CanvasPathLibrary
+        log {@pathSetName}
+        if encoded = @encoded.library[@pathSetName]
+          log {encoded}
+          log analyzePath encoded
+          Element
+            draw: #ddd
+            padding: 10
+            &ClassPathPreview {} encoded
+            &Button
+              text: "x"
+              action: @clearPathSetName
+
+            TextElement
+              axis: :topRight
+              location: :topRight
+              size: :childrenSize
+              padding: 2
+              fontSize: 16
+              text: @pathSetName
+              fontFamily: :Arial
+              color: #000a
+
+        else
+          ScrollElement
+            Element
+              draw: #ddd
+              padding: 10
+              size: :parentWidthChildrenHeight
+              childrenLayout: :flow
+              array encoded, name in @encoded.library
+                Element
+                  cursor: :pointer
+
+                  on:
+                    mouseIn: -> log name
+                    pointerClick: ->  @pathSetName = name
+
+                  size: 200
+                  margin: 10
+                  draw: #eee
+                  &ClassPathPreview {} encoded
+                  TextElement
+                    padding: 2
+                    fontSize: 9
+                    text: name
+                    fontFamily: :Arial
+                    color: #000a
+      else
+        Element
+          draw: #ddd
+          padding: 10
+          &ClassPathPreview {} @encoded

@@ -1,1 +1,1 @@
-&ArtSuite.merge &ArtSuite, &DemoPalette, &DemoTextStyles
+&ArtSuite.merge &ArtSuite, &DemoPalette, &DemoTextStyles, {} &DemoPalette, &DemoTextStyles

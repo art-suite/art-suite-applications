@@ -1,4 +1,4 @@
-import &ArtSuite # 2 tokens         >> 231 total tokens
+import &ArtSuite # 2 tokens         >> 228 total tokens
 
 textStyle =                         # 10 tokens
   fontFamily: "" "Century Gothic", Futura, sans-serif
@@ -16,8 +16,7 @@ calculateWinner = (board) ->        # 60 tokens
       2 5 8
       0 4 8
       2 4 6
-    v1 = board[i1]
-    && v1 == board[i2] && v1 == board[i3] # << can -2 with chain-equality tests: v1 == board[i2] == board[i3]
+    v1 = board[i1] && v1 == board[i2] && v1 == board[i3] # << -4 tokens with chain-equality support: board[i1] == board[i2] == board[i3] != null
 
 class Square extends Component      # 28 tokens
   render: ->
@@ -33,15 +32,15 @@ class Square extends Component      # 28 tokens
         align:      :centerCenter
         @props
 
-class TicTacToe extends Component     # 131 tokens
+class TicTacToe extends Component     # 128 tokens
   @stateFields turnNumber: 0 history: [] array til 9 with null
 
   play: (player, boardIndex) ->       # 28 tokens
     @history = arrayWith
-      @history.slice 0, @turnNumber + 1
+      @history.slice 0, @turnNumber + 1 # -3 tokens if we add "in + to" support: array in @history to @turnNumber
       arrayWithElementReplaced @history[@turnNumber++], player, boardIndex
 
-  render: ->                          # 88 tokens
+  render: ->                          # 85 tokens
     winner = calculateWinner board = @history[@turnNumber]
     player = if @turnNumber % 2 then :X else :O
     Element
@@ -53,14 +52,14 @@ class TicTacToe extends Component     # 131 tokens
         Square {} text, play: unless winner || text
           -> @play player, boardIndex
 
-      TextElement                     # << can -3 with interpolation blocks: "" Winner: #{} winner
+      TextElement
         textStyle
-        if winner then  "" Winner: #{winner}
-        else            "" Next player: #{player}
+        if winner then  "Winner: " + winner
+        else            "Next player: " + player
 
       array {label}, i in @history
         TextElement
           textStyle
           on: pointerClick: -> @turnNumber = i
-          if i then     "" Go to move ##{i}
-          else          "" Go to game start
+          if i then     "Go to move #" + i
+          else          "Go to game start"

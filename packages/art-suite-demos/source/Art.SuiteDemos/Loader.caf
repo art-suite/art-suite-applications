@@ -20,7 +20,7 @@ class DemoButton extends PointerActionsMixin Component
         size:     :parentWidthChildrenHeight
         color:    #0007
         padding:  10
-        @props.name
+        text: @props.name
 
 class Loader extends Component
 

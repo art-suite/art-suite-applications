@@ -4,55 +4,69 @@ Button = &Button
 class LineItem extends FluxComponent
 
   @stateFields
-    height: 50
+    addSize: 0
 
-  expand: -> @height *= 2
-  collapse: -> @height = max @height / 2, 50
+  expand: -> @addSize += max 50, @addSize
+  collapse: -> @addSize =
+    max 0, min @addSize / 2, @addSize - 50
 
   removeItem: ->
     log remove: @props.text
     @props.removeItem @props.text
 
   render: ->
-    {text} = @props
+    {text, horizontal} = @props
     Element
+      key: "lineItem:#{text}"
       size: cs: 1
       margin: 5
       animators:
-        size:   toFrom: wcw:1, h: 0
+        size:   toFrom: if horizontal then hch:1, w: 0 else wcw:1, h: 0
         margin: toFrom: 0
       clip: true
-      drawOrder: vibrant
+      draw: color: vibrant
       Element
-        size: wcw:1, h: @height
+        size:
+          if horizontal
+            cs: 1, w: @addSize
+          else
+            cs: 1, h: @addSize
         animators: :size
-        childrenLayout: :row
-        childrenAlignment: :centerLeft
+        childrenLayout: if horizontal then :column else :row
+        childrenAlignment: :topLeft
         childrenMargins: 15
         padding: 20
         TextElement
           mediumText
+          size: "childrenSize"
           text: text
           color: lightMuted
         Button text: "delete", action: @removeItem
-        Button text: "add", action: @expand
-        Button text: "sub", action: @collapse
+        Button text: "bigger", action: @expand
+        Button text: "smaller", action: @collapse
 
-class PseDemo extends FluxComponent
+class ScrollElementDemo extends FluxComponent
 
   render: ->
-    {alignment, items, tight, track, removeItem} = @props
+    {alignment, items, tight, track, removeItem, horizontal} = @props
 
     Element
-      drawOrder:
-        color: veryDarkMuted
+      draw: color: veryDarkMuted
       padding: 10
       childrenLayout: :column
       childrenMargins: 10
-      size: if tight then ww:1, hch:1, max: hh: 1 else ps: 1
+      size: size =
+        if tight
+          if horizontal
+            cs: 1 max: ww: 1
+          else
+            cs: 1 max: hh: 1
+        else
+          ps: 1
       animators: :size
       TextElement
         mediumText
+        size: "childrenSize"
         text: "" Containing Element
         color: lightMuted
       ScrollElement
@@ -60,18 +74,21 @@ class PseDemo extends FluxComponent
         track:              track
         location:           alignment
         axis:               alignment
-        size:               hch: 1, max: hh: 1
+        size: size
+        childrenLayout:     if horizontal then :row else :column
         childrenAlignment:  alignment
         animators:          :childrenAlignment :axis :location
         drawOrder:          darkMuted
         # padding: 10
         TextElement
           mediumText
+          key: "scrollElementContentsLabel"
+          size: "childrenSize"
           text: "ScrollElement"
           padding: 10
           color: lightMuted
-        array item in items
-          LineItem removeItem: removeItem, key: "Item:#{item}", text: item
+        array text in items
+          LineItem {} removeItem, key: "Item:#{text}", text, horizontal
 
 class DynamicScroller extends FluxComponent
 
@@ -79,12 +96,13 @@ class DynamicScroller extends FluxComponent
     alignment:  :bottomLeft
     track:      :bottom
     tight:      false
+    horizontal: false
     items:
-      "" Line 1
-      "" Line 2
+      "" Item 1
+      "" Item 2
 
   count = 3
-  addItem:             -> @items = arrayWith @items, "Line #{count++}"
+  addItem:             -> @items = arrayWith @items, "Item #{count++}"
   removeItem: (string) -> @items = arrayWithoutValue @items, string
 
   render: ->
@@ -93,11 +111,14 @@ class DynamicScroller extends FluxComponent
       childrenMargins: 10
       padding: 10
       drawOrder: darkBackground
-      PseDemo @state, removeItem: @removeItem
+      ScrollElementDemo @state, {} @removeItem, @horizontal
       Element
         size: wcw:1
         childrenMargins: 10
         childrenLayout: "column"
+        Button
+          text: if @horizontal then "horizontal" else "vertical"
+          action: @toggleHorizontal
         Button text: "add element",         action: @addItem
         array alignment in :topLeft :topRight :bottomLeft :bottomRight
           Button
@@ -114,4 +135,4 @@ class DynamicScroller extends FluxComponent
         Button
           selected: @tight
           action:   @toggleTight
-          text:     "" size: #{if @tight then "hch: 1 max: hh: 1" else "hh: 1"}
+          text:     "" size: #{if @tight then "tight" else "full"}

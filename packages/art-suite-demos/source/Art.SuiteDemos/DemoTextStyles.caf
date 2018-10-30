@@ -1,3 +1,4 @@
 mediumText:
+  # size: "parentWidthChildrenHeight"
   fontFamily: :sans-serif
   fontSize:   16

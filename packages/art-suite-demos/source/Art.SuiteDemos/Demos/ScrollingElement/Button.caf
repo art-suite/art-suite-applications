@@ -21,6 +21,7 @@ class Button extends PointerActionsMixin FluxComponent
 
       TextElement
         mediumText
+        size: "childrenSize"
         padding: 10
         text: text
         animators: :color
