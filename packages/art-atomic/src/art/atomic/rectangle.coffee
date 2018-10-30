@@ -291,8 +291,8 @@ module.exports = class Rectangle extends AtomicBase
     return @ if floatEq0(x) && floatEq0(y)
     @with @x - x, @y - y, @w + 2 * x, @h + 2 * y
 
-  pad: (a) ->
-    @grow -a
+  pad:    (a) -> @grow -a
+  expand: (a) -> @grow a
 
   # Common instances
   @nothing:     (new Rectangle 0, 0, 0, 0).freeze()
