@@ -31,6 +31,27 @@ module.exports = class Rectangle extends AtomicBase
     return a if isRect a
     new Rectangle a, b, c, d
 
+  _initFromObject: (obj) ->
+    @x = @y = @w = @h = 0 # ensure consistent object construction
+    {size, center} = obj
+    if size
+      if isNumber size
+        x = y = size
+      else
+        {x, y} = size
+      @w = x
+      @h = y
+    else
+      @w = @h = 1
+
+    if center
+      if isNumber center
+        x = y = center
+      else
+        {x, y} = center
+      @x = x - @w / 2
+      @y = y - @h / 2
+
   _init: (a, b, c, d) ->
     @x = @y = @w = @h = 0 # ensure consistent object construction
     if d?
