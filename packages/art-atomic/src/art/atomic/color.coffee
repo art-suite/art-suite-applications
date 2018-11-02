@@ -410,6 +410,7 @@ module.exports = class Color extends AtomicBase
     pad number.toString(16), length, zeroString, true
 
   @getter
+    inspectedObjects: -> @
     # array: -> [@r, @g, @b, @a]
     arrayRGB: -> [@r, @g, @b]
     arrayRgb: -> [@r, @g, @b]
