@@ -8,7 +8,7 @@ module.exports = suite:
         assert.equal red.toString(), "#ff0000"
 
       test "inspectedObjects", ->
-        assert.match "#{formattedInspect rgbColor()}", /black/
+        assert.match "#{formattedInspect rgbColor()}", /\#000000/
 
       test "red transparent", ->
         red = new Color 1,0,0,0.5
@@ -27,6 +27,14 @@ module.exports = suite:
       test "clamped", ->
         assert.eq rgbColor(1000, 256, 255, 1).clamped, rgbColor(1,1,1)
         assert.eq rgbColor(-1, -3, -4, -5).clamped, rgbColor(0,0,0,0)
+
+      test "parse #X rgbColors", ->
+        assert.eq rgbColor("#0").rgbaHexString, "#000000ff"
+        assert.eq rgbColor("#7").rgbaHexString, "#777777ff"
+
+      test "parse #XX rgbColors", ->
+        assert.eq rgbColor("#00").rgbaHexString, "#000000ff"
+        assert.eq rgbColor("#7f").rgbaHexString, "#7f7f7fff"
 
       test "parse #XXX rgbColors", ->
         assert.eq rgbColor("#f70").rgbaHexString, "#ff7700ff"

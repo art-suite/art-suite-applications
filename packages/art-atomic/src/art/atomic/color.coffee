@@ -3,10 +3,12 @@ AtomicBase = require './base'
 {
   inspect, bound, modulo, pad, min, max, abs, float32Eq, isString, log
 
-  hex16ColorRegex
-  hex256ColorRegex
-  rgbColorRegex
-  rgbaColorRegex
+  hex16ColorRegExp
+  hex256ColorRegExp
+  hex16GreyColorRegExp
+  hex256GreyColorRegExp
+  rgbColorRegExp
+  rgbaColorRegExp
   float32Eq0
   object
 } = Foundation
@@ -255,7 +257,7 @@ module.exports = class Color extends AtomicBase
     parseCache[string] = @
 
     # hex16: #rgb or #rgba - where r, g, b, and a are hex digits
-    if match = string.match hex16ColorRegex
+    if match = string.match hex16ColorRegExp
       [x, r, g, b, a] = match
       @_htmlColorString = string unless a
       a ||= "f"
@@ -264,8 +266,16 @@ module.exports = class Color extends AtomicBase
       @b = parseInt(b, 16)/15
       @a = parseInt(a, 16)/15
 
+    else if match = string.match hex16GreyColorRegExp
+      @r = @g = @b = parseInt(match[1], 16) / 15
+      @a = 1
+
+    else if match = string.match hex256GreyColorRegExp
+      @r = @g = @b = parseInt(match[1], 16) / 255
+      @a = 1
+
     # hex256: #rrggbb or #rrggbbaa - where r, g, b, and a are hex digits
-    else if match = string.match hex256ColorRegex
+    else if match = string.match hex256ColorRegExp
       [x, r, g, b, a] = match
       @_htmlColorString = string unless a
       a ||= "ff"
@@ -275,7 +285,7 @@ module.exports = class Color extends AtomicBase
       @a = parseInt(a, 16)/255
 
     # rgb(red, green, blue) - values are 0-255
-    else if elements = string.match rgbColorRegex
+    else if elements = string.match rgbColorRegExp
       @_htmlColorString = string
       @a = 1
       @r = parseRGBColorComponent elements[1]
@@ -283,7 +293,7 @@ module.exports = class Color extends AtomicBase
       @b = parseRGBColorComponent elements[3]
 
     # rgba(red, green, blue, alpha) - rgb values are 0-255, alpha values are 0.0 - 1.0
-    else if elements = string.match rgbaColorRegex
+    else if elements = string.match rgbaColorRegExp
       @_htmlColorString = string
       @r = parseRGBColorComponent elements[1]
       @g = parseRGBColorComponent elements[2]
