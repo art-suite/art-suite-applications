@@ -69,13 +69,8 @@ currentSecond
 {rgb256Color, rgbColor, point, Matrix} = require 'art-atomic'
 {Bitmap} = require 'art-canvas'
 
-getColorMap = (bitmap) ->
-  b = bitmap.getMipmap s = point 3
-  final = bitmap.newBitmap s
-  final.drawBitmap Matrix.scale(s.div b.size), b
+defaultColorMapSize = point 3
 
-  for r, i in pd = final.imageData.data by 4
-    rgb256Color r, pd[i + 1], pd[i + 2]
 
 [
   previewBitmapScale
@@ -84,6 +79,14 @@ getColorMap = (bitmap) ->
 
 module.exports =
   version: version = (require '../../../package.json').version
+
+  getColorMap: getColorMap = (bitmap, targetSize = defaultColorMapSize) ->
+    b = bitmap.getMipmap targetSize
+    final = bitmap.newBitmap targetSize
+    final.drawBitmap Matrix.scale(targetSize.div b.size), b
+
+    for r, i in pd = final.imageData.data by 4
+      rgb256Color r, pd[i + 1], pd[i + 2]
 
   getColorMapBitmap: getColorMapBitmap = (colorMap) ->
     {imageData} = colorMapBitmap = new Bitmap 3
