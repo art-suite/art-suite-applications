@@ -1,0 +1,124 @@
+import &StandardImport
+
+suite:
+  stripes: ->
+    test "simplest", ->
+      gfs = new GradientFillStyle point(0,0), point(100,0), stripes: #000 #ff0000
+      log gfs.colors[0].c is String
+      assert.eq
+        gfs.colors
+        []
+          {} n: 0       c: rgbColor #000
+          {} n: 0.5     c: rgbColor #000
+          {} n: 0.5001  c: rgbColor #f00
+          {} n: 1       c: rgbColor #f00
+
+  basics: ->
+    test "explicit 3-step gradient", ->
+      gfs = new GradientFillStyle point(0,0), point(100,0), 0:"#000", .75:"#f00", 1:"#0f0"
+      assert.eq gfs.colors, [{c: "#000", n: 0}, {n: 0.75, c: "#f00"}, {c: "#0f0", n: 1}]
+
+    test "implicit 3-step gradient", ->
+      gfs = new GradientFillStyle point(0,0), point(100,0), [] #000 #f00 #0f0
+      assert.eq
+        gfs.colors
+        []
+          {n: 0,    c: rgbColor "#000"}
+          {n: 0.5,  c: rgbColor "#f00"}
+          {n: 1,    c: rgbColor "#0f0"}
+
+    test "implicit 3-step grey gradient", ->
+      gfs = new GradientFillStyle point(0,0), point(100,0), [] #0 #7 #f
+      assert.eq
+        gfs.colors
+        []
+          {} n: 0     c: rgbColor #0
+          {} n: 0.5   c: rgbColor #7
+          {} n: 1     c: rgbColor #f
+
+    test "regression > 10 colors with no positions", ->
+      colors = GradientFillStyle.colorsToObjectsAndColorObjects []
+        "#f00"
+        "#f70"
+        "#ff0"
+        "#7f0"
+        "#0f0"
+        "#0f7"
+        "#0ff"
+        "#07f"
+        "#00f"
+        "#70f"
+        "#f0f"
+
+      assert.eq
+        colors
+        []
+          {c: rgbColor "#f00"}
+          {c: rgbColor "#f70"}
+          {c: rgbColor "#ff0"}
+          {c: rgbColor "#7f0"}
+          {c: rgbColor "#0f0"}
+          {c: rgbColor "#0f7"}
+          {c: rgbColor "#0ff"}
+          {c: rgbColor "#07f"}
+          {c: rgbColor "#00f"}
+          {c: rgbColor "#70f"}
+          {c: rgbColor "#f0f"}
+        "colorsToObjectsAndStringColors"
+      colors = GradientFillStyle.interpolateColorPositions colors
+      assert.eq
+        colors
+        []
+          {n: .0, c: rgbColor "#f00"}
+          {n: .1, c: rgbColor "#f70"}
+          {n: .2, c: rgbColor "#ff0"}
+          {n: .3, c: rgbColor "#7f0"}
+          {n: .4, c: rgbColor "#0f0"}
+          {n: .5, c: rgbColor "#0f7"}
+          {n: .6, c: rgbColor "#0ff"}
+          {n: .7, c: rgbColor "#07f"}
+          {n: .8, c: rgbColor "#00f"}
+          {n: .9, c: rgbColor "#70f"}
+          {n:  1, c: rgbColor "#f0f"}
+        "interpolateColorPositions"
+
+    test "regression 2", ->
+      gfs = new GradientFillStyle
+        point(0,0)
+        point(100,0)
+        []
+          '#ff000000'
+          '#ff000001'
+          '#ff000002'
+          '#ff000005'
+          '#ff00000a'
+          '#ff00000f'
+          '#ff000015'
+          '#ff00001d'
+          '#ff000025'
+          '#ff00002f'
+          '#ff000039'
+          '#ff000043'
+          '#ff00004f'
+          '#ff00005a'
+          '#ff000067'
+          '#ff000073'
+          '#ff000080'
+          '#ff00008c'
+          '#ff000098'
+          '#ff0000a5'
+          '#ff0000b0'
+          '#ff0000bc'
+          '#ff0000c6'
+          '#ff0000d0'
+          '#ff0000da'
+          '#ff0000e2'
+          '#ff0000ea'
+          '#ff0000f0'
+          '#ff0000f5'
+          '#ff0000fa'
+          '#ff0000fd'
+          '#ff0000fe'
+          '#ff0000'
+
+      log gfs.colors
