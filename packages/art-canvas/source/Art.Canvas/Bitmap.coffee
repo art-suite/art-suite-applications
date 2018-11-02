@@ -36,6 +36,8 @@ isSimpleRectangle = (pathFunction, pathOptions) ->
   lowerCamelCase
 } = require 'art-standard-lib'
 
+{ceil} = Math
+
 {Binary, Browser} = require "art-foundation"
 {EncodedImage} = Binary
 
@@ -445,14 +447,48 @@ module.exports = class Bitmap extends BitmapBase
   # if toClone is true, creates a new bitmap with the blurred data
   # TODO: toClone should accept "true" which generates a new clone, OR a bitmap, which is where the blurred output is drawn
   blur: (radius, toClone)->
-    (if toClone then @clone() else @).tap (target) =>
-      StackBlur.blur @, radius, target
+    target = if toClone then @clone() else @
+    StackBlur.blur @, radius, target
+    target
+
+  fastBlurMaxStackBlurRadius = 8
+  fastBlur: (radius, toClone) -> @_fastBlur "blur", radius, toClone
+  fastBlurRGB: (radius, toClone) -> @_fastBlur "blurRGB", radius, toClone
+
+  _fastBlur: (blurFunction, radius, toClone) ->
+    if radius <= fastBlurMaxStackBlurRadius
+      @[blurFunction] radius, toClone
+    else
+      scaleBlurRadius = radius / fastBlurMaxStackBlurRadius
+      stackBlurRadius = fastBlurMaxStackBlurRadius
+      {x, y} = @size
+      scaleSize = point(
+        ceil x / scaleBlurRadius
+        ceil y / scaleBlurRadius
+      )
+      scaleBlurTempBitmap = @newBitmap scaleSize
+      drawMatrix        = Matrix.scaleXY scaleSize.x / @size.x, scaleSize.y / @size.y
+      inverseDrawMatrix = Matrix.scaleXY @size.x / scaleSize.x, @size.y / scaleSize.y
+      scaleBlurTempBitmap.drawBitmap drawMatrix, @
+      StackBlur[blurFunction] scaleBlurTempBitmap, stackBlurRadius, scaleBlurTempBitmap
+      target = if toClone then @newBitmap @size else @
+      target.drawBitmap inverseDrawMatrix, scaleBlurTempBitmap
+      target
+
+
+  blurRGB: (radius, toClone)->
+    target = if toClone then @clone() else @
+    StackBlur.blurRGB @, radius, target
+    target
 
   # if toClone is true, creates a new bitmap with the blurred data
   blurAlpha: (radius, options = emptyOptions)->
-    (if options.clone then @clone() else @).tap (target) =>
-      func = if options.inverted then "blurInvertedAlpha" else "blurAlpha"
-      StackBlur[func] @, radius, target
+    target = if options.clone then @clone() else @
+    if options.inverted
+      StackBlur.blurInvertedAlpha @, radius, target
+    else
+      StackBlur.blurAlpha @, radius, target
+    target
 
   #####################
   # PRIVATE

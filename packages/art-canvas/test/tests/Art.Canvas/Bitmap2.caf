@@ -12,6 +12,23 @@ generateTestBitmap3 = (c = #00f)->
   result.drawRectangle point(30,30), point(60,60), color:c
   result
 
+generateBlurTestBitmap = (withAlpha)->
+  size = 240
+  result = new Bitmap point size
+  result.clear #fff1
+  each sat from 0 to 1 by if withAlpha then .3333 else .5 * .3333
+    each hue from 0 to 1 by 1/6
+      result.drawRectangle
+        point
+          hue * size
+          if withAlpha
+            20 + sat * size / 2
+          else
+            sat * size
+        point size / 6
+        color: hslColor hue, sat, 1
+  result
+
 testAndLogBitmap = (testName, setup) ->
   test testName, ->
     {bitmap, test} = setup()
@@ -167,4 +184,34 @@ suite:
       # testAndLogBitmap "threshold test 2", ->
       #   bitmap: new Bitmap(bitmapSize).drawRectangle null, (r = rect 1, 2, 3, 4), color: rgbColor 0, 0, 0, .1
       #   test: (bitmap) -> assert.eq rect(), bitmap.getAutoCropRectangle(128)
+
+  blur:
+    noAlpha: ->
+      each f in :blur :blurRGB :blurAlpha
+        testAndLogBitmap f, ->
+          bitmap: generateBlurTestBitmap()[f] 10
+          test: (bitmap) ->
+
+    fastBlur: global.myF = ->
+      each step from 2 to 6
+        f = (step) ->
+          myRad = 2 ** step
+          each f in :blur :fastBlur
+            testAndLogBitmap "#{f} #{myRad}", ->
+              bitmap: generateBlurTestBitmap()[f] myRad
+              test: (bitmap) ->
+        f(step)
+
+      testAndLogBitmap "fastBlur toClone", ->
+        bitmap:
+          b1 = generateBlurTestBitmap()
+          .fastBlur 16, toClone: true
+        test: (b2) ->
+          log { b1, b2}
+
+    withAlpha: ->
+      each f in :blur :blurRGB :blurAlpha
+        testAndLogBitmap f, ->
+          bitmap: generateBlurTestBitmap(true)[f] 10
+          test: (bitmap) ->
 

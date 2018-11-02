@@ -4,4 +4,5 @@
 module.exports = require './namespace'
 module.exports
 .addModules
-  Taint: require './Taint'
+  Bitmap: require './Bitmap'
+  Taint:  require './Taint' 
