@@ -1,7 +1,5 @@
 import &StandardImport
 
-{getTextLines} = &ArtPostertext.Tools
-
 class TheNorthernPeople extends Component
 
   render: ->

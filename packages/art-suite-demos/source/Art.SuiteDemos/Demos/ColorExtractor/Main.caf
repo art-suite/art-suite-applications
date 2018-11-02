@@ -15,11 +15,13 @@ class MyComponent extends PointerActionsMixin Component
     Bitmap.requestImage()
     .then ({bitmap}) =>
 
-      @previewBitmap = generatePreviewBitmap @colorInfo = ci = extractColors @bitmap = bitmap
+      @previewBitmap = generatePreviewBitmap @colorInfo = ci = extractColors
+        @bitmap = bitmap
+        verbose: true
       {darkMuted, muted, lightMuted, darkVibrant, vibrant, lightVibrant} = ci.colors
       @selectedColor = darkMuted || muted || lightMuted || darkVibrant || vibrant || lightVibrant
 
-  doAction: -> @requestImage()
+  action: -> @requestImage()
 
   render: ->
     {bitmap, colorInfo, previewBitmap, hover, selectedColor} = @state
@@ -27,15 +29,13 @@ class MyComponent extends PointerActionsMixin Component
     Element
       childrenLayout: "column"
       padding: layoutWeight
-      RectangleElement
-        padding: -layoutWeight
-        inFlow: false
-        animators: "color"
-        on: pointerClick: @requestImage
+      draw:
         if colorInfo
-          color: selectedColor
+          selectedColor
         else
-          color: "white"
+          "white"
+
+      animators: :draw
 
       if bitmap
         Element
@@ -53,13 +53,6 @@ class MyComponent extends PointerActionsMixin Component
             hover && BitmapElement
               bitmap: previewBitmap
               animators: opacity: toFrom: 0
-      else
-        TextElement
-          text: "pick photo"
-          location: ps: .5
-          axis: .5
-          fontFamily: "AvenirNext-Regular"
-          color:    "gray"
 
       colorInfo && Element
         size: ww:1, hch:1
@@ -89,3 +82,10 @@ class MyComponent extends PointerActionsMixin Component
               color: if v.perceptualLightness < .75 then :white else :black
               text: k
               fontFamily: :AvenirNext-Regular
+
+      Element
+        size: :childrenSize
+        inFlow: false
+        &Button
+          text: "pick photo"
+          action: @requestImage
