@@ -7,8 +7,11 @@ module.exports = suite:
         red = new Color 1,0,0,1
         assert.equal red.toString(), "#ff0000"
 
-      test "inspectedObjects", ->
-        assert.match "#{formattedInspect rgbColor()}", /\#000000/
+      test "inspectedObjects ()", ->
+        assert.match "#{formattedInspect rgbColor()}", "rgbColor('#000000')"
+
+      test "inspectedObjects #f00", ->
+        assert.match "#{formattedInspect rgbColor('#f00')}", "rgbColor('#ff0000')"
 
       test "red transparent", ->
         red = new Color 1,0,0,0.5
