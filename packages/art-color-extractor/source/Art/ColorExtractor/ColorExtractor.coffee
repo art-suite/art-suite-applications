@@ -123,7 +123,7 @@ module.exports =
       colorMap
 
 
-  mipmapSize: mipmapSize = 64
+  mipmapSize: mipmapSize = 128
 
   ###
   IN: bitmap
@@ -156,6 +156,7 @@ module.exports =
 
     if options?.verbose
       log
+        scaledBitmap: bitmap
         extractColors: out
         milliseconds: (currentSecond() - startTime) * 1000 | 0
     out

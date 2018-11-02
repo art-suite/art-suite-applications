@@ -18,11 +18,16 @@
 
 quantize = require 'quantize'
 
+
+
 defineModule module, ->
+
+  # minimum number % of pixels with that color to allow it to be picked
+  frequenceThreshold = .0005
 
   saturationWeight  = 7
   lumaWeight        = 12
-  countWeight       = 1
+  countWeight       = 7
 
   lumaDarkMin       = 0.1
   lumaDarkTarget    = 0.3
@@ -52,10 +57,14 @@ defineModule module, ->
     vibrant:        targetLuma: lumaNormalTarget,  minLuma: lumaNormalMin,   maxLuma: lumaNormalMax, targetSat: satVibrantTarget, minSat: satVibrantMin,  maxSat: satVibrantMax
     lightVibrant:   targetLuma: lumaLightTarget,   minLuma: lumaLightMin,    maxLuma: lumaLightMax,  targetSat: satVibrantTarget, minSat: satVibrantMin,  maxSat: satVibrantMax
 
-  getMatchQuality = ({targetSat, targetLuma}, saturation, luma, count, maxCount) ->
-    saturationWeight * invertDiff(saturation, targetSat ) +
-    lumaWeight       * invertDiff(luma,       targetLuma) +
-    countWeight      * count / maxCount
+  getMatchQuality = ({targetSat, targetLuma}, saturation, luma, {color, count}, maxCount) ->
+    c = countWeight      * count / maxCount
+    s = saturationWeight * invertDiff saturation, targetSat
+    l = lumaWeight       * invertDiff luma,       targetLuma
+
+    out = s + l + c
+    # log getMatchQuality: {s, l, c, count, maxCount, color, out}
+    out
 
   invertDiff = (value, targetValue) -> 1 - Math.abs value - targetValue
 
@@ -87,7 +96,7 @@ defineModule module, ->
 
     getLumaDiff: (swatch) -> Math.abs @luma - swatch.luma
 
-    qualifiesFor: (tolerences) ->
+    qualifiesFor: (tolerences, totalCount) ->
       {
         # targetLuma
         # targetSat
@@ -96,13 +105,17 @@ defineModule module, ->
         minSat
         maxSat
       } = tolerences
+      # log qualifiesFor:
+      #   {@count, totalCount, @color, ratio: @count / totalCount}
+      (@count / totalCount > frequenceThreshold) &&
       (minLuma <= @luma < maxLuma) &&
       (minSat <= @sat < maxSat)
 
   class Vibrant extends BaseObject
 
     constructor: (pixels, options = {}) ->
-      {colorCount = 32, quality = 1, @verbose} = options
+      {colorCount = 64, quality = 1, @verbose} = options
+      # log Vibrant_constructor: {pixels, options, colorCount} if @verbose
       @_selectedSwatches = {}
       @_selectedSwatchesList = []
 
@@ -140,12 +153,15 @@ defineModule module, ->
       allPixels = _selectPixels pixels, quality, 32, 1000 if allPixels.length == 0
       allPixels.push [0,0,0] if allPixels.length == 0
 
+      # log quantize: {allPixels: allPixels.length, colorCount} if @verbose
       cmap = quantize allPixels, colorCount
 
 
       @_maxCount = 0
+      @_totalCount = 0
       @_inputSwatches = compact cmap.vboxes.map (vbox) =>
         if 0 < count = vbox.vbox.count()
+          @_totalCount += count
           @_maxCount = max @_maxCount, count
           new Swatch vbox.color, count
 
@@ -165,9 +181,12 @@ defineModule module, ->
         swatches: (color for {color} in @_inputSwatches)
 
       for name, tolerences of colorTolerences
-        qualifyingSwatches = array @_inputSwatches, when: (swatch) -> swatch.qualifiesFor tolerences
+        qualifyingSwatches = for swatch in @_inputSwatches when swatch.qualifiesFor tolerences, @_totalCount
+          swatch
+
+
         # @verbose &&
-        @verbose && log "qualifying swatches for #{name}": (color for {color} in qualifyingSwatches)
+        @verbose && log "qualifying swatches for #{name}": qualifyingSwatches # (color for {color} in qualifyingSwatches)
 
         if @_selectSwatch name, variation = @_findColorVariation name, qualifyingSwatches
           selectedVariations = [variation]
@@ -176,10 +195,12 @@ defineModule module, ->
             selectedVariations.push variation
             @_selectSwatch "#{name}#{count++}", variation
 
-      # if @verbose
-      log Vibrant:
-        inputSwatches: (color for {color} in @_inputSwatches)
-        outputColors: @colors
+      if @verbose
+        log Vibrant:
+          inputSwatches: (color for {color} in @_inputSwatches)
+          outputColors: @colors
+
+
 
     minHueDifference = .015
     minLumaDifference = 1/8
@@ -269,11 +290,11 @@ defineModule module, ->
     _findColorVariation: (name, qualifyingSwatches) ->
       tolerences = colorTolerences[name]
       bestSwatch = null
-      maxQuality = -1
+      maxQuality = 0
 
       for swatch in qualifyingSwatches when !@_isSelected swatch
         {sat, luma} = swatch
-        if maxQuality < quality = getMatchQuality tolerences, sat, luma, swatch.count, @_maxCount
+        if maxQuality < quality = getMatchQuality tolerences, sat, luma, swatch, @_maxCount
           bestSwatch = swatch
           maxQuality = quality
 
