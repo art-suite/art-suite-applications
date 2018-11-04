@@ -197,15 +197,15 @@ suite:
         f = (step) ->
           myRad = 2 ** step
           each f in :blur :fastBlur
-            testAndLogBitmap "#{f} #{myRad}", ->
+            testAndLogBitmap "#{f} #{myRad} basic", ->
               bitmap: generateBlurTestBitmap()[f] myRad
               test: (bitmap) ->
         f(step)
 
-      testAndLogBitmap "fastBlur toClone", ->
+      testAndLogBitmap "fastBlur 64, toClone", ->
         bitmap:
           b1 = generateBlurTestBitmap()
-          .fastBlur 16, toClone: true
+          .fastBlur 64, toClone: true
         test: (b2) ->
           log { b1, b2}
 

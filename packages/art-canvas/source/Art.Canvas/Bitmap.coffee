@@ -452,7 +452,7 @@ module.exports = class Bitmap extends BitmapBase
     target
 
   fastBlurMaxStackBlurRadius = 8
-  fastBlur: (radius, toClone) -> @_fastBlur "blur", radius, toClone
+  fastBlur:    (radius, toClone) -> @_fastBlur "blur", radius, toClone
   fastBlurRGB: (radius, toClone) -> @_fastBlur "blurRGB", radius, toClone
 
   _fastBlur: (blurFunction, radius, toClone) ->
@@ -471,9 +471,10 @@ module.exports = class Bitmap extends BitmapBase
       inverseDrawMatrix = Matrix.scaleXY @size.x / scaleSize.x, @size.y / scaleSize.y
       scaleBlurTempBitmap.drawBitmap drawMatrix, @
       StackBlur[blurFunction] scaleBlurTempBitmap, stackBlurRadius, scaleBlurTempBitmap
-      target = if toClone then @newBitmap @size else @
-      target.drawBitmap inverseDrawMatrix, scaleBlurTempBitmap
-      target
+      if toClone
+        scaleBlurTempBitmap
+      else
+        @drawBitmap inverseDrawMatrix, scaleBlurTempBitmap
 
 
   blurRGB: (radius, toClone)->

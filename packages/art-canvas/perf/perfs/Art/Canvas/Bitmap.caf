@@ -16,7 +16,6 @@ suite:
               sat * bitmapSize
             cellSize
             color: hslColor hue, sat, 1
-      log setup: a.clone()
 
     # test "blur 48" ->
     #   bitmap.blur 48
@@ -26,9 +25,11 @@ suite:
     #   bitmap.fastBlur 48
     #   log bitmap
 
-    radius = 8
+    radius = 64
     benchmark "blur #{radius}" -> bitmap.blur radius
     benchmark "fastBlur #{radius}" -> bitmap.fastBlur radius
+    benchmark "fastBlur #{radius}, toClone = true" -> bitmap.fastBlur radius, true
 
     benchmark "blurRGB #{radius}" -> bitmap.blurRGB radius
     benchmark "fastBlurRGB #{radius}" -> bitmap.fastBlurRGB radius
+    benchmark "fastBlurRGB #{radius}, toClone = true" -> bitmap.fastBlurRGB radius, true
