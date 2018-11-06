@@ -113,6 +113,28 @@ defineModule module, ->
 
   class Vibrant extends BaseObject
 
+    colorQualifiesFor = (tolerences, color) ->
+      color = rgbColor color
+      lumSatQualifiesFor tolerences,
+        color.perceptualLightness
+        color.perceptualSaturation
+
+    lumSatQualifiesFor = (tolerences, luma, sat) ->
+      {
+        minLuma
+        maxLuma
+        minSat
+        maxSat
+      } = tolerences
+
+      (minLuma <= luma < maxLuma) &&
+      (minSat <= sat < maxSat)
+
+    @getVibrantQualifyingColors: (colors, vibrantCategoryName) ->
+      tolerences = colorTolerences[vibrantCategoryName] ? colorTolerences.vibrant
+      c for c in colors when colorQualifiesFor tolerences, c
+
+
     constructor: (pixels, options = {}) ->
       {colorCount = 64, quality = 1, @verbose} = options
       # log Vibrant_constructor: {pixels, options, colorCount} if @verbose

@@ -125,6 +125,8 @@ module.exports =
 
   mipmapSize: mipmapSize = 128
 
+  getVibrantQualifyingColors: Vibrant.getVibrantQualifyingColors
+
   ###
   IN: bitmap
 
