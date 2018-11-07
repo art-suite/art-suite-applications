@@ -101,7 +101,7 @@ class CanvgCanvasContext2dMock extends BaseObject
   arc:               (a, b, c, d, e, f) ->  @svgPathExtractor.advancePathIfPainted().arc              a, b, c, d, e, f
 
 
-class CanvgCanvasMock
+class Builder
 
   constructor: (@svgPathExtractor) ->
 
