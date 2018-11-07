@@ -49,12 +49,22 @@ module.exports = class Point extends AtomicBase
   @defineAtomicClass fieldNames: "x y"
   @isPoint: isPoint = (v) -> v?.constructor == Point
 
-  pointWithAspectRatioAndArea = ({aspectRatio, area = 1}) ->
-    sqrtArea = Math.sqrt area / aspectRatio
-    point(
-      sqrtArea * aspectRatio
-      sqrtArea
-    )
+  pointWithAspectRatioAndArea = ({aspectRatio, area = 1, fitInto}) ->
+    if fitInto
+      {x, y} = fitInto
+      fitIntoAspectRatio = fitInto.aspectRatio
+      if aspectRatio < fitIntoAspectRatio
+        # height constrained
+        point y * aspectRatio, y
+      else
+        # width constrained
+        point x, x / aspectRatio
+    else
+      sqrtArea = Math.sqrt area / aspectRatio
+      point(
+        sqrtArea * aspectRatio
+        sqrtArea
+      )
 
   @point: point = (a, b) ->
     # just return if a already a Point
