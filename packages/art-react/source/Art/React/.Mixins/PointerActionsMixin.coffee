@@ -19,15 +19,15 @@ defineModule module, ->
       dragging:       false
 
     setHover: (bool) ->
-      @setState "hover", bool
+      @hover = bool
       try (@hoverAction || @props.hoverAction)? bool, @props
 
     @property "pointerDownAt"
 
-    mouseIn:            -> @setState(mouseIsIn: true);      @setHover true
-    mouseOut:           -> @setState(mouseIsIn: false);     @setHover @pointerIsDown
-    pointerDownHandler: -> @setState(pointerIsDown: true);  @setHover true
-    pointerUp:          -> @setState(pointerIsDown: false); @setHover @mouseIsIn
+    mouseIn:            -> @mouseIsIn     =        @hover = true
+    mouseOut:           -> @mouseIsIn     = false; @hover = @pointerIsDown
+    pointerDownHandler: -> @pointerIsDown =        @hover = true
+    pointerUp:          -> @pointerIsDown = false; @hover = @mouseIsIn
 
     pointerUpInsideHandler: (event) =>
       event.target.capturePointerEvents()

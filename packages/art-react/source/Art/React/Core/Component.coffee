@@ -275,7 +275,7 @@ defineModule module, -> class Component extends PropFieldsMixin StateFieldsMixin
       else
         testState = @state
         _state = null
-        for k, v of newState when testState[k] != v
+        for k, v of newState when @_pendingState || testState[k] != v
           _state ||= @_getStateToSet()
           _state[k] = v
 
