@@ -332,75 +332,106 @@ module.exports = suite:
         foo().onNextReady (ret) ->
           assert.eq c.state, bar: "bar", foo: "foo"
 
-  setState: ->
+  setState:
+    withObject: ->
 
-    test "setState Object", ->
-      new Promise (resolve) ->
+      test "setState Object", ->
+        new Promise (resolve) ->
+          class MyComponent extends Component
+            getInitialState: ->
+              foo: "bar"
+            render: ->
+              Element name:@state.foo
+
+          (c = new MyComponent)._instantiate()
+          assert.eq c.state, foo:"bar"
+          c.setState foo:"baz", ->
+            assert.eq c.state, foo:"baz"
+            assert.eq c.element.pendingName, "baz"
+            resolve()
+          assert.eq c.state, foo:"bar"
+          assert.eq c.element.pendingName, "bar"
+
+      test "setState Object twice, second back to original", ->
         class MyComponent extends Component
-          getInitialState: ->
-            foo: "bar"
-          render: ->
-            Element name:@state.foo
+          getInitialState: -> foo: "bar"
+          render: -> Element()
 
         (c = new MyComponent)._instantiate()
-        assert.eq c.state, foo:"bar"
-        c.setState foo:"baz", ->
-          assert.eq c.state, foo:"baz"
-          assert.eq c.element.pendingName, "baz"
-          resolve()
-        assert.eq c.state, foo:"bar"
-        assert.eq c.element.pendingName, "bar"
+        assert.doesNotExist c._pendingState
+        c.setState "foo", "baz"
+        c.setState "foo", "bar"
+        assert.exists c._pendingState
 
+        c.onNextReady ->
+          assert.eq c.state, foo:"bar"
 
-    test "setState Function once", ->
-      class MyComponent extends Component
-        getInitialState: -> foo: "bar"
-        render: -> Element name: @state.foo
+    withFunction: ->
 
-      (c = new MyComponent)._instantiate()
-      assert.eq c.state, foo: "bar"
-      c.setState (state) -> merge state, foo: "baz"
-
-      c.onNextReady ->
-        assert.eq c.state, foo:"baz"
-        assert.eq c.element.pendingName, "baz"
-
-    test "setState Function twice", ->
-      class MyComponent extends Component
-        getInitialState: -> foo: 1
-        render: -> Element name: @state.foo
-
-      (c = new MyComponent)._instantiate()
-      callCount = 0
-      f = (state) -> callCount++; merge state, foo: state.foo + 1
-      c.setState f
-      c.setState f
-
-      c
-      .onNextReady()
-      .then -> c.onNextReady()
-      .then ->
-        assert.eq
-          callCount: 2
-          {callCount}
-        assert.eq c.state, foo: 3
-
-    test "setState string, value", ->
-      new Promise (resolve) ->
+      test "setState Function once", ->
         class MyComponent extends Component
-          getInitialState: ->
-            foo: "bar"
-          render: ->
-            Element name:@state.foo
+          getInitialState: -> foo: "bar"
+          render: -> Element name: @state.foo
 
         (c = new MyComponent)._instantiate()
-        assert.eq c.state, foo:"bar"
-        c.setState "foo", "baz", ->
+        assert.eq c.state, foo: "bar"
+        c.setState (state) -> merge state, foo: "baz"
+
+        c.onNextReady ->
           assert.eq c.state, foo:"baz"
           assert.eq c.element.pendingName, "baz"
-          resolve()
-        assert.eq c.state, foo:"bar"
-        assert.eq c.element.pendingName, "bar"
+
+      test "setState Function twice", ->
+        class MyComponent extends Component
+          getInitialState: -> foo: 1
+          render: -> Element name: @state.foo
+
+        (c = new MyComponent)._instantiate()
+        callCount = 0
+        f = (state) -> callCount++; merge state, foo: state.foo + 1
+        c.setState f
+        c.setState f
+
+        c
+        .onNextReady()
+        .then -> c.onNextReady()
+        .then ->
+          assert.eq
+            callCount: 2
+            {callCount}
+          assert.eq c.state, foo: 3
+
+    withString: ->
+      test "setState string, value", ->
+        new Promise (resolve) ->
+          class MyComponent extends Component
+            getInitialState: ->
+              foo: "bar"
+            render: ->
+              Element name:@state.foo
+
+          (c = new MyComponent)._instantiate()
+          assert.eq c.state, foo:"bar"
+          c.setState "foo", "baz", ->
+            assert.eq c.state, foo:"baz"
+            assert.eq c.element.pendingName, "baz"
+            resolve()
+          assert.eq c.state, foo:"bar"
+          assert.eq c.element.pendingName, "bar"
+
+      test "setState stringe, value -- twice, second back to original", ->
+        class MyComponent extends Component
+          getInitialState: -> foo: "bar"
+          render: -> Element()
+
+        (c = new MyComponent)._instantiate()
+        assert.doesNotExist c._pendingState
+        c.setState "foo", "baz"
+        c.setState "foo", "bar"
+        assert.exists c._pendingState
+
+        c.onNextReady ->
+          assert.eq c.state, foo:"bar"
 
   propFields:
     basic: ->
