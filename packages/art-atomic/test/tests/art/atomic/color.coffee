@@ -100,13 +100,18 @@ module.exports = suite:
 
     hslColor: ->
       test "hslColor", ->
-        assert.eq hslColor(1, 1, 1), rgbColor(1, 0, 0)
-        assert.eq hslColor(0, 1, 1), rgbColor(1, 0, 0)
-        assert.eq hslColor(1/3, 1, 1), rgbColor(0, 1, 0)
-        assert.eq hslColor(2/3, 1, 1), rgbColor(0, 0, 1)
-        assert.eq hslColor(2/3, 0, 1), rgbColor(1, 1, 1)
-        assert.eq hslColor(2/3, .5, 1), rgbColor(.5, .5, 1)
+        assert.eq hslColor(1, 1, 1),      rgbColor(1, 0, 0)
+        assert.eq hslColor(0, 1, 1),      rgbColor(1, 0, 0)
+        assert.eq hslColor(1/3, 1, 1),    rgbColor(0, 1, 0)
+        assert.eq hslColor(2/3, 1, 1),    rgbColor(0, 0, 1)
+        assert.eq hslColor(2/3, 0, 1),    rgbColor(1, 1, 1)
+        assert.eq hslColor(2/3, .5, 1),   rgbColor(.5, .5, 1)
         assert.eq hslColor(2/3, .5, .25), rgbColor(.125, .125, .25)
+
+      test "hslColor - preserves differences in degenerate colors", ->
+        assert.eq   hslColor(1,  0, 1),      rgbColor 1, 1, 1
+        assert.eq   hslColor(.5, 0, 1),      rgbColor 1, 1, 1
+        assert.neq  hslColor(.5, 0, 1),      hslColor 1, 0, 1
 
       test "hslColor with alpha", ->
         assert.eq hslColor(1, 1, 1), rgbColor 1, 0, 0, 1

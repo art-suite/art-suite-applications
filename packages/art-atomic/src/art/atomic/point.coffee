@@ -175,6 +175,12 @@ module.exports = class Point extends AtomicBase
         if @x > 0 then atan @y / @x
         else           atan(@y / @x) + PI
 
+    # can we just replace "angle" with this?
+    # I think the only difference is the range is +/- Path.PI, not [0, Math.PI),
+    # but if you modulo them, I think they line up
+    angle2: ->
+      Math.atan2 @y, @x
+
     isInteger: -> floatEq(@x, @x|0) && floatEq(@y, @y|0)
 
   distance: (p2) -> sqrt @distanceSquared p2
@@ -203,14 +209,25 @@ module.exports = class Point extends AtomicBase
     vector[l+1] = @y
     vector[l] = @x
 
-  dot: (p) -> @x * p.x + @y * p.y
-  cross: (p) -> @x * p.y - @y * p.x
+  # a.dot(b) == a.magnitude * b.magnitude * cosine(theta)
+  # where theta is the angle between the vectors
+  dot:    (p) -> @x * p.x + @y * p.y
+  cross:  (p) -> @x * p.y - @y * p.x
 
   floor: -> @with floor(@x), floor(@y)
   ceil:  -> @with ceil(@x),  ceil(@y)
 
   scalerProjection: (ontoB) ->
-    a.dot(ontoB) / ontoB.magnitude
+    @dot(ontoB) / ontoB.magnitude
+
+  scalerProjectionSquared: (ontoB) ->
+    @dot(ontoB) ** 2 / ontoB.magnitudeSquared
+
+  scalerPerpendicularProjectionSquared: (ontoB) ->
+    @magnitudeSquared - @scalerProjectionSquared ontoB
+
+  scalerPerpendicularProjection: (ontoB) ->
+    Math.sqrt @scalerPerpendicularProjectionSquared ontoB
 
   # b is point or rect
   union: (b) -> if isPoint b then @max(b) else b.union @

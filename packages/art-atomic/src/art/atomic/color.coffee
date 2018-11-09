@@ -11,6 +11,7 @@ AtomicBase = require './base'
   rgbaColorRegExp
   float32Eq0
   object
+  isNumber
 } = Foundation
 
 colorFloatEq = float32Eq #(n1, n2) -> Math.abs(n1 - n2) < 1/256
@@ -248,6 +249,23 @@ module.exports = class Color extends AtomicBase
       when 4 then new Color t, p, l, a, h, s, l
       when 5 then new Color l, p, q, a, h, s, l
 
+  @hsl2Rgb: (h, s, l) ->
+
+    h = modulo h, 1
+    phase = h * 6 | 0
+    f = h * 6 - phase
+    p = l * (1 - s)
+    q = l * (1 - f * s)
+    t = l * (1 - (1 - f) * s)
+    h = if colorFloatEq(h, 1) then 1 else h % 1
+    switch phase % 6
+      when 0 then [l, t, p]
+      when 1 then [q, l, p]
+      when 2 then [p, l, t]
+      when 3 then [p, q, l]
+      when 4 then [t, p, l]
+      when 5 then [l, p, q]
+
   @parse: (string, existing = null) ->
     throw new Error "existing feature is no longer supported" if existing
     new Artomic.Color string
@@ -335,6 +353,34 @@ module.exports = class Color extends AtomicBase
       @g = b - 0
       @b = c - 0
       @a = d - 0 if d?
+
+  eq: (_a, _b, _c, _d) ->
+    switch
+      when _a == @  then true
+      when !_a?     then false
+      when isNumber _a
+        (_a == @r) &&
+        (_b == @g) &&
+        (_c == @b) &&
+        ((_d ? 1) == @a)
+
+      when _a.constructor == Color
+        {r, g, b, a} = _a
+        h = _a._hue
+        s = _a._saturation
+        l = _a._lightness
+        h2 = @_hue
+        s2 = @_saturation
+        l2 = @_lightness
+        (r == @r) &&
+        (g == @g) &&
+        (b == @b) &&
+        (a == @a) &&
+        (!h? || !h2? || h == h2) &&
+        (!s? || !s2? || s == s2) &&
+        (!l? || !l2? || l == l2)
+
+      else false
 
   interpolate: (toColor, p) ->
     {r, g, b, a} = @
