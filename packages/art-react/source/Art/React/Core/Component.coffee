@@ -155,10 +155,8 @@ defineModule module, -> class Component extends PropFieldsMixin StateFieldsMixin
   @_hotReloadUpdate: (@_moduleState) ->
     name = @getClassName()
     if hotInstances = @_moduleState.hotInstances
-      log HotReload:
-        Component: @
-        instanceCount: hotInstances.length
-        forEachInstance: "instance.componentDidHotReload()"
+      log "Art.React.Component #{@getName()} HotReload":
+        instanceToRerender: hotInstances.length
 
       # update all instances
       for instance in hotInstances
@@ -850,7 +848,7 @@ defineModule module, -> class Component extends PropFieldsMixin StateFieldsMixin
     @componentWillMount()
 
   _componentDidHotReload: ->
-    @bindFunctionsToInstance()
+    @bindFunctionsToInstance true
     try @componentDidHotReload()
 
   _componentWillUnmount: ->
