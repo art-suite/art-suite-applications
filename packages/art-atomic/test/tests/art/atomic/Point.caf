@@ -47,11 +47,6 @@ suite:
       assert.eq Point.bottomCenter, point "bottomCenter"
       assert.eq Point.bottomRight , point "bottomRight"
 
-    test "inspect", ->
-      p = point 3, 4
-      inspected = inspect p
-      assert.eq inspected, "point(3, 4)"
-
     test "appendVector", ->
       p = point 3, 4
       v = [123, 456]

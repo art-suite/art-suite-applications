@@ -10,6 +10,10 @@ Point       = require './point'
   stringToNumberArray
   floatEq0
   float32Precision
+  floatLt
+  floatGt
+  floatGte
+  floatLte
 } = Foundation
 {point, isPoint} = Point
 
@@ -51,6 +55,12 @@ module.exports = class Rectangle extends AtomicBase
         {x, y} = center
       @x = x - @w / 2
       @y = y - @h / 2
+
+    {x, y, w, h} = obj
+    @x = x if x?
+    @y = y if y?
+    @w = w if w?
+    @h = h if h?
 
   _init: (a, b, c, d) ->
     @x = @y = @w = @h = 0 # ensure consistent object construction
@@ -169,29 +179,48 @@ module.exports = class Rectangle extends AtomicBase
     h = ofSize.h * scale
     new Rectangle (@w - w)/2, (@h - h)/2, w, h
 
+  getLeftRightTopBottomPointAsDot = (val) ->
+    if isPoint val
+      {x, y} = val
+      left:   x
+      right:  x
+      top:    y
+      bottom: y
+
+    else if isRect val
+      val
+
+    else throw new Error("Invalid arguments. Expecting Point or Rectangle. Got: #{val}.")
+
   overlaps: (val) ->
     return false unless val?
-    if isPoint val then @contains val
-    else if isRect val
-      val.getRight()   > @getLeft()  &&
-      val.getBottom()  > @getTop()   &&
-      val.getLeft()    < @getRight() &&
-      val.getTop()     < @getBottom()
-    else throw new Error("Invalid arguments for 'overlaps'. Expecting Point or Rectangle. Got: #{val}.")
+    {left, right, top, bottom} = getLeftRightTopBottomPointAsDot val
+    if floatEq(left, right) || floatEq(top, bottom)
+      floatGte(left,  @left)  &&
+      floatGte(top,   @top)   &&
+      floatLt(left,   @right) &&
+      floatLt(top,    @bottom)
+
+    else
+      floatGt(right,  @left)  &&
+      floatGt(bottom, @top)   &&
+      floatLt(left,   @right) &&
+      floatLt(top,    @bottom)
 
   contains: (val) ->
     return false unless val?
-    if isPoint val
-      val.x >= @x &&
-      val.y >= @y &&
-      val.x < @right &&
-      val.y < @bottom
-    else if isRect val
-      val.x >= @x &&
-      val.y >= @y &&
-      val.right <= @right &&
-      val.bottom <= @bottom
-    else throw new Error("Invalid arguments for 'contains'. Expecting Point or Rectangle. Got: #{val}.")
+    {left, right, top, bottom} = getLeftRightTopBottomPointAsDot val
+
+    if floatEq(left, right) || floatEq(top, bottom)
+      floatGte(left,  @left)  &&
+      floatGte(top,   @top)   &&
+      floatLt(left,   @right) &&
+      floatLt(top,    @bottom)
+    else
+      floatGte(left,  @left)    &&
+      floatGte(top,   @top)     &&
+      floatLte(right,  @right)  &&
+      floatLte(bottom, @bottom)
 
   # round the rectangle edges to multiples of m
   round: (m = 1)->

@@ -8,4 +8,4 @@ module.exports
   Matrix:    require './matrix'   
   Perimeter: require './Perimeter'
   Point:     require './Point'    
-  Rectangle: require './rectangle'
+  Rectangle: require './Rectangle'
