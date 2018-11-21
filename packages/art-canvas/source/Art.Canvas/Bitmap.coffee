@@ -140,7 +140,7 @@ module.exports = class Bitmap extends BitmapBase
       path-function
   ###
 
-  setClippingArea: (area, drawMatrix, pathArea, pathOptions) ->
+  setClippingArea: (area, drawMatrix, pathArea, pathOptions, fillRule = "evenodd") ->
     {_context} = @
     if isFunction area
       pathFunction = area unless simple = isSimpleRectangle area, pathOptions
@@ -164,7 +164,7 @@ module.exports = class Bitmap extends BitmapBase
       pathFunction _context, area, pathOptions
     else
       _context.rect area.x, area.y, area.w, area.h
-    _context.clip()
+    _context.clip fillRule
 
 
   # execs function "f" while clipping

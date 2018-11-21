@@ -43,15 +43,16 @@ module.exports = class Paths
     roundedRectanglePath context, pathArea, options?.radius
   @rectanglePath.obtuse = true
 
-  @roundedRectanglePath: roundedRectanglePath = (context, r, radius) ->
-    unless radius? && !float32Eq0 radius
-      {left, right, top, bottom} = r
+  @_rectanglePath: (context, {left, right, top, bottom}) ->
+    context.moveTo left , top
+    context.lineTo right, top
+    context.lineTo right, bottom
+    context.lineTo left , bottom
+    context.closePath()
 
-      context.moveTo left , top
-      context.lineTo right, top
-      context.lineTo right, bottom
-      context.lineTo left , bottom
-      context.closePath()
+  @roundedRectanglePath: roundedRectanglePath = (context, r, radius) =>
+    unless radius? && !float32Eq0 radius
+      @_rectanglePath context, r
     else
 
       if isPlainObject radius
@@ -63,7 +64,8 @@ module.exports = class Paths
       else
         tl = tr = bl = br = radius
 
-      return rectangle context, r if float32Eq0(tl) && float32Eq0(tr) && float32Eq0(bl) && float32Eq0(br)
+      if float32Eq0(tl) && float32Eq0(tr) && float32Eq0(bl) && float32Eq0(br)
+        return @_rectanglePath context, r
 
       {w, h} = r
       w = max 0, w

@@ -19,7 +19,6 @@ fonts:
     url:            URL to the font-file to load
     fontFamily:     font-family name [default: nameKey]
 ###
-global.fontLoaderLog = []
 defineModule module, class FontLoader
   ###
   IN: see 'fonts' above
@@ -132,8 +131,9 @@ defineModule module, class FontLoader
   #   log getTestImageData: {options, text, bitmap: bitmap.clone()}
   #   bitmap.imageData.data
 
+  # global.fontLoaderLog = []
   logFontLoaderStatus = (toLog) ->
-    fontLoaderLog.push toLog
+    # fontLoaderLog.push toLog
     log formattedInspect ArtCanvasFontLoader: toLog
 
   loadedWidthBasedTest = (bitmap, fontFamily, loadedTestText, expectedTestWidth, verbose, verboseOnSuccess) ->

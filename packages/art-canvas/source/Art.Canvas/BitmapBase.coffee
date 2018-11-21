@@ -7,7 +7,9 @@
 # Canvas Spec: http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html
 # http://dev.w3.org/fxtf/compositing-1/#porterduffcompositingoperators_srcover
 {point, point0, Point, rect, Rectangle, matrix, Matrix, rgbColor, Color, isPoint} = require 'art-atomic'
-{inspect, Promise, getEnv, nextTick, pureMerge, isString, isNumber, log, bound, merge, isFunction} = require 'art-standard-lib'
+{peek, inspect, Promise, getEnv, nextTick, pureMerge, isString, isNumber, log, bound, merge, isFunction
+  defineModule
+} = require 'art-standard-lib'
 {round, floor, ceil, max, min} = Math
 {BinaryString, EncodedImage} = (require 'art-foundation').Binary
 {BaseClass} = require 'art-class-system'
@@ -16,13 +18,15 @@ toChannelNumberMap = 0:0, 1:1, 2:2, 3:3, r:0, g:1, b:2, a:3, red:0, green:1, blu
 alphaChannelOffset = 3
 pixelStep = 4
 
+{mipmapCache} = require './MipmapCache'
+
 {HTMLImageElement, HTMLCanvasElement} = global
 
 quarterPoint = point 1/4
 halfPoint = point 1/2
 {debugBitmapSize} = getEnv()
 
-module.exports = class BitmapBase extends BaseClass
+defineModule module, class BitmapBase extends BaseClass
   @bitmapsCreated: 0
   compositeModeSupported: (mode) -> @supportedCompositeModes.indexOf(mode) >= 0
   @pixelSnapDefault = true
@@ -861,7 +865,7 @@ module.exports = class BitmapBase extends BaseClass
   drawBitmapWithLayout: (where, bitmap, options = emptyOptions) ->
     return unless bitmap
 
-    {targetSize = @size, sourceArea, focus, aspectRatio, layout, opacity} = options
+    {targetSize = @size, sourceArea, focus, aspectRatio, layout, opacity, mipmap} = options
     return if opacity < 1/256 || targetSize.area <= 1/256
 
     if sourceArea
@@ -934,5 +938,33 @@ module.exports = class BitmapBase extends BaseClass
 
     if where
       bitmapToThisMatrix = bitmapToThisMatrix.mul matrix where
+
+    if bitmap && mipmap
+      {x, y} = bitmap.size
+      {xsvMagnitude, ysvMagnitude} = bitmapToThisMatrix
+      if xsvMagnitude < .5 && ysvMagnitude < .5
+        mipmapNumber = max(
+          Math.floor -Math.log2 xsvMagnitude
+          Math.floor -Math.log2 ysvMagnitude
+        )
+
+        try
+          mipmap = mipmapCache.get bitmap, mipmapNumber
+          mipmapScale = 2**mipmapNumber
+          bitmapToThisMatrix = Matrix.scale(mipmapScale).mul bitmapToThisMatrix
+          if options.sourceArea
+            options = merge options, sourceArea:
+                options.sourceArea.div(mipmapScale).round()
+
+          # log drawBitmapWithLayout:
+          #   bitmapSize: bitmap.size
+          #   mipmapSize: mipmap.size
+          #   mipmap: mipmap
+          #   bitmapToThisMatrix:bitmapToThisMatrix
+          #   options: options
+          #   scaleTest: mipmap.size.mul 2**mipmapNumber
+          bitmap = mipmap
+        catch e
+          log mipmapError: e
 
     @drawBitmap bitmapToThisMatrix, bitmap, options
