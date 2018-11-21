@@ -1,4 +1,4 @@
-{timeout, defineModule, log} = require 'art-standard-lib'
+{timeout, defineModule, log, merge} = require 'art-standard-lib'
 {point} = require 'art-atomic'
 {isMobileBrowser} = (require 'art-foundation').Browser
 
@@ -25,9 +25,9 @@ defineModule module, ->
     @property "pointerDownAt"
 
     mouseIn:            -> @mouseIsIn     =        @hover = true
-    mouseOut:           -> @mouseIsIn     = false; @hover = @pointerIsDown
+    mouseOut:           -> @mouseIsIn     = false; @setState (state) -> merge state, hover: state.pointerIsDown
     pointerDownHandler: -> @pointerIsDown =        @hover = true
-    pointerUp:          -> @pointerIsDown = false; @hover = @mouseIsIn
+    pointerUp:          -> @pointerIsDown = false; @setState (state) -> merge state, hover: state.mouseIsIn
 
     pointerUpInsideHandler: (event) =>
       event.target.capturePointerEvents()
