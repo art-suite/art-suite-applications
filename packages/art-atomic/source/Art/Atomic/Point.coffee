@@ -3,13 +3,13 @@
 # Such methods should work as-if implemented like this:
 #    method: (args...) -> new Rectangle(0, 0, @w, @h).method args...
 
-Foundation = require 'art-foundation'
-AtomicBase = require './base'
+AtomicBase = require './Base'
 Namespace = require './namespace'
 {
+  merge
   inspect, bound, floatEq, log, isNumber, isArray, isString, isFunction, stringToNumberArray, nearInfinity
   inspectedObjectLiteral
-} = Foundation
+} = require 'art-standard-lib'
 {abs, sqrt, atan, PI, floor, ceil, round, min, max} = Math
 
 ###
@@ -328,33 +328,46 @@ module.exports = class Point extends AtomicBase
   ##################
   # Named Instances
   ##################
-  point0       = (new Point 0).freeze()
-  point1       = (new Point 1).freeze()
+  point0       = topLeft = (new Point 0).freeze()
+  point1       = bottomRight = (new Point 1).freeze()
+  point2       = (new Point 2).freeze()
+  pointHalf    = (new Point .5).freeze()
+  pointNegHalf = (new Point -.5).freeze()
+  pointNeg1    = (new Point -1).freeze()
+  pointNeg2    = (new Point -2).freeze()
   topRight     = (new Point 1  ,  0).freeze()
   topCenter    = (new Point 0.5,  0).freeze()
   centerLeft   = (new Point 0  ,  0.5).freeze()
+  centerRight  = (new Point 1  ,  0.5).freeze()
+  bottomCenter = (new Point 0.5,  1).freeze()
   centerCenter = (new Point 0.5).freeze()
   bottomLeft   = (new Point 0  ,  1).freeze()
-  @namedPoints: namedPoints =
-    point0:                 point0
-    point1:                 point1
-    topLeft:                point0
-    topCenter:              topCenter
-    topRight:               topRight
-    centerLeft:             centerLeft
-    centerCenter:           centerCenter
-    centerRight:            (new Point 1  ,  0.5).freeze()
-    bottomLeft:             bottomLeft
-    bottomCenter:           (new Point 0.5,  1).freeze()
-    bottomRight:            point1
-    pointNearInfinity:      (new Point nearInfinity).freeze()
-    # provided for layout alignment options
-    # top & left are the default for the unspecified coordinates
-    left:                   point0
-    center:                 topCenter
-    right:                  topRight
-    top:                    point0
-    bottom:                 bottomLeft
+  pointNearInfinity = (new Point nearInfinity).freeze()
+
+  @namedAlignmentPoints: {
+    topLeft
+    topCenter
+    topRight
+    centerLeft
+    centerCenter
+    centerRight
+    bottomLeft
+    bottomCenter
+    bottomRight
+  }
+
+  @namedPoints: namedPoints = merge @namedAlignmentPoints, {
+    point0, point1, pointNearInfinity
+    point2
+    pointNeg2
+    pointNeg1
+    pointHalf
+    pointNegHalf
+    # Are these good? Or are they confusing? SBD 12-2018
+    center: topCenter
+    left:   topLeft
+    right:  topRight
+  }
 
   for k, v of namedPoints
     @[k] = v

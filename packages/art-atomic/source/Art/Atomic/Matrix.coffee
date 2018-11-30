@@ -53,15 +53,17 @@ NOTE! the order of the fields in the float32array for Webgl uniformMatrix3fv sho
   @values[5] = @ty
 ###
 
-Foundation = require 'art-foundation'
-AtomicBase = require "./base"
-Point      = require "./point"
-Rectangle  = require "./rectangle"
+AtomicBase = require "./Base"
+Point      = require "./Point"
+Rectangle  = require "./Rectangle"
 
 {point, isPoint} = Point
 {rect} = Rectangle
 {ceil, floor, sqrt, min, max} = Math
-{inspect, simplifyNum, float32Eq, compact, log, isNumber, defineModule} = Foundation
+{
+  float32Eq0,
+  inspect, simplifyNum, float32Eq, compact, log, isNumber, defineModule
+} = require 'art-standard-lib'
 
 defineModule module, class Matrix extends AtomicBase
   @defineAtomicClass fieldNames: "sx sy shx shy tx ty"
@@ -122,6 +124,42 @@ defineModule module, class Matrix extends AtomicBase
     else
       # log "rotate new Matrix"
       new Matrix cr, cr, -sr, sr, 0, 0
+
+  ###
+  Matrix.multitouch
+    Solves:
+      Given two points, moved in space
+      Generate a transformation matrix m
+      where:
+        to1 == m.transform from1
+        and
+        to2 == m.transform from2
+        and m.exactScale.aspectRatio == 1
+  ###
+  @multitouch: (from1, to1, from2, to2) ->
+
+    fromCenterX = (from2.x + from1.x) / 2
+    fromCenterY = (from2.y + from1.y) / 2
+
+    toCenterX = (to2.x + to1.x) / 2
+    toCenterY = (to2.y + to1.y) / 2
+
+    v1 = from2.sub from1
+    v2 = to2.sub to1
+
+    v1m = v1.magnitude
+    v2m = v2.magnitude
+
+    m = Matrix.translateXY -fromCenterX, -fromCenterY
+
+    # make sure we aren't in a degenerate situation
+    if !float32Eq0(v1m) && !float32Eq0(v2m)
+      m = (
+        m.rotate(v2.angle - v1.angle)
+        .scale(v2m / v1m)
+      )
+
+    m.translateXY toCenterX, toCenterY
 
   initDefaults: ->
     @sx = @sy = 1

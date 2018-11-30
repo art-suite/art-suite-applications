@@ -4,8 +4,8 @@
 #    method: (args...) -> new Rectangle(0, 0, @w, @h).method args...
 
 Foundation = require 'art-foundation'
-AtomicBase = require './base'
-Point      = require './point'
+AtomicBase = require './Base'
+Point      = require './Point'
 {
   log
   inspect

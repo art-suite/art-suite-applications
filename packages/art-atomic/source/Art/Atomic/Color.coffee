@@ -1,5 +1,5 @@
 Foundation = require 'art-foundation'
-AtomicBase = require './base'
+AtomicBase = require './Base'
 {
   inspect, bound, modulo, pad, min, max, abs, float32Eq, isString, log
 
