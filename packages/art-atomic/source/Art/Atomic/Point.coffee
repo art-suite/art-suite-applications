@@ -328,20 +328,20 @@ module.exports = class Point extends AtomicBase
   ##################
   # Named Instances
   ##################
-  point0       = topLeft = (new Point 0).freeze()
-  point1       = bottomRight = (new Point 1).freeze()
-  point2       = (new Point 2).freeze()
-  pointHalf    = (new Point .5).freeze()
-  pointNegHalf = (new Point -.5).freeze()
-  pointNeg1    = (new Point -1).freeze()
-  pointNeg2    = (new Point -2).freeze()
-  topRight     = (new Point 1  ,  0).freeze()
-  topCenter    = (new Point 0.5,  0).freeze()
-  centerLeft   = (new Point 0  ,  0.5).freeze()
-  centerRight  = (new Point 1  ,  0.5).freeze()
-  bottomCenter = (new Point 0.5,  1).freeze()
-  centerCenter = (new Point 0.5).freeze()
-  bottomLeft   = (new Point 0  ,  1).freeze()
+  point0        = topLeft = (new Point 0).freeze()
+  point1        = bottomRight = (new Point 1).freeze()
+  point2        = (new Point 2).freeze()
+  pointHalf     = (new Point .5).freeze()
+  pointNegHalf  = (new Point -.5).freeze()
+  pointNeg1     = (new Point -1).freeze()
+  pointNeg2     = (new Point -2).freeze()
+  topRight      = (new Point 1  ,  0).freeze()
+  topCenter     = (new Point 0.5,  0).freeze()
+  centerLeft    = (new Point 0  ,  0.5).freeze()
+  centerCenter  = (new Point 0.5).freeze()
+  centerRight   = (new Point 1  ,  0.5).freeze()
+  bottomCenter  = (new Point 0.5,  1).freeze()
+  bottomLeft    = (new Point 0  ,  1).freeze()
   pointNearInfinity = (new Point nearInfinity).freeze()
 
   @namedAlignmentPoints: {
@@ -367,6 +367,8 @@ module.exports = class Point extends AtomicBase
     center: topCenter
     left:   topLeft
     right:  topRight
+    bottom: bottomLeft
+    top:    topLeft
   }
 
   for k, v of namedPoints

@@ -14,7 +14,7 @@ Point      = require './Point'
   isString
 } = Foundation
 {point} = Point
-{rect} = require './rectangle'
+{rect} = require './Rectangle'
 
 module.exports = class Perimeter extends AtomicBase
   @defineAtomicClass fieldNames: "left right top bottom"
