@@ -14,7 +14,7 @@ class HorizontalThingy extends Component
         horizontal:
           begin:  (e) -> @moving = true
           move:   (e) -> @xPos = e.totalParentDelta.x
-          end:    (e) -> @xPos = 0; @moving = false
+          finally:(e) -> @xPos = 0; @moving = false
 
   render: ->
     Element
@@ -51,7 +51,7 @@ class VerticalThingy extends Component
         vertical:
           begin:  (e) -> @moving = true
           move:   (e) -> @yPos = e.totalParentDelta.y
-          end:    (e) -> @yPos = 0; @moving = false
+          finally:(e) -> @yPos = 0; @moving = false
 
   render: ->
     Element

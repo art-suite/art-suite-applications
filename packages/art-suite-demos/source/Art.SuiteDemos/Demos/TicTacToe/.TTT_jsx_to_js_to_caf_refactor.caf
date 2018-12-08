@@ -1,0 +1,102 @@
+##
+  This file:
+    React code, refactored
+
+  Comparison
+    ORIGNAL, FULLY FORMATTED            >>> 850 tokens total
+      CSS                                 > 112 tokens
+      JSX                                 > 738 tokens
+
+    CAFFEINESCRIPT, FULLY FORMATTED:
+      Full ArtSuite conversion            > 226 tokens (27% original JSX + CSS)
+
+    NO FORMATTING
+      JSX > JS (ES6)                      > 858 tokens (origional, pure-JS)
+      JS > CaffeineScript (isomorphic)    > 306 tokens (36% origional, pure-JS)
+      React Refactor (this file)          > 235 tokens (27% origional, pure-JS)
+
+
+  Refactor:
+    * use ArtObjectTreeFactory for elegant factories and DSL
+    * use ArtStandardLib for arrayWith and arrayWithElementReplaced
+    * simplified history: array of boards; boards are an array of 9 squares
+
+import &React, &ArtStandardLib, &ArtObjectTreeFactory.createObjectTreeFactories # 26
+  :div :ol :button
+  (type, props, children) -> createElement type, props, children...
+
+calculateWinner = (board) -> # 59
+  find line in []
+      0 1 2
+      3 4 5
+      6 7 8
+      0 3 6
+      1 4 7
+      2 5 8
+      0 4 8
+      2 4 6
+    [a, b, c] = array el in line    # -1: upcoming-dot-backref: array line with board[.]
+      board[el]
+    a == b && a == c && a           # -2 less when we have: a == b == c
+
+class Board extends Component # 37
+  render: ->
+    div array j til 9 by 3
+      div
+        className: :board-row
+        array i from j til j + 3
+          button
+            className:  :square
+            onClick:    -> @props.onClick? i
+            @props.value
+
+class Game extends Component # 101
+  constructor: -> # 13
+    @state =
+      history:    [] array til 9 with null
+      stepNumber: 0
+
+  play: (player, board, boardIndex) -> # 35
+    @state extract stepNumber, history
+    @setState
+      stepNumber: stepNumber + 1
+      history:    arrayWith
+      history.slice 0, stepNumber + 1
+        arrayWithElementReplaced board, player, boardIndex
+
+  render: -> # 80
+    @state extract
+      history
+      stepNumber
+
+    player = if stepNumber % 2 == 0 then :X else :O
+
+    div # 73
+      className: :game
+      div # 30
+        className: :game-board
+        createElement
+          Board
+          board: board = history[stepNumber]
+          onClick: unless winner
+            (i) -> unless board[i]
+              @play player, board, i
+
+      div # 40
+        className: :game-info
+        div
+          if winner = calculateWinner board
+                "Winner: " + winner
+          else  "Next player: " + player
+
+        ol array step til history.length
+          li
+            key: step
+            button
+              onClick: -> @setState stepNumber: step
+              if step then "Go to move #" + step
+              else         "Go to game start"
+
+&ReactDOM.render # 11
+  createElement Game, null
+  document.getElementById :root

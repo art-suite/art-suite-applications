@@ -1,13 +1,13 @@
-import &ArtSuite # 2 tokens         >> 228 total tokens
+import &ArtSuite # 2 tokens         >> 226 total tokens
 
 textStyle =                         # 10 tokens
   fontFamily: "" "Century Gothic", Futura, sans-serif
   fontSize:   14
   margin:     10
-  size:       :childrenSize
+  size:       :childrenSize                         # -1 for upcoming ArtEngine keyword props
 
-calculateWinner = (board) ->        # 60 tokens
-  find [i1, i2, i3] in []
+calculateWinner = (board) -> # 59
+  find line in []
       0 1 2
       3 4 5
       6 7 8
@@ -16,7 +16,9 @@ calculateWinner = (board) ->        # 60 tokens
       2 5 8
       0 4 8
       2 4 6
-    v1 = board[i1] && v1 == board[i2] && v1 == board[i3] # << -4 tokens with chain-equality support: board[i1] == board[i2] == board[i3] != null
+    [a, b, c] = array el in line    # -1: upcoming-dot-backref: array line with board[.]
+      board[el]
+    a == b && a == c && a                           # -2 less when we have: a == b == c
 
 class Square extends Component      # 28 tokens
   render: ->
@@ -28,38 +30,40 @@ class Square extends Component      # 28 tokens
         textStyle
         fontWeight: :bold
         fontSize:   18
-        size:       :parentSize
+        size:       :parentSize                     # -3 for upcoming ArtEngine keyword props
         align:      :centerCenter
         @props
 
-class TicTacToe extends Component     # 128 tokens
+class TicTacToe extends Component     # 127 tokens
   @stateFields turnNumber: 0 history: [] array til 9 with null
 
   play: (player, boardIndex) ->       # 28 tokens
     @history = arrayWith
-      @history.slice 0, @turnNumber + 1 # -3 tokens if we add "in + to" support: array in @history to @turnNumber
-      arrayWithElementReplaced @history[@turnNumber++], player, boardIndex
+      @history.slice 0, @turnNumber + 1   # -3 when we have: array in @history to @turnNumber
+      arrayWithElementReplaced @history[@turnNumber++], player, boardIndex # -2 - replace ',' with new-lines
 
-  render: ->                          # 85 tokens
-    winner = calculateWinner board = @history[@turnNumber]
+  render: ->                          # 84 tokens
+    winner = calculateWinner board = @history[@turnNumber] # -1 with: @getter board: -> @history[@turnNumber]
     player = if @turnNumber % 2 then :X else :O
     Element
       size:             w: 125
       padding:          10
-      childrenLayout:   :flow
+      childrenLayout:   :flow                       # -1 for upcoming ArtEngine keyword props
 
       array text, boardIndex in board
-        Square {} text, play: unless winner || text
+        Square {} text, play: unless winner || text # -2 -- ',' with new-lines
           -> @play player, boardIndex
 
       TextElement
         textStyle
-        if winner then  "Winner: " + winner
-        else            "Next player: " + player
+        text:
+          if winner then  "Winner: "      + winner
+          else            "Next player: " + player
 
-      array {label}, i in @history
+      array i til @history.length
         TextElement
           textStyle
           on: pointerClick: -> @turnNumber = i
-          if i then     "Go to move #" + i
-          else          "Go to game start"
+          text:
+            if i then     "Go to move #" + i
+            else          "Go to game start"

@@ -33,10 +33,6 @@ class ColorPicker2 extends FluxComponent
         axis: .5
         location: ps: .5
 
-        # scale: x: 1, y: .5
-        # color: @color
-        # radius: 10000
-
         Element
           scale: x: 1, y: .5
           cacheDraw: true

@@ -19,7 +19,7 @@ require './FocusAndNoFocus/namespace';
 require './Form/namespace';
 require './Gestures/namespace';
 require './Layout/namespace';
-require './MotivationalPoster/namespace';
+require './Multitouch/namespace';
 require './PhotoFilters/namespace';
 require './Physics/namespace';
 require './Quixx/namespace';

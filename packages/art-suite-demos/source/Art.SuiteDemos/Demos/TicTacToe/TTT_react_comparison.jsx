@@ -1,4 +1,4 @@
-body { // 10 token | 112 CSS tokens | 796 tokens in total
+body { // 10 token | 112 CSS tokens | 738 JSX Tokens | 850 tokens in total
   font: 14px "Century Gothic", Futura, sans-serif;
   margin: 20px;
 }
@@ -49,7 +49,10 @@ ol, ul { // 8 tokens
   margin-left: 20px;
 }
 
-function Square(props) { // 33 tokens | JSX tokens: 684
+// JSX tokens: 738
+import React from "react"; // 5
+
+function Square(props) { // 32 tokens
   return (
     <button className="square" onClick={props.onClick}>
       {props.value}

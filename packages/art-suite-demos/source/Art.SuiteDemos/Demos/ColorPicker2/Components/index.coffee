@@ -5,3 +5,4 @@ module.exports = require './namespace'
 module.exports
 .addModules
   ColorPicker2: require './ColorPicker2'
+  ColorPicker3: require './ColorPicker3'
