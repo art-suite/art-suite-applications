@@ -62,6 +62,7 @@ Rectangle  = require "./Rectangle"
 {ceil, floor, sqrt, min, max} = Math
 {
   float32Eq0,
+  formattedInspect
   inspect, simplifyNum, float32Eq, compact, log, isNumber, defineModule
 } = require 'art-standard-lib'
 
@@ -131,35 +132,47 @@ defineModule module, class Matrix extends AtomicBase
       Given two points, moved in space
       Generate a transformation matrix m
       where:
-        to1 == m.transform from1
+        a2 == m.transform a1
         and
-        to2 == m.transform from2
+        b2 == m.transform b1
         and m.exactScale.aspectRatio == 1
   ###
-  @multitouch: (from1, to1, from2, to2) ->
+  @multitouch: (a1, a2, b1, b2) ->
 
-    fromCenterX = (from2.x + from1.x) / 2
-    fromCenterY = (from2.y + from1.y) / 2
+    c1x = (b1.x + a1.x) / 2
+    c1y = (b1.y + a1.y) / 2
 
-    toCenterX = (to2.x + to1.x) / 2
-    toCenterY = (to2.y + to1.y) / 2
+    c2x = (b2.x + a2.x) / 2
+    c2y = (b2.y + a2.y) / 2
 
-    v1 = from2.sub from1
-    v2 = to2.sub to1
+    v1 = b1.sub a1
+    v2 = b2.sub a2
 
     v1m = v1.magnitude
     v2m = v2.magnitude
 
-    m = Matrix.translateXY -fromCenterX, -fromCenterY
+    m = Matrix.translateXY -c1x, -c1y
 
     # make sure we aren't in a degenerate situation
     if !float32Eq0(v1m) && !float32Eq0(v2m)
-      m = (
-        m.rotate(v2.angle - v1.angle)
-        .scale(v2m / v1m)
-      )
+      angle = v2.angle - v1.angle
+      scale = v2m      / v1m
+      m = m.rotate angle if !float32Eq0 angle
+      m = m.scale  scale if !float32Eq  scale, 1
 
-    m.translateXY toCenterX, toCenterY
+    m.translateXY c2x, c2y
+
+  @multitouchParts: (a1, a2, b1, b2) ->
+
+    v1 = b1.sub a1
+    v2 = b2.sub a2
+
+    rotate:     v2.angle - v1.angle
+    scale:      v2.magnitude / v1.magnitude
+    translate:  point(
+      (b2.x + a2.x) / 2 - (b1.x + a1.x) / 2
+      (b2.y + a2.y) / 2 - (b1.y + a1.y) / 2
+    )
 
   initDefaults: ->
     @sx = @sy = 1
@@ -194,6 +207,7 @@ defineModule module, class Matrix extends AtomicBase
     exactScale: -> @_exactScale ||= point @xsv.magnitude, @ysv.magnitude
     exactScaler: -> @_exactScaler ||= (@getXsvMagnitude() + @getYsvMagnitude()) / 2
     inv: -> @invert()
+    inverted: -> @invert()
     locationX: -> @tx
     locationY: -> @ty
     scaleX: -> @sx
@@ -364,6 +378,22 @@ defineModule module, class Matrix extends AtomicBase
       d * -@shy
       d * (-@tx * @sy  + @ty * @shx)
       d * ( @tx * @shy - @ty * @sx )
+
+  invertAndMul: (m, into)->
+    d = @getDeterminantReciprocal()
+    sx  = d *  @sy
+    sy  = d *  @sx
+    shx = d * -@shx
+    shy = d * -@shy
+    tx  = d * (-@tx * @sy  + @ty * @shx)
+    ty  = d * ( @tx * @shy - @ty * @sx )
+    @_into into,
+      sx  * m.sx  + shy * m.shx
+      shx * m.shy + sy  * m.sy
+      shx * m.sx  + sy  * m.shx
+      sx  * m.shy + shy * m.sy
+      tx  * m.sx  + ty  * m.shx + m.tx
+      tx  * m.shy + ty  * m.sy  + m.ty
 
   mul: (m, into) ->
     if isNumber m
