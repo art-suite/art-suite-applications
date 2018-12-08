@@ -6,7 +6,7 @@
 # http://mudcu.be/journal/2011/04/globalcompositeoperation/
 # Canvas Spec: http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html
 # http://dev.w3.org/fxtf/compositing-1/#porterduffcompositingoperators_srcover
-{point, point0, Point, rect, Rectangle, matrix, Matrix, rgbColor, Color, isPoint} = require 'art-atomic'
+{point, point0, point1, Point, rect, Rectangle, matrix, Matrix, rgbColor, Color, isPoint} = require 'art-atomic'
 {peek, inspect, Promise, getEnv, nextTick, pureMerge, isString, isNumber, log, bound, merge, isFunction
   defineModule
 } = require 'art-standard-lib'
@@ -181,7 +181,7 @@ defineModule module, class BitmapBase extends BaseClass
   crop: (area) ->
     area ||= @getAutoCropRectangle()
     area = rect(area).intersection rect(@size)
-    @newBitmap area.size
+    @newBitmap if area.size.gt point0 then area.size else point1
     .drawBitmap Matrix.translateXY(-area.x, -area.y), @
 
   initFromCanvas: (canvas, contextAttributes) ->
