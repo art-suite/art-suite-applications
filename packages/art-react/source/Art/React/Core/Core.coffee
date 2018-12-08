@@ -2,6 +2,7 @@ Component = require './Component'
 {reactArtEngineEpoch} = require './ReactArtEngineEpoch'
 {isPlainArray, isString, arrayWith, log, isFunction, isArray} = require 'art-foundation'
 VirtualNode = require './VirtualNode'
+VirtualElement = require './VirtualElement'
 
 getMergedTextPropValue = (oldValue, v) ->
   if oldValue?
@@ -13,6 +14,14 @@ getMergedTextPropValue = (oldValue, v) ->
 
 module.exports = [
   [Component, "createAndInstantiateTopComponent", "createComponentFactory"]
+
+  resetReactPerfCounters: ->
+    VirtualElement.resetCounters()
+    Component.resetCounters()
+
+  getReactPerfCounters: ->
+    VirtualElement: VirtualElement.getCounters()
+    Component:      Component.getCounters()
 
   instantiateTopComponent: (componentInstance, bindToOrCreateNewParentElementProps) ->
     console.warn "React.instantiateTopComponent is DEPRICATED. Use: componentInstance.instantiateAsTopComponent"

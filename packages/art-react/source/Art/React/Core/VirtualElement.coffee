@@ -15,8 +15,14 @@ VirtualNode = require './VirtualNode'
 } = Foundation
 
 defineModule module, class VirtualElement extends VirtualNode
-  @created = 0
-  @instantiated = 0
+
+  @resetCounters: ->
+    @created = 0
+    @instantiated = 0
+
+  @resetCounters()
+
+  @getCounters: -> {@created, @instantiated}
 
   emptyProps = {}
   emptyChildren = []

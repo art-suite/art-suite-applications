@@ -1,0 +1,32 @@
+import &ArtStandardLib
+require(:art-engine) extract
+  Layout.PointLayout.pointLayout
+  Core.NamedElementPropValues.namedSizeLayouts
+&ArtAtomic extract Point.namedAlignmentPoints
+
+merge
+  object v in namedSizeLayouts
+    size: v
+
+  object v, k in namedAlignmentPoints
+    location: pointLayout k
+    axis: v
+
+  # Ex: childrenCenterCenter >> childrenAlignment: :centerCenter
+  object v, k in namedAlignmentPoints with-key lowerCamelCase "" children #{k}
+    childrenAlignment: v
+
+  # Ex: textCenterCenter >> align: :centerCenter
+  object v, k in namedAlignmentPoints with-key lowerCamelCase "" text #{k}
+    align: v
+
+  row:    childrenLayout: :row
+  column: childrenLayout: :column
+  fitIntoParent:
+    scale:    (ps, cs) -> ps.minRatio cs
+    location: :centerCenter
+    axis:     :centerCenter
+  zoomIntoParent:
+    scale: (ps, cs) -> ps.maxRatio cs
+    location: :centerCenter
+    axis:     :centerCenter

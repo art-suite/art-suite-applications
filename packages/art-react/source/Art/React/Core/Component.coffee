@@ -111,7 +111,16 @@ defineModule module, -> class Component extends PropFieldsMixin StateFieldsMixin
     componentDidUpdate
     render".split /\s+/
 
-  @created: 0
+
+  @resetCounters: ->
+    @created =
+    @rendered =
+    @instantiated = 0
+
+  @resetCounters()
+
+  @getCounters: -> {@created, @rendered, @instantiated}
+
   @topComponentInstances: []
   @rerenderAll: ->
     for component in @topComponentInstances
@@ -631,6 +640,8 @@ defineModule module, -> class Component extends PropFieldsMixin StateFieldsMixin
 
   emptyArray = []
   _renderCaptureRefs: ->
+    Component.rendered++
+
     start = globalEpochCycle?.startTimePerformance()
 
     ret = null

@@ -6,6 +6,7 @@ module.exports
 .addModules
   Aim:                 require './Aim'                
   ArtEngine:           require './ArtEngine'          
+  ArtEngineMacros:     require './ArtEngineMacros'    
   ArtEngineRemote:     require './ArtEngineRemote'    
   Dom:                 require './Dom'                
   PagingScrollElement: require './PagingScrollElement'

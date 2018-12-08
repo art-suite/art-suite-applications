@@ -1,4 +1,4 @@
-{defineModule, log, object, each, isPlainObject, merge, mergeInto} = require 'art-standard-lib'
+{formattedInspect, defineModule, isString, isArray, log, object, each, isPlainObject, merge, mergeInto} = require 'art-standard-lib'
 
 defineModule module, -> (superClass) -> class PropFieldsMixin extends superClass
 
@@ -30,10 +30,23 @@ defineModule module, -> (superClass) -> class PropFieldsMixin extends superClass
   EFFECTS:
     used to define getters for @prop
   ###
-  @propFields: sf = (fields) ->
-    @extendPropFields fields
-    each fields, (defaultValue, field) =>
-      @addGetter field, -> @props[field]
+  @propFields: sf = (fields, b...) ->
+    if isString fields
+      @propFields "#{fields}": null
+
+    else if isArray fields
+      @propFields f for f in fields
+
+    else if isPlainObject
+      @extendPropFields fields
+      each fields, (defaultValue, field) =>
+        @addGetter field, -> @props[field]
+
+    else
+      throw new Error "invalid propFields type: #{formattedInspect fields}"
+
+    if b.length > 0
+      @propFields b
 
   # ALIAS
   @propField: sf
