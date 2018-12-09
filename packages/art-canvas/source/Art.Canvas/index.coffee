@@ -11,6 +11,7 @@ module.exports
   FontLoader:        require './FontLoader'       
   GoogleFontLoader:  require './GoogleFontLoader' 
   GradientFillStyle: require './GradientFillStyle'
+  MipmapCache:       require './MipmapCache'      
   Paths:             require './Paths'            
   StackBlur:         require './StackBlur'        
   Tools:             require './Tools'            
