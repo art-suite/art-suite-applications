@@ -69,7 +69,9 @@ defineModule module, ->
 
         pointerCancel:  (event) =>
           @pointerUp()
+
           if @dragging then @dragCanceled event, @dragOffset
+          @dragFinally event, @dragging, true
           @dragging = false
 
     dragPointerDownHandler: (event) =>
@@ -101,6 +103,7 @@ defineModule module, ->
     dragPointerUpHandler: (event) ->
       @pointerDownHandler event
       if @dragging then @dragEnd event, event.parentLocation.sub @pointerDownAt
+      @dragFinally event, @dragging, false
       @dragOffset     = point()
       @dragging       = false
       @pointerIsDown  = false
@@ -111,6 +114,16 @@ defineModule module, ->
 
     # touch/button just started, may become a drag action
     dragPrepare:  (event) ->
+
+    ###
+    IN:
+      dragStarted:  T/F: dragStart fired
+      dragCanceled: T?F: dragCanceled fired
+
+    EFFECT:
+      called after dragEnd and dragCanceled
+    ###
+    dragFinally:  (event, dragStarted, dragCanceled) ->
 
     dragMove:     (event, dragOffset) ->
     dragStart:    (event, dragOffset) ->
