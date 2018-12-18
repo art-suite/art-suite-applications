@@ -24,10 +24,31 @@ defineModule module, ->
 
     @property "pointerDownAt"
 
-    mouseIn:            -> @mouseIsIn     =        @hover = true
-    mouseOut:           -> @mouseIsIn     = false; @setState (state) -> merge state, hover: state.pointerIsDown
-    pointerDownHandler: -> @pointerIsDown =        @hover = true
-    pointerUp:          -> @pointerIsDown = false; @setState (state) -> merge state, hover: state.mouseIsIn
+    _settingHover: (hover, state = @state) ->
+      if hover != state.hover
+        @onNextReady =>
+          (@hoverAction || @props.hoverAction)? hover, @props
+      hover
+
+    mouseIn: -> @setState (state) =>
+      merge state,
+        mouseIsIn:      true
+        hover:          @_settingHover true, state
+
+    mouseOut: -> @setState (state) =>
+      merge state,
+        mouseIsIn:      false
+        hover:          @_settingHover state.pointerIsDown, state
+
+    pointerDownHandler: -> @setState (state) =>
+      merge state,
+        pointerIsDown:  true
+        hover:          @_settingHover true, state
+
+    pointerUp: -> @setState (state) =>
+      merge state,
+        pointerIsDown:  false
+        hover:          @_settingHover state.mouseIsIn, state
 
     pointerUpInsideHandler: (event) =>
       event.target.capturePointerEvents()
@@ -38,6 +59,7 @@ defineModule module, ->
         (@disabledAction ? @props.disabledAction)? event, @props
 
     @getter
+      touchDragTimeoutMs: -> 1000
       pointerDown: -> @pointerIsDown
 
       buttonHandlers: (customAction) ->
@@ -64,6 +86,7 @@ defineModule module, ->
         pointerUp:      @dragPointerUpHandler
 
         pointerUpInside: (event) =>
+          @dragFinally event, @dragging, false
           unless @dragging
             @pointerUpInsideHandler event
 
@@ -81,7 +104,7 @@ defineModule module, ->
       @dragOffset = point()
       @_pointerDownKey = pdk = (@_pointerDownKey ? 0) + 1
       event = event.clone()
-      timeout 1000, =>
+      timeout @touchDragTimeoutMs, =>
         if !@dragging && @pointerIsDown && @_pointerDownKey == pdk
           @_drag event
 
