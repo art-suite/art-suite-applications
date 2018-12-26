@@ -1,4 +1,4 @@
-import &ArtSuite # 2 tokens         >> 222 total tokens (projected final: 212)
+import &ArtSuite # 2 tokens         >> 221 total tokens (projected final: 211)
 
 textStyle =                         # 10 tokens
   fontFamily: "" "Century Gothic", Futura, sans-serif
@@ -20,7 +20,7 @@ calculateWinner = (board) ->        # 59
       board[el]
     a == b && a == c && a           # -2 less when we have: a == b == c
 
-class Square extends Component      # 25 tokens
+class Square extends Component      # 24 tokens
   render: ->
     Element
       size: 35
@@ -28,8 +28,8 @@ class Square extends Component      # 25 tokens
       on:   pointerClick: @props.play
       TextElement
         textStyle
-        fontWeight: :bold
         fontSize:   18
+        :bold
         :centerCenter
         @props
 
