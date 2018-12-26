@@ -1,27 +1,11 @@
 ##
-  This file:
-    React code, refactored
-
-  Comparison
-    FORMATTED
-      ORIGNAL JSX + CSS                   > 850 tokens total
-        CSS                                 > 112 tokens
-        JSX                                 > 738 tokens
-
-      CAFFEINESCRIPT + ArtSuite:          > 222 tokens (26% original JSX + CSS)
-                                                       (23% JS + CSS)
-
-    UNFORMATTED
-      JSX                                 > 738 tokens
-      JSX > JS (ES6)                      > 858 tokens (origional, pure-JS)
-      JS > CaffeineScript (isomorphic)    > 306 tokens (36% origional, pure-JS)
-      React Refactor (this file)          > 235 tokens (27% origional, pure-JS)
-
-
   React Refactor:
 
-    This file: no formatting, logically consistent with original JSX, but not isomorphic.
+    No formatting,
+    Logically consistent with original JSX,
+    but not isomorphic.
 
+    Changes:
     * use ArtObjectTreeFactory for elegant factories and DSL
     * use ArtStandardLib for arrayWith and arrayWithElementReplaced
     * simplified history: array of boards; boards are arrays of 9 squares
