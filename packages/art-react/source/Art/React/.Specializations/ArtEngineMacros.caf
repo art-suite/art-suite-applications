@@ -20,13 +20,21 @@ merge
   object v, k in namedAlignmentPoints with-key lowerCamelCase "" text #{k}
     align: v
 
-  row:    childrenLayout: :row
-  column: childrenLayout: :column
-  fitIntoParent:
-    scale:    (ps, cs) -> ps.minRatio cs
-    location: :centerCenter
-    axis:     :centerCenter
-  zoomIntoParent:
-    scale: (ps, cs) -> ps.maxRatio cs
-    location: :centerCenter
-    axis:     :centerCenter
+  {}
+    row:    childrenLayout: :row
+    column: childrenLayout: :column
+    flow:   childrenLayout: :flow
+
+    fitParent =
+      scale:    (ps, cs) -> ps.minRatio cs
+      location: :centerCenter
+      axis:     :centerCenter
+
+
+    fillParent =
+      scale: (ps, cs) -> ps.maxRatio cs
+      location: :centerCenter
+      axis:     :centerCenter
+
+    fitIntoParent:  fitParent
+    zoomIntoParent: fillParent
