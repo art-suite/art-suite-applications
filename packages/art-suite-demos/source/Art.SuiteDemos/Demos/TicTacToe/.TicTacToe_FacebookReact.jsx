@@ -79,11 +79,13 @@ class Board extends React.Component {
           {this.renderSquare(1)}
           {this.renderSquare(2)}
         </div>
+
         <div className="board-row">
           {this.renderSquare(3)}
           {this.renderSquare(4)}
           {this.renderSquare(5)}
         </div>
+
         <div className="board-row">
           {this.renderSquare(6)}
           {this.renderSquare(7)}
@@ -103,6 +105,7 @@ class Game extends React.Component {
           squares: Array(9).fill(null)
         }
       ],
+
       stepNumber: 0,
       xIsNext: true
     };
@@ -115,6 +118,7 @@ class Game extends React.Component {
     if (calculateWinner(squares) || squares[i]) {
       return;
     }
+
     squares[i] = this.state.xIsNext ? "X" : "O";
     this.setState({
       history: history.concat([
@@ -122,6 +126,7 @@ class Game extends React.Component {
           squares: squares
         }
       ]),
+
       stepNumber: history.length,
       xIsNext: !this.state.xIsNext
     });
@@ -189,6 +194,7 @@ function calculateWinner(squares) {
     [0, 4, 8],
     [2, 4, 6]
   ];
+
   for (let i = 0; i < lines.length; i++) {
     const [a, b, c] = lines[i];
     if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
