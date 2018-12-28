@@ -24,6 +24,7 @@ merge
     row:    childrenLayout: :row
     column: childrenLayout: :column
     flow:   childrenLayout: :flow
+    bold:   fontWeight: :bold
 
     fitParent =
       scale:    (ps, cs) -> ps.minRatio cs
