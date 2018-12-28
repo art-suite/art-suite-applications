@@ -1,6 +1,6 @@
 {timeout, defineModule, log, merge} = require 'art-standard-lib'
 {point} = require 'art-atomic'
-{isMobileBrowser} = (require 'art-foundation').Browser
+mobileBrowser = (require 'art-foundation').Browser.isMobileBrowser()
 
 defineModule module, ->
   (superClass) -> class PointerActionsMixin extends superClass
@@ -45,7 +45,7 @@ defineModule module, ->
         pointerIsDown:  true
         hover:          @_settingHover true, state
 
-    pointerUp: -> @setState (state) =>
+    pointerUpHandler: -> @setState (state) =>
       merge state,
         pointerIsDown:  false
         hover:          @_settingHover state.mouseIsIn, state
@@ -69,9 +69,9 @@ defineModule module, ->
         mouseOut:         @mouseOut
         pointerDown:      @pointerDownHandler
         pointerIn:        @pointerDownHandler
-        pointerUp:        @pointerUp
-        pointerCancel:    @pointerUp
-        pointerOut:       @pointerUp
+        pointerUp:        @pointerUpHandler
+        pointerCancel:    @pointerUpHandler
+        pointerOut:       @pointerUpHandler
         pointerUpInside:  @pointerUpInsideHandler
 
       pointerHandlers: -> @buttonHandlers
@@ -91,7 +91,7 @@ defineModule module, ->
             @pointerUpInsideHandler event
 
         pointerCancel:  (event) =>
-          @pointerUp()
+          @pointerUpHandler()
 
           if @dragging then @dragCanceled event, @dragOffset
           @dragFinally event, @dragging, true
@@ -104,9 +104,10 @@ defineModule module, ->
       @dragOffset = point()
       @_pointerDownKey = pdk = (@_pointerDownKey ? 0) + 1
       event = event.clone()
-      timeout @touchDragTimeoutMs, =>
-        if !@dragging && @pointerIsDown && @_pointerDownKey == pdk
-          @_drag event
+
+      if mobileBrowser
+        timeout @touchDragTimeoutMs, =>
+          @_drag event if !@dragging && @pointerIsDown && @_pointerDownKey == pdk
 
     _drag: (event) =>
       @dragOffset = offset = event.parentLocation.sub @pointerDownAt
@@ -124,12 +125,11 @@ defineModule module, ->
         @_drag event
 
     dragPointerUpHandler: (event) ->
-      @pointerDownHandler event
+      @pointerUpHandler event
       if @dragging then @dragEnd event, event.parentLocation.sub @pointerDownAt
       @dragFinally event, @dragging, false
       @dragOffset     = point()
       @dragging       = false
-      @pointerIsDown  = false
 
     ###########
     # overrides
