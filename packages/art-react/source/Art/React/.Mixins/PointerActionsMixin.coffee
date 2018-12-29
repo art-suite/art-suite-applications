@@ -121,7 +121,7 @@ defineModule module, ->
 
     dragPointerMoveHandler: (event) =>
       offset = event.parentLocation.sub @pointerDownAt
-      if @dragging || (!isMobileBrowser() && Math.max(Math.abs(offset.x), Math.abs(offset.y)) > @deadZone)
+      if @dragging || (!mobileBrowser && Math.max(Math.abs(offset.x), Math.abs(offset.y)) > @deadZone)
         @_drag event
 
     dragPointerUpHandler: (event) ->
