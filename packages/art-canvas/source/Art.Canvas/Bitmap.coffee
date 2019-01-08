@@ -561,10 +561,11 @@ module.exports = class Bitmap extends BitmapBase
     @_setStrokeStyle @_getFillStyleFromOptions options
     {lineWidth, lineCap, lineJoin, miterLimit, lineDash} = options
     @_context.setLineDash lineDash || []
-    @_context.lineWidth  = lineWidth   || 1
+    @_context.lineWidth  = lineWidth   ?= 1
     @_context.lineCap    = lineCap     || "butt"
     @_context.lineJoin   = lineJoin    || "miter"
     @_context.miterLimit = miterLimit  || 10
+    !floatEq0 lineWidth
 
   _setFillStyleFromOptions: (options) ->
     @_setFillStyle @_getFillStyleFromOptions options
@@ -577,52 +578,55 @@ module.exports = class Bitmap extends BitmapBase
     return false if opacity < 1/256
     {_context} = @
 
-    if stroke
+    shouldDraw = if stroke
       @_setStrokeStyleFromOptions options
     else
       @_setFillStyleFromOptions options
+      true
 
-    if compositeMode && compositeMode != "normal"
-      _context.globalCompositeOperation = compositeModeMap[compositeMode] || compositeModeMap.normal
+    if shouldDraw
+      if compositeMode && compositeMode != "normal"
+        _context.globalCompositeOperation = compositeModeMap[compositeMode] || compositeModeMap.normal
 
-    if opacity < 1
-      _context.globalAlpha = opacity
+      if opacity < 1
+        _context.globalAlpha = opacity
 
-    if shadow
-      {blur, offsetX, offsetY, offset} = shadow
-      shadowColor = shadow.color
-      _context.shadowColor = rgbColor shadowColor || "black"
-      _context.shadowBlur = blur if blur
-      offsetX ||= 0
-      offsetY ||= 0
-      if isMatrix where
-        ###
-        Shadows seem to ignore scale and rotation transformations.
+      if shadow
+        {blur, offsetX, offsetY, offset} = shadow
+        shadowColor = shadow.color
+        _context.shadowColor = rgbColor shadowColor || "black"
+        _context.shadowBlur = blur if blur
+        offsetX ||= 0
+        offsetY ||= 0
+        if isMatrix where
+          ###
+          Shadows seem to ignore scale and rotation transformations.
 
-        It seems someone wanted to enforce consistent shadows while completely breaking
-        the setTransform abstraction. Bah! :)
+          It seems someone wanted to enforce consistent shadows while completely breaking
+          the setTransform abstraction. Bah! :)
 
-        I believe this was a design mistake. It introduces inconsistencies both subtle
-        and large. For example, it makes shadow placement vary across devices depending
-        upon their devicePixelsPerPoint. No other draw command works this way.
+          I believe this was a design mistake. It introduces inconsistencies both subtle
+          and large. For example, it makes shadow placement vary across devices depending
+          upon their devicePixelsPerPoint. No other draw command works this way.
 
-        Consistent shadows should be up to the programmer, not the drawing engine.
+          Consistent shadows should be up to the programmer, not the drawing engine.
 
-        I believe this hack solves the problem. Shadow SHAPE does obey setTransforms. It
-        is also correctly proporitonal to the shape it is creating a shadow of. Said shape
-        fully obeys setTrasform - including location. Only the vector from the center of
-        the shape to the center of the shadow seems to ignore setTransform.
-         - July 2016, SBD
-        ###
-        _context.shadowOffsetX = Matrix.transform1D offsetX, offsetY, where.sx, where.shx, 0
-        _context.shadowOffsetY = Matrix.transform1D offsetY, offsetX, where.sy, where.shy, 0
-      else
-        _context.shadowOffsetX = offsetX
-        _context.shadowOffsetY = offsetY
+          I believe this hack solves the problem. Shadow SHAPE does obey setTransforms. It
+          is also correctly proporitonal to the shape it is creating a shadow of. Said shape
+          fully obeys setTrasform - including location. Only the vector from the center of
+          the shape to the center of the shadow seems to ignore setTransform.
+           - July 2016, SBD
+          ###
+          _context.shadowOffsetX = Matrix.transform1D offsetX, offsetY, where.sx, where.shx, 0
+          _context.shadowOffsetY = Matrix.transform1D offsetY, offsetX, where.sy, where.shy, 0
+        else
+          _context.shadowOffsetX = offsetX
+          _context.shadowOffsetY = offsetY
 
-    @_setTransform where
-
-    true
+      @_setTransform where
+      true
+    else
+      false
 
   _cleanupDraw: (options) ->
     {compositeMode, shadow, opacity} = options
