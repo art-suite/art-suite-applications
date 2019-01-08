@@ -309,7 +309,6 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
 
               request.pipeline.queryDynamoDbWithRequest request,
                 index: queryModelName
-                select: "*" # NOTE: without select: "*", only the projected fields are returned from an index
                 where: "#{hashKey}": request.key
               .then ({items}) -> items
 
@@ -326,7 +325,6 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
             query: (request) ->
               request.pipeline.queryDynamoDbWithRequest request,
                 index: queryModelName
-                select: "*" # NOTE: without select: "*", only the projected fields are returned from an index
                 where: "#{hashKey}": request.key
                 descending: true
               .then ({items}) -> items
