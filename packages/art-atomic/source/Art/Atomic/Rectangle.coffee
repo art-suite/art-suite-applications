@@ -233,11 +233,11 @@ module.exports = class Rectangle extends AtomicBase
   # if edges are within k of a multiple of m, round to that multiple
   # Otherwise, round towards the nearest multiple of m that is just outside the original rectangle
   # IN: roundingFactor = if a value is with roundingFactor of a whole number, it will snap that number
-  roundOut: (m = 1, k = float32Precision)->
-    x = floor @x + k, m
-    y = floor @y + k, m
-    w = ceil(@x + @w - k, m) - x
-    h = ceil(@y + @h - k, m) - y
+  roundOut: (m = 1, k = float32Precision, expand = 0)->
+    x = floor(@x + k, m) - expand
+    y = floor(@y + k, m) - expand
+    w = ceil(@x + @w - k, m) - x + 2 * expand
+    h = ceil(@y + @h - k, m) - y + 2 * expand
     @with x, y, w, h
 
   # if edges are within k of a multiple of m, round to that multiple
