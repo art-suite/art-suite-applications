@@ -39,3 +39,21 @@ merge
 
     fitIntoParent:  fitParent
     zoomIntoParent: fillParent
+
+  cursors = w
+    ""
+      default pointer
+      allScroll contextMenu help
+      wait progress
+
+      crosshair cell text verticalText
+
+      alias copy move noDrop notAllowed
+      zoomIn zoomOut
+
+      grab grabbing
+
+      eResize nResize neResize nwResize sResize seResize swResize wResizee wResize nsResize neswResize nwseResize colResize rowResize
+
+  object cursor in cursors with-key "" #{cursor}Cursor
+    cursor: dashCase cursor
