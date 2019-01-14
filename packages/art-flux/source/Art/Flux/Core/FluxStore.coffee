@@ -107,7 +107,7 @@ defineModule module, class FluxStore extends EpochClass
   returns: updateFunctionOrNewFluxRecord
   ###
   update: (modelName, key, updateFunctionOrNewFluxRecord) ->
-    throw new Error "key must be a string. got: #{inspect key}" unless isString key
+    throw new Error "key must be a string. Inputs: #{inspect {modelName, key}}" unless isString key
     @_queueChange
       modelName: modelName
       key: key
@@ -162,8 +162,8 @@ defineModule module, class FluxStore extends EpochClass
     @_entriesByModelName[modelName] ||= {}
 
   _getEntry: (modelName, key) ->
-    throw new Error "Expected 'modelName' to be a String. Got: #{inspect modelName}" unless isString modelName
-    throw new Error "Expected 'key' to be a String. Got: #{inspect key}" unless isString key
+    throw new Error "Expected 'modelName' to be a String. Inputs: #{inspect {key, modelName}}" unless isString modelName
+    throw new Error "Expected 'key' to be a String. Inputs: #{inspect {key, modelName}}" unless isString key
     @_getEntriesForModelName(modelName)[key]
 
   _addEntry: (modelName, key) ->
@@ -234,8 +234,8 @@ defineModule module, class FluxStore extends EpochClass
   # this ensures we don't return the "change" Object which should not be exposed to clients
   _queueChange: (change) ->
     {modelName, key} = change
-    throw new Error "Expected 'modelName' to be a String. Got: #{inspect modelName}" unless isString modelName
-    throw new Error "Expected 'key' to be a String. Got: #{inspect key}" unless isString key
+    throw new Error "Expected 'modelName' to be a String. Inputs: #{inspect {key, modelName}}" unless isString modelName
+    throw new Error "Expected 'key' to be a String. Inputs: #{inspect {key, modelName}}" unless isString key
 
     @queueItem change
     null
