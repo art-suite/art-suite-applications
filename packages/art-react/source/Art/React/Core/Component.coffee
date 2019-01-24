@@ -128,8 +128,9 @@ defineModule module, -> class Component extends PropFieldsMixin StateFieldsMixin
 
   rerenderAll: ->
     @_queueRerender()
-    for component in @subComponents
-      component.rerenderAll()
+    if @subComponents?.length > 0
+      for component in @subComponents
+        component.rerenderAll()
 
   @createAndInstantiateTopComponent: (spec) ->
     Component.createComponentFactory(spec).instantiateAsTopComponent()
