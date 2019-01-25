@@ -135,7 +135,7 @@ suite:
         assert.eq 1 users.length
         # log {lastEvaluatedKey, users}
         assert.isObject lastEvaluatedKey
-        myTable.getAll returnResponse: true props: {} limit: 1, lastEvaluatedKey
+        myTable.getAll returnResponse: true props: {} lastEvaluatedKey, limit: 1
         .then ({props:{lastEvaluatedKey2},data: users2})->
           # log {lastEvaluatedKey2, users2}
           assert.doesNotExist lastEvaluatedKey2

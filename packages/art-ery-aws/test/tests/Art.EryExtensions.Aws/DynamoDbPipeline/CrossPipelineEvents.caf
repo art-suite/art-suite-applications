@@ -107,11 +107,24 @@ suite:
         assert.eq User.getUpdatePropsFunctions(), post: create: [postCreateUpdateFunction]
 
     _mergeUpdateProps: ->
+      setup ->
+        AfterEventsFilter._reset()
+        Neptune.Art.Ery.PipelineRegistry._reset()
+
+        User = null
+        class User extends DynamoDbPipeline
+          @addDatabaseFilters
+            name:               "" required trimmedstring
+            postCount:          :number
+            lastPostCreatedAt:  :timestamp
+            text:               :trimmedstring
+
       test "basic", ->
         assert.eq
           foo: key: "foo", set: bar: 123
-          DynamoDbPipeline._mergeUpdateProps []
-            key: "foo", set: bar: 123
+          DynamoDbPipeline._mergeUpdateProps
+            [] key: "foo", set: bar: 123
+            :user
 
       test "distinct actions for same key", ->
         assert.eq
@@ -119,24 +132,30 @@ suite:
             key:        "foo"
             set:        bar: 123
             setDefault: baz: 456
-          DynamoDbPipeline._mergeUpdateProps []
-            key: "foo", set: bar: 123
-            key: "foo", setDefault: baz: 456
+          DynamoDbPipeline._mergeUpdateProps
+            []
+              key: "foo", set: bar: 123
+              key: "foo", setDefault: baz: 456
+            :user
 
       test "two keys with overlapping actions", ->
         assert.eq
           foo: key: "foo", set: name: "alice"
           bar: key: "bar", set: name: "bill"
-          DynamoDbPipeline._mergeUpdateProps []
-            key: "foo", set: name: "alice"
-            key: "bar", set: name: "bill"
+          DynamoDbPipeline._mergeUpdateProps
+            []
+              key: "foo", set: name: "alice"
+              key: "bar", set: name: "bill"
+            :user
 
       test "array of updates", ->
         assert.eq
           foo: key: "foo", set: name: "alice", address: "123 Street"
           bar: key: "bar", set: name: "bill"
-          DynamoDbPipeline._mergeUpdateProps []
+          DynamoDbPipeline._mergeUpdateProps
             []
-              key: "foo", set: name: "alice"
-              key: "bar", set: name: "bill"
-            key: "foo", set: address: "123 Street"
+              []
+                key: "foo", set: name: "alice"
+                key: "bar", set: name: "bill"
+              key: "foo", set: address: "123 Street"
+            :user
