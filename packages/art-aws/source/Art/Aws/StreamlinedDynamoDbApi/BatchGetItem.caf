@@ -1,0 +1,18 @@
+import &ArtStandardLib
+
+class BatchGetItem extends &TableApiBaseClass
+  ###
+    NOTE: dynamoDb supports batch-gets across tables, but we don't - yet
+    IN: params:
+      table:                  string (required)
+      requestItems: [] key-list
+
+  translateParams: (params) ->
+    @_translateSelect params
+    @_target.RequestItems = [@_getTableName params]: merge {}
+      Keys:
+        array preKey in params.requestItems
+          @_getTranslatedKey preKey
+      @_target.ProjectionExpression
+    delete @_target.ProjectionExpression
+    @_target

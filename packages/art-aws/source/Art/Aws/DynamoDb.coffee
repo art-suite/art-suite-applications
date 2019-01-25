@@ -96,7 +96,10 @@ HELPERS
 
 StreamlinedDynamoDbApi = require './StreamlinedDynamoDbApi'
 
-{Scan, Query, CreateTable, PutItem, UpdateItem, DeleteItem, GetItem, TableApiBaseClass} = StreamlinedDynamoDbApi
+{
+  Scan, Query, CreateTable, PutItem, UpdateItem, DeleteItem, GetItem, TableApiBaseClass
+  BatchGetItem
+} = StreamlinedDynamoDbApi
 {decodeDynamoItem} = TableApiBaseClass
 
 module.exports = class DynamoDb extends BaseClass
@@ -234,6 +237,13 @@ module.exports = class DynamoDb extends BaseClass
       .then (res) ->
         item: res.Item && decodeDynamoItem res.Item
 
+    batchGetItem: (params) ->
+      @invokeAws "batchGetItem",
+        BatchGetItem.translateParams params
+      .then (result) ->
+        {table, tableName} = params
+        items: (decodeDynamoItem v for v in result.Responses[table ? tableName])
+
     updateItem: (params) ->
       @invokeAws "updateItem",
         UpdateItem.translateParams params
@@ -333,7 +343,7 @@ module.exports = class DynamoDb extends BaseClass
     TODO: currently these only support the default DynamoDb API (with promises)
     ###
 
-    batchGetItem:     null
+    # batchGetItem:     null
     batchWriteItem:   null
 
     updateTable:      null

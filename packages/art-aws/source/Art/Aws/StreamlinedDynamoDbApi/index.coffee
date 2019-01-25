@@ -5,6 +5,7 @@ module.exports = require './namespace'
 module.exports
 .includeInNamespace require './StreamlinedDynamoDbApi'
 .addModules
+  BatchGetItem:      require './BatchGetItem'     
   Common:            require './Common'           
   CreateTable:       require './CreateTable'      
   DeleteItem:        require './DeleteItem'       

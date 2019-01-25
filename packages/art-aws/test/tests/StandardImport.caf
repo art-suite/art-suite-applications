@@ -1,4 +1,5 @@
 &ArtStandardLib.merge
   &ArtStandardLib
+  &ArtTestbench
   &source/Art/Aws
   test: (args...) -> global.test args...

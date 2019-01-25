@@ -1,49 +1,54 @@
-{log, isPlainArray, defineModule, ConfigRegistry} = Neptune.Art.Foundation
-{DynamoDb, config} = Neptune.Art.Aws
+import &StandardImport
 
-testTableName = 'fooBarTestTable'
+testTableName = :fooBarTestTable
 
-defineModule module, suite: "real requests to dynamoDb": ->
-  @timeout 10000
+dynamoDb = null
+setupForDynamoDbTests = ->
+  dynamoDb = new DynamoDb
 
-  dynamoDb = null
-  setup ->
-    dynamoDb = new DynamoDb
+  dynamoDb.listTables()
+  .then ({TableNames}) ->
+    list = array table in TableNames
+      if table == testTableName
+        # log "tests/Art.Ery.Aws.DynamoDb.live: Deleting test table '#{testTableName}'"
+        dynamoDb.deleteTable TableName: table
+      # else
+      #   log "NOT deleting non-test-table: #{table}"
+    Promise.all list
 
-    dynamoDb.listTables()
-    .then ({TableNames}) ->
-      list = for table in TableNames
-        if table == testTableName
-          # log "tests/Art.Ery.Aws.DynamoDb.live: Deleting test table '#{testTableName}'"
-          dynamoDb.deleteTable TableName: table
-        # else
-        #   log "NOT deleting non-test-table: #{table}"
-      Promise.all list
+chatRoomId = "xyz456"
+createItems = ->
+  Promise.all [
+    dynamoDb.putItem table: testTableName, item: chatRoom: chatRoomId, id: 1, message: "Hello!", createdAt: 400
+    dynamoDb.putItem table: testTableName, item: chatRoom: chatRoomId, id: 2, message: "world!", createdAt: 300
+  ]
 
-  chatRoomId = "xyz456"
-  createItems = ->
-    Promise.all [
-      dynamoDb.putItem table: testTableName, item: chatRoom: chatRoomId, id: 1, message: "Hello!", createdAt: 400
-      dynamoDb.putItem table: testTableName, item: chatRoom: chatRoomId, id: 2, message: "world!", createdAt: 300
-    ]
-  createTable = ->
-    dynamoDb.createTable
-      table: testTableName
-      globalIndexes: chatsByChatRoomCreatedAt: "chatRoom/createdAt"
-      attributes:
-        id: "number"
-        chatRoom:  "string"
-        createdAt: "number"
-      key: "chatRoom/id"
-    .then (result) -> createItems()
+createTable = ->
+  dynamoDb.createTable
+    table: testTableName
+    globalIndexes: chatsByChatRoomCreatedAt: "chatRoom/createdAt"
+    attributes:
+      id: "number"
+      chatRoom:  "string"
+      createdAt: "number"
+    key: "chatRoom/id"
+  .then (result) -> createItems()
 
-  test "listTables", ->
-    dynamoDb.listTables()
-    .then (tables) ->
-      assert.eq true, isPlainArray tables.TableNames
+suite: "real requests to dynamoDb":
+  basics: ->
+    @timeout 10000
+    setup setupForDynamoDbTests
+
+    test "listTables", ->
+      dynamoDb.listTables()
+      .then (tables) ->
+        assert.eq true, isPlainArray tables.TableNames
 
 
-  suite "table operations", ->
+  tableOperations: ->
+    @timeout 10000
+    setup setupForDynamoDbTests
+
     test "createTable with minimum props", ->
       dynamoDb.createTable table: testTableName
 
@@ -122,7 +127,55 @@ defineModule module, suite: "real requests to dynamoDb": ->
           topic:     "string"
         key: "chatRoom/createdAt"
 
-  suite "describe", ->
+  batchGet: ->
+    @timeout 10000
+
+    chainedTest "createTable interesting table", ->
+      setupForDynamoDbTests()
+      .then -> dynamoDb.createTable
+        table: testTableName
+
+    .thenTest "put two items" ->
+      Promise.all []
+        dynamoDb.putItem
+          table: testTableName
+          item:
+            id:         :id1
+            message:    "" Hi Alice!
+
+        dynamoDb.putItem
+          table: testTableName
+          item:
+            id:         :id2
+            message:    "" Hi Bill!
+
+    .thenTest "batchGetItem with two ids" ->
+      dynamoDb.batchGetItem
+        table: testTableName
+        requestItems: :id1 :id2
+      .then (result) ->
+        assert.eq
+          result
+          items: []
+            id: :id1 message: "Hi Alice!"
+            id: :id2 message: "Hi Bill!"
+
+    .thenTest "batchGetItem with select" ->
+      dynamoDb.batchGetItem
+        table: testTableName
+        requestItems: :id1 :id2
+        select: :id
+      .then (result) ->
+        assert.eq
+          result
+          items: []
+            {} id: :id1
+            {} id: :id2
+
+  describe: ->
+    @timeout 10000
+    setup setupForDynamoDbTests
+
     test "describeTable", ->
       createTable()
       .then -> dynamoDb.describeTable table: testTableName
@@ -133,7 +186,9 @@ defineModule module, suite: "real requests to dynamoDb": ->
       .then -> dynamoDb.describeLimits()
       .then (res) -> assert.gt res.AccountMaxReadCapacityUnits, 0
 
-  suite "query", ->
+  query: ->
+    @timeout 10000
+    setup setupForDynamoDbTests
 
     test "basic primary key", ->
       createTable()
@@ -142,7 +197,7 @@ defineModule module, suite: "real requests to dynamoDb": ->
           table: testTableName
           where: chatRoom: chatRoomId
       .then (result)->
-        assert.eq ["Hello!", "world!"], (item.message for item in result.items)
+        assert.eq ["Hello!", "world!"], (array item in result.items with item.message)
         assert.eq result.items[0],
           id:         1
           message:    "Hello!"
@@ -157,7 +212,7 @@ defineModule module, suite: "real requests to dynamoDb": ->
           index: "chatsByChatRoomCreatedAt"
           where: chatRoom: chatRoomId
       .then (result)->
-        assert.eq ["world!", "Hello!"], (item.message for item in result.items)
+        assert.eq ["world!", "Hello!"], array item in result.items with item.message
         assert.eq result.items[0],
           id:       2
           message:  "world!"
@@ -172,7 +227,7 @@ defineModule module, suite: "real requests to dynamoDb": ->
           where: chatRoom: chatRoomId
           select: "message"
       .then (result)->
-        assert.eq ["Hello!", "world!"], (item.message for item in result.items)
+        assert.eq ["Hello!", "world!"], array item in result.items with item.message
         assert.eq result.items[0],
           message:  "Hello!"
 
@@ -184,7 +239,7 @@ defineModule module, suite: "real requests to dynamoDb": ->
           descending: true
           where: chatRoom: chatRoomId
       .then (result)->
-        assert.eq ["world!", "Hello!"], (item.message for item in result.items)
+        assert.eq ["world!", "Hello!"], array item in result.items with item.message
 
     test "where: id: gt: 1", ->
       createTable()
@@ -194,7 +249,7 @@ defineModule module, suite: "real requests to dynamoDb": ->
           descending: true
           where: chatRoom: chatRoomId, id: gt: 1
       .then (result)->
-        assert.eq ["world!"], (item.message for item in result.items)
+        assert.eq ["world!"], array item in result.items with item.message
 
     test "filter: message: beginsWith: 'H'", ->
       createTable()
@@ -205,7 +260,7 @@ defineModule module, suite: "real requests to dynamoDb": ->
           where: chatRoom: chatRoomId
           filter: message: beginsWith: 'H'
       .then (result)->
-        assert.eq ["world!", "Hello!"], (item.message for item in result.items)
+        assert.eq ["world!", "Hello!"], array item in result.items with item.message
 
     test 'createTable regression', ->
       dynamoDb.createTable
