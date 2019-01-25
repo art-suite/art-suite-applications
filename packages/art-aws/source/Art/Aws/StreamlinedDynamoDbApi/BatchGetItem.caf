@@ -11,7 +11,7 @@ class BatchGetItem extends &TableApiBaseClass
     @_translateSelect params
     @_target.RequestItems = [@_getTableName params]: merge {}
       Keys:
-        array preKey in params.requestItems
+        array preKey in params.keys
           @_getTranslatedKey preKey
       @_target.ProjectionExpression
     delete @_target.ProjectionExpression

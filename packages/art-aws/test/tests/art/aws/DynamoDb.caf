@@ -152,7 +152,7 @@ suite: "real requests to dynamoDb":
     .thenTest "batchGetItem with two ids" ->
       dynamoDb.batchGetItem
         table: testTableName
-        requestItems: :id1 :id2
+        keys: :id1 :id2
       .then (result) ->
         assert.eq
           result
@@ -163,7 +163,7 @@ suite: "real requests to dynamoDb":
     .thenTest "batchGetItem with select" ->
       dynamoDb.batchGetItem
         table: testTableName
-        requestItems: :id1 :id2
+        keys: :id1 :id2
         select: :id
       .then (result) ->
         assert.eq
