@@ -10,6 +10,7 @@
   isString
   timeout
   intRand
+  isArray
 } = require 'art-standard-lib'
 
 {networkFailure} = require 'art-communication-status'
@@ -140,6 +141,15 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
 
     getAll: (request) ->
       request.subrequest request.pipeline, "scan", returnResponse: true, props: request.props
+
+    batchGet: (request) ->
+      {keys, select} = request.props
+      request.require isArray request.props.keys
+      .then -> if select then request.require isString request.props.select
+      .then => @_artEryToDynamoDbRequest request,
+        then: (params) =>
+          @dynamoDb.batchGetItem params
+          .then ({items}) -> items
 
     ###
     TODO: make create fail if the item already exists
@@ -414,7 +424,11 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
     {requiresKey, mustExist} = options
     requiresKey = true if mustExist
 
-    {key, data, add, setDefault, conditionExpression, returnValues, consistentRead} = request.props
+    {
+      key, data, add, setDefault, conditionExpression, returnValues, consistentRead
+      keys
+      select
+    } = request.props
     {requestType} = request
 
     @_retryIfServiceUnavailable request, =>
@@ -425,6 +439,8 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
         if requiresKey
           data = @dataWithoutKeyFields data
           key  = @toKeyObject request.key
+
+        #TODO: keys needs @toKeyObject to work with multi-part keys
 
         if requestType == "update"
           remove = (k for k, v of data when v == null)
@@ -447,6 +463,8 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
           @tableName
           data
           key
+          keys # for batchGetItem
+          select
 
           # requireServerOrigin
           remove                  # remove attributes

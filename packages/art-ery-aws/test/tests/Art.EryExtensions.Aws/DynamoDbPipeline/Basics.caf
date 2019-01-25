@@ -104,6 +104,33 @@ suite:
           AttributeType: "S"
         ]
 
+  scanAndBatchGet: ->
+    chainedTest ->
+      setupWithMyTable()
+      .then ->
+        # delete all
+        myTable.getAll()
+        .then (users) ->
+          each user in users
+            myTable.delete user.id
+
+    .thenTest "createX2 then scan" ->
+      Promise.all []
+        myTable.create data: name: :Alice email: :alice@gmail.com
+        myTable.create data: name: :Bill  email: :bill@gmail.com
+      .then -> myTable.getAll()
+      .tap (users)->
+        assert.eq 2 users.length
+        assert.eq
+          :Alice :Bill
+          array user from users with user.name
+          .sort()
+
+    .thenTest "batchGet 2 records" (users) ->
+      myTable.batchGet props: keys: array {id} in users with id
+      .then (users2) ->
+        assert.eq users, users2
+
   scan: ->
     setup ->
       setupWithMyTable()
@@ -113,18 +140,6 @@ suite:
         .then (users) ->
           each user in users
             myTable.delete user.id
-
-    test "createX2 then scan" ->
-      Promise.all []
-        myTable.create data: name: :Alice email: :alice@gmail.com
-        myTable.create data: name: :Bill  email: :bill@gmail.com
-      .then -> myTable.getAll()
-      .then (users)->
-        assert.eq 2 users.length
-        assert.eq
-          :Alice :Bill
-          array user from users with user.name
-          .sort()
 
     test "multiple pages" ->
       Promise.all []
