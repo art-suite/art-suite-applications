@@ -3,38 +3,40 @@ import &StandardImport
 myTable = MyTable = null
 setupPromise = null
 setupWithMyTable = ->
-  setupPromise ||= Promise.then ->
-    Neptune.Art.Ery.PipelineRegistry._reset()
-    {myTable} = class MyTable extends DynamoDbPipeline
-      @addDatabaseFilters
-        name:   "required string"
-        email:  "required email"
-        rank:               :number
-        attributes:         :array
+  setupPromise ||=
+    deleteTestTables()
+    .then ->
+      Neptune.Art.Ery.PipelineRegistry._reset()
+      {myTable} = class MyTable extends DynamoDbPipeline
+        @addDatabaseFilters
+          name:   "required string"
+          email:  "required email"
+          rank:               :number
+          attributes:         :array
 
-      @handlers
-        throwServiceUnavailable: (request)->
-          {numFailures} = request.props
-          attemptCount = 0
-          @_artEryToDynamoDbRequest
-            request
-            then: (params) =>
-              attemptCount++
-              if numFailures >= attemptCount
-                # 4 means it'll fail all retries on the first call, but
-                # will succeed in the second
-                throw new Error "Service Unavailable"
-              successfulOnAttempt: attemptCount
+        @handlers
+          throwServiceUnavailable: (request)->
+            {numFailures} = request.props
+            attemptCount = 0
+            @_artEryToDynamoDbRequest
+              request
+              then: (params) =>
+                attemptCount++
+                if numFailures >= attemptCount
+                  # 4 means it'll fail all retries on the first call, but
+                  # will succeed in the second
+                  throw new Error "Service Unavailable"
+                successfulOnAttempt: attemptCount
 
-    {myCompoundKeyTable} = class MyCompoundKeyTable extends DynamoDbPipeline
-      @keyFields "userId/postId"
-      @addDatabaseFilters
-        user:   "link"
-        post:   "link"
+      {myCompoundKeyTable} = class MyCompoundKeyTable extends DynamoDbPipeline
+        @keyFields "userId/postId"
+        @addDatabaseFilters
+          user:   "link"
+          post:   "link"
 
-    Promise.all []
-      myCompoundKeyTable._vivifyTable()
-      myTable._vivifyTable()
+      Promise.all []
+        myCompoundKeyTable._vivifyTable()
+        myTable._vivifyTable()
 
 suite:
 
@@ -222,8 +224,7 @@ suite:
 
   "compound primary key": ->
     myManyToManyTable = null
-    setup ->
-      Neptune.Art.Ery.PipelineRegistry._reset()
+    chainedTest ->
       {myManyToManyTable} = class MyManyToManyTable extends DynamoDbPipeline
         @primaryKey "userId/postId"
         @addDatabaseFilters
@@ -231,9 +232,9 @@ suite:
           post: "required link"
           rank: :number
 
-      myManyToManyTable.createTable()
+      myManyToManyTable._vivifyTable()
 
-    test "create, get and update", ->
+    .thenTest "create, get and update", ->
 
       myManyToManyTable.create
         data:
@@ -249,7 +250,7 @@ suite:
         .then         -> myManyToManyTable.get key: data
         .then ({rank}) -> assert.eq rank, 456
 
-    test "create fails with missing required field", ->
+    .thenTest "create fails with missing required field", ->
 
       assert.rejects myManyToManyTable.create
         data:

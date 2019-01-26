@@ -3,20 +3,8 @@ import &StandardImport, &ArtAws
 myAppMessage = MyAppMessage = null
 setupPromise = null
 
-deleteTables = (tableNames) ->
-  dynamoDb = new DynamoDb
-  .listTables()
-  .then ({TableNames}) ->
-    Promise.all array table in TableNames
-
-      if /art-ery-aws-test/.test table
-        log.warn deleteTable: table
-        dynamoDb.deleteTable TableName: table
-      # else
-      #   log deleteTable: skip: table
-
 setupWithMyTable = ->
-  deleteTables [] :myAppMessage
+  deleteTestTables()
   .then ->
     Neptune.Art.Ery.PipelineRegistry._reset()
     {myAppMessage} = class MyAppMessage extends DynamoDbPipeline

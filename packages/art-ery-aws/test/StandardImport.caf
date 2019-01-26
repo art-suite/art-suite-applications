@@ -1,3 +1,4 @@
+import &ArtStandardLib
 &ArtStandardLib.merge
   &ArtStandardLib
   &ArtTestbench
@@ -5,3 +6,13 @@
   &ArtEry
   &ArtEry.Filters
   &source
+  deleteTestTables: ->
+    dynamoDb = new &ArtAws.DynamoDb
+    .listTables()
+    .then ({TableNames}) ->
+      Promise.all array table in TableNames
+
+        if /art-ery-aws-test/.test table
+          log.warn deleteTable: table
+          dynamoDb.deleteTable TableName: table
+

@@ -2,7 +2,7 @@ import &StandardImport
 
 sharedAfterEventTests = (setupUserWith) ->
 
-  setup ->
+  chainedTest -> deleteTestTables().then ->
     AfterEventsFilter._reset()
     Neptune.Art.Ery.PipelineRegistry._reset()
 
@@ -37,19 +37,20 @@ sharedAfterEventTests = (setupUserWith) ->
         text:       "trimmedstring"
         createdAt:  "timestamp"
 
-    pipelines.user.createTable()
-    pipelines.post.createTable()
+    Promise.all []
+      pipelines.user._vivifyTable()
+      pipelines.post._vivifyTable()
+    .then ->
+      # User and AfterEventsFilter properly setup
+      assert.eq AfterEventsFilter.handlers.post.create.length, 1
+      assert.eq AfterEventsFilter.handlers.post.create[0], User
 
-    # User and AfterEventsFilter properly setup
-    assert.eq AfterEventsFilter.handlers.post.create.length, 1
-    assert.eq AfterEventsFilter.handlers.post.create[0], User
 
-
-  test "User and AfterEventsFilter properly setup", ->
+  .thenTest "User and AfterEventsFilter properly setup", ->
     # tests are in setup, since we want to run them EACH TIME - the second time can fail
     # LEAVE THIS 'empty' TEST HERE - so we can JUST run the setup-tests
 
-  test "create user and two posts", ->
+  .thenTest "create user and two posts", ->
     userId = post = null
     pipelines.user.create
       data: name: "Bill"
@@ -107,7 +108,7 @@ suite:
         assert.eq User.getUpdatePropsFunctions(), post: create: [postCreateUpdateFunction]
 
     _mergeUpdateProps: ->
-      setup ->
+      suiteSetup ->
         AfterEventsFilter._reset()
         Neptune.Art.Ery.PipelineRegistry._reset()
 
