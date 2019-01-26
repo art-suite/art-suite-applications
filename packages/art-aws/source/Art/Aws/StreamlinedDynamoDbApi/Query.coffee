@@ -48,8 +48,8 @@ module.exports = class Query extends TableApiBaseClass
       # Examples:
       where: myPartitionKey: "abc123"
       where: myPartitionKey: "abc123", mySortKey: gte: "fooBar"
-      where: myPartitionKey: "abc123", mySortKey: gte: "fooBar", descending: true
-      where: myPartitionKey: "abc123", mySortKey: between: ["fooBar", "zooBar"]
+      where: myPartitionKey: "abc123", mySortKey: {gte: "fooBar"}, descending: true
+      where: myPartitionKey: "abc123", mySortKey: between: :fooBar :zooBar
 
     startKey:
       # NOTE: this replaces exclusiveStartKey

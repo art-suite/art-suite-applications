@@ -10,6 +10,7 @@ Foundation = require 'art-foundation'
   inspect
   upperCamelCase
   compact
+  formattedInspect
 } = Foundation
 
 {apiConstantsMap} = require './Common'
@@ -152,6 +153,10 @@ module.exports = class TableApiBaseClass
 
   _translateConditionExpressionField: (attributeAlias, test, uniqueId) ->
     valueAlias = ":val#{uniqueId}"
+    if between = test?.between
+      throw new Error "between test must have exactly two values: #{formattedInspect {between}}" unless between.length == 2
+      test = gte: between[0], lte: between[1]
+
     if test and (gte = test.gte) and (lte = test.lte)
       @_addExpressionAttributeValue (gteAlias = valueAlias + "Gte"), gte
       @_addExpressionAttributeValue (lteAlias = valueAlias + "Lte"), lte
