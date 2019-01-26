@@ -6,3 +6,4 @@ module.exports
 .addModules
   Basics:              require './Basics'             
   CrossPipelineEvents: require './CrossPipelineEvents'
+  Indexes:             require './Indexes'            

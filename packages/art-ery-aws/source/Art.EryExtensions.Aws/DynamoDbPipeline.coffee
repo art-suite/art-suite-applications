@@ -303,6 +303,42 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
   #########################
   # PRIVATE
   #########################
+  ###
+  IN:
+    indexes: <Object> # a map:
+      myIndexName: indexKeyOrProps
+
+  indexKeyOrProps:
+    <String> indexKey string
+    <Object>
+      key: <String> indexKey string
+      ... other props passed to DynamoDb for index creation; ignored here
+
+  OUT: params for Art.Ery.Pipeline's @query method
+    Example:
+      myQueryName:
+        query: generatedQueryHandler = (request) ->
+      ...
+
+  EFFECT - after passed to @query:
+    @handlers
+      myQueryName:      generatedQueryHandler
+      myQueryNameDesc:  generatedQueryHandlerDesc
+
+  generatedQueryHandler Handler API:
+    IN:
+      REQUIRED: key: hashKeyValue <string>
+      OPTIONAL:
+        props: where: [sortKey]: # with exactly one of the following:
+          eq:           sortValue
+          lt:           sortValue
+          lte:          sortValue
+          gt:           sortValue
+          gte:          sortValue
+          between:      [sortValueA, sortValueB]  # returns values >= sortValueA and <= sortValueB
+          beginsWith:   string-prefix
+
+  ###
   @_getAutoDefinedQueries: (indexes) ->
     return {} unless indexes
     queries = {}
@@ -314,16 +350,33 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
         if isString indexKey
           [hashKey, sortKey] = indexKey.split "/"
 
+          doDynamoQuery = (request, descending) ->
+            params =
+              index: queryModelName
+              where: "#{hashKey}": request.key
+            params.descending = true if descending
+
+            if sortKeyWhere = request.props.where?[sortKey]
+              if isPlainObject sortKeyWhere
+                {eq, lt, lte, gt, gte, between, beginsWith} = sortKeyWhere
+                params.where[sortKey] = merge {eq, lt, lte, gt, gte, between, beginsWith}
+              else
+                params.where[sortKey] = eq: sortKeyWhere
+
+            if select = request.props.select
+              if isArray select
+                select = compactFlatten(select).join ' '
+              unless isString select
+                return request.clientFailure "select must be a string or array of strings"
+
+              params.select = select
+
+            request.pipeline.queryDynamoDbWithRequest request, params
+            .then ({items}) -> items
+
           queries[queryModelName] =
-            query: (request) ->
-
-              request.pipeline.queryDynamoDbWithRequest request,
-                index: queryModelName
-                where: "#{hashKey}": request.key
-              .then ({items}) -> items
-
-            dataToKeyString: (data) ->
-              data[hashKey]
+            query:            (request) -> doDynamoQuery request
+            dataToKeyString:  (data)    -> data[hashKey]
 
             localSort: (queryData) -> withSort queryData, (a, b) ->
               if 0 == ret = compare a[sortKey], b[sortKey]
@@ -332,15 +385,8 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
                 ret
 
           queries[queryModelName+"Desc"] =
-            query: (request) ->
-              request.pipeline.queryDynamoDbWithRequest request,
-                index: queryModelName
-                where: "#{hashKey}": request.key
-                descending: true
-              .then ({items}) -> items
-
-            dataToKeyString: (data) ->
-              data[hashKey]
+            query:            (request) -> doDynamoQuery request, true
+            dataToKeyString:  (data)    -> data[hashKey]
 
             localSort: (queryData) -> withSort queryData, (b, a) ->
               if 0 == ret = compare a[sortKey], b[sortKey]
