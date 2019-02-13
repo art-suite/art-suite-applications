@@ -10,7 +10,7 @@ Namespace = require './namespace'
   inspect, bound, floatEq, log, isNumber, isArray, isString, isFunction, stringToNumberArray, nearInfinity
   inspectedObjectLiteral
 } = require 'art-standard-lib'
-{abs, sqrt, atan, PI, floor, ceil, round, min, max} = Math
+{abs, sqrt, atan, PI, floor, ceil, round, min, max, cos, sin} = Math
 
 ###
 point() general point constructor
@@ -48,6 +48,18 @@ OUT:
 module.exports = class Point extends AtomicBase
   @defineAtomicClass fieldNames: "x y"
   @isPoint: isPoint = (v) -> v?.constructor == Point
+
+  _initFromObject: (obj) ->
+    @x = @y = 0 # ensure consistent object construction
+    if (angle = obj.angle)?
+      magnitude = obj.magnitude ? 1
+      @x = cos(angle) * magnitude
+      @y = sin(angle) * magnitude
+
+    else
+      {x, y} = obj
+      @x = x if x?
+      @y = y if y?
 
   pointWithAspectRatioAndArea = ({aspectRatio, area = 1, fitInto, zoomInto}) ->
     if fitInto
