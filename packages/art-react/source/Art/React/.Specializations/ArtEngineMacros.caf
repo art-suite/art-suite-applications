@@ -36,19 +36,24 @@ global.artEngineMacros = merge
     align: v
 
   {}
-    row:    childrenLayout: :row
-    column: childrenLayout: :column
-    flow:   childrenLayout: :flow
-    bold:   fontWeight: :bold
+    row:        childrenLayout: :row
+    column:     childrenLayout: :column
+    flow:       childrenLayout: :flow
+    bold:       fontWeight:     :bold
+    clip:       clip:           true
+    cacheDraw:  cacheDraw:      true
+
+    scaleToFit:   scale: scaleToFit = (ps, cs) -> ps.minRatio cs
+    scaleToFill:  scale: scaleToFill = (ps, cs) -> ps.maxRatio cs
 
     fitParent =
-      scale:    (ps, cs) -> ps.minRatio cs
+      scale:    scaleToFit
       location: :centerCenter
       axis:     :centerCenter
 
 
     fillParent =
-      scale: (ps, cs) -> ps.maxRatio cs
+      scale:    scaleToFill
       location: :centerCenter
       axis:     :centerCenter
 
