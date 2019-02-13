@@ -41,6 +41,7 @@ class CanvasPath extends BaseClass
       maxX = minX = x
       maxY = minY = y
 
+      p = null # caffeine-script-bug-hack, p isn't currenlty let-correctly in the while-test
       while p = @nextPoint
         {x, y} = p
         maxX = max maxX, x
@@ -82,6 +83,7 @@ class CanvasPath extends BaseClass
       subX = drawArea.x
       writeYScaler = maxFixedPointValue / drawArea.h
       subY = drawArea.y
+      p = null # caffeine-script-bug-hack, p isn't currenlty let-correctly in the while-test
       while p = @nextPoint
         {x, y} = p
         points[writeIndex++] = wx = (x - subX) * writeXScaler + .5 | 0
