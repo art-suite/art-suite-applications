@@ -852,7 +852,8 @@ defineModule module, -> class Component extends PropFieldsMixin StateFieldsMixin
     try
       @preprocessState state
     catch error
-      log preprocessState: {Component: @, error}
+      log ArtReact_preprocessState: {Component: @, error}
+      console.log error
       state
 
   _componentWillMount: ->
