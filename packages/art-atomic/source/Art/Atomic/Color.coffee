@@ -9,6 +9,7 @@ AtomicBase = require './Base'
   hex256GreyColorRegExp
   rgbColorRegExp
   rgbaColorRegExp
+  colorRegExp
   float32Eq0
   object
   isNumber
@@ -25,6 +26,9 @@ parseRGBColorComponent = (str) ->
 module.exports = class Color extends AtomicBase
   @defineAtomicClass fieldNames: "r g b a", constructorFunctionName: "rgbColor"
   @isColor: isColor = (c) -> !!(c?.constructor == Color)
+  @isColorOrColorString: (c) ->
+    isColor(c) ||
+    (isString(c) && colorRegExp.test c)
 
   @colorNames:   colorNames = [
     'AliceBlue', 'AntiqueWhite', 'Aqua', 'Aquamarine', 'Azure',

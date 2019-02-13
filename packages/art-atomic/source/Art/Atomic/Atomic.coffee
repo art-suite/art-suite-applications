@@ -7,7 +7,7 @@ Perimeter  = require './Perimeter'
 {compactFlatten} = require 'art-standard-lib'
 
 module.exports = [
-  compactFlatten [Color,      "isColor",      "rgbColor",   "newColor", "color", "hslColor", "rgb256Color", "colorNames", "colorNamesMap", "hsl2Rgb"]
+  compactFlatten [Color,      "isColor",      "rgbColor",   "newColor", "color", "hslColor", "rgb256Color", "colorNames", "colorNamesMap", "hsl2Rgb", "isColorOrColorString"]
   compactFlatten [Rectangle,  "isRect",       "rect",       "nothing", "everything"]
   compactFlatten [Matrix,     "isMatrix",     "matrix",     "identityMatrix"]
   compactFlatten [Perimeter,  "isPerimeter",  "perimeter",  "perimeter0"]
