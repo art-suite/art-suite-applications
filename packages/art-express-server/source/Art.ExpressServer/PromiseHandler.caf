@@ -1,7 +1,7 @@
-import &ArtStandardLib, &ArtCommunicationStatus
+import &ArtStandardLib, &ArtCommunicationStatus, &ArtClassSystem
 querystring = &querystring
 
-class PromiseHandler extends &LoggingMixin &ArtClassSystem.BaseClass
+class PromiseHandler extends &LoggingMixin BaseClass
 
   @getMiddleware: (options) ->
     new @ options
