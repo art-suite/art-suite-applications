@@ -2,99 +2,92 @@ import &ArtSuite, &ArtEngine.Events.GestureRecognizer
 
 class HorizontalThingy extends Component
   @propFields
-    yPos: 0
+    yPos:   0
 
   @stateFields
-    xPos: 0
+    xPos:   0
     moving: false
 
   getInitialState: ->
     handlers:
       createGestureRecognizer
+        flick: (e) -> log HorizontalThingy_flick: e.props
         horizontal:
-          begin:  (e) -> @moving = true
-          move:   (e) -> @xPos = e.totalParentDelta.x
-          finally:(e) -> @xPos = 0; @moving = false
+          begin:    (e) -> @moving = true
+          move:     (e) -> @xPos = e.totalParentDelta.x
+          finally:  (e) -> @xPos = 0; @moving = false
 
   render: ->
     Element
+      :centerCenter
       location: ps: .5, x: @xPos
-      axis: .5
       size: 150
-      animators: @xPos == 0 && location: true
+      animators:
+        :location if @xPos == 0
+        :draw
       on: @state.handlers
-      RectangleElement
-        animators: color: true
+      draw:
         radius: 20
-        color: if @moving then :white else #ff8400
+        color:  if @moving then :white else #ff8400
         shadow: blur: 20
 
-      RectangleElement
-        radius: 20
-        clip: true
+      Element
+        clip:   true
         TextElement
           location: ps: .5, x: -@xPos, y: -@yPos
-          animators: @xPos == 0 && @yPos == 0 && location: true
-          axis: .5
-          text: :🙂
-          fontSize: 64
-          size: cs: 1
+          animators:  @xPos == 0 && @yPos == 0 && location: true
+          axis:       .5
+          text:       :🙂
+          fontSize:   64
+          size: cs:   1
 
 class VerticalThingy extends Component
   @stateFields
-    yPos: 0
+    yPos:   0
     moving: false
 
   getInitialState: ->
     handlers:
       createGestureRecognizer
+        flick: (e) -> log VerticalThingy_flick: e.props
         vertical:
-          begin:  (e) -> @moving = true
-          move:   (e) -> @yPos = e.totalParentDelta.y
-          finally:(e) -> @yPos = 0; @moving = false
+          begin:    (e) -> @moving = true
+          move:     (e) -> @yPos = e.totalParentDelta.y
+          finally:  (e) -> @yPos = 0; @moving = false
 
   render: ->
     Element
-      cursor: :move
+      :moveCursor
+      :centerCenter
       location: ps: .5, y: @yPos
-      axis: .5
-      size: 200
-      animators: @yPos == 0 && location: true
+      size:     200
+      animators:
+        :location if @yPos == 0
+        :draw
+
       on: @state.handlers
-      RectangleElement
+      draw:
         radius: 20
-        animators: color: true
-        color: if @moving then #fff else #ffd400
+        color:  if @moving then #f else #ffd400
         shadow: blur: 20
 
       TextElement
-        location: ps: .5
-        axis: .5
-        text: :😉
+        :centerCenter
+        :childrenSize
+        text:     :😉
         fontSize: 64
-        size: cs: 1
-      HorizontalThingy {@yPos}
 
-class MyComponent extends Component
+      HorizontalThingy {} @yPos
 
-  @getter
-    text: ->
-      unless @pointerIsDown
-        "" Love
-      else
-        "" and War
+class GesturesMain extends Component
 
   render: ->
     Element
-      on: @buttonHandlers
-
-      RectangleElement
-        color:      #777777
+      draw: #7
 
       TextElement
-        location: ps: .5
-        axis: .5
-        text: :😍
+        :centerCenter
+        text:     :😍
         fontSize: 64
         size: cs: 1
 
