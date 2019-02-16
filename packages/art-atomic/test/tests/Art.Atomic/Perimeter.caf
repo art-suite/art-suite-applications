@@ -1,8 +1,6 @@
-{defineModule, log, inspect} = require 'art-standard-lib'
-{point, rect, perimeter, Perimeter} = Neptune.Art.Atomic
+import &StandardImport
 
-
-defineModule module, suite:
+suite:
   new: ->
     test "0", ->
       p = perimeter 0
@@ -102,3 +100,14 @@ defineModule module, suite:
       c = perimeter l: 1.5, r: 2.5, t: 3.5, b: 4.5
       a.eq b
       assert.eq c, a.interpolate b, .5
+
+  eq: ->
+    test "eq 0 0 0 0", ->
+      assert.true
+        perimeter 0 0 0 0
+        .eq 0 0 0 0
+
+    test "eq 1 2 3 4", ->
+      assert.true
+        perimeter 1 2 3 4
+        .eq 1 2 3 4

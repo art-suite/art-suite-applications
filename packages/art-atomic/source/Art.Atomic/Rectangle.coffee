@@ -278,59 +278,77 @@ module.exports = class Rectangle extends AtomicBase
     into
 
 
-  _saveInto = (into, x, y, w, h) ->
-
+  _intoOrWith: (into, x, y, w, h) ->
     if into
       into._setAll x, y, w, h
-    else
-      new Rectangle x, y, w, h
 
-  _returnOrSaveInto = (returnThisUnlessInto, into) ->
-    if into
-      {x, y, w, h} = returnThisUnlessInto
-    else
-      return returnThisUnlessInto
-
-    _saveInto into, x, y, w, h
-
-  @intersect: intersect = (fromX, fromY, fromW, fromH, withRect, into) ->
-    area = fromW * fromH
-    intoArea = withRect?.getArea() ? Infinity
-
-
-    if intoArea <= 0 || area == Infinity
-      _returnOrSaveInto withRect, into
-
-    else
-      if area <= 0 || intoArea == Infinity
-        _saveInto into, fromX, fromY, fromW, fromH
-
-      else
-        {x, y, w, h} = withRect
-        _saveInto(
-          into
-          _x = max x, fromX
-          _y = max y, fromY
-          max 0, min(x + w, fromX + fromW) - _x
-          max 0, min(y + h, fromY + fromH) - _y
-        )
-
-  intersectInto: (into) -> intersect @x, @y, @w, @h, into, into
-  intersect: (withRect, into) -> intersect @x, @y, @w, @h, withRect, into
-
-  intersection: (b) ->
-    return @ unless b?
-    return @ if b.getArea() == Infinity || b.contains @
-    return b if @getArea() == Infinity || @.contains b
-    x = max @x, b.left
-    y = max @y, b.top
-    w = min(@getRight(),  b.getRight() ) - x
-    h = min(@getBottom(), b.getBottom()) - y
-
-    if w <= 0 || h <= 0
-      Rectangle.nothing
     else
       @with x, y, w, h
+
+  _returnOrSaveInto: (into, returnThisUnlessInto) ->
+    if into
+      {x, y, w, h} = returnThisUnlessInto
+      @_intoOrWith into, x, y, w, h
+
+    else
+      returnThisUnlessInto
+
+
+  intersectInto: (into)        -> log.warn("DEPRICATED: use: intersection"); @intersection into, into
+  intersect:     (rectB, into) -> log.warn("DEPRICATED: use: intersection"); @intersection rectB, into
+
+  ### intersection
+    IN:
+      rectB: anything that has these properties (or getters):
+        left, right, top, bottom <Number>
+      into: [optional]
+        a Rectangle instance
+
+    NOTE: All of these are OK! and work:
+      this  == into
+      rectB == into
+      this  == rectB == into (though this is just a NOOP)
+
+    EFFECT:
+      if provided, into will be mutated to contain
+      the result.
+
+    OUT:
+      if into?
+        this will be the return value
+        AND it will be MUTATED to contain the intersection x, y, w, h fields
+      else
+        if the intersection result didn't change anything,
+          this
+        else
+          a new rectangle with the intersection result
+  ###
+  intersection:  (rectB, into) ->
+    fromX = @x
+    fromY = @y
+    fromW = @w
+    fromH = @h
+
+    areaA = fromW * fromH
+    areaB = rectB?.getArea() ? Infinity
+
+    if areaB <= 0 || areaA == Infinity
+      @_returnOrSaveInto into, rectB
+
+    else
+      if areaA <= 0 || areaB == Infinity
+        @_intoOrWith into, fromX, fromY, fromW, fromH
+
+      else
+        _x = max rectB.left, fromX
+        _y = max rectB.top,  fromY
+        _w = min(rectB.right,  fromX + fromW) - _x
+        _h = min(rectB.bottom, fromY + fromH) - _y
+
+        if _h <= 0 || _w <= 0
+          @_intoOrWith into, 0, 0, 0, 0
+        else
+          @_intoOrWith into, _x, _y, _w, _h
 
   grow: (a, b) ->
     if isPoint a

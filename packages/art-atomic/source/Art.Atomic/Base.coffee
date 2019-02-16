@@ -16,6 +16,55 @@
 module.exports = class Base extends BaseObject
 
   ###
+  Base generates these standard methods:
+
+    validate()
+    clone()
+    toArray()
+    toObject()
+
+    _initFromObject(o)
+      IN: o: object mapping fieldNames to values
+
+    interpolate(b, p, into)
+      IN:
+        b: <thisType>
+        p: number between 0 and 1
+        into: [optional] <thisType> MUTATED and returned, if provided
+
+    builders & setters:
+      _setAll(fieldList...)
+        OUT: this
+
+      _into(into, fieldList...)
+        OUT: this
+
+      with(fieldList...)
+        OUT: this, if no changed, else new instance with fieldList values
+
+      # defined for each individual field:
+      @prototype["with#{FieldName}"] = (number) ->
+
+    comparisons:
+      methods:
+        eq
+        lt
+        gt
+        lte
+        gte
+        add
+        sub
+        mul
+        div
+
+      IN: (instance <thisType>) ->
+      OR: (fieldList...) ->
+
+      OUT: T/F
+
+  ###
+
+  ###
   TODO
 
   All Atomics follow the same pattern:
@@ -162,17 +211,11 @@ module.exports = class Base extends BaseObject
 
   reservedWords = with: true
   @_definePrototypeMethodViaEval: (name, paramsList, body) ->
-    # try
-      # console.log "#{@getName()}##{name}(#{paramsList}) defined:\n#{body}"
-      nameInEval = if reservedWords[name] then "" else name
-      @::[name] = eval body = """
-        (function #{nameInEval}(#{paramsList}) {#{body}})
-      """
-      # log {klass: @getName(), name, body}
-    # catch e
-    #   console.log "error defining function.\nname: #{name}\nparamsList: #{paramsList}\nbody:"
-    #   console.log body
-    #   console.error e
+    # console.log "#{@getName()}##{name}(#{paramsList}) defined"
+    nameInEval = if reservedWords[name] then "" else name
+    @::[name] = eval body = """
+      (function #{nameInEval}(#{paramsList}) {#{body}})
+    """
 
   ###
   define: eq, lt, gt, lte, gt
@@ -194,8 +237,7 @@ module.exports = class Base extends BaseObject
     @_definePrototypeMethodViaEval "eq", paramsList, """
       if (this === a) return true;
       if (this.isNumber(a)) {
-        return
-        #{("this.floatEq(this.#{f}, #{params[i]})" for f, i in fieldNames).join " &&\n  "};
+        return #{("this.floatEq(this.#{f}, #{params[i]})" for f, i in fieldNames).join " &&\n  "};
       } else {
         return a &&
         #{("this.floatEq(this.#{f}, a.#{f})" for f in fieldNames).join " &&\n  "};
@@ -211,8 +253,7 @@ module.exports = class Base extends BaseObject
     for functionName, operator of comparisonOperators
       @_definePrototypeMethodViaEval functionName, paramsList, """
       if (this.isNumber(a)) {
-        return
-        #{("this.#{f} #{operator} #{params[i]}" for f, i in fieldNames).join " &&\n  "};
+        return #{("this.#{f} #{operator} #{params[i]}" for f, i in fieldNames).join " &&\n  "};
       } else {
         return a &&
         #{("this.#{f} #{operator} a.#{f}" for f in fieldNames).join " &&\n  "};

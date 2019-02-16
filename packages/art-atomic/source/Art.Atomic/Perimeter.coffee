@@ -12,6 +12,7 @@ Point      = require './Point'
   floatEq
   isPlainObject
   isString
+  min
 } = Foundation
 {point} = Point
 {rect} = require './Rectangle'
@@ -99,6 +100,17 @@ module.exports = class Perimeter extends AtomicBase
       size
     else
       point size.x + w, size.y + h
+
+  minWH: (maxW, maxH) ->
+    out = @with(
+      min @left,    maxW
+      min @right,   maxW
+      min @top,     maxH
+      min @bottom,  maxH
+    )
+    # if out != @ && out.eq @
+    #   log "WAT#{@eq out.left, out.right, out.top, out.bottom}"
+    out
 
   ###
   Named Instances

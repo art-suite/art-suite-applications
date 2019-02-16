@@ -335,7 +335,17 @@ module.exports = class Point extends AtomicBase
   minRatio: (b) -> min @x / b.x, @y / b.y
   maxRatio: (b) -> max @x / b.x, @y / b.y
 
-  intersect: (withRect, into) -> Namespace.Rectangle.intersect 0, 0, @x, @y, withRect, into
+  intersect: (withRectOrPoint, into) ->
+    log.warn "DEPRICATED: use: intersection"
+    @intersection withRectOrPoint, into
+
+  intersection: (withRectOrPoint, into) ->
+    if withRectOrPoint.constructor == Namespace.Rectangle
+      withRectOrPoint.intersection @, into
+    else
+      into ?= new Namespace.Rectangle
+      into._setAll 0, 0, @w, @h
+      into.intersection withRectOrPoint, into
 
   ##################
   # Named Instances
