@@ -387,8 +387,14 @@ suite:
 
       assert.neq point1, p
 
-    # test "point -1" ->
-    #   assert.selectedEq
-    #     x: -1
-    #     y: -1
-    #     point -1
+    test "point -1" ->
+      assert.selectedEq
+        x: -1
+        y: -1
+        point -1
+
+    test "point 0, -1" ->
+      assert.selectedEq
+        x: 0
+        y: -1
+        point 0, -1
