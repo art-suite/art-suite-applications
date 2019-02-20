@@ -371,3 +371,24 @@ suite:
         point 2, 6
         .maxRatio point 1, 2
         3
+
+  regressions: ->
+    test "point1.neq point -1" ->
+      p = new Point -1, -1
+      assert.false
+        floatEq 1, -1
+        :floatEq
+
+      log eq: p.eq.toString()
+      assert.selectedEq
+        x: -1
+        y: -1
+        p
+
+      assert.neq point1, p
+
+    # test "point -1" ->
+    #   assert.selectedEq
+    #     x: -1
+    #     y: -1
+    #     point -1
