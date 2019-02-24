@@ -46,6 +46,10 @@ global.artEngineMacros = merge
     scaleToFit:   scale: scaleToFit = (ps, cs) -> ps.minRatio cs
     scaleToFill:  scale: scaleToFill = (ps, cs) -> ps.maxRatio cs
 
+    # ALIAS - is it better w/o the prepositions?
+    scaleFit:     scale: scaleToFit
+    scaleFill:    scale: scaleToFill
+
     fitParent =
       scale:    scaleToFit
       location: :centerCenter
