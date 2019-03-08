@@ -13,6 +13,6 @@ module.exports = [
   compactFlatten [Perimeter,  "isPerimeter",  "perimeter",  "perimeter0"]
   compactFlatten [Point,      "isPoint",      "point",      "pointWithAspectRatioAndArea", Object.keys Point.namedPoints]
 
-  package: _package = require "../../../package.json"
+  package: _package = require "../../package.json"
   version: _package.version
 ]
