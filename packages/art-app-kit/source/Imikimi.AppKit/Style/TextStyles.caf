@@ -1,0 +1,48 @@
+import &StandardImport
+Math extract pow
+
+##
+  Reference:
+
+  https://developer.apple.com/library/ios/documentation/UserExperience/Conceptual/MobileHIG/index.html
+  http://iosfonts.com/
+  http://ivomynttinen.com/blog/the-ios-7-design-cheat-sheet/
+
+class TextStyles extends HotStyleProps
+  @smallFontSize = 14
+  @fontSizeRatio = 1.25
+  @fontSizes:
+    bitty:    @smallFontSize * pow @fontSizeRatio, -2
+    tiny:     @smallFontSize * pow @fontSizeRatio, -1
+    small:    @smallFontSize
+    medium:   @smallFontSize * pow @fontSizeRatio, 1
+    large:    @smallFontSize * pow @fontSizeRatio, 2
+    xLarge:   @smallFontSize * pow @fontSizeRatio, 3
+    xxLarge:  @smallFontSize * pow @fontSizeRatio, 4
+    xxxLarge: @smallFontSize * pow @fontSizeRatio, 5
+    x9Large:  @smallFontSize * pow @fontSizeRatio, 9
+
+  buildFamily = (str) ->
+    compactFlattenAll
+      w str
+      :sans-serif
+    .join ','
+
+  @fonts:
+    monospace:                                            fontFamily: buildFamily "" Monoco monospace
+    regular:                                              fontFamily: buildFamily :AvenirNext-Regular
+    light:                                                fontFamily: buildFamily :AvenirNext-UltraLight
+    italic:     fontStyle: :italic                        fontFamily: buildFamily :AvenirNext-Italic
+    bold:                             fontWeight: :bold   fontFamily: buildFamily :AvenirNext-DemiBold
+    boldItalic: fontStyle: :italic    fontWeight: :bold   fontFamily: buildFamily :AvenirNext-DemiBoldItalic
+    extraBold:                        fontWeight: :bold   fontFamily: buildFamily :AvenirNext-Bold
+
+  each fontSize, fontSizeName in @fontSizes
+    commonPropsForSize = {}
+      fontSize
+      color:  &TextPalette.black.primary
+      size:   :parentWidthChildrenHeight
+
+    each font, fontFamilyName in @fonts
+      name = lowerCamelCase "" #{fontSizeName} #{fontFamilyName if fontFamilyName != :regular} text
+      @[name] = merge font, commonPropsForSize

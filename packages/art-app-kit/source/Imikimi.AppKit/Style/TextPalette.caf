@@ -1,0 +1,22 @@
+import &StandardImport
+
+class TextPalette extends HotStyleProps
+  @black:
+    primary:          rgbColor #000000d2 # was #000d
+    softPrimary:      rgbColor #000a
+    secondary:        rgbColor #0008
+    tertiary:         rgbColor #0005
+    barely:           rgbColor #0001
+    disabled:         rgbColor #0004
+    opaquePrimary:    rgbColor #2
+    opaqueSecondary:  rgbColor #7
+
+  @white:
+    primary:          rgbColor #fffd
+    softPrimary:      rgbColor #fffa
+    secondary:        rgbColor #fff8
+    tertiary:         rgbColor #fff5
+    barely:           rgbColor #fff1
+    disabled:         rgbColor #fff4
+    opaquePrimary:    rgbColor #e
+    opaqueSecondary:  rgbColor #8

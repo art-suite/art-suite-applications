@@ -1,0 +1,19 @@
+import &StandardImport
+
+class AppKitViewState extends ApplicationState
+
+  @stateFields
+    gridSize: 15
+    viewSize: point1
+    phoneWidth: 320
+
+  update: (viewSize) ->
+    phoneWidth = min 420, viewSize.w
+    gridSize = phoneWidth / 27
+    @setState {}
+      viewSize
+      phoneWidth
+      gridSize
+
+  # Use as "on: {} @models.viewState.ready" handler
+  ready: ({target:{currentSize}}) -> @update currentSize
