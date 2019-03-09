@@ -1,6 +1,6 @@
 {timeout, defineModule, log, merge} = require 'art-standard-lib'
 {point} = require 'art-atomic'
-mobileBrowser = (require 'art-foundation').Browser.isMobileBrowser()
+touchSupported = (require 'art-browser-tools').simpleBrowserInfo.touch
 
 defineModule module, ->
   (superClass) -> class PointerActionsMixin extends superClass
@@ -105,7 +105,7 @@ defineModule module, ->
       @_pointerDownKey = pdk = (@_pointerDownKey ? 0) + 1
       event = event.clone()
 
-      if mobileBrowser
+      if touchSupported
         timeout @touchDragTimeoutMs, =>
           @_drag event if !@dragging && @pointerIsDown && @_pointerDownKey == pdk
 
@@ -121,7 +121,7 @@ defineModule module, ->
 
     dragPointerMoveHandler: (event) =>
       offset = event.parentLocation.sub @pointerDownAt
-      if @dragging || (!mobileBrowser && Math.max(Math.abs(offset.x), Math.abs(offset.y)) > @deadZone)
+      if @dragging || (!touchSupported && Math.max(Math.abs(offset.x), Math.abs(offset.y)) > @deadZone)
         @_drag event
 
     dragPointerUpHandler: (event) ->

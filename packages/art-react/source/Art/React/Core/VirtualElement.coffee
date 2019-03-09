@@ -4,7 +4,7 @@ VirtualNode = require './VirtualNode'
   objectHasKeys
   toInspectedObjects
   log, compactFlatten, globalCount, time, stackTime, BaseObject, shallowClone
-  inspect, keepIfRubyTrue, stackTime, isPlainObject, compactFlatten
+  inspect, keepIfRubyTrue, stackTime, isPlainObject
   isWebWorker
   objectDiff
   Browser
@@ -12,6 +12,8 @@ VirtualNode = require './VirtualNode'
   Promise
   propsEq
   defineModule
+  compactFlattenAll
+  customCompactFlatten
 } = Foundation
 
 defineModule module, class VirtualElement extends VirtualNode
@@ -31,7 +33,7 @@ defineModule module, class VirtualElement extends VirtualNode
     VirtualElement.created++
     @elementClassName = elementClassName
     super props || emptyProps
-    @children = @_validateChildren compactFlatten children || emptyChildren, keepIfRubyTrue
+    @children = @_validateChildren customCompactFlatten children || emptyChildren, keepIfRubyTrue
 
   #################
   # Inspect
@@ -46,10 +48,7 @@ defineModule module, class VirtualElement extends VirtualNode
 
     inspectedObjectsContents: ->
       if @children.length > 0
-        compactFlatten [
-          {@props}
-          toInspectedObjects @children
-        ]
+        compactFlattenAll {@props}, toInspectedObjects @children
       else {@props}
 
   #####################################
