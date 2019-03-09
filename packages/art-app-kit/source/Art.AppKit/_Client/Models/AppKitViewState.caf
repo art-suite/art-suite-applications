@@ -1,4 +1,4 @@
-import &StandardImport
+import &StandardImport, &ArtFoundation.Browser
 
 class AppKitViewState extends ApplicationState
 
@@ -6,6 +6,7 @@ class AppKitViewState extends ApplicationState
     gridSize: 15
     viewSize: point1
     phoneWidth: 320
+    safePadding:  getCssSafeAreaInset()
 
   update: (viewSize) ->
     phoneWidth = min 420, viewSize.w
@@ -14,6 +15,7 @@ class AppKitViewState extends ApplicationState
       viewSize
       phoneWidth
       gridSize
+      safePadding:  getCssSafeAreaInset()
 
   # Use as "on: {} @models.viewState.ready" handler
   ready: ({target:{currentSize}}) -> @update currentSize

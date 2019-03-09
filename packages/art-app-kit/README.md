@@ -1,9 +1,9 @@
-# Imikimi.App.Kit
+# Art.App.Kit
 
 > Initialized by Art.Build.Configurator
 
 ### Install
 
 ```coffeescript
-npm install imikimi-app-kit
+npm install art-app-kit
 ```

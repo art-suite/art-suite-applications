@@ -3,9 +3,9 @@
   "dependencies": {
     "art-build-configurator": "*"
   },
-  "description": "Imikimi.App.Kit",
+  "description": "Art.App.Kit",
   "license": "ISC",
-  "name": "imikimi-app-kit",
+  "name": "art-app-kit",
   "scripts": {
     "build": "webpack --progress",
     "start": "webpack-dev-server --hot --inline --progress",

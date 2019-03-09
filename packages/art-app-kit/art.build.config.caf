@@ -6,7 +6,7 @@ target:
   node: true
 
 npm:
-  description: "" Imikimi.App.Kit
+  description: "" Art.App.Kit
   dependencies: {}
 
 webpack:

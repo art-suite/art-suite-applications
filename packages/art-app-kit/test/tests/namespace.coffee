@@ -2,4 +2,4 @@
 # file: tests/namespace.coffee
 
 module.exports = (require 'neptune-namespaces').vivifySubnamespace 'Tests'
-require './Imikimi.App.Kit/namespace'
+require './Art.App.Kit/namespace'

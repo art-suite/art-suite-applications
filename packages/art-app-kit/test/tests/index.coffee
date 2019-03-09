@@ -3,4 +3,4 @@
 
 module.exports = require './namespace'
 module.exports
-require './Imikimi.App.Kit'
+require './Art.App.Kit'

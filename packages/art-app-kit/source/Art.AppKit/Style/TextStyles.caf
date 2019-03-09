@@ -22,14 +22,14 @@ class TextStyles extends HotStyleProps
     xxxLarge: @smallFontSize * pow @fontSizeRatio, 5
     x9Large:  @smallFontSize * pow @fontSizeRatio, 9
 
-  buildFamily = (str) ->
+  buildFamily = (strs...) ->
     compactFlattenAll
-      w str
+      array s in strs with w s
       :sans-serif
     .join ','
 
   @fonts:
-    monospace:                                            fontFamily: buildFamily "" Monoco monospace
+    monospace:                                            fontFamily: buildFamily :Monoco :monospace
     regular:                                              fontFamily: buildFamily :AvenirNext-Regular
     light:                                                fontFamily: buildFamily :AvenirNext-UltraLight
     italic:     fontStyle: :italic                        fontFamily: buildFamily :AvenirNext-Italic
