@@ -13,6 +13,7 @@ Metrics = require './Metrics'
   toInspectedObjects
 } = require 'art-standard-lib'
 {BaseObject} = require 'art-class-system'
+{simpleBrowserInfo} = require 'art-browser-tools'
 
 
 {toFontCss} = Metrics
@@ -351,5 +352,5 @@ shouldUseSafariLineWidthBugFix = ->
   middle = x * (y / 2 | 0) + (x / 2 | 0)
   bitmap.getImageDataArray("alpha")[middle] == 0
 
-if Foundation.Browser.isSafari()
+if simpleBrowserInfo.browser == "safari"
   useSafariLineWidthFix = shouldUseSafariLineWidthBugFix()
