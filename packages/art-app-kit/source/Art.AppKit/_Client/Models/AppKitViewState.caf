@@ -1,4 +1,6 @@
-import &StandardImport, &ArtFoundation.Browser
+import &StandardImport, &ArtBrowserTools
+
+global extract screen
 
 class AppKitViewState extends ApplicationState
 
@@ -6,16 +8,47 @@ class AppKitViewState extends ApplicationState
     gridSize: 15
     viewSize: point1
     phoneWidth: 320
-    safePadding:  getCssSafeAreaInset()
+    safePadding:        getCssSafeAreaInset()
+    suggestedPadding:   getCssSafeAreaInset()
+    simpleBrowserInfo:  getSimpleBrowserInfo()
 
   update: (viewSize) ->
     phoneWidth = min 420, viewSize.w
     gridSize = phoneWidth / 27
+
+    simpleBrowserInfo = getSimpleBrowserInfo()
+
+    isPhone = isTablet = isDesktop = false
+    switch simpleBrowserInfo.deviceType
+      when :phone   then isPhone = true
+      when :tablet  then isTablet = true
+      when :desktop then isDesktop = true
+
     @setState {}
       viewSize
       phoneWidth
       gridSize
-      safePadding:  getCssSafeAreaInset()
+      isPhone
+      isTablet
+      isDesktop
+      deviceLayoutMode:
+        if isPhone || viewSize.x < 600
+          if getOrientationIsPortrait viewSize
+            :phonePortrait
+          else
+            :phoneLandscape
+        else
+          :full
+
+      simpleBrowserInfo
+      notchInfo:          getNotchInfo()
+      safePadding:        safePadding = getCssSafeAreaInset()
+      suggestedPadding:   suggestedPadding =
+        object v in safePadding
+          max v, gridSize
+      safeToSuggestedPaddingDelta:
+        object v, k in safePadding
+          suggestedPadding[k] - v
 
   # Use as "on: {} @models.viewState.ready" handler
   ready: ({target:{currentSize}}) -> @update currentSize

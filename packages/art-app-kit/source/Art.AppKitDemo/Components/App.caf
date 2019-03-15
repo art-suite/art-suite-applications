@@ -1,0 +1,36 @@
+import &StandardImport
+
+class App extends FluxComponent
+  @subscriptions
+    :appKitViewState.appKitViewState
+
+  render: ->
+    Element
+      draw: hslColor 1/2, .5, 1
+      padding: @appKitViewState.safePadding
+
+      ScrollElement
+        draw:
+          hslColor 1/3, .25, 1
+          padding: @appKitViewState.safeToSuggestedPaddingDelta
+          hslColor 1/6, .1, 1
+
+        padding: @appKitViewState.safeToSuggestedPaddingDelta
+
+        Element
+          :column
+          childrenMargins: @appKitViewState.gridSize
+
+          TextElement
+            TextStyles.mediumText
+            text:
+              """
+                AppKitDemo
+
+                With ?fakeNative in the URL, this will preview padding based on the current useragent - such as iPhoneX notches, iOS status bars, etc.
+
+          TextElement
+            TextStyles.smallMonospaceText
+            padding: @appKitViewState.gridSize
+            text:
+              formattedInspect @appKitViewState.simpleBrowserInfo

@@ -1,0 +1,121 @@
+import &StandardImport
+Paths extract roundedRectanglePath
+
+getEnv() extract previewNotch, fakeNativeApp
+
+class PhonePreview extends FluxComponent
+  @subscriptions
+    :appKitViewState.appKitViewState
+    :appKitPresentationState.statusBarStyle
+
+  renderStatusBarPreview: ->
+    @ extract statusBarStyle
+    if showStatusBar = statusBarStyle != :off
+      statusBarColor = if statusBarStyle == :light then #f else #3
+
+    Element
+      size: h: 20
+      padding: h: 5
+      :row
+      showStatusBar && TextElement
+        TextStyles.tinyBoldText
+        :parentSize
+        :textCenterLeft
+        text: "carrier"
+        color: statusBarColor
+
+      showStatusBar && TextElement
+        TextStyles.tinyBoldText
+        :parentSize
+        :textCenterRight
+        text: "bars wifi battery"
+        color: statusBarColor
+
+  renderNotchPreview: ->
+    @ extract statusBarStyle
+    @appKitViewState.notchInfo extract?
+      notchLocation = 0
+      notchWidth = 0
+      notchHeight = 0
+      antiNotchWidth = 0
+      roundedCornerRadius = 0
+    notchColor = #3
+    if showStatusBar = statusBarStyle != :off
+      statusBarColor = if statusBarStyle == :light then #f else #3
+
+    []
+      if notchLocation == :top
+
+        Element
+          size: h: notchHeight
+          :row
+          TextElement
+            TextStyles.smallBoldText
+            :textBottomCenter
+            size:     w: antiNotchWidth
+            color:    statusBarColor
+            text:     if showStatusBar then :Wi-Fi else ""
+            padding:  left: roundedCornerRadius / 2, bottom: 2
+          Element
+            size:
+              h: notchHeight * 2
+            draw:
+              radius: bottom: 22
+              fill: notchColor
+            axis: .5
+            location: "topCenter"
+
+          TextElement
+            TextStyles.smallBoldText
+            :textBottomCenter
+            size:     w: antiNotchWidth
+            padding:  right: roundedCornerRadius / 2, bottom: 2
+            color:    statusBarColor
+            text:     if showStatusBar then :stat-icons else ""
+      else
+        Element
+          size:
+            h: notchWidth
+            w: notchHeight * 2
+          draw:
+            radius: "#{if notchLocation == :left then :right else :left}": 22
+            fill: notchColor
+          axis: .5
+          location: if notchLocation == :left then :centerLeft else :centerRight
+
+      Element
+        receivePointerEvents: :never
+        draw:
+          shape: (context, area) ->
+            innerNotchRadius = 10
+            antiNotchSize =
+            roundedRectanglePath context, area, roundedCornerRadius
+            roundedRectanglePath context, area
+            switch notchLocation
+              when :top
+                roundedRectanglePath context, rect(antiNotchWidth, innerNotchRadius), topRight: 100
+                roundedRectanglePath context, rect(antiNotchWidth, innerNotchRadius)
+                roundedRectanglePath context, rect(area.x - antiNotchWidth, 0, antiNotchWidth, innerNotchRadius), topLeft: 100
+                roundedRectanglePath context, rect(area.x - antiNotchWidth, 0, antiNotchWidth, innerNotchRadius)
+                handleWidth = 132
+              when :left
+                roundedRectanglePath context, rect(innerNotchRadius, antiNotchWidth), bottomLeft: 100
+                roundedRectanglePath context, rect(innerNotchRadius, antiNotchWidth)
+                roundedRectanglePath context, rect(0, area.y - antiNotchWidth, innerNotchRadius, antiNotchWidth), topLeft: 100
+                roundedRectanglePath context, rect(0, area.y - antiNotchWidth, innerNotchRadius, antiNotchWidth)
+                handleWidth = 202
+
+            handleHeight = 5
+            roundedRectanglePath context, rect((area.x - handleWidth) / 2, area.y - 13, handleWidth, handleHeight), 10
+
+          fill: notchColor
+
+  render: ->
+
+    Element
+      receivePointerEvents: :never
+
+      if @appKitViewState.notchInfo
+        @renderNotchPreview()
+      else if @appKitViewState.safePadding.top == 20
+        @renderStatusBarPreview()

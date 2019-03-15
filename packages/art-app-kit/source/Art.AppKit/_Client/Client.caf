@@ -1,0 +1,26 @@
+import &StandardImport
+&Models
+[]
+  ##
+    options:
+      SEE: ArtSuiteApp.initArtSuiteClient
+      PLUS:
+        App: (reqired) <ReactComponentFactory>
+          This is your root app component. It
+          should NOT have a CanvasElement;
+          that will be provided for you.
+  init: (options) ->
+    unless options extract App
+      throw new Error log.warn "ArtAppKit.init: App required: ArtAppKit.init App: MyComponentFactory"
+
+    unless App is Function && App.class?.prototype && App.class? instanceof Component
+      if App instanceof Component
+        log.warn "ArtAppKit.init: App is a Component instance, not a Component Factory"
+      throw new Error log.warn "ArtAppKit.init: App must be an ArtReact Component Factory"
+
+    &ArtSuiteApp.initArtSuiteClient
+      title:         :Art.AppKitDemo
+      MainComponent: &Components.CanvasComponent
+      MainComponentProps: {} App
+
+  &Components

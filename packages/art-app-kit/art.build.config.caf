@@ -3,7 +3,7 @@ target:
     configures for standard node-targeted library
     NOTE: node-targeted libraries can also be built into broswer-targeted libraries.
       They just can't be used *directly* in the browser
-  node: true
+  node: false
 
 npm:
   description: "" Art.App.Kit
@@ -14,4 +14,4 @@ webpack:
   common: {}
 
   # each target's individual properties
-  targets: index: {}
+  targets: Demo: {}

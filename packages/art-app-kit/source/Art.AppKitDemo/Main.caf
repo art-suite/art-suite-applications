@@ -1,0 +1,3 @@
+&ArtAppKit/Client.init {}
+  title:         :Art.AppKitDemo
+  &Components.App

@@ -1,0 +1,14 @@
+import &StandardImport
+
+class CanvasComponent extends FluxComponent
+  @subscriptions
+    :appKitViewState.simpleBrowserInfo
+
+  render: ->
+    log {} @state
+    # @simpleBrowserInfo extract? fakeNativeApp
+    # log {} fakeNativeApp, &ArtBrowserTools.getNotchProps()
+    CanvasElement
+      on: {} models.appKitViewState.ready
+      @props.App()
+      &PhonePreview() if @simpleBrowserInfo.fakeNativeApp

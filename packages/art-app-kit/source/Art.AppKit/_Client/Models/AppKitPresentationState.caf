@@ -1,0 +1,33 @@
+import &StandardImport
+
+&AppKitViewState
+
+class AppKitPresentationState extends FluxSubscriptionsMixin ApplicationState
+
+  @stateFields
+    ## statusBarStyle
+      Mobile (iOS) status-bar text style:
+
+      Values:
+        :off    # status-bar is 100% off
+        :dark   # text is near-black
+        :light  # text is near-white
+    statusBarStyle: :dark
+
+    ##
+      :bottom
+      :top
+      :right
+      # Not used: :left
+    toolBarLocation: :top
+
+
+  constructor: ->
+    @subscribe
+      modelName:        :appKitViewState
+      key:              :deviceLayoutMode
+      updatesCallback:  ({data:deviceLayoutMode})->
+        @toolBarLocation = switch deviceLayoutMode
+          when :phonePortrait   then :bottom
+          when :phoneLandscape  then :right
+          when :full            then :top

@@ -4,4 +4,5 @@
 module.exports = require './namespace'
 module.exports
 .addModules
-  AppKitViewState: require './AppKitViewState'
+  AppKitPresentationState: require './AppKitPresentationState'
+  AppKitViewState:         require './AppKitViewState'        

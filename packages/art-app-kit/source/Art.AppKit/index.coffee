@@ -3,6 +3,7 @@
 
 module.exports = require './namespace'
 module.exports
+.includeInNamespace require './AppKit'
 .addModules
   StandardImport: require './StandardImport'
 require './Style'
