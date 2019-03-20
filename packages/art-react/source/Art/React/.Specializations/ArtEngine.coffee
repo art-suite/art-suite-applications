@@ -55,19 +55,25 @@ class React.VirtualElementArtEngine extends React.VirtualElement
 IN:
   options:
     MainComponent: the MainComponent-factory to start the app with. (required)
+    MainComponentProps: {}
     prepare: null or promise (optional)
       Init will wait for the prepare-promise to finish before starting the app.
 
 ###
 React.initArtReactApp = (options) ->
-  {MainComponent, prepare} = options
+  {
+    prepare
+    mainComponent, mainComponentProps
+    MainComponent = mainComponent
+    MainComponentProps = mainComponentProps
+  } = options
   throw new Error "MainComponent required" unless MainComponent
 
   options.title ||= MainComponent.getName()
 
   FullScreenApp.init options
   .then -> Promise.resolve prepare
-  .then -> MainComponent.instantiateAsTopComponent()
+  .then -> MainComponent.instantiateAsTopComponent MainComponentProps
   .catch (error) ->
     log.error "Art.React.initArtReactApp failed", error
 
