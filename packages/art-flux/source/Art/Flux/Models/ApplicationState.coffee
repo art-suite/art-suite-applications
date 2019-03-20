@@ -188,10 +188,7 @@ defineModule module, class ApplicationState extends StateFieldsMixin FluxModel
       .then (loadedState) =>
         loadedState = @postProcessLoadedState loadedState
         if loadedState && neq loadedState, @state
-          log "ApplicationState " + formattedInspect loaded:
-            old: @state
-            new: loadedState
-
+          log "ApplicationState #{@class.name} loaded"
           @replaceState loadedState
 
   _updateAllState: ->

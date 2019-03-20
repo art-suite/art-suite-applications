@@ -191,7 +191,7 @@ defineModule module, class FluxModel extends InstanceFunctionBindingMixin BaseOb
   ###
   loadPromise: (key) ->
     if p = @_activeLoadingRequests[key]
-      log "saved 1 reload due to activeLoadingRequests! (model: #{@name}, key: #{key})"
+      # log "saved 1 reload due to activeLoadingRequests! (model: #{@name}, key: #{key})"
       return p
 
     p = if @loadData
