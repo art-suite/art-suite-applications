@@ -4,5 +4,6 @@
 module.exports = require './namespace'
 module.exports
 .addModules
-  CanvasComponent: require './CanvasComponent'
-  PhonePreview:    require './PhonePreview'   
+  AppBodyWithToolbar: require './AppBodyWithToolbar'
+  CanvasComponent:    require './CanvasComponent'   
+  PhonePreview:       require './PhonePreview'      

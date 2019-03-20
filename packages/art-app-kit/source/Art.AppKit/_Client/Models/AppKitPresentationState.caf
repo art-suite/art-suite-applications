@@ -12,22 +12,29 @@ class AppKitPresentationState extends FluxSubscriptionsMixin ApplicationState
         :off    # status-bar is 100% off
         :dark   # text is near-black
         :light  # text is near-white
-    statusBarStyle: :dark
+    statusBarStyle:     :dark
 
     ##
       :bottom
       :top
       :right
       # Not used: :left
-    toolBarLocation: :top
+    toolbarLocation:    :top
+    toolbarHorizontal:  true
 
+  @setter
+    toolbarLocation: (l) ->
+      @toolbarHorizontal = l == :top || l == :bottom
+      @setState :toolbarLocation, l
 
   constructor: ->
-    @subscribe
+    @_updateFromFluxRecord @subscribe
       modelName:        :appKitViewState
-      key:              :deviceLayoutMode
-      updatesCallback:  ({data:deviceLayoutMode})->
-        @toolBarLocation = switch deviceLayoutMode
-          when :phonePortrait   then :bottom
-          when :phoneLandscape  then :right
-          when :full            then :top
+      key:              :appKitViewState
+      updatesCallback:  @_updateFromFluxRecord
+
+  _updateFromFluxRecord: ({data:{deviceLayoutMode}})->
+    @toolbarLocation = switch deviceLayoutMode
+      when :phonePortrait   then :bottom
+      when :phoneLandscape  then :right
+      when :wide :narrow    then :top

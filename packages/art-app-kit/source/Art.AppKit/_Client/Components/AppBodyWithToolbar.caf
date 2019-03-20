@@ -1,0 +1,75 @@
+import &StandardImport
+
+class AppBodyWithToolbar extends FluxComponent
+  @subscriptions
+    :appKitViewState.appKitViewState
+    :appKitPresentationState.toolbarHorizontal
+    :appKitPresentationState.toolbarLocation
+
+  @propFields
+    :background
+    :toolbarChildren
+
+  @getter
+    haveToolbar: -> true
+
+  render: ->
+    @props extract
+      children
+      toolbar
+      secondaryToolbar
+
+    @appKitViewState extract
+      safePadding
+      gridSize
+      buttonSize
+      touchButtonSize
+
+    @ extract
+      toolbarHorizontal
+      toolbarLocation
+
+    if toolbar
+      safePadding = unless toolbarHorizontal
+
+        merge safePadding,
+          left:   toolbarWidth  =
+            buttonSize
+            + max safePadding.right,safePadding.left
+            + gridSize / 2
+
+          right:  toolbarWidth
+
+      else if toolbarLocation == :bottom
+        merge safePadding,
+          bottom: gridSize + toolbarHeight = safePadding.bottom + touchButtonSize
+
+      else
+        merge safePadding,
+          top:  gridSize + toolbarHeight = safePadding.top + touchButtonSize
+
+    Element
+      draw:     @background ? :white
+
+      Element
+        padding:  safePadding
+        @props.children
+
+      if toolbar
+        Element
+          switch toolbarLocation
+          when :left :top then :topLeft
+          when :right :bottom then :bottomRight
+          size:
+            if toolbarHorizontal
+              h: toolbarHeight
+            else
+              w: toolbarWidth
+
+          padding: [toolbarLocation]: @appKitViewState.safePadding[toolbarLocation]
+
+          toolbar
+
+      # if secondaryToolbar
+      #   Element ...
+

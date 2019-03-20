@@ -24,3 +24,4 @@ import &StandardImport
       MainComponentProps: {} App
 
   &Components
+  &ArtAppKit

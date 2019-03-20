@@ -1,18 +1,11 @@
 import &StandardImport, &ArtBrowserTools
 
-global extract screen
-
 class AppKitViewState extends ApplicationState
 
-  @stateFields
-    gridSize: 15
-    viewSize: point1
-    phoneWidth: 320
-    safePadding:        getCssSafeAreaInset()
-    suggestedPadding:   getCssSafeAreaInset()
-    simpleBrowserInfo:  getSimpleBrowserInfo()
+  touchButtonSize    = 48
+  desktopButtonSize  = 38
 
-  update: (viewSize) ->
+  computeViewState: computeViewState = (viewSize) ->
     phoneWidth = min 420, viewSize.w
     gridSize = phoneWidth / 27
 
@@ -24,21 +17,33 @@ class AppKitViewState extends ApplicationState
       when :tablet  then isTablet = true
       when :desktop then isDesktop = true
 
-    @setState {}
+    {}
+      touchButtonSize
+      desktopButtonSize
+
       viewSize
+      buttonSize = if isDesktop then desktopButtonSize else touchButtonSize
       phoneWidth
       gridSize
       isPhone
       isTablet
       isDesktop
-      deviceLayoutMode:
-        if isPhone || viewSize.x < 600
+      screenWidth  = screen.availWidth
+      screenHeight = screen.availHeight
+      deviceLayoutMode: deviceLayoutMode =
+        if isPhone
           if getOrientationIsPortrait viewSize
             :phonePortrait
           else
             :phoneLandscape
+        else if viewSize.x < 600
+          :narrow
         else
-          :full
+          :wide
+      wide:           deviceLayoutMode == :wide
+      narrow:         deviceLayoutMode == :narrow
+      phonePortrait:  deviceLayoutMode == :phonePortrait
+      phoneLandscape: deviceLayoutMode == :phoneLandscape
 
       simpleBrowserInfo
       notchInfo:          getNotchInfo()
@@ -50,5 +55,9 @@ class AppKitViewState extends ApplicationState
         object v, k in safePadding
           suggestedPadding[k] - v
 
+  @stateFields computeViewState point
+    screen.availWidth
+    screen.availHeight
+
   # Use as "on: {} @models.viewState.ready" handler
-  ready: ({target:{currentSize}}) -> @update currentSize
+  ready: ({target:{currentSize}}) -> @setState @computeViewState currentSize

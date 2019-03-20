@@ -1,1 +1,2 @@
-&ArtSuite.mergeWithSelf &ArtAppKit
+&ArtSuite.mergeWithSelf
+  &ArtAppKit/Client
