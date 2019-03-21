@@ -208,14 +208,14 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
           requiresKey: true
           then: (dynamoDbParams)=>
             @dynamoDb.updateItem dynamoDbParams
-            .then ({item}) ->
+            .then ({item}) =>
               if dynamoDbParams.returnValues?.match /old/i
                 request.success
                   props:
                     oldData: item
                     data: request.requestDataWithKey
               else
-                modifiedFields = merge request.data, request.props.add, request.props.setDefault
+                modifiedFields = @getFieldsRequestWillModify request
                 request.success
                   props:
                     data: data = mergeInto request.requestDataWithKey, item
@@ -227,12 +227,18 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
                 request.missing "Attempted to update a non-existant record."
               else throw error
 
+    ### updateBulk - TODO
+      IN: data: array of objects compatible with a single 'update'
+      Make sure to also update getFieldsRequestWillModify to correctly merge down all fields in the builk-update.
+        This'll ensure UserOwnedFilter properly handles authorization
     ###
-    OUT:
-      if record didn't exist:
-        response.status == missing
-      else
-        data: keyFields & values
+
+    ###
+      OUT:
+        if record didn't exist:
+          response.status == missing
+        else
+          data: keyFields & values
     ###
     delete: (request) ->
       @_artEryToDynamoDbRequest request,
@@ -299,6 +305,9 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
         .then (result) =>
           keyFields = if isPlainObject(key) then key else if isString(key) && @toKeyObject then @toKeyObject key
           result ? request.subrequest @pipelineName, "create", {key, data: merge keyFields, setDefault, data, add}
+
+  getFieldsRequestWillModify: (request) ->
+    merge request.props.setDefault, request.props.add, request.data
 
   #########################
   # PRIVATE

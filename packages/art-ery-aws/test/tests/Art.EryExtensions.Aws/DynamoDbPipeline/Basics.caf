@@ -131,7 +131,9 @@ suite:
     .thenTest "batchGet 2 records" (users) ->
       myTable.batchGet props: keys: array {id} in users with id
       .then (users2) ->
-        assert.eq users, users2
+        assert.eq
+          users.sort (a, b) -> a.id - b.id
+          users2.sort (a, b) -> a.id - b.id
 
   scan: ->
     setup ->
