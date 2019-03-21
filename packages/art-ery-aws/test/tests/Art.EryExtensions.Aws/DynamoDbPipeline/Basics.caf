@@ -204,13 +204,11 @@ suite:
         assert.eq rejectsWith.info.response.status, missing
 
     test "with createOk rejected without originatedOnServer", ->
-      assert.rejects myTable.update
+      assert.clientFailureNotAuthorized myTable.update
         props:
           createOk: true
           key: randomString()
           data: rank: 123
-      .then (rejectsWith) ->
-        assert.eq rejectsWith.info.response.status, clientFailure
 
     test "non-existant record works with createOk and originatedOnServer", ->
       pipelines.myCompoundKeyTable.update
