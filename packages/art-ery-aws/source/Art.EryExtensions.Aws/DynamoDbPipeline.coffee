@@ -11,6 +11,7 @@
   timeout
   intRand
   isArray
+  upperCamelCase
 } = require 'art-standard-lib'
 
 {networkFailure} = require 'art-communication-status'
@@ -47,6 +48,18 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
   @getter
     globalIndexes: -> @_options.globalIndexes || @class._globalIndexes
     localIndexes:  -> @_options.localIndexes  || @class._localIndexes
+
+  @primaryKey: ->
+    super
+    if ([hashKey, sortKey] = @getKeyFields()) && sortKey?
+      @query log
+        "#{@getPluralPipelineName()}By#{upperCamelCase hashKey}":
+          query: (request) ->
+            @queryDynamoDbWithRequest request, where: "#{hashKey}": request.key
+            .then ({items}) -> request.success data:items
+
+          dataToKeyString: (record) -> record[hashKey]
+
 
   ###########################################
   # Instance Getters
