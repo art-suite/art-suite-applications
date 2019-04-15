@@ -51,15 +51,9 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
 
   @primaryKey: ->
     super
-    if ([hashKey, sortKey] = @getKeyFields()) && sortKey?
-      @query log
-        "#{@getPluralPipelineName()}By#{upperCamelCase hashKey}":
-          query: (request) ->
-            @queryDynamoDbWithRequest request, where: "#{hashKey}": request.key
-            .then ({items}) -> request.success data:items
-
-          dataToKeyString: (record) -> record[hashKey]
-
+    if ([hashKey] = keyFields = @getKeyFields()) && keyFields?.length == 2
+      @query @_getAutoDefinedQueries
+        "#{@getPluralPipelineName()}By#{upperCamelCase hashKey}": @getKeyFieldsString()
 
   ###########################################
   # Instance Getters
@@ -191,6 +185,9 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
       @_artEryToDynamoDbRequest request, then: (params) =>
         @dynamoDb.putItem params
         .then -> request.data
+        .tapCatch (error) ->
+          log DynamoDbPipeline_create: {error, request}
+
 
     ###
     IN: response.props:
@@ -216,10 +213,12 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
       .then =>
         request.rejectIf createOk && @getKeyFieldsString() == 'id', "createOk not available on tables with auto-generated-ids"
       .then =>
+        _dynamoDbParams = null
         @_artEryToDynamoDbRequest request,
           mustExist: !createOk
           requiresKey: true
           then: (dynamoDbParams)=>
+            _dynamoDbParams = dynamoDbParams
             @dynamoDb.updateItem dynamoDbParams
             .then ({item}) =>
               if dynamoDbParams.returnValues?.match /old/i
@@ -238,7 +237,15 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
             .catch (error) ->
               if error.message.match /ConditionalCheckFailedException/
                 request.missing "Attempted to update a non-existant record."
-              else throw error
+              else
+                log DynamoDbPipeline_update: {error, request}
+                throw error
+        .tapCatch (error) ->
+          log ArtEryDynamoDb: {
+            request
+            _dynamoDbParams
+          }
+
 
     ### updateBulk - TODO
       IN: data: array of objects compatible with a single 'update'
@@ -372,10 +379,11 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
         if isString indexKey
           [hashKey, sortKey] = indexKey.split "/"
 
+          indexName = if indexKey != @getKeyFieldsString()
+            queryModelName
           doDynamoQuery = (request, descending) ->
-            params =
-              index: queryModelName
-              where: "#{hashKey}": request.key
+            params = where: "#{hashKey}": request.key
+            params.index = indexName if indexName?
             params.descending = true if descending
 
             if sortKeyWhere = request.props.where?[sortKey]
@@ -395,6 +403,8 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
 
             request.pipeline.queryDynamoDbWithRequest request, params
             .then ({items}) -> items
+            .tapCatch (error) ->
+              log DynamoDbPipeline_query: {error, params, request}
 
           queries[queryModelName] =
             query:            (request) -> doDynamoQuery request
