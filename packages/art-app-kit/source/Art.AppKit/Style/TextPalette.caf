@@ -10,6 +10,7 @@ class TextPalette extends HotStyleProps
     disabled:         rgbColor #0004
     opaquePrimary:    rgbColor #2
     opaqueSecondary:  rgbColor #7
+    opaqueTertiary:   rgbColor #a
 
   @white:
     primary:          rgbColor #fffd

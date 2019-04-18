@@ -7,3 +7,5 @@ module.exports
   AppBodyWithToolbar: require './AppBodyWithToolbar'
   CanvasComponent:    require './CanvasComponent'   
   PhonePreview:       require './PhonePreview'      
+  ScrollerWithBar:    require './ScrollerWithBar'   
+  SwipePager:         require './SwipePager'        

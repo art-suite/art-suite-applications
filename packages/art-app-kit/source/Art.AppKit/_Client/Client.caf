@@ -19,7 +19,7 @@ import &StandardImport
       throw new Error log.warn "ArtAppKit.init: App must be an ArtReact Component Factory"
 
     &ArtSuiteApp.initArtSuiteClient
-      title:         :Art.AppKitDemo
+      title:         options.title
       MainComponent: &Components.CanvasComponent
       MainComponentProps: {} App
 
