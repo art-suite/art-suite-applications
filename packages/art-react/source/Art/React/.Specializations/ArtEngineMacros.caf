@@ -43,8 +43,16 @@ global.artEngineMacros = merge
     clip:       clip:           true
     cacheDraw:  cacheDraw:      true
 
+
     scaleToFit:   scale: scaleToFit = (ps, cs) -> ps.minRatio cs
     scaleToFill:  scale: scaleToFill = (ps, cs) -> ps.maxRatio cs
+
+    fitSizeToParentWidth: size:
+      ww: 1
+      y: (ps, cs) ->
+        if cs.x > 0
+          cs.y * ps.x / cs.x
+        else 100
 
     # ALIAS - is it better w/o the prepositions?
     scaleFit:     scale: scaleToFit
