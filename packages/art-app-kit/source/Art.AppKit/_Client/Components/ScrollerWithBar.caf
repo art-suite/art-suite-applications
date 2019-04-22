@@ -9,8 +9,8 @@ class ScrollerWithBar extends FluxComponent
     scrollBarActive: false
     recentlyScrolled: false
     contentsDontFit: false
-    flushLeftDistance: 0
-    flushRightDistance: 0
+    flushStartDistance: 0
+    flushEndDistance: 0
 
     portionShown: 0
     scrollPosition: 0
@@ -33,8 +33,8 @@ class ScrollerWithBar extends FluxComponent
       @props.on?.scrollUpdate? event
       event.props extract windowSize, childrenSize, childrenOffset, scrollRatio
 
-      @flushLeftDistance = -childrenOffset
-      @flushRightDistance = childrenSize + childrenOffset - windowSize
+      @flushStartDistance = -childrenOffset
+      @flushEndDistance = childrenSize + childrenOffset - windowSize
 
       @contentsDontFit = childrenSize > windowSize
       @recentlyScrolled = true
@@ -49,7 +49,20 @@ class ScrollerWithBar extends FluxComponent
 
   render: ->
     @appKitViewState extract gridSize, isTouchScreen
-    @props extract key, edgeShadows, childrenLayout, size, noPadding, scrollBarOpacity = 0
+    @props extract
+      key
+      topEdgeShadow
+      leftEdgeShadow
+      rightEdgeShadow
+      bottomEdgeShadow
+      childrenLayout, size, noPadding, scrollBarOpacity = 0
+
+    commonEdgeShadowProps = if topEdgeShadow || leftEdgeShadow || rightEdgeShadow || bottomEdgeShadow
+      animators:  opacity: toFrom: 0
+      draw:
+        color:  :black
+        shadow: offset: 0 blur: gridSize * 2
+
     Element
       size: size
       ScrollElement
@@ -113,13 +126,13 @@ class ScrollerWithBar extends FluxComponent
               axis:     y:  .5 x:   displayScrollPosition
               size:
                 h: barDisplaySize
-                xw: @portionShown - overScroll
+                xw: max 0, @portionShown - overScroll
             else
               location: xw: .5 yh:  displayScrollPosition
               axis:     x:  .5 y:   displayScrollPosition
               size:
                 w: barDisplaySize
-                yh: @portionShown - overScroll
+                yh: max 0, @portionShown - overScroll
 
             opacity:
               if @showScrollBar
@@ -140,30 +153,34 @@ class ScrollerWithBar extends FluxComponent
       Element
         receivePointerEvents: :never
         clip: true
-        if edgeShadows && @contentsDontFit && @flushLeftDistance > 0
+        if topEdgeShadow && @contentsDontFit && @flushStartDistance > 0
           Element
-            key: "leftShadow"
-            size: ps: 1, h: -gridSize
-            axis:       :centerRight
-            location:   :centerLeft
-            animators:  opacity: toFrom: 0
-            opacity: min 1, @flushLeftDistance / flushProximity
-            draw:
-              color: :black
-              shadow:
-                offset: 0
-                blur: gridSize * 2
+            key:        :topEdgeShadow
+            axis:       :bottomCenter
+            location:   xw: .5 y: -1
+            opacity:    min 1 @flushStartDistance / flushProximity
+            commonEdgeShadowProps
 
-        if edgeShadows && @contentsDontFit && @flushRightDistance > 0
+        if bottomEdgeShadow && @contentsDontFit && @flushStartDistance > 0
           Element
-            key: "rightShadow"
-            size: ps: 1, h: -gridSize
-            axis: :centerLeft
-            location: :centerRight
-            animators:  opacity: toFrom: 0
-            opacity: min 1, @flushRightDistance / flushProximity
-            draw:
-              color: :black
-              shadow:
-                offset: 0
-                blur: gridSize * 2
+            key:        :bottomEdgeShadow
+            axis:       :topCenter
+            location:   xw: .5 yh: 1 y: 1
+            opacity:    min 1 @flushEndDistance / flushProximity
+            commonEdgeShadowProps
+
+        if leftEdgeShadow && @contentsDontFit && @flushStartDistance > 0
+          Element
+            key:        :leftEdgeShadow
+            axis:       :centerRight
+            location:   yh: .5, x: -1
+            opacity:    min 1 @flushStartDistance / flushProximity
+            commonEdgeShadowProps
+
+        if rightEdgeShadow && @contentsDontFit && @flushEndDistance > 0
+          Element
+            key:        :rightEdgeShadow
+            axis:       :centerLeft
+            location:   yh: .5 xw: 1 x: 1
+            opacity:    min 1 @flushEndDistance / flushProximity
+            commonEdgeShadowProps

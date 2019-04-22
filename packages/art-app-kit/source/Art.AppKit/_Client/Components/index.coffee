@@ -6,6 +6,7 @@ module.exports
 .addModules
   AppBodyWithToolbar: require './AppBodyWithToolbar'
   CanvasComponent:    require './CanvasComponent'   
+  CanvasPath:         require './CanvasPath'        
   PhonePreview:       require './PhonePreview'      
   ScrollerWithBar:    require './ScrollerWithBar'   
   SwipePager:         require './SwipePager'        
