@@ -1,1 +1,5 @@
-&ArtSuite.merge &ArtSuite, &DemoPalette, &DemoTextStyles, {} &DemoPalette, &DemoTextStyles
+&ArtSuite.mergeWithSelf
+  &DemoPalette
+  &DemoTextStyles
+  &ArtAppKit
+  {} &DemoPalette, &DemoTextStyles

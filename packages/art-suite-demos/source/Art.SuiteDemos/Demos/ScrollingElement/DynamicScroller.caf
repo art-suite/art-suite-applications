@@ -1,94 +1,4 @@
-import &StandardImport
-Button = &Button
-
-class LineItem extends FluxComponent
-
-  @stateFields
-    addSize: 0
-
-  expand: -> @addSize += max 50, @addSize
-  collapse: -> @addSize =
-    max 0, min @addSize / 2, @addSize - 50
-
-  removeItem: ->
-    log remove: @props.text
-    @props.removeItem @props.text
-
-  render: ->
-    {text, horizontal} = @props
-    Element
-      key: "lineItem:#{text}"
-      size: cs: 1
-      margin: 5
-      animators:
-        size:   toFrom: if horizontal then hch:1, w: 0 else wcw:1, h: 0
-        margin: toFrom: 0
-      clip: true
-      draw: color: vibrant
-      Element
-        size:
-          if horizontal
-            cs: 1, w: @addSize
-          else
-            cs: 1, h: @addSize
-        animators: :size
-        childrenLayout: if horizontal then :column else :row
-        childrenAlignment: :topLeft
-        childrenMargins: 15
-        padding: 20
-        TextElement
-          mediumText
-          size: "childrenSize"
-          text: text
-          color: lightMuted
-        Button text: "delete", action: @removeItem
-        Button text: "bigger", action: @expand
-        Button text: "smaller", action: @collapse
-
-class ScrollElementDemo extends FluxComponent
-
-  render: ->
-    {alignment, items, tight, track, removeItem, horizontal} = @props
-
-    Element
-      draw: color: veryDarkMuted
-      padding: 10
-      childrenLayout: :column
-      childrenMargins: 10
-      size: size =
-        if tight
-          if horizontal
-            cs: 1 max: ww: 1
-          else
-            cs: 1 max: hh: 1
-        else
-          ps: 1
-      animators: :size
-      TextElement
-        mediumText
-        size: "childrenSize"
-        text: "" Containing Element
-        color: lightMuted
-      ScrollElement
-        clip:               true
-        track:              track
-        location:           alignment
-        axis:               alignment
-        size: size
-        childrenLayout:     if horizontal then :row else :column
-        childrenAlignment:  alignment
-        animators:          :childrenAlignment :axis :location
-        drawOrder:          darkMuted
-        # padding: 10
-        TextElement
-          mediumText
-          key: "scrollElementContentsLabel"
-          size: "childrenSize"
-          text: "ScrollElement"
-          padding: 10
-          color: lightMuted
-        array text in items
-          LineItem {} removeItem, key: "Item:#{text}", text, horizontal
+import &StandardImport, &Widgets
 
 class DynamicScroller extends FluxComponent
 
@@ -111,7 +21,8 @@ class DynamicScroller extends FluxComponent
       childrenMargins: 10
       padding: 10
       drawOrder: darkBackground
-      ScrollElementDemo @state, {} @removeItem, @horizontal
+      &ScrollElementDemo @state, {} @removeItem, @horizontal
+
       Element
         size: wcw:1
         childrenMargins: 10
