@@ -32,8 +32,17 @@ module.exports = class CreateTable extends TableApiBaseClass
     @_translateLocalIndexes params
     @_translateKey params, @_target
     @_translateAttributes params
-    @_translateProvisioning params, @_target
+    @_target.BillingMode = if @_isPayPerRequest params
+      "PAY_PER_REQUEST"
+    else
+      @_translateProvisioning params, @_target
+      "PROVISIONED"
     @_target
+
+  _isPayPerRequest: (params) ->
+    (params.billingMode || params.BillingMode) == "PAY_PER_REQUEST" ||
+    (!params.provisioning && !params.provisionedThroughput)
+
 
   # _getKeySchemaAttributes: (createParams) ->
   #   out = []
@@ -130,7 +139,7 @@ module.exports = class CreateTable extends TableApiBaseClass
           else
             @_translateKey indexProps, _target
           @_translateProjection indexProps, _target
-          @_translateProvisioning indexProps, _target
+          @_translateProvisioning indexProps, _target unless @_isPayPerRequest params
           _target
       else globalIndexes
 
