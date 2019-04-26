@@ -118,3 +118,14 @@ dynamoDb.query
   * The output object may ALSO contain streamlined-api properties
     * example: the 'items' property returned by a 'query' is a list of the result items as plain-javascript objects
     * note: the streamelined-api uses lowerCamelCase property names
+
+#### Creating the Client SDK
+
+Go here: https://sdk.amazonaws.com/builder/js/
+
+Select:
+
+* dynamoDb
+* S3
+
+Build it, copy it locally. Then update the symlink.
