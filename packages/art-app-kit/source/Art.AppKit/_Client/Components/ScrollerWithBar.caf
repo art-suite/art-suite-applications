@@ -55,6 +55,7 @@ class ScrollerWithBar extends FluxComponent
       leftEdgeShadow
       rightEdgeShadow
       bottomEdgeShadow
+      barPadding
       childrenLayout, size, noPadding, scrollBarOpacity = 0
 
     commonEdgeShadowProps = if topEdgeShadow || leftEdgeShadow || rightEdgeShadow || bottomEdgeShadow
@@ -117,7 +118,7 @@ class ScrollerWithBar extends FluxComponent
             mouseIn: @triggerScrollBarActive
             mouseOut: @clearScrollBarActive
 
-          padding: unless noPadding
+          padding: barPadding ? unless noPadding
             barSize - barDisplaySize
             / 2
           Element
