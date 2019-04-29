@@ -1,7 +1,7 @@
 params: "[pipelineName]"
 action: ({args:[pipelineName]}) ->
   if pipelineName
-    &ArtEry.pipelines[pipelineName].getInitializeParams()
+    &ArtEry.pipelines[pipelineName].getInitializeParams originatedOnServer: true
   else
     &ArtStandardLib.Promise.deepAll each pipeline in &ArtEry.pipelines into out = {} when pipeline.getInitializeParams
-      out[pipeline.pipelineName] = pipeline.getInitializeParams()
+      out[pipeline.pipelineName] = pipeline.getInitializeParams originatedOnServer: true
