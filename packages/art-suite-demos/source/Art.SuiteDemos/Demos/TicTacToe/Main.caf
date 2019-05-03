@@ -20,13 +20,6 @@ calculateWinner = (board) ->        # 57
       board[el]
     a == b && a == c && a           # -2 less when we have: a if a == b == c
 
-    # 8-less-in-total:
-    # array line
-    #   board[.]
-    # extract[] a b c
-    # a if a == b == c
-
-
 class Square extends Component      # 24 tokens
   render: ->
     Element
