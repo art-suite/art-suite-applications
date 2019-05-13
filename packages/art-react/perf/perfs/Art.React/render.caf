@@ -1,0 +1,31 @@
+import &StandardImport
+
+renderRecursiveStructure = (depth = 2) ->
+  Element
+    renderRecursiveStructure depth - 1 if depth > 0
+    renderRecursiveStructure depth - 1 if depth > 0
+
+suite:
+  tests: ->
+    test "simulated render" ->
+      log {} Element()
+
+    test "simulated render renderRecursiveStructure 7-element" ->
+      log structure: renderRecursiveStructure()
+
+  baseline: ->
+    benchmark "noop" -> 1 + 1
+
+  simulatedRenders: ->
+    @timeout 10000
+    benchmark
+      "simulated render 1 element"
+      -> Element()
+      warmUpDuration: 2
+
+
+    benchmark
+      "simulated render 7 element structures"
+      -> renderRecursiveStructure()
+      warmUpDuration: 2
+
