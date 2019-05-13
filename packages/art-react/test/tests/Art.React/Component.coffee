@@ -39,18 +39,18 @@ module.exports = suite:
       c = MyFactory foo: 123
       assert.eq c.props, foo: 123
 
-    test "strings become text: string", ->
-      MyFactory = createComponentFactory render: -> Element()
-      c = MyFactory "foo"
-      assert.eq c.props, text: "foo"
+    # test "strings become text: string", ->
+    #   MyFactory = createComponentFactory render: -> Element()
+    #   c = MyFactory "foo"
+    #   assert.eq c.props, text: "foo"
 
-    test "multiple strings", ->
-      MyFactory = createComponentFactory render: -> Element()
-      c = MyFactory
-        bar: 123
-        "foo"
-        "bad"
-      assert.eq c.props, text: ["foo", "bad"], bar: 123
+    # test "multiple strings", ->
+    #   MyFactory = createComponentFactory render: -> Element()
+    #   c = MyFactory
+    #     bar: 123
+    #     "foo"
+    #     "bad"
+    #   assert.eq c.props, text: ["foo", "bad"], bar: 123
 
   render: ->
     test "render", ->
