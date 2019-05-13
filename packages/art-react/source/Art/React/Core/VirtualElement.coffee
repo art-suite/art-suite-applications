@@ -1,9 +1,7 @@
-Foundation = require 'art-foundation'
-VirtualNode = require './VirtualNode'
 {
   objectHasKeys
   toInspectedObjects
-  log, compactFlatten, globalCount, time, stackTime, BaseObject, shallowClone
+  log, globalCount, time, stackTime, BaseObject, shallowClone
   inspect, keepIfRubyTrue, stackTime, isPlainObject
   isWebWorker
   objectDiff
@@ -12,9 +10,10 @@ VirtualNode = require './VirtualNode'
   Promise
   propsEq
   defineModule
-  compactFlattenAll
-  customCompactFlatten
-} = Foundation
+  compactFlattenAll2
+  customCompactFlatten2
+} = require 'art-standard-lib'
+VirtualNode = require './VirtualNode'
 
 defineModule module, class VirtualElement extends VirtualNode
 
@@ -33,7 +32,10 @@ defineModule module, class VirtualElement extends VirtualNode
     VirtualElement.created++
     @elementClassName = elementClassName
     super props || emptyProps
-    @children = @_validateChildren customCompactFlatten children || emptyChildren, keepIfRubyTrue
+    @children =
+      if children?
+        @_validateChildren customCompactFlatten2 children, keepIfRubyTrue
+      else emptyChildren
 
   #################
   # Inspect
@@ -48,7 +50,7 @@ defineModule module, class VirtualElement extends VirtualNode
 
     inspectedObjectsContents: ->
       if @children.length > 0
-        compactFlattenAll {@props}, toInspectedObjects @children
+        compactFlattenAll2 {@props}, toInspectedObjects @children
       else {@props}
 
   #####################################

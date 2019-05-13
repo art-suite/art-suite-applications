@@ -4,7 +4,7 @@ ReactArtEngineEpoch = require './ReactArtEngineEpoch'
 {
   defineModule
   log, merge, mergeInto, clone, shallowClone
-  inspect, compactFlatten, keepIfRubyTrue, BaseObject, fastBind
+  inspect, keepIfRubyTrue, BaseObject, fastBind
   slice
   isObject
   isString
@@ -190,10 +190,7 @@ defineModule module, -> class Component extends PropFieldsMixin StateFieldsMixin
       ),
       (props, children) =>
         if children
-          if props
-            props.children = children
-          else
-            props = {children}
+          props = merge props, {children}
 
         instance = new @ postProcessProps props
         # instance._validateChildren props?.children # TODO: only in dev mode!
