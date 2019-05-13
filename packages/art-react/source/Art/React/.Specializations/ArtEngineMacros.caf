@@ -40,6 +40,7 @@ global.artEngineMacros = merge
     column:     childrenLayout: :column
     flow:       childrenLayout: :flow
     bold:       fontWeight:     :bold
+    italic:     fontStyle:      :italic
     clip:       clip:           true
     cacheDraw:  cacheDraw:      true
 
