@@ -10,8 +10,8 @@
   Promise
   propsEq
   defineModule
-  compactFlattenAll2
-  customCompactFlatten2
+  compactFlattenAllFast
+  customCompactFlattenFast
 } = require 'art-standard-lib'
 VirtualNode = require './VirtualNode'
 
@@ -34,7 +34,7 @@ defineModule module, class VirtualElement extends VirtualNode
     super props || emptyProps
     @children =
       if children?
-        @_validateChildren customCompactFlatten2 children, keepIfRubyTrue
+        @_validateChildren customCompactFlattenFast children, keepIfRubyTrue
       else emptyChildren
 
   #################
@@ -50,7 +50,7 @@ defineModule module, class VirtualElement extends VirtualNode
 
     inspectedObjectsContents: ->
       if @children.length > 0
-        compactFlattenAll2 {@props}, toInspectedObjects @children
+        compactFlattenAllFast {@props}, toInspectedObjects @children
       else {@props}
 
   #####################################
