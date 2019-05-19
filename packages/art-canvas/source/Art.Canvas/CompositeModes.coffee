@@ -42,7 +42,7 @@ module.exports = class CompositeModes
     targetTopInSource:      "destination-atop"  # alpha: source,                color: colorBlend target, source
     targetTopIntersection:  "destination-in"    # alpha: target * source,       color: target
     targetWithoutSource:    "destination-out"   # alpha: target * (1 - source), color: target
-    add:                    "lighter"
+    add:                    "lighten"
     replace:                "copy"
 
     # preferred aliases
