@@ -42,7 +42,9 @@ module.exports = class CompositeModes
     targetTopInSource:      "destination-atop"  # alpha: source,                color: colorBlend target, source
     targetTopIntersection:  "destination-in"    # alpha: target * source,       color: target
     targetWithoutSource:    "destination-out"   # alpha: target * (1 - source), color: target
-    add:                    "lighten"
+    add:                    "lighter"           # lighter:  Where both shapes overlap the color is determined by adding color values.
+    max:                    "lighten"           # ligthen:  Retains the lightest pixels of both layers.
+    min:                    "darken"            # darken:   Retains the darkest pixels of both layers.
     replace:                "copy"
 
     # preferred aliases
