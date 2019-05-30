@@ -685,7 +685,9 @@ defineModule module, -> class Component extends PropFieldsMixin StateFieldsMixin
       throw new Error "Component render function returned: #{formattedInspect newRenderResult}"
 
     if @_virtualAimBranch._canUpdateFrom newRenderResult
+      start = globalEpochCycle?.startTimePerformance()
       @_virtualAimBranch._updateFrom newRenderResult
+      globalEpochCycle?.endTimePerformance "reactUpdate", start
       @_updateRefsAfterReRender()
     else
       # TODO - this should probably NOT be an error, but it isn't easy to solve.
