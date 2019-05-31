@@ -1,13 +1,11 @@
-import &ArtSuite
+import &StandardImport
 
 class ObiWan extends ApplicationState
   @stateFields
     location: null
 
   constructor: ->
-    super
-    @next()
+    interval 2000 @next
 
   next: ->
     @location = randomElement &Data/Worlds
-    timeout 2000 @next

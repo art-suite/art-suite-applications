@@ -23,7 +23,7 @@ class Quixx extends FluxComponent
     Element
       drawOrder: StyleProps.backgroundColor
 
-      PagingScrollElement
+      ScrollElement
 
         Element
           size:             ww: 1 hch: 1

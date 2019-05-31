@@ -3,19 +3,18 @@ import &StandardImport
 class Button extends PointerActionsMixin Component
 
   render: ->
-    enabled = !!@props.action
-
     Element
       on:           @pointerHandlers
-      opacity:      if enabled then 1 else .5
       animators:    :opacity :draw
-      cursor:       enabled && :pointer
-
       draw:
         radius:     1
         color:      getButtonBackgoundColor {} enabled, @pointerIsDown, @hover
         outline:    buttonOutlineStyle
 
+      if @props.action
+            opacity: 1  cursor: :pointer
+      else  opacity: .5
+
       TextElement
         buttonTextStyle
-        if @props.up then :⥣ else :⥥
+        text: if @props.up then :⥣ else :⥥

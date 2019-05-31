@@ -8,4 +8,4 @@ class YodasCurrentPlanet extends Component
 
       TextElement
         planetMonitorTextStyle
-        @props.location?.name || :unknown
+        text: @props.location?.name || :unknown

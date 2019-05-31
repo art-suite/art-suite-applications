@@ -17,7 +17,7 @@ class AddTodo extends FluxComponent
   render: ->
     &ButtonLine
       action: @value && @enter
-      "" new todo
+      text: "" new todo
 
       Element
         margin: 15

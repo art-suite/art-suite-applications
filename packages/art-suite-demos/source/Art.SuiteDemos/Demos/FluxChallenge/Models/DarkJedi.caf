@@ -1,4 +1,4 @@
-import &ArtSuite
+import &StandardImport
 
 class DarkJedi extends FluxModel
 
@@ -10,7 +10,7 @@ class DarkJedi extends FluxModel
     @updateFluxStore
       key
       status: pending
-      abort: ->
+      abort:  ->
         # simulate abort request
         aborted = true
         log.warn "DarkJedi: abort: #{key}"

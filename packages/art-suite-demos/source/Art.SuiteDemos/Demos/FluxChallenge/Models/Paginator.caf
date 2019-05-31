@@ -1,4 +1,4 @@
-import &ArtSuite
+import &StandardImport
 
 class Paginator extends FluxSubscriptionsMixin ApplicationState
   slotsPerPage = 5
@@ -20,7 +20,7 @@ class Paginator extends FluxSubscriptionsMixin ApplicationState
   # PRIVATE
   ###############
   _updateSlots: (slotIds)->
-    loadedSlots = @_getLoadedSlots slotIds ||= @slotIds
+    loadedSlots = @_getLoadedSlots slotIds ?= @slotIds
     @slotIds = slotIds = array slotId, index from slotIds
       slotId
       ? loadedSlots[index - 1]?.apprentice
@@ -44,9 +44,10 @@ class Paginator extends FluxSubscriptionsMixin ApplicationState
 
   _updatePageUpDownEnabled: (loadedSlots)->
     first = last = null
+    each v in loadedSlots when v?
+      first ?= v
+      last   = v
+
     middle = !!loadedSlots[slotsPerPage / 2 | 0]
-    each v in loadedSlots
-      first ||= v
-      last = v if v?
     @pageUpEnabled   = middle && !!first?.master?
     @pageDownEnabled = middle && !!last?.apprentice?

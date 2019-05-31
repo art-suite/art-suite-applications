@@ -4,7 +4,7 @@ class ShowTodos extends FluxComponent
   @subscriptions :todos.todos :viewState.completedTodosVisible
 
   render: ->
-    PagingScrollElement
+    ScrollElement
       clip: true
       Element
         childrenLayout: :column

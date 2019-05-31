@@ -1,0 +1,8 @@
+import &ArtSuite
+
+class DrumStyle extends HotStyleProps
+
+  @drumHeight: 60
+  @drumWidth: 40
+  @drumSize: point @drumWidth, @drumHeight
+  @timeslots: 16

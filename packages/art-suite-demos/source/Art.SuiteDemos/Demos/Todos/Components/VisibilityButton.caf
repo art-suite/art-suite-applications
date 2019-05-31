@@ -5,5 +5,5 @@ class VisibilityButton extends FluxComponent
 
   render: ->
     &ButtonLine
-      text: "" completed todos: #{if @completedTodosVisible then 'visible' else 'hidden'}
+      text:   "" completed todos: #{if @completedTodosVisible then 'visible' else 'hidden'}
       action: @models.viewState.toggleCompletedTodosVisible

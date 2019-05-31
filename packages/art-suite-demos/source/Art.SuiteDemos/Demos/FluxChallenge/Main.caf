@@ -1,9 +1,9 @@
-import &ArtSuite
+import &StandardImport
 
 class ArtSuiteDemos extends Component
   render: ->
     Element
-      draw: &StyleProps.backgroundStyle
+      draw: backgroundStyle
       Element
         padding: 5
         &Components/App()

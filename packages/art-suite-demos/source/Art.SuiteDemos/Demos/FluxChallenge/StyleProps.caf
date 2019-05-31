@@ -2,11 +2,11 @@ import &ArtSuite
 
 class StyleProps extends HotStyleProps
 
-  colorAndShadow = (color) -> {} color, shadow: {} offset: 0, radius: 10, color
+  colorAndShadow = (color) -> {} color, shadow: {} color, offset: 0 radius: 10
 
   @basePadding: 10
   @textPadding: 14
-  @buttonColor: #69F0D2
+  @buttonColor: #69f0d2
 
   @baseTextStyle:
     size:       :parentWidthChildrenHeight
@@ -17,8 +17,8 @@ class StyleProps extends HotStyleProps
     colors: #1b3061 #192b55
 
   @appOutlineStyle:
-    radius: 2
-    outline: merge
+    radius:   2
+    outline:  merge
       lineWidth: 3
       colorAndShadow #35769A
 
@@ -28,15 +28,15 @@ class StyleProps extends HotStyleProps
 
   @planetMonitorTextStyle: merge
     @baseTextStyle
-    colorAndShadow #EDE66A
+    colorAndShadow #ede66a
     padding: @textPadding
 
   @planetMonitorBackgroundStyle:
-    radius: 2
-    color: #2F5093
-    outline: merge
+    radius:   2
+    color:    #2f5093
+    outline:  merge
       lineWidth: 5
-      colorAndShadow #87AFE7
+      colorAndShadow #87afe7
 
   @buttonTextStyle: merge
     @baseTextStyle
@@ -45,13 +45,14 @@ class StyleProps extends HotStyleProps
     colorAndShadow @buttonColor
 
   @getButtonBackgoundColor: ({enabled, pointerIsDown, hover})->
-    if enabled && pointerIsDown then :white
-    else if enabled && hover then #60c7b1
-    else #39697A
+    switch
+    when enabled && pointerIsDown then  :white
+    when enabled && hover         then  #60c7b1
+    else                                #39697A
 
   @slotOutlineStyle:
-    radius: 1
-    outline: merge
+    radius:   1
+    outline:  merge
       lineWidth: 5
       colorAndShadow #6af0d3
 
@@ -62,5 +63,5 @@ class StyleProps extends HotStyleProps
       colorAndShadow if red then :red else #6af0d3
 
   @slotSmallTextStyle:
-    margin: 2
+    margin:   2
     fontSize: 12

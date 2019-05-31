@@ -12,6 +12,7 @@ require './Clock/namespace';
 require './ColorExtractor/namespace';
 require './ColorPicker/namespace';
 require './ColorPicker2/namespace';
+require './DrumMachine/namespace';
 require './FaceDetector/namespace';
 require './FluxChallenge/namespace';
 require './FocusAndBlur/namespace';
@@ -28,7 +29,9 @@ require './ScrollingElement/namespace';
 require './ScrollingInfinite/namespace';
 require './Style/namespace';
 require './TextInputMobileTest/namespace';
+require './TextLayout/namespace';
 require './Textarea/namespace';
 require './TicTacToe/namespace';
 require './Todos/namespace';
-require './VoidProps/namespace'
+require './VoidProps/namespace';
+require './WrapperComponents/namespace'

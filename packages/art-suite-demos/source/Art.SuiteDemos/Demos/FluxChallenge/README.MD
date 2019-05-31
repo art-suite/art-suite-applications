@@ -16,7 +16,7 @@ This demo deviates from the strict rules of the challenge in order to fit within
 	* Faked:
 		* web-socket is faked with a random timeout updating ObiWan's location
 		* DarkJedi requests are faked with another random timeout then update per request.
-		* Uncompleted DarkJedi requests are fake-aborted.
+		* Incompleted DarkJedi requests are fake-aborted.
 
 ### Demo Notes
 
