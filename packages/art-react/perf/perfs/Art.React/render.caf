@@ -7,11 +7,14 @@ renderRecursiveStructure = (depth = 2) ->
 
 suite:
   tests: ->
-    test "simulated render" ->
+    test "simulated render 1 element" ->
       log {} Element()
 
     test "simulated render renderRecursiveStructure 7-element" ->
       log structure: renderRecursiveStructure()
+
+    test "simulated render renderRecursiveStructure 15-element" ->
+      log structure: renderRecursiveStructure 3
 
   baseline: ->
     benchmark "noop" -> 1 + 1
@@ -23,9 +26,13 @@ suite:
       -> Element()
       warmUpDuration: 2
 
-
     benchmark
       "simulated render 7 element structures"
       -> renderRecursiveStructure()
+      warmUpDuration: 2
+
+    benchmark
+      "simulated render 15 element structures"
+      -> renderRecursiveStructure 3
       warmUpDuration: 2
 
