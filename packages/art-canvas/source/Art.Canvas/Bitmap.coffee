@@ -595,7 +595,6 @@ module.exports = class Bitmap extends BitmapBase
         {blur, offsetX, offsetY, offset} = shadow
         shadowColor = shadow.color
         _context.shadowColor = rgbColor shadowColor || "black"
-        _context.shadowBlur = blur if blur
         offsetX ||= 0
         offsetY ||= 0
         if isMatrix where
@@ -616,12 +615,25 @@ module.exports = class Bitmap extends BitmapBase
           fully obeys setTrasform - including location. Only the vector from the center of
           the shape to the center of the shadow seems to ignore setTransform.
            - July 2016, SBD
+
+          Shadows and BLUR: (2019 June)
+
+            Also ignores matrix.
+
+            NOTE: Edge 18 has terrible shadows - HTMLCanvas or CSS
+              https://dbaron.org/css/test/2016/shadow-blur
+              https://jsfiddle.net/0njcx5za/
           ###
+
+          blur *= where.exactScaler if blur
+
           _context.shadowOffsetX = Matrix.transform1D offsetX, offsetY, where.sx, where.shx, 0
           _context.shadowOffsetY = Matrix.transform1D offsetY, offsetX, where.sy, where.shy, 0
         else
           _context.shadowOffsetX = offsetX
           _context.shadowOffsetY = offsetY
+
+        _context.shadowBlur = blur if blur
 
       @_setTransform where
       true

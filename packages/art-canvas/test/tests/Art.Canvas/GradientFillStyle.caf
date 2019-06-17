@@ -8,10 +8,10 @@ suite:
       assert.eq
         gfs.colors
         []
-          {} n: 0       c: rgbColor #000
-          {} n: 0.5     c: rgbColor #000
-          {} n: 0.5001  c: rgbColor #f00
-          {} n: 1       c: rgbColor #f00
+          {} n: 0       c: #000
+          {} n: 0.5     c: #000
+          {} n: 0.5001  c: #ff0000
+          {} n: 1       c: #ff0000
 
   basics: ->
     test "explicit 3-step gradient", ->
