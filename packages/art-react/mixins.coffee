@@ -1,1 +1,1 @@
-module.exports = require './source/Art/React/.Mixins'
+module.exports = require './source/Art/React/_Mixins'

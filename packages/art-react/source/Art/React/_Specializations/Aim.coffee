@@ -26,7 +26,7 @@ standardArtEngineElementClassNames = "
 
 {postProcessProps} = objectTreeFactoryOptions
 
-ArtEngineMacros = require './ArtEngineMacros'
+ArtEngineMacros = require('art-engine').Macros
 
 objectTreeFactoryOptions.preprocessElement = (element, Factory) ->
     if isString element

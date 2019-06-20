@@ -1,1 +1,1 @@
-module.exports = require "./source/Art/React/.Specializations/ArtEngine"
+module.exports = require "./source/Art/React/_Specializations/ArtEngine"
