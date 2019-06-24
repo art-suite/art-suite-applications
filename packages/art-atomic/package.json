@@ -1,5 +1,5 @@
 {
-  "author": "Shane Brinkman-Davis Delamore, Imikimi LLC",
+  "author": "Shane Brinkman-Davis Delamore, Imikimi LLC\"",
   "dependencies": {
     "art-build-configurator": "*",
     "art-foundation": "git://github.com/imikimi/art-foundation.git"
@@ -9,9 +9,9 @@
   "name": "art-atomic",
   "scripts": {
     "build": "webpack --progress",
-    "start": "webpack-dev-server --hot --inline --progress",
+    "start": "webpack-dev-server --hot --inline --progress --env.devServer",
     "test": "nn -s;mocha -u tdd",
-    "testInBrowser": "webpack-dev-server --progress"
+    "testInBrowser": "webpack-dev-server --progress --env.devServer"
   },
   "version": "1.27.1"
 }
