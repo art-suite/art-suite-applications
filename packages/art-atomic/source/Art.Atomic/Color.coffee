@@ -435,10 +435,10 @@ module.exports = class Color extends AtomicBase
   withSat: withSat = (v) -> hslColor @h, v, @l, @a
   withSaturation: withSat
 
-  withScaledLightness:  (s) -> hslColor @h, @s, s * @l, @a
-  withScaledSaturation: (s) -> hslColor @h, s * @s, @l, @a
-
-  withScaledLAndS:  (l, s) -> hslColor @h, s * @s, l * @l, @a
+  withScaledAlpha:      (s)     -> rgbColor @r, @g, @b, @a * s
+  withScaledLightness:  (s)     -> hslColor @h, @s, s * @l, @a
+  withScaledSaturation: (s)     -> hslColor @h, s * @s, @l, @a
+  withScaledLAndS:      (l, s)  -> hslColor @h, s * @s, l * @l, @a
 
   withChannel: (c, v) ->
     switch c
