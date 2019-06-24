@@ -2,7 +2,6 @@
   inspect, log
   isNumber, isPlainObject, isPlainArray, isString, isFunction
   stringToNumberArray
-  BaseObject
   lowerCamelCase
   upperCamelCase
   inspectedObjectLiteral
@@ -11,9 +10,9 @@
   inspect
   object
   numberToTightString
-} = require 'art-foundation'
+} = require 'art-standard-lib'
 
-module.exports = class Base extends BaseObject
+module.exports = class Base extends (require 'art-class-system').BaseClass
 
   ###
   Base generates these standard methods:
