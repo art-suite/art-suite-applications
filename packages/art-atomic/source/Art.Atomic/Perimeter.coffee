@@ -3,7 +3,6 @@
 # Such methods should work as-if implemented like this:
 #    method: (args...) -> new Rectangle(0, 0, @w, @h).method args...
 
-Foundation = require 'art-foundation'
 AtomicBase = require './Base'
 Point      = require './Point'
 {
@@ -13,7 +12,7 @@ Point      = require './Point'
   isPlainObject
   isString
   min
-} = Foundation
+} = require 'art-standard-lib'
 {point} = Point
 {rect} = require './Rectangle'
 

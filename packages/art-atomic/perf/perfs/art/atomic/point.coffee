@@ -1,7 +1,6 @@
-Foundation = require 'art-foundation'
+{log, inspect} = require 'art-standard-lib'
 Atomic = require 'art-atomic'
 
-{log, inspect} = Foundation
 {matrix, Matrix, point, Point, rect, Rectangle, color, Color} = Atomic
 testColor = color 1, 0, 0
 testColorFromHTMLString = color "#f00"

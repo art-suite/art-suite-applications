@@ -1,4 +1,3 @@
-Foundation = require 'art-foundation'
 AtomicBase = require './Base'
 {
   inspect, bound, modulo, pad, min, max, abs, float32Eq, isString, log
@@ -13,7 +12,7 @@ AtomicBase = require './Base'
   float32Eq0
   object
   isNumber
-} = Foundation
+} = require 'art-standard-lib'
 
 colorFloatEq = float32Eq #(n1, n2) -> Math.abs(n1 - n2) < 1/256
 

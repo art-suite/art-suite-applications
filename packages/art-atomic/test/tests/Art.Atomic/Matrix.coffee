@@ -1,7 +1,6 @@
-Foundation = require 'art-foundation'
 Atomic = Neptune.Art.Atomic
 {point, rect, matrix, Matrix, identityMatrix, Point} = Atomic
-{log, floatEq} = Foundation
+{log, floatEq} = require 'art-standard-lib'
 
 module.exports = suite:
   basic: ->

@@ -1,4 +1,3 @@
-Foundation  = require 'art-foundation'
 Atomic      = require './namespace' # required so we can break the circular dependency between Matrix and Rectangle
 AtomicBase  = require './Base'
 Point       = require './Point'
@@ -14,7 +13,7 @@ Point       = require './Point'
   floatGt
   floatGte
   floatLte
-} = Foundation
+} = require 'art-standard-lib'
 {point, isPoint} = Point
 
 # Rectangle supported constructor input signatures:
