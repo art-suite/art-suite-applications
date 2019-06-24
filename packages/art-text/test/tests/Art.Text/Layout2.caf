@@ -29,7 +29,7 @@ suite:
       assert.within
         scaledBitmap.autoCropRectangle
         rect(29, 28, 348, 116)
-        rect(29, 28, 350, 116)
+        rect(30, 30, 350, 116)
 
 
     test "layoutMode:tight 64pt", ->
