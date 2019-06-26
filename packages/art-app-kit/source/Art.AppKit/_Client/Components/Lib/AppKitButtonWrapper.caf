@@ -1,0 +1,76 @@
+import &StandardImport
+&ArtEngine.Element extract getSizePointLayout
+
+class AppKitButtonWrapper extends PointerActionsMixin FluxComponent
+  @subscriptions :appKitViewState
+
+  @stateFields
+    children:   []
+    hoverScale: 1.1
+    draw:       null
+    disabled:   false
+
+  preprocessProps: (props) ->
+    props extract disabled, action, size
+    @setState {children, draw} = props
+    @disabled = disabled ? !action
+
+    merge
+      objectWithout props, :children, :draw
+      {}
+        size:       getSizePointLayout size ? :parentSize
+        on:         @buttonHandlers
+        childArea:  :ignoreTransforms
+
+  preprocessState: (state) ->
+    state extract gridSize
+    merge
+      super
+      hoverScale:
+        if size = @refs?.rootElement?.element?.currentSize.max()
+          size + gridSize / 2
+          / size
+        else 1.1
+
+  render: ->
+    @ extract gridSize, draw, disabled
+
+    @props extract
+      size
+      disabledOpacity = .5
+      scaleAxis = .5
+      noZoom
+      hoverExpand
+
+    Element
+      @props
+
+      Element
+        key: :rootElement
+        cursor:     !disabled && :pointer
+        location:   ps: scaleAxis
+        axis:       scaleAxis
+        opacity:    if disabled then disabledOpacity else 1
+        size:       if size.childrenRelative then size
+        draw:
+          if draw is Function then draw @state
+          else draw
+
+        scale:
+          switch
+          when noZoom then 1
+          when !disabled && @pointerIsDown then .9
+          when hoverExpand && @hover
+            @hoverScale
+          else 1
+
+        animators:
+          scale:    duration: .15
+          opacity:  true
+          draw:     true
+
+        array child in @children
+          if child is Function
+            child @state
+          else
+            child

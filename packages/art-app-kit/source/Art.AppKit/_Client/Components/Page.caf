@@ -1,0 +1,39 @@
+import &StandardImport, &Widgets
+
+class Page extends FluxComponent
+  @subscriptions
+    :appKitViewState.appKitViewState
+    :pageStack
+
+  @propFields
+    :component
+    :pageStackIndex
+
+  render: ->
+    @appKitViewState extract buttonSize, gridSize
+    Element
+      :column
+      {visible} = @props
+
+      Element
+        size: h: buttonSize
+        draw: AppPalette.primary ? :red
+        TextElement
+          TextStyles.mediumText
+          :parentSize
+          :textCenterCenter
+          color:    TextPalette.white.primary
+          text:
+            ""
+              #{} upperCamelCase @component?.class?.getName(), ' '
+
+        if @pageStackIndex > 0
+          Button
+            TextStyles.smallText
+            tight:  true
+            text:   "" < #{upperCamelCase @pageStack[@pageStackIndex-1].component?.class?.getName(), ' '}
+            color:  TextPalette.white.primary
+            action: @models.pageStack.pop
+
+
+      @props.children

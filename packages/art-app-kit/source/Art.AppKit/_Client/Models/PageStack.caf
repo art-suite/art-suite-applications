@@ -1,0 +1,39 @@
+import &StandardImport
+
+class PageStack extends ApplicationState
+
+  @stateFields
+    currentPageStackId: null
+    stacks:             null
+    maxPageStackSize:   20
+
+  init: (@stacks) ->
+
+  @getter
+    currentPageStack: -> @state[@currentPageStackId]
+
+  @setter
+    stacks: (stacks) ->
+      @setState {} stacks
+      @currentPageStackId ?= stacks[0].id
+      each {id, component} in stacks
+        @setState id, [] {} id, component
+
+  push: (pageProps) ->
+    @ extract currentPageStack, currentPageStackId, maxPageStackSize
+
+    @setState
+      currentPageStackId
+      if currentPageStack.length + 1 >= maxPageStackSize
+        compactFlattenFast []
+          currentPageStack[0]
+          currentPageStack.slice currentPageStack.length - maxPageStackSize + 1, currentPageStack.length
+          pageProps
+
+      else
+        arrayWith currentPageStack, pageProps
+
+  pop: ->
+    @setState
+      @currentPageStackId
+      @currentPageStack.slice 0, -1

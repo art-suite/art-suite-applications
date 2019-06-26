@@ -1,0 +1,21 @@
+import &StandardImport
+
+class PageStack extends FluxComponent
+  @subscriptions
+    :pageStack
+    :pageStack.currentPageStackId
+
+  @propFields :pageStackId
+
+  render: ->
+    @ extract pageStack, pageStackId
+    Element
+      visible: @pageStackId == @currentPageStackId
+      array {component, props}, i in-array pageStack
+        component
+          props
+          {}
+            visible: i == pageStack.length - 1
+            pageStackIndex: i
+            pageStackId
+            component

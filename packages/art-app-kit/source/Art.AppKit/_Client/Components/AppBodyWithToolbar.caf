@@ -1,4 +1,4 @@
-import &StandardImport
+import &StandardImport, &InternalComponents
 
 class AppBodyWithToolbar extends FluxComponent
   @subscriptions
@@ -54,6 +54,7 @@ class AppBodyWithToolbar extends FluxComponent
       Element
         padding:  safePadding
         @props.children
+        MainPageStacks()
 
       if toolbar
         Element

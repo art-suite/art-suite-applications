@@ -1,0 +1,9 @@
+import &StandardImport
+
+class AppPalette extends HotStyleProps
+  colors =
+    primary:  #55b13f
+    grey:     #0006
+
+  object color in colors into @
+    rgbColor color
