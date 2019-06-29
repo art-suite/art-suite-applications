@@ -9,9 +9,13 @@ npm:
   description: "" Art.App.Kit
   dependencies: {}
 
+indexHtml: true
+
 webpack:
   # common properties are merged into each target's properties
   common: {}
 
   # each target's individual properties
-  targets: Demo: {}
+  targets:
+    object dirEntry in &fs.readdirSync path = :./source/Art.AppKitDemos when &fs.statSync(&Path.join path, dirEntry).isDirectory() with-key &Path.basename dirEntry
+      entry: :./ + &Path.join path, dirEntry, :index.js

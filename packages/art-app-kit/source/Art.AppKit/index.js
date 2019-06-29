@@ -6,4 +6,5 @@
 .addModules({
   StandardImport: require('./StandardImport')
 });
+require('./Lib');
 require('./Style');

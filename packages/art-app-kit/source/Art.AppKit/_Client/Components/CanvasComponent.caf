@@ -9,6 +9,7 @@ class CanvasComponent extends FluxComponent
     # @simpleBrowserInfo extract? fakeNativeApp
     # log {} fakeNativeApp, &ArtBrowserTools.getNotchProps()
     CanvasElement
+      :clip # TODO -this should be standard! Without it we do way too much draw-work
       on: {} models.appKitViewState.ready
       @props.App()
       &PhonePreview() if @simpleBrowserInfo.fakeNativeApp

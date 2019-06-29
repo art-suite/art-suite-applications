@@ -20,20 +20,28 @@ class PageStack extends ApplicationState
         @setState id, [] {} id, component
 
   push: (pageProps) ->
-    @ extract currentPageStack, currentPageStackId, maxPageStackSize
+    @setState (state) ->
+      log push: {} pageProps, state: object state
+      state extract currentPageStackId, maxPageStackSize
 
-    @setState
-      currentPageStackId
-      if currentPageStack.length + 1 >= maxPageStackSize
-        compactFlattenFast []
-          currentPageStack[0]
-          currentPageStack.slice currentPageStack.length - maxPageStackSize + 1, currentPageStack.length
-          pageProps
+      currentPageStack = state[currentPageStackId]
 
-      else
-        arrayWith currentPageStack, pageProps
+      objectWith
+        state
+        currentPageStackId
+        if currentPageStack.length + 1 >= maxPageStackSize
+          compactFlattenFast []
+            currentPageStack[0]
+            currentPageStack.slice currentPageStack.length - maxPageStackSize + 1, currentPageStack.length
+            pageProps
+
+        else
+          arrayWith currentPageStack, pageProps
 
   pop: ->
-    @setState
-      @currentPageStackId
-      @currentPageStack.slice 0, -1
+    @setState (state) ->
+      state extract currentPageStackId
+      objectWith
+        state
+        currentPageStackId
+        state[currentPageStackId].slice 0, -1

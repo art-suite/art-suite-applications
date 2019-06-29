@@ -1,0 +1,107 @@
+import &ArtSuite/Node, &TimeConstants
+
+class TimePresenters
+
+  @dateAgePartArray: (date, longForm) ->
+    dateAgeString date, longForm
+
+  dayPart = (date) ->
+    hours = date.getHours()
+    switch
+      when hours < 12  then :morning
+      when hours < 17  then :afternoon
+      else                  :evening
+
+  @daysDurationString: (seconds) ->
+    if seconds < 3 * secondsPer.day
+      humanDurationString seconds, true
+    else
+      "" #{round seconds / secondsPer.day} days
+
+  @humanDurationString: humanDurationString = (seconds, verbose) ->
+    unit = switch
+      # when seconds <  1                   then  :ms
+      when seconds <      secondsPer.m    then  :s
+      when seconds <  3 * secondsPer.h    then  :m
+      when seconds <  3 * secondsPer.d    then  :h
+      when seconds <  3 * secondsPer.mo   then  :d
+      when seconds <= 2 * secondsPer.y    then  :mo
+      else                                      :y
+
+    number = round seconds / secondsPer[unit]
+
+    if verbose then pluralize number, longTimeNames[unit]
+    else            "#{number}#{unit}"
+
+
+  @niceFullDateString: (date) ->
+    formatDate date, "h:mmtt mmmm d, yyyy"
+
+  @niceMonthYear: (date) ->
+    formatDate date, "mmmm yyyy"
+
+  @niceDateString: (date) ->
+    now = toDate()
+    date = toDate date
+
+    if   now.getFullYear() != date.getFullYear() then formatDate date, "" mmmm d yyyy
+    else if now.getMonth() != date.getMonth()    then formatDate date, "" mmmm d
+    else switch date.getDate() - now.getDate()
+      when 1  then :tomorrow
+      when -1 then :yesterday
+      when 0  then :today
+      else formatDate date, "" mmmm d
+
+  @niceTimeDetailsString: (date) => "" #{formatDate date, :h:mmtt} #{@niceDateString date}
+
+  @dateAgeString: dateAgeString = (date, longForm, precise) ->
+    now  = toDate()
+    date = toDate date
+
+    if date > now
+      # FUTURE
+      humanDurationString (date - now) / 1000, longForm
+
+    else
+      # PAST
+      ageInSeconds  = dateAgeInSeconds date
+      ageInMinutes  = ageInSeconds / secondsPer.minute
+      ageInHours    = ageInSeconds / secondsPer.hour
+      ageInDays     = ageInSeconds / secondsPer.day
+      if ageInMinutes < 1
+        if precise
+          pluralize ageInSeconds | 0, :second
+          + " ago"
+
+        else
+          "" just now
+
+      else if ageInHours < 1
+        minPlurale = pluralize round(ageInMinutes), if longForm then :minute else :min
+
+        if longForm then minPlurale + " ago" else minPlurale
+
+      else if ageInDays < 2 && now.getDay() ==
+          date.getDay() + 1
+          % 7
+
+        "" yesterday #{dayPart date}
+
+      else if ageInDays < 1
+        if :12:00am == out = formatDate date, :h:MMtt
+          :midnight
+
+        else
+          out
+
+      else if ageInDays < 7 && now.getDay() != date.getDay()
+        formatDate date, :dddd
+        + " "
+        + dayPart date
+
+      else if now.getYear() == date.getYear() &&
+          ageInDays < 60 || now.getMonth() != date.getMonth()
+        formatDate date, "" mmmm dS
+
+      else
+        formatDate date, "" mmm dS yyyy

@@ -4,6 +4,7 @@
 (module.exports = require('./namespace'))
 
 .addModules({
-  Button:         require('./Button'),
-  StandardImport: require('./StandardImport')
+  Button:          require('./Button'),
+  ScrollerWithBar: require('./ScrollerWithBar'),
+  StandardImport:  require('./StandardImport')
 });

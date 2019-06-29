@@ -4,8 +4,9 @@
 (module.exports = require('./namespace'))
 .includeInNamespace(require('./Client'))
 .addModules({
-  Init:           require('./init'),
-  StandardImport: require('./StandardImport')
+  Init:               require('./init'),
+  StandardImport:     require('./StandardImport'),
+  ViewStateComponent: require('./ViewStateComponent')
 });
 require('./Components');
 require('./InternalComponents');

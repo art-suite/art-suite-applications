@@ -9,7 +9,6 @@
   CanvasPath:         require('./CanvasPath'),
   Page:               require('./Page'),
   PhonePreview:       require('./PhonePreview'),
-  ScrollerWithBar:    require('./ScrollerWithBar'),
   SwipePager:         require('./SwipePager')
 });
 require('./Lib');

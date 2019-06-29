@@ -13,27 +13,31 @@ class Button extends FluxComponent
   render: ->
     @ extract tight, left
     AppKitButtonWrapper
-      size:
+
+      draw:
+        radius: 100
+        AppPalette.primary
+
+      if left
+        scaleAxis: y: .5
+      @props
+
+      size: size =
         if tight
           h:    @buttonSize
           wcw:  1
         else
           h: @buttonSize
 
-      if left
-        scaleAxis: y: .5
-      @props
-
-
       TextElement
         TextStyles.mediumText
-        @props
-        padding: @gridSize
-        text: @props.text ? "" (set button text: propery)
-        if tight
-          :parentHeightChildrenWidth
-        else
-          :parentSize
+        if @props.key?
+          objectWithout @props, :key
+        else @props
+        padding:  @gridSize
+        text:     @props.text ? "" (set button text: propery)
+        size:     size
+        color:    TextPalette.white.primary
 
         if left
           :textCenterLeft

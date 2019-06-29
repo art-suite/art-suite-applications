@@ -66,9 +66,10 @@ class ScrollerWithBar extends FluxComponent
 
     Element
       size: size
+      clip: @props.clip
       ScrollElement
         :column # can switch childrenLayout to :row in @props
-        objectWithout @props, :children
+        objectWithout @props, :children, :clip
         size: size
         key: key ? :scrollElement
         on: {} @scrollUpdate

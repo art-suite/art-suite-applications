@@ -30,10 +30,13 @@ class Page extends FluxComponent
         if @pageStackIndex > 0
           Button
             TextStyles.smallText
-            tight:  true
+            tight: true
+
             text:   "" < #{upperCamelCase @pageStack[@pageStackIndex-1].component?.class?.getName(), ' '}
             color:  TextPalette.white.primary
             action: @models.pageStack.pop
 
-
-      @props.children
+      ScrollerWithBar
+        :clip
+        {padding, childrenMargins} = @props
+        @props.children

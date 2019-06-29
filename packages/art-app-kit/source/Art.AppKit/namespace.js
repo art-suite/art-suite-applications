@@ -6,4 +6,5 @@ module.exports = require('neptune-namespaces').addNamespace(
   (class AppKit extends Neptune.PackageNamespace {})
   ._configureNamespace(require('../../package.json'))
 );
+require('./Lib/namespace');
 require('./Style/namespace');
