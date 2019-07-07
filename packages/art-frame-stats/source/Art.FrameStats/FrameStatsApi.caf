@@ -1,0 +1,46 @@
+import &StandardImport
+
+class FrameStatsApi
+  &frameStatStoragetorage extract frameStatStorage
+  @enabled    = false
+  @sampleSet  = {}
+  @timerStack = []
+
+  @frameStartTime = 0
+
+  @enable:      => frameStatStorage.reset(); @enabled = false
+  @disable:     => @enabled = false
+
+  @startFrame:  => if @enabled then @frameStartTime = currentSecond(); @sampleSet = {}
+  @endFrame:    => if @enabled
+    frameStatStorage.addFrame
+      @frameStartTime
+      currentSecond() - @frameStartTime
+      @sampleSet
+
+  @time: (name, f) =>
+    start = @startTimer()
+    f()
+    @endTimer name, start
+
+  @startTimer: => if @enabled
+    startTime = currentSecond()
+    @timerStack.push 0
+    startTime
+
+  @endTimer: (name, startTime) => if @enabled
+    subTimeTotal = @timerStack.pop()
+    elapsedTime = currentSecond() - startTime
+    if 0 < tsl = @timerStack.length
+
+      @timerStack[tsl - 1] += elapsedTime
+
+    @sampleSet[name] =
+      @sampleSet[name] ? 0
+      + elapsedTime - subTimeTotal
+
+  @logEvent: (name, id) =>
+    if @enabled
+      frameStatStorage.logEvent name, id
+
+  @enable() if getEnv().perfGraphs?

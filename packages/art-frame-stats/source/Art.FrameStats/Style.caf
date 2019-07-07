@@ -1,0 +1,35 @@
+import &StandardImport
+
+class Style
+  legendWidth:        80
+  @namedEventColors:  {}
+  @statFields:        [] :total
+  @statColors:        total: :gray
+
+  @registerStatColor: (color, fields...) =>
+    color = rgbColor color
+
+    @statFields = compactFlattenFast [] @statFields, fields
+
+    scaler = if fields.length <= 5
+      .1
+    else .5 / fields.length
+
+    object name, i in fields into @statColors
+      color.withScaledLightness 1 - scaler * i
+
+  @registerEventColors: (map) => object map into @namedEventColors
+
+  ## move out of here
+  @registerStatColor #9c3     :aim    :aimLayout  :aimTL        :aimRR
+  @registerStatColor :gold    :react  :reactAim   :reactUpdate  :reactRender
+  @registerStatColor #ff6347  :event
+  @registerStatColor #d936a3  :flux
+  @registerStatColor #39c     :draw
+
+  @registerEventColors
+    generateDrawCache:  :green
+    animation:          #77f
+    animationAborted:   #f77
+    animationDone:      #77f
+    default:            :gray

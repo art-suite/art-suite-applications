@@ -1,0 +1,3 @@
+import &StandardImport
+suite: ->
+  test 'Stats' -> assert.eq 1, 1
