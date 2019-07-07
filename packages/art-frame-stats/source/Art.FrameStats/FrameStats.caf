@@ -1,3 +1,5 @@
 []
-  {enable, disable, startFrame, endFrame, time, startTime, endTimer} = &FrameStatsApis
+  {enable, disable, startFrame, endFrame,
+  time, startTime, endTimer, getEnabled, logEvent} = &Main
   {registerStatColor, registerEventColors} = &Style
+  {frameStatStorage} = &FrameStatStorage

@@ -5,8 +5,8 @@
 .includeInNamespace(require('./FrameStats'))
 .addModules({
   FrameSampleSet:   require('./FrameSampleSet'),
-  FrameStatsApi:    require('./FrameStatsApi'),
   FrameStatStorage: require('./FrameStatStorage'),
+  Main:             require('./Main'),
   StandardImport:   require('./StandardImport'),
   Style:            require('./Style')
 });

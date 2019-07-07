@@ -1,1 +1,5 @@
-&ArtStandardLib.merge &ArtStandardLib, &ArtClassSystem, test: (args...) -> global.test args...
+&ArtStandardLib.mergeWithSelf
+  &ArtClassSystem
+  &ArtTestbench
+  &ArtFrameStats
+  {} &ArtFrameStats

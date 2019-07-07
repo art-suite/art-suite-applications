@@ -1,17 +1,22 @@
 import &StandardImport
 
-class FrameStatsApi
-  &frameStatStoragetorage extract frameStatStorage
+class Main
+  &FrameStatStorage extract frameStatStorage
   @enabled    = false
   @sampleSet  = {}
   @timerStack = []
 
   @frameStartTime = 0
 
-  @enable:      => frameStatStorage.reset(); @enabled = false
+  @getEnabled:  => @enabled
+
+  @enable:      => frameStatStorage.reset(); @enabled = true
   @disable:     => @enabled = false
 
-  @startFrame:  => if @enabled then @frameStartTime = currentSecond(); @sampleSet = {}
+  @startFrame:  => if @enabled
+    frameStatStorage.startFrame()
+    @frameStartTime = currentSecond(); @sampleSet = {}
+
   @endFrame:    => if @enabled
     frameStatStorage.addFrame
       @frameStartTime

@@ -2,4 +2,4 @@
 // file: tests/namespace.js
 
 module.exports = module.exports =  require('neptune-namespaces').vivifySubnamespace('Tests');
-require('./Art.Epoch.Stats/namespace');
+require('./Art.FrameStats/namespace');

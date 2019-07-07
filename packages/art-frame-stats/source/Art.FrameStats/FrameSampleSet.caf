@@ -3,6 +3,13 @@ import &StandardImport, {} &Style
 class FrameSampleSet extends BaseClass
   constructor: (@sampleTime, @total, @sampleSet) ->
 
+  @getter
+    inspectedObjects: ->
+      {}
+        @sampleTime
+        @total
+        @sampleSet
+
   getStacked: (sampleName) ->
     return @total if sampleName == :total
     sum = 0

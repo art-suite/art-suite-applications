@@ -1,7 +1,7 @@
 import &StandardImport
 
 class Style
-  legendWidth:        80
+  @legendWidth:       80
   @namedEventColors:  {}
   @statFields:        [] :total
   @statColors:        total: :gray

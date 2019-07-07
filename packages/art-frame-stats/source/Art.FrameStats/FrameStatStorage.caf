@@ -1,4 +1,4 @@
-import Math, &StandardImport, {} &EpochStat
+import Math, &StandardImport, {} &Style, &FrameSampleSet
 
 class FrameStatStorage extends BaseClass
   @singletonClass()
@@ -22,10 +22,24 @@ class FrameStatStorage extends BaseClass
     :minSampleTime
     :maxSampleTime
     sampleTimeRange:  -> @maxSampleTime - @minSampleTime
+    inspectedObjects: ->
+      {}
+        @maxMs
+        @nextEventIdIndex
+        @eventsById
+        @eventLegend
+        @minSampleTime
+        @maxSampleTime
+        stats: toInspectedObjects @stats
 
   ######################
 
   ######################
+  startFrame: ->
+    unless @_minSampleTime
+      @_minSampleTime =
+      @_maxSampleTime = currentSecond()
+
   addFrame: (sampleTime, total, sampleSet) ->
     @stats.push new FrameSampleSet sampleTime, total, sampleSet
 
@@ -38,7 +52,7 @@ class FrameStatStorage extends BaseClass
     id ?= name
     @_addSampleTime now
 
-    color = EpochStat.namedEventColors[name] || EpochStat.namedEventColors.default
+    color = Style.namedEventColors[name] || Style.namedEventColors.default
 
     ebi = @eventsById[id] ||= {}
       name, color
@@ -65,7 +79,7 @@ class FrameStatStorage extends BaseClass
   _logAndResetWhenIdle: ->
     if 0 < samples = @stats.length
       timeout 1000 ->
-        if samples == @stats.length && EpochStats.enabled
+        if samples == @stats.length && &Main.getEnabled()
           if @stats.length > 0
             log @drawGraph point 1000 600
           @reset()
@@ -83,7 +97,7 @@ class FrameStatStorage extends BaseClass
   getDrawMatrix: ({w, h})->
     @ extract sampleTimeRange, minSampleTime, maxMs
 
-    w -= legendWidth
+    w -= Style extract legendWidth
 
     sampleWidth = floor (w / sampleTimeRange) / 60
     xScale = (w - sampleWidth) / sampleTimeRange
