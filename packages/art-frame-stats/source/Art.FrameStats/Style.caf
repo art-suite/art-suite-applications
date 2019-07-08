@@ -21,11 +21,11 @@ class Style
   @registerEventColors: (map) => object map into @namedEventColors
 
   ## move out of here
+  @registerStatColor #39c     :draw
   @registerStatColor #9c3     :aim    :aimLayout  :aimTL        :aimRR
   @registerStatColor :gold    :react  :reactAim   :reactUpdate  :reactRender
-  @registerStatColor #ff6347  :event
   @registerStatColor #d936a3  :flux
-  @registerStatColor #39c     :draw
+  @registerStatColor #ff6347  :event
 
   @registerEventColors
     generateDrawCache:  :green

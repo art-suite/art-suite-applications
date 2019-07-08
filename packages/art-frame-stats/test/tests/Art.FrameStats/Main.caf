@@ -20,10 +20,10 @@ suite: ->
           1
 
     :time2 ->
-      ArtFrameStats.time :testTimer2 ->
-        start = currentSecond()
-        while currentSecond() - start < .100
-          1
+      start = ArtFrameStats.startTimer()
+      while currentSecond() - start < .100
+        1
+      ArtFrameStats.endTimer :testTimer2, start
 
     :logEvent ->
       ArtFrameStats.logEvent :testEvent :abc123
@@ -32,7 +32,7 @@ suite: ->
       ArtFrameStats.endFrame()
 
     :inspect ->
-      log {}frameStatStorage
+      # log {} frameStatStorage
       frameStatStorage extract inspectedObjects
       assert.selectedEq
         name:   :testEvent
