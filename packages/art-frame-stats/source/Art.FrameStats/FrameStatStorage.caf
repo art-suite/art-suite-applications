@@ -87,9 +87,11 @@ class FrameStatStorage extends BaseClass
   #######################
     DRAW
   #######################
-  drawAllSamplesForOneField: (bitmap, drawMatrix, sampleField) ->
+  @getter :drawMatrix
+  drawAllSamplesForOneField: (bitmap, sampleField) ->
+    @ extract sampleTimeRange, stats, drawMatrix
+
     bitmap.size extract w, h
-    @ extract sampleTimeRange, stats
     sampleWidth = floor (w / sampleTimeRange) / 60
     each stat in stats
       stat.drawSample bitmap, drawMatrix, sampleWidth, sampleField, h
@@ -97,7 +99,7 @@ class FrameStatStorage extends BaseClass
   getDrawMatrix: ({w, h})->
     @ extract sampleTimeRange, minSampleTime, maxMs
 
-    w -= Style extract legendWidth
+    w -= legendWidth = Style.legendWidth + 5
 
     sampleWidth = floor (w / sampleTimeRange) / 60
     xScale = (w - sampleWidth) / sampleTimeRange
@@ -108,19 +110,35 @@ class FrameStatStorage extends BaseClass
     .scaleXY        xScale,         yScale
     .translateXY    legendWidth,    h
 
-  drawLabeledHLine: (bitmap, x1, x2, y, color, label) ->
-    bitmap.drawRectangle  null, rect(x1, y, x2-x1, 1),    {} color
-    bitmap.drawText       point(x1, y-5), label, size:14, {} color
+  drawLabeledHRule: (bitmap, y, color, label) ->
+    @drawLabeledHLineFromTimes
+      bitmap
+      @_minSampleTime
+      @_maxSampleTime
+      y
+      color
+      label
 
-  drawEvents: (bitmap, drawMatrix) ->
+  drawLabeledHLineFromTimes: (bitmap, t1, t2, y, color, label) ->
+    @ extract drawMatrix
+    x1 = floor drawMatrix.transformX t1, 0
+    x2 = floor drawMatrix.transformX t2, 0
+
+    y = floor y
+
+    bitmap.drawRectangle  null, rect(x1, y, x2-x1, 1),    props = {} color
+    bitmap.drawText       point(x1, y-5), label, size:14, props
+
+  drawEvents: (bitmap, eventsById) ->
     bitmap.size extract w, h
+    drawMatrix = @_drawMatrix
 
     eventTimeLineHeight = floor h / 20
-    each {index, startTime, endTime, color, events, name}, id in @eventsById
-      @drawLabeledHLine
+    each {index, startTime, endTime, color, events, name}, id in eventsById
+      @drawLabeledHLineFromTimes
         bitmap
-        floor drawMatrix.transformX startTime, 0
-        floor drawMatrix.transformX endTime,   0
+        startTime
+        endTime
         y = (index + 1) * eventTimeLineHeight
         color
         name
@@ -133,39 +151,35 @@ class FrameStatStorage extends BaseClass
           {} color
 
   drawGraph: (size) ->
-    &Style extract statFields, statColors
+    @ extract stats, sampleTimeRange, eventsById
     bitmap = new Bitmap size
 
-    size extract w, h
-    bitmap.clear #f
-    drawMatrix = @getDrawMatrix size
+    @_drawMatrix = drawMatrix = @getDrawMatrix size
 
-    y       = floor drawMatrix.transformY 0 1/60
-    tenMsY  = floor drawMatrix.transformY 0 1/100
-    fiveMsY = floor drawMatrix.transformY 0 1/200
-    bitmap.drawRectangle
-      null
-      rect    0 y, w, 1
-      color:  #0007
-
-    each sampleField in statFields
-      @drawAllSamplesForOneField bitmap, drawMatrix, sampleField
-
-    @drawLabeledHLine bitmap, 40, w, tenMsY,  #0007 10ms
-    @drawLabeledHLine bitmap, 40, w, fiveMsY, #0007 5ms
-    @drawEvents bitmap, drawMatrix
-
-    totalFrames         = @stats.length
-    averageFrameTimeMs  = @sampleTimeRange / totalFrames
-    perfectFrameCount   = @sampleTimeRange * 60 + .5 | 0
+    totalFrames         = stats.length
+    averageFrameTimeMs  = sampleTimeRange / totalFrames
+    perfectFrameCount   = sampleTimeRange * 60 + .5 | 0
     missedFrames        = perfectFrameCount - totalFrames
-    averageFrameTimeMsY = floor drawMatrix.transformY 0, averageFrameTimeMs
-    if 55 > averageFps = 1 / averageFrameTimeMs + .5 | 0
-      @drawLabeledHLine bitmap, 40, w, y,
-        #0007
-        "" 60fps - 16.7ms
 
-    @drawLabeledHLine bitmap, 40, w, averageFrameTimeMsY,
+    bitmap.clear #f
+
+    each sampleField in &Style.statFields
+      @drawAllSamplesForOneField bitmap, sampleField
+
+    @drawLabeledHRule bitmap, drawMatrix.transformY(0 1/100), #0007 10ms
+    @drawLabeledHRule bitmap, drawMatrix.transformY(0 1/200), #0007 5ms
+    @drawEvents bitmap, eventsById
+    @drawLabeledHRule
+      bitmap
+      drawMatrix.transformY 0 1/60
+      :green
+      if 55 > averageFps = 1 / averageFrameTimeMs + .5 | 0
+        "" 60fps - 16.7ms
+      else ''
+
+    @drawLabeledHRule
+      bitmap
+      drawMatrix.transformY 0, averageFrameTimeMs
       #0007
       ""
         average: #{averageFps}fps (miss-rate: #{
@@ -174,11 +188,19 @@ class FrameStatStorage extends BaseClass
 
         }% #{missedFrames}/#{perfectFrameCount})
 
+    @_drawLegend bitmap
+
+    bitmap.drawBorder null, bitmap.size, #e
+
+    bitmap
+
+  _drawLegend: (bitmap) ->
+    &Style extract statFields, statColors, legendWidth
     y = 0
     each field in statFields
       bitmap.drawRectangle
         null
-        rect    0 y, 75 23
+        rect    0 y, legendWidth, 23
         color:  statColors[field]
 
       bitmap.drawText
@@ -187,7 +209,3 @@ class FrameStatStorage extends BaseClass
         size:   16 color: :white
 
       y += 25
-
-    bitmap.drawBorder null, bitmap.size, #eee
-
-    bitmap

@@ -1,7 +1,7 @@
 import &StandardImport
 
 class Style
-  @legendWidth:       80
+  @legendWidth:       100
   @namedEventColors:  {}
   @statFields:        [] :total
   @statColors:        total: :gray
@@ -18,18 +18,9 @@ class Style
     object name, i in fields into @statColors
       color.withScaledLightness 1 - scaler * i
 
-  @registerEventColors: (map) => object map into @namedEventColors
+    @
 
-  ## move out of here
-  @registerStatColor #39c     :draw
-  @registerStatColor #9c3     :aim    :aimLayout  :aimTL        :aimRR
-  @registerStatColor :gold    :react  :reactAim   :reactUpdate  :reactRender
-  @registerStatColor #d936a3  :flux
-  @registerStatColor #ff6347  :event
+  @registerEventColors: (map) =>
+    object map into @namedEventColors
 
-  @registerEventColors
-    generateDrawCache:  :green
-    animation:          #77f
-    animationAborted:   #f77
-    animationDone:      #77f
-    default:            :gray
+    @
