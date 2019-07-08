@@ -23,11 +23,6 @@ class Main
       currentSecond() - @frameStartTime
       @sampleSet
 
-  @time: (name, f) =>
-    start = @startTimer()
-    f()
-    @endTimer name, start
-
   @startTimer: => if @enabled
     startTime = currentSecond()
     @timerStack.push 0

@@ -14,10 +14,10 @@ suite: ->
       ArtFrameStats.startFrame()
 
     :time1 ->
-      ArtFrameStats.time :testTimer1 ->
-        start = currentSecond()
-        while currentSecond() - start < .010
-          1
+      start = ArtFrameStats.startTimer()
+      while currentSecond() - start < .010
+        1
+      ArtFrameStats.endTimer :testTimer1, start
 
     :time2 ->
       start = ArtFrameStats.startTimer()
