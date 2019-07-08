@@ -27,6 +27,8 @@ ReactArtEngineEpoch = require './ReactArtEngineEpoch'
 } = Foundation
 {reactArtEngineEpoch} = ReactArtEngineEpoch
 
+{startFrameTimer, endFrameTimer} = require 'art-frame-stats'
+
 React = require './namespace'
 {artReactDebug} = getEnv()
 
@@ -38,14 +40,10 @@ StateFieldsMixin = require './StateFieldsMixin'
 PropFieldsMixin = require './PropFieldsMixin'
 
 if ArtEngineCore = Neptune.Art.Engine.Core
-  {StateEpoch, GlobalEpochCycle} = ArtEngineCore
-  {stateEpoch} = StateEpoch
-  {globalEpochCycle} = GlobalEpochCycle
+  {stateEpoch} = ArtEngineCore.StateEpoch
   onNextStateEpochReady = (f) -> stateEpoch.onNextReady f
-  timePerformance = (name, f) -> globalEpochCycle.timePerformance name, f
 else
   onNextStateEpochReady = (f) -> reactArtEngineEpoch.onNextReady f
-  timePerformance = (name, f) -> f()
 
 # globalCount = ->
 # time = stackTime = (f) -> f()
@@ -640,7 +638,7 @@ defineModule module, -> class Component extends PropFieldsMixin StateFieldsMixin
   _renderCaptureRefs: ->
     Component.rendered++
 
-    start = globalEpochCycle?.startTimePerformance()
+    startFrameTimer "reactRender"
 
     ret = null
     globalCount "ReactComponent_Rendered"
@@ -657,7 +655,8 @@ defineModule module, -> class Component extends PropFieldsMixin StateFieldsMixin
     VirtualNode.currentlyRendering =
     VirtualNode.assignRefsTo = null
 
-    globalEpochCycle?.endTimePerformance "reactRender", start
+    endFrameTimer()
+
     ret
 
   _updateRefsAfterReRender: ->
@@ -685,9 +684,9 @@ defineModule module, -> class Component extends PropFieldsMixin StateFieldsMixin
       throw new Error "Component render function returned: #{formattedInspect newRenderResult}"
 
     if @_virtualAimBranch._canUpdateFrom newRenderResult
-      start = globalEpochCycle?.startTimePerformance()
+      startFrameTimer "reactUpdate"
       @_virtualAimBranch._updateFrom newRenderResult
-      globalEpochCycle?.endTimePerformance "reactUpdate", start
+      endFrameTimer()
       @_updateRefsAfterReRender()
     else
       # TODO - this should probably NOT be an error, but it isn't easy to solve.

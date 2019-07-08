@@ -5,8 +5,7 @@ React = require "../index"
 module.exports = React
 Aim = require './Aim'
 
-if ArtEngineCore = Neptune.Art.Engine.Core
-  {globalEpochCycle} = ArtEngineCore.GlobalEpochCycle
+{startFrameTimer, endFrameTimer} = require 'art-frame-stats'
 
 React.addElementFactories = (elementClassNames) ->
   for k, v of factories = Aim.createVirtualElementFactories React.VirtualElementArtEngine, elementClassNames
@@ -28,10 +27,10 @@ class React.VirtualElementArtEngine extends React.VirtualElement
   _setElementChildren: (childElements) -> @element.setChildren childElements
 
   _newElement: (elementClassName, props, childElements, bindToOrCreateNewParentElementProps)->
-    start = globalEpochCycle?.startTimePerformance()
+    startFrameTimer "reactCreate"
     if props.children
       props = objectWithout props, "children"
-    element = ElementFactory.newElement @elementClassName, props, childElements
+    element = ElementFactory.newElement @elementClassName, props, childElements, @
 
     if bindToOrCreateNewParentElementProps
       if bindToOrCreateNewParentElementProps instanceof Element
@@ -42,8 +41,7 @@ class React.VirtualElementArtEngine extends React.VirtualElement
           children: [element]
         new CanvasElement props
 
-    element.creator = @
-    globalEpochCycle?.endTimePerformance "reactAim", start
+    endFrameTimer()
     element
 
   _newErrorElement: -> @_newElement "RectangleElement", key:"ART_REACT_ERROR_CREATING_CHILD_PLACEHOLDER", color:"orange"
