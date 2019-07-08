@@ -46,6 +46,7 @@ class FrameStatStorage extends BaseClass
     @maxMs = max @maxMs, total * 1.5
     @_logAndResetWhenIdle()
     @_addSampleTime sampleTime
+    @_addSampleTime sampleTime + max total, 1/60
 
   logEvent: (name, id) ->
     now = currentSecond()
@@ -79,7 +80,7 @@ class FrameStatStorage extends BaseClass
   _logAndResetWhenIdle: ->
     if 0 < samples = @stats.length
       timeout 1000 ->
-        if samples == @stats.length && &Main.getEnabled()
+        if samples == @stats.length && &Main.getFrameStatsEnabled()
           if @stats.length > 0
             log @drawGraph point 1000 600
           @reset()
@@ -87,28 +88,59 @@ class FrameStatStorage extends BaseClass
   #######################
     DRAW
   #######################
-  @getter :drawMatrix
-  drawAllSamplesForOneField: (bitmap, sampleField) ->
-    @ extract sampleTimeRange, stats, drawMatrix
+  @getter
+    :drawMatrix
 
-    bitmap.size extract w, h
-    sampleWidth = floor (w / sampleTimeRange) / 60
-    each stat in stats
-      stat.drawSample bitmap, drawMatrix, sampleWidth, sampleField, h
+  getGraphX = -> Style.legendWidth + 5
+
+  getGraphWidth = (totalWidth) ->
+    totalWidth - getGraphX()
+
+  getSampleWidth: (graphWidth) ->
+    max 1,
+      graphWidth / @sampleTimeRange
+      / 60
+      - 1
 
   getDrawMatrix: ({w, h})->
     @ extract sampleTimeRange, minSampleTime, maxMs
 
-    w -= legendWidth = Style.legendWidth + 5
+    graphWidth = getGraphWidth w
+    sampleWidth = @getSampleWidth graphWidth
 
-    sampleWidth = floor (w / sampleTimeRange) / 60
-    xScale = (w - sampleWidth) / sampleTimeRange
+    xScale = graphWidth / sampleTimeRange
     yScale = h / maxMs
+
+    # log {} graphWidth, sampleWidth, w, h, xScale, yScale
 
     Matrix.scaleXY  1               -1
     .translateXY    -minSampleTime, 0
     .scaleXY        xScale,         yScale
-    .translateXY    legendWidth,    h
+    .translateXY    getGraphX(),    h
+
+  drawAllSamplesForOneField: (bitmap, sampleField) ->
+    @ extract sampleTimeRange, stats, drawMatrix
+
+    bitmap.size extract w, h
+
+    sampleWidth = @getSampleWidth getGraphWidth w
+
+    each stat in stats
+      stat.drawSample bitmap, drawMatrix, sampleWidth, sampleField, h
+
+  normalizeFrameTimes: ->
+    firstSampleTime = @stats[0]?.sampleTime
+    each stat in @stats
+      stat extract sampleTime
+      flooredSampleTime =
+        sampleTime
+        - firstSampleTime
+        * 60
+        | 0
+        / 60
+        + firstSampleTime
+
+      stat.sampleTime = flooredSampleTime
 
   drawLabeledHRule: (bitmap, y, color, label) ->
     @drawLabeledHLineFromTimes
@@ -153,6 +185,8 @@ class FrameStatStorage extends BaseClass
   drawGraph: (size) ->
     @ extract stats, sampleTimeRange, eventsById
     bitmap = new Bitmap size
+
+    @normalizeFrameTimes() if Style.normalizeFrameTimes
 
     @_drawMatrix = drawMatrix = @getDrawMatrix size
 

@@ -6,16 +6,25 @@ class Style
   @statFields:        [] :total
   @statColors:        total: :gray
 
+  ##
+    if true, normalizeFrameTimes rounds DOWN all frame-times to a multiple of 1/60 second.
+    Generally, for presentation, not much information is lost and the
+    output is much easier to read. The main reason is bars are ensured NOT
+    to overlap. Without this, they might.
+
+    However, you do lose a little precisions.
+  @normalizeFrameTimes: true
+
   @registerStatColor: (color, fields...) =>
+    @ extract statFields, statColors
     color = rgbColor color
 
-    @statFields = compactFlattenFast [] @statFields, fields
+    array field in fields when !statColors[field]
+      statFields.push field
 
-    scaler = if fields.length <= 5
-      .1
-    else .5 / fields.length
+    scaler = .5 / fields.length
 
-    object name, i in fields into @statColors
+    object name, i in fields into statColors
       color.withScaledLightness 1 - scaler * i
 
     @

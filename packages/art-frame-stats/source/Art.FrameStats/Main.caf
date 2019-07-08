@@ -1,46 +1,88 @@
-import &StandardImport
+import &StandardImport, {} &Style
 
 class Main
   &FrameStatStorage extract frameStatStorage
   @enabled    = false
-  @sampleSet  = {}
-  @timerStack = []
 
-  @frameStartTime = 0
+  @_resetFrameTimers: =>
+    @_frameStartTime = currentSecond()
+    @_subtimerElapsedTimes = []
+    @_timerNames = []
+    @_timerStartTimes = []
+    @_sampleSet = {}
 
-  @getEnabled:  => @enabled
+  @_resetFrameTimers()
 
-  @enable:      => frameStatStorage.reset(); @enabled = true
-  @disable:     => @enabled = false
+  #####################
+    enable/disable
+  #####################
+  @getFrameStatsEnabled:  => @enabled
+  @enableFrameStats:      => frameStatStorage.reset(); @enabled = true
+  @disableFrameStats:     => @enabled = false
 
+  #####################
+    start/endFrame
+  #####################
   @startFrame:  => if @enabled
     frameStatStorage.startFrame()
-    @frameStartTime = currentSecond(); @sampleSet = {}
+    @_resetFrameTimers()
+    @_frameStartTime = currentSecond()
+    @_sampleSet = {}
 
   @endFrame:    => if @enabled
     frameStatStorage.addFrame
-      @frameStartTime
-      currentSecond() - @frameStartTime
-      @sampleSet
+      @_frameStartTime
+      currentSecond() - @_frameStartTime
+      @_sampleSet
 
-  @startTimer: => if @enabled
-    startTime = currentSecond()
-    @timerStack.push 0
-    startTime
-
-  @endTimer: (name, startTime) => if @enabled
-    subTimeTotal = @timerStack.pop()
-    elapsedTime = currentSecond() - startTime
-    if 0 < tsl = @timerStack.length
-
-      @timerStack[tsl - 1] += elapsedTime
-
-    @sampleSet[name] =
-      @sampleSet[name] ? 0
-      + elapsedTime - subTimeTotal
-
+  #####################
+    logFrameEvent
+  #####################
   @logEvent: (name, id) =>
+    if @enabled
+      log.warn "ArtFrameStats 'logEvent' is DEPRICATED - use logFrameEvent"
+      @logFrameEvent name, id
+
+  @logFrameEvent: (name, id) =>
     if @enabled
       frameStatStorage.logEvent name, id
 
-  @enable() if getEnv().perfGraphs?
+  ########################
+    start/endFrameTimer
+  ########################
+  ## startFrameTimer
+    IN:
+      name <String> - the name for the timer (used for final presentation)
+      color <String/rgbColor> (optional) - used if 'name' doesn't already have a registered color
+    OUT: startTime <Number - seconds since 1970ish>
+  @startFrameTimer: (name, color) => if @enabled
+
+    unless Style.statColors[name]
+      Style.registerStatColor color ? :pink, name
+
+    @_timerNames.push name
+    @_timerStartTimes.push startTime = currentSecond()
+    @_subtimerElapsedTimes.push 0
+    startTime
+
+  ## endFrameTimer
+    OUT: elapsedTime <Number - seconds>
+  @endFrameTimer: => if @enabled
+    name      = @_timerNames.pop()
+    startTime = @_timerStartTimes.pop()
+
+    subtimerElapsedTime = @_subtimerElapsedTimes.pop()
+
+    elapsedTime = currentSecond() - startTime
+    if 0 < @_subtimerElapsedTimes extract length
+      @_subtimerElapsedTimes[length - 1] += elapsedTime
+
+    @_sampleSet[name] =
+      @_sampleSet[name] ? 0
+      + elapsedTime - subtimerElapsedTime
+    elapsedTime
+
+  #################
+    Enable if ?perfGraphs is on the URL
+  #################
+  @enableFrameStats() if getEnv().perfGraphs?

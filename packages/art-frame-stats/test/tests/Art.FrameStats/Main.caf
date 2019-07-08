@@ -1,35 +1,42 @@
 import &StandardImport
 suite: ->
   chainedTest ->
-    ArtFrameStats.registerEventColors
+    registerEventColors
       testEvent: #abcdef
 
   .thenTest
-    :enable ->
-      assert.false ArtFrameStats.getEnabled()
-      ArtFrameStats.enable()
-      assert.true ArtFrameStats.getEnabled()
+    :enableFrameStats ->
+      assert.false getFrameStatsEnabled()
+      enableFrameStats()
+      assert.true getFrameStatsEnabled()
 
     :startFrame ->
-      ArtFrameStats.startFrame()
+      startFrame()
 
     :time1 ->
-      start = ArtFrameStats.startTimer()
+      start = startFrameTimer :testTimer1
       while currentSecond() - start < .010
         1
-      ArtFrameStats.endTimer :testTimer1, start
+      assert.within
+        endFrameTimer()
+        .008
+        .012
 
     :time2 ->
-      start = ArtFrameStats.startTimer()
+      start = startFrameTimer :testTimer2
       while currentSecond() - start < .100
         1
-      ArtFrameStats.endTimer :testTimer2, start
+      assert.within
+        endFrameTimer()
+        .098
+        .102
 
-    :logEvent ->
-      ArtFrameStats.logEvent :testEvent :abc123
+
+    :logFrameEvent ->
+      logFrameEvent :testEvent :abc123
 
     :endFrame ->
-      ArtFrameStats.endFrame()
+      endFrame()
 
     :inspect ->
       # log {} frameStatStorage
@@ -57,6 +64,6 @@ suite: ->
         .11
         :testTimer2
 
-    :disable ->
-      ArtFrameStats.disable()
-      assert.false ArtFrameStats.getEnabled()
+    :disableFrameStats ->
+      disableFrameStats()
+      assert.false getFrameStatsEnabled()

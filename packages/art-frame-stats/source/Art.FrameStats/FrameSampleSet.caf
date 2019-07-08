@@ -23,8 +23,8 @@ class FrameSampleSet extends BaseClass
     bitmap.drawRectangle
       null
       rect
-        x = floor drawMatrix.transformX sampleTime, sample = @getStacked sampleField
-        y = floor drawMatrix.transformY sampleTime, sample
+        x = drawMatrix.transformX sampleTime, sample = @getStacked sampleField
+        y = drawMatrix.transformY sampleTime, sample
         sampleWidth
         h - y
 
