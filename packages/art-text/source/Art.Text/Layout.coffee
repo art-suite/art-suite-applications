@@ -267,7 +267,9 @@ module.exports = class Layout extends BaseObject
 
     offsetX = 0
     offsetY = 0
-    effectiveLeading = @getFontSize() * @getLeading()
+
+    # NOTE: HTML Text input layout seems to floor the effectiveLeading; this way they match up (mostly) (2019-07-20)
+    effectiveLeading = Math.floor @getFontSize() * @getLeading()
     effectiveParagraphLeadingDelta = ((@getParagraphLeading() ? @getLeading()) * @getFontSize()) - effectiveLeading
 
     allFragments = @_fragments

@@ -59,6 +59,35 @@ suite:
         && area.expand(5).contains drawArea
         "drawArea"
 
+  leading: ->
+    test "leading", ->
+      layout = new Layout
+        """
+          Testing leading: 1.25 (default)
+          line 2
+          line 3
+        {}
+
+      assert.eq
+        array fragment in layout.fragments
+          parseInt fragment.layoutArea.y
+        0 20 40
+
+      log leading_1_25:layout.toBitmap()
+      layout = new Layout
+        """
+          Testing leading: 2.0
+          line 2
+          line 3
+        {}
+        leading: 2
+
+      log leading_2_00:layout.toBitmap()
+      assert.eq
+        array fragment in layout.fragments
+          parseInt fragment.layoutArea.y
+        0 32 64
+
   regressions: ->
     test "layoutMode:tight 16pt", ->
       layout = new Layout
