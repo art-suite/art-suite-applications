@@ -14,6 +14,8 @@
 {BinaryString, EncodedImage} = (require 'art-foundation').Binary
 {BaseClass} = require 'art-class-system'
 
+{getMaxCanvasPixels} = require 'art-browser-tools'
+
 toChannelNumberMap = 0:0, 1:1, 2:2, 3:3, r:0, g:1, b:2, a:3, red:0, green:1, blue:2, alpha:3
 alphaChannelOffset = 3
 pixelStep = 4
@@ -36,6 +38,9 @@ defineModule module, class BitmapBase extends BaseClass
 
   @isImage:  isImage  = (e) -> (e?.constructor == HTMLImageElement ) || e instanceof HTMLImageElement
   @isCanvas: isCanvas = (e) -> (e?.constructor == HTMLCanvasElement) || e instanceof HTMLCanvasElement
+
+  @getImageSize: getImageSize = (image) ->
+    point image.naturalWidth || image.width, image.naturalHeight || image.height
 
   constructor: (a, b) ->
     super
@@ -213,6 +218,9 @@ defineModule module, class BitmapBase extends BaseClass
     throw new Error "invalid size=#{size} for Art.Canvas.Bitmap" unless size.gt point()
     @_size = size.floor()
     @logBitmapSize "initNewCanvas"
+
+    if @_size.area > getMaxCanvasPixels()
+      throw new Error log.error "size (#{@_size} == #{@_size.area}) exceeds max pixels (#{getMaxCanvasPixels()})"
 
     if global.document
       @_canvas = document.createElement 'canvas'

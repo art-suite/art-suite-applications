@@ -92,8 +92,12 @@ module.exports = class Bitmap extends BitmapBase
     .then (files) =>
       Promise.all array files, (file) ->
         EncodedImage.toImage file
-        .then (image)  => new Bitmap image
-        .then (bitmap) => {bitmap, file, mimeType: file.type}
+        .then (image)  =>
+          {
+            bitmap: new Bitmap image
+            file, image
+            mimeType: file.type
+          }
 
       .then (processedFiles) ->
           if multiple
@@ -102,7 +106,7 @@ module.exports = class Bitmap extends BitmapBase
             processedFiles[0]
 
   initFromImage: (image) ->
-    @_size = point image.naturalWidth || image.width, image.naturalHeight || image.height
+    @_size = BitmapBase.getImageSize image
     @logBitmapSize "initFromImage"
     @_htmlImageElement = image
 
