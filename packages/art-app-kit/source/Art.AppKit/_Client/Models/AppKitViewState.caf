@@ -2,58 +2,51 @@ import &StandardImport, &ArtBrowserTools
 
 class AppKitViewState extends ApplicationState
 
-  touchButtonSize    = 48
-  desktopButtonSize  = 38
-
   computeViewState: computeViewState = (viewSize) ->
-    phoneWidth = min 420, viewSize.w
-    gridSize = phoneWidth / 27
-
-    simpleBrowserInfo = getSimpleBrowserInfo()
-
-    isPhone = isTablet = isDesktop = false
-    switch simpleBrowserInfo.deviceType
-      when :phone   then isPhone = true
-      when :tablet  then isTablet = true
-      when :desktop then isDesktop = true
 
     {}
-      touchButtonSize
-      desktopButtonSize
-
+      # core info
       viewSize
-      buttonSize = if isDesktop then desktopButtonSize else touchButtonSize
-      phoneWidth
-      gridSize
-      isPhone
-      isTablet
-      isDesktop
-      screenWidth  = screen.availWidth
-      screenHeight = screen.availHeight
-      deviceLayoutMode: deviceLayoutMode =
+      simpleBrowserInfo =           getSimpleBrowserInfo()
+      notchInfo:                    getNotchInfo()
+      isTouchScreen:                simpleBrowserInfo.touch
+
+      # grid layout
+      majorGridSize     =           min 420, viewSize.w
+      gridSize          =           majorGridSize / 27
+
+      # safePadding
+      safePadding       =           getCssSafeAreaInset()
+      suggestedPadding  =           object v    in safePadding with max v, gridSize
+      safeToSuggestedPaddingDelta:  object v, k in safePadding with suggestedPadding[k] - v
+
+      # deviceTypes
+      isPhone           =           simpleBrowserInfo extract deviceType == :phone
+      isTablet          =           deviceType == :tablet
+      isDesktop         =           deviceType == :desktop
+
+      # deviceLayoutMode
+      deviceLayoutMode =
         if isPhone
           if getOrientationIsPortrait viewSize
-            :phonePortrait
-          else
-            :phoneLandscape
+                :phonePortrait
+          else  :phoneLandscape
         else if viewSize.x < 600
-          :narrow
-        else
-          :wide
-      wide:           deviceLayoutMode == :wide
-      narrow:         deviceLayoutMode == :narrow
-      phonePortrait:  deviceLayoutMode == :phonePortrait
-      phoneLandscape: deviceLayoutMode == :phoneLandscape
+                :narrow
+        else    :wide
 
-      simpleBrowserInfo
-      notchInfo:          getNotchInfo()
-      safePadding:        safePadding = getCssSafeAreaInset()
-      suggestedPadding:   suggestedPadding =
-        object v in safePadding
-          max v, gridSize
-      safeToSuggestedPaddingDelta:
-        object v, k in safePadding
-          suggestedPadding[k] - v
+      wide:                         deviceLayoutMode == :wide
+      narrow:                       deviceLayoutMode == :narrow
+      phonePortrait:                deviceLayoutMode == :phonePortrait
+      phoneLandscape    =           deviceLayoutMode == :phoneLandscape
+
+      # button sizes
+      smallButtonSize   =           35
+      desktopButtonSize =           38
+      reducedButtonSize =           40
+      touchButtonSize   =           48
+      buttonSize        =           if isDesktop then desktopButtonSize else touchButtonSize
+      heightAdjustedButtonSize:     if phoneLandscape then smallButtonSize else buttonSize
 
   @stateFields computeViewState point
     screen.availWidth

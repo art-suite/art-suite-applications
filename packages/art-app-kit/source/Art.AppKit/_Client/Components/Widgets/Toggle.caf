@@ -1,0 +1,67 @@
+import &StandardImport, {} &PrivateWidgets/Spinner
+
+class Toggle extends ViewStateComponent
+
+  @stateField
+    toggling: false
+    toggledTo: null
+
+  toggle: ->
+    @toggling = true
+
+    valueBeforeToggle = @props.isOn ? @toggledTo
+    @toggledTo = !valueBeforeToggle
+
+    @toggledTo = isNowOn = !@props.isOn
+
+    Promise
+    .then -> @props.action? isNowOn
+    .then @clearToggling
+
+  preprocessState: (state) ->
+    if state.isOn? && @state.isOn? && state.isOn != @state.isOn
+      merge super, toggledTo: null
+    else
+      super
+
+  render: ->
+    {fullScreen} = @viewState
+    @ extract toggling
+    @props extract size, isOn, action, toggleOnColor, toggleOffColor
+    isOn = @toggledTo ? isOn
+
+    color = if isOn then toggleOnColor ? AppPalette.primary
+    else toggleOffColor ? AppPalette.mediumLightGrey
+
+    Element
+      :pointerCursor if action
+      on: pointerClick: action && !toggling && @toggle
+      size: size ?
+        if fullScreen
+          h: 30, w: 60
+        else
+          h: 35, w: 65
+
+      draw:
+        rectangle:  radius: 1000
+        color:      color
+
+      animators: :draw
+
+      Element
+        padding: 2
+        Element
+          :parentHeightSquare
+          animators: location: true, axis: true
+          if isOn
+            location: :topRight
+            axis: x: 1
+
+          draw:
+            :circle
+            color:  :white
+            clip:   true
+          toggling &&
+            Spinner {} color, monocrome: true
+
+      # color: if isOn then "green" else "red"

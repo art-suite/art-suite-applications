@@ -1,0 +1,18 @@
+import &StandardImport
+
+class Home extends ViewStateComponent
+
+  render: ->
+    Page
+      @props
+      MenuSectionGroup
+        MenuSection
+          label: "" Demos
+
+          MenuButton
+            icon:       :foo
+            text:       "" Menu Widgets Demo
+            rightText:  :rightText
+            action: ->
+              @models.pageStack.push
+                component: &Components/Pages/MenuWidgets

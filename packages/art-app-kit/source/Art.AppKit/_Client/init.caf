@@ -13,10 +13,14 @@ import &StandardImport
         passed to models.appKitPageStack.init
         see AppKitPageStack.init
 
+      appPalette: <Object> name: colorish (rgaColor input compatible value)
+
 init: (options) ->
-  options extract App, title, pageStacks
-  unless App
-    throw new Error log.warn "ArtAppKit.init: App required: ArtAppKit.init App: MyComponentFactory"
+  options extract App, title, pageStacks, appPalette
+  App ?= &Components.App
+
+  if appPalette
+    &Style.AppPalette.setAppPalette appPalette
 
   unless App is Function && App.class?.prototype && App.class? instanceof Component
     if App instanceof Component

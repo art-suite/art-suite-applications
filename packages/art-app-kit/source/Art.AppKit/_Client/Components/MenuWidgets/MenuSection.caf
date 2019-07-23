@@ -1,0 +1,37 @@
+import &StandardImport, {} &MenuSectionLabel
+
+class MenuSection extends ViewStateComponent
+
+  render: ->
+    @ extract gridSize
+    @props extract white, label, disabled, button
+
+    Element
+      :parentWidthChildrenHeight :column
+      childrenMargins:      gridSize
+      receivePointerEvents: if disabled then :never
+      opacity:              if disabled then 2/3 else 1
+      padding:
+        top:    if @props.label then 0 else gridSize / 2
+        bottom: gridSize
+
+      animators:
+        opacity:  true
+        size:     toFrom: ww: 1 h: 0
+
+      draw:
+        padding: -1
+        :clip
+
+      if label
+        MenuSectionLabel {} label, button
+
+      Element
+        draw: if white
+          color:    :white
+          padding:  v: -gridSize / 2
+          outline:  TextPalette.black.barely
+
+        padding: h: gridSize / 2
+        :parentWidthChildrenHeight :column
+        @props.children

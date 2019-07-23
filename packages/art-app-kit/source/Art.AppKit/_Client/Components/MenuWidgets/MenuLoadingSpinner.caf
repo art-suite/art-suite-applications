@@ -1,0 +1,8 @@
+import &StandardImport
+
+class MenuLoadingSpinner extends ViewStateComponent
+
+  render: ->
+    Element
+      size: h: @gridSize * 5
+      Spinner()

@@ -40,8 +40,10 @@ class PhonePreview extends FluxComponent
       antiNotchWidth = 0
       roundedCornerRadius = 0
     notchColor = #3
-    if showStatusBar = statusBarStyle != :off
-      statusBarColor = if statusBarStyle == :light then #f else #3
+    statusBarColor = if showStatusBar = statusBarStyle != :off
+      if statusBarStyle == :light then #f else #3
+    else
+      #0000
 
     []
       if notchLocation == :top
@@ -52,10 +54,12 @@ class PhonePreview extends FluxComponent
           TextElement
             TextStyles.smallBoldText
             :textBottomCenter
+            animators: :color
             size:     w: antiNotchWidth
             color:    statusBarColor
-            text:     if showStatusBar then :Wi-Fi else ""
+            text:     :Wi-Fi
             padding:  left: roundedCornerRadius / 2, bottom: 2
+
           Element
             size:
               h: notchHeight * 2
@@ -68,10 +72,11 @@ class PhonePreview extends FluxComponent
           TextElement
             TextStyles.smallBoldText
             :textBottomCenter
+            animators: :color
             size:     w: antiNotchWidth
             padding:  right: roundedCornerRadius / 2, bottom: 2
             color:    statusBarColor
-            text:     if showStatusBar then :stat-icons else ""
+            text:     :stat-icons
       else
         Element
           size:

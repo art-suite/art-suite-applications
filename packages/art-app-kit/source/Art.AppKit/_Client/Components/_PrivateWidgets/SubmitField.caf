@@ -1,0 +1,167 @@
+import &StandardImport, {} &Spinner, &TextInputSubmitButton
+
+class SubmitField extends FluxComponent
+  @getter
+    textInputElement: -> @refs.textInput?.element
+
+  @stateFields
+    internalDisplayOnly: false
+    lastSubmittedValue: null
+    submitting: false
+    delayedFocus: false
+    errorSubmitting: false
+
+  isValid: (value) ->
+    {validationRegex} = @props
+    if validationRegex
+      !!(value.match @props.validationRegex)
+    else
+      true
+
+  focus: -> @textInputElement?.focus?()
+
+  preprocessProps: ({value, attempt, displayOnly, delayedFocus, noAutoFocus}) ->
+    if value? && (!(@state.value?) || (@props.value != value) || (@props.attempt != attempt))
+      @lastSubmittedValue = value
+      @setState @getValueStates value
+    if delayedFocus
+      @triggerDelayedFocus()
+      timeout 250, @clearDelayedFocus
+
+    if noAutoFocus
+      @triggerInternalDisplayOnly()
+
+    @clearInternalDisplayOnly() if displayOnly
+    super
+
+  submit: ->
+    {value, isValid, isNew} = @state
+    {requireNew, clearValueAfterSubmit} = @props
+    if isValid && (!requireNew || isNew)
+      @triggerInternalDisplayOnly()
+      @onNextReady =>
+        @setState lastSubmittedValue: value
+        @submitting = true
+        Promise.resolve @props.submit? value
+        .then ->
+          @submitting = false
+          if clearValueAfterSubmit
+            value = ""
+            @clearInternalDisplayOnly()
+          else
+            @refs.rootElement.element.blur()
+          @onNextReady => @valueChanged value
+        .catch (error) ->
+          @internalDisplayOnly = @submitting = false
+          @triggerErrorSubmitting()
+          timeout 2000, @clearErrorSubmitting
+          throw error
+
+  getValueStates: (value) ->
+    value:   value
+    isValid: @isValid value
+    isNew:   value != @state?.lastSubmittedValue && value != @props.value
+
+  valueChanged: (value)->
+    @setState updates = @getValueStates value
+    @props.valueChanged? updates
+
+  @setter
+    value: (value) ->
+      @refs.input?.value = value
+      @setState {value}
+
+  render: ->
+    {gridSize, noButtons} = @props
+    gridSize ||= 15
+
+    @props extract
+      placeholder, buttonType, backIcon, whiteBackground, maxLength, large
+      textInputType, backAction, displayOnly, requireNew, backButtonColor
+      buttonSize
+
+    {isValid, isNew, value} = @state
+
+    height = buttonSize || gridSize * if large then 3 else 2
+
+    commonTextProps = merge
+      padding:
+        left: if !backAction then gridSize else 0
+        right: if noButtons then gridSize else 0
+      animators: padding: true
+      if large then TextStyles.largeBoldText
+      else          TextStyles.mediumText
+
+    Element
+      size: ww:1, h: height
+      key: "rootElement"
+      padding: h: -gridSize/2
+      childrenLayout: "row"
+      drawOrder:[
+        "paddedDrawArea"
+        color: if whiteBackground then AppPalette.background else AppPalette.white
+        rectangle: radius: 1000
+      ]
+
+      backAction &&
+        TextInputSubmitButton
+          key: "backAction"
+          action: backAction
+          icon: backIcon || "left"
+          size: height
+          color: backButtonColor || AppPalette.primary
+
+      if @delayedFocus || @submitting || displayOnly || @internalDisplayOnly
+        TextElement commonTextProps,
+          align: "centerLeft"
+          size: "parentSize"
+          on: pointerClick: @clearInternalDisplayOnly
+          cursor: "text"
+          maxLines: 1
+          text: if present value then value else placeholder
+          color:
+            if @submitting then TextPalette.black.secondary
+            else if present value then TextPalette.black.primary
+            else "#0000004a"
+      else
+        valueLength = value?.length || 0
+        [
+          TextInputElement commonTextProps,
+            size: "parentSize"
+            color: TextPalette.black.primary
+            type: textInputType
+            key: "input"
+            placeholder: placeholder
+            value: value
+            maxLength: maxLength
+            on:
+              domElementAttached: ({target}) ->
+                target.focus()
+                target.selectAll()
+              preprocess: valueChanged: ({props}) -> props.value
+              enter: @submit
+              blur: @triggerInternalDisplayOnly
+              valueChanged: @valueChanged
+
+          maxLength? && (valueLength / maxLength) > .5 && TextElement TextStyles.tinyText,
+            inFlow: false
+            animators: opacity: toFrom: 0
+            size: "childrenSize"
+            key: "warnings"
+            text: (pluralize maxLength - valueLength, "char") + " left"
+            color: TextPalette.black.secondary
+            if @props.warningsOnTop
+              location: xw: 1, y: -3, x: -height / 2
+              axis: 1
+            else
+              location: ps: 1, y: +3, x: -height / 2
+              axis: x: 1
+        ]
+
+      !noButtons && TextInputSubmitButton
+        action: @submit
+        size: height
+        color: if @errorSubmitting then AppPalette.red else AppPalette.primary
+        icon: if @errorSubmitting then "!" else buttonType
+        waiting: @submitting
+        disabled: !isValid || (requireNew && !isNew)

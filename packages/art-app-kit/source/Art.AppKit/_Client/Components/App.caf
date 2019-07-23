@@ -1,0 +1,7 @@
+import &StandardImport
+
+class App extends Component
+
+  render: ->
+    &AppBodyWithToolbar
+      background: :white

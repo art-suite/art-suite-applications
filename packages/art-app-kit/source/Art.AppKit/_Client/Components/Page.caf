@@ -1,42 +1,65 @@
 import &StandardImport, &Widgets
 
-class Page extends FluxComponent
+class Page extends ViewStateComponent
   @subscriptions
-    :appKitViewState.appKitViewState
     :pageStack
 
   @propFields
     :component
     :pageStackIndex
+    :hideTitle
+
+  preprocessProps: (props) ->
+    if props.visible
+      @models.appKitPresentationState.statusBarStyle = props.statusBarStyle ? :light
+    props
 
   render: ->
-    @appKitViewState extract buttonSize, gridSize
+    @viewState extract buttonSize, gridSize
+
     Element
       :column
       {visible} = @props
+      draw: :white
+
+      animators:
+        visible:  duration: .125
+        opacity:  duration: .125 toFrom:   0
+        location: duration: .125 toFrom: x: gridSize * 3
+
+      location: x: if visible then 0 else -gridSize * 3
+
+      unless @hideTitle
+        Element
+          size: h: buttonSize
+          draw:
+            padding:
+              top: -@safePadding.top
+              h: -gridSize * 3
+            AppPalette.primary ? :red
+
+          TextElement
+            TextStyles.mediumText
+            :parentSize
+            :textCenterCenter
+            color:    TextPalette.white.primary
+            text:
+              ""
+                #{} upperCamelCase @component?.class?.getName(), ' '
+
+          if @pageStackIndex > 0
+            IconButton
+              icon: :back
+              color:  TextPalette.white.primary
+              action: @models.pageStack.pop
 
       Element
-        size: h: buttonSize
-        draw: AppPalette.primary ? :red
-        TextElement
-          TextStyles.mediumText
-          :parentSize
-          :textCenterCenter
-          color:    TextPalette.white.primary
-          text:
-            ""
-              #{} upperCamelCase @component?.class?.getName(), ' '
+        padding: bottom: -@safePadding.bottom
+        :clip unless @hideTitle
+        :column
 
-        if @pageStackIndex > 0
-          Button
-            TextStyles.smallText
-            tight: true
+        ScrollerWithBar
+          @props.children
 
-            text:   "" < #{upperCamelCase @pageStack[@pageStackIndex-1].component?.class?.getName(), ' '}
-            color:  TextPalette.white.primary
-            action: @models.pageStack.pop
-
-      ScrollerWithBar
-        :clip
-        {padding, childrenMargins} = @props
-        @props.children
+        Element
+          size: h: @safePadding.bottom

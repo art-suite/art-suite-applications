@@ -1,0 +1,123 @@
+import &StandardImport, {} &ActivityBadge, &Widgets/Icon
+
+&ArtEngine.Element extract getSizePointLayout
+
+class TabButton extends ViewStateComponent
+
+  renderIcon: ->
+    @props extract badgeBorder, icon, iconShadow, iconColor, iconScale = 1, color, badge, customIcon
+    []
+      customIcon
+      ? icon &&
+        Icon
+          icon:       icon
+          size:       25 * iconScale
+          animators:  :size :fontSize
+          color:      iconColor ? color
+          shadow:     iconShadow
+
+      badge > 0 && ActivityBadge
+        axis: .5
+        location: xw: .75, yh: .22
+        count: badge
+        border: badgeBorder
+
+  preprocessProps: (props) ->
+    props extract color, dimText, brightText, lightColor
+
+    color ||= if lightColor
+      if brightText
+            TextPalette.white.primary
+      else  TextPalette.white.secondary
+    else
+      if dimText
+            TextPalette.black.tertiary
+      else  TextPalette.black.secondary
+
+    merge props, {} color
+
+  # icon required
+  renderIconWithCount: ->
+    @props extract count, color
+
+    if count?
+      Element
+        :row
+        :childrenCenterLeft
+        :childrenSize
+        childrenMargins: @margin
+        count > 0 && TextElement
+          TextStyles.smallText
+          :childrenSize
+          animators: size: toFromVoid: hch:1, w:0
+          clip:   true
+          color:  color
+          text:   formatted3DigitCount count
+
+        @renderIcon()
+
+    else
+      @renderIcon()
+
+  @getter
+    margin: -> @gridSize / 2
+
+  render: ->
+    @props extract
+      palette, maxLines, iconRight, childrenMargins, iconShadow, labelStyle
+      textPadding, innerPadding, size, color, hoverAction, align
+      maxLargeLabelLength = 8
+      action, disabled, selected, gridSize, text, label, lightColor, count, badge, labelBottom
+    margin = @gridSize / 2
+
+    label ||= text
+
+    size = getSizePointLayout size if size
+
+    AppKitButtonWrapper
+      if @props.children
+        objectWithout @props, :children
+      else @props
+
+      hoverAction: hoverAction
+
+      Element
+        size: if size?.childrenRelative then size else :parentSize
+        padding: innerPadding ?
+          if !labelBottom || maxLines?
+            if label
+              h: @gridSize / 2
+            else
+              h: margin / 2
+        childrenLayout:     if labelBottom then "column" else "row"
+        childrenAlignment:  align || "centerCenter"
+        childrenMargins:    childrenMargins ? if labelBottom then TextStyles.smallText.fontSize / 4 else @gridSize / 2
+
+        @renderIconWithCount() unless iconRight
+
+        label && Element
+          size: if labelBottom then "parentWidthChildrenHeight"
+
+          else "childrenSizeMaxParentWidth"
+          TextElement labelStyle ? (if labelBottom then TextStyles.tinyText else TextStyles.smallText),
+            maxLines: maxLines
+            if labelBottom
+              if maxLines
+                size:   :parentWidthChildrenHeight
+                align:  :centerCenter
+              else
+                size:     :childrenSize
+                axis:     :topCenter
+                location: :topCenter
+
+            else
+              size: cs: 1, max: ps: 1.5
+              maxLines: 2
+            scale: (ps, cs) -> min 1, ps.minRatio cs
+
+            padding:  textPadding
+            text:     label
+            color:    color
+            shadow:   iconShadow
+
+        @renderIconWithCount() if iconRight

@@ -1,0 +1,4 @@
+&ArtAppKit/Client.init {}
+  title:      :Art.AppKitDemo.Minimum
+  pageStacks: []
+    id: :home component: &Home

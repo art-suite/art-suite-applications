@@ -1,0 +1,175 @@
+import &StandardImport, &MenuLib, {} &MenuTextEdit
+
+class MenuEditableText extends ViewStateComponent
+  @propFields
+    :label :placeholder :locked :allowNewlines :maxLength
+    maxLines: 1
+
+  @stateFields
+    editingInline: false
+    value:  null
+    valueLength: 0
+
+  @getter
+    fontStyle:  -> merge
+      TextStyles.mediumText
+
+    editInline: -> true
+    value: ->
+      if present @state extract value
+        if value is String
+          value
+        else "" #{} value
+
+  startEditing: ->
+    @editingInline = true
+    @onNextReady ->
+      @refs.textInputElement.element.focus()
+      @onNextReady ->
+        @refs.textInputElement.element.selectAll()
+
+  preprocessProps: (props) ->
+    if props.value != @props.value || !@state.value
+      @value = props.value
+
+    @valueLength = props.value?.length ? 0
+    props
+
+  finishEditing: ->
+    target = @refs.textInputElement.element
+    @props.onSave? @value = target.value
+    @editingInline = false
+
+  renderMainText: (value = @value) ->
+    @ extract buttonSize, gridSize, fontStyle, maxLines
+
+    TextElement
+      fontStyle
+      :parentWidthChildrenHeight
+      color:    if value then TextPalette.black.primary else TextPalette.black.secondary
+      text:     value || @placeholder || '-'
+      maxLines: maxLines
+
+      padding:
+        v: (buttonSize - fontStyle.fontSize * .8)/2
+        h: gridSize / 2
+
+  renderInlineEdit: ->
+    @ extract
+      buttonSize, gridSize
+      fontStyle
+      value, placeholder, maxLines
+
+    Element
+      size: ww:1, h: (ps, cs) -> max buttonSize, cs.y
+      padding: if present @label then top: gridSize
+      on: blur: @finishEditing
+      :row :childrenTopLeft
+
+      @renderLabel()
+
+      Element
+        :parentWidthChildrenHeight
+        padding:
+          v: (buttonSize - fontStyle.fontSize * .8)/2
+          left: gridSize / 2
+          right: gridSize / 2
+
+        TextInputElement
+          fontStyle
+          maxLength:    @maxLength
+          key:          :textInputElement
+          type:         if maxLines > 1 then :textarea
+          value:        value
+          placeholder:  placeholder
+          color:        TextPalette.black.primary
+          on:
+            valueChanged: ({target}) ->
+              @props.onChange? target.value
+              @valueLength = target.value.length
+
+            enter:        !@allowNewlines && @finishEditing
+
+          if maxLines > 1
+            size:
+              ww:  1
+              hch: 1
+              max: h:
+                (maxLines - 1) * leading = Math.floor fontStyle.fontSize * 1.25
+                + fontStyle.fontSize * .75
+
+          else
+            :parentWidthChildrenHeight
+
+      IconButton
+        action: @finishEditing
+        icon:   :check
+
+  renderLabel: ->
+    if present @ extract gridSize, label
+      TextElement
+        TextStyles.tinyText
+        :childrenSize
+        inFlow:   false
+        text:     label
+        color:    TextPalette.black.secondary
+        location: x: gridSize / 2, y: -gridSize / 4
+
+  render: ->
+    @ extract gridSize, buttonSize, fontStyle
+    @props extract label, large, placeholder, action, locked, maxLength
+
+    Element
+      menuItemLayout @viewState
+      size: ww: 1, h: (ps, cs) -> max buttonSize, cs.y
+
+      switch
+      when @editingInline
+        @renderInlineEdit()
+      when @editInline
+        Element
+          size: ww: 1 h: (ps, cs) -> max buttonSize, cs.y
+          padding: if present label then top: gridSize
+          on: pointerClick: @startEditing
+          :textCursor
+          :row :childrenTopLeft
+
+          @renderLabel()
+
+          @renderMainText()
+
+          unless locked
+            IconButton
+              icon:   :pencil
+              color:  TextPalette.black.tertiary
+
+      else
+        Element
+          disabled: locked
+          action: action || @startEditing
+
+          :parentWidthChildrenHeight
+
+          Element
+            size: ww:1, h: (ps, cs) -> max buttonSize, cs.y
+            padding: if present label then top: gridSize
+            :row :childrenTopLeft
+
+            @renderLabel()
+
+            @renderMainText()
+
+            unless locked
+              IconButton
+                icon:   :pencil
+                color:  TextPalette.black.tertiary
+
+      maxLength? && (@valueLength / maxLength) > .5 && TextElement
+        TextStyles.tinyText
+        :childrenSize
+        :bottomRight
+        inFlow:   false
+        color:    TextPalette.black.secondary
+        text:
+          pluralize maxLength - @valueLength, :char
+          + " left"

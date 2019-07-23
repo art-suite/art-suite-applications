@@ -6,11 +6,11 @@ class ScrollerWithBar extends FluxComponent
   @subscriptions :appKitViewState.appKitViewState
 
   @stateFields
-    scrollBarActive: false
-    recentlyScrolled: false
-    contentsDontFit: false
+    scrollBarActive:    false
+    recentlyScrolled:   false
+    contentsDontFit:    false
     flushStartDistance: 0
-    flushEndDistance: 0
+    flushEndDistance:   0
 
     portionShown: 0
     scrollPosition: 0
@@ -37,7 +37,7 @@ class ScrollerWithBar extends FluxComponent
       @flushEndDistance = childrenSize + childrenOffset - windowSize
 
       @contentsDontFit = childrenSize > windowSize
-      @recentlyScrolled = true
+      @recentlyScrolled = !float32Eq0 event.props.childrenOffsetDelta
       @scrollBarTimer.timeout 500, -> @clearRecentlyScrolled()
 
       @scrollPosition = scrollRatio
@@ -80,7 +80,7 @@ class ScrollerWithBar extends FluxComponent
           :x
         else
           :y
-        barSize = gridSize # * 1.5
+        barSize = gridSize # * if isTouchScreen then .5 else 1
         barDisplaySize = if isTouchScreen then 3.5 else gridSize * 2/3
 
         displayScrollPosition = bound 0, @scrollPosition, 1

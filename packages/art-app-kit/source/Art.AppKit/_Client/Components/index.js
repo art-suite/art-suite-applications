@@ -4,12 +4,15 @@
 (module.exports = require('./namespace'))
 .includeInNamespace(require('./Components'))
 .addModules({
+  App:                require('./App'),
   AppBodyWithToolbar: require('./AppBodyWithToolbar'),
   CanvasComponent:    require('./CanvasComponent'),
   CanvasPath:         require('./CanvasPath'),
   Page:               require('./Page'),
   PhonePreview:       require('./PhonePreview'),
+  StandardImport:     require('./StandardImport'),
   SwipePager:         require('./SwipePager')
 });
 require('./Lib');
+require('./MenuWidgets');
 require('./Widgets');

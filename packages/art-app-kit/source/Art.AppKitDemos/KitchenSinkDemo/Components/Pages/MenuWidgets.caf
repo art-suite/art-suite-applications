@@ -1,0 +1,92 @@
+import &StandardImport
+
+class MenuWidgets extends ViewStateComponent
+
+  render: ->
+    Page
+      @props
+      MenuSectionGroup
+        MenuSection
+          label: "" with icons
+
+          MenuButton
+            icon: :foo
+            text: "" MenuButton
+            rightText: :rightText
+            action: ->
+
+          MenuToggle
+            icon: :foo
+            text: "" MenuToggle
+            rightText: :rightText
+            action: ->
+
+        MenuSection
+          label: "" text edit
+
+          MenuEditableText
+            label: :MenuEditableText
+            placeholder: :placeholder
+
+          MenuEditableText
+            label: :MenuEditableText
+            placeholder: :placeholder
+            maxLines: 3
+            value:
+              ""
+                Then I saw Phaedra, and Procris, and fair Ariadne daughter of the
+                magician Minos, whom Theseus was carrying off from Crete to Athens,
+                but he did not enjoy her, for before he could do so Diana killed her
+                in the island of Dia on account of what Bacchus had said against her.
+
+        MenuSection
+          label: "" custom icons
+
+          MenuButton
+            customIcon: Element
+              draw: radius: 5 colors: [#f77 #faa #f77] to: :bottomRight
+              TextElement
+                TextStyles.mediumBoldText
+                text: :?
+                layoutMode: :tight
+                color: TextPalette.white.primary
+                :parentSize :textCenterCenter
+
+            text: "" MenuButton
+            action: ->
+
+          MenuToggle
+            customIcon: Element
+              draw: radius: 5 colors: [#4b4 #8d8 #4b4] to: :bottomRight
+              TextElement
+                TextStyles.mediumBoldText
+                text: :!!!
+                layoutMode: :tight
+                color: TextPalette.white.primary
+                :parentSize :textCenterCenter
+
+            icon: :foo
+            text: "" MenuToggle
+            action: ->
+
+        MenuSection
+          label: "" without icons
+
+          MenuButton
+            text: "" MenuButton
+            action: ->
+
+          MenuToggle
+            text: "" do you like?
+            action: ->
+
+        MenuSection
+          label: "" disabled
+
+          MenuButton
+            icon: :foo
+            text: "" MenuButton
+
+          MenuToggle
+            icon: :foo
+            text: "" MenuToggle

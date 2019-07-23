@@ -21,7 +21,6 @@ class PageStack extends ApplicationState
 
   push: (pageProps) ->
     @setState (state) ->
-      log push: {} pageProps, state: object state
       state extract currentPageStackId, maxPageStackSize
 
       currentPageStack = state[currentPageStackId]

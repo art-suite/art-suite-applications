@@ -1,0 +1,22 @@
+import &StandardImport, &MenuSupportWidgets
+
+class MenuButton extends ViewStateComponent
+
+  render: ->
+    @viewState extract gridSize, buttonSize
+
+    AppKitButtonWrapper
+      size: ww: 1 h: buttonSize
+      animators: :draw :size
+      draw: ({hover, disabled}) ->
+        radius: gridSize / 2
+        fill:
+          if hover && !disabled
+            AppPalette.primary
+          else
+            AppPalette.primary
+            .withAlpha 0
+
+      @props
+
+      IconAndText @props

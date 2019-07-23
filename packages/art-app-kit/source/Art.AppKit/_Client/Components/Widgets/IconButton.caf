@@ -1,0 +1,8 @@
+import &StandardImport, {} &Icon
+
+class IconButton extends ViewStateComponent
+  render: ->
+    AppKitButtonWrapper
+      size:   @buttonSize
+      action: @props.action
+      Icon    @props

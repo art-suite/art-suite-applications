@@ -1,0 +1,8 @@
+&ArtAppKit.StyleProps
+
+&ArtAppKit/Client.init {}
+  title:      :Art.AppKitDemo.Minimum
+  appPalette:
+    primary:  #f77
+  pageStacks: []
+    id: :home component: &Home

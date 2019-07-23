@@ -1,0 +1,33 @@
+import &StandardImport, &MenuLib
+
+class MenuSectionLabel extends ViewStateComponent
+
+
+  render: ->
+    @viewState extract gridSize, heightAdjustedButtonSize
+    @props extract label, text = label
+
+    Element
+      :parentWidthChildrenHeight :row
+      :childrenBottomLeft
+
+      animators:
+        size: toFrom: ww: 1  h: 0
+        clip: toFrom: true
+
+      padding: left: gridSize / 2
+
+      draw:
+        padding:  h: -1
+        color:    AppPalette.veryLightDarken
+        outline:  color: #0002
+
+      TextElement
+        TextStyles.smallText
+        :parentWidthChildrenHeight
+        padding:
+          top:    heightAdjustedButtonSize * .5
+          bottom: gridSize / 2
+
+        color:  TextPalette.black.secondary
+        text:   text

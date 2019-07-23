@@ -4,5 +4,7 @@
 (module.exports = require('./namespace'))
 .includeInNamespace(require('./Lib'))
 .addModules({
-  TimeConstants: require('./TimeConstants')
+  Formatters:     require('./Formatters'),
+  TimeConstants:  require('./TimeConstants'),
+  TimePresenters: require('./TimePresenters')
 });

@@ -1,0 +1,30 @@
+import &StandardImport
+
+class Icon extends &ViewStateComponent
+
+  render: ->
+    @props extract
+      location
+      size = @buttonSize
+      align
+      color
+      animators
+      icon
+      shadow
+
+    Element
+      {} location, size, align, animators
+      :cacheDraw
+      draw:
+        padding:  @gridSize / 4
+        radius:   @gridSize / 4
+        fill: {}
+          color
+          shadow
+
+      TextElement
+        TextStyles.mediumBoldText
+        compositeMode: :targetWithoutSource
+        layoutMode: :tight
+        text: upperCase icon[0]
+        :parentSize :textCenterCenter

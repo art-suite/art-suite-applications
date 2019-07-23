@@ -3,7 +3,6 @@
 
 module.exports = require('../namespace').addNamespace(
   'NativePreview',
-  (class NativePreview extends Neptune.PackageNamespace {})
-  ._configureNamespace(require('../../../package.json'))
+  class NativePreview extends Neptune.PackageNamespace {}
 );
 require('./Components/namespace');

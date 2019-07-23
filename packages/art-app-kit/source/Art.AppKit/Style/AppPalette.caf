@@ -1,9 +1,43 @@
 import &StandardImport
 
 class AppPalette extends HotStyleProps
-  colors =
-    primary:  #55b13f
-    grey:     #0006
 
-  object color in colors into @
-    rgbColor color
+  @setColors: (colors) ->
+    object color in colors into @
+      rgbColor color
+
+  @setAppPalette: (appPalette) =>
+    primary   = rgbColor appPalette?.primary ? #55b13f
+    saturated = primary.sat
+
+    @setColors merge
+      {}
+        primary
+        red   = hslColor 0/360,   saturated * .9  1
+        green = hslColor 120/360, saturated * .9  .8
+
+        white:              :white
+        background:         #e
+
+        warning:            red.withHue 45/360
+        activityBadge:      red
+
+        veryLightGrey:      #f9
+        lightGrey:          #ee
+        mediumLightGrey:    #bb
+        mediumGrey:         #aa
+        darkGrey:           #22
+
+        veryLightDarken:    #00000007
+        lightDarken:        #00000011
+        mediumLightDarken:  #00000044
+        mediumDarken:       #00000066
+        heavyDarken:        #000000dd
+
+      appPalette
+
+    # aliases
+    @grey     = @mediumGrey
+    @darkent  = @mediumDarken
+
+  @setAppPalette()

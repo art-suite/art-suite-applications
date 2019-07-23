@@ -5,6 +5,9 @@
 
 .addModules({
   Button:          require('./Button'),
+  Icon:            require('./Icon'),
+  IconButton:      require('./IconButton'),
   ScrollerWithBar: require('./ScrollerWithBar'),
-  StandardImport:  require('./StandardImport')
+  StandardImport:  require('./StandardImport'),
+  Toggle:          require('./Toggle')
 });

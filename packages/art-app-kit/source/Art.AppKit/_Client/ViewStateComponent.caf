@@ -1,12 +1,9 @@
 import &StandardImport
 
-class ViewStateComponent extends FluxComponent
-  @subscriptions :appKitViewState.appKitViewState
+class ViewStateComponent extends &AllFieldSubscriptionsMixin FluxComponent
   @abstractClass()
 
   @getter
-    viewState: -> @state.appKitViewState
+    viewState:  -> @state.appKitViewState
 
-  @getter
-    log object v, k in &Models.AppKitViewState.getStateFields()
-      -> @state.appKitViewState[k]
+  @subscriptions :appKitViewState.*

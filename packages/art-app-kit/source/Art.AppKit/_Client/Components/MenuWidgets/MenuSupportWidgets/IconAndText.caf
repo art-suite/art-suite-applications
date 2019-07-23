@@ -1,0 +1,45 @@
+import &StandardImport
+
+class IconAndText extends ViewStateComponent
+
+  render: ->
+    @viewState extract gridSize, buttonSize
+    @props extract
+      customIcon
+      icon
+      text
+      rightText
+      iconColor
+      color = TextPalette.black.softPrimary
+
+    Element
+      :row :childrenCenterLeft
+      childrenMargins: gridSize / 2
+      padding:
+        left: if icon || customIcon then 0 else gridSize / 2
+        right: gridSize / 2
+
+      switch
+      when customIcon
+        Element
+          padding: gridSize / 4
+          size: buttonSize
+          customIcon
+
+      when icon
+        Icon {}
+          icon
+          color: iconColor ? color
+
+      TextElement
+        TextStyles.mediumText
+        :parentWidthChildrenHeight
+        :textCenterLeft
+        text:   capitalize text
+        color:  color
+
+      rightText? && TextElement
+        TextStyles.smallText
+        :childrenSize
+        text:   rightText
+        color:  color

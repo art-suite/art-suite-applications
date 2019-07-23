@@ -1,0 +1,14 @@
+import &StandardImport
+
+class MenuSectionGroup extends ViewStateComponent
+
+  render: ->
+    Element
+      :parentWidthChildrenHeight :column
+      animators: size: toFrom: h:0
+      draw:
+        padding: h: -@gridSize
+        :clip
+
+      objectWithout @props, :children
+      @props.children
