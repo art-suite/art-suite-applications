@@ -6,7 +6,16 @@ class Toolbar extends ViewStateComponent
     :pageStack.*
 
   render: ->
-    @ extract gridSize, buttonSize, toolbarHorizontal, wideLayout, toolbarLocation
+    @ extract
+      gridSize, buttonSize, toolbarHorizontal, wideLayout, toolbarLocation
+      currentPageStackId
+
+    log {} currentPageStackId
+
+    commonProps =
+      tight:        wideLayout
+      labelBottom:  @isTouchScreen || !wideLayout
+
     Element
       draw:
         fill:
@@ -56,10 +65,11 @@ class Toolbar extends ViewStateComponent
               :textCenterCenter
               text: :Logo
 
-      array text in :home :post :search :activity :menu
+      array {id, icon, title} in @stacks
         ToolbarButton
-          tight:        wideLayout
-          labelBottom:  @isTouchScreen || !wideLayout
-          icon:         text
-          text:         text
-          action: ->
+          commonProps
+          {}
+            icon
+            text:         title
+            selected:     currentPageStackId == id
+            action:       -> @models.pageStack.showStack id

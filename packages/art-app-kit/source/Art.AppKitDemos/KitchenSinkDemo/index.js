@@ -4,7 +4,6 @@
 (module.exports = require('./namespace'))
 
 .addModules({
-  Home:           require('./Home'),
   Main:           require('./Main'),
   StandardImport: require('./StandardImport')
 });

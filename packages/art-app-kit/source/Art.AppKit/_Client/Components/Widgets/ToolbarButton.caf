@@ -6,8 +6,14 @@ import &StandardImport,
 
 class ToolbarButton extends ViewStateComponent
 
+  @propFields
+    :selected
+
+  @getter
+    color: -> if @selected then AppPalette.primary else @props.color ? TextPalette.black.primary
+
   renderIcon: ->
-    @props extract badgeBorder, icon, iconShadow, iconColor, iconScale = 1, color, badge, customIcon
+    @props extract badgeBorder, icon, iconShadow, iconColor, iconScale = 1, badge, customIcon
     []
       customIcon
       ? icon &&
@@ -15,7 +21,7 @@ class ToolbarButton extends ViewStateComponent
           icon:       icon
           size:       25 * iconScale
           animators:  :size :fontSize
-          color:      iconColor ? color
+          color:      iconColor ? @color
           shadow:     iconShadow
 
       badge > 0 && ActivityBadge
@@ -67,11 +73,12 @@ class ToolbarButton extends ViewStateComponent
   render: ->
     @props extract
       palette, maxLines, iconRight, childrenMargins, iconShadow, labelStyle
-      textPadding, innerPadding, size, color, hoverAction, align
+      textPadding, innerPadding, size, hoverAction, align
       maxLargeLabelLength = 8
       tight
       action, disabled, selected, text, label, lightColor, count, badge, labelBottom
-    @ extract gridSize
+
+    @ extract gridSize, color
     margin = gridSize / 2
 
     label ||= text
@@ -83,11 +90,12 @@ class ToolbarButton extends ViewStateComponent
       if @props.children
         objectWithout @props, :children
       else @props
-      size: size
-      drawPadding: 2
-      draw: drawButton
+      {}
+        size
+        drawPadding:  2
+        draw: drawButton
 
-      hoverAction: hoverAction
+        hoverAction:  hoverAction
 
       Element
         if labelBottom then :column else :row

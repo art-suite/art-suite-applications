@@ -16,7 +16,7 @@ import &StandardImport
       appPalette: <Object> name: colorish (rgaColor input compatible value)
 
 init: (options) ->
-  options extract App, title, pageStacks, appPalette
+  options extract App, title, appPalette
   App ?= &Components/AppCore/App
 
   if appPalette
@@ -27,8 +27,7 @@ init: (options) ->
       log.warn "ArtAppKit.init: App is a Component instance, not a Component Factory"
     throw new Error log.warn "ArtAppKit.init: App must be an ArtReact Component Factory"
 
-  if pageStacks
-    models.pageStack.init pageStacks
+  models.pageStack.init options
 
   &ArtSuiteApp.initArtSuiteClient {}
     title

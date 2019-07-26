@@ -1,5 +1,16 @@
 import &StandardImport
 
+normalizeStackEntry = (stackEntry) ->
+  unless component = stackEntry.component ? @_pages?[upperCamelCase stackEntry.id]
+    throw new Error "" component not found for stackEntry: #{formattedInspect stackEntry}
+
+  merge stackEntry, {}
+    component
+    title: stackEntry.title ? getComponentTitle component
+
+getComponentTitle = (component) ->
+  upperCamelCase component.class.getName(), ' '
+
 class PageStack extends ApplicationState
 
   @stateFields
@@ -7,25 +18,14 @@ class PageStack extends ApplicationState
     stacks:             null
     maxPageStackSize:   20
 
-  init: (stacks) ->
-    @stacks = array stackEntry in stacks
-      @normalizeStackEntry stackEntry
+  init: ({pageStacks, pages}) ->
+    @_pages = pages
+    @stacks = array stackEntry in pageStacks
+      normalizeStackEntry stackEntry
 
-  normalizeStackEntry: (stackEntry) ->
-    unless present stackEntry.title
-      merge
-        stackEntry
-        title: @getTitle stackEntry
-
-    else
-      stackEntry
-
-  getTitle: (stackEntry) ->
-    unless stackEntry extract component
-      throw new Error "component required"
-
-    stackEntry.title
-    ? upperCamelCase stackEntry.component.class.getName()
+  showStack: (id) ->
+    throw new Error "showStack - `#{id}` not found" unless @state[id] is Array
+    @currentPageStackId = id
 
   @getter
     currentPageStack: -> @state[@currentPageStackId]
@@ -36,10 +36,10 @@ class PageStack extends ApplicationState
       @setState {} stacks
       @currentPageStackId ?= stacks[0].id
       each rootStackEntry in stacks
-        @setState rootStackEntry.id, [] @normalizeStackEntry rootStackEntry
+        @setState rootStackEntry.id, [] normalizeStackEntry rootStackEntry
 
   push: (stackEntry) ->
-    stackEntry = @normalizeStackEntry stackEntry
+    stackEntry = normalizeStackEntry stackEntry
     @setState (state) ->
       state extract currentPageStackId, maxPageStackSize
 

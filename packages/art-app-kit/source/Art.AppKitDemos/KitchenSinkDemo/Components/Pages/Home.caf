@@ -15,4 +15,4 @@ class Home extends ViewStateComponent
             rightText:  :rightText
             action: ->
               @models.pageStack.push
-                component: &Components/Pages/MenuWidgets
+                component: &WidgetsDemo

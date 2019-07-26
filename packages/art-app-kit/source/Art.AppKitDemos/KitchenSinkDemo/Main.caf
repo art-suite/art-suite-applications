@@ -4,5 +4,7 @@
   title:      :Art.AppKitDemo.Minimum
   appPalette:
     primary:  #f77
+  pages: &Components/Pages
   pageStacks: []
-    id: :home icon: :food component: &Home
+    id: :home         icon: :home   component: &Components/Pages/Home
+    id: :widgetsDemo  icon: :widget component: &Components/Pages/WidgetsDemo

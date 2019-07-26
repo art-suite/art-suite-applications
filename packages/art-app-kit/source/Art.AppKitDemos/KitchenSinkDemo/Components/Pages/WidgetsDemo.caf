@@ -1,6 +1,6 @@
 import &StandardImport
 
-class MenuWidgets extends ViewStateComponent
+class WidgetsDemo extends ViewStateComponent
 
   render: ->
     Page
