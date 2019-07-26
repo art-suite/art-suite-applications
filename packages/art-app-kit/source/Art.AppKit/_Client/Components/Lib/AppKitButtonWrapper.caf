@@ -63,7 +63,7 @@ class AppKitButtonWrapper extends PointerActionsMixin FluxComponent
         opacity:    if disabled then disabledOpacity else 1
         size:       if size.childrenRelative then size
         draw:
-          if draw is Function then draw @state
+          if draw is Function then draw @state, @props
           else draw
 
         scale:

@@ -4,7 +4,6 @@
 (module.exports = require('./namespace'))
 
 .addModules({
-  ActivityBadge:         require('./ActivityBadge'),
   Spinner:               require('./Spinner'),
   StandardImport:        require('./StandardImport'),
   StatusWidgets:         require('./StatusWidgets'),

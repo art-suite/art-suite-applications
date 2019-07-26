@@ -1,1 +1,3 @@
-&StandardImport.mergeWithSelf &Lib
+&StandardImport.mergeWithSelf
+  &Lib
+  &Widgets

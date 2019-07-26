@@ -1,8 +1,10 @@
-import &StandardImport, &Widgets
+import &StandardImport,
+  &WidgetLib
+  {} &ActivityBadge, &Icon
 
 &ArtEngine.Element extract getSizePointLayout
 
-class TabButton extends ViewStateComponent
+class ToolbarButton extends ViewStateComponent
 
   renderIcon: ->
     @props extract badgeBorder, icon, iconShadow, iconColor, iconScale = 1, color, badge, customIcon
@@ -68,8 +70,9 @@ class TabButton extends ViewStateComponent
       textPadding, innerPadding, size, color, hoverAction, align
       maxLargeLabelLength = 8
       tight
-      action, disabled, selected, gridSize, text, label, lightColor, count, badge, labelBottom
-    margin = @gridSize / 2
+      action, disabled, selected, text, label, lightColor, count, badge, labelBottom
+    @ extract gridSize
+    margin = gridSize / 2
 
     label ||= text
 
@@ -81,6 +84,8 @@ class TabButton extends ViewStateComponent
         objectWithout @props, :children
       else @props
       size: size
+      drawPadding: 2
+      draw: drawButton
 
       hoverAction: hoverAction
 
@@ -90,11 +95,14 @@ class TabButton extends ViewStateComponent
         padding: innerPadding ?
           if !labelBottom || maxLines?
             if label
-              h: @gridSize / 2
+              h: gridSize / 2
             else
               h: margin / 2
         childrenAlignment:  align || :centerCenter
-        childrenMargins:    childrenMargins ? if labelBottom then TextStyles.smallText.fontSize / 4 else @gridSize / 2
+        childrenMargins:    childrenMargins ?
+          if labelBottom
+            TextStyles.smallText.fontSize / 4
+          else @gridSize / 2
 
         @renderIconWithCount() unless iconRight
 

@@ -17,7 +17,8 @@ class AppPalette extends HotStyleProps
         green = hslColor 120/360, saturated * .9  .8
 
         white:              :white
-        background:         #e
+        background:         :white
+        toolbarColor:       :white
 
         warning:            red.withHue 45/360
         activityBadge:      red

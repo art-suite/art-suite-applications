@@ -17,7 +17,7 @@ import &StandardImport
 
 init: (options) ->
   options extract App, title, pageStacks, appPalette
-  App ?= &Components.App
+  App ?= &Components/AppCore/App
 
   if appPalette
     &Style.AppPalette.setAppPalette appPalette
@@ -32,5 +32,5 @@ init: (options) ->
 
   &ArtSuiteApp.initArtSuiteClient {}
     title
-    MainComponent: &Components.CanvasComponent
+    MainComponent: &Components/AppCore/CanvasComponent
     MainComponentProps: {} App

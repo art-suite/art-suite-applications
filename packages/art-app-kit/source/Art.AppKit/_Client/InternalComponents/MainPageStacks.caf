@@ -24,9 +24,8 @@ class MainStackView extends FluxComponent
     :pageStack.stacks
 
   render: ->
-    @ extract pageStack, currentPageStackId, stacks
     Element
-      array {id} in stacks
+      array {id} in @stacks
         &PageStack
-          key: id
-          pageStackId: id
+          key:          id
+          pageStackId:  id

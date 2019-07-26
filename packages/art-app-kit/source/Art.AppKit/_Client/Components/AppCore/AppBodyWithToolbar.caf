@@ -1,0 +1,72 @@
+import &StandardImport, &InternalComponents
+
+class AppBodyWithToolbar extends ViewStateComponent
+  @subscriptions
+    :appKitPresentationState.*
+
+  @propFields
+    :toolbar
+    :children
+
+  @getter
+    haveToolbar: -> true
+    safePaddingToolbarHeight: ->
+      if @toolbar && @toolbarHorizontal
+        if @toolbarLocation == :bottom
+              @safePadding.bottom  + @touchButtonSize
+        else  @safePadding.top     + @touchButtonSize
+      else @toolbarHeight
+
+    toolbarWidth: ->
+      @buttonSize
+      + max @safePadding.right, @safePadding.left
+      + @gridSize / 2
+
+
+    childrenSafePadding: ->
+      @ extract safePadding, gridSize, touchButtonSize, toolbarLocation
+
+      switch
+      when !@toolbar
+        safePadding
+
+      when @toolbarHorizontal
+        merge
+          safePadding
+          if toolbarLocation == :bottom
+                bottom: gridSize + safePadding.bottom + touchButtonSize
+          else  top:    safePadding.top + touchButtonSize
+
+      else
+        merge
+          safePadding
+          left:   @toolbarWidth
+          right:  @toolbarWidth
+
+  render: ->
+    @ extract
+      toolbarLocation
+      children
+      toolbar
+
+    Element
+      draw:       AppPalette.background
+
+      Element
+        padding:  @childrenSafePadding
+        @props.children
+        MainPageStacks()
+
+      if toolbar
+        Element
+          switch toolbarLocation
+          when :left  :top    then :topLeft
+          when :right :bottom then :bottomRight
+          size:
+            if @toolbarHorizontal
+                  h: @safePaddingToolbarHeight
+            else  w: @toolbarWidth
+
+          padding: [toolbarLocation]: @safePadding[toolbarLocation]
+
+          toolbar

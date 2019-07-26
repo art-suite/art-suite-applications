@@ -1,0 +1,65 @@
+import &StandardImport, &Widgets, &PrivateWidgets
+
+class Toolbar extends ViewStateComponent
+  @subscriptions
+    :appKitPresentationState.*
+    :pageStack.*
+
+  render: ->
+    @ extract gridSize, buttonSize, toolbarHorizontal, wideLayout, toolbarLocation
+    Element
+      draw:
+        fill:
+          color: AppPalette.toolbarColor
+          shadow: unless wideLayout
+            color:  #0004
+            blur:   4
+            offset: 0
+        padding:
+          [toolbarLocation]: -@safePadding[toolbarLocation]
+
+      size: @props.size
+
+      if toolbarHorizontal
+           :row
+      else :column
+
+      :childrenCenterLeft if wideLayout && toolbarHorizontal
+
+      padding:
+        if toolbarHorizontal
+              h: gridSize / 2
+        else  v: gridSize / 2
+
+      if wideLayout
+        Element
+          :row
+          :parentWidthChildrenHeight
+          if @models.pageStack.showBackButton
+            Element
+              :childrenSize
+              key: :backButton
+              padding: right: @gridSize / 2
+              animators:
+                size: toFrom: hch:1 w:0
+                clip: toFrom: true
+
+              IconButton
+                icon: :back
+                color:  TextPalette.black.primary
+                action: @models.pageStack.pop
+
+          Element
+            TextElement
+              TextStyles.mediumText
+              :childrenWidthParentHeight
+              :textCenterCenter
+              text: :Logo
+
+      array text in :home :post :search :activity :menu
+        ToolbarButton
+          tight:        wideLayout
+          labelBottom:  @isTouchScreen || !wideLayout
+          icon:         text
+          text:         text
+          action: ->

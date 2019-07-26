@@ -5,3 +5,4 @@ class App extends Component
   render: ->
     &AppBodyWithToolbar
       background: :white
+      toolbar: &Toolbar()

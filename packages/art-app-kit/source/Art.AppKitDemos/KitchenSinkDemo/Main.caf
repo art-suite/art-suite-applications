@@ -5,4 +5,4 @@
   appPalette:
     primary:  #f77
   pageStacks: []
-    id: :home component: &Home
+    id: :home icon: :food component: &Home

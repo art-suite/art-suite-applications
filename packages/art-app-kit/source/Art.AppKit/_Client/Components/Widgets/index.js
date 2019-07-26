@@ -2,12 +2,15 @@
 // file: Art.AppKit/_Client/Components/Widgets/index.js
 
 (module.exports = require('./namespace'))
-
+.includeInNamespace(require('./Widgets'))
 .addModules({
+  ActivityBadge:   require('./ActivityBadge'),
   Button:          require('./Button'),
   Icon:            require('./Icon'),
   IconButton:      require('./IconButton'),
   ScrollerWithBar: require('./ScrollerWithBar'),
   StandardImport:  require('./StandardImport'),
-  Toggle:          require('./Toggle')
+  Toggle:          require('./Toggle'),
+  ToolbarButton:   require('./ToolbarButton'),
+  WidgetLib:       require('./WidgetLib')
 });

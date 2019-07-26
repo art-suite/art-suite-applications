@@ -5,6 +5,7 @@ module.exports = require('../namespace').addNamespace(
   'Components',
   class Components extends Neptune.PackageNamespace {}
 );
+require('./AppCore/namespace');
 require('./Lib/namespace');
 require('./MenuWidgets/namespace');
 require('./Widgets/namespace');

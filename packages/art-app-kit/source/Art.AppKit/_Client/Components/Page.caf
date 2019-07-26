@@ -8,6 +8,7 @@ class Page extends ViewStateComponent
     :component
     :pageStackIndex
     :hideTitle
+    :title
 
   preprocessProps: (props) ->
     if props.visible
@@ -29,7 +30,9 @@ class Page extends ViewStateComponent
 
       location: x: if visible then 0 else -gridSize * 3
 
-      unless @hideTitle
+      unless @hideTitle || @viewState.wideLayout
+        @props extract title
+
         Element
           size: h: buttonSize
           draw:
@@ -43,9 +46,7 @@ class Page extends ViewStateComponent
             :parentSize
             :textCenterCenter
             color:    TextPalette.white.primary
-            text:
-              ""
-                #{} upperCamelCase @component?.class?.getName(), ' '
+            text:     title
 
           if @pageStackIndex > 0
             IconButton

@@ -40,6 +40,5 @@ class Button extends FluxComponent
         color:    TextPalette.white.primary
 
         if left
-          :textCenterLeft
-        else
-          :textCenterCenter
+              :textCenterLeft
+        else  :textCenterCenter

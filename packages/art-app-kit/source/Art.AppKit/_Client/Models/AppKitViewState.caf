@@ -29,16 +29,17 @@ class AppKitViewState extends ApplicationState
       deviceLayoutMode =
         if isPhone
           if getOrientationIsPortrait viewSize
-                :phonePortrait
-          else  :phoneLandscape
+                :phonePortraitLayout
+          else  :phoneLandscapeLayout
         else if viewSize.x < 600
-                :narrow
-        else    :wide
+                :narrowLayout
+        else    :wideLayout
 
-      wide:                         deviceLayoutMode == :wide
-      narrow:                       deviceLayoutMode == :narrow
-      phonePortrait:                deviceLayoutMode == :phonePortrait
-      phoneLandscape    =           deviceLayoutMode == :phoneLandscape
+      phonePortraitLayout:  false
+      phoneLandscapeLayout: false
+      wideLayout:           false
+      narrowLayout:         false
+      [deviceLayoutMode]:   true
 
       # button sizes
       smallButtonSize   =           35
@@ -46,7 +47,7 @@ class AppKitViewState extends ApplicationState
       reducedButtonSize =           40
       touchButtonSize   =           48
       buttonSize        =           if isDesktop then desktopButtonSize else touchButtonSize
-      heightAdjustedButtonSize:     if phoneLandscape then smallButtonSize else buttonSize
+      heightAdjustedButtonSize:     if deviceLayoutMode == :phoneLandscape then smallButtonSize else buttonSize
 
   @stateFields computeViewState point
     screen.availWidth

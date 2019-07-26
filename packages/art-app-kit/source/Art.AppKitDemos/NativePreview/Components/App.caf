@@ -4,15 +4,15 @@ class Toolbar extends FluxComponent
   @subscriptions
     :appKitViewState.buttonSize
     :appKitViewState.gridSize
-    :appKitViewState.wide
+    :appKitViewState.wideLayout
     :appKitPresentationState.toolbarHorizontal
 
   render: ->
-    @ extract gridSize, buttonSize, toolbarHorizontal, wide
+    @ extract gridSize, buttonSize, toolbarHorizontal, wideLayout
     Element
       draw: hslColor 0  .5  1
 
-      if wide
+      if wideLayout
         size: hh: 1  wcw: 1
 
       if toolbarHorizontal
@@ -25,7 +25,7 @@ class Toolbar extends FluxComponent
         else  v: gridSize / 2
 
       childrenMargins: gridSize / 2
-      if wide
+      if wideLayout
         Element
           TextElement
             TextStyles.mediumText
@@ -34,7 +34,7 @@ class Toolbar extends FluxComponent
             text: :Logo
 
       array text in :home :post :search :activity :menu
-        if wide
+        if wideLayout
           Element
             draw: :red
             padding: h: gridSize

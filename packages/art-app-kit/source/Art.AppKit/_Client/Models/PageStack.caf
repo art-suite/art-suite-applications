@@ -7,19 +7,39 @@ class PageStack extends ApplicationState
     stacks:             null
     maxPageStackSize:   20
 
-  init: (@stacks) ->
+  init: (stacks) ->
+    @stacks = array stackEntry in stacks
+      @normalizeStackEntry stackEntry
+
+  normalizeStackEntry: (stackEntry) ->
+    unless present stackEntry.title
+      merge
+        stackEntry
+        title: @getTitle stackEntry
+
+    else
+      stackEntry
+
+  getTitle: (stackEntry) ->
+    unless stackEntry extract component
+      throw new Error "component required"
+
+    stackEntry.title
+    ? upperCamelCase stackEntry.component.class.getName()
 
   @getter
     currentPageStack: -> @state[@currentPageStackId]
+    showBackButton:   -> @currentPageStack.length > 1
 
   @setter
     stacks: (stacks) ->
       @setState {} stacks
       @currentPageStackId ?= stacks[0].id
-      each {id, component} in stacks
-        @setState id, [] {} id, component
+      each rootStackEntry in stacks
+        @setState rootStackEntry.id, [] @normalizeStackEntry rootStackEntry
 
-  push: (pageProps) ->
+  push: (stackEntry) ->
+    stackEntry = @normalizeStackEntry stackEntry
     @setState (state) ->
       state extract currentPageStackId, maxPageStackSize
 
@@ -32,10 +52,10 @@ class PageStack extends ApplicationState
           compactFlattenFast []
             currentPageStack[0]
             currentPageStack.slice currentPageStack.length - maxPageStackSize + 1, currentPageStack.length
-            pageProps
+            stackEntry
 
         else
-          arrayWith currentPageStack, pageProps
+          arrayWith currentPageStack, stackEntry
 
   pop: ->
     @setState (state) ->

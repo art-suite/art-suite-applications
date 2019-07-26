@@ -11,11 +11,12 @@ class PageStack extends FluxComponent
     @ extract pageStack, pageStackId
     Element
       visible: @pageStackId == @currentPageStackId
-      array {component, props}, i in-array pageStack
+      array {component, props, title}, i in-array pageStack
         component
           props
           {}
-            visible: i == pageStack.length - 1
+            title:    props?.title ? title
+            visible:  i == pageStack.length - 1
             pageStackIndex: i
             pageStackId
             component
