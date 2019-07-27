@@ -2,9 +2,8 @@
 
 &ArtAppKit/Client.init {}
   title:      :Art.AppKitDemo.Minimum
-  appPalette:
-    primary:  #f77
-  pages: &Components/Pages
+  appPalette: primary:  #f77
+  pages:      &Components/Pages
   pageStacks: []
-    id: :home         icon: :home   component: &Components/Pages/Home
-    id: :widgetsDemo  icon: :widget component: &Components/Pages/WidgetsDemo
+    id: :home    icon: :home
+    id: :widgets icon: :widgets

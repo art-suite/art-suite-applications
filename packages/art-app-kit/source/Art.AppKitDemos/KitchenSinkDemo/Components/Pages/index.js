@@ -4,6 +4,6 @@
 (module.exports = require('./namespace'))
 
 .addModules({
-  Home:        require('./Home'),
-  WidgetsDemo: require('./WidgetsDemo')
+  Home:    require('./Home'),
+  Widgets: require('./Widgets')
 });

@@ -10,8 +10,6 @@ class Toolbar extends ViewStateComponent
       gridSize, buttonSize, toolbarHorizontal, wideLayout, toolbarLocation
       currentPageStackId
 
-    log {} currentPageStackId
-
     commonProps =
       tight:        wideLayout
       labelBottom:  @isTouchScreen || !wideLayout
