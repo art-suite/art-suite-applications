@@ -1,16 +1,20 @@
 {
-  "author": "Shane Brinkman-Davis Delamore, Imikimi LLC",
-  "dependencies": {
-    "art-build-configurator": "*"
+  "author": "Shane Brinkman-Davis Delamore, Imikimi LLC\"",
+  "bin": {
+    "abc": "./cpf-tool"
   },
-  "description": "Art.Svg.Path.Extractor",
+  "dependencies": {
+    "art-build-configurator": "*",
+    "canvg": "^2.0.0"
+  },
+  "description": "Art.Canvas.Path",
   "license": "ISC",
   "name": "art-canvas-path",
   "scripts": {
     "build": "webpack --progress",
-    "start": "webpack-dev-server --hot --inline --progress",
+    "start": "webpack-dev-server --hot --inline --progress --env.devServer",
     "test": "nn -s;mocha -u tdd",
-    "testInBrowser": "webpack-dev-server --progress"
+    "testInBrowser": "webpack-dev-server --progress --env.devServer"
   },
   "version": "0.3.0"
 }

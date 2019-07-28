@@ -6,12 +6,15 @@ target:
   node: true
 
 npm:
-  description: "" Art.Svg.Path.Extractor
-  dependencies: {}
+  description: "" Art.Canvas.Path
+  dependencies:
+    canvg: :^2.0.0
+  bin:
+    abc: :./cpf-tool
 
 webpack:
   # common properties are merged into each target's properties
   common: {}
 
   # each target's individual properties
-  targets: index: {}
+  targets: test: {}

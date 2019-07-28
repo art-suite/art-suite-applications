@@ -3,11 +3,16 @@ import &ArtStandardLib, &ArtCanvasPath
 fs = &fsExtra
 &colors
 
-{extract: extractNamedPaths, output} = commander =
+{extract: extractNamedPaths, output, camelCase} = commander =
   &commander
   .version &package.version
   .option '-o, --output [file]',  "" output file name
   .option '-e, --extract',        "" extract named paths from source SVG files
+  .option '-c, --camelCase',      "" convert names to lowerCamelCase for output
+  .usage  "" [options] <files...>
+  .description
+    """
+      Scan and convert one or more .svg files into a .cpf file.
   .parse process.argv
 
 files = commander.args
@@ -15,16 +20,20 @@ if files.length > 0
   log inputs: files, output: output ? "<stdout>"
   sbgSourceLength = 0
 
+  totalBytesRead = 0
   cpl = new CanvasPathLibrary
   array file in files
     svg =
       fs.readFileSync file
       .toString()
 
+    totalBytesRead += svg.length
+
     name = &path.parse(file).name
 
     if extractNamedPaths
       each path, name in extractNamedSvgPaths svg
+        name = lowerCamelCase name if camelCase
         log encoding: name
         cpl.add
           name
@@ -35,6 +44,7 @@ if files.length > 0
               </svg>
 
     else
+      name = lowerCamelCase name if camelCase
       log encoding: name
       cpl.add
         name
@@ -47,7 +57,16 @@ if files.length > 0
   cpl.xbd.toXbd()
   .then (cpfFile) ->
     if output
-      log {} output, size: cpfFile.length
+      log {} output,
+        size:
+          input: totalBytesRead
+          output: cpfFile.length
+          reduced:
+            totalBytesRead / cpfFile.length
+            * 100
+            | 0
+            / 100
+            + :x
       fs.writeFileSync output, cpfFile.nodeBuffer
     else
       log {} cpl.xbd, sbgSourceLength, cpfFile
