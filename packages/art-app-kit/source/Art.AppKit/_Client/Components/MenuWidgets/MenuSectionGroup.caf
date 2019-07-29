@@ -7,7 +7,7 @@ class MenuSectionGroup extends ViewStateComponent
       :parentWidthChildrenHeight :column
       animators: size: toFrom: h:0
       draw:
-        padding: h: -@gridSize
+        padding: h: -100000
         :clip
 
       objectWithout @props, :children

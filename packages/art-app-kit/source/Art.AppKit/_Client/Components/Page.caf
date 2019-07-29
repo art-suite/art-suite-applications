@@ -16,12 +16,17 @@ class Page extends ViewStateComponent
     props
 
   render: ->
-    @viewState extract buttonSize, gridSize
+    @viewState extract gridSize
 
     Element
       :column
       {visible} = @props
-      draw: :white
+      draw:
+        padding:
+          left:   -@safePadding.left
+          right:  -@safePadding.right
+        :white
+        # :green
 
       animators:
         visible:  duration: .125
@@ -34,7 +39,7 @@ class Page extends ViewStateComponent
         @props extract title
 
         Element
-          size: h: buttonSize
+          size: h: titleBarSize = if @phoneLandscapeLayout then @reducedButtonSize else @buttonSize
           draw:
             padding:
               top: -@safePadding.top
@@ -50,13 +55,19 @@ class Page extends ViewStateComponent
 
           if @pageStackIndex > 0
             IconButton
-              icon: :back
+              icon:   :chevronLeft
+              size:   titleBarSize
               color:  TextPalette.white.primary
               action: @models.pageStack.pop
 
       Element
         padding: bottom: -@safePadding.bottom
-        :clip unless @hideTitle
+        draw:
+          unless @hideTitle then []
+            padding:
+              h: -1000
+              bottom: -@safePadding.bottom
+            :clip
         :column
 
         ScrollerWithBar

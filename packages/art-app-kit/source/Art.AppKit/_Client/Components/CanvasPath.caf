@@ -2,37 +2,17 @@ import &StandardImport, &ArtAtomic
 
 class CanvasPath extends Component
 
-  @propFields
-    :fill
-    :color
-    :height
-    :hFlip
-    :path
-    :size
-
   shape: (context, size) ->
-    @path.applyPath
-      context
-      Matrix.scale size
+    @props.path.applyPath context, size, true
 
   render: ->
-    @ extract color, fill, width, height, size, hFlip, compositeMode
+    @props extract path, color, fill, size, compositeMode
     fill ?= color
 
     Element
       compositeMode: compositeMode
-      size:
-        if height > 0
-          x: height * @path.aspectRatio
-          y: height
-        else if width > 0
-          x: width
-          y: width / @path.aspectRatio
-        else if size?
-          size
-        else :parentSize
-
-      draw: if @path
+      size: size ? :parentSize
+      draw: if path
         shape: @shape
         fill:
           if fill is Object

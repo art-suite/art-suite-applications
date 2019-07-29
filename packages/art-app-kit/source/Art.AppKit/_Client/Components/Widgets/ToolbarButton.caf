@@ -10,7 +10,11 @@ class ToolbarButton extends ViewStateComponent
     :selected
 
   @getter
-    color: -> if @selected then AppPalette.primary else @props.color ? TextPalette.black.primary
+    color: ->
+      if @selected
+        AppPalette.primaryDark1
+      else
+        @props.color ? TextPalette.black.primary
 
   renderIcon: ->
     @props extract badgeBorder, icon, iconShadow, iconColor, iconScale = 1, badge, customIcon

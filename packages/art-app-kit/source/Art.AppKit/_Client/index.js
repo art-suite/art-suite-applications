@@ -5,6 +5,8 @@
 .includeInNamespace(require('./Client'))
 .addModules({
   AllFieldSubscriptionsMixin: require('./AllFieldSubscriptionsMixin'),
+  Config:                     require('./Config'),
+  Icons:                      require('./Icons'),
   Init:                       require('./init'),
   StandardImport:             require('./StandardImport'),
   ViewStateComponent:         require('./ViewStateComponent')

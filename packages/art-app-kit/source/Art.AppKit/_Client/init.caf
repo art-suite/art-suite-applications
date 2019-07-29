@@ -16,7 +16,7 @@ import &StandardImport
       appPalette: <Object> name: colorish (rgaColor input compatible value)
 
 init: (options) ->
-  options extract App, title, appPalette
+  options extract App, title, appPalette, icons
   App ?= &Components/AppCore/App
 
   if appPalette
@@ -29,7 +29,14 @@ init: (options) ->
 
   models.pageStack.init options
 
+  Promise.then ->
+    getArrayBuffer icons ? :/assets/icons.cpf
+    .then   &ArtCanvasPath.decodeCpf
+    .then   &Icons.setIcons
+    .catch  log.error
+
   &ArtSuiteApp.initArtSuiteClient {}
     title
+    artConfig: Art: AppKit: Client: {title} = options
     MainComponent: &Components/AppCore/CanvasComponent
     MainComponentProps: {} App

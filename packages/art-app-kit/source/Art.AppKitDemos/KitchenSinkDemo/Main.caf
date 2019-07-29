@@ -7,3 +7,10 @@
   pageStacks: []
     id: :home    icon: :home
     id: :widgets icon: :widgets
+
+  ## DEFAULTS
+    pageStacks: []
+      id: :home    icon: :home
+      id: :widgets icon: :widgets  component: pages[upperCamelCase id]
+
+    icons:      :assets/icons.cpf

@@ -2,7 +2,6 @@ import &StandardImport, &MenuLib
 
 class MenuSectionLabel extends ViewStateComponent
 
-
   render: ->
     @viewState extract gridSize, heightAdjustedButtonSize
     @props extract label, text = label
@@ -18,7 +17,7 @@ class MenuSectionLabel extends ViewStateComponent
       padding: left: gridSize / 2
 
       draw:
-        padding:  h: -1
+        padding:  h: -1000
         color:    AppPalette.veryLightDarken
         outline:  color: #0002
 
@@ -26,8 +25,12 @@ class MenuSectionLabel extends ViewStateComponent
         TextStyles.smallText
         :parentWidthChildrenHeight
         padding:
-          top:    heightAdjustedButtonSize * .5
-          bottom: gridSize / 2
+          bottom: bottomPadding = gridSize / 2
+          top:
+            if @phoneLandscapeLayout
+              bottomPadding
+            else
+              heightAdjustedButtonSize * .5
 
         color:  TextPalette.black.secondary
         text:   text

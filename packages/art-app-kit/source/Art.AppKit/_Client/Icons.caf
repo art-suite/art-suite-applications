@@ -1,0 +1,13 @@
+import &StandardImport
+
+class Icons extends BaseClass
+
+  @setIcons: (@icons) =>
+    object @icons.library into @
+
+  @classGetter
+    names: -> Object.keys @icons.library
+    inspectedObjects: -> @names
+
+  @pathOptions:
+    chevronLeft: scale: .5

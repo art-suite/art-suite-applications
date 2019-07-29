@@ -8,6 +8,8 @@ target:
 npm:
   description: "" Art.App.Kit
   dependencies: {}
+  scripts:
+    build-assets: "" cpf-tool asset-source/font-awesome/*.svg -o assets/icons.cpf --camelCase
 
 indexHtml: true
 

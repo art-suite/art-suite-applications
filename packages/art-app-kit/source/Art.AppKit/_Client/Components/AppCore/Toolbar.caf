@@ -52,7 +52,7 @@ class Toolbar extends ViewStateComponent
                 clip: toFrom: true
 
               IconButton
-                icon: :back
+                icon:   :chevronLeft
                 color:  TextPalette.black.primary
                 action: @models.pageStack.pop
 
@@ -61,7 +61,8 @@ class Toolbar extends ViewStateComponent
               TextStyles.mediumText
               :childrenWidthParentHeight
               :textCenterCenter
-              text: :Logo
+              text: &Config.config.title
+              color: AppPalette.primaryDark1
 
       array {id, icon, title} in @stacks
         ToolbarButton

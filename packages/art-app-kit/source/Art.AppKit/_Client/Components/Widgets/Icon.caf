@@ -5,26 +5,34 @@ class Icon extends &ViewStateComponent
   render: ->
     @props extract
       location
-      size = @buttonSize
+      size
       align
       color
       animators
       icon
       shadow
 
+    size ?= @buttonSize
+
     Element
       {} location, size, align, animators
       :cacheDraw
+
       draw:
+        shape: if iconPath = Icons[icon]
+          (context, size) ->
+            iconPath.applyPathFit context, size, Icons.pathOptions[icon]
+
         padding:  @gridSize / 4
-        radius:   @gridSize / 4
+        radius:   unless iconPath then @gridSize / 4
         fill: {}
           color
           shadow
 
-      TextElement
-        TextStyles.mediumBoldText
-        compositeMode: :targetWithoutSource
-        layoutMode: :tight
-        text: upperCase icon[0]
-        :parentSize :textCenterCenter
+      unless iconPath
+        TextElement
+          TextStyles.mediumBoldText
+          compositeMode: :targetWithoutSource
+          layoutMode: :tight
+          text: upperCase icon[0]
+          :parentSize :textCenterCenter

@@ -8,6 +8,7 @@
   "name": "art-app-kit",
   "scripts": {
     "build": "webpack --progress",
+    "build-assets": "cpf-tool asset-source/font-awesome/*.svg -o assets/icons.cpf --camelCase",
     "start": "webpack-dev-server --hot --inline --progress --env.devServer",
     "test": "webpack-dev-server  --progress --env.devServer"
   },

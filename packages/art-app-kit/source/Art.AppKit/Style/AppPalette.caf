@@ -12,9 +12,20 @@ class AppPalette extends HotStyleProps
 
     @setColors merge
       {}
-        primary
         red   = hslColor 0/360,   saturated * .9  1
         green = hslColor 120/360, saturated * .9  .8
+
+        # primary2:           primary.blend :white, 7/8
+        # primary2:           primary.blend :white, 6/8
+        # primary2:           primary.blend :white, 5/8
+        # primary2:           primary.blend :white, 4/8
+        # primary2:           primary.blend :white, 3/8
+        primary
+        primaryDark1:         primary.withScaledLightness 7/8
+        # primaryDarken2:     primary.withScaledLightness 6/8
+        # primaryDarken3:     primary.withScaledLightness 5/8
+        # primaryDarken4:     primary.withScaledLightness 4/8
+        # primaryDarken5:     primary.withScaledLightness 3/8
 
         white:              :white
         background:         :white
