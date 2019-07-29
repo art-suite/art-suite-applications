@@ -134,12 +134,12 @@ class CanvasPath extends BaseClass
 
       Matrix.scaleXY w2, h
 
-    @applyPath
+    @applyRawPath
       context
       m
       .translateXY  left, top
 
-  ## applyPath
+  ## applyRawPath
     IN:
       context: html-context-2d
       where: Matrix, Rectangle or Point-like
@@ -156,7 +156,7 @@ class CanvasPath extends BaseClass
     NOTE:
       raw path-points are all within the range [0, 1]
       @aspectRatio is NOT automatically applied.
-  applyPath: (context, where)->
+  applyRawPath: (context, where)->
     matrix = switch
       when where is Matrix then where
       when where is Rectangle
@@ -172,6 +172,10 @@ class CanvasPath extends BaseClass
       commandPair = @commands[i]
       @_applyCommand commandPair >> 4, context, matrix
       @_applyCommand commandPair & 0xf, context, matrix
+
+  applyPath: (context, where)->
+    log.warn "" DEPRICATED: Art.CanvasPath.applyPath - use applyRawPath
+    @applyRawPath context, where
 
   ################
       PRIVATE
