@@ -11,6 +11,17 @@ class CanvasPath extends BaseClass
   @property :styleProps :points :radii :commands :x :y :aspectRatio :scale :name
 
   @getter
+    size: ->
+      if @aspectRatio > 1
+            point 1, 1/@aspectRatio
+      else  point 1 * @aspectRatio, 1
+
+    aspectRatioMatrix: ->
+      switch
+      when floatEq @aspectRatio, 1 then Matrix.identifyMatrix
+      when @aspectRatio > 1        then Matrix.scaleXY 1, 1/@aspectRatio
+      else                              Matrix.scaleXY 1 * @aspectRatio, 1
+
     normalized: ->
       float32Eq @aspectRatio, 1
       && float32Eq @scale, 1
@@ -95,12 +106,67 @@ class CanvasPath extends BaseClass
 
     @
 
-  applyPath: (context, size)->
-    matrix = if size is Matrix
-      size
+  ## applyPathFit
+    IN:
+      context: html-context-2d
+      area: Point or Rectangle
+
+    EFFECT:
+      path is apply to contest
+      AND aspectRatio is maintained
+      AND path is centered within area
+  applyPathFit: (context, area) ->
+    area extract top, left, w, h, aspectRatio as areaAspectRatio
+    @ extract aspectRatio
+
+    m =
+    if 1 <= ratioRatio = aspectRatio / areaAspectRatio
+      top +=
+        h - h2 = h / ratioRatio
+        / 2
+
+      Matrix.scaleXY w, h2
+
     else
-      Matrix.scale point size
-    # log applyPath: size
+      left +=
+        w - w2 = w * ratioRatio
+        / 2
+
+      Matrix.scaleXY w2, h
+
+    @applyPath
+      context
+      m
+      .translateXY  left, top
+
+  ## applyPath
+    IN:
+      context: html-context-2d
+      where: Matrix, Rectangle or Point-like
+        matrix:     apply matrix to raw path points
+        rectangle:  stretch path-points to the rectangles size
+                    and translate the points to the rectangles location
+        point-like:
+          If not matrix or rectangle, 'where' is converted to a point.
+          Path-points are scaled to the size of point
+
+    EFFECT
+      path is apply to contest, transformed as specified by 'where'
+
+    NOTE:
+      raw path-points are all within the range [0, 1]
+      @aspectRatio is NOT automatically applied.
+  applyPath: (context, where)->
+    matrix = switch
+      when where is Matrix then where
+      when where is Rectangle
+        Matrix
+        .scaleXY      where.w, where.h
+        .translateXY  where.x, where.y
+
+      else
+        Matrix.scale point where
+
     @_reset()
     each i til @commands.length
       commandPair = @commands[i]
