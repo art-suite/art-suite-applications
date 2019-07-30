@@ -12,6 +12,11 @@ The use-case I'm targeting is from short-form text up to blog-post or article le
 
 * No way to center or right-align text, and no way to properly cite a quote or an image. Both of the latter are solved with ArtMarkdown's center and right-align options.
 
+* Not mobile-edit-friendly: Because markdown relies on whitespace for layout (actually I love this for desktop, but...) it's not very friendly for the narrow-width screens on mobile phones. It's also not workable for any editor which doesn't have mono-spaced font support. Therefor ArtMarkdown supports an alternative way of specifying levels of indention: repetition; just like markdown-headers.
+
+* Indention rules for code-blocks are confusing.
+
+* <tag> support is trecherous - it is certainly nice to have the option, but most the time it's not a good idea. Mostly people use it to hack-solve the same problem everyone else is solving - like lack of center or right-align. The bigger problem is it means you can't reliably render markdown in no-browser environments.
 
 ## Install
 
@@ -93,3 +98,12 @@ Block termination
 Markdown blocks are terminated by a new block starting OR
 two or more new-lines.
 ```
+
+## Coming
+
+Additional support planned:
+
+* github-style syntax-highlighting; however, unlike github, we'll support any textmate syntax highligher you provide
+* links - standard markdown links
+* images - with enhanced 'contextual' support
+* span-formatting - standard markdown basic-formatting - currently bold, italic and other in-paragraph formatting are not supported
