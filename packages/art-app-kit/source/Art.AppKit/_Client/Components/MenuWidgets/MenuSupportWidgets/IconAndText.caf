@@ -29,6 +29,7 @@ class IconAndText extends ViewStateComponent
       when icon
         Icon {}
           icon
+          iconScale: 2/3
           color: iconColor ? color
 
       TextElement

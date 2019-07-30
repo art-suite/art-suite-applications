@@ -2,6 +2,16 @@ import &StandardImport
 
 class Icon extends &ViewStateComponent
 
+  preprocessProps: (props) ->
+    props extract icon, iconScale
+    iconOptions = Icons.pathOptions[icon]
+    if iconScale
+      iconOptions = merge iconOptions, scale:
+        iconOptions?.scale ? 1
+        * iconScale
+
+    merge props, {} iconOptions
+
   render: ->
     @props extract
       location
@@ -11,6 +21,7 @@ class Icon extends &ViewStateComponent
       animators
       icon
       shadow
+      iconOptions
 
     size ?= @buttonSize
 
@@ -21,7 +32,7 @@ class Icon extends &ViewStateComponent
       draw:
         shape: if iconPath = Icons[icon]
           (context, size) ->
-            iconPath.applyPathFit context, size, Icons.pathOptions[icon]
+            iconPath.applyPathFit context, size, iconOptions
 
         padding:  @gridSize / 4
         radius:   unless iconPath then @gridSize / 4
