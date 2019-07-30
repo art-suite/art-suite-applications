@@ -1,4 +1,4 @@
-import &StandardImport, &ArtAppKit/Styles
+import &StandardImport, &ArtAppKit/Style
 
 commonTextStyle = leading: 1.58
 

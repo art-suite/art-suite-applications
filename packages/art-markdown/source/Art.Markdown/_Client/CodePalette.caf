@@ -1,0 +1,7 @@
+class CodePalette
+  @light:
+    background: #0000000a
+    foreground: #000a
+  @dark:
+    background: #ffffff0a
+    foreground: #fffa

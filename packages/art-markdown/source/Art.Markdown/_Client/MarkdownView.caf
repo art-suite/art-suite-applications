@@ -1,18 +1,14 @@
 import &StandardImport, {}
   # &DisplayTags
   # &MarkdownInlinePost
-  &SelectedTextPopover
+  # &SelectedTextPopover
+  &CodePalette
   &MarkdownStyles
 
 markdownStyles = MarkdownStyles
 defaultStyle = MarkdownStyles.default
 
-class MarkdownView extends &EventLogMixin FluxComponent
-
-  @subscriptions
-    :viewState.viewState
-    :post
-    topic: ({topicId, post}) -> topicId ? post?.topicId
+class MarkdownView extends ViewStateComponent
 
   preprocessProps: (props) ->
     if defaultStyle != props extract style
@@ -28,16 +24,13 @@ class MarkdownView extends &EventLogMixin FluxComponent
 
   @propFields
     style: defaultStyle
+    :text
 
   @stateFields
     showCopyButton: false
     selectedTextMenuLocation: null
 
   @getter
-    text: ->
-      applyStringVariables
-        @props.text ? @props.post?.caption
-        @props.stringVariables
 
     textStyles: ->
       @style extract textStyles
@@ -55,7 +48,7 @@ class MarkdownView extends &EventLogMixin FluxComponent
     leading:              -> if @props.preview then 1.25 else 1.58
     palette:              -> @style.palette
     textPalette:          -> if @props.lightText then @style.textPalette.white else @style.textPalette.black
-    codePalette:          -> if @props.lightText then ImikimiPalette.codePalette.dark else ImikimiPalette.codePalette.light
+    codePalette:          -> if @props.lightText then CodePalette.dark else CodePalette.light
 
     markdownBlocks: ->
       {maxMarkdownBlocks} = @props
@@ -72,15 +65,9 @@ class MarkdownView extends &EventLogMixin FluxComponent
       includeTags
       foregroundColor
       backgroundColor
-      post
       preview
-      post
       topic
       searchKimis
-      searchInTopicId
-
-    if vertical != :imikimi
-      searchInTopicId ?= post?.topicId ? topic?.id
 
     @viewState extract gridSize
 
@@ -102,24 +89,25 @@ class MarkdownView extends &EventLogMixin FluxComponent
     array {text, align, style, depth}, i in markdownBlocks
 
       if style != :code && (includeTags || preview)
-        [tags, text] = detagString text,
-          if config.vertical == :imikimi then 3 else 10
-          true
+        # [tags, text] = detagString text,
+        #   if config.vertical == :imikimi then 3 else 10
+        #   true
+        tags = null
       else tags = null
 
       haveTags = tags?.length > 0
       actualLastBlockHadTags = lastBlockHadTags
       lastBlockHadTags = haveTags
 
-      if haveTags
-        internalLinkPostIds = []
-        _tags = []
-        each tag in tags
-          if postId = internalLinkToPostId tag
-            internalLinkPostIds.push postId
-          else
-            _tags.push tag
-        tags = _tags
+      # if haveTags
+      #   internalLinkPostIds = []
+      #   _tags = []
+      #   each tag in tags
+      #     if postId = internalLinkToPostId tag
+      #       internalLinkPostIds.push postId
+      #     else
+      #       _tags.push tag
+      #   tags = _tags
 
       size = if align != :left then :parentWidthChildrenHeight else @size
 
@@ -267,44 +255,44 @@ class MarkdownView extends &EventLogMixin FluxComponent
 
         out
 
-        if internalLinkPostIds?.length > 0 && !preview
-          if internalLinkPostIds.length > 1
-            Element
-              :parentWidthChildrenHeight
-              :column
-              childrenMargins: gridSize
-              array postId in internalLinkPostIds
-                MarkdownInlinePost {} postId, inTopic: @topic, inPost: post, imageOnly: !includeTags
-          else
-            Element
-              padding:
-                top: if out then baseMargin / 2 else 0
-                h: effectiveIndent
-              size:           :parentWidthChildrenHeight
-              childrenLayout: :column
-              array postId in internalLinkPostIds
-                MarkdownInlinePost {} postId, inTopic: @topic, inPost: post, imageOnly: !includeTags
+        # if internalLinkPostIds?.length > 0 && !preview
+        #   if internalLinkPostIds.length > 1
+        #     Element
+        #       :parentWidthChildrenHeight
+        #       :column
+        #       childrenMargins: gridSize
+        #       array postId in internalLinkPostIds
+        #         MarkdownInlinePost {} postId, inTopic: @topic, inPost: post, imageOnly: !includeTags
+        #   else
+        #     Element
+        #       padding:
+        #         top: if out then baseMargin / 2 else 0
+        #         h: effectiveIndent
+        #       size:           :parentWidthChildrenHeight
+        #       childrenLayout: :column
+        #       array postId in internalLinkPostIds
+        #         MarkdownInlinePost {} postId, inTopic: @topic, inPost: post, imageOnly: !includeTags
 
-        if includeTags && haveTags
-          Element
-            size: :parentWidthChildrenHeight
-            padding:
-              top: baseMargin * 1/4
-                # if style == :bullet || style == :list
-                #   1/4
-                # else 1/2
-              bottom: if style == :bullet || style == :list then baseMargin / 4 else 0
-              h:   effectiveIndent
+        # if includeTags && haveTags
+        #   Element
+        #     size: :parentWidthChildrenHeight
+        #     padding:
+        #       top: baseMargin * 1/4
+        #         # if style == :bullet || style == :list
+        #         #   1/4
+        #         # else 1/2
+        #       bottom: if style == :bullet || style == :list then baseMargin / 4 else 0
+        #       h:   effectiveIndent
 
-            DisplayTags {}
-              tags
-              align
-              backgroundColor
-              foregroundColor
-              searchInTopicId
-              kimis:            @props.searchKimis
-              largeCrossLinks:  true
-              fromPostId:       post?.id
+        #     DisplayTags {}
+        #       tags
+        #       align
+        #       backgroundColor
+        #       foregroundColor
+        #       searchInTopicId
+        #       kimis:            @props.searchKimis
+        #       largeCrossLinks:  true
+        #       fromPostId:       post?.id
 
   render: ->
     @viewState extract gridSize
@@ -337,7 +325,7 @@ class MarkdownView extends &EventLogMixin FluxComponent
 
       if @showCopyButton
         SelectedTextPopover {}
-          @text, @post
+          @text
           context:        :markdownView
           startLocation:  @selectedTextMenuLocation
           close:          @clearShowCopyButton

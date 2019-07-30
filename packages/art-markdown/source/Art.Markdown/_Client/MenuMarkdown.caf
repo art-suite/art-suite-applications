@@ -1,0 +1,43 @@
+import &StandardImport
+
+class MenuMarkdown extends ViewStateComponent
+
+  @stateFields
+    showMoreButton: false
+    showMore:       false
+
+  showingLess: ->
+    @showMoreButton = true
+
+  render: ->
+    @props extract
+      maxMarkdownBlocks
+      text, small, large, includeTags, stringVariables
+
+    maxMarkdownBlocks = undefined if @showMore
+
+    &MarkdownView
+      {}
+        style:    :dialog
+        padding:  @props.padding ?
+          h: @gridSize / 2
+          v: @gridSize
+        maxMarkdownBlocks
+        text, small, large, includeTags, stringVariables
+        @showingLess
+
+      # if @showMoreButton
+      #   Element
+      #     padding: top: @gridSize
+      #     :parentWidthChildrenHeight
+      #     &MenuButton
+      #       small: true
+      #       if @showMore
+      #         icon: :triangleUp
+      #         text: :less...
+
+      #       else
+      #         icon: :triangleDown
+      #         text: :more...
+
+      #       action: @toggleShowMore
