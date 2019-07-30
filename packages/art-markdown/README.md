@@ -10,11 +10,8 @@ The use-case I'm targeting is from short-form text up to blog-post or article le
 
 * Too many header levels: Why is this a problem? Editors, viewers and markdown style-sheets can't seem to agree how much emphasis to put on each header level when there are when the 6(!) levels. The result is sometimes the difference between two levels of headers, for example `##` and `###` is insufficient because the style writer needed to squeeze in differences all the way down to `######`. That means markdown-authors sometimes need to skip header levels for adequate contrast between sections and sub-sections. Therefor, ArtMarkdown only supports 2 levels. If a document truely needs more levels, it should be split into multiple documents.
 
-* No way to properly cite a source or an image.
+* No way to center or right-align text, and no way to properly cite a quote or an image. Both of the latter are solved with ArtMarkdown's center and right-align options.
 
-* No way to center or right-align text.
-
-Both of the latter are solved with ArtMarkdown's center and right-align options.
 
 ## Install
 
