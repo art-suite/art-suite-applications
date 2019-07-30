@@ -1,0 +1,323 @@
+import &StandardImport
+
+parseMarkdownTest = (str, out) ->
+  test "parseMarkdown #{escapeJavascriptString(str).slice(0,50)}" ->
+    assert.eq
+      parseMarkdown str
+      array markdownBlock from out
+        merge markdownBlockDefaults, markdownBlock
+
+deMarkdownTest = (str, out) ->
+  test "deMarkdown #{escapeJavascriptString(str).slice(0,50)}" ->
+    assert.eq
+      deMarkdown str
+      out
+
+suite:
+  removeMarkdownCodeBlocks: ->
+    test "a" ->
+      assert.eq
+        removeMarkdownCodeBlocks
+          """
+            hi
+            ```
+            removed
+            ```
+            bye
+        """
+          hi
+          bye
+
+  splitMarkdownParagraphs: ->
+    testSplitMarkdownParagraphs = (str, out) ->
+      test "splitMarkdownParagraphs #{escapeJavascriptString(str).slice(0,50)}" ->
+        first = splitMarkdownParagraphs str
+        # second = splitMarkdownParagraphs first.join "\n\n"
+        # assert.eq
+        #   first
+        #   second
+        #   "splitMarkdownParagraphs should be (nearly) idempotent ( f(f(x).join '\n\n') = f(x) )"
+        assert.eq
+          first
+          out
+
+    testSplitMarkdownParagraphs
+      "  a  "
+      [] "a"
+
+    testSplitMarkdownParagraphs
+      """
+        a
+        b
+      [] "a b"
+
+    testSplitMarkdownParagraphs
+      """
+        # a
+        b
+      []
+        "# a b"
+
+    testSplitMarkdownParagraphs
+      """
+        a
+
+        b
+
+      [] :a :b
+
+    testSplitMarkdownParagraphs
+      """
+        a
+
+
+
+
+        b
+
+      [] :a :b
+
+
+    testSplitMarkdownParagraphs
+      """
+        a
+        > b
+        c
+      []
+        :a
+        "> b c"
+
+    testSplitMarkdownParagraphs
+      """
+        a
+        - b
+
+      [] :a "- b"
+
+    testSplitMarkdownParagraphs
+      """
+        a
+
+        ```
+          b
+          c
+        ```
+
+      []
+        :a
+        """
+          ```
+            b
+            c
+          ```
+
+    testSplitMarkdownParagraphs
+      """
+        #-- To Autumn
+        >--
+          Season of mists and mellow fruitfulness,
+          Close bosom-friend of the maturing sun;
+
+      []
+        "" #-- To Autumn
+        "" >-- Season of mists and mellow fruitfulness, Close bosom-friend of the maturing sun;
+
+
+    testSplitMarkdownParagraphs
+      """
+        Code For Life
+        ```
+        just some code
+        ```
+        1. Example 1
+        ^```
+        def
+            small:
+              h1Style:        TextStyles.xLargeBoldText
+              h2Style:        TextStyles.largeBoldText
+              h3Style:        TextStyles.mediumBoldText
+              paragraphStyle: TextStyles.mediumText
+              l1Style:        TextStyles.mediumText
+              l2Style:        TextStyles.smallText
+              l3Style:        TextStyles.smallText
+              quoteStyle:     TextStyles.mediumItalicText
+              monoStyle:      TextStyles.smallMonospaceText
+        ```
+
+        2.. Example 2
+        ^^```
+        abc
+            small:
+              h1Style:        TextStyles.xLargeBoldText
+              h2Style:        TextStyles.largeBoldText
+              h3Style:        TextStyles.mediumBoldText
+              paragraphStyle: TextStyles.mediumText
+        ```
+
+      []
+
+        "Code For Life"
+        """
+          ```
+          just some code
+          ```
+
+        "1. Example 1"
+        """
+          ^```
+          def
+              small:
+                h1Style:        TextStyles.xLargeBoldText
+                h2Style:        TextStyles.largeBoldText
+                h3Style:        TextStyles.mediumBoldText
+                paragraphStyle: TextStyles.mediumText
+                l1Style:        TextStyles.mediumText
+                l2Style:        TextStyles.smallText
+                l3Style:        TextStyles.smallText
+                quoteStyle:     TextStyles.mediumItalicText
+                monoStyle:      TextStyles.smallMonospaceText
+          ```
+
+        "2.. Example 2"
+        """
+          ^^```
+          abc
+              small:
+                h1Style:        TextStyles.xLargeBoldText
+                h2Style:        TextStyles.largeBoldText
+                h3Style:        TextStyles.mediumBoldText
+                paragraphStyle: TextStyles.mediumText
+          ```
+  parseMarkdown:
+    styles: ->
+      parseMarkdownTest "a"     [] text: "a"
+      parseMarkdownTest "> a"   [] text: "a" style: "quote",      depth: 1
+      parseMarkdownTest "# a"   [] text: "a" style: "heading",    depth: 1
+      parseMarkdownTest "* a"   [] text: "a" style: "bullet",     depth: 1
+      parseMarkdownTest "1. a"  [] text: "a" style: "list",       depth: 1
+
+    depth2: ->
+      parseMarkdownTest ">> a"   [] text: "a" style: "quote",     depth: 2
+      parseMarkdownTest "## a"   [] text: "a" style: "heading",   depth: 2
+      parseMarkdownTest "** a"   [] text: "a" style: "bullet",    depth: 2
+      parseMarkdownTest "1.. a"  [] text: "a" style: "list",      depth: 2
+
+    maxDepthIs2: ->
+      parseMarkdownTest ">>> a"  [] text: "a" style: "quote",     depth: 2
+      parseMarkdownTest "### a"  [] text: "a" style: "heading",   depth: 2
+      parseMarkdownTest "*** a"  [] text: "a" style: "bullet",    depth: 2
+      parseMarkdownTest "1... a" [] text: "a" style: "list",      depth: 2
+
+    codeBlocks: ->
+      parseMarkdownTest
+        """
+          ```
+          hi
+          ```
+
+        []
+          depth:  0
+          text:   "hi"
+          style:  "code"
+
+      parseMarkdownTest
+        """
+          ```
+          parseMarkdownTest = (str, out) ->
+            test "parseMarkdown \#{escapeJavascriptString(str).slice(0,50)}" ->
+              assert.eq
+                parseMarkdown str
+                out
+          ```
+
+        []
+          depth:  0
+          text:
+            """
+              parseMarkdownTest = (str, out) ->
+                test "parseMarkdown \#{escapeJavascriptString(str).slice(0,50)}" ->
+                  assert.eq
+                    parseMarkdown str
+                    out
+
+          style:  "code"
+
+      parseMarkdownTest
+        """
+          ^```
+          hi
+          ```
+
+        []
+          depth:  1
+          text:   "hi"
+          style:  "code"
+
+      parseMarkdownTest
+        """
+          ^^```
+          hi
+          ```
+
+        []
+          depth:  2
+          text:   "hi"
+          style:  "code"
+
+      parseMarkdownTest
+        """
+          ^^^```
+          hi
+          ```
+
+        []
+          depth:  2
+          text:   "hi"
+          style:  "code"
+
+      parseMarkdownTest
+        """
+          a
+          ```
+          b
+          ```
+          c
+
+        []
+          {}
+            depth:  0
+            align:  :left
+            style:  :paragraph
+            text:   :a
+
+          {}
+            depth:  0
+            align:  :left
+            style:  :code
+            text:   :b
+
+          {}
+            depth:  0
+            align:  :left
+            style:  :paragraph
+            text:   :c
+
+    align: ->
+      parseMarkdownTest "- a"     [] text: "a" align: "center"
+      parseMarkdownTest "-- a"    [] text: "a" align: "right"
+      parseMarkdownTest "--- a"   [] text: "a" align: "right"
+
+      parseMarkdownTest "#- a"    [] text: "a" align: "center"   style: "heading" depth: 1
+      parseMarkdownTest "*- a"    [] text: "a" align: "center"   style: "bullet"  depth: 1
+      parseMarkdownTest ">- a"    [] text: "a" align: "center"   style: "quote"   depth: 1
+      parseMarkdownTest "1.- a"   [] text: "a" align: "center"   style: "list"    depth: 1
+
+
+  deMarkdown: ->
+    deMarkdownTest "foo", "foo"
+    deMarkdownTest "# foo", "foo"
+    deMarkdownTest "#    foo", "foo"
+    deMarkdownTest "#- foo", "foo"
+    deMarkdownTest "> foo", "foo"
+    deMarkdownTest "* foo", "foo"
+    deMarkdownTest "1. foo", "foo"

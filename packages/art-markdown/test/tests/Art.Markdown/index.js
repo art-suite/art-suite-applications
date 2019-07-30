@@ -4,5 +4,7 @@
 (module.exports = require('./namespace'))
 
 .addModules({
-  Test: require('./Test')
+  Lib:    require('./Lib'),
+  Test:   require('./Test'),
+  ToHtml: require('./ToHtml')
 });

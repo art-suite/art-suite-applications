@@ -1,4 +1,4 @@
-import &StandardImport, &ArtHtmlFactory
+import &StandardImport, &Lib, &ArtHtmlFactory
 # reference: https://www.browserling.com/tools/markdown-to-html
 getTag = (style, depth) ->
   switch style

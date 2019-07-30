@@ -2,7 +2,8 @@
 // file: Art.Markdown/index.js
 
 (module.exports = require('./namespace'))
-
+.includeInNamespace(require('./Markdown'))
 .addModules({
+  Lib:            require('./Lib'),
   StandardImport: require('./StandardImport')
 });

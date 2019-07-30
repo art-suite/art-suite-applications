@@ -1,0 +1,162 @@
+import &StandardImport
+
+markdownToHtmlTest = (map) ->
+  each output, input in map
+    test input, ->
+      assert.eq
+        output
+        markdownToHtml input
+
+markdownToTextTest = (map) ->
+  each output, input in map
+    test input, ->
+      assert.eq
+        output
+        markdownToText input
+
+
+suite: if markdownToText is Function
+  markdownToText:
+    simple: ->
+      markdownToTextTest
+        "Hi.":          "" Hi.
+        "> Quote":      "  Quote"
+        ">> Quote":     "    Quote"
+        "^ Indented":   "  Indented"
+        "^^ Indented":  "    Indented"
+        "- Center":     "Center"
+        "-- Right":     "Right"
+        "# Title":      "Title\n====="
+        "## Title":     "Title\n-----"
+        "### Title":    "Title\n-----"
+        "```\nhi\n```":
+          """
+            ----------------------------------------------------------------------
+            hi
+            ----------------------------------------------------------------------
+
+    lists: ->
+      markdownToTextTest
+        "* Hi.\n* There.":
+          """
+            * Hi.
+
+            * There.
+
+        "* Hi.\n** There.":
+          """
+            * Hi.
+
+              * There.
+
+        "* Hi.\n^ There.":
+          """
+            * Hi.
+
+              There.
+
+        # "1. Hi.\n1. There.":
+        #   """
+        #     1. Hi.
+
+        #     2. There.
+
+  markdownToHtml:
+    simple: ->
+      markdownToHtmlTest
+        "Hi.":          "" <p>\n  Hi.\n</p>
+        "> Quote":      "" <blockquote class="markdownIndent">\n  Quote\n</blockquote>
+        ">> Quote":     "" <blockquote class="markdownIndent2">\n  Quote\n</blockquote>
+        "^ Indented":   "" <p class="markdownIndent">\n  Indented\n</p>
+        "^^ Indented":  "" <p class="markdownIndent2">\n  Indented\n</p>
+        "- Center":     "" <p class="markdownCenter">\n  Center\n</p>
+        "-- Right":     "" <p class="markdownRight">\n  Right\n</p>
+        "# Title":      "" <h1>\n  Title\n</h1>
+        "## Title":     "" <h2>\n  Title\n</h2>
+        "### Title":    "" <h2>\n  Title\n</h2>
+        "```\nhi\n```": "" <pre>\nhi\n</pre>
+
+    lists: ->
+      markdownToHtmlTest
+        "* Hi.\n* There.":
+          """
+            <ul>
+              <li>
+                Hi.
+              </li>
+              <li>
+                There.
+              </li>
+            </ul>
+
+        "* Hi.\n^ There.":
+          """
+            <ul>
+              <li>
+                Hi.
+              </li>
+              <p>
+                There.
+              </p>
+            </ul>
+
+        "1. Hi.":
+          """
+            <ol>
+              <li>
+                Hi.
+              </li>
+            </ol>
+
+        "1. Outter1\n  1.. Inner1\n  1.. Inner2\n1. Outter2":
+          """
+            <ol>
+              <li>
+                Outter1
+              </li>
+              <ol>
+                <li>
+                  Inner1
+                </li>
+                <li>
+                  Inner2
+                </li>
+              </ol>
+              <li>
+                Outter2
+              </li>
+            </ol>
+        "1.. Hi.":
+          """
+            <ol>
+              <ol>
+                <li>
+                  Hi.
+                </li>
+              </ol>
+            </ol>
+
+    regressions: ->
+      markdownToHtmlTest
+        "* Hi.\n\nThere.":
+          """
+            <ul>
+              <li>
+                Hi.
+              </li>
+            </ul>
+            <p>
+              There.
+            </p>
+
+      markdownToHtmlTest
+        "* Hi.\n\n> There.":
+          """
+            <ul>
+              <li>
+                Hi.
+              </li>
+              <blockquote>
+                There.
+              </blockquote>
+            </ul>

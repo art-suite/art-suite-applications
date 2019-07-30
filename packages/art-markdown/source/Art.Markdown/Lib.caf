@@ -104,9 +104,37 @@ class MarkdownLib
       \s+
       ([^\n]+)
 
+  @getPlainTextTitle: (string, maxLength = 50) ->
+    out = if present string
+      if m = string.match /[^\.!\?\n]+[\.!\?\n]+(?=[\s\n]|$)/g
+        [string] = m
+        [string] = string.split /\.*\s*$/
+      string.trim()
+    else ''
+
+    if out.length > maxLength
+      [first] = out.split /[-=|]/
+      if first?.length > 0
+         out = first
+
+    if out.length > maxLength
+      [first] = out.split /["'[{(]/
+      if first?.length > 0
+         out = first
+
+    if out.length > maxLength
+      words = out.split /\s+/
+      out = null
+      each word in words when !out || out.length < maxLength
+        out = if out
+          "" #{out} #{word}
+        else
+          word
+    out
+
   @getMarkdownTitle: (text, maxLength = 50) =>
     if matched = text?.match @_findTitleMarkdownRegExp
-      getPlainTextTitle matched[1], maxLength
+      @getPlainTextTitle matched[1], maxLength
 
   @hasMarkdownCodeBlocks: (text) =>
     @_markdownCodeBlockDelimiterRegExp.test text
