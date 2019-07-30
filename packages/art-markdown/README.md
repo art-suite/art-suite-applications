@@ -1,6 +1,20 @@
 # Art.Markdown
 
-> Initialized by Art.Build.Configurator
+> Goal: simplify Markdown and add alignment options.
+
+Markdown is great, but it also has a few shortcomings. It's design could be better. You know you are done not when there is nothing more to add, but when there is nothing left to remove.
+
+The use-case I'm targeting is from short-form text up to blog-post or article length. Basically, 0 to 10,000 characters or so.
+
+## Markdown Shortcomings
+
+* Too many header levels: Why is this a problem? Editors, viewers and markdown style-sheets can't seem to agree how much emphasis to put on each header level when there are when the 6(!) levels. The result is sometimes the difference between two levels of headers, for example `##` and `###` is insufficient because the style writer needed to squeeze in differences all the way down to `######`. That means markdown-authors sometimes need to skip header levels for adequate contrast between sections and sub-sections. Therefor, ArtMarkdown only supports 2 levels. If a document truely needs more levels, it should be split into multiple documents.
+
+* No way to properly cite a source or an image.
+
+* No way to center or right-align text.
+
+Both of the latter are solved with ArtMarkdown's center and right-align options.
 
 ## Install
 
@@ -82,14 +96,3 @@ Block termination
 Markdown blocks are terminated by a new block starting OR
 two or more new-lines.
 ```
-
-## FUTURE
-
-Should code-blocks support bullets?
-
-```
-*```    intented with bullet
-1.```   indented with list
-```
-
-NOTE: code-blocks cannot be in a quote.
