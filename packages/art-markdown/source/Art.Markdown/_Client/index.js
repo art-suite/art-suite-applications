@@ -4,6 +4,7 @@
 (module.exports = require('./namespace'))
 
 .addModules({
+  CodePalette:    require('./CodePalette'),
   MarkdownView:   require('./MarkdownView'),
   MenuMarkdown:   require('./MenuMarkdown'),
   StandardImport: require('./StandardImport')
