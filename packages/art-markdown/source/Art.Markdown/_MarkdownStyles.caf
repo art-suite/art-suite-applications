@@ -1,0 +1,62 @@
+import &StandardImport, &ArtAppKit/Styles
+
+commonTextStyle = leading: 1.58
+
+Klass = Neptune.Art.Suite?.HotStyleProps ? Object # CaffineScript bug requires the 'Klass' temporary
+
+class MarkdownStyles extends Klass
+  @dialog:
+    # bullets: :❧ :–
+    textPalette:
+      black: primary: TextPalette.black.softPrimary
+
+  @preview:
+    textPalette:
+      black: primary: TextPalette.black.secondary
+
+  @default:
+    bullets: :・ :・
+    textPalette:
+      white: select TextPalette.white, :primary :secondary
+      black: select TextPalette.black, :primary :secondary
+
+    textStyles:
+      large:
+        titleStyle:     merge TextStyles.xxLargeBoldText,     commonTextStyle
+        h1Style:        merge TextStyles.xLargeBoldText,      commonTextStyle
+        h2Style:        merge TextStyles.largeBoldText,       commonTextStyle
+        paragraphStyle: merge TextStyles.largeText,           commonTextStyle
+        l1Style:        merge TextStyles.largeText,           commonTextStyle
+        l2Style:        merge TextStyles.largeText,           commonTextStyle
+        quoteStyle:     merge TextStyles.largeItalicText,     commonTextStyle
+        monoStyle:      merge TextStyles.mediumMonospaceText, commonTextStyle
+
+      medium:
+        titleStyle:     merge TextStyles.xLargeBoldText,      commonTextStyle
+        h1Style:        merge TextStyles.largeBoldText,       commonTextStyle
+        h2Style:        merge TextStyles.mediumBoldText,      commonTextStyle
+        paragraphStyle: merge TextStyles.mediumText,          commonTextStyle
+        l1Style:        merge TextStyles.mediumText,          commonTextStyle
+        l2Style:        merge TextStyles.mediumText,          commonTextStyle
+        quoteStyle:     merge TextStyles.mediumItalicText,    commonTextStyle
+        monoStyle:      merge TextStyles.smallMonospaceText,  commonTextStyle
+
+      small:
+        titleStyle:     merge TextStyles.largeBoldText,       commonTextStyle
+        h1Style:        merge TextStyles.mediumBoldText,      commonTextStyle
+        h2Style:        merge TextStyles.smallBoldText,       commonTextStyle
+        paragraphStyle: merge TextStyles.smallText,           commonTextStyle
+        l1Style:        merge TextStyles.smallText,           commonTextStyle
+        l2Style:        merge TextStyles.smallText,           commonTextStyle
+        quoteStyle:     merge TextStyles.smallItalicText,     commonTextStyle
+        monoStyle:      merge TextStyles.tinyMonospaceText,   commonTextStyle
+
+      smallWithSmallTitles:
+        titleStyle:     merge TextStyles.mediumBoldText,      commonTextStyle
+        h1Style:        merge TextStyles.mediumBoldText,      commonTextStyle
+        h2Style:        merge TextStyles.smallBoldText,       commonTextStyle
+        paragraphStyle: merge TextStyles.smallText,           commonTextStyle
+        l1Style:        merge TextStyles.smallText,           commonTextStyle
+        l2Style:        merge TextStyles.smallText,           commonTextStyle
+        quoteStyle:     merge TextStyles.smallItalicText,     commonTextStyle
+        monoStyle:      merge TextStyles.tinyMonospaceText,   commonTextStyle

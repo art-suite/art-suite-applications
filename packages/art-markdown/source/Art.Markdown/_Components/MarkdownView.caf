@@ -1,0 +1,343 @@
+import &StandardImport, {}
+  # &DisplayTags
+  # &MarkdownInlinePost
+  &SelectedTextPopover
+  &MarkdownStyles
+
+markdownStyles = MarkdownStyles
+defaultStyle = MarkdownStyles.default
+
+class MarkdownView extends &EventLogMixin FluxComponent
+
+  @subscriptions
+    :viewState.viewState
+    :post
+    topic: ({topicId, post}) -> topicId ? post?.topicId
+
+  preprocessProps: (props) ->
+    if defaultStyle != props extract style
+      if isString styleName = style
+        style = markdownStyles[style]
+        log.warn "invalid markdown style: #{styleName}" unless style?
+
+      merge
+        props
+        style: deepMerge defaultStyle, style
+    else
+      props
+
+  @propFields
+    style: defaultStyle
+
+  @stateFields
+    showCopyButton: false
+    selectedTextMenuLocation: null
+
+  @getter
+    text: ->
+      applyStringVariables
+        @props.text ? @props.post?.caption
+        @props.stringVariables
+
+    textStyles: ->
+      @style extract textStyles
+      textStyles[@props.textStyle]
+      ? switch
+      when @props.large then textStyles.large
+      when @props.small then textStyles.small
+      else                   textStyles.medium
+
+    baseFontSize:         -> @textStyles.paragraphStyle.fontSize
+    size:                 -> @props.size ? :parentWidthChildrenHeight
+    baseMargin:           -> @baseFontSize * if @props.preview then 1.5 else 2
+    compressedMargin:     -> @baseMargin / 4
+    indent:               -> @baseFontSize * if @props.preview then .5 else 1.5
+    leading:              -> if @props.preview then 1.25 else 1.58
+    palette:              -> @style.palette
+    textPalette:          -> if @props.lightText then @style.textPalette.white else @style.textPalette.black
+    codePalette:          -> if @props.lightText then ImikimiPalette.codePalette.dark else ImikimiPalette.codePalette.light
+
+    markdownBlocks: ->
+      {maxMarkdownBlocks} = @props
+      markdownBlocks = parseMarkdown @text ? ""
+
+      if maxMarkdownBlocks < markdownBlocks.length
+        @props.showingLess?()
+        markdownBlocks = markdownBlocks.slice 0, maxMarkdownBlocks
+
+      markdownBlocks
+
+  renderBodyText: ->
+    @props extract
+      includeTags
+      foregroundColor
+      backgroundColor
+      post
+      preview
+      post
+      topic
+      searchKimis
+      searchInTopicId
+
+    if vertical != :imikimi
+      searchInTopicId ?= post?.topicId ? topic?.id
+
+    @viewState extract gridSize
+
+    @textStyles extract h1Style, titleStyle, h2Style, paragraphStyle, monoStyle, quoteStyle, l1Style, l2Style
+    @ extract
+      baseMargin
+      compressedMargin
+      indent, leading, textPalette, markdownBlocks, baseFontSize
+      codeBackgroundColor
+      codeForegroundColor
+      codePalette
+
+    lastLevelNumber = null null null
+    lastDepth = null
+    lastStyle = null
+    lastBlockHadTags = false
+    lastIndentLevel = 0
+
+    array {text, align, style, depth}, i in markdownBlocks
+
+      if style != :code && (includeTags || preview)
+        [tags, text] = detagString text,
+          if config.vertical == :imikimi then 3 else 10
+          true
+      else tags = null
+
+      haveTags = tags?.length > 0
+      actualLastBlockHadTags = lastBlockHadTags
+      lastBlockHadTags = haveTags
+
+      if haveTags
+        internalLinkPostIds = []
+        _tags = []
+        each tag in tags
+          if postId = internalLinkToPostId tag
+            internalLinkPostIds.push postId
+          else
+            _tags.push tag
+        tags = _tags
+
+      size = if align != :left then :parentWidthChildrenHeight else @size
+
+      color = textPalette.primary
+
+      commonTextProps = {} align, leading, text, color, size
+
+      if preview
+        commonTextProps.maxLines = 5
+
+      actualLastStyle = lastStyle
+      actualLastDepth = lastDepth
+      lastDepth = depth
+      lastStyle = style
+
+      effectiveIndent = 0
+
+      out = if present text then switch style
+        when :heading
+          TextElement
+            if depth == 1
+              if !actualLastStyle then  titleStyle
+              else                      h1Style
+            else                        h2Style
+            commonTextProps
+
+        when :code
+          commonTextProps.text = text.replace /\n```$/, ''
+          ScrollElement
+            pointerEventPriority: 1
+            size:           :childrenSizeMaxParentWidth
+            padding:        left: indent * depth
+            childrenLayout: :row
+
+            Element
+              size: :childrenSize
+              draw:
+                radius: indent / 4
+                fill: codePalette.background
+
+              TextElement
+                monoStyle
+                commonTextProps
+                padding:  indent / 2
+                size:     :childrenSize
+                color:    codePalette.foreground
+
+        when :quote
+          TextElement
+            quoteStyle
+            padding: h: effectiveIndent = indent * depth
+            commonTextProps
+            color: textPalette.secondary
+
+        when :bullet
+          textStyle = switch depth
+            when 1 then l1Style
+            when 2 then l2Style
+
+          Element
+            size: size
+            padding: left: effectiveIndent = indent * depth
+
+            TextElement
+              textStyle
+              :textCenterCenter
+              text:   @style.bullets[depth - 1]
+              axis:   :topRight
+              color:  commonTextProps.color
+              size:
+                hch: 1
+                w: indent
+
+            TextElement textStyle, commonTextProps
+
+        when :indented
+          textStyle = switch depth
+            when 1 then l1Style
+            when 2 then l2Style
+
+          Element
+            size: size
+            padding:
+              left:   effectiveIndent = indent * depth
+              right:  if align != "left" then indent * depth
+
+            TextElement textStyle, commonTextProps
+
+        when :list
+          textStyle = switch depth
+            when 1 then l1Style
+            when 2 then l2Style
+
+
+          if actualLastStyle != style
+            d = actualLastDepth + 1
+            while d < 3
+              lastLevelNumber[d] = null
+              d++
+
+          number = lastLevelNumber[depth] = (lastLevelNumber[depth] | 0) + 1
+          lastLevelNumber[1] = null if depth < 1
+          lastLevelNumber[2] = null if depth < 2
+
+          Element
+            :row
+            size: size
+            padding: left: effectiveIndent = indent * (depth - 1)
+
+            TextElement textStyle,
+              text: "#{number}."
+              color: commonTextProps.color
+              padding: right: style.fontSize / 2
+              size:
+                hch:  1
+                w:    (ps, cs) -> max cs.w, indent
+
+            TextElement textStyle, commonTextProps
+
+        else
+          if present text
+            TextElement paragraphStyle, commonTextProps
+
+      []
+        if actualLastStyle
+          spacing = baseMargin * unless out then 1 else
+            switch style
+            when :bullet :list
+              switch actualLastStyle
+              when :bullet :list then 3/4
+              else 1
+
+            when :heading
+              if depth == 1 then 1.5 else 1.25
+
+            else 1
+
+          if actualLastBlockHadTags
+            spacing -= baseMargin * .5
+
+          if actualLastStyle == :code || style == :code
+            spacing -= baseMargin / 4
+
+          Element size: spacing
+
+        out
+
+        if internalLinkPostIds?.length > 0 && !preview
+          if internalLinkPostIds.length > 1
+            Element
+              :parentWidthChildrenHeight
+              :column
+              childrenMargins: gridSize
+              array postId in internalLinkPostIds
+                MarkdownInlinePost {} postId, inTopic: @topic, inPost: post, imageOnly: !includeTags
+          else
+            Element
+              padding:
+                top: if out then baseMargin / 2 else 0
+                h: effectiveIndent
+              size:           :parentWidthChildrenHeight
+              childrenLayout: :column
+              array postId in internalLinkPostIds
+                MarkdownInlinePost {} postId, inTopic: @topic, inPost: post, imageOnly: !includeTags
+
+        if includeTags && haveTags
+          Element
+            size: :parentWidthChildrenHeight
+            padding:
+              top: baseMargin * 1/4
+                # if style == :bullet || style == :list
+                #   1/4
+                # else 1/2
+              bottom: if style == :bullet || style == :list then baseMargin / 4 else 0
+              h:   effectiveIndent
+
+            DisplayTags {}
+              tags
+              align
+              backgroundColor
+              foregroundColor
+              searchInTopicId
+              kimis:            @props.searchKimis
+              largeCrossLinks:  true
+              fromPostId:       post?.id
+
+  render: ->
+    @viewState extract gridSize
+    Element
+      {}
+        @size
+        @props.padding
+        on:
+          pointerClick: ({location}) ->
+            unless @showCopyButton
+              @selectedTextMenuLocation = location
+            @toggleShowCopyButton()
+          blur: @clearShowCopyButton
+        childrenLayout: :column
+
+      if @showCopyButton
+        Element
+          inFlow: false
+          animators: opacity: toFrom: 0
+          draw:
+            padding: -gridSize / 2
+            radius: gridSize / 2
+            outline:
+              rgbColor @props.backgroundColor ? TextPalette.black.tertiary
+              .withAlpha .25
+
+      @renderBodyText() if present @text
+
+      @props.children
+
+      if @showCopyButton
+        SelectedTextPopover {}
+          @text, @post
+          context:        :markdownView
+          startLocation:  @selectedTextMenuLocation
+          close:          @clearShowCopyButton

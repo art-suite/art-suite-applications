@@ -1,0 +1,3 @@
+import &StandardImport
+suite: ->
+  test 'Markdown' -> assert.eq 1, 1

@@ -1,0 +1,164 @@
+import &StandardImport, &ArtHtmlFactory
+# reference: https://www.browserling.com/tools/markdown-to-html
+getTag = (style, depth) ->
+  switch style
+  when :heading   then if depth == 1 then :h1 else :h2
+  when :code      then :pre
+  when :bullet    then :li
+  when :list      then :li
+  when :quote     then :blockquote
+  # when :indented  then :div
+  else :div
+
+class MarkdownToHtml
+
+  # markdownStyleAndDepthToTags =
+  #   heading:
+  #     1: :h1
+  #     2: :h2
+  #   code:   1: :pre 2: :pre
+  #   quote:
+
+  listTags =
+    bullet: :ul
+    list:   :ol
+
+  # @clusterMarkdownBlocks: clusterMarkdownBlocks = (markdownBlocks) ->
+  #   stack = [] currentOut = out = []
+  #   each block in markdownBlocks
+  #     block extract level
+  #     if level <= 0
+  #       while stack.length > 1
+  #         stack.pop()
+
+  #     else
+  #       if currentLevel?
+  #         switch
+  #         when currentLevel == level
+  #         when currentLevel > level
+  #         else
+
+  #       else
+  #         stack.push
+  #       currentLevel = level
+
+  @markdownToHtmlTree: (text) ->
+    markdownBlocksToHtmlTree
+      parseMarkdown2 text, true
+      .reverse()
+
+  markdownBlockToHtmlTag = ({text, align, level, style}, currentLevel = 0) ->
+    classes = []
+
+    switch align
+    when :right  then classes.push :markdownRight
+    when :center then classes.push :markdownCenter
+
+    if level > 0
+      switch level - currentLevel
+      when 1 then classes.push :markdownIndent
+      when 2 then classes.push :markdownIndent2
+
+    tag = switch style
+      when :heading   then if level == -2 then H1 else H2
+      when :code      then Pre
+      when :quote     then BlockQuote
+      when :indented  then P
+      when :paragraph then P
+      when :unorderedList, :orderedList
+        Li
+      else
+        log {} style
+        throw new Error "not yet #{style}"
+
+    tag
+      if classes.length > 0
+        class: classes.join ' '
+
+      text
+
+  markdownBlocksToHtmlTree = (inverseBlocks, inListLevel = 0, inListStyle) ->
+    currentLevel = 0
+    out = []
+    listStyleStack = []
+
+    while inverseBlocks?.length > 0
+      (peek inverseBlocks) extract text, align, level, style
+      if (inListLevel > 0 && level < inListLevel) ||
+          style == :unorderedList || style == :orderedList
+          && inListLevel != level || style != inListStyle
+        if level > inListLevel
+          tag = if style == :unorderedList then Ul else Ol
+          out.push tag markdownBlocksToHtmlTree inverseBlocks, inListLevel + 1, style
+        else
+          inverseBlocks = null # stop, types changed or we down-stepped
+
+      else
+        out.push markdownBlockToHtmlTag inverseBlocks.pop(), inListLevel
+
+    BareHtml
+      out
+
+  @markdownToHtml: (markdown) ->
+    markdownBlocksToHtmlTree
+      parseMarkdown2 markdown, true
+      .reverse()
+    .toString()
+
+  wordWrap = (text, width, indent = '') ->
+    if /\n/.test text
+      array t in text.split /\n+/g
+        wordWrap t, width, indent
+      .join "\n#{indent}"
+
+    else
+      colCount = 0
+      out = ""
+      each word in text.match /[^\s]+/g
+        if width >= nextColCount = colCount + 1 + word.length
+          out += " " if colCount > 0
+          out += word
+          colCount = nextColCount
+        else
+          if colCount > 0
+            out += "\n#{indent}"
+          out += word
+          colCount = word.length
+      out
+
+  @markdownToText: (markdown) ->
+    array {text, align, level, style} in parseMarkdown2 markdown
+      text =
+        text
+        .trim()
+        .replace /<br>/g, "\n"
+        .replace /<\/?[a-z]+[^>]*>/ig, ''
+
+      if level > 0
+        text = wordWrap text, 70 - level * 2, getPadding level, '  '
+
+      switch style
+      when :heading
+        if align == :left
+          """
+            #{text}
+            #{} getPadding text.length, if level == -2 then := else :-
+        else
+          text
+
+      when :unorderedList :orderedList
+        "" #{'  ' if level > 1}* #{text}
+
+      when :code
+        """
+          #{} getPadding 70, '-'
+          #{} text
+          #{} getPadding 70, '-'
+
+      else
+        if level > 0
+          getPadding level, "  "
+          + text
+        else
+          text
+    .join "\n\n"

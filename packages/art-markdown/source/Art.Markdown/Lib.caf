@@ -1,0 +1,346 @@
+###
+  Zo-Flavored Markdown
+
+  Major additions are "-" and "--" suffixis for right and center alignment respectively.
+
+  TODO
+
+    Add:
+
+      ^   indented paragraph text (no bullets)
+      ^^  twice-indented paragraph text (no bullets)
+
+      Also the alignment variations:
+
+        ^-
+        ^--
+        ^^-
+        ^^--
+
+    Change indented Code Blocks for consitency:
+
+      ^```    just indented
+
+  FUTURE:
+
+    Should code-blocks support bullets?
+
+      *```    intented with bullet
+      1.```   indented with list
+
+      NOTE: code-blocks cannot be in a quote.
+
+  Current Spec - with the changes above:
+
+    Basically, we have 4 kinds of indentions:
+
+      ^   - plain
+      *   - bullet
+      1.  - list
+      >   - quote
+
+    All intentions have two levels indicated by repeating their symbol one or two times:
+
+      ^^
+      >>
+      **
+      1..
+
+    ^ and > indentions have two alignment options each:
+
+      ^-    centered
+      ^--   right
+      >-    centered
+      >--   right
+
+      NOTE: bullets and lists do not have alignment options
+
+    There is also the bare, paragraph-text alignment options:
+
+      -     centered
+      --    right
+
+    We have two levels of headings and their alignment options:
+
+      #     H1
+      #-      center
+      #--     right
+      ##    H2
+      ##-     center
+      ##--    right
+
+    Code-blocks can start with:
+
+      ```       normal
+      ^```      just indented 1
+      ^^```     just indented 2
+
+      They are unique in that they are only terminated with a line solely containing:
+
+        ```
+
+    Block termination
+
+      Markdown blocks are terminated by a new block starting OR
+      two or more new-lines.
+import &StandardImport
+
+class MarkdownLib
+
+  @deMarkdown: (text) =>
+    text.replace @_findMarkdownBlockRegExp, ''
+
+  @markdownBlockDefaults:
+    align: :left
+    depth: 0
+    style: :paragraph
+
+  @_findTitleMarkdownRegExp:
+    ///
+      ^
+      (?:[\n\s]*\n)?
+      [#*>]+
+      -*
+      \s+
+      ([^\n]+)
+
+  @getMarkdownTitle: (text, maxLength = 50) =>
+    if matched = text?.match @_findTitleMarkdownRegExp
+      getPlainTextTitle matched[1], maxLength
+
+  @hasMarkdownCodeBlocks: (text) =>
+    @_markdownCodeBlockDelimiterRegExp.test text
+
+  @_codeBlockStart: /// \^* ```
+
+  @hasAlignmentMarkdown: (text) ->
+    ///
+      (^|\n)
+
+      (
+        (?=-) |
+
+        \#+ |
+
+        \^+ |
+
+        >+ |
+
+        \d\.+ |
+
+        \*+ |
+
+        #{@_codeBlockStart.source}
+      )
+
+      (-+)
+    .test text
+
+  @_markdownCodeBlockDelimiterRegExp:           /// #{@_codeBlockStart.source}
+  @markdownCodeBlockLineStartRegExp:            /// ^         #{@_markdownCodeBlockDelimiterRegExp.source}
+  @markdownCodeOrHeaderBlockLineStartRegExp:    /// ^ (#{@_markdownCodeBlockDelimiterRegExp.source} | \#+\s+[^\s])
+  @_findMarkdownCodeBlockDelimiterRegExp:       /// (^|\n\ *) #{@_markdownCodeBlockDelimiterRegExp.source}
+
+  @_markdownBlockStartRegexp:
+    ///
+      (?:
+        # plain paragraphs can start with - or -- for alignment
+        (?=-) |
+
+        \#+ |
+
+        \^+ |
+
+        >+ |
+
+        \d\.+ |
+
+        \*+ |
+
+        #{@_codeBlockStart.source}
+      )
+
+      # any block-start can end with - or -- for alignment
+      # NOTE - lists/bullets ignore alignment
+      (?:-*)
+
+      (?:\ +|\n|$)
+
+  @_markdownBlockStartWithSubmatchesRegexp:
+    ///
+      (
+        # plain paragraphs can start with - or -- for alignment
+        (?=-) |
+
+        \#+ |
+
+        \^+ |
+
+        >+ |
+
+        \d\.+ |
+
+        \*+ |
+
+        #{@_codeBlockStart.source}
+      )
+
+      # any block-start can end with - or -- for alignment
+      # NOTE - lists/bullets ignore alignment
+      (-*)
+
+      (?:\ +|\n|$)
+
+  @_findMarkdownBlockRegExp:                    /// (^|\n) \s* #{@_markdownBlockStartRegexp.source}
+  @_markdownBlockLineStartRegExp:               ///  ^     \s* #{@_markdownBlockStartRegexp.source}
+  @_markdownBlockLineStartWithSubmatchesRegexp: ///  ^     \s* #{@_markdownBlockStartWithSubmatchesRegexp.source} ((?:.|\n)+)
+
+  @removeMarkdownCodeBlocks: (str) =>
+    if str? && @_findMarkdownCodeBlockDelimiterRegExp.test str
+      codeContents = false
+      array line in str.split /\s*\n/g when
+        if @markdownCodeBlockLineStartRegExp.test line
+          codeContents = !codeContents
+          false
+        else !codeContents
+      .join "\n"
+
+    else
+      str
+
+  @isMarkdown: (text) => @_findMarkdownBlockRegExp.test text
+
+  @splitMarkdownParagraphs: (text) =>
+    lines = text.split /\ *\n/g
+
+    out = []
+    codeStart = null
+    codeContents = null
+    each line, i in lines
+      if match = line.match @markdownCodeBlockLineStartRegExp
+        if codeContents
+          out.push codeContents + "" \n```
+          codeContents = null
+
+        else
+          [codeContents] = match
+
+      else if codeContents
+        codeContents += "\n" + line
+
+      else
+        line = line.trim()
+        if @_markdownBlockLineStartRegExp.test line
+          out.push line
+
+        else if present line
+          last = peek out
+          switch
+          when last? && !@markdownCodeBlockLineStartRegExp.test last
+            out[out.length-1] = "" #{last} #{line}
+
+          when last?.length == 0
+            out[out.length-1] = line
+
+          else out.push line
+
+        else
+          out.push null
+
+    if codeContents
+      out.push codeContents + "" \n```
+
+    compactFlatten out
+
+  @parseParagraphText: (text) -> text.replace /\<br\>/g, "\n"
+
+  ## DEPRICATED - use parseMarkdown2 - which has a new concept of depth
+  @parseMarkdown: (text) =>
+    paragraphs = @splitMarkdownParagraphs text
+    array p in paragraphs
+      if matched = p.match @_markdownBlockLineStartWithSubmatchesRegexp
+        [__, type, align, text] = matched
+        if /^\d+/.test type
+          type = type.replace /^\d+/, ''
+
+        if matched = type.match /(\^*)`+/
+          [__, depth] = matched
+          text:   text = text.replace /\n```[\s\n]*$/, ''
+          depth:  min 2 depth.length
+          style:  :code
+          align:  :left
+
+        else
+          text: @parseParagraphText text
+
+          style: style = switch type[0]
+            when "^" then :indented
+            when ">" then :quote
+            when "#" then :heading
+            when "*" then :bullet
+            when "." then :list
+            else          :paragraph
+
+          depth: switch style
+            when :paragraph then 0
+            else min 2 type.length
+
+          align: switch align.length
+            when 0 then :left
+            when 1 then :center
+            else        :right
+
+      else
+        text:   @parseParagraphText p
+        depth:  0
+        align:  :left
+        style:  :paragraph
+
+  @parseMarkdown2: (text, forHtml) =>
+    paragraphs = @splitMarkdownParagraphs text
+    array p in paragraphs
+      if matched = p.match @_markdownBlockLineStartWithSubmatchesRegexp
+        [__, type, align, text] = matched
+        if /^\d+/.test type
+          type = type.replace /^\d+/, ''
+
+        if matched = type.match /(\^*)`+/
+          [__, depth] = matched
+          text:   text = text.replace /\n```[\s\n]*$/, ''
+          level:  min 2 depth.length
+          style:  :code
+          align:  :left
+
+        else
+          text: if forHtml then text else @parseParagraphText text
+
+          style: style = switch type[0]
+            when "^" then :indented
+            when ">" then :quote
+            when "#" then :heading
+            when "*" then :unorderedList
+            when "." then :orderedList
+            else          :paragraph
+
+          ## level
+            replaces depth:
+            -2: # Heading
+            -1: ## subheading
+            0:  paragraph
+            1:  >, ^, *, 1.
+            2:  >>, ^^, **, 1..
+          level: switch style
+            when :paragraph then 0
+            when :heading then min(2 type.length) - 3
+            else min 2 type.length
+
+          align: switch align.length
+            when 0 then :left
+            when 1 then :center
+            else        :right
+
+      else
+        text:   @parseParagraphText p
+        level:  0
+        align:  :left
+        style:  :paragraph
