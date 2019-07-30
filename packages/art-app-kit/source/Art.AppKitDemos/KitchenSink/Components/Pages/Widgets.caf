@@ -44,7 +44,7 @@ class Widgets extends ViewStateComponent
 
           MenuButton
             customIcon: Element
-              draw: radius: 5 colors: [#f77 #faa #f77] to: :bottomRight
+              draw: radius: 5 colors: #f77 #faa #f77 to: :bottomRight
               TextElement
                 TextStyles.mediumBoldText
                 text: :?
@@ -57,7 +57,7 @@ class Widgets extends ViewStateComponent
 
           MenuToggle
             customIcon: Element
-              draw: radius: 5 colors: [#4b4 #8d8 #4b4] to: :bottomRight
+              draw: radius: 5 colors: #4b4 #8d8 #4b4 to: :bottomRight
               TextElement
                 TextStyles.mediumBoldText
                 text: :!!!

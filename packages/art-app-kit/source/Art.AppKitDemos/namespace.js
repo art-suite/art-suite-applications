@@ -6,6 +6,6 @@ module.exports = require('neptune-namespaces').addNamespace(
   (class AppKitDemos extends Neptune.PackageNamespace {})
   ._configureNamespace(require('../../package.json'))
 );
-require('./KitchenSinkDemo/namespace');
+require('./KitchenSink/namespace');
 require('./Minimum/namespace');
 require('./NativePreview/namespace');

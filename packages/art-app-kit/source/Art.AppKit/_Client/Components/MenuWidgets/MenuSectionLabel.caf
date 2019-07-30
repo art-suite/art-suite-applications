@@ -7,7 +7,8 @@ class MenuSectionLabel extends ViewStateComponent
     @props extract label, text = label
 
     Element
-      :parentWidthChildrenHeight :row
+      menuSectionLayout @viewState
+      :row
       :childrenBottomLeft
 
       animators:
@@ -17,7 +18,8 @@ class MenuSectionLabel extends ViewStateComponent
       padding: left: gridSize / 2
 
       draw:
-        padding:  h: -1000
+        padding:  h: -@gridSize / 2
+        radius:   @gridSize / 4
         color:    AppPalette.veryLightDarken
         outline:  color: #0002
 

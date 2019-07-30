@@ -2,6 +2,6 @@
 // file: Art.AppKitDemos/index.js
 
 module.exports = require('./namespace');
-require('./KitchenSinkDemo');
+require('./KitchenSink');
 require('./Minimum');
 require('./NativePreview');

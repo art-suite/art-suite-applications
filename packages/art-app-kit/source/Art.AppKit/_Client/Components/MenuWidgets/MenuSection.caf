@@ -1,4 +1,4 @@
-import &StandardImport, {} &MenuSectionLabel
+import &StandardImport, &MenuLib, {} &MenuSectionLabel
 
 class MenuSection extends ViewStateComponent
 
@@ -33,5 +33,7 @@ class MenuSection extends ViewStateComponent
           outline:  TextPalette.black.barely
 
         padding: h: gridSize / 2
-        :parentWidthChildrenHeight :column
+        :parentWidthChildrenHeight
+        :column
+        menuSectionLayout @viewState
         @props.children

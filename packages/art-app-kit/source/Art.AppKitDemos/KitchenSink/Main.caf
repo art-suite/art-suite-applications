@@ -1,7 +1,7 @@
 &ArtAppKit.StyleProps
 
 &ArtAppKit/Client.init {}
-  title:      :Art.AppKitDemo.Minimum
+  title:      "" AppKitDemo KitchenSink
   appPalette: primary:  #f77
   pages:      &Components/Pages
   pageStacks: []

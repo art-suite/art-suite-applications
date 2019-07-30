@@ -4,13 +4,14 @@
 (module.exports = require('./namespace'))
 .includeInNamespace(require('./Widgets'))
 .addModules({
-  ActivityBadge:   require('./ActivityBadge'),
-  Button:          require('./Button'),
-  Icon:            require('./Icon'),
-  IconButton:      require('./IconButton'),
-  ScrollerWithBar: require('./ScrollerWithBar'),
-  StandardImport:  require('./StandardImport'),
-  Toggle:          require('./Toggle'),
-  ToolbarButton:   require('./ToolbarButton'),
-  WidgetLib:       require('./WidgetLib')
+  ActivityBadge:       require('./ActivityBadge'),
+  Button:              require('./Button'),
+  Icon:                require('./Icon'),
+  IconButton:          require('./IconButton'),
+  ScrollerWithBar:     require('./ScrollerWithBar'),
+  SelectedTextPopover: require('./SelectedTextPopover'),
+  StandardImport:      require('./StandardImport'),
+  Toggle:              require('./Toggle'),
+  ToolbarButton:       require('./ToolbarButton'),
+  WidgetLib:           require('./WidgetLib')
 });
