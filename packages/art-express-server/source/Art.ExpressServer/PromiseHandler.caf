@@ -65,48 +65,53 @@ class PromiseHandler extends &LoggingMixin BaseClass
   ######################
   # ExpressHandler API
   ######################
+
+  ## gets called after ganHandleRequest passes
+  handleRawRequest: (request, response, next) ->
+    dataChunks = []
+    requestData = null
+    request.on :data (chunk) -> dataChunks.push chunk
+
+    request.on :end ->
+      Promise.then ->
+        @handleRequest request, requestData = dataChunks.join ''
+
+      .catch (error) ->
+        @logError internalError: {request, error}
+        status:       serverFailure
+
+      .then (plainResponse) ->
+
+        if plainResponse
+          {headers, data, status, statusCode} = plainResponse
+          unless data? || status? || statusCode?
+            throw new Error "expected data, status or statusCode in response: #{formattedInspect plainResponse}"
+
+        responseData = data
+
+        response.statusCode = statusCode || if status && statusCode = encodeHttpStatus status
+          statusCode
+        else
+          statusCode = if data then 200 else 404
+
+
+        if (statusCode/100 | 0) == 5
+          @logError
+            url:              request.url
+            requestData:      (try JSON.parse requestData ) || requestData
+            responseData:     (try JSON.parse responseData) || responseData
+
+        if (statusCode/100 | 0) == 3
+          response.redirect statusCode, data
+        else
+          @_encodeOutput request, response, headers, responseData
+
   @getter middleware: ->
     (request, response, next) ->
       if @canHandleRequest request
         @logVerbose start: {request.method, request.url}
 
-        dataChunks = []
-        requestData = null
-        request.on :data (chunk) -> dataChunks.push chunk
-
-        request.on :end ->
-          Promise.then ->
-            @handleRequest request, requestData = dataChunks.join ''
-
-          .catch (error) ->
-            @logError internalError: {request, error}
-            status:       serverFailure
-
-          .then (plainResponse) ->
-
-            if plainResponse
-              {headers, data, status, statusCode} = plainResponse
-              unless data? || status? || statusCode?
-                throw new Error "expected data, status or statusCode in response: #{formattedInspect plainResponse}"
-
-            responseData = data
-
-            response.statusCode = statusCode || if status && statusCode = encodeHttpStatus status
-              statusCode
-            else
-              statusCode = if data then 200 else 404
-
-
-            if (statusCode/100 | 0) == 5
-              @logError
-                url:              request.url
-                requestData:      (try JSON.parse requestData ) || requestData
-                responseData:     (try JSON.parse responseData) || responseData
-
-            if (statusCode/100 | 0) == 3
-              response.redirect statusCode, data
-            else
-              @_encodeOutput request, response, headers, responseData
+        @handleRawRequest request, response, next
 
       else
         # @logVerbose {} notHandled: request.url, @handleUrlRegex
