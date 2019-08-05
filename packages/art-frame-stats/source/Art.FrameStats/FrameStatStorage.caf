@@ -10,7 +10,7 @@ class FrameStatStorage extends BaseClass
     @reset()
 
   reset: ->
-    @maxMs            = 2/60
+    @maxMs            = 1.1/60
     @stats            = []
     @nextEventIdIndex = 0
     @eventsById       = {}
