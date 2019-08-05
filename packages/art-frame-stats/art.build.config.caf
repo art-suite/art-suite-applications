@@ -6,7 +6,7 @@ target:
   node: true
 
 npm:
-  description: "" Art.Epoch.Stats
+  description: "" Art.Frame.Stats
   dependencies: {}
 
 webpack:

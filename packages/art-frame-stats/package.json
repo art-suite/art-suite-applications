@@ -3,9 +3,9 @@
   "dependencies": {
     "art-build-configurator": "*"
   },
-  "description": "Art.Epoch.Stats",
+  "description": "Art.Frame.Stats",
   "license": "ISC",
-  "name": "art-epoch-stats",
+  "name": "art-frame-stats",
   "scripts": {
     "build": "webpack --progress",
     "start": "webpack-dev-server --hot --inline --progress --env.devServer",
