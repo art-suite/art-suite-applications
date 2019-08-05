@@ -1,6 +1,9 @@
+package:
+  dependencies:
+    webfontloader: :1.*
 webpack:
   common:
-    mode: "development"
+    mode: :development
   targets:
     test: {}
     perf: {}
