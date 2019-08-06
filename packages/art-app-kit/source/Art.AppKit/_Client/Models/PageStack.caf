@@ -17,8 +17,13 @@ class PageStack extends ApplicationState
       @_normalizeStackEntry stackEntry
 
   showStack: (id) ->
+    @validateStackId id
+    if @currentPageStackId == id
+      @resetStack id
+    else @currentPageStackId = id
+
+  validateStackId: (id) ->
     throw new Error "showStack - `#{id}` not found" unless @state[id] is Array
-    @currentPageStackId = id
 
   @getter
     currentPageStack: -> @state[@currentPageStackId]
@@ -30,6 +35,11 @@ class PageStack extends ApplicationState
       @currentPageStackId ?= stacks[0].id
       each rootStackEntry in stacks
         @setState rootStackEntry.id, [] @_normalizeStackEntry rootStackEntry
+
+  resetStack: (stackId) ->
+    @validateStackId stackId
+    @setState (state) ->
+      objectWith state, stackId, state[stackId].slice 0, 1
 
   push: (stackEntry) ->
     stackEntry = @_normalizeStackEntry stackEntry
