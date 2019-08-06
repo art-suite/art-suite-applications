@@ -29,14 +29,14 @@ init: (options) ->
 
   models.pageStack.init options
 
-  Promise.then ->
-    getArrayBuffer icons ? :/assets/icons.cpf
-    .then   &ArtCanvasPath.decodeCpf
-    .then   &Icons.setIcons
-    .catch  log.error
-
   &ArtSuiteApp.initArtSuiteClient {}
     title
+    prepare:
+      getArrayBuffer icons ? :/assets/icons.cpf
+      .then   &ArtCanvasPath.decodeCpf
+      .then   &Icons.setIcons
+      .catch  log.error
+
     artConfig: Art: AppKit: Client: {title} = options
     MainComponent: &Components/AppCore/CanvasComponent
     MainComponentProps: {} App
