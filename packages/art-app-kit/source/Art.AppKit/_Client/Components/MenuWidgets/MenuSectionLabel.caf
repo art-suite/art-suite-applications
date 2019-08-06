@@ -6,6 +6,9 @@ class MenuSectionLabel extends ViewStateComponent
     @viewState extract gridSize, heightAdjustedButtonSize
     @props extract label, text = label
 
+    if /\t/.test text
+      [text, centerText, rightText] = text.split "\t"
+
     Element
       menuSectionLayout @viewState
       :row
@@ -15,24 +18,46 @@ class MenuSectionLabel extends ViewStateComponent
         size: toFrom: ww: 1  h: 0
         clip: toFrom: true
 
-      padding: left: gridSize / 2
+      padding: h: gridSize / 2
 
       draw:
         padding:  h: -@gridSize / 2
         radius:   @gridSize / 4
         color:    AppPalette.veryLightDarken
-        outline:  color: #0002
+        {}
+          padding:
+            h: -@gridSize / 2 + .5
+            v: .5
+          radius:   @gridSize / 4
+          outline:  color: #0002
 
       TextElement
         TextStyles.smallText
         :parentWidthChildrenHeight
-        padding:
-          bottom: bottomPadding = gridSize / 2
-          top:
-            if @phoneLandscapeLayout
-              bottomPadding
-            else
-              heightAdjustedButtonSize * .5
+        textProps =
+          padding:
+            bottom: bottomPadding = gridSize / 2
+            top:
+              if @phoneLandscapeLayout
+                bottomPadding
+              else
+                heightAdjustedButtonSize * .5
 
-        color:  TextPalette.black.secondary
-        text:   text
+          color:  TextPalette.black.secondary
+          text:   text
+
+      if present centerText
+        TextElement
+          TextStyles.smallText
+          :parentWidthChildrenHeight
+          :textCenterCenter
+          textProps
+          text: centerText
+
+      if present rightText
+        TextElement
+          TextStyles.smallText
+          :parentWidthChildrenHeight
+          :textCenterRight
+          textProps
+          text: rightText
