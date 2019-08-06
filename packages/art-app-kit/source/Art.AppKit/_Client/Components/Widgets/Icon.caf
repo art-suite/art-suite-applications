@@ -28,6 +28,7 @@ class Icon extends &ViewStateComponent
     Element
       {} location, size, align, animators
       :cacheDraw
+      animators: :draw
 
       draw:
         shape: if iconPath = Icons[icon]
