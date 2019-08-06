@@ -54,6 +54,18 @@ class TimePresenters
 
   @niceTimeDetailsString: (date) => "" #{formatDate date, :h:mmtt} #{@niceDateString date}
 
+  @dayAgeString: (date) ->
+    today = firstOfDay()
+    day = firstOfDay date
+    switch day
+    when today then :today
+    when today - secondsPer.day then :yesterday
+    when today + secondsPer.day then :tomorrow
+    else switch
+    when day >= today - secondsPer.day * 6 then formatDate day, "" dddd
+    else formatDate day, "" mmm dS
+
+
   @dateAgeString: dateAgeString = (date, longForm, precise) ->
     now  = toDate()
     date = toDate date
