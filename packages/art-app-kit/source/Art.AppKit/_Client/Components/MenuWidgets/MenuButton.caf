@@ -12,4 +12,4 @@ class MenuButton extends ViewStateComponent
 
       @props
 
-      IconAndText @props
+      @props.children ? IconAndText @props
