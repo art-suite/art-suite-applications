@@ -10,6 +10,7 @@ class IconAndText extends ViewStateComponent
       text
       rightText
       iconColor
+      iconShadow
       color = TextPalette.black.softPrimary
 
     Element
@@ -30,6 +31,7 @@ class IconAndText extends ViewStateComponent
         Icon {}
           icon
           iconScale: 2/3
+          shadow: iconShadow
           color: iconColor ? color
 
       TextElement
