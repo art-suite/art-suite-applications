@@ -1,12 +1,13 @@
 import &StandardImport
 
 class WidgetLib
-  @drawButton: ({hover, disabled, gridSize}, {drawPadding}) ->
+  @drawButton: ({hover, disabled, gridSize}, {radius, drawPadding, hoverColor}) ->
+    hoverColor ?= AppPalette.primary
     padding: drawPadding
-    radius: gridSize / 2
+    radius: radius ? gridSize / 2
     fill:
       if hover && !disabled
-        AppPalette.primary
+        hoverColor
       else
-        AppPalette.primary
+        rgbColor hoverColor
         .withAlpha 0
