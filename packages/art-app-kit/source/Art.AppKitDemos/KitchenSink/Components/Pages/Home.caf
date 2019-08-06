@@ -2,6 +2,9 @@ import &StandardImport
 
 class Home extends ViewStateComponent
 
+  @stateField
+    isOn: false
+
   render: ->
     Page
       @props
@@ -20,30 +23,21 @@ class Home extends ViewStateComponent
           MenuMarkdown
             text:
               """
-                # Title
+                # Welcome to the Kitchen Sink Demo
 
-                Paragraph!
+                This demo is here to show all the widgets available in Art.AppKit. Every
+                part of AppKit's code should be represented here.
 
-                # Title 2
+          MenuToggle {}
+            @isOn
+            icon: if @isOn then :caretDown else :caretRight
+            text: "" Show about me
+            action: @toggleIsOn
 
-                ## SubTitle
+        if @isOn
+          MenuSection
+            label: "" About Me
+            MenuMarkdown text:
+              """
+                My name is Shane Brinkman-Davis Delamore. I created the ArtSuite to unify and streamline app development. Developer productivity is king.
 
-                * Bullet
-                ** SubBullet
-
-                1. one
-                ^ after one
-                1.. one one
-                ^^ after one one
-                1.. one two
-                1. two
-
-                Paragraph!
-
-                - center
-                -- right
-
-                > Quote1
-                >> Quote2
-
-                >- Center Quote1
