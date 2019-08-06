@@ -17,16 +17,16 @@ class ToolbarButton extends ViewStateComponent
         @props.color ? TextPalette.black.primary
 
   renderIcon: ->
-    @props extract badgeBorder, icon, iconShadow, iconColor, iconScale = 1, badge, customIcon
+    @props extract iconSize, badgeBorder, icon, shadow, iconShadow, iconColor, iconScale = 1, badge, customIcon
     []
       customIcon
       ? icon &&
         Icon
           icon:       icon
-          size:       25 * iconScale
+          size:       iconSize ? 25 * iconScale
           animators:  :size :fontSize
           color:      iconColor ? @color
-          shadow:     iconShadow
+          shadow:     iconShadow ? shadow
 
       badge > 0 && ActivityBadge
         axis: .5
@@ -76,7 +76,7 @@ class ToolbarButton extends ViewStateComponent
 
   render: ->
     @props extract
-      palette, maxLines, iconRight, childrenMargins, iconShadow, labelStyle
+      palette, maxLines, iconRight, childrenMargins, shadow, labelStyle
       textPadding, innerPadding, size, hoverAction, align
       maxLargeLabelLength = 8
       tight
@@ -87,7 +87,12 @@ class ToolbarButton extends ViewStateComponent
 
     label ||= text
 
-    size = :childrenWidthParentHeight if tight
+    if tight
+      size = if labelBottom
+        @buttonSize
+      else
+        :childrenWidthParentHeight
+
     size = getSizePointLayout size if size
 
     AppKitButtonWrapper
@@ -116,6 +121,8 @@ class ToolbarButton extends ViewStateComponent
             TextStyles.smallText.fontSize / 4
           else @gridSize / 2
 
+        @props.children
+
         @renderIconWithCount() unless iconRight
 
         label && Element
@@ -141,6 +148,6 @@ class ToolbarButton extends ViewStateComponent
             padding:  textPadding
             text:     label
             color:    color
-            shadow:   iconShadow
+            shadow:   shadow
 
         @renderIconWithCount() if iconRight
