@@ -22,10 +22,10 @@ class AppPalette extends HotStyleProps
         # primary2:           primary.blend :white, 3/8
         primary
         primaryDark1:         primary.withScaledLightness 7/8
-        # primaryDarken2:     primary.withScaledLightness 6/8
-        # primaryDarken3:     primary.withScaledLightness 5/8
-        # primaryDarken4:     primary.withScaledLightness 4/8
-        # primaryDarken5:     primary.withScaledLightness 3/8
+        primaryDark2:         primary.withScaledLightness 6/8
+        primaryDark3:         primary.withScaledLightness 5/8
+        primaryDark4:         primary.withScaledLightness 4/8
+        primaryDark5:         primary.withScaledLightness 3/8
 
         white:              :white
         background:         :white
@@ -38,6 +38,7 @@ class AppPalette extends HotStyleProps
         lightGrey:          #ee
         mediumLightGrey:    #bb
         mediumGrey:         #aa
+        mediumDarkGrey:     #77
         darkGrey:           #22
 
         veryLightDarken:    #00000007
