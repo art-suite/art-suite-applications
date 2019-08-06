@@ -51,6 +51,9 @@ class AppKitButtonWrapper extends PointerActionsMixin FluxComponent
       scaleAxis = .5
       noZoom
       hoverExpand
+      baseScale
+
+    baseScale ?= 1
 
     Element
       @props
@@ -68,11 +71,11 @@ class AppKitButtonWrapper extends PointerActionsMixin FluxComponent
 
         scale:
           switch
-          when noZoom then 1
+          when noZoom then baseScale
           when !disabled && @pointerIsDown then @downScale
           when hoverExpand && @hover
             @hoverScale
-          else 1
+          else baseScale
 
         animators:
           scale:    duration: .15
