@@ -10,9 +10,7 @@ class Toggle extends ViewStateComponent
     @toggling = true
 
     valueBeforeToggle = @props.isOn ? @toggledTo
-    @toggledTo = !valueBeforeToggle
-
-    @toggledTo = isNowOn = !@props.isOn
+    @toggledTo = isNowOn = !valueBeforeToggle
 
     Promise
     .then -> @props.action? isNowOn
@@ -63,5 +61,3 @@ class Toggle extends ViewStateComponent
             clip:   true
           toggling &&
             Spinner {} color, monocrome: true
-
-      # color: if isOn then "green" else "red"
