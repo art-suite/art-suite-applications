@@ -104,6 +104,8 @@ class MenuEditableText extends ViewStateComponent
       IconButton
         action: @finishEditing
         icon:   :check
+        iconScale: .67
+        color:  TextPalette.black.primary
 
   renderLabel: ->
     if present @ extract gridSize, label
@@ -140,8 +142,9 @@ class MenuEditableText extends ViewStateComponent
 
           unless locked
             IconButton
-              icon:   :pencil
-              color:  TextPalette.black.tertiary
+              icon:   :pencilAlt
+              iconScale: .67
+              color:  TextPalette.black.primary
 
       else
         Element
@@ -161,8 +164,9 @@ class MenuEditableText extends ViewStateComponent
 
             unless locked
               IconButton
-                icon:   :pencil
-                color:  TextPalette.black.tertiary
+                icon:   :pencilAlt
+                iconScale: .67
+                color:  TextPalette.black.primary
 
       maxLength? && (@valueLength / maxLength) > .5 && TextElement
         TextStyles.tinyText
