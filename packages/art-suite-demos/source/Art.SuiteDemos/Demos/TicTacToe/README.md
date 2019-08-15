@@ -2,7 +2,7 @@
 
 CaffeineScript + ArtSuite is over 4 times smaller than JS+CSS.
 
-## TicTacToe with UX styling
+## TicTacToe with UX styling - 4.4x smaller
 
 This compares the JSX + CSS implementation to the CaffeineScript + ArtSuite implementation.
 
@@ -12,7 +12,7 @@ This compares the JSX + CSS implementation to the CaffeineScript + ArtSuite impl
 <br>*3.7x smaller than JSX + CSS*
 <br>*4.4x smaller than JS + CSS*
 
-## The Power of Just CaffeineScript
+## The Power of Just CaffeineScript - 3.7x smaller
 
 Even just converting JSX or JS to CaffeineScript has dramatic improvements.
 
