@@ -9,7 +9,7 @@ This compares the JSX + CSS implementation to the CaffeineScript + ArtSuite impl
 * 850 tokens: [JSX (738) + CSS (112)](https://github.com/imikimi/art-suite-demos/blob/master/source/Art.SuiteDemos/Demos/TicTacToe/.TicTacToe_FacebookReact.jsx)
 * 970 tokens: JS (858) + CSS (112)
 * **220 tokens: [CaffeineScript + ArtSuite](https://github.com/imikimi/art-suite-demos/blob/master/source/Art.SuiteDemos/Demos/TicTacToe/Main.caf)**
-<br>*3.7x smaller than JSX + CSS*
+<br>*3.9x smaller than JSX + CSS*
 <br>*4.4x smaller than JS + CSS*
 
 ## The Power of Just CaffeineScript - 3.7x smaller
