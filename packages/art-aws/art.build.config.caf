@@ -8,7 +8,7 @@ webpack:
 package:
   description: "" Streamlined APIs for AWS SDK with Promises and Art.Foundation
   dependencies:
-    aws-sdk:        :^2.263.1
+    aws-sdk:        :^2.447.0
     dynamodb-local: :*
     corsproxy:      :^1.5.0
     aws4:           :^1.6.0
