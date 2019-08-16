@@ -1,6 +1,8 @@
 import &ArtStandardLib
 &ArtEry
 
+log.warn "" DEPRICATED - use &ArtSuiteServer.start
+
 ###
   Used for buidling the minimal node.js code to deploy for production.
   Right now, this is tested with HEROKU, but it should work in other cases.
