@@ -125,11 +125,9 @@ class ToolbarButton extends ViewStateComponent
 
         @renderIconWithCount() unless iconRight
 
-        label && Element
-          if labelBottom then :parentWidthChildrenHeight
-          else :childrenSizeMaxParentWidth
-
-          TextElement labelStyle ? (if labelBottom then TextStyles.tinyText else TextStyles.smallText),
+        if label
+          textProps = merge
+            labelStyle ? (if labelBottom then TextStyles.tinyText else TextStyles.smallText)
             maxLines: maxLines
             if labelBottom
               if maxLines
@@ -148,6 +146,35 @@ class ToolbarButton extends ViewStateComponent
             padding:  textPadding
             text:     label
             color:    color
-            shadow:   shadow
+            animators: :color
+
+          Element
+            if labelBottom then :parentWidthChildrenHeight
+            else :childrenSizeMaxParentWidth
+            # opacity: .9
+
+            if selected && tight
+              Element
+                location: yh: 1, y: 2
+                inFlow: false
+                size: h: 1
+                draw: color
+                animators:
+                  color:    true
+                  opacity:  toFrom: 0
+
+            if true
+              TextElement
+                textProps
+
+                key: :subtractor
+                compositeMode: :targetWithoutSource
+                animators: opacity: toFrom: .99
+
+                OutlineElement
+                  lineWidth: 2
+                  color: :white
+
+            TextElement textProps
 
         @renderIconWithCount() if iconRight

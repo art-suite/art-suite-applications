@@ -85,6 +85,7 @@ class MenuEditableText extends ViewStateComponent
           color:        TextPalette.black.primary
           on:
             valueChanged: ({target}) ->
+              target.parent.scrollOnScreen()
               @props.onChange? target.value
               @valueLength = target.value.length
 
@@ -119,11 +120,17 @@ class MenuEditableText extends ViewStateComponent
 
   render: ->
     @ extract gridSize, buttonSize, fontStyle
-    @props extract label, large, placeholder, action, locked, maxLength
+    @props extract
+      label, large, placeholder, action, locked, maxLength
+      background
 
     Element
       menuItemLayout @viewState
       size: ww: 1, h: (ps, cs) -> max buttonSize, cs.y
+      draw:
+        if background then []
+          radius: @gridSize / 2
+          background
 
       switch
       when @editingInline

@@ -33,7 +33,9 @@ class MenuSection extends ViewStateComponent
           outline:  TextPalette.black.barely
 
         padding: h: gridSize / 2
+        childrenMargins:      1
         :parentWidthChildrenHeight
         :column
         menuSectionLayout @viewState
+
         @props.children

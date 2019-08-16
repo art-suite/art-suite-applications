@@ -54,16 +54,21 @@ class TimePresenters
 
   @niceTimeDetailsString: (date) => "" #{formatDate date, :h:mmtt} #{@niceDateString date}
 
-  @dayAgeString: (date) ->
-    today = firstOfDay()
-    day = firstOfDay date
+  @dayAgeString: (date, verbose) ->
+    today = firstOfDayLocale()
+    day = firstOfDayLocale date
     switch day
     when today then :today
     when today - secondsPer.day then :yesterday
     when today + secondsPer.day then :tomorrow
-    else switch
-    when day >= today - secondsPer.day * 6 then formatDate day, "" dddd
-    else formatDate day, "" mmm dS
+    else if day >= today - secondsPer.day * 6
+      formatDate day, "" dddd
+
+    else
+      formatDate day, if verbose
+        "" dddd, mmmm dS
+      else
+        "" mmm dS
 
 
   @dateAgeString: dateAgeString = (date, longForm, precise) ->

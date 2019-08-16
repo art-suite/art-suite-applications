@@ -25,7 +25,10 @@ class AppKitButtonWrapper extends PointerActionsMixin FluxComponent
         childArea:  :ignoreTransforms
 
   preprocessState: (state) ->
-    state extract gridSize
+    state extract gridSize, hover
+    if hover != @hover
+      @props.onHoverChanged? hover
+
     merge
       super
       hoverScale: @props.hoverScale ?
