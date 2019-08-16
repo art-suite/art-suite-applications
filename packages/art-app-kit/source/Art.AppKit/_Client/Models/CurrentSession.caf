@@ -1,0 +1,77 @@
+import &StandardImport
+
+sessionValidator = new Validator
+  userId: :string
+
+class CurrentSession extends FluxSubscriptionsMixin ApplicationState
+  @persistant()
+
+  @stateFields defaultStateFields =
+    currentUserId:          null
+    currentUser:            null
+    currentUserStatus:      null
+
+  defaultStateFieldsKeys = Object.keys defaultStateFields
+
+  # keep the persistant state to only the declared stateFields
+  postProcessLoadedState: (state) ->
+    object v, k in state when k in defaultStateFieldsKeys
+
+  constructor: ->
+    @_bindSessionChangeEvent()
+
+  reload: ->
+    @models.user.reload @currentUserId
+    .then ({data:currentUser}) -> @currentUser = currentUser
+
+  @setter
+    currentUser: (currentUser) ->
+      if user
+            @setState {} currentUser
+      else  @resetState()
+
+  logOut: ->
+    @currentUser = @currentUserId = null
+    session.reset()
+
+  ####################################
+    PRIVATE
+  ####################################
+  _bindSessionChangeEvent: ->
+    session.loadSession()
+    .then ->
+      @_setCurrentUserId session.data.userId
+
+      session.on change: (event) ->
+        {props:{data}} = event
+        Promise.then -> sessionValidator.validate data
+        .then ->
+          if data.userId != @currentUserId
+            @_setCurrentUserId data.userId
+
+        .catch (invalidSessionError) ->
+          log.error "Session is invalid. Resetting." invalidSessionError
+          session.reset()
+
+  _setCurrentUserId: (userId) ->
+    @currentUser = null if @currentUser?.id != userId
+
+    @currentUserId = userId
+    @unsubscribeAll()
+    if userId
+      # Force reload to get all the user's private fields.
+      @models.user.reload userId
+      @_updateFromCurrentUserFluxRecord @subscribe
+        modelName:        :user
+        key:              userId
+        updatesCallback:  @_updateFromCurrentUserFluxRecord
+
+  _updateFromCurrentUserFluxRecord: (fluxRecord) ->
+    switch @currentUserStatus = fluxRecord.status
+    when success then @currentUser = fluxRecord.data
+    when pending then null
+    when missing then @logOut true
+    else
+      log _updateFromCurrentUserFluxRecord:
+        problemLoadingUser: {}
+          @currentUser, @currentUserId, fluxRecord
