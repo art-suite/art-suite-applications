@@ -23,7 +23,9 @@ FluxComponent
 Declarative (automatic) Flux Subscription support:
 - @subscriptions declaration method
 
-TODO: _prepareSubscription should be triggered via createWithPostCreate rather than with each component creation
+TODO:
+  * _prepareSubscription should be triggered via createWithPostCreate rather than with each component creation
+
 ###
 
 defineModule module, class FluxComponent extends FluxSubscriptionsMixin Component
@@ -112,6 +114,7 @@ defineModule module, class FluxComponent extends FluxSubscriptionsMixin Componen
       model:      stateField
       key:        subscriptionOptions
 
+  # TODO: add setStateField if the model implements a setStateField method
   @_addSubscription: (stateField, subscriptionOptions) ->
 
     subscriptionOptions = normalizeSubscriptionOptions stateField, subscriptionOptions
@@ -125,9 +128,9 @@ defineModule module, class FluxComponent extends FluxSubscriptionsMixin Componen
     existingGetters = /element/ # TODO: make a list of all existing getters and don't replace them!
     unless stateField.match existingGetters
       @addGetter stateField, -> @state[stateField]
-      @addGetter (statusField = stateField + "Status"), -> @state[statusField]
-      @addGetter (progressField = stateField + "Progress"), -> @state[progressField]
-      @addGetter (failureInfoField = stateField + "FailureInfo"), -> @state[failureInfoField]
+      @addGetter (statusField       = stateField + "Status"), -> @state[statusField]
+      @addGetter (progressField     = stateField + "Progress"), -> @state[progressField]
+      @addGetter (failureInfoField  = stateField + "FailureInfo"), -> @state[failureInfoField]
 
   @_prepareSubscription: (subscription) ->
     {stateField, model, key} = subscription

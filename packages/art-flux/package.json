@@ -2,16 +2,27 @@
   "author": "Shane Brinkman-Davis Delamore, Imikimi LLC",
   "dependencies": {
     "art-build-configurator": "*",
-    "art-foundation": "git://github.com/imikimi/art-foundation.git",
-    "art-react": "git://github.com/imikimi/art-react.git"
+    "art-react": "*"
+  },
+  "devDependencies": {
+    "art-testbench": "*",
+    "case-sensitive-paths-webpack-plugin": "^2.2.0",
+    "chai": "^4.2.0",
+    "mocha": "^6.2.0",
+    "mock-fs": "^4.10.0",
+    "webpack": "^4.39.1",
+    "webpack-cli": "*",
+    "webpack-dev-server": "^3.7.2",
+    "webpack-merge": "^4.2.1",
+    "webpack-node-externals": "^1.7.2",
+    "webpack-stylish": "^0.1.8"
   },
   "license": "ISC",
   "name": "art-flux",
   "scripts": {
     "build": "webpack --progress",
-    "start": "webpack-dev-server --hot --inline --progress",
-    "test": "webpack-dev-server --progress",
-    "testInBrowser": "webpack-dev-server --progress"
+    "start": "webpack-dev-server --hot --inline --progress --env.devServer",
+    "test": "webpack-dev-server  --progress --env.devServer"
   },
   "version": "1.21.2"
 }
