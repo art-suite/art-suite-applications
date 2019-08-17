@@ -7,7 +7,10 @@ target:
 
 npm:
   description: "" Art.App.Kit
-  dependencies: {}
+  dependencies:
+    copy-to-clipboard: :*
+    art-markdown: :*
+
   scripts:
     build-assets: "" cpf-tool asset-source/font-awesome/*.svg -o assets/icons.cpf --camelCase
 

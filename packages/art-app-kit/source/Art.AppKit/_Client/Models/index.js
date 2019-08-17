@@ -6,5 +6,6 @@
 .addModules({
   AppKitPresentationState: require('./AppKitPresentationState'),
   AppKitViewState:         require('./AppKitViewState'),
+  CurrentSession:          require('./CurrentSession'),
   PageStack:               require('./PageStack')
 });
