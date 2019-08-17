@@ -8,7 +8,9 @@ target:
 npm:
   description: "" Art.Canvas.Path
   dependencies:
-    canvg: :^2.0.0
+    canvg:  :^2.0.0
+    canvas: :^2.0.0
+    jsdom:  :^13.0.0
   bin:
     abc: :./cpf-tool
 
