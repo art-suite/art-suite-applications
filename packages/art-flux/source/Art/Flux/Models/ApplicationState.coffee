@@ -10,6 +10,7 @@ FluxCore = require '../Core'
   eq
   neq
   getEnv
+  isFunction
 } = require 'art-standard-lib'
 {FluxStore, FluxModel} = FluxCore
 {fluxStore} = FluxStore
@@ -109,18 +110,21 @@ defineModule module, class ApplicationState extends StateFieldsMixin FluxModel
     OUT: key
   ###
   setState: (key, value) ->
-    if isPlainObject map = key
-      for k, v of map when !propsEq @state[k], v
-        @state[k] = v
-        @load k
-    else if isString(key) && !propsEq @state[key], value
-      @state[key] = value
-      @load key
+    if isFunction key
+      @replaceState key @state
+    else
+      if isPlainObject map = key
+        for k, v of map when !propsEq @state[k], v
+          @state[k] = v
+          @load k
+      else if isString(key) && !propsEq @state[key], value
+        @state[key] = value
+        @load key
 
-    @_updateAllState()
+      @_updateAllState()
 
-    @_saveToLocalStorage()
-    key
+      @_saveToLocalStorage()
+      key
 
   # remove one key-value pair
   removeState: (key) ->
