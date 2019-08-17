@@ -7,7 +7,8 @@
     "art-build-configurator": "*",
     "canvas": "^2.0.0",
     "canvg": "^2.0.0",
-    "jsdom": "^13.0.0"
+    "jsdom": "^13.0.0",
+    "xmldom": "^0.1.27"
   },
   "description": "Art.Canvas.Path",
   "devDependencies": {

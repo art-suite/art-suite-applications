@@ -110,34 +110,40 @@ class CanvasPath extends BaseClass
     IN:
       context: html-context-2d
       area: Point or Rectangle
+      options:
+        scale:  pre-scale the path by this
 
     EFFECT:
       path is apply to contest
       AND aspectRatio is maintained
       AND path is centered within area
-  applyPathFit: (context, area) ->
+  applyPathFit: (context, area, options) ->
     area extract top, left, w, h, aspectRatio as areaAspectRatio
     @ extract aspectRatio
+    options extract? scale
+    scale ?= 1
 
-    m =
+    w2 = w; h2 = h
     if 1 <= ratioRatio = aspectRatio / areaAspectRatio
       top +=
         h - h2 = h / ratioRatio
         / 2
-
-      Matrix.scaleXY w, h2
 
     else
       left +=
         w - w2 = w * ratioRatio
         / 2
 
-      Matrix.scaleXY w2, h
+    if scale?
+      left  += w2 * (1 - scale) / 2
+      top   += h2 * (1 - scale) / 2
+      w2    *= scale
+      h2    *= scale
 
     @applyRawPath
       context
-      m
-      .translateXY  left, top
+      Matrix.scaleXY  w2,   h2
+      .translateXY    left, top
 
   ## applyRawPath
     IN:
