@@ -230,16 +230,16 @@ defineModule module, class Matrix extends AtomicBase
     isIdentity: ->
       float32Eq(@sx, 1) &&
       float32Eq(@sy, 1) &&
-      float32Eq(@shx, 0) &&
-      float32Eq(@shy, 0) &&
-      float32Eq(@tx, 0) &&
-      float32Eq(@ty, 0)
+      float32Eq0(@shx) &&
+      float32Eq0(@shy) &&
+      float32Eq0(@tx) &&
+      float32Eq0(@ty)
 
     isTranslateOnly: ->
       float32Eq(@sx, 1) &&
       float32Eq(@sy, 1) &&
-      float32Eq(@shx, 0) &&
-      float32Eq(@shy, 0)
+      float32Eq0(@shx) &&
+      float32Eq0(@shy)
 
     translationIsIntegral: ->
       float32Eq(@tx, Math.round(@tx)) &&
@@ -251,8 +251,8 @@ defineModule module, class Matrix extends AtomicBase
       float32Eq(@ty, @ty|0)
 
     isTranslateAndScaleOnly: ->
-      float32Eq(@shx, 0) &&
-      float32Eq(@shy, 0)
+      float32Eq0(@shx) &&
+      float32Eq0(@shy)
 
     hasSkew: -> !@getIsTranslateAndScaleOnly()
 
@@ -524,14 +524,10 @@ defineModule module, class Matrix extends AtomicBase
   #   new Rectangle min, max.sub min
   transformBoundingRect: (r, roundOut, into) ->
     r = rect r
-    if (r.infinite || @isIdentity) && !roundOut
-      if into
-        {x, y, w, h} = r
-        into._setAll x, y, w, h
-      else
-        r
+    if r.infinite
+      {x, y, w, h} = r
 
-    if @shx == 0 && @shy == 0 #float32Eq(@shx, 0) && float32Eq(@shy, 0)
+    else if @isTranslateAndScaleOnly
       # faster (probably) in the special case where there is no skew or rotation
       x = r.x * @sx + @tx
       y = r.y * @sy + @ty
@@ -573,6 +569,7 @@ defineModule module, class Matrix extends AtomicBase
 
     if into
       into._setAll x, y, w, h
+
     else
       new Rectangle x, y, w, h
 

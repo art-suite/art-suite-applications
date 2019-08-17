@@ -334,20 +334,19 @@ module.exports = class Rectangle extends AtomicBase
     if areaB <= 0 || areaA == Infinity
       @_returnOrSaveInto into, rectB
 
+    else if areaA <= 0 || areaB == Infinity
+      @_intoOrWith into, fromX, fromY, fromW, fromH
+
     else
-      if areaA <= 0 || areaB == Infinity
-        @_intoOrWith into, fromX, fromY, fromW, fromH
+      _x = max rectB.left, fromX
+      _y = max rectB.top,  fromY
+      _w = min(rectB.right,  fromX + fromW) - _x
+      _h = min(rectB.bottom, fromY + fromH) - _y
 
+      if _h <= 0 || _w <= 0
+        @_intoOrWith into, 0, 0, 0, 0
       else
-        _x = max rectB.left, fromX
-        _y = max rectB.top,  fromY
-        _w = min(rectB.right,  fromX + fromW) - _x
-        _h = min(rectB.bottom, fromY + fromH) - _y
-
-        if _h <= 0 || _w <= 0
-          @_intoOrWith into, 0, 0, 0, 0
-        else
-          @_intoOrWith into, _x, _y, _w, _h
+        @_intoOrWith into, _x, _y, _w, _h
 
   grow: (a, b) ->
     if isPoint a
