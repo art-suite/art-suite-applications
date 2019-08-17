@@ -16,5 +16,5 @@ package:
       from the ground up to run with the Art.Engine.
 
   dependencies:
-    art-engine:        :git://github.com/imikimi/art-engine.git
-    art-engine-remote: :git://github.com/imikimi/art-engine-remote.git
+    art-engine:        :*
+    # art-engine-remote: :git://github.com/imikimi/art-engine-remote.git
