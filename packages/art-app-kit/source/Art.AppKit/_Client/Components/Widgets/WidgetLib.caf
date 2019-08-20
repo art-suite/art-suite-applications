@@ -1,8 +1,11 @@
 import &StandardImport
 
 class WidgetLib
-  @drawButton: ({hover, disabled, gridSize}, {radius, drawPadding, hoverColor}) ->
-    hoverColor ?= AppPalette.primary
+  @drawButton: ({hover, disabled, gridSize}, {radius, drawPadding, hoverColor, lightColor}) ->
+    hoverColor ?=
+      if lightColor
+        TextPalette.white.secondary
+      else AppPalette.primaryLight1
     padding: drawPadding
     radius: radius ? gridSize / 2
     fill:

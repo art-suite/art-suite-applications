@@ -15,11 +15,11 @@ class AppPalette extends HotStyleProps
         red   = hslColor 0/360,   saturated * .9  1
         green = hslColor 120/360, saturated * .9  .8
 
-        # primary2:           primary.blend :white, 7/8
-        # primary2:           primary.blend :white, 6/8
-        # primary2:           primary.blend :white, 5/8
-        # primary2:           primary.blend :white, 4/8
-        # primary2:           primary.blend :white, 3/8
+        primaryLight5:           primary.blend :white, 7/8
+        primaryLight4:           primary.blend :white, 6/8
+        primaryLight3:           primary.blend :white, 5/8
+        primaryLight2:           primary.blend :white, 4/8
+        primaryLight1:           primary.blend :white, 3/8
         primary
         primaryDark1:         primary.withScaledLightness 7/8
         primaryDark2:         primary.withScaledLightness 6/8
@@ -30,6 +30,7 @@ class AppPalette extends HotStyleProps
         white:              :white
         background:         :white
         toolbarColor:       :white
+        offWhite:           #f9
 
         warning:            red.withHue 45/360
         activityBadge:      red

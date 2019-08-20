@@ -3,3 +3,4 @@ import &ArtSuite
 class Config extends Configurable
   @defaults
     title: "" Art-App-Kit
+    appIconImage: null

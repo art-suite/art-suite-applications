@@ -37,6 +37,6 @@ init: (options) ->
       .then   &Icons.setIcons
       .catch  log.error
 
-    artConfig: Art: AppKit: Client: {title} = options
+    artConfig: Art: AppKit: Client: {title, titleComponent} = options
     MainComponent: &Components/AppCore/CanvasComponent
     MainComponentProps: {} App

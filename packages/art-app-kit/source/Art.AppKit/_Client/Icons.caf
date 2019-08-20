@@ -10,7 +10,13 @@ class Icons extends BaseClass
     inspectedObjects: -> @names
 
   @pathOptions:
-    chevronLeft:    scale: .5
-    chevronRight:   scale: .5
-    chevronTop:     scale: .5
-    chevronBottom:  scale: .5
+    object icon in []
+        :chevronLeft
+        :chevronRight
+        :chevronTop
+        :chevronBottom
+        :caretLeft
+        :caretRight
+        :caretTop
+        :caretBottom
+      scale: .5

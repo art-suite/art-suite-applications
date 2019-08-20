@@ -20,7 +20,7 @@ class MenuSection extends ViewStateComponent
         size:     toFrom: ww: 1 h: 0
 
       draw:
-        padding: -1000
+        padding: h: -1000
         :clip
 
       if label

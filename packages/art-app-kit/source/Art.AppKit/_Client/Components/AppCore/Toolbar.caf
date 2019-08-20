@@ -10,14 +10,21 @@ class Toolbar extends ViewStateComponent
       gridSize, buttonSize, toolbarHorizontal, wideLayout, toolbarLocation
       currentPageStackId
 
-    commonProps =
+    if AppPalette extract toolbarColor
+      unless @wideLayout
+        toolbarColor = AppPalette.offWhite
+      else if .9 > toolbarColor.perceptualLightness
+        lightColor = true
+
+    commonProps = {}
       tight:        wideLayout
       labelBottom:  @isTouchScreen || !wideLayout
+      lightColor:   lightColor
 
     Element
       draw:
         fill:
-          color: AppPalette.toolbarColor
+          color: toolbarColor
           shadow: unless wideLayout
             color:  #0004
             blur:   4
@@ -42,6 +49,7 @@ class Toolbar extends ViewStateComponent
         Element
           :row
           :parentWidthChildrenHeight
+          :childrenCenterLeft
           if @models.pageStack.showBackButton
             Element
               :childrenSize
@@ -51,18 +59,22 @@ class Toolbar extends ViewStateComponent
                 size: toFrom: hch:1 w:0
                 clip: toFrom: true
 
-              IconButton
+              IconButton {}
+                lightColor
                 icon:   :chevronLeft
-                color:  TextPalette.black.primary
                 action: @models.pageStack.pop
 
-          Element
-            TextElement
-              TextStyles.mediumText
-              :childrenWidthParentHeight
-              :textCenterCenter
-              text: &Config.config.title
-              color: AppPalette.primaryDark1
+          if &Config.config extract titleComponent
+            titleComponent()
+
+          else
+            Element
+              TextElement
+                TextStyles.mediumText
+                :childrenWidthParentHeight
+                :textCenterCenter
+                text: &Config.config.title
+                color: AppPalette.primary
 
       array {id, icon, title} in @stacks
         ToolbarButton

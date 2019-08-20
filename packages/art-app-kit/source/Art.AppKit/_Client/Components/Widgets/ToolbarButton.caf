@@ -12,7 +12,10 @@ class ToolbarButton extends ViewStateComponent
   @getter
     color: ->
       if @selected
-        AppPalette.primaryDark1
+        if @props.lightColor
+          :white
+        else
+          AppPalette.primary
       else
         @props.color ? TextPalette.black.primary
 
@@ -38,9 +41,7 @@ class ToolbarButton extends ViewStateComponent
     props extract color, dimText, brightText, lightColor
 
     color ||= if lightColor
-      if brightText
-            TextPalette.white.primary
-      else  TextPalette.white.secondary
+      TextPalette.white.primary
     else
       if dimText
             TextPalette.black.tertiary
@@ -79,6 +80,7 @@ class ToolbarButton extends ViewStateComponent
       palette, maxLines, iconRight, childrenMargins, shadow, labelStyle
       textPadding, innerPadding, size, hoverAction, align
       maxLargeLabelLength = 8
+      lightColor
       tight
       action, disabled, selected, text, label, lightColor, count, badge, labelBottom
 
@@ -103,6 +105,7 @@ class ToolbarButton extends ViewStateComponent
         size
         drawPadding:  2
         draw: drawButton
+        lightColor
 
         hoverAction:  hoverAction
 
@@ -127,7 +130,18 @@ class ToolbarButton extends ViewStateComponent
 
         if label
           textProps = merge
-            labelStyle ? (if labelBottom then TextStyles.tinyText else TextStyles.smallText)
+            switch
+            when labelStyle then labelStyle
+            when labelBottom
+              if selected && lightColor && !tight
+                TextStyles.tinyBoldText
+              else
+                TextStyles.tinyText
+            else
+              if selected && lightColor && !tight
+                TextStyles.smallBoldText
+              else
+                TextStyles.smallText
             maxLines: maxLines
             if labelBottom
               if maxLines
@@ -153,7 +167,7 @@ class ToolbarButton extends ViewStateComponent
             else :childrenSizeMaxParentWidth
             # opacity: .9
 
-            if selected && tight
+            if selected && tight && !labelBottom
               Element
                 location: yh: 1, y: 2
                 inFlow: false

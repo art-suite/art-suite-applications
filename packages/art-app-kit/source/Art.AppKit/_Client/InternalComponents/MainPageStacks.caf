@@ -1,24 +1,5 @@
 import &StandardImport
 
-class OneStack extends FluxComponent
-  @subscriptions
-    stack:
-      model:  :pageStack
-      key:    ({name}) -> name
-    :pageStack.currentPageStackId
-
-  @propFields :name
-
-  render: ->
-    stack = @pageStack[@stackName]
-    Element
-      visible: @name == @currentPageStackId
-
-    array {component, props}, i in stack
-      component
-        props
-        visible: i == stack.length - 1
-
 class MainStackView extends FluxComponent
   @subscriptions
     :pageStack.stacks

@@ -14,7 +14,7 @@ class TextPalette extends HotStyleProps
 
   @white:
     primary:          rgbColor #fffd
-    softPrimary:      rgbColor #fffa
+    softPrimary:      rgbColor #fffb
     secondary:        rgbColor #fff8
     tertiary:         rgbColor #fff5
     barely:           rgbColor #fff1

@@ -6,4 +6,5 @@ class IconButton extends ViewStateComponent
       size:   @buttonSize
       action: @props.action
       draw:   drawButton
+      lightColor: @props.lightColor
       Icon    @props
