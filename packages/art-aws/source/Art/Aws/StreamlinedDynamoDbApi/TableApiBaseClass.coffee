@@ -151,27 +151,45 @@ module.exports = class TableApiBaseClass
     else
       ret
 
+  # https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Expressions.OperatorsAndFunctions.html
+  ###
+    Example:
+      conditionExpression:
+        myField1: 123                       # as long as value is not an object, defaults to "eq"
+        myField1: eq: 123                   # same as above
+        myField1: beginsWith: "foo"         #
+        myField1: contains: "foo"           #
+        myField1: attributeExists: true     # value only needs to be truish
+        myField1: attributeNotExists: true  # value only needs to be truish
+
+  ###
   _translateConditionExpressionField: (attributeAlias, test, uniqueId) ->
     valueAlias = ":val#{uniqueId}"
     if between = test?.between
       throw new Error "between test must have exactly two values: #{formattedInspect {between}}" unless between.length == 2
       test = gte: between[0], lte: between[1]
 
-    if test and (gte = test.gte) and (lte = test.lte)
-      @_addExpressionAttributeValue (gteAlias = valueAlias + "Gte"), gte
-      @_addExpressionAttributeValue (lteAlias = valueAlias + "Lte"), lte
-      "#{attributeAlias} BETWEEN #{gteAlias} AND #{lteAlias}"
-    else
-      expression = if !isPlainObject value = test then "#{attributeAlias} = #{valueAlias}"
-      else if (value = test.eq        )? then "#{attributeAlias} = #{valueAlias}"
-      else if (value = test.lt        )? then "#{attributeAlias} < #{valueAlias}"
-      else if (value = test.gt        )? then "#{attributeAlias} > #{valueAlias}"
-      else if (value = test.lte       )? then "#{attributeAlias} <= #{valueAlias}"
-      else if (value = test.gte       )? then "#{attributeAlias} >= #{valueAlias}"
-      else if (value = test.beginsWith)? then "begines_with(#{attributeAlias}, #{valueAlias})"
-      else throw new Error "no valid test detected in: #{attributeAlias}: #{inspect test}"
-      @_addExpressionAttributeValue valueAlias, value
-      expression
+    switch
+      when test and (gte = test.gte) and (lte = test.lte)
+        @_addExpressionAttributeValue (gteAlias = valueAlias + "Gte"), gte
+        @_addExpressionAttributeValue (lteAlias = valueAlias + "Lte"), lte
+        "#{attributeAlias} BETWEEN #{gteAlias} AND #{lteAlias}"
+      when test.attributeExists                 then "attribute_exists(#{attributeAlias})"
+      when test.attributeNotExists              then "attribute_not_exists(#{attributeAlias})"
+      else
+        expression = if !isPlainObject value = test then "#{attributeAlias} = #{valueAlias}"
+        else if (value = test.eq            )?  then "#{attributeAlias} = #{valueAlias}"
+        else if (value = test.lt            )?  then "#{attributeAlias} < #{valueAlias}"
+        else if (value = test.gt            )?  then "#{attributeAlias} > #{valueAlias}"
+        else if (value = test.lte           )?  then "#{attributeAlias} <= #{valueAlias}"
+        else if (value = test.gte           )?  then "#{attributeAlias} >= #{valueAlias}"
+        else if (value = test.beginsWith    )?  then "begines_with(#{attributeAlias}, #{valueAlias})"
+        else if (value = test.attributeType)?   then "begines_with(#{attributeAlias}, #{valueAlias})"
+        else if (value = test.contains      )?  then "begines_with(#{attributeAlias}, #{valueAlias})"
+        # else if (value = test.size                )? then "begines_with(#{attributeAlias}, #{valueAlias})"
+        else throw new Error "no valid test detected in: #{attributeAlias}: #{inspect test}"
+        @_addExpressionAttributeValue valueAlias, value
+        expression
 
   _translateConditionExpressionParam: (params) ->
     {conditionExpression} = params
