@@ -86,7 +86,7 @@ class MarkdownView extends ViewStateComponent
     lastBlockHadTags = false
     lastIndentLevel = 0
 
-    array {text, align, style, level}, i in markdownBlocks
+    array {text, align, style, level, links, images}, i in markdownBlocks
 
       if style != :code && (includeTags || preview)
         # [tags, text] = detagString text,
@@ -254,6 +254,15 @@ class MarkdownView extends ViewStateComponent
           Element size: spacing
 
         out
+
+        if out && images?.length > 0
+          Element size: baseMargin * .5
+
+        if images?.length > 0
+          array image in images when image.source
+            BitmapElement
+              source: image.source
+              :fitSizeToParentWidth
 
         # if internalLinkPostIds?.length > 0 && !preview
         #   if internalLinkPostIds.length > 1
