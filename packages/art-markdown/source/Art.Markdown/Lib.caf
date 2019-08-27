@@ -7,7 +7,7 @@ class Lib
 
   @markdownBlockDefaults:
     align: :left
-    depth: 0
+    level: 0
     style: :paragraph
 
   @_findTitleMarkdownRegExp:
@@ -83,6 +83,29 @@ class Lib
   @markdownCodeBlockLineStartRegExp:            /// ^         #{@_markdownCodeBlockDelimiterRegExp.source}
   @markdownCodeOrHeaderBlockLineStartRegExp:    /// ^ (#{@_markdownCodeBlockDelimiterRegExp.source} | \#+\s+[^\s])
   @_findMarkdownCodeBlockDelimiterRegExp:       /// (^|\n\ *) #{@_markdownCodeBlockDelimiterRegExp.source}
+  @_findAllMarkdownImageRegExp:
+    ///g
+      !?
+
+      \[ [^\]]* \]
+
+      \(
+
+      [^\ ]*
+
+      \)
+
+  @_subparseMarkdownImageRegExp:
+    ///
+      (!)?
+
+      \[ ([^\]]*) \]
+
+      \(
+
+      ( [^\ ]* )
+
+      \)
 
   @_markdownBlockStartRegexp:
     ///
@@ -195,51 +218,61 @@ class Lib
 
     compactFlatten out
 
-  @parseParagraphText: (text) -> text.replace /\<br\>/g, "\n"
-
-  ## DEPRICATED - use parseMarkdown2 - which has a new concept of depth
-  @parseMarkdown: (text) =>
-    paragraphs = @splitMarkdownParagraphs text
-    array p in paragraphs
-      if matched = p.match @_markdownBlockLineStartWithSubmatchesRegexp
-        [__, type, align, text] = matched
-        if /^\d+/.test type
-          type = type.replace /^\d+/, ''
-
-        if matched = type.match /(\^*)`+/
-          [__, depth] = matched
-          text:   text = text.replace /\n```[\s\n]*$/, ''
-          depth:  min 2 depth.length
-          style:  :code
-          align:  :left
-
+  @parseParagraphText: (text, forHtml) ->
+    {images, text, links} = @extractMarkdownImages text
+    {}
+      images
+      links
+      text:
+        if forHtml
+          text
         else
-          text: @parseParagraphText text
+          text.replace /\<br\>/g, "\n"
 
-          style: style = switch type[0]
-            when "^" then :indented
-            when ">" then :quote
-            when "#" then :heading
-            when "*" then :bullet
-            when "." then :list
-            else          :paragraph
+  @extractMarkdownImages: (text) =>
+    if matches = text.match @_findAllMarkdownImageRegExp
+      out =
+        text:
+          text
+          .replace @_findAllMarkdownImageRegExp, (found) ->
+            [__, isImage, text, source] = subMatch = found.match @_subparseMarkdownImageRegExp
+            unless isImage
+              text
+            ? ''
 
-          depth: switch style
-            when :paragraph then 0
-            else min 2 type.length
+          .trim()
+          .replace /\ \ +/g ''
 
-          align: switch align.length
-            when 0 then :left
-            when 1 then :center
-            else        :right
+      images = null
+      links = null
+      each match in matches
+        [__, isImage, text, source] = subMatch = match.match @_subparseMarkdownImageRegExp
+        if present(source) || present(text)
+          item = {}
+          item.source = source  if present source
+          item.text   = text    if present text
+          if isImage
+            images ?= []
+            .push item
+          else
+            links ?= []
+            .push item
 
-      else
-        text:   @parseParagraphText p
-        depth:  0
-        align:  :left
-        style:  :paragraph
+      out.images = images if images
+      out.links  = links  if links
+      out
 
-  @parseMarkdown2: (text, forHtml) =>
+    else
+      {} text
+
+  ##
+    changes from old parseMarkdown
+      renamed: depth  >> level
+      renamed: bullet >> unorderedList
+      renamed: list   >> orderedList
+
+      level is almost the same, except headings. H1 is now -2, H2 is now -1.
+  @parseMarkdown: (text, forHtml) =>
     paragraphs = @splitMarkdownParagraphs text
     array p in paragraphs
       if matched = p.match @_markdownBlockLineStartWithSubmatchesRegexp
@@ -255,7 +288,10 @@ class Lib
           align:  :left
 
         else
-          text: if forHtml then text else @parseParagraphText text
+          {text, images, links} = @parseParagraphText text, forHtml
+          images: images
+          text:   text
+          links:  links
 
           style: style = switch type[0]
             when "^" then :indented
@@ -283,7 +319,10 @@ class Lib
             else        :right
 
       else
-        text:   @parseParagraphText p
+        {text, images, links} = @parseParagraphText p, forHtml
+        images: images
+        text:   text
+        links:  links
         level:  0
         align:  :left
         style:  :paragraph

@@ -81,12 +81,12 @@ class MarkdownView extends ViewStateComponent
       codePalette
 
     lastLevelNumber = null null null
-    lastDepth = null
+    lastLevel = null
     lastStyle = null
     lastBlockHadTags = false
     lastIndentLevel = 0
 
-    array {text, align, style, depth}, i in markdownBlocks
+    array {text, align, style, level}, i in markdownBlocks
 
       if style != :code && (includeTags || preview)
         # [tags, text] = detagString text,
@@ -119,8 +119,8 @@ class MarkdownView extends ViewStateComponent
         commonTextProps.maxLines = 5
 
       actualLastStyle = lastStyle
-      actualLastDepth = lastDepth
-      lastDepth = depth
+      actualLastLevel = lastLevel
+      lastLevel = level
       lastStyle = style
 
       effectiveIndent = 0
@@ -128,7 +128,7 @@ class MarkdownView extends ViewStateComponent
       out = if present text then switch style
         when :heading
           TextElement
-            if depth == 1
+            if level == -2
               if !actualLastStyle then  titleStyle
               else                      h1Style
             else                        h2Style
@@ -139,7 +139,7 @@ class MarkdownView extends ViewStateComponent
           ScrollElement
             pointerEventPriority: 1
             size:           :childrenSizeMaxParentWidth
-            padding:        left: indent * depth
+            padding:        left: indent * level
             childrenLayout: :row
 
             Element
@@ -158,23 +158,23 @@ class MarkdownView extends ViewStateComponent
         when :quote
           TextElement
             quoteStyle
-            padding: h: effectiveIndent = indent * depth
+            padding: h: effectiveIndent = indent * level
             commonTextProps
             color: textPalette.secondary
 
-        when :bullet
-          textStyle = switch depth
+        when :unorderedList
+          textStyle = switch level
             when 1 then l1Style
             when 2 then l2Style
 
           Element
             size: size
-            padding: left: effectiveIndent = indent * depth
+            padding: left: effectiveIndent = indent * level
 
             TextElement
               textStyle
               :textCenterCenter
-              text:   @style.bullets[depth - 1]
+              text:   @style.bullets[level - 1]
               axis:   :topRight
               color:  commonTextProps.color
               size:
@@ -184,38 +184,38 @@ class MarkdownView extends ViewStateComponent
             TextElement textStyle, commonTextProps
 
         when :indented
-          textStyle = switch depth
+          textStyle = switch level
             when 1 then l1Style
             when 2 then l2Style
 
           Element
             size: size
             padding:
-              left:   effectiveIndent = indent * depth
-              right:  if align != "left" then indent * depth
+              left:   effectiveIndent = indent * level
+              right:  if align != "left" then indent * level
 
             TextElement textStyle, commonTextProps
 
-        when :list
-          textStyle = switch depth
+        when :orderedList
+          textStyle = switch level
             when 1 then l1Style
             when 2 then l2Style
 
 
           if actualLastStyle != style
-            d = actualLastDepth + 1
+            d = actualLastLevel + 1
             while d < 3
               lastLevelNumber[d] = null
               d++
 
-          number = lastLevelNumber[depth] = (lastLevelNumber[depth] | 0) + 1
-          lastLevelNumber[1] = null if depth < 1
-          lastLevelNumber[2] = null if depth < 2
+          number = lastLevelNumber[level] = (lastLevelNumber[level] | 0) + 1
+          lastLevelNumber[1] = null if level < 1
+          lastLevelNumber[2] = null if level < 2
 
           Element
             :row
             size: size
-            padding: left: effectiveIndent = indent * (depth - 1)
+            padding: left: effectiveIndent = indent * (level - 1)
 
             TextElement textStyle,
               text: "#{number}."
@@ -241,7 +241,7 @@ class MarkdownView extends ViewStateComponent
               else 1
 
             when :heading
-              if depth == 1 then 1.5 else 1.25
+              if level == 1 then 1.5 else 1.25
 
             else 1
 

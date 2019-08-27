@@ -1,0 +1,159 @@
+import &StandardImport
+
+parseMarkdownTest = (str, out) ->
+  test "parseMarkdown #{escapeJavascriptString(str).slice(0,50)}" ->
+    assert.eq
+      array markdownBlock from parseMarkdown str
+        merge markdownBlock
+      array markdownBlock from out
+        merge markdownBlockDefaults, markdownBlock
+
+suite:
+  styles: ->
+    parseMarkdownTest "a"     [] text: "a"
+    parseMarkdownTest "# a"   [] text: "a" style: :heading,           level: -2
+    parseMarkdownTest "> a"   [] text: "a" style: :quote,             level: 1
+    parseMarkdownTest "* a"   [] text: "a" style: :unorderedList,     level: 1
+    parseMarkdownTest "1. a"  [] text: "a" style: :orderedList,       level: 1
+
+  depth2: ->
+    parseMarkdownTest "## a"   [] text: "a" style: :heading,          level: -1
+    parseMarkdownTest ">> a"   [] text: "a" style: :quote,            level: 2
+    parseMarkdownTest "** a"   [] text: "a" style: :unorderedList,    level: 2
+    parseMarkdownTest "1.. a"  [] text: "a" style: :orderedList,      level: 2
+
+  maxDepthIs2: ->
+    parseMarkdownTest "### a"  [] text: "a" style: :heading,          level: -1
+    parseMarkdownTest ">>> a"  [] text: "a" style: :quote,            level: 2
+    parseMarkdownTest "*** a"  [] text: "a" style: :unorderedList,    level: 2
+    parseMarkdownTest "1... a" [] text: "a" style: :orderedList,      level: 2
+
+  codeBlocks: ->
+    parseMarkdownTest
+      """
+        ```
+        hi
+        ```
+
+      []
+        level:  0
+        text:   "hi"
+        style:  "code"
+
+    parseMarkdownTest
+      """
+        ```
+        parseMarkdownTest = (str, out) ->
+          test "parseMarkdown \#{escapeJavascriptString(str).slice(0,50)}" ->
+            assert.eq
+              parseMarkdown str
+              out
+        ```
+
+      []
+        level:  0
+        text:
+          """
+            parseMarkdownTest = (str, out) ->
+              test "parseMarkdown \#{escapeJavascriptString(str).slice(0,50)}" ->
+                assert.eq
+                  parseMarkdown str
+                  out
+
+        style:  "code"
+
+    parseMarkdownTest
+      """
+        ^```
+        hi
+        ```
+
+      []
+        level:  1
+        text:   "hi"
+        style:  "code"
+
+    parseMarkdownTest
+      """
+        ^^```
+        hi
+        ```
+
+      []
+        level:  2
+        text:   "hi"
+        style:  "code"
+
+    parseMarkdownTest
+      """
+        ^^^```
+        hi
+        ```
+
+      []
+        level:  2
+        text:   "hi"
+        style:  "code"
+
+    parseMarkdownTest
+      """
+        a
+        ```
+        b
+        ```
+        c
+
+      []
+        {}
+          level:  0
+          align:  :left
+          style:  :paragraph
+          text:   :a
+
+        {}
+          level:  0
+          align:  :left
+          style:  :code
+          text:   :b
+
+        {}
+          level:  0
+          align:  :left
+          style:  :paragraph
+          text:   :c
+
+  align: ->
+    parseMarkdownTest "- a"     [] text: "a" align: :center
+    parseMarkdownTest "-- a"    [] text: "a" align: :right
+    parseMarkdownTest "--- a"   [] text: "a" align: :right
+
+    parseMarkdownTest "#- a"    [] text: "a" align: :center   style: :heading         level: -2
+    parseMarkdownTest "*- a"    [] text: "a" align: :center   style: :unorderedList   level: 1
+    parseMarkdownTest ">- a"    [] text: "a" align: :center   style: :quote           level: 1
+    parseMarkdownTest "1.- a"   [] text: "a" align: :center   style: :orderedList     level: 1
+
+  images: ->
+    parseMarkdownTest "![](foo.png)"            [] text: '' level: 0 align: :left  style: :paragraph images: [] source: :foo.png
+    parseMarkdownTest "![](https://www.test.com/foo.png#boo?foo=bar)"            [] text: '' level: 0 align: :left  style: :paragraph images: [] source: :https://www.test.com/foo.png#boo?foo=bar
+    parseMarkdownTest "![alt-text](foo.png)"  [] text: '' level: 0 align: :left  style: :paragraph images: [] source: :foo.png text: 'alt-text'
+
+    parseMarkdownTest "!()"           [] text: "!()"   level: 0 align: :left  style: :paragraph
+    parseMarkdownTest "![]"           [] text: "![]"   level: 0 align: :left  style: :paragraph
+    parseMarkdownTest "![]()"         [] text: ''      level: 0 align: :left  style: :paragraph
+    parseMarkdownTest "![hi]"         [] text: "![hi]" level: 0 align: :left  style: :paragraph
+
+    parseMarkdownTest "![hi]()"       [] text: '' level: 0 align: :left  style: :paragraph images: [] text: "hi"
+    parseMarkdownTest "![](foo.png)"  [] text: '' level: 0 align: :left  style: :paragraph images: [] source: :foo.png
+
+  links: ->
+    parseMarkdownTest "[](foo.png)"            [] text: '' level: 0 align: :left  style: :paragraph links: [] source: :foo.png
+    parseMarkdownTest "[](https://www.test.com/foo.png#boo?foo=bar)"            [] text: '' level: 0 align: :left  style: :paragraph links: [] source: :https://www.test.com/foo.png#boo?foo=bar
+    parseMarkdownTest "[link-text](foo.png)"  [] text: 'link-text' level: 0 align: :left  style: :paragraph links: [] source: :foo.png text: 'link-text'
+
+    parseMarkdownTest "()"           [] text: "()"   level: 0 align: :left  style: :paragraph
+    parseMarkdownTest "[]"           [] text: "[]"   level: 0 align: :left  style: :paragraph
+    parseMarkdownTest "[]()"         [] text: ''     level: 0 align: :left  style: :paragraph
+    parseMarkdownTest "[hi]"         [] text: "[hi]" level: 0 align: :left  style: :paragraph
+
+    parseMarkdownTest "[hi]()"       [] text: 'hi' level: 0 align: :left  style: :paragraph links: [] text: "hi"
+    parseMarkdownTest "[](foo.png)"  [] text: '' level: 0 align: :left  style: :paragraph links: [] source: :foo.png

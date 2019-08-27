@@ -1,12 +1,5 @@
 import &StandardImport
 
-parseMarkdownTest = (str, out) ->
-  test "parseMarkdown #{escapeJavascriptString(str).slice(0,50)}" ->
-    assert.eq
-      parseMarkdown str
-      array markdownBlock from out
-        merge markdownBlockDefaults, markdownBlock
-
 deMarkdownTest = (str, out) ->
   test "deMarkdown #{escapeJavascriptString(str).slice(0,50)}" ->
     assert.eq
@@ -188,136 +181,15 @@ suite:
                 h3Style:        TextStyles.mediumBoldText
                 paragraphStyle: TextStyles.mediumText
           ```
-  parseMarkdown:
-    styles: ->
-      parseMarkdownTest "a"     [] text: "a"
-      parseMarkdownTest "> a"   [] text: "a" style: "quote",      depth: 1
-      parseMarkdownTest "# a"   [] text: "a" style: "heading",    depth: 1
-      parseMarkdownTest "* a"   [] text: "a" style: "bullet",     depth: 1
-      parseMarkdownTest "1. a"  [] text: "a" style: "list",       depth: 1
 
-    depth2: ->
-      parseMarkdownTest ">> a"   [] text: "a" style: "quote",     depth: 2
-      parseMarkdownTest "## a"   [] text: "a" style: "heading",   depth: 2
-      parseMarkdownTest "** a"   [] text: "a" style: "bullet",    depth: 2
-      parseMarkdownTest "1.. a"  [] text: "a" style: "list",      depth: 2
 
-    maxDepthIs2: ->
-      parseMarkdownTest ">>> a"  [] text: "a" style: "quote",     depth: 2
-      parseMarkdownTest "### a"  [] text: "a" style: "heading",   depth: 2
-      parseMarkdownTest "*** a"  [] text: "a" style: "bullet",    depth: 2
-      parseMarkdownTest "1... a" [] text: "a" style: "list",      depth: 2
-
-    codeBlocks: ->
-      parseMarkdownTest
-        """
-          ```
-          hi
-          ```
-
-        []
-          depth:  0
-          text:   "hi"
-          style:  "code"
-
-      parseMarkdownTest
-        """
-          ```
-          parseMarkdownTest = (str, out) ->
-            test "parseMarkdown \#{escapeJavascriptString(str).slice(0,50)}" ->
-              assert.eq
-                parseMarkdown str
-                out
-          ```
-
-        []
-          depth:  0
-          text:
-            """
-              parseMarkdownTest = (str, out) ->
-                test "parseMarkdown \#{escapeJavascriptString(str).slice(0,50)}" ->
-                  assert.eq
-                    parseMarkdown str
-                    out
-
-          style:  "code"
-
-      parseMarkdownTest
-        """
-          ^```
-          hi
-          ```
-
-        []
-          depth:  1
-          text:   "hi"
-          style:  "code"
-
-      parseMarkdownTest
-        """
-          ^^```
-          hi
-          ```
-
-        []
-          depth:  2
-          text:   "hi"
-          style:  "code"
-
-      parseMarkdownTest
-        """
-          ^^^```
-          hi
-          ```
-
-        []
-          depth:  2
-          text:   "hi"
-          style:  "code"
-
-      parseMarkdownTest
-        """
-          a
-          ```
-          b
-          ```
-          c
-
-        []
-          {}
-            depth:  0
-            align:  :left
-            style:  :paragraph
-            text:   :a
-
-          {}
-            depth:  0
-            align:  :left
-            style:  :code
-            text:   :b
-
-          {}
-            depth:  0
-            align:  :left
-            style:  :paragraph
-            text:   :c
-
-    align: ->
-      parseMarkdownTest "- a"     [] text: "a" align: "center"
-      parseMarkdownTest "-- a"    [] text: "a" align: "right"
-      parseMarkdownTest "--- a"   [] text: "a" align: "right"
-
-      parseMarkdownTest "#- a"    [] text: "a" align: "center"   style: "heading" depth: 1
-      parseMarkdownTest "*- a"    [] text: "a" align: "center"   style: "bullet"  depth: 1
-      parseMarkdownTest ">- a"    [] text: "a" align: "center"   style: "quote"   depth: 1
-      parseMarkdownTest "1.- a"   [] text: "a" align: "center"   style: "list"    depth: 1
 
 
   deMarkdown: ->
-    deMarkdownTest "foo", "foo"
-    deMarkdownTest "# foo", "foo"
-    deMarkdownTest "#    foo", "foo"
-    deMarkdownTest "#- foo", "foo"
-    deMarkdownTest "> foo", "foo"
-    deMarkdownTest "* foo", "foo"
-    deMarkdownTest "1. foo", "foo"
+    deMarkdownTest :foo, :foo
+    deMarkdownTest "# foo", :foo
+    deMarkdownTest "#    foo", :foo
+    deMarkdownTest "#- foo", :foo
+    deMarkdownTest "> foo", :foo
+    deMarkdownTest "* foo", :foo
+    deMarkdownTest "1. foo", :foo

@@ -7,44 +7,17 @@ getTag = (style, depth) ->
   when :bullet    then :li
   when :list      then :li
   when :quote     then :blockquote
-  # when :indented  then :div
   else :div
 
 class MarkdownToHtml
-
-  # markdownStyleAndDepthToTags =
-  #   heading:
-  #     1: :h1
-  #     2: :h2
-  #   code:   1: :pre 2: :pre
-  #   quote:
 
   listTags =
     bullet: :ul
     list:   :ol
 
-  # @clusterMarkdownBlocks: clusterMarkdownBlocks = (markdownBlocks) ->
-  #   stack = [] currentOut = out = []
-  #   each block in markdownBlocks
-  #     block extract level
-  #     if level <= 0
-  #       while stack.length > 1
-  #         stack.pop()
-
-  #     else
-  #       if currentLevel?
-  #         switch
-  #         when currentLevel == level
-  #         when currentLevel > level
-  #         else
-
-  #       else
-  #         stack.push
-  #       currentLevel = level
-
   @markdownToHtmlTree: (text) ->
     markdownBlocksToHtmlTree
-      parseMarkdown2 text, true
+      parseMarkdown text, true
       .reverse()
 
   markdownBlockToHtmlTag = ({text, align, level, style}, currentLevel = 0) ->
@@ -101,7 +74,7 @@ class MarkdownToHtml
 
   @markdownToHtml: (markdown) ->
     markdownBlocksToHtmlTree
-      parseMarkdown2 markdown, true
+      parseMarkdown markdown, true
       .reverse()
     .toString()
 
@@ -127,7 +100,7 @@ class MarkdownToHtml
       out
 
   @markdownToText: (markdown) ->
-    array {text, align, level, style} in parseMarkdown2 markdown
+    array {text, align, level, style} in parseMarkdown markdown
       text =
         text
         .trim()
