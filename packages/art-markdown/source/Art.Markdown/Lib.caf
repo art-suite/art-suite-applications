@@ -79,12 +79,34 @@ class Lib
       (-+)
     .test text
 
+  @hashtagRegexp: hashtagRegexp =
+    ///g
+
+      \#
+
+      (?:
+        (?!\d)
+        [$\w\u007f-\uffff]
+      |
+        \d\d\d\d
+      )
+
+      [-$\w\u007f-\uffff]*
+
   @_markdownCodeBlockDelimiterRegExp:           /// #{@_codeBlockStart.source}
   @markdownCodeBlockLineStartRegExp:            /// ^         #{@_markdownCodeBlockDelimiterRegExp.source}
   @markdownCodeOrHeaderBlockLineStartRegExp:    /// ^ (#{@_markdownCodeBlockDelimiterRegExp.source} | \#+\s+[^\s])
   @_findMarkdownCodeBlockDelimiterRegExp:       /// (^|\n\ *) #{@_markdownCodeBlockDelimiterRegExp.source}
   @_findAllMarkdownImageRegExp:
     ///g
+      #{findAllUrlsWithOptionalProtocolRegExp.source}
+
+      |
+
+      #{hashtagRegexp.source}
+
+      |
+
       !?
 
       \[ [^\]]* \]
@@ -235,28 +257,36 @@ class Lib
         text:
           text
           .replace @_findAllMarkdownImageRegExp, (found) ->
-            [__, isImage, text, source] = subMatch = found.match @_subparseMarkdownImageRegExp
-            unless isImage
-              text
-            ? ''
+            if subparse = found.match @_subparseMarkdownImageRegExp
+              [__, isImage, text, source] = subMatch = subparse
+              unless isImage
+                text
+              ? ''
+            else found
 
           .trim()
           .replace /\ \ +/g ''
 
       images = null
       links = null
-      each match in matches
-        [__, isImage, text, source] = subMatch = match.match @_subparseMarkdownImageRegExp
-        if present(source) || present(text)
-          item = {}
-          item.source = source  if present source
-          item.text   = text    if present text
-          if isImage
-            images ?= []
-            .push item
-          else
-            links ?= []
-            .push item
+      each found in matches
+        if subparse = found.match @_subparseMarkdownImageRegExp
+          [__, isImage, text, source] = subMatch = subparse
+          if present(source) || present(text)
+            item = {}
+            item.source = source  if present source
+            item.text   = text    if present text
+            if isImage
+              images ?= []
+              .push item
+            else
+              links ?= []
+              .push item
+        else
+          links ?= []
+          .push
+            source:   found
+            implicit: true
 
       out.images = images if images
       out.links  = links  if links

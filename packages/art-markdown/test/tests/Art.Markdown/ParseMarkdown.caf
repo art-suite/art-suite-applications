@@ -156,4 +156,10 @@ suite:
     parseMarkdownTest "[hi]"         [] text: "[hi]" level: 0 align: :left  style: :paragraph
 
     parseMarkdownTest "[hi]()"       [] text: 'hi' level: 0 align: :left  style: :paragraph links: [] text: "hi"
-    parseMarkdownTest "[](foo.png)"  [] text: '' level: 0 align: :left  style: :paragraph links: [] source: :foo.png
+
+  implicitLinks: ->
+    parseMarkdownTest "foo.png"                                   [] text: "foo.png"                                  level: 0 align: :left  style: :paragraph links: [] implicit: true source: "foo.png"
+    parseMarkdownTest "#foo"                                      [] text: "#foo"                                     level: 0 align: :left  style: :paragraph links: [] implicit: true source: #foo
+    parseMarkdownTest "me.com"                                    [] text: "me.com"                                   level: 0 align: :left  style: :paragraph links: [] implicit: true source: "me.com"
+    parseMarkdownTest "https://me.com"                            [] text: "https://me.com"                           level: 0 align: :left  style: :paragraph links: [] implicit: true source: "https://me.com"
+    parseMarkdownTest "https://www.test.com/foo.png#boo?foo=bar"  [] text: "https://www.test.com/foo.png#boo?foo=bar" level: 0 align: :left  style: :paragraph links: [] implicit: true source: "https://www.test.com/foo.png#boo?foo=bar"
