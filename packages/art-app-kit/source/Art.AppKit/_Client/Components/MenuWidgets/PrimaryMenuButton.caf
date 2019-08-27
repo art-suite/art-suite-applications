@@ -1,0 +1,69 @@
+import &StandardImport
+
+class PrimaryMenuButton extends ViewStateComponent
+
+  render: ->
+    @props extract
+      color, hoverColor, backgroundColor
+      disabled
+
+    backgroundColor ||= if disabled then AppPalette.mediumGrey else AppPalette.primary
+    hoverColor ||= AppPalette.mediumLightPrimary
+    color ||= TextPalette.white.primary
+
+    &MenuButton
+      @props
+      {} backgroundColor, hoverColor, color, radius: 100, leftPadIcon: true
+
+    # @viewState extract gridSize, buttonSize
+
+    # icon = Icons[icon]
+    # rightIcon = Icons[rightIcon]
+
+    # buttonProps =
+    #   size: buttonSize
+    #   color: color
+    #   align: .5
+
+    # disabled = @props.disabled || !@props.action
+
+    # if disabled && @props.disabledAction
+    #   rightIcon ?= Icons.helpInverted
+
+    # Element
+    #   noFocus: true
+    #   size: ww:1, h: buttonSize
+    #   padding: h: -gridSize / 2
+    #   clip: true
+
+    #   animators:
+    #     size: toFrom: ww:1, h: 0
+
+    #   AppKitButtonWrapper
+    #     @props
+    #     radius: 100
+    #     backgroundColor:  backgroundColor
+    #     hoverColor:       hoverColor
+    #     size: ww:1, h: buttonSize
+
+    #     Element
+    #       :row
+    #       size: ww:1, h: buttonSize
+    #       padding: h: gridSize / 2
+
+    #       icon && TextElement icon, buttonProps
+
+    #       TextElement
+    #         TextStyles.mediumText
+    #         size: "parentSize"
+    #         text: capitalize text
+    #         color: color
+    #         align: if icon then "centerLeft" else "centerCenter"
+
+    #       if rightIcon
+    #         TextElement
+    #           rightIcon
+    #           buttonProps
+    #           inFlow:   false
+    #           location: :centerRight
+    #           axis:     :centerRight

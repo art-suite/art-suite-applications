@@ -4,7 +4,7 @@ class MenuSection extends ViewStateComponent
 
   render: ->
     @ extract gridSize
-    @props extract white, label, disabled, button
+    @props extract white, label, disabled, button, warning
 
     Element
       :parentWidthChildrenHeight :column
@@ -24,7 +24,7 @@ class MenuSection extends ViewStateComponent
         :clip
 
       if label
-        MenuSectionLabel {} label, button
+        MenuSectionLabel {} label, button, warning
 
       Element
         draw: if white

@@ -11,6 +11,8 @@
   ScrollerWithBar:     require('./ScrollerWithBar'),
   SelectedTextPopover: require('./SelectedTextPopover'),
   StandardImport:      require('./StandardImport'),
+  TabbedSection:       require('./TabbedSection'),
+  TabbedSectionTabs:   require('./TabbedSectionTabs'),
   Toggle:              require('./Toggle'),
   ToolbarButton:       require('./ToolbarButton'),
   WidgetLib:           require('./WidgetLib')

@@ -20,22 +20,26 @@ class Icon extends &ViewStateComponent
       color
       animators
       icon
+      iconAngle
+      angle = iconAngle
       shadow
       iconOptions
       lightColor
+      axis
 
     color ?= if lightColor
       TextPalette.white.primary
     else
       TextPalette.black.primary
 
-
     size ?= @buttonSize
 
     Element
-      {} location, size, align, animators
+      {} location, size, align, animators, angle, axis
       :cacheDraw
-      animators: :draw
+      animators:
+        :draw
+        angle: duration: .5
 
       draw:
         shape: if iconPath = Icons[icon]

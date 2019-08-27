@@ -1,0 +1,36 @@
+import &StandardImport
+
+class VersionCheck extends ApplicationState
+
+  @stateFields
+    versionInfo:                null
+    lastSuccessfulVersionCheck: lastVersionCheckSeconds = toSeconds Date.now()
+    lastVersionCheckSeconds:    lastVersionCheckSeconds
+    forceUpdatePeriod:          secondsPer.day
+    versionCheckPeriod:         secondsPer.hour
+
+  doVersionCheck: ->
+    if @secondsSinceLastVersionCheck > @versionCheckPeriod
+      @_doVersionCheckNow()
+
+  @getter
+    secondsSinceLastVersionCheck:           -> toSeconds() - @lastVersionCheckSeconds
+    secondsSinceLastSuccessfulVersionCheck: -> toSeconds() - @lastSuccessfulVersionCheck
+
+  ##################
+    PRIVATE
+  ##################
+  _doVersionCheckNow: ->
+    unless nativeAppDetect()
+      @lastVersionCheckSeconds = currentSecond = toSeconds()
+
+      pipelines.status.version()
+      .then (versionInfo) ->
+        @versionInfo = versionInfo
+        @lastSuccessfulVersionCheck = currentSecond
+
+        if versionInfo.updateAvailable
+          timeout 100, -> location.reload()
+
+      .catch (error) ->
+        location.reload() if @secondsSinceLastSuccessfulVersionCheck > @forceUpdatePeriod

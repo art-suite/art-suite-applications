@@ -13,9 +13,11 @@
   MenuSection:        require('./MenuSection'),
   MenuSectionGroup:   require('./MenuSectionGroup'),
   MenuSectionLabel:   require('./MenuSectionLabel'),
+  MenuTabbedSection:  require('./MenuTabbedSection'),
   MenuTextEdit:       require('./MenuTextEdit'),
   MenuTextInput:      require('./MenuTextInput'),
   MenuToggle:         require('./MenuToggle'),
+  PrimaryMenuButton:  require('./PrimaryMenuButton'),
   StandardImport:     require('./StandardImport')
 });
 require('./MenuSupportWidgets');

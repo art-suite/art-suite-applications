@@ -1,16 +1,18 @@
 import &StandardImport
 
 class WidgetLib
-  @drawButton: ({hover, disabled, gridSize}, {radius, drawPadding, hoverColor, lightColor}) ->
+  @drawButton: (state, props) ->
+    state extract hover, disabled, gridSize
+    props extract radius, drawPadding, hoverColor, lightColor, backgroundColor
     hoverColor ?=
       if lightColor
         TextPalette.white.secondary
-      else AppPalette.primaryLight1
+      else AppPalette.mediumLightPrimary
     padding: drawPadding
     radius: radius ? gridSize / 2
     fill:
       if hover && !disabled
         hoverColor
       else
-        rgbColor hoverColor
-        .withAlpha 0
+        backgroundColor
+        ? rgbColor(hoverColor).withAlpha 0

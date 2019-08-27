@@ -4,8 +4,11 @@
 (module.exports = require('./namespace'))
 
 .addModules({
+  AgeString:               require('./AgeString'),
   AppKitPresentationState: require('./AppKitPresentationState'),
   AppKitViewState:         require('./AppKitViewState'),
   CurrentSession:          require('./CurrentSession'),
-  PageStack:               require('./PageStack')
+  PageStack:               require('./PageStack'),
+  UrlBarState:             require('./UrlBarState'),
+  VersionCheck:            require('./VersionCheck')
 });

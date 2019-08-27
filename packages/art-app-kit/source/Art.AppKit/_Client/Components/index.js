@@ -11,6 +11,7 @@
   SwipePager:     require('./SwipePager')
 });
 require('./AppCore');
+require('./InternalComponents');
 require('./Lib');
 require('./MenuWidgets');
 require('./Widgets');

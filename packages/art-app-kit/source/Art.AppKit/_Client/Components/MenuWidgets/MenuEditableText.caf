@@ -19,7 +19,7 @@ class MenuEditableText extends ViewStateComponent
       if present @state extract value
         if value is String
           value
-        else "" #{} value
+        else '' + value
 
   startEditing: ->
     @editingInline = true
@@ -47,7 +47,11 @@ class MenuEditableText extends ViewStateComponent
       fontStyle
       :parentWidthChildrenHeight
       color:    if value then TextPalette.black.primary else TextPalette.black.secondary
-      text:     value || @placeholder || '-'
+      text:
+        if @props.type == :password && present value
+          repeat "•", value.length
+        else
+          value || @placeholder || '-'
       maxLines: maxLines
 
       padding:
@@ -79,7 +83,7 @@ class MenuEditableText extends ViewStateComponent
           fontStyle
           maxLength:    @maxLength
           key:          :textInputElement
-          type:         if maxLines > 1 then :textarea
+          type:         if maxLines > 1 then :textarea else @props.type
           value:        value
           placeholder:  placeholder
           color:        TextPalette.black.primary
@@ -123,6 +127,7 @@ class MenuEditableText extends ViewStateComponent
     @props extract
       label, large, placeholder, action, locked, maxLength
       background
+      alwaysEditing
 
     Element
       menuItemLayout @viewState
@@ -133,7 +138,7 @@ class MenuEditableText extends ViewStateComponent
           background
 
       switch
-      when @editingInline
+      when alwaysEditing || @editingInline
         @renderInlineEdit()
       when @editInline
         Element

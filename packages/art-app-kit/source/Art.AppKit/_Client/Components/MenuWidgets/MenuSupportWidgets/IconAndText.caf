@@ -7,17 +7,24 @@ class IconAndText extends ViewStateComponent
     @props extract
       customIcon
       icon
+      iconImage
       text
       rightText
+      rightIcon
       iconColor
+      iconAngle
       iconShadow
+      leftPadIcon
+      iconScale
       color = TextPalette.black.softPrimary
+
+    haveIcon = icon || customIcon || iconImage
 
     Element
       :row :childrenCenterLeft
       childrenMargins: gridSize / 2
       padding:
-        left: if icon || customIcon then 0 else gridSize / 2
+        left: if !leftPadIcon && haveIcon then 0 else gridSize / 2
         right: gridSize / 2
 
       switch
@@ -27,12 +34,26 @@ class IconAndText extends ViewStateComponent
           size: buttonSize
           customIcon
 
+      when iconImage
+        Element
+          size: buttonSize
+          padding: gridSize / 4
+          BitmapElement
+            :centerCenter
+            scale:  iconScale ? 1
+            source: iconImage
+
       when icon
-        Icon {}
-          icon
-          iconScale: 2/3
-          shadow: iconShadow
-          color: iconColor ? color
+        Element
+          size: buttonSize
+          Icon
+            :centerCenter
+            {}
+              icon
+              iconAngle
+              iconScale: iconScale ? 2/3
+              shadow: iconShadow
+              color: iconColor ? color
 
       TextElement
         TextStyles.mediumText
@@ -41,8 +62,21 @@ class IconAndText extends ViewStateComponent
         text:   capitalize text
         color:  color
 
-      rightText? && TextElement
-        TextStyles.smallText
+      rightText? && Element
         :childrenSize
-        text:   rightText
-        color:  color
+        key: rightText
+        animators:
+          size: toFrom: w: 0, hch: 1
+          clip: toFrom: true
+
+        TextElement
+          TextStyles.smallText
+          :childrenSize
+          text:   rightText
+          color:  color
+
+      rightIcon? && Icon
+        icon: rightIcon
+        iconScale: iconScale ? 2/3
+        shadow: iconShadow
+        color: iconColor ? color

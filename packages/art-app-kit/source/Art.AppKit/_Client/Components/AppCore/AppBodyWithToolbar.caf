@@ -11,7 +11,7 @@ class AppBodyWithToolbar extends ViewStateComponent
   @getter
     haveToolbar: -> true
     safePaddingToolbarHeight: ->
-      if @toolbar && @toolbarHorizontal
+      if @toolbarHorizontal
         if @toolbarLocation == :bottom
               @safePadding.bottom  + @touchButtonSize
         else  @safePadding.top     + @touchButtonSize
@@ -26,7 +26,7 @@ class AppBodyWithToolbar extends ViewStateComponent
     childrenSafePadding: ->
       @ extract safePadding, gridSize, touchButtonSize, toolbarLocation
 
-      unless @toolbar && @toolbarHorizontal
+      unless @toolbarHorizontal
         safePadding
       else
         merge
@@ -35,21 +35,36 @@ class AppBodyWithToolbar extends ViewStateComponent
                 bottom: safePadding.bottom  + touchButtonSize
           else  top:    safePadding.top     + touchButtonSize
 
+    childrenDrawPadding: ->
+      @ extract safePadding, gridSize, touchButtonSize, toolbarLocation
+
+      unless @toolbarHorizontal
+        safePadding
+      else
+        merge
+          safePadding
+          if toolbarLocation == :bottom
+                top: 0    bottom: safePadding.bottom  + touchButtonSize
+          else  bottom: 0 top:    safePadding.top     + touchButtonSize
+
   render: ->
     @ extract
       toolbarLocation
       children
-      toolbar
+      toolbar = &Toolbar
 
     Element
       draw:       AppPalette.background
 
       Element
         padding:  @childrenSafePadding
+        draw:
+          padding: @childrenDrawPadding
+          :clip
         @props.children
         MainPageStacks()
 
-      if toolbar && @toolbarHorizontal
+      if @toolbarHorizontal
         Element
           switch toolbarLocation
           when :left  :top    then :topLeft
@@ -61,4 +76,6 @@ class AppBodyWithToolbar extends ViewStateComponent
 
           padding: [toolbarLocation]: @safePadding[toolbarLocation]
 
-          toolbar
+          if toolbar is Function
+            toolbar @props.toolbarProps
+          else toolbar

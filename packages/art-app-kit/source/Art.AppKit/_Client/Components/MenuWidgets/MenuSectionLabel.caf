@@ -4,7 +4,7 @@ class MenuSectionLabel extends ViewStateComponent
 
   render: ->
     @viewState extract gridSize, heightAdjustedButtonSize
-    @props extract label, text = label
+    @props extract label, warning, text = label
 
     if /\t/.test text
       [text, centerText, rightText] = text.split "\t"
@@ -23,7 +23,7 @@ class MenuSectionLabel extends ViewStateComponent
       draw:
         padding:  h: -@gridSize / 2
         radius:   @gridSize / 4
-        color:    AppPalette.veryLightDarken
+        color:    if warning then AppPalette.lightWarning else AppPalette.veryLightGrey
         {}
           padding:
             h: -@gridSize / 2 + .5

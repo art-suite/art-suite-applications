@@ -16,6 +16,18 @@ class PageStack extends ApplicationState
     @stacks = array stackEntry in pageStacks
       @_normalizeStackEntry stackEntry
 
+  hideStack: (id) ->
+    @stacks = array stackEntry in @stacks
+      if stackEntry.id == id
+        merge stackEntry, hidden: true
+      else stackEntry
+
+  unhideStack: (id) ->
+    @stacks = array stackEntry in @stacks
+      if stackEntry.id == id
+        merge stackEntry, hidden: false
+      else stackEntry
+
   showStack: (id) ->
     @validateStackId id
     if @currentPageStackId == id
@@ -72,6 +84,8 @@ class PageStack extends ApplicationState
     PRIVATE
   #################
   _normalizeStackEntry: (stackEntry) ->
+    if stackEntry is String
+      stackEntry = component: @_pages?[upperCamelCase stackEntry]
     unless component = stackEntry.component ? @_pages?[upperCamelCase stackEntry.id]
       throw new Error "" component not found for stackEntry: #{formattedInspect stackEntry}
 

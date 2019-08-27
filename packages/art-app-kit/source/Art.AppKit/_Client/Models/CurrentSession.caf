@@ -32,7 +32,8 @@ class CurrentSession extends FluxSubscriptionsMixin ApplicationState
 
   logOut: ->
     @currentUser = @currentUserId = null
-    session.reset()
+    Promise.then -> pipelines.session.logOut()
+    .tapCatch -> session.reset()
 
   ####################################
     PRIVATE

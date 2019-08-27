@@ -82,6 +82,7 @@ class ToolbarButton extends ViewStateComponent
       maxLargeLabelLength = 8
       lightColor
       tight
+      hidden
       action, disabled, selected, text, label, lightColor, count, badge, labelBottom
 
     @ extract gridSize, color
@@ -102,6 +103,7 @@ class ToolbarButton extends ViewStateComponent
         objectWithout @props, :children
       else @props
       {}
+        hidden
         size
         drawPadding:  2
         draw: drawButton

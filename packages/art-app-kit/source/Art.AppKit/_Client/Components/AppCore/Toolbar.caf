@@ -16,6 +16,9 @@ class Toolbar extends ViewStateComponent
       else if .9 > toolbarColor.perceptualLightness
         lightColor = true
 
+    @props extract
+      hiddenStacks
+
     commonProps = {}
       tight:        wideLayout
       labelBottom:  @isTouchScreen || !wideLayout
@@ -31,6 +34,7 @@ class Toolbar extends ViewStateComponent
             offset: 0
         padding:
           [toolbarLocation]: -@safePadding[toolbarLocation]
+
 
       size: @props.size
 
@@ -76,10 +80,13 @@ class Toolbar extends ViewStateComponent
                 text: &Config.config.title
                 color: AppPalette.primary
 
-      array {id, icon, title} in @stacks
+      array {id, icon, title, hidden} in @stacks
+        if @viewSize.x < 768
+          title = null
         ToolbarButton
           commonProps
           {}
+            hidden: hiddenStacks && id in hiddenStacks
             icon
             text:         title
             selected:     currentPageStackId == id

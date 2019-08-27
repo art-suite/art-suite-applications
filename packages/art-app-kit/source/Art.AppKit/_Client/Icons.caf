@@ -18,5 +18,5 @@ class Icons extends BaseClass
         :caretLeft
         :caretRight
         :caretTop
-        :caretBottom
+        :caretDown
       scale: .5

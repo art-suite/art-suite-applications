@@ -12,5 +12,4 @@
   ViewStateComponent:         require('./ViewStateComponent')
 });
 require('./Components');
-require('./InternalComponents');
 require('./Models');

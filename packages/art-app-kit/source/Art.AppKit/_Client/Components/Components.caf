@@ -2,3 +2,4 @@
   &Lib
   &Widgets
   &MenuWidgets
+  {AppBodyWithToolbar} = &AppCore

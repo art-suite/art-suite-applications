@@ -6,5 +6,4 @@ module.exports = require('../namespace').addNamespace(
   class Client extends Neptune.PackageNamespace {}
 );
 require('./Components/namespace');
-require('./InternalComponents/namespace');
 require('./Models/namespace');

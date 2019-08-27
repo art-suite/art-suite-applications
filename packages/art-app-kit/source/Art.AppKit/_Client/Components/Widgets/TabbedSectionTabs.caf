@@ -1,0 +1,179 @@
+import &StandardImport
+
+class TabbedSectionTabs extends ViewStateComponent
+
+  @stateFields
+    hover:        null
+
+  @propFields :tabs :selectTab
+
+  @getter
+    tabOrder: ->
+      @props extract tabs, tabOrder
+      ? Object.keys tabs
+
+    selectedTab: ->
+      @props extract selectedTab, tabs
+      tabs[selectedTab] && selectedTab
+      ? find tab in @tabOrder when tabs[tab]
+
+  render: ->
+    @props extract
+      tabList
+      hideDetails
+
+    @ extract
+      tabs
+      tabOrder
+      selectedTab
+      hover
+
+    tabs[selectedTab] extract? details, action
+
+    @viewState extract
+      gridSize, paddedFeedWidth, fullScreen
+      reducedButtonSize as buttonSize
+
+    fullWidth = !fullScreen
+
+    selectedTitleColor = TextPalette.black.primary
+    unselectedTitleColor = TextPalette.black.secondary
+
+    noShadow =
+      color:  #0000
+      blur:   gridSize
+      offset: y: -gridSize / 8
+
+    shadow =
+      color:  #0001
+      blur:   gridSize
+      offset: y: -gridSize / 8
+
+    flat = false
+    tabs = null unless tabOrder.length > 0
+
+    Element
+      :column
+      :parentWidthChildrenHeight
+      if tabs?
+        childrenMargins: gridSize
+        # padding: top:    gridSize / 2
+
+      ScrollElement
+        :row
+        :parentWidthChildrenHeight
+        tabs && Element
+          :row
+          if fullWidth
+            size:
+              hch: 1
+              w: (ps, cs) -> max ps.x, cs.x
+          else
+            :childrenSize
+          # padding: h: gridSize / 2
+
+          childrenMargins: gridSize / 2
+          draw: if !flat then []
+            :children
+            padding:
+              top:    -gridSize
+              left:   -gridSize
+              right:  -gridSize * 10
+            :clip
+            rectangle: (ps) ->
+              rect
+                -gridSize / 2
+                ps.y - 1
+                ps.x + gridSize * if fullWidth then 1 else 2.5
+                10
+            fill:
+              color: AppPalette.veryLightGrey
+              shadow: shadow
+            {} child: selectedTab
+
+          array tabName in tabOrder when tabs[tabName]?
+            tabs[tabName] extract title, icon, iconScale, iconColor = AppPalette.grey
+            selected = selectedTab == tabName
+            color =
+              if selected
+                    selectedTitleColor
+              else  unselectedTitleColor
+
+            offsetPadding = gridSize * if selected then 0 else .25
+
+            if hover == tabName && !selected
+              offsetPadding -= gridSize * .25
+
+            Element
+              :row
+              :pointerCursor
+              :childrenCenterCenter
+
+              size:
+                wcw: 1
+                h:      buttonSize
+              childrenMargins: buttonSize / 3
+              padding:
+                top:    gridSize * .5 + offsetPadding
+                h:      buttonSize / 3
+                bottom: gridSize * .5 - offsetPadding
+              key: tabName
+              on:
+                mouseIn:  -> @hover = tabName
+                mouseOut: @clearHover
+                pointerClick: ({target})->
+                  target.scrollOnScreen? true, :horizontal
+                  @selectTab tabName
+              animators: :draw :padding
+              draw: if !flat
+                radius:   top: gridSize / 2
+                padding:  top: offsetPadding
+                fill:
+                  if selected
+                    color: :white
+                    shadow: shadow
+                  else
+                    color:
+                      if hover == tabName
+                        AppPalette.lightPrimary
+
+                      else
+                        AppPalette.veryLightGrey
+                    shadow: noShadow
+
+              icon && Element
+                size: TextStyles.mediumBoldText.fontSize
+                TextElement
+                  Icons[icon]
+                  :centerCenter :childrenSize
+                  animators: :scale :color
+                  fontSize: TextStyles.mediumBoldText.fontSize
+                  scale:    (iconScale ? 1) * if selected then 1.25 else 1
+                  color:    (selected && iconColor) || color
+
+              TextElement
+                if @viewState.fullScreen
+                  TextStyles.mediumBoldText
+                else
+                  TextStyles.smallBoldText
+                size: wcw: 1, h: TextStyles.mediumBoldText.fontSize
+                animators: :color
+                text: title
+                color: color
+                :textCenterCenter
+
+      !hideDetails && details && Element
+        :parentWidthChildrenHeight
+        :pointerCursor if action
+
+        on: if action then pointerClick: action
+
+        animators:
+          clip: toFrom: true
+          size: toFrom: ww:1, h: 0
+
+        TextElement
+          TextStyles.smallText
+          :parentWidthChildrenHeight
+          color:    TextPalette.black.secondary
+          text:     details
