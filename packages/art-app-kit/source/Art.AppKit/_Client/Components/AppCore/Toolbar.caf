@@ -81,7 +81,7 @@ class Toolbar extends ViewStateComponent
                 color: AppPalette.primary
 
       array {id, icon, title, hidden} in @stacks
-        if @viewSize.x < 768
+        if @viewSize.x < 768 && !commonProps.labelBottom
           title = null
         ToolbarButton
           commonProps
