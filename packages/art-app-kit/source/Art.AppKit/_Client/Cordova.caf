@@ -1,0 +1,119 @@
+import &StandardImport, &Config
+
+startTime = currentSecond()
+
+class Cordova
+
+  @appRatePrompt: =>
+    if global.cordova
+      if global.AppRate
+        @cordovaEvent :appRate:prompt:start
+        global.AppRate.promptForRating false
+        @cordovaEvent :appRate:prompt:startSuccess
+      else
+        @cordovaEvent :appRate:prompt:notLoaded
+
+  @getDeviceInfo: ->
+    if self.device
+      {cordova, model, isVirtual, platform, version, manufacturer} = self.device
+    else if self.cordova
+      throw new Error "" We have cordova, but device isn't ready.
+
+    {}
+      platform:              platform ? "web"
+      platformVirtual:       isVirtual
+      platformModel:         model
+      platformVersion:       version
+      platformManufacturer:  manufacturer
+      cordovaVersion:        cordova
+
+  @appReady: ->
+    if self.navigator && self.navigator.splashscreen
+      timeout 100, -> self.navigator.splashscreen.hide()
+
+  #################
+    Event Logging
+  #################
+  @cordovaEvent: (key, props) ->
+    models.event?.create
+      log "" cordova:#{key}
+      data: merge
+        Cordova.getDeviceInfo()
+        version:    &package.version
+        userAgent:  global.navigator.userAgent
+        upTime:     currentSecond() - startTime | 0
+        props
+
+  #################
+    Init Tasks
+  #################
+  @initMemoryWarning: ->
+    document.addEventListener :memorywarning =>
+      @cordovaEvent :memoryWarning Engine.getCacheInfo()
+      Engine.flushCache()
+
+  # https://github.com/pushandplay/cordova-plugin-apprate
+  @initAppRate: ->
+    if global.AppRate && config extract cordova extract? appRate
+      @cordovaEvent :appRate:loading
+      mergeInto global.AppRate.preferences, appRate,
+        callbacks: merge
+          onRateDialogShow:       -> @cordovaEvent :appRate:prompt:dialogShown
+          onButtonClicked: (buttonIndex) ->
+            switch buttonIndex
+              when 0 then @cordovaEvent :appRate:prompt:clicked:rateItNow
+              when 1 then @cordovaEvent :appRate:prompt:clicked:remindMeLater
+              when 2 then @cordovaEvent :appRate:prompt:clicked:notRightNow
+              else        @cordovaEvent "" appRate:prompt:clicked:button#{buttonIndex}
+
+          appRate.callbacks
+
+
+      @cordovaEvent :appRate:loaded
+    else
+      @cordovaEvent :appRate:notLoaded
+
+  @initDeepLinking: ->
+    global.universalLinks?.subscribe
+      null
+      (eventData) ->
+        {params, path, host, scheme, url} = eventData
+        params = object v in params
+          if v == ""
+            true
+          else v
+
+        log "universalLinks event 1"
+        log universalLinks: eventData
+        models.urlBarState.initFromPathAndParams path, params, true
+        log "universalLinks event done"
+
+  # https://github.com/ionic-team/cordova-plugin-ionic-keyboard
+  @initKeyboard: ->
+    if global.Keyboard
+      console.log "Keyboard cordova plugin detected"
+      focusElement = (msDelay = 0)->
+        if focusedElement = global.canvasElement.focusedElement
+          timeout msDelay, -> focusedElement.scrollOnscreen()
+
+      window.addEventListener :keyboardWillHide -> timeout 250, ->    models.appKitViewState.updateKeyboardVisible false
+      window.addEventListener :keyboardWillShow -> focusElement(250); models.appKitViewState.updateKeyboardVisible true
+      window.addEventListener :keyboardDidHide  ->                    models.appKitViewState.updateKeyboardVisible false
+      window.addEventListener :keyboardDidShow  -> focusElement();    models.appKitViewState.updateKeyboardVisible true
+
+  @_triggerCordovaLoadedEvent: -> @cordovaEvent :loaded
+
+  @_initAfterDeviceReady: ->
+
+    # fire once a day
+    interval secondsPer.day * 1000, @_triggerCordovaLoadedEvent
+    @_triggerCordovaLoadedEvent()
+
+    @initAppRate()
+    @initKeyboard()
+    @initDeepLinking()
+    @initMemoryWarning()
+
+  global.document.addEventListener :deviceready ->
+    log cordova: global.cordova
+    @_initAfterDeviceReady() if global.cordova

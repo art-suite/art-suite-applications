@@ -60,6 +60,11 @@ class Page extends ViewStateComponent
               color:  TextPalette.white.primary
               action: @models.pageStack.pop
 
+      if @props.noScrollChildren
+        Element
+          inFlow: false
+          @props.noScrollChildren
+
       Element
         padding:
           top:    if @isPhone then 0 else @gridSize / 4

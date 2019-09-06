@@ -1,15 +1,42 @@
 import &StandardImport, &ArtBrowserTools
 
+keyboardTimer = new ReschedulableTimer
+
 class AppKitViewState extends ApplicationState
 
-  computeViewState: computeViewState = (viewSize) ->
+  computeViewState: computeViewState = (viewSize, keyboardVisible) ->
+    viewSize        ?= @viewSize
+    keyboardVisible ?= @keyboardVisible
+
+    simpleBrowserInfo = getSimpleBrowserInfo()
+
+    getScreenSize() extract
+      x as screenWidth
+      y as screenHeight
+
+    simpleBrowserInfo extract
+      deviceType
+      nativeApp
+      touch as isTouchScreen
+      os
+
+    if nativeApp
+      if global.Keyboard && !!keyboardVisible != !!global.Keyboard.isVisible
+        # just in case we get events out of order
+        log "set keyboardTimer"
+        keyboardTimer.timeout 250 =>
+          log "keyboardTimer keyboardVisible: #{!!global.Keyboard.isVisible}"
+          @refresh null, !!global.Keyboard.isVisible
+    else
+      if os == :android
+        keyboardVisible = viewSize?.y < .5 * screenHeight
 
     {}
       # core info
       viewSize
-      simpleBrowserInfo =           getSimpleBrowserInfo()
+      simpleBrowserInfo
       notchInfo:                    getNotchInfo()
-      isTouchScreen:                simpleBrowserInfo.touch
+      isTouchScreen
 
       # grid layout
       majorGridSize     =           min 420, viewSize.w
@@ -21,7 +48,7 @@ class AppKitViewState extends ApplicationState
       safeToSuggestedPaddingDelta:  object v, k in safePadding with suggestedPadding[k] - v
 
       # deviceTypes
-      isPhone           =           simpleBrowserInfo extract deviceType == :phone
+      isPhone           =           deviceType == :phone
       isTablet          =           deviceType == :tablet
       isDesktop         =           deviceType == :desktop
 
@@ -41,6 +68,8 @@ class AppKitViewState extends ApplicationState
       narrowLayout:         false
       [deviceLayoutMode]:   true
 
+      keyboardVisible
+
       # button sizes
       smallButtonSize   =           35
       desktopButtonSize =           38
@@ -49,9 +78,14 @@ class AppKitViewState extends ApplicationState
       buttonSize        =           if isDesktop then desktopButtonSize else touchButtonSize
       heightAdjustedButtonSize:     if deviceLayoutMode == :phoneLandscape then smallButtonSize else buttonSize
 
-  @stateFields computeViewState point
-    screen.availWidth
-    screen.availHeight
+  @stateFields computeViewState
+    point
+      screen.availWidth
+      screen.availHeight
+    false
+
+  updateKeyboardVisible: (keyboardVisible) ->
+    @setState @computeViewState null, keyboardVisible
 
   # Use as "on: {} @models.viewState.ready" handler
   ready: ({target:{currentSize}}) -> @setState @computeViewState currentSize

@@ -6,6 +6,7 @@
 .addModules({
   AllFieldSubscriptionsMixin: require('./AllFieldSubscriptionsMixin'),
   Config:                     require('./Config'),
+  Cordova:                    require('./Cordova'),
   Icons:                      require('./Icons'),
   Init:                       require('./init'),
   StandardImport:             require('./StandardImport'),

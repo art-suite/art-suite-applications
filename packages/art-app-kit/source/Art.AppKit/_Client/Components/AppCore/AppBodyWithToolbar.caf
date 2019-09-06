@@ -39,7 +39,7 @@ class AppBodyWithToolbar extends ViewStateComponent
       @ extract safePadding, gridSize, touchButtonSize, toolbarLocation
 
       unless @toolbarHorizontal
-        safePadding
+        {}
       else
         merge
           safePadding

@@ -88,6 +88,7 @@ class MenuEditableText extends ViewStateComponent
           placeholder:  placeholder
           color:        TextPalette.black.primary
           on:
+            focus: ({target}) -> target.parent.scrollOnScreen()
             valueChanged: ({target}) ->
               target.parent.scrollOnScreen()
               @props.onChange? target.value

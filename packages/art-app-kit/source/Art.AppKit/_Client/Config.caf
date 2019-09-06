@@ -4,3 +4,35 @@ class Config extends Configurable
   @defaults
     title: "" Art-App-Kit
     appIconImage: null
+    cordova:
+      appRate: null
+      ##
+        usesUntilPrompt:    3
+        displayAppName:     "My App"
+        inAppReview:        true
+        storeAppURL:
+          ios:              :123456789
+          android:          :market://details?id=com.test.appId
+
+        customLocale:
+          title:                "" Rate %@
+          message:              "" If you enjoy using %@, would you mind taking a moment to rate us? It won't take more than a minute. Thank you for your support!
+          cancelButtonLabel:    "" Not right now
+          laterButtonLabel:     "" Remind me later
+          rateButtonLabel:      "" Rate it now
+
+          yesButtonLabel:       "" Yes!
+          noButtonLabel:        "" Not really
+          appRatePromptTitle:   "" Do you like using %@?
+          feedbackPromptTitle:  "" Would you mind giving us some feedback so we can do better?
+
+        callbacks:
+          handleNegativeFeedback: ->
+
+          onRateDialogShow:       -> @cordovaEvent :appRate:prompt:dialogShown
+          onButtonClicked: (buttonIndex) =>
+            switch buttonIndex
+              when 0 then @cordovaEvent :appRate:prompt:clicked:rateItNow
+              when 1 then @cordovaEvent :appRate:prompt:clicked:remindMeLater
+              when 2 then @cordovaEvent :appRate:prompt:clicked:notRightNow
+              else        @cordovaEvent "" appRate:prompt:clicked:button#{buttonIndex}
