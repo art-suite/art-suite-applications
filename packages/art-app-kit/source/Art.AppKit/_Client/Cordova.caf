@@ -35,8 +35,9 @@ class Cordova
     Event Logging
   #################
   @cordovaEvent: (key, props) ->
+    key = log "" cordova:#{key}
     models.event?.create
-      log "" cordova:#{key}
+      key
       data: merge
         Cordova.getDeviceInfo()
         version:    &package.version
@@ -90,20 +91,28 @@ class Cordova
 
   # https://github.com/ionic-team/cordova-plugin-ionic-keyboard
   @initKeyboard: ->
+    global.initKeyboard = :pending...
     if global.Keyboard
+      global.initKeyboard = :running...
       console.log "Keyboard cordova plugin detected"
       focusElement = (msDelay = 0)->
         if focusedElement = global.canvasElement.focusedElement
-          timeout msDelay, -> focusedElement.scrollOnscreen()
+          timeout msDelay, ->
+            log :keyboardWillFocusElement
+            focusedElement.scrollOnscreen()
 
-      window.addEventListener :keyboardWillHide -> timeout 250, ->    models.appKitViewState.updateKeyboardVisible false
-      window.addEventListener :keyboardWillShow -> focusElement(250); models.appKitViewState.updateKeyboardVisible true
-      window.addEventListener :keyboardDidHide  ->                    models.appKitViewState.updateKeyboardVisible false
-      window.addEventListener :keyboardDidShow  -> focusElement();    models.appKitViewState.updateKeyboardVisible true
+      window.addEventListener :keyboardWillHide -> log :keyboardWillHide ; timeout 500, ->    models.appKitViewState.updateKeyboardVisible false
+      window.addEventListener :keyboardWillShow -> log :keyboardWillShow ; focusElement(500); models.appKitViewState.updateKeyboardVisible true
+      window.addEventListener :keyboardDidHide  -> log :keyboardDidHide  ;                    models.appKitViewState.updateKeyboardVisible false
+      window.addEventListener :keyboardDidShow  -> log :keyboardDidShow  ; focusElement();    models.appKitViewState.updateKeyboardVisible true
+      global.initKeyboard = :done
+    else
+      global.initKeyboard = :skipped
 
   @_triggerCordovaLoadedEvent: -> @cordovaEvent :loaded
 
   @_initAfterDeviceReady: ->
+    global.cordovaSetup = :running...
 
     # fire once a day
     interval secondsPer.day * 1000, @_triggerCordovaLoadedEvent
@@ -113,7 +122,11 @@ class Cordova
     @initKeyboard()
     @initDeepLinking()
     @initMemoryWarning()
+    global.cordovaSetup = :completed2
 
-  global.document.addEventListener :deviceready ->
-    log cordova: global.cordova
-    @_initAfterDeviceReady() if global.cordova
+
+  if global.cordova
+    global.cordovaSetup = :pending1
+    global.document.addEventListener :deviceready ->
+      global.cordovaSetup = :pending2
+      Cordova._initAfterDeviceReady()

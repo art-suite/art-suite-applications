@@ -1,8 +1,53 @@
 import &StandardImport, &MenuLib, {} &MenuTextEdit
 
+class FullPageTextEdit extends ViewStateComponent
+
+  setValue: ->
+    @props.setValue @refs.textInputElement.element.value
+
+  done: ->
+    @setValue()
+    @models.pageStack.pop()
+
+  render: ->
+    log {} @nativeApp, @keyboardCoversScreen
+    &Page
+      @props
+      title: @props.title ? @props.placeholder ? :edit
+      onBack: @setValue
+      noScroll: true
+      Element
+        padding: @gridSize
+        :column
+
+        if @keyboardCoversScreen
+          size: ww: 1, h: @screenHeight * .35
+        else :parentSize
+
+        Element
+          if @keyboardCoversScreen
+            padding: @gridSize
+            draw:
+              radius:   @gridSize / 2
+              fill:     AppPalette.veryLightGrey
+
+          TextInputElement
+            TextStyles.mediumText
+            :parentSize
+            key: :textInputElement
+            type: :textarea
+            placeholder: "" text
+            {placeholder, value} = @props
+
+        &MenuButton
+          icon: :check
+          text: :done
+          action: @done
+
 class MenuEditableText extends ViewStateComponent
   @propFields
     :label :placeholder :locked :allowNewlines :maxLength
+    :fullPageEdit
     maxLines: 1
 
   @stateFields
@@ -22,11 +67,20 @@ class MenuEditableText extends ViewStateComponent
         else '' + value
 
   startEditing: ->
-    @editingInline = true
-    @onNextReady ->
-      @refs.textInputElement.element.focus()
+    if @fullPageEdit
+      @models.pageStack.push
+        component: FullPageTextEdit
+        props: merge
+          @props
+          @state
+          {} @setValue
+
+    else
+      @editingInline = true
       @onNextReady ->
-        @refs.textInputElement.element.selectAll()
+        @refs.textInputElement.element.focus()
+        @onNextReady ->
+          @refs.textInputElement.element.selectAll()
 
   preprocessProps: (props) ->
     if props.value != @props.value || !@state.value
@@ -35,9 +89,12 @@ class MenuEditableText extends ViewStateComponent
     @valueLength = props.value?.length ? 0
     props
 
+  setValue: (value) ->
+    @valueLength = value.length
+    @props.onSave? @value = value
+
   finishEditing: ->
-    target = @refs.textInputElement.element
-    @props.onSave? @value = target.value
+    @setValue @refs.textInputElement.element.value
     @editingInline = false
 
   renderMainText: (value = @value) ->

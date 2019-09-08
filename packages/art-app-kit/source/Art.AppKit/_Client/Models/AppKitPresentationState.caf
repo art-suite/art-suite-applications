@@ -19,6 +19,7 @@ class AppKitPresentationState extends FluxSubscriptionsMixin ApplicationState
       :top
       :right
       # Not used: :left
+      :hidden
     toolbarLocation:    :top
     toolbarHorizontal:  true
 
@@ -33,8 +34,10 @@ class AppKitPresentationState extends FluxSubscriptionsMixin ApplicationState
       key:              :appKitViewState
       updatesCallback:  @_updateFromFluxRecord
 
-  _updateFromFluxRecord: ({data:{deviceLayoutMode}})->
-    @toolbarLocation = switch deviceLayoutMode
+  _updateFromFluxRecord: ({data:{deviceLayoutMode, keyboardVisible}})->
+    @toolbarLocation = if keyboardVisible
+      :hidden
+    else switch deviceLayoutMode
       when :phonePortraitLayout       then :bottom
       when :phoneLandscapeLayout      then :right
       when :wideLayout :narrowLayout  then :top
