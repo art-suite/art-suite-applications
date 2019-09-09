@@ -259,26 +259,8 @@ class MarkdownView extends ViewStateComponent
           Element size: baseMargin * .5
 
         if images?.length > 0
-          array {source, text, link} in images when source
-            el = BitmapElement
-              source: source
-              :fitSizeToParentWidth
-            if present text
-              el = [] el, TextElement
-                TextStyles.smallText
-                :textCenterCenter
-                text: text
-                padding: TextStyles.smallText.fontSize / 4
-
-            if link
-              AppKitButtonWrapper
-                :parentWidthChildrenHeight
-                action: -> open link
-                Element
-                  :column :parentWidthChildrenHeight
-                  el
-            else
-              el
+          array image in images when source
+            &MarkdownImage image
 
         if links?.length
           Element
@@ -287,45 +269,6 @@ class MarkdownView extends ViewStateComponent
             padding: top: @gridSize
             array link in links
               &MarkdownLink link
-
-        # if internalLinkPostIds?.length > 0 && !preview
-        #   if internalLinkPostIds.length > 1
-        #     Element
-        #       :parentWidthChildrenHeight
-        #       :column
-        #       childrenMargins: gridSize
-        #       array postId in internalLinkPostIds
-        #         MarkdownInlinePost {} postId, inTopic: @topic, inPost: post, imageOnly: !includeTags
-        #   else
-        #     Element
-        #       padding:
-        #         top: if out then baseMargin / 2 else 0
-        #         h: effectiveIndent
-        #       size:           :parentWidthChildrenHeight
-        #       childrenLayout: :column
-        #       array postId in internalLinkPostIds
-        #         MarkdownInlinePost {} postId, inTopic: @topic, inPost: post, imageOnly: !includeTags
-
-        # if includeTags && haveTags
-        #   Element
-        #     size: :parentWidthChildrenHeight
-        #     padding:
-        #       top: baseMargin * 1/4
-        #         # if style == :bullet || style == :list
-        #         #   1/4
-        #         # else 1/2
-        #       bottom: if style == :bullet || style == :list then baseMargin / 4 else 0
-        #       h:   effectiveIndent
-
-        #     DisplayTags {}
-        #       tags
-        #       align
-        #       backgroundColor
-        #       foregroundColor
-        #       searchInTopicId
-        #       kimis:            @props.searchKimis
-        #       largeCrossLinks:  true
-        #       fromPostId:       post?.id
 
   render: ->
     @viewState extract gridSize

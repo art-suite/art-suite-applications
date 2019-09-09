@@ -1,0 +1,34 @@
+import &StandardImport
+
+class MarkdownImage extends ViewStateComponent
+
+  render: ->
+    @props extract source, text, link
+
+    el = BitmapElement
+      source: source
+      :fitSizeToParentWidth
+
+    if present text
+      textEl = TextElement
+        TextStyles.smallText
+        :textCenterCenter
+        text:     text
+        padding:  TextStyles.smallText.fontSize / 4
+
+    if link
+      Element
+        :parentWidthChildrenHeight
+        AppKitButtonWrapper
+          :parentWidthChildrenHeight
+          action: -> open link
+          Element
+            :column :parentWidthChildrenHeight
+            el
+            textEl
+
+    else
+      Element
+        :column :parentWidthChildrenHeight
+        el
+        textEl
