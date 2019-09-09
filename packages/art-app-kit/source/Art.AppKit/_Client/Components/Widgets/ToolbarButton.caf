@@ -21,14 +21,14 @@ class ToolbarButton extends ViewStateComponent
 
   renderIcon: ->
     @props extract iconSize, badgeBorder, icon, shadow, iconShadow, iconColor, iconScale = 1, badge, customIcon
+    color = iconColor ? @color
+    size = iconSize ? 25 * iconScale
     []
       customIcon
       ? icon &&
-        Icon
-          icon:       icon
-          size:       iconSize ? 25 * iconScale
+        Icon {}
+          icon, color, size
           animators:  :size :fontSize
-          color:      iconColor ? @color
           shadow:     iconShadow ? shadow
 
       badge > 0 && ActivityBadge
@@ -36,6 +36,19 @@ class ToolbarButton extends ViewStateComponent
         location: xw: .75, yh: .22
         count: badge
         border: badgeBorder
+
+      if @selected && !present @label
+        Element
+          key: :iconUnderline
+          location: xw: .5 yh: .5, y: (size.y ? size) / 2
+          axis: x: .5
+          inFlow: false
+          size: h: 1, ww: 1, w: -10
+          draw: color
+          animators:
+            size:
+              d: .1
+              toFrom: w: 0, h: 1
 
   preprocessProps: (props) ->
     props extract color, dimText, brightText, lightColor
@@ -74,6 +87,7 @@ class ToolbarButton extends ViewStateComponent
 
   @getter
     margin: -> @gridSize / 2
+    label:  -> @props.label ? @props.text
 
   render: ->
     @props extract
@@ -83,12 +97,10 @@ class ToolbarButton extends ViewStateComponent
       lightColor
       tight
       hidden
-      action, disabled, selected, text, label, lightColor, count, badge, labelBottom
+      action, disabled, selected, lightColor, count, badge, labelBottom
 
-    @ extract gridSize, color
+    @ extract gridSize, color, label
     margin = gridSize / 2
-
-    label ||= text
 
     if tight
       size = if labelBottom
