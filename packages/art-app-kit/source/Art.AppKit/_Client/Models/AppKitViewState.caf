@@ -39,7 +39,8 @@ class AppKitViewState extends ApplicationState
       simpleBrowserInfo
       notchInfo:                    getNotchInfo()
       isTouchScreen
-      keyboardCoversScreen: isTouchScreen && simpleBrowserInfo.os == :iOS
+      keyboardCoversScreen: isTouchScreen && simpleBrowserInfo.os == :iOS &&
+        !global.Keyboard # native keyboard plugin stops keyboard from covering screen
 
       # grid layout
       majorGridSize     =           min 420, viewSize.w
