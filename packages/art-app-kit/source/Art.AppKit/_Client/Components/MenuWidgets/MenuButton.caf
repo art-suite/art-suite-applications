@@ -9,6 +9,7 @@ class MenuButton extends ViewStateComponent
       size: ww: 1 h: buttonSize
       animators: :draw :size
       draw: drawButton
+      noFocus: true
 
       @props
 
