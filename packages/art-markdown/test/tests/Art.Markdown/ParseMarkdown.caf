@@ -157,6 +157,9 @@ suite:
 
     parseMarkdownTest "[hi]()"       [] text: 'hi' level: 0 align: :left  style: :paragraph links: [] text: "hi"
 
+  linkImages: ->
+    parseMarkdownTest "[![alt](foo.png)](bar.com)" [] text: '' level: 0 align: :left  style: :paragraph images: [] source: :foo.png text: :alt link: :bar.com
+
   implicitLinks: ->
     parseMarkdownTest "foo.png"                                   [] text: "foo.png"                                  level: 0 align: :left  style: :paragraph links: [] implicit: true source: "foo.png"
     parseMarkdownTest "#foo"                                      [] text: "#foo"                                     level: 0 align: :left  style: :paragraph links: [] implicit: true source: #foo

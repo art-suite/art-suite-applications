@@ -97,6 +97,20 @@ class Lib
   @markdownCodeBlockLineStartRegExp:            /// ^         #{@_markdownCodeBlockDelimiterRegExp.source}
   @markdownCodeOrHeaderBlockLineStartRegExp:    /// ^ (#{@_markdownCodeBlockDelimiterRegExp.source} | \#+\s+[^\s])
   @_findMarkdownCodeBlockDelimiterRegExp:       /// (^|\n\ *) #{@_markdownCodeBlockDelimiterRegExp.source}
+
+  @_markdownLinkBaseRegExp:
+    ///
+      \[ [^\]]* \]
+
+      \(
+
+      [^\ ]*
+
+      \)
+
+  @_markdownImageBaseRegExp:
+    /// !#{@_markdownLinkBaseRegExp.source}
+
   @_findAllMarkdownImageRegExp:
     ///g
       #{findAllUrlsWithOptionalProtocolRegExp.source}
@@ -109,7 +123,13 @@ class Lib
 
       !?
 
-      \[ [^\]]* \]
+      \[
+        (?:
+          #{@_markdownImageBaseRegExp.source}
+          |
+          [^\]]*
+        )
+      \]
 
       \(
 
@@ -121,7 +141,13 @@ class Lib
     ///
       (!)?
 
-      \[ ([^\]]*) \]
+      \[
+        (
+          #{@_markdownImageBaseRegExp.source}
+          |
+          [^\]]*
+        )
+      \]
 
       \(
 
@@ -258,7 +284,9 @@ class Lib
           text
           .replace @_findAllMarkdownImageRegExp, (found) ->
             if subparse = found.match @_subparseMarkdownImageRegExp
-              [__, isImage, text, source] = subMatch = subparse
+              [__, isImage, text, source] = subparse
+              if subsubParse = text.match @_subparseMarkdownImageRegExp
+                [__, isImage, text, source] = subsubParse
               unless isImage
                 text
               ? ''
@@ -271,10 +299,15 @@ class Lib
       links = null
       each found in matches
         if subparse = found.match @_subparseMarkdownImageRegExp
-          [__, isImage, text, source] = subMatch = subparse
+          [__, isImage, text, source] = subparse
+          if subsubParse = text.match @_subparseMarkdownImageRegExp
+            link = source
+            [__, isImage, text, source] = subsubParse
+
           if present(source) || present(text)
             item = {}
             item.source = source  if present source
+            item.link   = link  if present link
             item.text   = text    if present text
             if isImage
               images ?= []
