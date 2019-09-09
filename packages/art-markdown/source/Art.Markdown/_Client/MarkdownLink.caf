@@ -1,0 +1,25 @@
+import &StandardImport
+
+class MarkdownLink extends ViewStateComponent
+
+  render: ->
+    @props extract source, text, backgroundColor
+
+    backgroundColor ||= AppPalette.primary
+
+    unless present text
+      text = source.replace findAllUrlsWithOptionalProtocolRegExp, extractDomain
+
+    AppKitButtonWrapper
+      size: wcw: 1, h: @smallButtonSize
+      action: -> open source
+      radius: 100
+      backgroundColor: backgroundColor
+      draw: WidgetLib.drawButton
+      TextElement
+        TextStyles.smallText
+        :childrenWidthParentHeight
+        :textCenterCenter
+        padding: h: @gridSize
+        text: text
+        color: TextPalette.white.primary

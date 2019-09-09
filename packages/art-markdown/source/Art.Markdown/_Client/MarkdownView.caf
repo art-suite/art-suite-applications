@@ -259,10 +259,34 @@ class MarkdownView extends ViewStateComponent
           Element size: baseMargin * .5
 
         if images?.length > 0
-          array image in images when image.source
-            BitmapElement
-              source: image.source
+          array {source, text, link} in images when source
+            el = BitmapElement
+              source: source
               :fitSizeToParentWidth
+            if present text
+              el = [] el, TextElement
+                TextStyles.smallText
+                :textCenterCenter
+                text: text
+                padding: TextStyles.smallText.fontSize / 4
+
+            if link
+              AppKitButtonWrapper
+                :parentWidthChildrenHeight
+                action: -> open link
+                Element
+                  :column :parentWidthChildrenHeight
+                  el
+            else
+              el
+
+        if links?.length
+          Element
+            :parentWidthChildrenHeight
+            :flow
+            padding: top: @gridSize
+            array link in links
+              &MarkdownLink link
 
         # if internalLinkPostIds?.length > 0 && !preview
         #   if internalLinkPostIds.length > 1

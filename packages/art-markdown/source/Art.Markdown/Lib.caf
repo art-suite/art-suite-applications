@@ -5,6 +5,10 @@ class Lib
   @deMarkdown: (text) =>
     text.replace @_findMarkdownBlockRegExp, ''
 
+  @extractDomain: extractDomain = (url) -> findUrlWithOptionalProtocolRegExp.exec(url)[3]
+  @extractEmail: extractEmail = (text) -> findEmailRegExp.exec(text)[0]
+  @tailUrlsRegexp: tailUrlsRegexp = ///  (\s* (#{findMailtoRegExp.source}|#{findEmailRegExp.source}|#{findAllUrlsWithOptionalProtocolRegExp.source}))+ \s* $
+
   @markdownBlockDefaults:
     align: :left
     level: 0
@@ -268,6 +272,12 @@ class Lib
 
   @parseParagraphText: (text, forHtml) ->
     {images, text, links} = @extractMarkdownImages text
+    text =
+      text
+      .replace tailUrlsRegexp, ''
+      .replace findAllUrlsWithOptionalProtocolRegExp, extractDomain
+      .replace findMailtoRegExp, extractEmail
+
     {}
       images
       links
@@ -383,6 +393,7 @@ class Lib
 
       else
         {text, images, links} = @parseParagraphText p, forHtml
+
         images: images
         text:   text
         links:  links
