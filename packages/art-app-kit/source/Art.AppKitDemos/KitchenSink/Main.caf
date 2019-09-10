@@ -1,9 +1,10 @@
 &ArtAppKit.StyleProps
 
 &ArtAppKit/Client.init {}
-  title:      "" AppKitDemo KitchenSink
-  appPalette: primary:  #f77
-  pages:      &Components/Pages
+  title:        "" AppKitDemo KitchenSink
+  appPalette:   primary:  #f77
+  appNamespace: &namespace
+  pages:        &Components/Pages
   pageStacks: []
     id: :home    icon: :home
     id: :widgets icon: :widgets

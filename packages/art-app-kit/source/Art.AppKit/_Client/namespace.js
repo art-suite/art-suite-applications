@@ -5,5 +5,6 @@ module.exports = require('../namespace').addNamespace(
   'Client',
   class Client extends Neptune.PackageNamespace {}
 );
+require('./ClientLib/namespace');
 require('./Components/namespace');
 require('./Models/namespace');

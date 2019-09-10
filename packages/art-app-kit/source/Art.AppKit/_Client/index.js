@@ -12,5 +12,6 @@
   StandardImport:             require('./StandardImport'),
   ViewStateComponent:         require('./ViewStateComponent')
 });
+require('./ClientLib');
 require('./Components');
 require('./Models');

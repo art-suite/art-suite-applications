@@ -4,6 +4,7 @@ class Config extends Configurable
   @defaults
     title: "" Art-App-Kit
     appIconImage: null
+    appNamespace: null # the root namespace of the app; pass this in to Init (if it isn't automatically being detected)
     cordova:
       appRate: null
       ##
