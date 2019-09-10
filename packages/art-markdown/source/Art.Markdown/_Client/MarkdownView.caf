@@ -259,7 +259,7 @@ class MarkdownView extends ViewStateComponent
           Element size: baseMargin * .5
 
         if images?.length > 0
-          array image in images when source
+          array image in images when image.source
             &MarkdownImage image
 
         if links?.length

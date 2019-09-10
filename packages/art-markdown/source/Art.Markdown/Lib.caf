@@ -7,7 +7,7 @@ class Lib
 
   @extractDomain: extractDomain = (url) -> findUrlWithOptionalProtocolRegExp.exec(url)[3]
   @extractEmail: extractEmail = (text) -> findEmailRegExp.exec(text)[0]
-  @tailUrlsRegexp: tailUrlsRegexp = ///  (\s* (#{findMailtoRegExp.source}|#{findEmailRegExp.source}|#{findAllUrlsWithOptionalProtocolRegExp.source}))+ \s* $
+  # @tailUrlsRegexp: tailUrlsRegexp = ///  (\s* (#{findMailtoRegExp.source}|#{findEmailRegExp.source}|#{findAllUrlsWithOptionalProtocolRegExp.source}))+ \s* $
 
   @markdownBlockDefaults:
     align: :left
@@ -117,13 +117,13 @@ class Lib
 
   @_findAllMarkdownImageRegExp:
     ///g
-      #{findAllUrlsWithOptionalProtocolRegExp.source}
+      # #{findAllUrlsWithOptionalProtocolRegExp.source}
 
-      |
+      # |
 
-      #{hashtagRegexp.source}
+      # #{hashtagRegexp.source}
 
-      |
+      # |
 
       !?
 
@@ -272,11 +272,11 @@ class Lib
 
   @parseParagraphText: (text, forHtml) ->
     {images, text, links} = @extractMarkdownImages text
-    text =
-      text
-      .replace tailUrlsRegexp, ''
-      .replace findAllUrlsWithOptionalProtocolRegExp, extractDomain
-      .replace findMailtoRegExp, extractEmail
+    # text =
+    #   text
+    #   .replace tailUrlsRegexp, ''
+    #   .replace findAllUrlsWithOptionalProtocolRegExp, extractDomain
+    #   .replace findMailtoRegExp, extractEmail
 
     {}
       images
