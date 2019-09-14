@@ -16,7 +16,7 @@ class PromiseHandler extends &LoggingMixin BaseClass
   # OVERRIDABLES
   ####################
   # set handleUrlRegex to match the Urls you want to handle
-  @getter handleUrlRegex: -> null
+  @extendableProperty handleUrlRegex: null
 
   # override for more control over which requests you handle
   canHandleRequest: (request) ->
