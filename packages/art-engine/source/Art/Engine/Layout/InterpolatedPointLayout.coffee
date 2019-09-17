@@ -9,14 +9,19 @@ module.exports = class InterpolatedPointLayout extends PointLayoutBase
   eq: (b) ->
     @layout2.eq b.layout2
 
+  ## constructor TODO???
+  ## This isn't the right answer. It resets the animation to the start, bad!
+  ## If anything, it could flatten the InterpolatedPointLayout to the current, interpolated value,
+  ## However, that would make it not dynamic if the input parent or child size are changing at the same time.
+  # while layout1 instanceof InterpolatedPointLayout
+  #   {layout1} = layout1
+
+  # if layout2 instanceof InterpolatedPointLayout
+  #   log {@layout2}
+  #   throw new Error "InterpolatedPointLayout - to-layout should not be InterpolatedPointLayouts!"
+
   constructor: (layout1, layout2, p)->
     super
-    while layout1 instanceof InterpolatedPointLayout
-      {layout1} = layout1
-
-    if layout2 instanceof InterpolatedPointLayout
-      log {@layout2}
-      throw new Error "InterpolatedPointLayout - to-layout should not be InterpolatedPointLayouts!"
 
     @layout1 = layout1
     @layout2 = layout2
