@@ -293,6 +293,11 @@ defineModule module, class Element extends ElementDrawMixin ElementDrawAreaMixin
       default: 0
       postSetter: -> @_locationLayoutDisabled = false
 
+    ###
+    2019-9-21 Idea:
+      rename childrenLayout > layout
+      rename inFlow > inLayout
+    ###
     childrenLayout:         default: null,                  validate:   (v) -> v == null || v == "flow" || v == "column" || v == "row"
 
     childrenAlignment:      default: point0,                preprocess: (v) -> point v
