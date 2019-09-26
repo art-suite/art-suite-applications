@@ -34,8 +34,8 @@ class AppKitPresentationState extends FluxSubscriptionsMixin ApplicationState
       key:              :appKitViewState
       updatesCallback:  @_updateFromFluxRecord
 
-  _updateFromFluxRecord: ({data:{deviceLayoutMode, keyboardVisible}})->
-    @toolbarLocation = if keyboardVisible
+  _updateFromFluxRecord: ({data:{deviceLayoutMode, keyboardVisible, simpleBrowserInfo}})->
+    @toolbarLocation = if keyboardVisible && simpleBrowserInfo?.deviceType == :phone
       :hidden
     else switch deviceLayoutMode
       when :phonePortraitLayout       then :bottom
