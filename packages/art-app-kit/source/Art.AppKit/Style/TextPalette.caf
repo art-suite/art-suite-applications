@@ -6,6 +6,7 @@ class TextPalette extends HotStyleProps
     softPrimary:      rgbColor #000a
     secondary:        rgbColor #0008
     tertiary:         rgbColor #0005
+    quaternary:       rgbColor #0002
     barely:           rgbColor #0001
     disabled:         rgbColor #0004
     opaquePrimary:    rgbColor #2
@@ -17,6 +18,7 @@ class TextPalette extends HotStyleProps
     softPrimary:      rgbColor #fffb
     secondary:        rgbColor #fff8
     tertiary:         rgbColor #fff5
+    quaternary:       rgbColor #fff2
     barely:           rgbColor #fff1
     disabled:         rgbColor #fff4
     opaquePrimary:    rgbColor #e
