@@ -1,4 +1,4 @@
 &ArtAppKit/Client.init {}
   title:      :Art.AppKitDemo.Minimum
-  pages:      &namespace
+  pages:      {} &Home
   pageStacks: [] id: :home

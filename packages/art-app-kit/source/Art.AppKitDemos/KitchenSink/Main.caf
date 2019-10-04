@@ -2,12 +2,12 @@
 
 &ArtAppKit/Client.init {}
   title:        "" AppKitDemo KitchenSink
-  appPalette:   primary:  #f77
-  appNamespace: &namespace
+  # appPalette:   primary:  #f77
+  # appNamespace: &namespace
   pages:        &Components/Pages
   pageStacks: []
     id: :home    icon: :home
-    id: :widgets icon: :widgets
+    # id: :widgets icon: :widgets
 
   ## DEFAULTS
     pageStacks: []

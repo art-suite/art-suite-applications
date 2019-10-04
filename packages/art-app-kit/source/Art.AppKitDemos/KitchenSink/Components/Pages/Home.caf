@@ -19,9 +19,6 @@ class Home extends ViewStateComponent
             action: ->
               @models.pageStack.push :Widgets
 
-              # @models.pageStack.push
-              #   component: &Widgets
-
           MenuMarkdown
             text:
               """
