@@ -80,6 +80,23 @@ class PageStack extends ApplicationState
         currentPageStackId
         state[currentPageStackId].slice 0, -1
 
+  ## popTo
+    IN: tester: (stackEntry) -> boolean
+      tester returns true if stackEntry is the
+      page we should stop at and keep.
+  popTo: (tester) ->
+    @setState (state) ->
+      state extract currentPageStackId
+      currentStack = array state[currentPageStackId]
+      until currentStack.length == 1 || tester peek currentStack
+        currentStack.pop()
+
+      objectWith
+        state
+        currentPageStackId
+        currentStack
+
+
   #################
     PRIVATE
   #################
@@ -90,5 +107,6 @@ class PageStack extends ApplicationState
       throw new Error "" component not found for stackEntry: #{formattedInspect stackEntry}
 
     merge stackEntry, {}
+      id:     lowerCamelCase component.class.name
       component
-      title: stackEntry.title ? getComponentTitle component
+      title:  stackEntry.title ? getComponentTitle component
