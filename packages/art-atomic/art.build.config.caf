@@ -1,0 +1,10 @@
+target: node: true
+package:
+  description: "atomic data-types such as Color, Point, Rectangle and Matrix"
+
+webpack:
+  common: {}
+  targets:
+    index: {}
+    test: target: "web"
+    perf: target: "web"
