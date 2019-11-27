@@ -9,6 +9,6 @@ webpack:
 package:
   description: "See what ArtSuite can do."
   dependencies:
-    art-suite:            :git://github.com/imikimi/art-suite
-    art-color-extractor:  :git://github.com/imikimi/art-color-extractor
+    art-suite:            :*
+    art-color-extractor:  :*
     tracking:             :^1.1.3
