@@ -56,8 +56,8 @@ defineModule module, class FluxComponent extends FluxSubscriptionsMixin Componen
 
   # @Subscriptions does a lot.
   # Please see the docs: https://github.com/imikimi/art-flux/wiki
-  @subscriptions: ->
-    for arg in compactFlatten arguments
+  @subscriptions: (args...) ->
+    for arg in compactFlatten args
       if isPlainObject subscriptionMap = arg
 
         for stateField, value of subscriptionMap
