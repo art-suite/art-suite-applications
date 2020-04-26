@@ -646,7 +646,7 @@ defineModule module, -> class Component extends PropFieldsMixin StateFieldsMixin
     VirtualNode.currentlyRendering = @
     Component.resetCreatedComponents()
 
-    log "render component: #{@className}" if artReactDebug
+    log "render #{Component.rendered}, component: #{@className}" if artReactDebug
 
     ret = @render()
     throw new Error "#{@className}: render must return a VirtualNode. Got: #{inspect ret}" unless ret instanceof VirtualNode
