@@ -1,4 +1,4 @@
-{objectWithout, log, isPlainObject, Promise} = require 'art-foundation'
+{isFunction, objectWithout, log, isPlainObject, Promise} = require 'art-foundation'
 Engine = require 'art-engine'
 React = require "../index"
 {ElementFactory, Element, CanvasElement, FullScreenApp} = Engine
@@ -70,7 +70,12 @@ React.initArtReactApp = (options) ->
   options.title ||= MainComponent.getName()
 
   FullScreenApp.init options
-  .then -> Promise.resolve prepare
+  .then ->
+    Promise.then ->
+      if isFunction prepare
+        prepare()
+      else prepare
+
   .then -> MainComponent.instantiateAsTopComponent MainComponentProps
   .catch (error) ->
     log.error "Art.React.initArtReactApp failed", error
