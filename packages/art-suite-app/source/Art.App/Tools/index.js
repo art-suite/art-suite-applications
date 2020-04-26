@@ -9,6 +9,7 @@
   DescribeTableSchema:  require('./DescribeTableSchema'),
   DiffTableSchema:      require('./DiffTableSchema'),
   InitializePipelines:  require('./InitializePipelines'),
+  JsonizeArtConfig:     require('./JsonizeArtConfig'),
   ListPipelines:        require('./ListPipelines'),
   ListTables:           require('./ListTables'),
   LoadTestData:         require('./LoadTestData'),

@@ -25,7 +25,7 @@ action: ({args:[pipelineName]}) ->
           if 0 < objectKeyCount removed
             "#{pipelineName}-deleteIndexes": deletes: removed
       else {}
-        message: "There are indexes that need updating."
+        message: "There are no indexes that need updating."
         pipeline.createTableParams
 
   else unless confirm == "confirmed"
