@@ -44,7 +44,7 @@ class MyComponent extends PointerActionsMixin Component
     @svg = svg = @refs.textInput.element.value
     @error = null
     Promise.then ->
-      @encoded =
+      @encoded = global.canvasPathExample =
         svgToCanvasPath svg
         .normalize()
       .xbd.toXbd()
@@ -54,18 +54,13 @@ class MyComponent extends PointerActionsMixin Component
       timeout 5000, @clearError
       log {error}
 
-  renderIconSet: ->
-    &ArtRestClient.getArrayBuffer "" /assets/exampleIconSet.cpf
-    .then (cpf) ->
-      @encoded = decodeCpf cpf
-
   loadCpfFile: ->
     &ArtFoundation.Browser.File.request accept: "*"
     .then (files) ->
       readFileAsArrayBuffer files[0]
       .then (ab) ->
         log {ab}
-        @encoded = decodeCpf binary ab
+        @encoded = decodeCpf ab
 
 
 
@@ -86,9 +81,6 @@ class MyComponent extends PointerActionsMixin Component
           &Button
             text: "convert svg"
             action: @drawSvg
-          &Button
-            text: "exampleIconSet.cpf"
-            action: @renderIconSet
           &Button
             text: "select cpf file"
             action: @loadCpfFile
