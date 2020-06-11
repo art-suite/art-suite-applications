@@ -14,7 +14,7 @@ npm:
     xmldom: :^0.1.27
 
   bin:
-    abc: :./cpf-tool
+    cpf-tool: :./cpf-tool
 
 webpack:
   # common properties are merged into each target's properties
