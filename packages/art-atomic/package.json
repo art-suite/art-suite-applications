@@ -43,7 +43,7 @@
     "testInBrowser": "webpack-dev-server --progress --env.devServer",
     "watch": "npm-watch"
   },
-  "version": "1.27.6",
+  "version": "1.27.7",
   "watch": {
     "build": {
       "extensions": "caf,coffee",
