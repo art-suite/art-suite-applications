@@ -1,3 +1,0 @@
-&ArtStandardLib.mergeWithSelf
-  &ArtAtomic
-  test: (args...) -> global.test args...

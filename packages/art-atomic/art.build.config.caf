@@ -1,6 +1,19 @@
+import &ArtStandardLib
 target: node: true
-package:
-  description: "atomic data-types such as Color, Point, Rectangle and Matrix"
+package: (abcPackage) ->
+  sourceDir = :source-source
+  merge &package,
+    scripts: merge &package.scripts,
+      test: "jest"
+      build:
+        """
+          coffee --output source --compile --map #{sourceDir} &
+          caf -p -c #{sourceDir} -o source &
+          wait
+          nn -sq
+
+      build-clean:  "" rm -rf source/*; npm run build
+      watch:        "" npm-watch
 
 webpack:
   common: {}

@@ -2,10 +2,12 @@
   "author": "Shane Brinkman-Davis Delamore, Imikimi LLC",
   "bugs": "https:/github.com/art-suite/art-atomic/issues",
   "dependencies": {
-    "art-build-configurator": "*"
+    "art-standard-lib": "^1.69.4"
   },
   "description": "atomic data-types such as Color, Point, Rectangle and Matrix",
   "devDependencies": {
+    "art-build-configurator": "*",
+    "jest": "^26.1.0",
     "art-testbench": "*",
     "case-sensitive-paths-webpack-plugin": "^2.2.0",
     "chai": "^4.2.0",
@@ -24,6 +26,9 @@
     "webpack-stylish": "^0.1.8"
   },
   "homepage": "https://github.com/art-suite/art-atomic",
+  "jest": {
+    "testEnvironment": "node"
+  },
   "license": "ISC",
   "name": "art-atomic",
   "repository": {
@@ -31,10 +36,21 @@
     "url": "https://github.com/art-suite/art-atomic.git"
   },
   "scripts": {
-    "build": "webpack --progress",
+    "build": "coffee --output source --compile --map source-source &\ncaf -p -c source-source -o source &\nwait\nnn -sq",
+    "build-clean": "rm -rf source/*; npm run build",
     "start": "webpack-dev-server --hot --inline --progress --env.devServer",
-    "test": "nn -s;mocha -u tdd",
-    "testInBrowser": "webpack-dev-server --progress --env.devServer"
+    "test": "jest",
+    "testInBrowser": "webpack-dev-server --progress --env.devServer",
+    "watch": "npm-watch"
   },
-  "version": "1.27.6"
+  "version": "1.27.6",
+  "watch": {
+    "build": {
+      "extensions": "caf,coffee",
+      "patterns": [
+        "source-source"
+      ],
+      "quiet": false
+    }
+  }
 }
