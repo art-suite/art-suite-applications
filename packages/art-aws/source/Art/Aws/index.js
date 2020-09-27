@@ -10,6 +10,7 @@
   Elasticsearch:     require('./Elasticsearch'),
   S3:                require('./S3'),
   Sqs:               require('./Sqs'),
+  StandardImport:    require('./StandardImport'),
   StreamlinedSqsApi: require('./StreamlinedSqsApi')
 });
 require('./StreamlinedDynamoDbApi');

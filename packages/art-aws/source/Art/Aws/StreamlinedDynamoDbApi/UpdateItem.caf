@@ -1,49 +1,39 @@
-{
-  lowerCamelCase, wordsArray, isPlainObject, log, compactFlatten
-  isString, compactFlatten, deepEachAll, uniqueValues
-  isNumber
-  merge
-} = require 'art-standard-lib'
+import &StandardImport
 
-TableApiBaseClass = require './TableApiBaseClass'
+class UpdateItem extends &TableApiBaseClass
 
-module.exports = class UpdateItem extends TableApiBaseClass
-  ###
-  IN: params:
-    table:                  string (required)
-    key:
-    item/set:               object(fields -> values): set ()
-    add:                    object(fields -> values): add value to existing value (or 0, if adding a number) (using UpdateExpression's 'ADD' action)
-    defaults/setDefault:    object(fields -> values): set if not present (using UpdateExpression's 'SET' and 'if_not_exists')
-
-  ###
-  _translateParams: (params) =>
+  ##
+    IN: params:
+      table:                  string (required)
+      key:
+      item/set:               object(fields -> values): set ()
+      add:                    object(fields -> values): add value to existing value (or 0, if adding a number) (using UpdateExpression's 'ADD' action)
+      defaults/setDefault:    object(fields -> values): set if not present (using UpdateExpression's 'SET' and 'if_not_exists')
+  _translateParams: (params) ->
     @_translateKey params
     @_translateUpdateExpression params
     @_translateOptionalParams params
     @_target
 
-  ###
-  item: plainObject
-    # equivelent to updates: myAttr: set: myValue
-    # for myAttr, myValue of plainObject
-  OR
+  ##
+    item: plainObject
+      # equivelent to updates: myAttr: set: myValue
+      # for myAttr, myValue of plainObject
+    OR
 
-  updates:
-    attributeName: set: myValue
+    updates:
+      attributeName: set: myValue
 
-    myNumberAttr: add: 10 # adds 10 (0 is the default initial value if not already set)
-    mySetAttr:    add: <set> # sets mySetAttr to the merged sets
+      myNumberAttr: add: 10 # adds 10 (0 is the default initial value if not already set)
+      mySetAttr:    add: <set> # sets mySetAttr to the merged sets
 
-    attributeName: delete: # delete an element from a set
-    attributeName: "remove" # remove the attribute
-  ###
-  _translateUpdateExpression: (params) =>
-    {item, set, data, add, remove, setDefault, defaults} = params
+      attributeName: delete: # delete an element from a set
+      attributeName: "remove" # remove the attribute
+  _translateUpdateExpression: ({item, set, data, add, remove, setDefault, defaults}) ->
     item = merge item, set, data
     defaults = merge setDefault, defaults
 
-    actions = for attributeName, attributeValue of item when attributeValue != undefined
+    actions = array attributeValue, attributeName in item when attributeValue != undefined
       uniqueId = @_getNextUniqueExpressionAttributeId @_target
       attributeAlias = "#attr#{uniqueId}"
       valueAlias = ":val#{uniqueId}"
@@ -51,7 +41,7 @@ module.exports = class UpdateItem extends TableApiBaseClass
       @_addExpressionAttributeValue valueAlias, attributeValue
       "#{attributeAlias} = #{valueAlias}"
 
-    setDefaultActions = for attributeName, attributeValue of defaults when attributeValue != undefined
+    setDefaultActions = array attributeValue, attributeName in defaults when attributeValue != undefined
       uniqueId = @_getNextUniqueExpressionAttributeId @_target
       attributeAlias = "#attr#{uniqueId}"
       valueAlias = ":val#{uniqueId}"
@@ -59,7 +49,7 @@ module.exports = class UpdateItem extends TableApiBaseClass
       @_addExpressionAttributeValue valueAlias, attributeValue
       "#{attributeAlias} = if_not_exists(#{attributeAlias}, #{valueAlias})"
 
-    addActions = for attributeName, attributeValue of add || {} when attributeValue != undefined
+    addActions = array attributeValue, attributeName in add when attributeValue != undefined
       uniqueId = @_getNextUniqueExpressionAttributeId @_target
       attributeAlias = "#attr#{uniqueId}"
       valueAlias = ":val#{uniqueId}"
@@ -67,7 +57,7 @@ module.exports = class UpdateItem extends TableApiBaseClass
       @_addExpressionAttributeValue valueAlias, attributeValue
       "#{attributeAlias} #{valueAlias}"
 
-    removeAttributes = for attributeName in remove || []
+    removeAttributes = array attributeName in remove
       uniqueId = @_getNextUniqueExpressionAttributeId @_target
       attributeAlias = "#attr#{uniqueId}"
       @_addExpressionAttributeName attributeAlias, attributeName
