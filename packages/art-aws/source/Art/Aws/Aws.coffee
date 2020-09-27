@@ -4,6 +4,7 @@ if isNode
   # prevent webpack from including Server code
   nodeOnlyRequire = eval 'require'
   global.AWS = nodeOnlyRequire 'aws-sdk'
+
 else
   require '../../../Client'
 
@@ -16,9 +17,8 @@ unless self.AWS
       > require 'art-aws/Client'
       > require 'art-aws/Server'
     """
+
 module.exports = [
   config: require('./Config').config
   require './DynamoDb'
-  package: _package = require "art-aws/package.json"
-  version: _package.version
 ]

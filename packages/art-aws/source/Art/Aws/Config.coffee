@@ -1,4 +1,5 @@
-{merge, log, objectHasKeys, formattedInspect, defineModule, select, newObjectFromEach, mergeInto, Configurable} = require 'art-foundation'
+{merge, log, objectHasKeys, formattedInspect, defineModule, select, newObjectFromEach, mergeInto} = require 'art-standard-lib'
+{Configurable} = require 'art-config'
 
 defineModule module, class Config extends Configurable
   @defaults
@@ -32,10 +33,10 @@ defineModule module, class Config extends Configurable
     es: "elasticsearch"
 
   ###
-  Search order:
-    @config[service].credentials
-    @config[awsServiceToConfigNameMap[service]].credentials
-    @config.credentials
+    Search order:
+      @config[service].credentials
+      @config[awsServiceToConfigNameMap[service]].credentials
+      @config.credentials
   ###
   @getAwsCredentials: (service) =>
     @getAwsServiceConfig(service)?.credentials ||

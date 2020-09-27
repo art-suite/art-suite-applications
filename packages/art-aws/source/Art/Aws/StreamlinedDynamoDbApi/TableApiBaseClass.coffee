@@ -1,4 +1,3 @@
-Foundation = require 'art-foundation'
 {
   log
   lowerCamelCase, wordsArray
@@ -11,7 +10,7 @@ Foundation = require 'art-foundation'
   upperCamelCase
   compact
   formattedInspect
-} = Foundation
+} = require 'art-standard-lib'
 
 {apiConstantsMap} = require './Common'
 

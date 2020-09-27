@@ -16,8 +16,10 @@ Test:
     region:             'us-east-1'
 
     dynamoDb:
-      endpoint:         'http://localhost:1337/localhost:8081'
+      endpoint:         'http://localhost:8081'
 
+    # requires a real SQS queue for testing; tests are very light, so it shoudl be free or near-free
     sqs:
       accessKeyId:      'sqs-blah'
       secretAccessKey:  'sqs-blahblah'
+      queueUrl:         :https://sqs.us-east-1.amazonaws.com/123123123123/YourTestQueue

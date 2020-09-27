@@ -1,4 +1,4 @@
-import &ArtStandardLib, Neptune.Art.Aws
+import &ArtStandardLib, &ArtAws
 suite: ->
   test :basics ->
     assert.isClass Aws4RestClient

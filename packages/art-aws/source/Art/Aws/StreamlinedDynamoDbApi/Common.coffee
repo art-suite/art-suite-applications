@@ -1,4 +1,3 @@
-Foundation = require 'art-foundation'
 {
   log
   lowerCamelCase, wordsArray
@@ -7,7 +6,7 @@ Foundation = require 'art-foundation'
   isPlainObject
   isNumber
   isBoolean
-} = Foundation
+} = require 'art-standard-lib'
 
 module.exports = class Common
 

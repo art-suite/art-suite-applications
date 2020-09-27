@@ -34,7 +34,7 @@ suite: ->
         Promise.resolve deleteCount
 
   sqs = null
-  {queueUrl} = Neptune.Art.Aws.config.sqs
+  {queueUrl} = &ArtAws.config.sqs
   setup ->
     sqs = new Sqs
 

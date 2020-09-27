@@ -1,24 +1,21 @@
-{log, defineModule} = Neptune.Art.Foundation
-{PutItem} = Neptune.Art.Aws.StreamlinedDynamoDbApi
+import &StandardImport
+{PutItem} = &ArtAws.StreamlinedDynamoDbApi
 
-defineModule module, suite: ->
+suite: ->
   test "item required", ->
     assert.throws -> new PutItem()._translateItem {}
 
   test "item: {}", ->
-    assert.eq(
+    assert.eq
       new PutItem()._translateItem item: {}
       Item: {}
-    )
 
   test "item: foo: 123", ->
-    assert.eq(
+    assert.eq
       new PutItem()._translateItem item: foo: 123
       Item: foo: N: "123"
-    )
 
   test "item: foo: 'bar'", ->
-    assert.eq(
+    assert.eq
       new PutItem()._translateItem item: foo: 'bar'
       Item: foo: S: "bar"
-    )

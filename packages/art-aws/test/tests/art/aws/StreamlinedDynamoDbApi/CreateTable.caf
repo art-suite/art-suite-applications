@@ -1,4 +1,4 @@
-import &ArtSuite/Node, Neptune.Art.Aws.StreamlinedDynamoDbApi
+import &ArtSuite/Node, &ArtAws.StreamlinedDynamoDbApi
 
 translateTest = (method, input, output) ->
   test "#{method} #{formattedInspect input}", ->

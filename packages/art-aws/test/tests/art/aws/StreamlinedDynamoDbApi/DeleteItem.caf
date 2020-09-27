@@ -1,7 +1,7 @@
-{log, defineModule} = Neptune.Art.Foundation
-{DeleteItem} = Neptune.Art.Aws.StreamlinedDynamoDbApi
+import &StandardImport
+{DeleteItem} = &ArtAws.StreamlinedDynamoDbApi
 
-defineModule module, suite: ->
+suite: ->
   test "key required", ->
     assert.throws -> new DeleteItem().translateParams tableName: "foobar"
 

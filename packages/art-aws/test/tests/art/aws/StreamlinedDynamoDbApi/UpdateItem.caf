@@ -1,7 +1,7 @@
-{log, defineModule} = Neptune.Art.Foundation
-{UpdateItem} = Neptune.Art.Aws.StreamlinedDynamoDbApi
+import &StandardImport
+{UpdateItem} = &ArtAws.StreamlinedDynamoDbApi
 
-defineModule module, suite:
+suite:
   basic: ->
     test "item required", ->
       assert.throws -> new UpdateItem()._translateItem {}

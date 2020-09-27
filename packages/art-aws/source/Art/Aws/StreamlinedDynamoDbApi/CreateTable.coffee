@@ -1,8 +1,7 @@
-Foundation = require 'art-foundation'
 {
   lowerCamelCase, wordsArray, isPlainObject, log, compactFlatten
   isString, compactFlatten, deepEachAll, uniqueValues
-} = Foundation
+} = require 'art-standard-lib'
 
 TableApiBaseClass = require './TableApiBaseClass'
 
