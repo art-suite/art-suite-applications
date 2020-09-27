@@ -14,7 +14,7 @@ suite:
         TableName:             "foo"
         AttributeDefinitions:  [AttributeName: "id", AttributeType: "S"]
         KeySchema:             [AttributeName: "id", KeyType: "HASH"]
-        ProvisionedThroughput: ReadCapacityUnits: 1, WriteCapacityUnits: 1
+        BillingMode: :PAY_PER_REQUEST
 
     test "new CreateTable().translateParams() override defaults", ->
       assert.eq
@@ -27,6 +27,7 @@ suite:
         TableName:             "foo"
         AttributeDefinitions:  [AttributeName: "myKey", AttributeType: "S"]
         KeySchema:             [AttributeName: "myKey", KeyType: "HASH"]
+        BillingMode: :PROVISIONED
         ProvisionedThroughput: ReadCapacityUnits: 10, WriteCapacityUnits: 1
 
     test 'createTable regression - localIndexes', ->
@@ -58,9 +59,7 @@ suite:
           {AttributeName: "chatRoom", AttributeType: "S"}
           {AttributeName: "id", AttributeType: "S"}
 
-        ProvisionedThroughput:
-          ReadCapacityUnits:  1
-          WriteCapacityUnits: 1
+        BillingMode: :PAY_PER_REQUEST
 
     test 'createTable regression', ->
       assert.eq
@@ -81,9 +80,6 @@ suite:
             {AttributeName: "createdAt", KeyType:       "RANGE"}
 
           Projection:            ProjectionType: "ALL"
-          ProvisionedThroughput:
-            ReadCapacityUnits:  1
-            WriteCapacityUnits: 1
 
         KeySchema: []
           AttributeName: "id"
@@ -94,10 +90,7 @@ suite:
           {AttributeName: "createdAt", AttributeType: "N"}
           {AttributeName: "id", AttributeType: "S"}
 
-        ProvisionedThroughput:
-          ReadCapacityUnits:  1
-          WriteCapacityUnits: 1
-
+        BillingMode: :PAY_PER_REQUEST
 
   translateProvisioning: ->
     test "_translateProvisioning() has defaults", ->
@@ -202,7 +195,6 @@ suite:
             KeyType:       "HASH"
 
           Projection:            ProjectionType: "ALL"
-          ProvisionedThroughput: ReadCapacityUnits: 1, WriteCapacityUnits: 1
 
     translateTest
       :_translateGlobalIndexes
@@ -218,7 +210,6 @@ suite:
           KeyType:       "HASH"
 
         Projection:            ProjectionType: "KEYS_ONLY"
-        ProvisionedThroughput: ReadCapacityUnits: 1, WriteCapacityUnits: 1
 
     test "_translateGlobalIndexes globalIndexes: foo:'hashKey/rangeKey'", ->
       assert.eq
@@ -234,8 +225,6 @@ suite:
               KeyType:       "RANGE"
 
           Projection:            ProjectionType: "ALL"
-          ProvisionedThroughput: ReadCapacityUnits: 1, WriteCapacityUnits: 1
-
 
     test "_translateGlobalIndexes simplest", ->
       assert.eq
@@ -247,7 +236,7 @@ suite:
           IndexName:             "myIndexName"
           KeySchema:             [AttributeName: "id", KeyType: "HASH"]
           Projection:            ProjectionType: "ALL"
-          ProvisionedThroughput: ReadCapacityUnits: 1, WriteCapacityUnits: 1
+          # ProvisionedThroughput: ReadCapacityUnits: 1, WriteCapacityUnits: 1
 
 
     test "_translateGlobalIndexes custom key", ->
@@ -261,7 +250,7 @@ suite:
           IndexName:             "myIndexName"
           KeySchema:             [AttributeName: "myHashKeyName", KeyType: "HASH"]
           Projection:            ProjectionType: "ALL"
-          ProvisionedThroughput: ReadCapacityUnits: 1, WriteCapacityUnits: 1
+          # ProvisionedThroughput: ReadCapacityUnits: 1, WriteCapacityUnits: 1
 
 
     test "_translateGlobalIndexes everything", ->
@@ -285,7 +274,6 @@ suite:
             IndexName:             "myFirstIndexName"
             KeySchema:             [AttributeName: "id", KeyType: "HASH"]
             Projection:            ProjectionType: "ALL"
-            ProvisionedThroughput: ReadCapacityUnits: 1, WriteCapacityUnits: 1
 
           IndexName:             "myIndexName"
           KeySchema: []
@@ -293,7 +281,6 @@ suite:
             {} AttributeName: "myRangeKeyName", KeyType: "RANGE"
 
           Projection:            ProjectionType: "KEYS_ONLY", NonKeyAttributes: ["myNumberAttrName", "myBinaryAttrName"]
-          ProvisionedThroughput: ReadCapacityUnits: 5, WriteCapacityUnits: 5
 
   translateLocalIndexes: ->
     test "_translateLocalIndexes()", ->
