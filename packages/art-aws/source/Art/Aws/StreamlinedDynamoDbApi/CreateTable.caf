@@ -65,17 +65,18 @@ class CreateTable extends &TableApiBaseClass
   _translateKey: (params, target = {}) ->
     keySchema = params.key || params.keySchema || id: 'hash'
 
-    target.KeySchema = if isPlainObject keySchema
-      array v, k in keySchema
-        AttributeName:  k
-        KeyType:        @_normalizeConstant v
-    else if isString keySchema
-      [hashKeyField, rangeKeyField] = keySchema.split "/"
+    target.KeySchema =
+      if isPlainObject keySchema
+        array v, k in keySchema
+          AttributeName:  k
+          KeyType:        @_normalizeConstant v
 
-      compactFlatten [
-        {AttributeName: hashKeyField, KeyType: 'HASH'}
-        {AttributeName: rangeKeyField, KeyType: 'RANGE'} if rangeKeyField
-      ]
+      else if isString keySchema
+        [hashKeyField, rangeKeyField] = keySchema.split "/"
+
+        compactFlatten []
+          {AttributeName: hashKeyField,   KeyType: 'HASH'}
+          {AttributeName: rangeKeyField,  KeyType: 'RANGE'} if rangeKeyField
 
     array {AttributeName} in target.KeySchema
       @_requiredAttributes[AttributeName] = true
@@ -113,7 +114,7 @@ class CreateTable extends &TableApiBaseClass
         array indexProps, indexName in globalIndexes
           _target = IndexName: indexName
           if isString indexProps
-            @_translateKey key: indexProps, _target
+            @_translateKey {key: indexProps}, _target
           else
             @_translateKey indexProps, _target
           @_translateProjection indexProps, _target
@@ -140,7 +141,7 @@ class CreateTable extends &TableApiBaseClass
         array indexProps, indexName in localIndexes
           _target = IndexName: indexName
           if isString indexProps
-            @_translateKey key: indexProps, _target
+            @_translateKey {key: indexProps}, _target
           else
             @_translateKey indexProps, _target
           @_translateProjection indexProps, _target
