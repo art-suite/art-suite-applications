@@ -185,9 +185,6 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
       @_artEryToDynamoDbRequest request, then: (params) =>
         @dynamoDb.putItem params
         .then -> request.data
-        .tapCatch (error) ->
-          log DynamoDbPipeline_create: {error, request}
-
 
     ###
     IN: response.props:
