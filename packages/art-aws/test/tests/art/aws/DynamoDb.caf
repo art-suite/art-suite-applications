@@ -1,0 +1,273 @@
+import &StandardImport
+
+testTableName = :fooBarTestTable
+
+dynamoDb = null
+setupForDynamoDbTests = ->
+  dynamoDb = new DynamoDb
+
+  dynamoDb.listTables()
+  .then ({TableNames}) ->
+    list = array table in TableNames
+      if table == testTableName
+        # log "tests/Art.Ery.Aws.DynamoDb.live: Deleting test table '#{testTableName}'"
+        dynamoDb.deleteTable TableName: table
+      # else
+      #   log "NOT deleting non-test-table: #{table}"
+    Promise.all list
+
+chatRoomId = "xyz456"
+createItems = ->
+  Promise.all [
+    dynamoDb.putItem table: testTableName, item: chatRoom: chatRoomId, id: 1, message: "Hello!", createdAt: 400
+    dynamoDb.putItem table: testTableName, item: chatRoom: chatRoomId, id: 2, message: "world!", createdAt: 300
+  ]
+
+createTable = ->
+  dynamoDb.createTable
+    table: testTableName
+    globalIndexes: chatsByChatRoomCreatedAt: "chatRoom/createdAt"
+    attributes:
+      id: "number"
+      chatRoom:  "string"
+      createdAt: "number"
+    key: "chatRoom/id"
+  .then (result) -> createItems()
+
+suite: "real requests to dynamoDb":
+  basics: ->
+    @timeout 10000
+    setup setupForDynamoDbTests
+
+    test "listTables", ->
+      dynamoDb.listTables()
+      .then (tables) ->
+        assert.eq true, isPlainArray tables.TableNames
+
+
+  tableOperations: ->
+    @timeout 10000
+    setup setupForDynamoDbTests
+
+    test "createTable with minimum props", ->
+      dynamoDb.createTable table: testTableName
+
+    test "createTable interesting table then putItem", ->
+      dynamoDb.createTable
+        table: testTableName
+        attributes:
+          createdAt: "number"
+          chatRoom:  "string"
+        key: "chatRoom/createdAt"
+      .then (result) ->
+        data =
+          createdAt: Date.now()
+          updatedAt: Date.now()
+          user: "abc123"
+          chatRoom: "xyz456"
+          message: "Hi!"
+          id: "lmnop123123"
+        dynamoDb.putItem
+          table: testTableName
+          item: data
+
+    test "createTable with compound primary key then putItem, getItem and deleteItem", ->
+      testKey =
+        hashKey: "hashKey123"
+        rangeKey: "rangeKey123"
+
+      testKeyAndTable =
+        table: testTableName
+        key: testKey
+
+      dynamoDb.createTable
+        table: testTableName
+        key: "hashKey/rangeKey"
+        attributes:
+          hashKey:    "string"
+          rangeKey:   "string"
+
+      .then (result) ->
+        data =
+          createdAt: Date.now()
+          updatedAt: Date.now()
+          hashKey: "hashKey123"
+          rangeKey: "rangeKey123"
+
+        dynamoDb.putItem
+          table: testTableName
+          item: data
+
+      .then (result) -> dynamoDb.getItem testKeyAndTable
+      .then (result) ->
+        assert.ok result.item
+        assert.eq result.item.rangeKey, testKey.rangeKey
+
+      .then (result) -> dynamoDb.deleteItem testKeyAndTable
+      .then (result) -> dynamoDb.getItem testKeyAndTable
+      .then (result) -> assert.ok !result.item
+
+
+    test "createTable with globalSecondaryIndex ", ->
+      dynamoDb.createTable
+        table: testTableName
+        globalIndexes: chatRoomsByCreatedAt: "createdAt/chatRoom"
+        attributes:
+          createdAt: "number"
+          chatRoom:  "string"
+        key: "chatRoom/createdAt"
+
+    test "createTable with localSecondaryIndex", ->
+      dynamoDb.createTable
+        table: testTableName
+        localIndexes: chatRoomsByCreatedAt: "chatRoom/topic"
+        attributes:
+          createdAt: "number"
+          chatRoom:  "string"
+          topic:     "string"
+        key: "chatRoom/createdAt"
+
+  batchGet: ->
+    @timeout 10000
+
+    chainedTest "createTable interesting table", ->
+      setupForDynamoDbTests()
+      .then -> dynamoDb.createTable
+        table: testTableName
+
+    .thenTest "put two items" ->
+      Promise.all []
+        dynamoDb.putItem
+          table: testTableName
+          item:
+            id:         :id1
+            message:    "" Hi Alice!
+
+        dynamoDb.putItem
+          table: testTableName
+          item:
+            id:         :id2
+            message:    "" Hi Bill!
+
+    .thenTest "batchGetItem with two ids" ->
+      dynamoDb.batchGetItem
+        table: testTableName
+        keys: :id1 :id2
+      .then (result) ->
+        assert.eq
+          result
+          items: []
+            id: :id1 message: "Hi Alice!"
+            id: :id2 message: "Hi Bill!"
+
+    .thenTest "batchGetItem with select" ->
+      dynamoDb.batchGetItem
+        table: testTableName
+        keys: :id1 :id2
+        select: :id
+      .then (result) ->
+        assert.eq
+          result
+          items: []
+            {} id: :id1
+            {} id: :id2
+
+  describe: ->
+    @timeout 10000
+    setup setupForDynamoDbTests
+
+    test "describeTable", ->
+      createTable()
+      .then -> dynamoDb.describeTable table: testTableName
+      .then (res) -> assert.eq res.Table.TableName, testTableName
+
+    test "describeLimits", ->
+      createTable()
+      .then -> dynamoDb.describeLimits()
+      .then (res) -> assert.gt res.AccountMaxReadCapacityUnits, 0
+
+  query: ->
+    @timeout 10000
+    setup setupForDynamoDbTests
+
+    test "basic primary key", ->
+      createTable()
+      .then ->
+        dynamoDb.query
+          table: testTableName
+          where: chatRoom: chatRoomId
+      .then (result)->
+        assert.eq ["Hello!", "world!"], (array item in result.items with item.message)
+        assert.eq result.items[0],
+          id:         1
+          message:    "Hello!"
+          chatRoom:   "xyz456"
+          createdAt:  400
+
+    test "basic global index", ->
+      createTable()
+      .then ->
+        dynamoDb.query
+          table: testTableName
+          index: "chatsByChatRoomCreatedAt"
+          where: chatRoom: chatRoomId
+      .then (result)->
+        assert.eq ["world!", "Hello!"], array item in result.items with item.message
+        assert.eq result.items[0],
+          id:       2
+          message:  "world!"
+          chatRoom: "xyz456"
+          createdAt:  300
+
+    test "select: 'message'", ->
+      createTable()
+      .then ->
+        dynamoDb.query
+          table: testTableName
+          where: chatRoom: chatRoomId
+          select: "message"
+      .then (result)->
+        assert.eq ["Hello!", "world!"], array item in result.items with item.message
+        assert.eq result.items[0],
+          message:  "Hello!"
+
+    test "descending: true", ->
+      createTable()
+      .then ->
+        dynamoDb.query
+          table: testTableName
+          descending: true
+          where: chatRoom: chatRoomId
+      .then (result)->
+        assert.eq ["world!", "Hello!"], array item in result.items with item.message
+
+    test "where: id: gt: 1", ->
+      createTable()
+      .then ->
+        dynamoDb.query
+          table: testTableName
+          descending: true
+          where: chatRoom: chatRoomId, id: gt: 1
+      .then (result)->
+        assert.eq ["world!"], array item in result.items with item.message
+
+    test "filter: message: beginsWith: 'H'", ->
+      createTable()
+      .then ->
+        dynamoDb.query
+          table: testTableName
+          descending: true
+          where: chatRoom: chatRoomId
+          filter: message: beginsWith: 'H'
+      .then (result)->
+        assert.eq ["world!", "Hello!"], array item in result.items with item.message
+
+    test 'createTable regression', ->
+      dynamoDb.createTable
+        table: testTableName
+        attributes:
+          id: "string"
+          createdAt: "number"
+          chatRoom: "string"
+        globalIndexes:
+          chatsByChatRoom: "chatRoom/createdAt"
