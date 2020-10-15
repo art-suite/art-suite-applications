@@ -4,19 +4,7 @@
 (module.exports = require('./namespace'))
 
 .addModules({
-  ArtEryReport:         require('./ArtEryReport'),
-  CurrentConfig:        require('./CurrentConfig'),
-  DescribeTableSchema:  require('./DescribeTableSchema'),
-  DiffTableSchema:      require('./DiffTableSchema'),
-  InitializePipelines:  require('./InitializePipelines'),
-  JsonizeArtConfig:     require('./JsonizeArtConfig'),
-  ListPipelines:        require('./ListPipelines'),
-  ListTables:           require('./ListTables'),
-  LoadTestData:         require('./LoadTestData'),
-  Request:              require('./Request'),
-  ScanTable:            require('./ScanTable'),
-  ShowFields:           require('./ShowFields'),
-  ShowInitializeParams: require('./ShowInitializeParams'),
-  StatTable:            require('./StatTable'),
-  UpdateIndexes:        require('./UpdateIndexes')
+  LoadTestData: require('./LoadTestData'),
+  ToolLib:      require('./ToolLib')
 });
+require('./Commands');

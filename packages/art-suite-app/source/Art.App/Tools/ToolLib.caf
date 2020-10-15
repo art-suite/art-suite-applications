@@ -1,0 +1,11 @@
+import &ArtStandardLib
+{}
+  standardPiplineOptions =
+    options: pipeline: " the name of the pipeline"
+
+  createPipelineCommand: (props) ->
+    merge
+      props
+      standardPiplineOptions
+      run: ({pipeline}) ->
+        props.action &ArtEry.pipelines[pipeline]

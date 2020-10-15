@@ -18,15 +18,12 @@ import &ArtStandardLib
       Config[environmentName]
       eval process.env.artSuiteApp || "null"
 
-(options)->
-  &ArtFoundation/buildCommander {}
-    title: options.title ? :art-suite-tool
-    options.package
-    beforeActions: (commander)->
-      &ArtAws/Server
-      options = merge options, options.load() if options?.load
-
-      &Node.init {} commander.verbose
-      .then -> options
-
-    actions: &source/ArtApp/Tools.modules
+({package: _package, description, load}) ->
+  Promise.then load ? ->
+  .then ->
+    require :@art-suite/cli
+    .start {}
+      description
+      commands: merge
+        &source/ArtApp/Tools/Commands.modules
+        version: -> _package.version

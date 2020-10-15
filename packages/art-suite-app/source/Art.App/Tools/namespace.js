@@ -5,3 +5,4 @@ module.exports = require('../namespace').addNamespace(
   'Tools',
   class Tools extends Neptune.PackageNamespace {}
 );
+require('./Commands/namespace');

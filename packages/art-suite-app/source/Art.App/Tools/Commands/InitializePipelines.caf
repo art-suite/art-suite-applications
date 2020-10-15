@@ -1,10 +1,8 @@
-import &ArtStandardLib
+import &ArtStandardLib, &ToolLib
 
-params: "" [pipelineName]
-help:   "" invoke 'initialize' on every pipeline (creates tables)
-action: (options) ->
-  [pipelineName] = options.args
-  pipelineName = null unless isString pipelineName
+options: standardPiplineOptions
+description:   "" invoke 'initialize' on every pipeline (creates tables)
+run: ({pipeline: pipelineName}) ->
   {pipelines} = &ArtEry
 
   errors = []

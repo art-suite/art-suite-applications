@@ -1,6 +1,5 @@
-help: "Get JSON for current artConfig"
-action: (options) ->
-  options extract? quiet
+description: "Get JSON for current artConfig"
+run: ({quite}) ->
   console.log "ArtConfig.getArtConfigSave() JSON:".grey unless quiet
 
   json = JSON.stringify artConfigSave = &ArtConfig.getArtConfigSave()
