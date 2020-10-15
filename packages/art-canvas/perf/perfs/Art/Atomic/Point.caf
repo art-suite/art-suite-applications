@@ -1,0 +1,56 @@
+import &StandardImport
+
+suite:
+  basics: ->
+    benchmark "point()", ->
+      point()
+
+    benchmark "new Point", ->
+      new Point
+
+
+  inline: ->
+    benchmark "point0.add point1", ->
+      point0.add point1
+      null
+
+    inlineAddObj = (this_x, this_y, b_x, b_y) ->
+      x = this_x + b_x
+      y = this_y + b_y
+      {x, y}
+
+    returnPointObj = x: 0.0, y: 0.0
+    inlineAddReuseObj = (this_x, this_y, b_x, b_y) ->
+      returnPointObj.x = this_x + b_x
+      returnPointObj.y = this_y + b_y
+      returnPointObj
+
+    returnPoint = new Point
+    inlineAddReusePoint = (this_x, this_y, b_x, b_y) ->
+      returnPoint.x = this_x + b_x
+      returnPoint.y = this_y + b_y
+      returnPoint
+
+    inlineAddArr = (this_x, this_y, b_x, b_y) ->
+      x = this_x + b_x
+      y = this_y + b_y
+      [x, y]
+
+    buffer = new Float64Array 2
+    inlineAddArrBuffer = (this_x, this_y, b_x, b_y) ->
+      buffer[0] = this_x + b_x
+      buffer[1] = this_y + b_y
+      null
+
+    inlineJustX = (this_x, this_y, b_x, b_y) ->
+      x = this_x + b_x
+      y = this_y + b_y
+      x
+
+    benchmark "inlineAddObj",        -> {x, y} = inlineAddObj 0.1, 0.1, 1.1, 1.1; null
+    benchmark "inlineAddArr",        -> [x, y] = inlineAddArr 0.1, 0.1, 1.1, 1.1; null
+    benchmark "inlineAddReuseObj",   -> {x, y} = inlineAddReuseObj     0.1, 0.1, 1.1, 1.1; null
+    benchmark "inlineAddReusePoint", -> {x, y} = inlineAddReusePoint 0.1, 0.1, 1.1, 1.1; null
+    benchmark "inlineAddArrBuffer",  -> inlineAddArrBuffer 0.1, 0.1, 1.1, 1.1; x = buffer[0]; y = buffer[1]; null
+    benchmark "inlineJustX",         -> x = inlineJustX 0.1, 0.1, 1.1, 1.1; null
+

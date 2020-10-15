@@ -1,0 +1,10 @@
+webpack:
+  common: {}
+  targets:
+    index: {}
+    web_worker: {}
+    test: {}
+
+package:
+  dependencies:
+    art-react:      :*
