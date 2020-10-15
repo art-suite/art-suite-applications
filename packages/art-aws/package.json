@@ -7,7 +7,7 @@
     "aws-sdk": "^2.447.0",
     "aws4": "^1.6.0",
     "corsproxy": "^1.5.0",
-    "dynamodb-local": "*"
+    "dynamodb-local": "0.0.31"
   },
   "description": "Streamlined APIs for AWS SDK with Promises and Art.Foundation",
   "devDependencies": {
@@ -22,7 +22,7 @@
     "script-loader": "^0.7.2",
     "style-loader": "^1.0.0",
     "webpack": "^4.39.1",
-    "webpack-cli": "*",
+    "webpack-cli": "^4.0.0",
     "webpack-dev-server": "^3.7.2",
     "webpack-merge": "^4.2.1",
     "webpack-node-externals": "^1.7.2",

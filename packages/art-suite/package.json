@@ -3,7 +3,7 @@
   "bugs": "https:/github.com/art-suite/art-suite/issues",
   "dependencies": {
     "art-atomic": "^1.27.8",
-    "art-browser-tools": "*",
+    "art-browser-tools": "^1.2.7",
     "art-build-configurator": "^1.28.0",
     "art-canvas": "^1.28.1",
     "art-engine": "^4.4.4",
@@ -12,7 +12,7 @@
     "art-flux": "^1.23.0",
     "art-react": "^1.35.1",
     "art-text": "^1.2.6",
-    "art-validation": "*",
+    "art-validation": "^1.9.1",
     "art-xbd": "^1.1.0"
   },
   "description": "All the Art.* Packages you need for writing Apps in one require.",
@@ -28,7 +28,7 @@
     "script-loader": "^0.7.2",
     "style-loader": "^1.0.0",
     "webpack": "^4.39.1",
-    "webpack-cli": "*",
+    "webpack-cli": "^4.0.0",
     "webpack-dev-server": "^3.7.2",
     "webpack-merge": "^4.2.1",
     "webpack-node-externals": "^1.7.2",
