@@ -1,12 +1,12 @@
 {
   "author": "Shane Brinkman-Davis Delamore, Imikimi LLC",
   "dependencies": {
-    "art-build-configurator": "*",
+    "art-build-configurator": "^1.28.0",
     "art-suite": "*"
   },
   "description": "Art.Suite.App",
   "devDependencies": {
-    "art-testbench": "*",
+    "art-testbench": "^2.2.8",
     "case-sensitive-paths-webpack-plugin": "^2.2.0",
     "chai": "^4.2.0",
     "mocha": "^6.2.0",

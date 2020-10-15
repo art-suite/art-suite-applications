@@ -2,9 +2,9 @@
   "author": "Shane Brinkman-Davis Delamore, Imikimi LLC",
   "bugs": "https:/github.com/art-suite/art-suite/issues",
   "dependencies": {
-    "art-atomic": "*",
+    "art-atomic": "^1.27.8",
     "art-browser-tools": "*",
-    "art-build-configurator": "*",
+    "art-build-configurator": "^1.28.0",
     "art-canvas": "git://github.com/imikimi/art-canvas.git",
     "art-engine": "*",
     "art-ery": "*",
@@ -17,7 +17,7 @@
   },
   "description": "All the Art.* Packages you need for writing Apps in one require.",
   "devDependencies": {
-    "art-testbench": "*",
+    "art-testbench": "^2.2.8",
     "case-sensitive-paths-webpack-plugin": "^2.2.0",
     "chai": "^4.2.0",
     "coffee-loader": "^0.7.3",

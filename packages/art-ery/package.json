@@ -2,7 +2,7 @@
   "author": "Shane Brinkman-Davis Delamore, Imikimi LLC",
   "bugs": "https:/github.com/art-suite/art-ery/issues",
   "dependencies": {
-    "art-build-configurator": "*",
+    "art-build-configurator": "^1.28.0",
     "art-events": "*",
     "art-express-server": "*",
     "compress": "^0.99.0",
@@ -15,7 +15,7 @@
   "devDependencies": {
     "art-ery": "file:.",
     "art-flux": "git@github.com:art-suite/art-flux.git",
-    "art-testbench": "*",
+    "art-testbench": "^2.2.8",
     "case-sensitive-paths-webpack-plugin": "^2.2.0",
     "chai": "^4.2.0",
     "coffee-loader": "^0.7.3",

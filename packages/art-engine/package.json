@@ -2,8 +2,8 @@
   "author": "Shane Brinkman-Davis Delamore, Imikimi LLC",
   "bugs": "https:/github.com/art-suite/art-engine/issues",
   "dependencies": {
-    "art-atomic": "*",
-    "art-build-configurator": "*",
+    "art-atomic": "^1.27.8",
+    "art-build-configurator": "^1.28.0",
     "art-canvas": "git://github.com/imikimi/art-canvas.git",
     "art-events": "*",
     "art-foundation": "git://github.com/imikimi/art-foundation.git",
@@ -15,7 +15,7 @@
   },
   "description": "The ArtEngine is a layout, rendering and event engine for creating user interfaces in HTML5 Canvas elements.",
   "devDependencies": {
-    "art-testbench": "*",
+    "art-testbench": "^2.2.8",
     "case-sensitive-paths-webpack-plugin": "^2.2.0",
     "chai": "^4.2.0",
     "coffee-loader": "^0.7.3",

@@ -2,14 +2,14 @@
   "author": "Shane Brinkman-Davis Delamore, Imikimi LLC",
   "bugs": "https:/github.com/art-suite/art-atomic/issues",
   "dependencies": {
-    "art-class-system": "^1.11.6",
-    "art-standard-lib": "^1.69.4"
+    "art-class-system": "^1.11.10",
+    "art-standard-lib": "^1.69.9"
   },
   "description": "atomic data-types such as Color, Point, Rectangle and Matrix",
   "devDependencies": {
-    "art-build-configurator": "*",
-    "art-testbench": "*",
-    "jest": "^26.1.0"
+    "art-build-configurator": "^1.28.0",
+    "art-testbench": "^2.2.8",
+    "jest": "^26.5.3"
   },
   "homepage": "https://github.com/art-suite/art-atomic",
   "jest": {
