@@ -1,0 +1,3 @@
+&ArtStandardLib.mergeWithSelf &ArtClassSystem,
+  &ArtReact
+  test: (args...) -> global.test args...

@@ -1,0 +1,16 @@
+{
+  "author": "Shane Brinkman-Davis Delamore, Imikimi LLC\"",
+  "dependencies": {
+    "art-build-configurator": "^1.28.0",
+    "art-canvas": "^1.28.1"
+  },
+  "description": "Art.Text",
+  "license": "ISC",
+  "name": "art-text",
+  "scripts": {
+    "build": "webpack --progress",
+    "start": "webpack-dev-server --hot --inline --progress --env.devServer",
+    "test": "webpack-dev-server  --progress --env.devServer"
+  },
+  "version": "1.2.6"
+}

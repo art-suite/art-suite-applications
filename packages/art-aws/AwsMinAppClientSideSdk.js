@@ -1,0 +1,1 @@
+aws-sdk-2.444.0.s3.dynamoDb.min.js

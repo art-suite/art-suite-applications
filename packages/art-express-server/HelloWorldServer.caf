@@ -1,0 +1,6 @@
+import &ArtExpressServer
+
+start
+  handlers:
+    class OzHtmlHandler extends PromiseHandler
+      handleHtmlRequest: (request, requestData) -> "Hello world."
