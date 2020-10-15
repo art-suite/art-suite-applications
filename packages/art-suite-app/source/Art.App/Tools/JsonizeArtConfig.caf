@@ -1,0 +1,19 @@
+help: "Get JSON for current artConfig"
+action: (options) ->
+  options extract? quiet
+  console.log "ArtConfig.getArtConfigSave() JSON:".grey unless quiet
+
+  json = JSON.stringify artConfigSave = &ArtConfig.getArtConfigSave()
+
+  console.log
+    if quiet
+      json
+    else
+      "\n" +
+      json
+      .green
+      + "\n"
+
+  {}
+    global.artConfigName
+    artConfigSave

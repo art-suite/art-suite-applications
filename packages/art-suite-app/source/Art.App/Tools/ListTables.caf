@@ -1,0 +1,2 @@
+help:   "" get list of tables from DynamoDb
+action: (args) -> &ArtAws.DynamoDb.singleton.listTables()

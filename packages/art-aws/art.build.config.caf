@@ -1,0 +1,8 @@
+target: node: true
+webpack:
+  common: {}
+  targets:
+    index: {}
+    test: {}
+
+package: (abcPackage) -> &package
