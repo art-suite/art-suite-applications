@@ -1,0 +1,3 @@
+&ToolHelper.createPipelineCommand
+  "compare the current table schemas with the ones described in pipeline.createTableParams"
+  (pipeline) -> &ArtAws.DynamoDb.singleton.getTableChanges pipeline.createTableParams

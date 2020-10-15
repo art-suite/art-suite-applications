@@ -1,0 +1,512 @@
+"use strict";
+let Caf = require("caffeine-script-runtime");
+Caf.defMod(module, () => {
+  return Caf.importInvoke(
+    ["describe", "test", "rect", "assert", "point", "Rectangle", "Infinity"],
+    [global, require("./StandardImport")],
+    (describe, test, rect, assert, point, Rectangle, Infinity) => {
+      return describe({
+        basic: function() {
+          test("allocate rect from numbers", () => {
+            let r;
+            r = rect(5, 5, 10, 10);
+            assert.eq(point(5, 5), r.location);
+            return assert.eq(point(10, 10), r.size);
+          });
+          test("eq", () => {
+            assert.ok(rect(1, 2, 3, 4).eq(rect(1, 2, 3, 4)));
+            assert.ok(!rect(1, 2, 3, 4).eq(rect(1, 2, 3, 0)));
+            assert.ok(!rect(1, 2, 3, 4).eq(rect(1, 2, 0, 4)));
+            assert.ok(!rect(1, 2, 3, 4).eq(rect(1, 0, 3, 4)));
+            return assert.ok(!rect(1, 2, 3, 4).eq(rect(0, 2, 3, 4)));
+          });
+          test("allocate rect from points", () => {
+            let r;
+            r = rect(point(10, 20), point(30, 40));
+            return assert.eq(r, rect(10, 20, 30, 40));
+          });
+          test("allocate rect from one point", () => {
+            let r;
+            r = rect(point(10, 20));
+            return assert.eq(r, rect(0, 0, 10, 20));
+          });
+          test("allocate rect from one number", () =>
+            assert.eq(rect(10), rect(0, 0, 10, 10)));
+          test("allocate rect from two numbers", () =>
+            assert.eq(rect(10, 20), rect(0, 0, 10, 20)));
+          test("allocate rect from array", () => {
+            assert.eq(rect([10]), rect(0, 0, 10, 10));
+            assert.eq(rect([10, 20]), rect(0, 0, 10, 20));
+            return assert.eq(rect([10, 20, 30, 40]), rect(10, 20, 30, 40));
+          });
+          test("allocate rect - no args", () => {
+            let r;
+            r = rect();
+            assert.eq(point(0, 0), r.location);
+            return assert.eq(point(0, 0), r.size);
+          });
+          test("x, y, w, h, width, height", () => {
+            let r;
+            r = rect(3, 5, 7, 11);
+            assert.equal(3, r.x);
+            assert.equal(5, r.y);
+            assert.equal(7, r.w);
+            assert.equal(11, r.h);
+            assert.equal(7, r.width);
+            return assert.equal(11, r.height);
+          });
+          test("size, location", () => {
+            let r;
+            r = rect(3, 5, 7, 11);
+            assert.eq(r.size, point(7, 11));
+            return assert.eq(r.location, point(3, 5));
+          });
+          test("eq", () => {
+            let r1, r2, r3;
+            r1 = rect(3, 5, 7, 11);
+            r2 = rect(3, 5, 7, 11);
+            r3 = rect(4, 5, 7, 11);
+            assert.ok(r1.eq(r2));
+            return assert.ok(!r1.eq(r3));
+          });
+          test("tl, tr, bl, br", () => {
+            let r1;
+            r1 = rect(3, 5, 7, 11);
+            assert.eq(point(3, 5), r1.tl);
+            assert.eq(point(10, 5), r1.tr);
+            assert.eq(point(3, 16), r1.bl);
+            return assert.eq(point(10, 16), r1.br);
+          });
+          test("corners", () => {
+            let r1;
+            r1 = rect(3, 5, 7, 11);
+            return assert.eq(r1.corners, [
+              point(3, 5),
+              point(10, 5),
+              point(10, 16),
+              point(3, 16)
+            ]);
+          });
+          test("top, left, right, bottom", () => {
+            let r1;
+            r1 = rect(3, 5, 7, 11);
+            assert.equal(5, r1.top);
+            assert.equal(3, r1.left);
+            assert.equal(10, r1.right);
+            return assert.equal(16, r1.bottom);
+          });
+          test("grow", () => {
+            let r1;
+            r1 = rect(3, 5, 7, 11);
+            assert.eq(r1.grow(1), rect(2, 4, 9, 13));
+            return assert.eq(r1.grow(-1), rect(4, 6, 5, 9));
+          });
+          test("overlap rectangles", () => {
+            assert.equal(rect(0, 0, 10, 10).overlaps(rect(0, 0, 10, 10)), true);
+            assert.equal(rect(0, 0, 10, 10).overlaps(rect(0, 5, 10, 10)), true);
+            assert.equal(rect(0, 0, 10, 10).overlaps(rect(5, 0, 10, 10)), true);
+            assert.equal(
+              rect(0, 0, 10, 10).overlaps(rect(10, 0, 10, 10)),
+              false
+            );
+            assert.equal(
+              rect(0, 0, 10, 10).overlaps(rect(0, 10, 10, 10)),
+              false
+            );
+            assert.equal(
+              rect(10, 0, 10, 10).overlaps(rect(0, 0, 10, 10)),
+              false
+            );
+            assert.equal(
+              rect(0, 10, 10, 10).overlaps(rect(0, 0, 10, 10)),
+              false
+            );
+            assert.equal(
+              rect(0, 0, 10, 10).overlaps(rect(11, 0, 10, 10)),
+              false
+            );
+            assert.equal(
+              rect(0, 0, 10, 10).overlaps(rect(0, 11, 10, 10)),
+              false
+            );
+            assert.equal(
+              rect(11, 0, 10, 10).overlaps(rect(0, 0, 10, 10)),
+              false
+            );
+            assert.equal(
+              rect(0, 11, 10, 10).overlaps(rect(0, 0, 10, 10)),
+              false
+            );
+            assert.equal(rect(0, 0, 10, 10).overlaps(rect(9, 0, 10, 10)), true);
+            assert.equal(rect(0, 0, 10, 10).overlaps(rect(0, 9, 10, 10)), true);
+            assert.equal(rect(9, 0, 10, 10).overlaps(rect(0, 0, 10, 10)), true);
+            return assert.equal(
+              rect(0, 9, 10, 10).overlaps(rect(0, 0, 10, 10)),
+              true
+            );
+          });
+          test(".overlaps? point", () => {
+            let r1;
+            r1 = rect(5, 10, 15, 20);
+            assert.equal(
+              r1.overlaps(point(10, 10)),
+              true,
+              "point(10,10) should be true"
+            );
+            assert.equal(
+              r1.overlaps(point(20, 10)),
+              false,
+              "point(20,10) should be false"
+            );
+            assert.equal(
+              r1.overlaps(point(10, 30)),
+              false,
+              "point(10,30) should be false"
+            );
+            assert.equal(
+              r1.overlaps(point(5, 9)),
+              false,
+              "point(5, 9 ) should be false"
+            );
+            return assert.equal(
+              r1.overlaps(point(4, 10)),
+              false,
+              "point(4,10 ) should be false"
+            );
+          });
+          test(".union", () => {
+            assert.eq(
+              rect(0, 0, 10, 10).union(rect(0, 5, 10, 10)),
+              rect(0, 0, 10, 15)
+            );
+            assert.eq(
+              rect(0, 0, 10, 10).union(rect(5, 0, 10, 10)),
+              rect(0, 0, 15, 10)
+            );
+            return assert.eq(
+              rect(20, 20, 10, 10).union(rect(0, 0, 10, 10)),
+              rect(0, 0, 30, 30)
+            );
+          });
+          test(".union and Rectangle.nothing", () => {
+            assert.eq(Rectangle.nothing.size, point());
+            assert.eq(Rectangle.nothing.area, 0);
+            assert.eq(Rectangle.nothing.union(rect()).area, 0);
+            return assert.eq(
+              Rectangle.nothing.union(rect(10, 20, 30, 40)),
+              rect(10, 20, 30, 40)
+            );
+          });
+          test(".union and Rectangle.everything", () => {
+            assert.eq(Rectangle.everything.size, point(Infinity, Infinity));
+            assert.eq(Rectangle.everything.area, Infinity);
+            assert.eq(Rectangle.everything.union(rect()).area, Infinity);
+            return assert.eq(
+              Rectangle.everything.union(rect(10, 20, 30, 40)).area,
+              Infinity
+            );
+          });
+          test("contains rect", () => {
+            assert.equal(rect(0, 0, 10, 10).contains(rect(2, 2, 5, 5)), true);
+            return assert.equal(
+              rect(0, 0, 10, 10).contains(rect(8, 2, 5, 5)),
+              false
+            );
+          });
+          test(".contains point", () => {
+            let r1;
+            r1 = rect(5, 10, 15, 20);
+            assert.equal(
+              r1.contains(point(10, 10)),
+              true,
+              "r1.contains(point(10,10)),"
+            );
+            assert.equal(
+              r1.contains(point(20, 10)),
+              false,
+              "r1.contains(point(20,10)),"
+            );
+            assert.equal(
+              r1.contains(point(10, 30)),
+              false,
+              "r1.contains(point(10,30)),"
+            );
+            assert.equal(
+              r1.contains(point(5, 9)),
+              false,
+              "r1.contains(point(5,9)),  "
+            );
+            return assert.equal(
+              r1.contains(point(4, 10)),
+              false,
+              "r1.contains(point(4,10)), "
+            );
+          });
+          test(".contains and .overlaps? with null", () => {
+            let r1;
+            r1 = rect(5, 10, 15, 20);
+            assert.equal(r1.overlaps(null), false);
+            return assert.equal(r1.contains(null), false);
+          });
+          test(".area", () => assert.equal(rect(5, 10, 15, 20).area, 300));
+          test("rect(a=rect()) should return a unaltered", () => {
+            let p1, p2, p3;
+            p1 = rect(1, 2, 3, 4);
+            p2 = rect(1, 2, 3, 4);
+            p3 = rect(p1);
+            assert.ok(p1 === p3);
+            assert.ok(p1 !== p2);
+            assert.ok(p2 !== p3);
+            return assert.eq(p1, p2);
+          });
+          test("a.roundOut()", () => {
+            assert.eq(rect(1.1, 1.1, 2.4, 2.5).roundOut(), rect(1, 1, 3, 3));
+            assert.eq(rect(1.4, 1.1, 2.8, 2.5).roundOut(), rect(1, 1, 4, 3));
+            assert.eq(rect(1.8, 1.1, 2.1, 2.5).roundOut(), rect(1, 1, 3, 3));
+            return assert.eq(
+              rect(1.4, 0.9, 2.2, 2.5).roundOut(),
+              rect(1, 0, 3, 4)
+            );
+          });
+          test("a.roundOut(m)", () => {
+            assert.eq(
+              rect(1.6, 1.1, 2.1, 2.5).roundOut(0.5),
+              rect(1.5, 1, 2.5, 3)
+            );
+            return assert.eq(
+              rect(1.4, 1.1, 2.2, 2.5).roundOut(0.5),
+              rect(1, 1, 3, 3)
+            );
+          });
+          test("a.roundOut(1, k)", () =>
+            assert.eq(
+              rect(1.4, 0.9, 2.2, 2.5).roundOut(1, 0.11),
+              rect(1, 1, 3, 3)
+            ));
+          test("a.roundOut(m, k)", () =>
+            assert.eq(
+              rect(1.4, 1.1, 2.2, 2.6).roundOut(0.5, 0.11),
+              rect(1.5, 1, 2, 3)
+            ));
+          test("a.round: returns integer rectangle who's corners are closest to a's corners", () => {
+            let r;
+            assert.eq((r = rect(1.1, 1.1, 2.4, 2.5)).round(), rect(1, 1, 3, 3));
+            assert.eq(
+              rect(r.location.round(), r.size.round()),
+              rect(1, 1, 2, 3)
+            );
+            assert.eq(rect(1.4, 1.1, 2.8, 2.5).round(), rect(1, 1, 3, 3));
+            return assert.eq(
+              rect(1.8, 1.1, 2.1, 2.5).round(),
+              rect(2, 1, 2, 3)
+            );
+          });
+          test("interpolate 0, .5 and 1", () => {
+            let r1, r2;
+            r1 = new Rectangle(1, 2, 3, 4);
+            r2 = new Rectangle(3, 6, 9, 12);
+            assert.eq(r1.interpolate(r2, 0), r1);
+            assert.eq(r1.interpolate(r2, 1), r2);
+            return assert.eq(
+              r1.interpolate(r2, 0.5),
+              new Rectangle(2, 4, 6, 8)
+            );
+          });
+          test("add 1", () =>
+            assert.eq(rect(2, 3, 4, 5), rect(1, 2, 3, 4).add(1)));
+          test("add point", () =>
+            assert.eq(
+              rect(11, 22, 13, 24),
+              rect(1, 2, 3, 4).add(point(10, 20))
+            ));
+          return test("add rect", () =>
+            assert.eq(
+              rect(11, 22, 33, 44),
+              rect(1, 2, 3, 4).add(rect(10, 20, 30, 40))
+            ));
+        },
+        cutout: {
+          oneOutput: function() {
+            let a;
+            a = rect(1, 2, 4, 6);
+            test("no overlap", () =>
+              assert.eq(
+                [rect(1, 2, 3, 4)],
+                rect(1, 2, 3, 4).cutout(rect(5, 6, 7, 8))
+              ));
+            test("complete overlap", () =>
+              assert.eq([], rect(1, 2, 3, 4).cutout(rect(0, 0, 10, 10))));
+            test("right half", () =>
+              assert.eq([rect(1, 2, 2, 6)], a.cutout(rect(3, 0, 10, 10))));
+            test("left half", () =>
+              assert.eq([rect(3, 2, 2, 6)], a.cutout(rect(0, 0, 3, 10))));
+            test("bottom half", () =>
+              assert.eq([rect(1, 5, 4, 3)], a.cutout(rect(0, 0, 10, 5))));
+            return test("top half", () =>
+              assert.eq([rect(1, 2, 4, 3)], a.cutout(rect(0, 5, 10, 10))));
+          },
+          twoOutput: function() {
+            let a;
+            a = rect(1, 2, 4, 6);
+            test("minus bottomRight", () =>
+              assert.eq(
+                [rect(1, 2, 2, 6), rect(3, 2, 2, 3)],
+                a.cutout(rect(a.hCenter, a.vCenter, 10, 10))
+              ));
+            test("minus bottomLeft", () =>
+              assert.eq(
+                [rect(3, 2, 2, 6), rect(1, 2, 2, 3)],
+                a.cutout(rect(a.left, a.vCenter, a.w / 2, 10))
+              ));
+            test("minus topRight", () =>
+              assert.eq(
+                [rect(1, 2, 2, 6), rect(3, 5, 2, 3)],
+                a.cutout(rect(a.hCenter, a.top, 10, a.h / 2))
+              ));
+            test("minus topLeft", () =>
+              assert.eq(
+                [rect(3, 2, 2, 6), rect(1, 5, 2, 3)],
+                a.cutout(rect(a.left, a.top, a.w / 2, a.h / 2))
+              ));
+            test("minus hStripe", () =>
+              assert.eq(
+                [rect(1, 2, 4, 3), rect(1, 6, 4, 2)],
+                a.cutout(rect(a.left, a.top + a.h / 2, 10, 1))
+              ));
+            return test("minus vStripe", () =>
+              assert.eq(
+                [rect(1, 2, 2, 6), rect(4, 2, 1, 6)],
+                a.cutout(rect(a.left + a.w / 2, a.top, 1, 10))
+              ));
+          },
+          threeOutput: function() {
+            let a;
+            a = rect(1, 2, 4, 6);
+            test("minus centerDown", () =>
+              assert.eq(
+                [rect(1, 2, 2, 6), rect(4, 2, 1, 6), rect(3, 2, 1, 3)],
+                a.cutout(rect(a.hCenter, a.vCenter, 1, 10))
+              ));
+            test("minus centerRight", () =>
+              assert.eq(
+                [rect(1, 2, 2, 6), rect(3, 2, 2, 3), rect(3, 6, 2, 2)],
+                a.cutout(rect(a.hCenter, a.vCenter, 10, 1))
+              ));
+            test("minus centerUp", () =>
+              assert.eq(
+                [rect(1, 2, 2, 6), rect(4, 2, 1, 6), rect(3, 3, 1, 5)],
+                a.cutout(rect(a.hCenter, a.top, 1, 1))
+              ));
+            return test("minus centerLeft", () =>
+              assert.eq(
+                [rect(2, 2, 3, 6), rect(1, 2, 1, 3), rect(1, 6, 1, 2)],
+                a.cutout(rect(a.left, a.vCenter, 1, 1))
+              ));
+          },
+          fourOutput: function() {
+            let a;
+            a = rect(1, 2, 4, 6);
+            return test("minus center", () =>
+              assert.eq(
+                [
+                  rect(1, 2, 2, 6),
+                  rect(4, 2, 1, 6),
+                  rect(3, 2, 1, 3),
+                  rect(3, 6, 1, 2)
+                ],
+                a.cutout(rect(a.hCenter, a.vCenter, 1, 1))
+              ));
+          }
+        },
+        regressions: function() {
+          return test("union contains edge case", () => {
+            let a, b;
+            a = rect({ h: 76, w: 87 + 1 / 3, x: 25, y: 714 + 2 / 6 });
+            b = rect({
+              h: 76 + 2 / 6,
+              w: 87 + 2 / 6,
+              x: 24.666666666666664,
+              y: 714 + 1 / 3
+            });
+            assert.eq(true, a.overlaps(b));
+            assert.eq(true, b.overlaps(a));
+            assert.eq(true, a.union(b).contains(a), "a.union(b).contains a");
+            return assert.eq(
+              true,
+              a.union(b).contains(b),
+              "a.union(b).contains b"
+            );
+          });
+        },
+        intersection: function() {
+          test("two rectangles", () => {
+            let r1, r2, out1, out2;
+            r1 = rect(10, -5, 40, 50);
+            r2 = rect(0, 0, 100, 100);
+            out1 = r2.intersection(r1);
+            out2 = r1.intersection(r2);
+            assert.eq(out1, out2, "order doesn't matter");
+            return assert.eq(out1, rect(10, 0, 40, 45));
+          });
+          test("into and with self", () => {
+            let r1, out;
+            r1 = rect(10, -5, 40, 50);
+            out = r1.intersection(r1, r1);
+            assert.equal(r1, out);
+            return assert.eq(r1, rect(10, -5, 40, 50));
+          });
+          test("into self", () => {
+            let r1, r2, out1;
+            r1 = rect(10, -5, 40, 50);
+            r2 = rect(0, 0, 100, 100);
+            out1 = r2.intersection(r1, r2);
+            assert.equal(out1, r2);
+            assert.true(r1 !== r2);
+            assert.neq(r1, r2);
+            return assert.eq(out1, rect(10, 0, 40, 45));
+          });
+          test("with Rectangle.nothing", () => {
+            assert.eq(rect(1, 2, 3, 4).intersection(Rectangle.nothing).area, 0);
+            return assert.eq(
+              Rectangle.nothing.intersection(rect(1, 2, 3, 4)).area,
+              0
+            );
+          });
+          test("with Rectangle.everything", () => {
+            assert.eq(
+              rect(-1, -2, 3, 4).intersection(Rectangle.everything),
+              rect(-1, -2, 3, 4)
+            );
+            return assert.eq(
+              Rectangle.everything.intersection(rect(-1, -2, 3, 4)),
+              rect(-1, -2, 3, 4)
+            );
+          });
+          return test("misc", () => {
+            assert.eq(
+              rect(0, 0, 10, 10).intersection(rect(0, 0, 10, 10)),
+              rect(0, 0, 10, 10)
+            );
+            assert.eq(
+              rect(0, 0, 10, 10).intersection(rect(0, 5, 10, 10)),
+              rect(0, 5, 10, 5)
+            );
+            assert.eq(
+              rect(0, 0, 10, 10).intersection(rect(5, 0, 10, 10)),
+              rect(5, 0, 5, 10)
+            );
+            assert.eq(
+              rect(0, 0, 10, 10).intersection(rect(10, 0, 10, 10)),
+              rect(0, 0, 0, 0),
+              "this one?"
+            );
+            return assert.eq(
+              rect(0, 0, 10, 10).intersection(rect(-5, -5, 10, 10)),
+              rect(0, 0, 5, 5)
+            );
+          });
+        }
+      });
+    }
+  );
+});

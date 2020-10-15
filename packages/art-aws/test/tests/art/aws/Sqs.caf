@@ -1,0 +1,104 @@
+import &StandardImport
+
+##
+  NOTE: make sure to configure artConfig.private.caf for you test queue
+  Test:
+    Art: Aws:
+      sqs:
+        accessKeyId:      :ABC
+        secretAccessKey:  :DEF
+        queue:            :https://sqs.us-east-1.amazonaws.com/123/ABC
+
+suite: ->
+  testQueueName = :ArtAwsSqsTestQueue
+
+  @timeout 20000
+
+  softPurge = ->
+    sqs.receiveMessage
+      queue: queueUrl
+      wait: 0
+      limit: 10
+    .then (messages) ->
+      deleteCount = 0
+      if messages.length > 0
+        Promise.all array message in messages
+          sqs.deleteMessage
+            queue: queueUrl
+            receiptHandle: message.ReceiptHandle
+          .then -> deleteCount++
+        .then ->
+          softPurge()
+          .then (dc) -> dc + deleteCount
+      else
+        Promise.resolve deleteCount
+
+  sqs = null
+  {queueUrl} = &ArtAws.config.sqs
+  setup ->
+    sqs = new Sqs
+
+    throw new Error "set config.sqs.queueUrl" unless queueUrl
+    softPurge()
+
+  test "sendMessage", ->
+    sqs.sendMessage
+      body: "hi"
+
+  test "receiveMessage", ->
+    sqs.receiveMessage
+      wait: 0
+      limit: 10
+    .then (messages) ->
+      assert.isArray messages
+
+  test "sendMessage then receiveMessage", ->
+    sqs.sendMessage
+      body: randomBody = randomString()
+    .then ->
+      sqs.receiveMessage
+        wait: 10
+      .then (messages) ->
+        assert.eq messages.length, 1
+        assert.eq messages[0].body, randomBody
+        sqs.deleteMessage
+          receiptHandle: messages[0].ReceiptHandle
+
+
+  test "sendMessage then receiveMessage object", ->
+    sqs.sendMessage
+      body: {randomBody: randomBody = randomString()}
+    .then ->
+      sqs.receiveMessage
+        wait: 10
+      .then (messages) ->
+        assert.eq messages.length, 1
+        assert.eq messages[0].body, {randomBody}
+        sqs.deleteMessage
+          receiptHandle: messages[0].ReceiptHandle
+
+  test "sendMessage then receiveMessage array", ->
+    sqs.sendMessage
+      body: [randomBody = randomString()]
+    .then ->
+      sqs.receiveMessage
+        wait: 10
+      .then (messages) ->
+        assert.eq messages.length, 1
+        assert.eq messages[0].body, [randomBody]
+        sqs.deleteMessage
+          receiptHandle: messages[0].ReceiptHandle
+
+  test "receiveMessage, wait 1s, then sendMessage", ->
+    randomBody = null
+    Promise.all []
+      sqs.receiveMessage
+        wait: 10
+      timeout 1000, ->
+        sqs.sendMessage
+          body: randomBody = randomString()
+    .then ([messages]) ->
+      assert.eq messages.length, 1
+      assert.eq messages[0].body, randomBody
+      sqs.deleteMessage
+        receiptHandle: messages[0].ReceiptHandle
