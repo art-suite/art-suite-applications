@@ -1,0 +1,25 @@
+# This file can be set up with your private credentials.
+# This file is required for testing.
+## To init:
+  > cp artConfig.private.template.caf artConfig.private.caf
+
+  # add to .gitignore
+  echo "" >> .gitignore
+  echo "artConfig.private.caf" >> .gitignore
+
+Test:
+  Art: Aws:
+    credentials:
+      accessKeyId:      'blah'
+      secretAccessKey:  'blahblah'
+
+    region:             'us-east-1'
+
+    dynamoDb:
+      endpoint:         'http://localhost:8081'
+
+    # requires a real SQS queue for testing; tests are very light, so it shoudl be free or near-free
+    sqs:
+      accessKeyId:      'sqs-blah'
+      secretAccessKey:  'sqs-blahblah'
+      queueUrl:         :https://sqs.us-east-1.amazonaws.com/123123123123/YourTestQueue
