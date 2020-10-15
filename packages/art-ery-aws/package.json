@@ -1,10 +1,10 @@
 {
   "author": "Shane Brinkman-Davis Delamore, Imikimi LLC",
   "dependencies": {
-    "art-aws": "git://github.com/imikimi/art-aws.git",
+    "art-aws": "^1.29.1",
     "art-build-configurator": "^1.28.0",
-    "art-ery": "git://github.com/imikimi/art-ery.git",
-    "uuid": "^2.0.3"
+    "art-ery": "^1.112.1",
+    "uuid": "^3.4.0"
   },
   "description": "ArtEry for AWS Lambda + DynamoDB",
   "license": "ISC",

@@ -3,7 +3,7 @@
   "bugs": "https:/github.com/art-suite/art-react/issues",
   "dependencies": {
     "art-build-configurator": "^1.28.0",
-    "art-engine": "*"
+    "art-engine": "^4.4.4"
   },
   "description": "Art.React is inspired by Facebook's React. In fact, it is much the same. However, ArtReact is designed from the ground up to run with the Art.Engine.",
   "devDependencies": {
@@ -13,7 +13,7 @@
     "coffee-loader": "^0.7.3",
     "css-loader": "^3.0.0",
     "json-loader": "^0.5.7",
-    "mocha": "^6.2.0",
+    "mocha": "^7.2.0",
     "mock-fs": "^4.10.0",
     "script-loader": "^0.7.2",
     "style-loader": "^1.0.0",

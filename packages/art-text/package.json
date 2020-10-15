@@ -2,7 +2,7 @@
   "author": "Shane Brinkman-Davis Delamore, Imikimi LLC\"",
   "dependencies": {
     "art-build-configurator": "^1.28.0",
-    "art-canvas": "git://github.com/imikimi/art-canvas.git"
+    "art-canvas": "^1.28.1"
   },
   "description": "Art.Text",
   "license": "ISC",
