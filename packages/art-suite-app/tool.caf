@@ -1,0 +1,32 @@
+import &ArtStandardLib
+###
+  IN: options:
+    load: [required] ->
+      OUT: merged with Options
+      EFFECT: all your pipelines, if any, area loaded
+
+    package: your package.json file
+      Example: package: require './package.json'
+
+    Config, environmentName
+      see Art.Suite.Node.Init
+
+    createTables STUFF - what will that be?
+
+  configuration:
+    Config.current = merge
+      Config[environmentName]
+      eval process.env.artSuiteApp || "null"
+
+(options)->
+  &ArtFoundation/buildCommander {}
+    title: options.title ? :art-suite-tool
+    options.package
+    beforeActions: (commander)->
+      &ArtAws/Server
+      options = merge options, options.load() if options?.load
+
+      &Node.init {} commander.verbose
+      .then -> options
+
+    actions: &source/ArtApp/Tools.modules

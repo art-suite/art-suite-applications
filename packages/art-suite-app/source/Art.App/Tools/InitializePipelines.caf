@@ -1,0 +1,35 @@
+import &ArtStandardLib
+
+params: "" [pipelineName]
+help:   "" invoke 'initialize' on every pipeline (creates tables)
+action: (options) ->
+  [pipelineName] = options.args
+  pipelineName = null unless isString pipelineName
+  {pipelines} = &ArtEry
+
+  errors = []
+
+  log "Sending 'initialize' request to all #{objectKeyCount pipelines} registered pipelines:"
+
+  Promise.all compactFlatten array name in Object.keys(pipelines).sort() when
+    pipeline = pipelines[name]
+    if pipeline.initialize &&
+        !pipelineName? || pipelineName == name
+
+      log "  pipeline: #{name.green} "
+
+      pipeline.initialize originatedOnServer: true
+      .then -> pipeline
+      .catch (response) ->
+        console.error response
+        errors.push []
+          "" error creating table: #{pipeline.tableName}"
+          {} pipeline, response
+
+  .then (pipelines)->
+
+    if errors.length > 0
+      errors
+
+    else
+      pipelinesInitialized: pipelines

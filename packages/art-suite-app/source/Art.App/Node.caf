@@ -1,0 +1,5 @@
+import &ArtStandardLib, &ArtConfig
+
+merge
+  &ArtSuite/Node
+  init: (options) -> Promise.resolve configure options
