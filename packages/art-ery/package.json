@@ -3,8 +3,8 @@
   "bugs": "https:/github.com/art-suite/art-ery/issues",
   "dependencies": {
     "art-build-configurator": "^1.28.0",
-    "art-events": "*",
-    "art-express-server": "*",
+    "art-events": "^1.3.7",
+    "art-express-server": "^1.1.0",
     "compress": "^0.99.0",
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",

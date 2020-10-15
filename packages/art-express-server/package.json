@@ -1,10 +1,10 @@
 {
   "author": "Shane Brinkman-Davis Delamore, Imikimi LLC",
   "dependencies": {
-    "art-build-configurator": "*",
+    "art-build-configurator": "^1.28.0",
     "compression": "^1.7.2",
-    "express": "^4.16.3",
-    "jsonwebtoken": "^8.2.1",
+    "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
     "throng": "^4.0.0"
   },
   "description": "Extensible, Promise-based HTTP Server based on Express",
