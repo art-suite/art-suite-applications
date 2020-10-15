@@ -1,0 +1,8 @@
+import &StandardImport
+
+suite: ->
+  test "parseS3Url https://zofiles.imikimi.com.s3.amazonaws.com/myFile.jpg" ->
+    assert.eq
+      S3.parseS3Url :https://zofiles.imikimi.com.s3.amazonaws.com/myFile.jpg
+      key: :myFile.jpg
+      bucket: :zofiles.imikimi.com
