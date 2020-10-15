@@ -1,0 +1,34 @@
+# to test in browser: (TODO - make this suck less)
+#   1. comment out: "target: node: true"
+#   2. BASH> abc -c
+#   3. BASH> npm test
+target: node: true
+package:
+  scripts:
+    testServer: "" caf ./TestServer.caf
+
+  description:
+    ""
+      A pipelined business-logic framework for cloud-backed data. ArtEry
+      conceptially allows you to write apps 100% as client-code, but with the
+      security and performance of cloud-code.
+
+  dependencies:
+    art-events:         :*
+    art-express-server: :*
+    express:            :^4.17.1
+    compress:           :^0.99.0
+    throng:             :^4.0.0
+    jsonwebtoken:       :^8.5.1
+    uuid:               :^3.3.2
+
+  devDependencies:
+    art-ery:            :file:.
+    art-flux:           :git@github.com:art-suite/art-flux.git
+
+webpack:
+  common: {}
+  targets:
+    index: {}
+    test: {}
+    TestServer: {}
