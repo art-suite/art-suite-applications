@@ -1,4 +1,4 @@
-Foundation = require 'art-foundation'
+{log, isNode} = require 'art-standard-lib'
 Events = require 'art-events'
 
 
@@ -16,9 +16,8 @@ Current browser support: http://caniuse.com/#search=keyboardevent.key
 Alternative polyfill: https://github.com/termi/DOM-Keyboard-Event-Level-3-polyfill
   (not using because it hasn't been touchedin 3 years and is complex)
 ###
-require('keyboardevent-key-polyfill').polyfill()
-
-{log} = Foundation
+unless isNode
+  require('keyboardevent-key-polyfill').polyfill()
 
 module.exports = class KeyEvent extends Events.Event
 
