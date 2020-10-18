@@ -1,5 +1,5 @@
 {defineModule, log, merge} = require 'art-standard-lib'
-{Pipeline, KeyFieldsMixin, AfterEventsFilter, UniqueIdFilter} = Neptune.Art.Ery
+{Pipeline, KeyFieldsMixin, AfterEventsFilter, UniqueIdFilter} = require 'art-ery'
 
 defineModule module, class MemStorePipeline extends KeyFieldsMixin Pipeline
   @abstractClass()

@@ -1,5 +1,5 @@
 {log, objectWithout, createWithPostCreate, RestClient} = require 'art-foundation'
-{config, missing, Pipeline, pipelines, session} = Neptune.Art.Ery
+{config, missing, Pipeline, pipelines, session} = require('art-ery')
 
 module.exports = suite: ->
   savedRemoteServer = null

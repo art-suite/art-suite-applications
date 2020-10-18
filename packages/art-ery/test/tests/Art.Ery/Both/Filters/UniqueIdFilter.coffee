@@ -1,5 +1,5 @@
 {log, createWithPostCreate, isString, Validator} = require 'art-foundation'
-{UniqueIdFilter} = Neptune.Art.Ery.Filters
+{UniqueIdFilter} = require('art-ery').Filters
 SimplePipeline = require '../SimplePipeline'
 
 module.exports = suite: ->

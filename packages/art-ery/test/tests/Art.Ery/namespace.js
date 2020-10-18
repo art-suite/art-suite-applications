@@ -8,4 +8,5 @@ module.exports = require('../namespace').addNamespace(
 );
 require('./Both/namespace');
 require('./ClientServer/namespace');
+require('./ClientServerFlux/namespace');
 require('./Core/namespace');

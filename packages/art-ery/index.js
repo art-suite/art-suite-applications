@@ -1,2 +1,2 @@
 require("./register");
-module.exports = require("./source/Art.Ery");
+module.exports = require("./source");

@@ -1,12 +1,12 @@
 {log, CommunicationStatus, isString, createWithPostCreate, BaseObject} = require 'art-foundation'
-{UuidFilter, TimestampFilter, ValidationFilter} = Neptune.Art.Ery.Filters
-{pipelines} = Neptune.Art.Ery
-{ArtEryFluxModel} = Neptune.Art.Ery.Flux
+{UuidFilter, TimestampFilter, ValidationFilter} = require('art-ery').Filters
+{pipelines} = require('art-ery')
+{ArtEryFluxModel} = require('art-ery').Flux
 SimplePipeline = require '../SimplePipeline'
 {missing, success} = CommunicationStatus
-{FluxSubscriptionsMixin} = Neptune.Art.Flux
+{FluxSubscriptionsMixin} = require('art-flux')
 
-{Flux} = Neptune.Art
+Flux = require("art-flux")
 
 module.exports = suite: ->
   orderLog = []

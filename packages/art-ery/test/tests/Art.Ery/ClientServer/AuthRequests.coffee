@@ -1,5 +1,5 @@
 {toMilliseconds, objectWithout, present, merge, isString, log, createWithPostCreate, RestClient, CommunicationStatus} = require 'art-foundation'
-{missing, Pipeline, pipelines, session} = Neptune.Art.Ery
+{missing, Pipeline, pipelines, session} = require('art-ery')
 {clientFailureNotAuthorized, clientFailure} = CommunicationStatus
 
 module.exports = suite:

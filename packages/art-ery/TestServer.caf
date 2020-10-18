@@ -1,11 +1,12 @@
-{ConfigRegistry} = &ArtConfig
-Server = &Server
-require :./test/tests/Art.Ery/ClientServer/Pipelines
+&register
+&Server
+&test/tests/ArtEry/ClientServer/Pipelines
+&test/tests/ArtEry/ClientServerFlux/Pipelines
 
-ConfigRegistry.configure
+&ArtConfig.ConfigRegistry.configure
   artConfig:
     verbose: true
     Art: Ery: verbose: true
 
-Server.start
+&Server.start
   static: root: :./test/public/

@@ -1,5 +1,5 @@
 Foundation = require 'art-foundation'
-Ery = Neptune.Art.Ery
+Ery = require('art-ery')
 
 {merge, log, createWithPostCreate, CommunicationStatus, wordsArray} = Foundation
 {missing} = CommunicationStatus

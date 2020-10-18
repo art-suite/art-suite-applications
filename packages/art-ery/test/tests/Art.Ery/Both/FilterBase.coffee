@@ -1,5 +1,5 @@
 {log, formattedInspect, createWithPostCreate} = require 'art-foundation'
-{Request, Filter} = Neptune.Art.Ery
+{Request, Filter} = require('art-ery')
 SimplePipeline = require './SimplePipeline'
 
 module.exports = suite:

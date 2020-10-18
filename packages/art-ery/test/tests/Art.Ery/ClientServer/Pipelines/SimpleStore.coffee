@@ -1,5 +1,5 @@
-{isString, defineModule, array, randomString, merge, log, formattedInspect} = require 'art-foundation'
-{Pipeline, KeyFieldsMixin, DataUpdatesFilter} = require 'art-ery'
+{defineModule, randomString, merge} = require 'art-standard-lib'
+{Pipeline, KeyFieldsMixin} = require 'art-ery'
 
 defineModule module, class SimpleStore extends KeyFieldsMixin Pipeline
   @abstractClass()
@@ -22,7 +22,7 @@ defineModule module, class SimpleStore extends KeyFieldsMixin Pipeline
       key = if request.pipeline.keyFields.length > 1
         key = request.pipeline.toKeyString request.requestData
       else
-        randomString().slice 0, 8
+        randomString 8
       @db[key] = merge request.data, request.pipeline.toKeyObject key
 
     update: (request) ->

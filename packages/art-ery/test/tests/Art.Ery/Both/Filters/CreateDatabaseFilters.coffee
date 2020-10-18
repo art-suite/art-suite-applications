@@ -1,5 +1,5 @@
 {timeout, array, log, createWithPostCreate, w, isString, Validator, w} = require 'art-foundation'
-{createDatabaseFilters, KeyFieldsMixin} = Neptune.Art.Ery
+{createDatabaseFilters, KeyFieldsMixin} = require('art-ery')
 SimplePipeline = require '../SimplePipeline'
 
 SimplePipelineWithKeys = KeyFieldsMixin SimplePipeline

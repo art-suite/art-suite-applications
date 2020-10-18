@@ -1,7 +1,7 @@
-import &StandardImport, Neptune.Art.Ery.Flux, {} &SimplePipeline
+import &StandardImport, require('art-ery').Flux, {} &SimplePipeline
 
-# {Pipeline} = Neptune.Art.Ery
-{Flux} = Neptune.Art
+# {Pipeline} = require('art-ery')
+Flux = require("art-flux")
 
 suite: ->
   setup ->

@@ -1,5 +1,5 @@
 {log, createWithPostCreate, isString, Validator} = require 'art-foundation'
-{TimestampFilter} = Neptune.Art.Ery.Filters
+{TimestampFilter} = require('art-ery').Filters
 SimplePipeline = require '../SimplePipeline'
 {FieldTypes} = require 'art-validation'
 

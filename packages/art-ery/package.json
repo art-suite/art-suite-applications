@@ -4,7 +4,7 @@
   "dependencies": {
     "art-build-configurator": "^1.28.0",
     "art-events": "^1.3.7",
-    "art-express-server": "^1.1.0",
+    "art-express-server": "^1.1.1",
     "compress": "^0.99.0",
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",
@@ -44,5 +44,5 @@
     "testInBrowser": "webpack-dev-server --progress --env.devServer",
     "testServer": "caf ./TestServer.caf"
   },
-  "version": "1.112.1"
+  "version": "1.112.2"
 }

@@ -1,5 +1,5 @@
 {log, createWithPostCreate} = require 'art-foundation'
-{missing, Pipeline, pipelines} = Neptune.Art.Ery
+{missing, Pipeline, pipelines} = require('art-ery')
 
 module.exports = suite: ->
   test "aliases don't currently add actual alises in pipelines", ->

@@ -1,5 +1,5 @@
 {log, createWithPostCreate, isString, Validator, Promise, object, isFunction} = require 'art-foundation'
-{Pipeline, Filters, pipelines, config} = Neptune.Art.Ery
+{Pipeline, Filters, pipelines, config} = require('art-ery')
 {LinkFieldsFilter} = Filters
 SimplePipeline = require '../SimplePipeline'
 

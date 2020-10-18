@@ -1,10 +1,15 @@
+import &ArtStandardLib
+
 &ArtFlux/Core
-require '../index.coffee'
+&Source
 {ArtEryFluxModel} = &Flux
 
 &ArtTestbench/Testing
 .init
   defineTests: ->
-    tests = &Tests
-    ArtEryFluxModel.defineModelsForAllPipelines()
-    tests
+    suiteSetup ->
+      Promise.all []
+        &ArtEry.initForTesting()
+        ArtEryFluxModel.defineModelsForAllPipelines()
+
+    &Tests
