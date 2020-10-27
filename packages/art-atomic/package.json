@@ -1,6 +1,6 @@
 {
   "author": "Shane Brinkman-Davis Delamore, Imikimi LLC",
-  "bugs": "https:/github.com/art-suite/art-atomic/issues",
+  "bugs": "https://github.com/art-suite/art-suite-applications/issues",
   "dependencies": {
     "art-class-system": "^1.11.10",
     "art-standard-lib": "^1.69.9"
@@ -11,7 +11,7 @@
     "art-testbench": "^2.2.8",
     "jest": "^26.5.3"
   },
-  "homepage": "https://github.com/art-suite/art-atomic",
+  "homepage": "https://github.com/art-suite/art-suite-applications",
   "jest": {
     "testEnvironment": "node"
   },
@@ -19,7 +19,7 @@
   "name": "art-atomic",
   "repository": {
     "type": "git",
-    "url": "https://github.com/art-suite/art-atomic.git"
+    "url": "https://github.com/art-suite/art-suite-applications.git"
   },
   "scripts": {
     "build": "coffee --output source --compile --map source-source &\ncaf -p -c source-source -o source &\nwait\nnn -sq",
