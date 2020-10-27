@@ -176,3 +176,6 @@ class MyFilter extends Filter
 # TODO
 
 Use the `Authorization: Bearer` HTTP header to pass a session on `GET` requests. https://stackoverflow.com/questions/33265812/best-http-authorization-header-type-for-jwt
+
+Filters
+  - instead of "filterFailures" - perhaps we should have an `afterFailure` path separate from `after`?
