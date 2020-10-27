@@ -10,6 +10,15 @@
 &source/Art/Aws
 &ArtTestbench/Testing
 .init
-  artConfig: &artConfigPrivate.Test
+  artConfig: Art: Aws:
+    credentials:
+      accessKeyId:      'blah'
+      secretAccessKey:  'blahblah'
+
+    region:             'us-east-1'
+
+    dynamoDb:
+      endpoint:         'http://localhost:8081'
+
 
   defineTests: -> &Tests

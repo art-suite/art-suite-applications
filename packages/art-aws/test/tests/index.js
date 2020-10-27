@@ -6,4 +6,4 @@
 .addModules({
   StandardImport: require('./StandardImport')
 });
-require('./Art');
+require('./art');

@@ -10,6 +10,7 @@ import &StandardImport
         queue:            :https://sqs.us-east-1.amazonaws.com/123/ABC
 
 suite: ->
+##
   testQueueName = :ArtAwsSqsTestQueue
 
   @timeout 20000
