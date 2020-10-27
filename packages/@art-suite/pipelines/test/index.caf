@@ -1,0 +1,15 @@
+import &ArtStandardLib
+
+&ArtFlux/Core
+&Source
+{ArtEryFluxModel} = &Flux
+
+&ArtTestbench/Testing
+.init
+  defineTests: ->
+    suiteSetup ->
+      Promise.all []
+        &ArtEry.initForTesting()
+        ArtEryFluxModel.defineModelsForAllPipelines()
+
+    &Tests
