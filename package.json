@@ -12,6 +12,7 @@
     "art-canvas": "file:packages/art-canvas",
     "art-class-system": "^1.11.10",
     "art-engine": "file:packages/art-engine",
+    "art-engine-demos": "file:packages/art-engine-demos",
     "art-engine-remote": "file:packages/art-engine-remote",
     "art-ery": "file:packages/art-ery",
     "art-ery-aws": "file:packages/art-ery-aws",
