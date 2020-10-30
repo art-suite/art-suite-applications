@@ -1,5 +1,5 @@
 Foundation = require 'art-foundation'
-{models} = Flux = require 'art-flux'
+{models} = Flux = require '@art-suite/art-flux'
 {merge, log, isString, Promise, BaseObject, Epoch, timeout, createWithPostCreate, CommunicationStatus} = Foundation
 
 {FluxModel, fluxStore, ModelRegistry} = Flux

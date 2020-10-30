@@ -1,5 +1,5 @@
 Foundation = require 'art-foundation'
-Flux = require 'art-flux'
+Flux = require '@art-suite/art-flux'
 React = require 'art-react'
 {eq, log, Promise, timeout, createWithPostCreate, defineModule, formattedInspect, isString} = Foundation
 {success, missing, pending} = Foundation.CommunicationStatus

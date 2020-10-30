@@ -3,7 +3,7 @@
   "bugs": "https://github.com/art-suite/art-suite-applications/issues",
   "dependencies": {
     "art-class-system": "^1.11.10",
-    "art-standard-lib": "^1.69.9"
+    "art-standard-lib": "^1.70.1"
   },
   "description": "atomic data-types such as Color, Point, Rectangle and Matrix",
   "devDependencies": {

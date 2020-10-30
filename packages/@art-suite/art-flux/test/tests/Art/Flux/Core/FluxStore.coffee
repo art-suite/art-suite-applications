@@ -1,5 +1,5 @@
 {log, merge, CommunicationStatus, createWithPostCreate} = require 'art-foundation'
-{Core:{FluxStore, FluxModel, ModelRegistry}, fluxStore, models} = require 'art-flux'
+{Core:{FluxStore, FluxModel, ModelRegistry}, fluxStore, models} = require '@art-suite/art-flux'
 {success, missing, pending} = CommunicationStatus
 
 reset = ->
