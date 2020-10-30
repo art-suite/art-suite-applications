@@ -1,0 +1,15 @@
+import &StandardImport
+
+class GetItem extends &TableApiBaseClass
+  ###
+    IN: params:
+      table:                  string (required)
+  _translateParams: (params) ->
+    @_translateKey params
+    @_translateOptionalParams params
+    @_target
+
+  _translateOptionalParams: (params) ->
+    @_translateConsistentRead params
+    @_translateConsumedCapacity params
+    @_translateSelect params

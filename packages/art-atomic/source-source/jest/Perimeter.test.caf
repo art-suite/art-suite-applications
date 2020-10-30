@@ -1,0 +1,113 @@
+import &StandardImport
+
+describe
+  new: ->
+    test "0", ->
+      p = perimeter 0
+      assert.equal 0, p.left
+      assert.equal 0, p.right
+      assert.equal 0, p.top
+      assert.equal 0, p.bottom
+
+    test "null", ->
+      p = perimeter null
+      assert.equal 0, p.left
+      assert.equal 0, p.right
+      assert.equal 0, p.top
+      assert.equal 0, p.bottom
+
+    test "undefined", ->
+      p = perimeter undefined
+      assert.equal 0, p.left
+      assert.equal 0, p.right
+      assert.equal 0, p.top
+      assert.equal 0, p.bottom
+
+    test "1, 2, 3, 4", ->
+      p = perimeter 1, 2, 3, 4
+      assert.equal 1, p.left
+      assert.equal 2, p.right
+      assert.equal 3, p.top
+      assert.equal 4, p.bottom
+
+    test "1, 2", ->
+      p = perimeter 1, 2
+      assert.equal 1, p.left
+      assert.equal 1, p.right
+      assert.equal 2, p.top
+      assert.equal 2, p.bottom
+
+    test "h:1, v:2", ->
+      p = perimeter h:1, v:2
+      assert.eq p.toObject(), left: 1, right: 1, top: 2, bottom: 2
+
+    test "horizontal:1, vertical:2", ->
+      p = perimeter horizontal:1, vertical:2
+      assert.eq p.toObject(), left: 1, right: 1, top: 2, bottom: 2
+
+    test "left: 1, right: 2, top: 3, bottom: 4", ->
+      p = perimeter left: 1, right: 2, top: 3, bottom: 4
+      assert.eq p.toObject(), left: 1, right: 2, top: 3, bottom: 4
+
+    test "l: 1, r: 2, t: 3, b: 4", ->
+      p = perimeter l: 1, r: 2, t: 3, b: 4
+      assert.eq p.toObject(), left: 1, right: 2, top: 3, bottom: 4
+
+    test "l: 1, r: 2, v: 3", ->
+      p = perimeter l: 1, r: 2, v: 3
+      assert.eq p.toObject(), left: 1, right: 2, top: 3, bottom: 3
+
+    test "l: 1, t: 2", ->
+      p = perimeter l: 1, t: 2
+      assert.eq p.toObject(), left: 1, right: 0, top: 2, bottom: 0
+
+    test "l: 1, r: 2, t: 3, b: 4, h: 10, v: 100", ->
+      p = perimeter l: 1, r: 2, t: 3, b: 4, h: 10, v: 100
+      assert.eq p.toObject(), left: 11, right: 12, top: 103, bottom: 104
+
+  computedProperties: ->
+    test "width", ->
+      p = perimeter l: 1, r: 2, t: 3, b: 4
+      assert.eq p.width, 3
+
+    test "height", ->
+      p = perimeter l: 1, r: 2, t: 3, b: 4
+      assert.eq p.height, 7
+
+  pad: ->
+    test "top bottom", ->
+      p = perimeter top: 5, bottom: 10
+      assert.eq
+        p.pad rect 100
+        rect 0, 5, 100, 85
+
+    test "point2d", ->
+      p = perimeter top: 5, bottom: 10
+      assert.eq
+        p.pad point 100
+        rect 0, 5, 100, 85
+
+    test "left right", ->
+      p = perimeter left: 5, right: 10
+      assert.eq
+        p.pad rect 100
+        rect 5, 0, 85, 100
+
+  interpolate: ->
+    test "height", ->
+      a = perimeter l: 1.0, r: 2.0, t: 3.0, b: 4.0
+      b = perimeter l: 2.0, r: 3.0, t: 4.0, b: 5.0
+      c = perimeter l: 1.5, r: 2.5, t: 3.5, b: 4.5
+      a.eq b
+      assert.eq c, a.interpolate b, .5
+
+  eq: ->
+    test "eq 0 0 0 0", ->
+      assert.true
+        perimeter 0 0 0 0
+        .eq 0 0 0 0
+
+    test "eq 1 2 3 4", ->
+      assert.true
+        perimeter 1 2 3 4
+        .eq 1 2 3 4

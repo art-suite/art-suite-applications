@@ -1,0 +1,31 @@
+import &StandardImport, {} &Style
+
+class FrameSampleSet extends BaseClass
+  constructor: (@sampleTime, @total, @sampleSet) ->
+
+  @getter
+    inspectedObjects: ->
+      {}
+        @sampleTime
+        @total
+        @sampleSet
+
+  getStacked: (sampleName) ->
+    return @total if sampleName == :total
+    sum = 0
+    each sn in-array Style.statFields by -1
+      sum += @sampleSet[sn] || 0
+      break if sn == sampleName
+    sum
+
+  drawSample: (bitmap, drawMatrix, sampleWidth, sampleField, h) ->
+    @ extract sampleTime
+    bitmap.drawRectangle
+      null
+      rect
+        x = drawMatrix.transformX sampleTime, sample = @getStacked sampleField
+        y = drawMatrix.transformY sampleTime, sample
+        sampleWidth
+        h - y
+
+      color: Style.statColors[sampleField]

@@ -1,0 +1,7 @@
+&ArtStandardLib.merge
+  &ArtStandardLib
+  &ArtAtomic
+  &ArtCanvas
+  &ArtCanvas.Paths
+  &Helper
+  test: (args...) -> global.test args...

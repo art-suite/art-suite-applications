@@ -1,0 +1,56 @@
+import
+  &StandardImport
+  &ArtErySessionManager
+
+class ArtEryHandler extends &ArtExpressServer.PromiseHandler
+
+  canHandleRequest: (request) ->
+    {url} = request
+    find pipeline, pipelineName in pipelines when pipeline.restPathRegex.test url
+
+  handleApiRequest: (request, requestData) ->
+    if found = @_findPipelineForRequest request
+      {pipeline, type, key} = found
+
+      verifySession requestData.session
+      .catch -> null
+      .then (session) ->
+        pipeline._processRequest Request.createFromRemoteRequestProps {}
+          pipeline, type, key, requestData
+          session: session || {}
+          remoteRequest: request
+
+        .then (response) ->
+          if response.failed
+            log.error response
+          else if config.verbose
+            log "#{response.requestString}: subrequestCount: #{response.subrequestCount}, recordsReturned: #{if response.data then response.data.length ? 1 else 0}"
+          prepareSignedSessionForResponse session, response.responseForRemoteRequest
+
+    else
+      Promise.resolve null # missing
+
+  ######################
+  # PRIVATE
+  ######################
+
+  httpMethodsToArtEryRequestTypes =
+    get:    :get
+    post:   :create
+    put:    :update
+    delete: :delete
+
+  _findPipelineForRequest: (request) ->
+    {url, method} = request
+
+    if found = find pipeline, pipelineName in pipelines
+        if match = url.match pipeline.restPathRegex
+          {match, pipeline}
+
+      {match, pipeline} = found
+      [__, type, key] = match
+      type ||= httpMethodsToArtEryRequestTypes[method.toLocaleLowerCase()]
+      if config.verbose && type && !pipeline.publicRequestTypes[type]
+        log.warn "" ArtEryHandler blocked request: '#{pipeline.name}.#{type}': #{if type in pipeline.requestTypes then "not in publicRequestTypes" else "not a valid request-type"}
+
+      pipeline.publicRequestTypes[type] && {} pipeline, type, key

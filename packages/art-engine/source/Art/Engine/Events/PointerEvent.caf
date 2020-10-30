@@ -1,0 +1,133 @@
+import &StandardImport, &ArtEvents
+
+arrayize = (single, arr, defaultArray)->
+  if single then [single] else arr || defaultArray || []
+
+transformedArray = (arrayOfPoints, matrix) ->
+  array p in arrayOfPoints
+    matrix.transform p
+
+class PointerEvent extends Event
+  constructor: (type, pointer, propsOrTime) ->
+    props = if isNumber propsOrTime
+      log.warn "DEPRICATED: propsOrTime should always be props. Use: 'time: eventTime'"
+      time: propsOrTime
+    else propsOrTime
+
+    super type, props, props?.time
+    @pointer = pointer
+
+  clone: -> @newEvent()
+
+  emptyObject = {}
+  newEvent: (options)->
+    if options
+      log.warn "DEPRICATED: PointerEvent.newEvent(options); Use: mergeInto event.clone(), options"
+    else
+      options = emptyObject
+
+    e = new PointerEvent
+      options.type    ? @type
+      options.pointer ? @pointer
+      options.time    ? @time
+      options.props   ? @props
+
+    e.timeStamp = @timeStamp
+    e.target = options.target ? @target
+    e
+
+  getAngle = ({currentSize}, {x, y}) ->
+    Math.atan2
+      y - currentSize.y / 2
+      x - currentSize.x / 2
+
+  getAngleDelta = (a1, a2) ->
+    d = (a1 - a2) %% (Math.PI * 2)
+    if d > Math.PI
+      d - Math.PI * 2
+    else
+      d
+
+  @getter
+    numActivePointers:          -> @pointer.activePointers.length
+    activePointers:             -> @pointer.activePointers
+    stayedWithinDeadzone:       -> @pointer.stayedWithinDeadzone
+    leftDeadzone:               -> !@stayedWithinDeadzone
+    location:                   -> @pointer.locationIn @target
+    firstLocation:              -> @pointer.firstLocationIn @target
+    lastLocation:               -> @pointer.lastLocationIn @target
+
+    # NOTE - angles are taken from the center of @target
+    firstAngle:                 -> getAngle @target, @firstLocation
+    angle:                      -> getAngle @target, @location
+    angleDelta:                 -> getAngleDelta @firstAngle, @angle
+
+    absLocation:                -> @pointer.location
+    absFirstLocation:           -> @pointer.firstLocation
+    absLastLocation:            -> @pointer.lastLocation
+
+    parentLocation:             -> @pointer.locationIn @target.parent
+    parentParentLocation:       -> @pointer.locationIn @target.parent.parent
+
+    parentFirstLocation:        -> @pointer.firstLocationIn @target.parent
+    parentParentFirstLocation:  -> @pointer.firstLocationIn @target.parent.parent
+
+    parentLastLocation:         -> @pointer.lastLocationIn @target.parent
+    parentParentLastLocation:   -> @pointer.lastLocationIn @target.parent.parent
+
+    absDelta:                   -> @pointer.location.sub @pointer.lastLocation
+    delta:                      -> @location.sub @lastLocation
+    parentDelta:                -> @pointer.deltaIn @target.parent
+    parentParentDelta:          -> @pointer.deltaIn @target.parent.parent
+
+    absTotalDelta:              -> @pointer.location.sub @pointer.firstLocation
+    totalDelta:                 -> @location.sub @firstLocation
+    totalParentDelta:           -> @pointer.totalDeltaIn @target.parent
+    totalParentParentDelta:     -> @pointer.totalDeltaIn @target.parent.parent
+
+    pointerEventManager: -> @pointer.pointerEventManager
+    multitouchManager: -> @pointerEventManager.multitouchManager
+
+    # Multitouch
+    locations: ->
+      if @activePointers?.length > 1
+        array pointer in @activePointers
+          pointer.locationIn @target
+      else
+        [@locationIn]
+
+    firstLocations: ->
+      if @activePointers?.length > 1
+        array pointer in @activePointers
+          pointer.firstLocationIn @target
+      else
+        [@firstLocation]
+
+    multitouchLeftDeadzone: ->
+      if @activePointers?.length > 1
+        !find p in @activePointers when !p.leftDeadzone
+      else @leftDeadzone
+
+    multitouchTransformInAbsSpace: -> @multitouchManager.multitouchTransform
+    multitouchTransformInParent:   -> @multitouchTransformIn @target.parent
+    multitouchTransform:           -> @multitouchTransformIn @target
+
+    multitouchParts:   -> @multitouchTransformPartsIn @target
+
+    multitouchOccured: -> @multitouchManager.multitouchOccured
+
+  multitouchTransformIn:      (element) -> @multitouchManager.multitouchTransformIn element
+  multitouchTransformPartsIn: (element) -> @multitouchManager.multitouchTransformPartsIn element
+
+  # multitouchTransformIn: ({absToElementMatrix}) ->
+  #   absToElementMatrix.invertAndMul
+  #     @multitouchTransformInAbsSpace
+  #     .mul absToElementMatrix
+
+  toElementMatrix: (element) ->
+    @target.getElementToElementMatrix(element)
+
+  # locations in element's space
+  locationIn:      (element) -> @pointer.locationIn element
+  lastLocationIn:  (element) -> @pointer.lastLocationIn element
+  firstLocationIn: (element) -> @pointer.firstLocationIn element
