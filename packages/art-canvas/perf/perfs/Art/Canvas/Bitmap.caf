@@ -1,0 +1,35 @@
+import &StandardImport
+
+suite:
+
+  blur: ->
+    bitmap = null
+    setup ->
+      bitmap = a = new Bitmap bitmapSize = 256
+      divisions = 6
+      cellSize = bitmapSize / divisions
+      each sat from 0 to 1 by 1/divisions
+        each hue from 0 to 1 by 1/divisions
+          bitmap.drawRectangle
+            point
+              hue * bitmapSize
+              sat * bitmapSize
+            cellSize
+            color: hslColor hue, sat, 1
+
+    # test "blur 48" ->
+    #   bitmap.blur 48
+    #   log bitmap
+
+    # test "fastBlur 48" ->
+    #   bitmap.fastBlur 48
+    #   log bitmap
+
+    radius = 64
+    benchmark "blur #{radius}" -> bitmap.blur radius
+    benchmark "fastBlur #{radius}" -> bitmap.fastBlur radius
+    benchmark "fastBlur #{radius}, toClone = true" -> bitmap.fastBlur radius, true
+
+    benchmark "blurRGB #{radius}" -> bitmap.blurRGB radius
+    benchmark "fastBlurRGB #{radius}" -> bitmap.fastBlurRGB radius
+    benchmark "fastBlurRGB #{radius}, toClone = true" -> bitmap.fastBlurRGB radius, true

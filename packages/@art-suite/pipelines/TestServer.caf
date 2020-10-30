@@ -1,0 +1,12 @@
+&register
+&Server
+&test/tests/ArtEry/ClientServer/Pipelines
+&test/tests/ArtEry/ClientServerFlux/Pipelines
+
+&ArtConfig.ConfigRegistry.configure
+  artConfig:
+    verbose: true
+    Art: Ery: verbose: true
+
+&Server.start
+  static: root: :./test/public/

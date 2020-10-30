@@ -1,0 +1,10 @@
+#!/usr/bin/env node
+
+require('./register')
+require('./tool.caf')({
+  description: "This is an example of how to build a custom tool for your app.",
+  load: () => {
+    console.log("Add your own loading code. Optionally return a Promise if you want the CLI to wait for async loading tasks.");
+  },
+  package: require("./package")
+})

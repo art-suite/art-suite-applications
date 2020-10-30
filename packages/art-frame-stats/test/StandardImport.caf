@@ -1,0 +1,5 @@
+&ArtStandardLib.mergeWithSelf
+  &ArtClassSystem
+  &ArtTestbench
+  &ArtFrameStats
+  {} &ArtFrameStats

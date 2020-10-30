@@ -1,0 +1,107 @@
+import &ArtStandardLib, &ArtAtomic, &ArtEngine, &ArtEngineFactories
+
+scroll = ({vertical:"vertical", horizontal:"horizontal"}[parseQuery().scroll]) || "vertical"
+log
+  PagingScrollElementDemo:
+    scroll: scroll
+    options:
+      dev: "?dev=true/false"
+      scroll: "?scroll=vertical/horizontal"
+
+generatedChildrenMap = {}
+generateChildren = (centerIndex, spread = 2)->
+  oldGeneratedChildrenMap = generatedChildrenMap
+  generatedChildrenMap = {}
+  startIndex = max 0, centerIndex - spread
+  endIndex = centerIndex + spread
+  out = []
+  pageIndex = startIndex
+  while pageIndex <= endIndex
+    h = modulo pageIndex / 24, 1
+    # log h:h
+    text = round(h * 360) + "°"
+    key = pageIndex.toString()
+    out.push generatedChildrenMap[key] = oldGeneratedChildrenMap[key] || Element
+      size:
+        if scroll == "horizontal"
+          hh:1, w:300
+        else
+          ww:1, h:300
+      key: key
+      # margin: 10
+      RectangleElement color: hslColor h, 1, 1
+      TextElement
+        location: ps: .5
+        axis: .5
+        fontSize: 128
+        color: "#0007"
+        text: text
+    pageIndex++
+  out
+
+Button = ({text, action}) ->
+  Element
+    size: hh: 1, wcw: 1
+    on: pointerClick: action
+    cursor: :pointer
+    margin: 10
+    clip: true
+    childrenLayout: :row
+    childrenAlignment: :centerLeft
+    RectangleElement color: #333, inFlow: false
+    TextElement padding: 10, text: text, color: #eee fontFamily: :arial
+
+TestElement = ->
+  height = 100
+  element = Element
+    size: ww: 1, h: height
+    childrenLayout: :row
+    animators: size: toFrom: ww: 1, h: 0
+    clip: true
+    margin: 10
+    RectangleElement
+      color: hslColor random(), 1, 1
+      inFlow: false
+    Element
+      size: ww: 1, hh: 1
+      childrenLayout: :row
+      childrenAlignment: :centerLeft
+      padding: 10
+      Button text: "Add above" action: ->
+        {children} = element.parent
+        index = children.indexOf element
+        element.parent.children = arrayWithInsertedValue children, index, TestElement()
+      Button text: "Add below" action: ->
+        {children} = element.parent
+        index = children.indexOf element
+        element.parent.children = arrayWithInsertedValue children, index + 1, TestElement()
+      Button text: "Expand" action: -> height *= 1.5; element.size = ww: 1, h: height
+      Button text: "Reduce" action: -> height = max 50, height / 1.5; element.size = ww: 1, h: height
+      Button text: "Delete" action: -> element.removeFromParent()
+      Element
+        key: "focusedText"
+        size: cs: 1
+        visible: false
+        RectangleElement color: #fff7
+        TextElement
+          padding: 10
+          fontFamily: "arial"
+          color: :white
+          text: :focused
+
+->
+  CanvasElement
+    RectangleElement color: "#333"
+    global.scrollElement = ScrollElement
+      padding: 10
+      # childrenAlignment: :bottom
+      track: "bottom"
+      # childrenLayout: :column
+      on: scrollUpdate: ({props, target}) ->
+        {focusedChild} = props
+        each child in target.find "focusedText"
+          if child.parent.parent == focusedChild
+            log "found focusd: #{child.uniqueId}"
+          child.visible = child.parent.parent == focusedChild
+
+      TestElement()
