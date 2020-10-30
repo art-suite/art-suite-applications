@@ -9,7 +9,7 @@
     "art-engine": "^4.4.4",
     "art-ery": "^1.112.2",
     "art-events": "^1.3.7",
-    "art-flux": "^1.23.0",
+    "@art-suite/art-flux": "^1.23.0",
     "art-react": "^1.35.1",
     "art-text": "^1.2.6",
     "art-validation": "^1.9.1",

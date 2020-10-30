@@ -6,7 +6,7 @@ SimplePipeline = require '../SimplePipeline'
 {missing, success} = CommunicationStatus
 {FluxSubscriptionsMixin} = require('art-flux')
 
-Flux = require("art-flux")
+Flux = require("@art-suite/art-flux")
 
 module.exports = suite: ->
   orderLog = []

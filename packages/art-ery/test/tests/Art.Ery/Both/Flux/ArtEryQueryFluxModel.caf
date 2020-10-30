@@ -1,7 +1,7 @@
 import &StandardImport, require('art-ery').Flux, {} &SimplePipeline
 
 # {Pipeline} = require('art-ery')
-Flux = require("art-flux")
+Flux = require("@art-suite/art-flux")
 
 suite: ->
   setup ->

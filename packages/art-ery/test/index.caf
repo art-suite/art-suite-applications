@@ -1,6 +1,6 @@
 import &ArtStandardLib
 
-&ArtFlux/Core
+require("@art-suite/art-flux/Core")
 &Source
 {ArtEryFluxModel} = &Flux
 
