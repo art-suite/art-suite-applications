@@ -12,6 +12,7 @@
     "type": "git",
     "url": "https://github.com/art-suite/art-suite-applications.git"
   },
+  "name": "art-engine-demos",
   "scripts": {
     "build": "webpack --progress",
     "start": "webpack-dev-server --hot --inline --progress",

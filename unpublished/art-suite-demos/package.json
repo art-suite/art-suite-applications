@@ -27,6 +27,7 @@
     "webpack-node-externals": "^2.5.2",
     "webpack-stylish": "^0.1.8"
   },
+  "name": "art-suite-demos",
   "homepage": "https://github.com/art-suite/art-suite-applications",
   "license": "ISC",
   "repository": {
