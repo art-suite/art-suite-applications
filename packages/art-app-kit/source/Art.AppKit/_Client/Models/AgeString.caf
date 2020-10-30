@@ -1,0 +1,19 @@
+import &StandardImport
+
+###
+  TODO:
+    We can make these even more efficient, if needed, by splitting @_tracking out into
+    "seconds", "minutes", and "hours" - and only process seconds on every timestamp,
+    minutes on every minute, and hours hourly.
+
+class AgeString extends FluxModel
+
+  constructor:  -> interval 1000, -> @secondPassed()
+  toKeyString:  (key) -> "" #{key}
+  toFluxKey:    (date) -> "" #{toSeconds date}
+  loadData:     (timestamp) -> dateAgeString timestamp, true
+
+  secondPassed: ->
+    each entry, timestamp in @fluxStoreEntries
+      @load timestamp
+

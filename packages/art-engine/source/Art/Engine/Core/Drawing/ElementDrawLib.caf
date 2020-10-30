@@ -1,0 +1,342 @@
+import &StandardImport
+{rectanglePath, ellipsePath, circlePath} = Paths
+
+{getDevicePixelRatio} = &ArtFoundation.Browser.Dom
+
+defaultMiterLimit = 3
+defaultLineWidth = 1
+defaultOffset = pointLayout y: 2
+
+class ElementDrawLib
+  @colorPrecision:  colorPrecision = 1/256
+
+  @legalDrawCommands: legalDrawCommands =
+    circle:             true  # currentPath = circlePath; currentPathOptions = null
+    rectangle:          true  # currentPath = rectanglePath; currentPathOptions = null
+    clip:               true  # start clipping using: currentPath, currentPathOptions and currentDrawArea
+    children:           true  # draw all remaining children
+    reset:              true  # same as 'resetShape' PLUS 'resetDrawArea'
+    resetShape:         true  # same as 'rectangle'
+    resetDrawArea:      true  # same as 'logicalDrawArea'
+    logicalDrawArea:    true  # currentDrawArea = logicalArea
+    paddedDrawArea:     true  # currentDrawArea = paddedArea
+    padded:             true  # paddedDrawArea alias
+    resetClip:          true  # same as: clip: false
+    debug:              true
+
+  @looksLikeColor: looksLikeColor = (v) ->
+    if v?
+      if isString v
+        !legalDrawCommands[v]
+      else
+        isColor v
+        || isArray v
+        || v[0]? && v[1]?
+        || v.constructor == GradientFillStyle
+
+  sharedDrawOptions = {}
+  sharedShadowOptions = {}
+
+  # TODO:
+  # drawOptions.gradientRadius
+  # drawOptions.gradientRadius1
+  # drawOptions.gradientRadius2
+
+  @prepareShadow: prepareShadow = (shadow, size) ->
+    if shadow
+      {blur, color, offset} = shadow
+
+      sharedShadowOptions.blur    = blur
+      sharedShadowOptions.color   = color
+      sharedShadowOptions.offsetX = offset.layoutX size
+      sharedShadowOptions.offsetY = offset.layoutY size
+
+      sharedShadowOptions
+
+  @layoutToFrom: layoutToFrom = (toFromLayout, drawArea) ->
+    if isRect drawArea
+      {size, x, y} = drawArea
+      x += toFromLayout.layoutX size
+      y += toFromLayout.layoutY size
+      point x, y
+    else
+      toFromLayout.layout drawArea
+
+  @prepareDrawOptions: (drawOptions, drawArea, isOutline) ->
+    o = sharedDrawOptions
+
+    drawOptions extract
+      color
+      colors
+      compositeMode
+      opacity
+      shadow
+      radius
+      radial
+      fillRule
+      to as toOption
+      from as fromOption
+
+    if isOutline
+      drawOptions extract
+        lineWidth  = defaultLineWidth
+        miterLimit = defaultMiterLimit
+        lineJoin
+        lineCap
+
+      o.lineWidth   = lineWidth
+      o.miterLimit  = miterLimit
+      o.lineJoin    = lineJoin
+      o.lineCap     = lineCap
+
+    o.radial        = !!radial
+    o.color         = color
+    o.colors        = colors
+    o.compositeMode = compositeMode
+    o.opacity       = opacity
+    o.shadow        = prepareShadow shadow
+    o.from          = colors && if fromOption? then layoutToFrom fromOption,  drawArea else drawArea.topLeft
+    o.to            = colors && if toOption?   then layoutToFrom toOption,    drawArea else drawArea.bottomLeft
+    o.radius        = radius
+    o.fillRule      = fillRule
+
+    if colors?.constructor == GradientFillStyle
+      colors.to   = o.to
+      colors.from = o.from
+    o
+
+  @normalizeDrawProps: normalizeDrawProps = (drawProps) ->
+    if drawProps?
+      if looksLikeColor drawProps
+        drawProps = color: drawProps
+      drawProps extract
+        shadow, color, colors
+        to    as toOption
+        from  as fromOption
+
+      if color? && color.constructor != Color
+        if color.constructor == GradientFillStyle
+          colors = color
+        else
+          if true &&
+              isArray(color) && !isNumber color[0]
+              ||
+                isPlainObject color
+                && !(color.r ? color.g ? color.b ? color.a)?
+
+            colors = color
+
+          if colors
+            colors = GradientFillStyle.normalizeColors colors
+
+        color = if colors? then undefined else rgbColor color
+
+      if colors?
+        fromOption  = fromOption  && pointLayout fromOption ? "topLeft"
+        toOption    = toOption    && pointLayout toOption   ? "bottomLeft"
+
+      if shadow
+        shadow = normalizeShadow shadow
+
+      if shadow ||
+          color         != drawProps.color
+          || colors     != drawProps.colors
+          || toOption   != drawProps.to
+          || fromOption != drawProps.from
+
+        drawProps = merge drawProps # shallow clone
+        drawProps.shadow  = shadow
+        drawProps.color   = color
+        drawProps.colors  = colors
+        drawProps.to      = toOption
+        drawProps.from    = fromOption
+        drawProps
+      else
+        drawProps
+
+  @normalizeDrawStep: (step) ->
+    switch
+    when looksLikeColor step
+      fill: normalizeDrawProps color: step
+    when !isPlainObject step
+      step
+    else
+      step extract
+        fill, shadow, outline, radius, color, colors
+        padding, rectangle, circle, shape
+        to    as toOption
+        from  as fromOption
+
+      if color ? colors ? toOption ? fromOption ? shadow
+        fill = merge normalizeDrawProps {}
+          color, colors, shadow
+          to:   toOption
+          from: fromOption
+        step = objectWithout step, :color :colors :to :from :shadow
+
+      if radius?
+        rectangle = if isRect rectangle
+          {} radius, area: rectangle
+        else if isPlainObject rectangle
+          r = merge rectangle
+          r.radius = radius
+          r
+        else {radius}
+
+      padding ?= circle?.padding ? rectangle?.padding ? shape?.padding
+
+      padding = padding? && padding != false && perimeter padding
+      fill = normalizeDrawProps fill
+      outline = normalizeDrawProps outline
+
+      if padding != step.padding || fill != step.fill || outline != step.outline || rectangle != step.rectangle
+        merge step, {} fill, outline, padding, rectangle
+      else
+        step
+
+  @validateDrawAreas: (newDrawAreas, oldDrawAreas, addedDrawArea) ->
+    areasToTest = compactFlattenFast [oldDrawAreas, addedDrawArea]
+
+    # all areasToTest are contained by at least one area in newDrawAreas
+    each area in compactFlattenAllFast oldDrawAreas, addedDrawArea
+      unless find newDrawArea in-array newDrawAreas when newDrawArea.contains area
+        log formattedInspect validateDrawAreasFail: global.validateDrawAreasFail = {newDrawAreas, oldDrawAreas, addedDrawArea}
+        throw new Error "expected one of #{formattedInspect newDrawAreas} to contain #{area}"
+
+    # all newDrawAreas are mutually exclusive (don't overlap)
+    each area1 in newDrawAreas
+      overlapCount = 0
+      each area2 in newDrawAreas when area1.overlaps area2
+        overlapCount++
+      unless overlapCount == 1
+        log formattedInspect {newDrawAreas, oldDrawAreas, addedDrawArea}
+        throw new Error "expected newDrawAreas to be mutually exclusive: #{formattedInspect newDrawAreas}"
+
+    null
+
+  # @findFirstOverlappingAreaIndex: (areas, testArea) ->
+  #   find area, i in-array areas when area.overlaps testArea
+  #     i
+
+
+  ############################## HERE
+
+
+  ### addDirtyDrawArea
+    IN:
+      dirtyDrawAreas: null or array of rectangles
+      areaToAdd: rectangle
+      snapTo: number (or undefined)
+        default: 1
+        suggested: 1 / devicePixelRatio
+
+    NOTES:
+      areaToAdd is rounded out using: areaToAdd.roundOut snapTo, colorPrecision
+
+    OUT: null (only if areaToAdd.area is 0 AND dirtyDrawAreas is null
+    OR
+    OUT: array of rectangles
+      Guarantees:
+        All rectangles are mutually exclusive - they don't overlap each other at all
+        Each rectangle in IN:dirtyDrawAreas and areaToAdd has exactly one
+        rectangle in OUT which contains it.
+
+    NO SIDE-EFFECTS: does not mutate dirtyDrawAreas or areaToAdd
+    OPTIMIZED: creates at most 1 rectangle and 1 array
+  @chromeBugExpandDirtyDrawAreas: 1
+  # Neptune.Art.Engine.Core.Drawing.ElementDrawLib
+  ## 2019-SBD:
+    'expand' was set to 1 to decrease 'ghost trails' in Chrome
+    Safari seems to be fine. It seems to be a retina-screen bug.
+
+  @disableChromeBugExpandDrawAreaPatch: => @chromeBugExpandDirtyDrawAreas = 0
+
+  ## addDirtyDrawArea
+    IN:
+      dirtyDrawAreas: <Array:Rectangle> or null
+        This might be mutated!
+
+      areaToAdd: <Rectangle>
+        This will NOT be mutated
+
+      snapTo: <Number>
+
+    OUT: <Array:Rectangle>
+      valid dirtyDrawAreas which now cover
+      all areas in the original dirtyDrawAreas AND
+      the new areaToAdd.
+
+      May be the same dirtyDrawAreas array passed in; possibly mutated.
+      May not.
+
+      Always returns a valid array with length >= 1.
+  @addDirtyDrawArea: (dirtyDrawAreas, areaToAdd, snapTo) =>
+    if areaToAdd.area == 0
+      dirtyDrawAreas
+
+    else
+      areaToAdd =
+        oldAta = areaToAdd
+        .roundOut
+          snapTo
+          colorPrecision
+          @chromeBugExpandDirtyDrawAreas
+
+      foundOverlap = false
+      if find area in-array dirtyDrawAreas
+          if area.contains areaToAdd
+            true
+
+          else
+            foundOverlap ||= area.overlaps areaToAdd
+            false
+
+        dirtyDrawAreas
+
+      else unless foundOverlap
+        push dirtyDrawAreas, areaToAdd
+
+      else
+        workingDirtyArea = if oldAta != areaToAdd
+              areaToAdd
+        else  areaToAdd.clone()
+
+        keepLength = -1
+        newKeepLength = dirtyDrawAreas.length
+
+        while newKeepLength != keepLength
+          keepLength = newKeepLength
+          newKeepLength = 0
+
+          each i til keepLength
+            if workingDirtyArea.overlaps area = dirtyDrawAreas[i]
+              area.unionInto workingDirtyArea
+
+            else
+              if newKeepLength != i
+                dirtyDrawAreas[newKeepLength] = area
+
+              newKeepLength++
+
+        dirtyDrawAreas[newKeepLength++] = workingDirtyArea
+        if dirtyDrawAreas.length == newKeepLength
+              dirtyDrawAreas
+        else  dirtyDrawAreas.slice 0, newKeepLength
+
+  @partitionAreasByInteresection: (partitioningArea, areas) ->
+    insideAreas = outsideAreas = null
+
+    each area in areas
+      if area.overlaps partitioningArea
+        insideAreas ?= []
+        .push area.intersection partitioningArea
+
+        each cutArea in area.cutout partitioningArea
+          outsideAreas ?= []
+          .push cutArea
+
+      else
+        outsideAreas ?= []
+        .push area
+
+    {} insideAreas, outsideAreas

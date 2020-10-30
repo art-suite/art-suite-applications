@@ -1,0 +1,89 @@
+import &StandardImport, &MenuLib
+
+class MenuTextInput extends ViewStateComponent
+
+
+  @stateFields
+    edit:       false
+    autoFocus:  false
+
+  getInitialState: ->
+    {edit} = @props
+    {edit}
+
+  startEdit: ->
+    @edit       = true
+    @autoFocus  = true
+
+  render: ->
+    {gridSize, buttonSize} = @viewState
+    @props extract
+      large, displayValue, fontSize
+      value, lean, text, size, color
+      placeholder, valueChanged, submit, textarea
+
+    padded = true
+
+    padding = gridSize / 2
+    textStyle = TextStyles.mediumText
+    if fontSize
+      textStyle = merge textStyle, {fontSize}
+
+    Element
+      menuItemLayout @viewState
+      :parentWidthChildrenHeight :column
+      childrenMargins: gridSize / 4
+      draw: unless lean
+        padding:  h: -gridSize / 2
+        radius:   gridSize / 4
+        fill:     "white"
+        outline:  TextPalette.black.barely
+
+      padding:
+        if lean
+          bottom: padding
+        else
+          v: padding
+          h: padding / 2
+
+      text && TextElement
+        TextStyles.tinyText
+        :parentWidthChildrenHeight
+        color: TextPalette.black.secondary
+        text: text
+
+      if @edit
+        TextInputElement
+          textStyle
+          type: textarea && "textarea"
+          animators: "size"
+          size:
+            size ? if textarea
+              ww:1, hch:1, max: hw: 3/8
+            else
+              :parentWidthChildrenHeight
+
+          placeholder:  placeholder
+          value:        value
+          on:
+            ready: ({target}) =>
+              if @autoFocus
+                @autoFocus = false
+                target.selectAll()
+                target.focus()
+
+            blur:         @clearEdit
+            valueChanged: valueChanged and (event) => valueChanged? event.target.value
+            enter:        submit       and (event) => submit?       event.target.value
+
+      else
+        TextElement
+          textStyle
+          :parentWidthChildrenHeight
+          padding: v: textStyle.fontSize * 1/3
+          on: pointerClick: @startEdit
+          if present v = displayValue ? value
+            v
+          else
+            color: TextPalette.black.secondary
+            text: placeholder

@@ -1,0 +1,4 @@
+&StandardImport
+
+class EngineVirtualElement extends VirtualElement
+  _newElement: newElement

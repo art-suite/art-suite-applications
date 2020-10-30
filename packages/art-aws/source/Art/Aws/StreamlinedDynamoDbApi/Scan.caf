@@ -1,0 +1,13 @@
+import &StandardImport
+
+class Scan extends &TableApiBaseClass
+  ##
+    IN: params:
+      table:                  string (required)
+  _translateParams: (params) ->
+    @_translateOptionalParams params
+    @_target
+
+  _translateOptionalParams: (params) ->
+    @_translateLimit params
+    @_translateExclusiveStartKey params

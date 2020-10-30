@@ -1,0 +1,18 @@
+import &ArtStandardLib
+options: merge
+  &ToolLib.standardPiplineOptions
+  request: "" art-ery request type. Example: --request get
+  options: "" request options. Usually you'll want to pass in 'key', 'props' and/or 'data'. Example: --options "js:{data: {name: 'sally'}}"
+params: "[pipeline] [request] [options]"
+description: "Send an ArtEry request. options should be a JavaScript object-literal."
+run: ({pipeline:pipelineName, request: requestType, options: requestOptions}) ->
+  &ArtEry extract pipelines
+
+  throw new Error "pipelineName required" unless isString pipelineName
+  throw new Error "requestType required" unless isString requestType
+
+  throw new Error "pipeline #{inspect pipelineName} not found" unless pipeline = pipelines[pipelineName]
+  throw new Error "requestType #{inspect requestType} not valid" unless pipeline[requestType]
+
+  log "> #{pipelineName}.#{requestType} #{inspectLean requestOptions, forArgs: true}"
+  pipeline[requestType] requestOptions

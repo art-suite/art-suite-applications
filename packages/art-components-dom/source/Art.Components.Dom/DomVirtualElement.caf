@@ -1,0 +1,29 @@
+&StandardImport
+
+class EngineVirtualElement extends VirtualElement
+  _newElement: (elementClassName, props, childElements, newCanvasElementProps) ->
+    element = document.createElement elementClassName
+    setDomElementProps element, props
+    setDomElementChildren element, newChildrenElements
+    element
+
+  _setElementChildren: (newChildrenElements) ->
+    setDomElementChildren @element, newChildrenElements
+
+  elementTemp = null
+  addedOrChanged  = (k, v, oldV)  -> setDomElementProp elementTemp, k, v, oldV
+  removed         = (k, oldV)     -> setDomElementProp elementTemp, k, null, oldV
+  _updateElementProps: (newProps) ->
+    try
+      elementTemp = @element
+      out = @_updateElementPropsHelper newProps, addedOrChanged, removed
+
+    finally
+      elementTemp = null
+
+    out
+
+  _newErrorElement: ->
+    element = document.createElement elementClassName
+    element.style.backgroundColor = :orange
+    element.innerHTML = :ART_COMPONENTS_ERROR__CREATING_CHILD_PLACEHOLDER

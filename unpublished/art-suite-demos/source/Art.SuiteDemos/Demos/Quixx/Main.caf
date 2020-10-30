@@ -1,0 +1,7 @@
+import &ArtSuite
+&Models
+
+class Main extends Component
+
+  render: ->
+    &Components/Quixx()

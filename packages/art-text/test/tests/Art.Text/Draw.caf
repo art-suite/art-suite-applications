@@ -1,0 +1,16 @@
+import &StandardImport
+
+suite: ->
+  test "strokeText" ->
+
+    layout = new Layout "-", {layoutMode: :tight fontFamily:"Times New Roman", fontSize:32}, {layoutMode:"tight"}
+    log bitmap = layout.toBitmap
+      stroke: true
+      lineWidth: 5
+      scale: 5
+
+    {x, y} = bitmap.size
+    middle = x * (y / 2 | 0) + (x / 2 | 0)
+
+    # center should be opaque if lineWidth scales with transformations
+    assert.eq 255, bitmap.getImageDataArray(:alpha)[middle]

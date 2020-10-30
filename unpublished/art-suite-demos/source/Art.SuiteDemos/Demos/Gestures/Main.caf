@@ -1,0 +1,94 @@
+import &ArtSuite, &ArtEngine.Events.GestureRecognizer
+
+class HorizontalThingy extends Component
+  @propFields
+    yPos:   0
+
+  @stateFields
+    xPos:   0
+    moving: false
+
+  getInitialState: ->
+    handlers:
+      createGestureRecognizer
+        flick: (e) -> log HorizontalThingy_flick: e.props
+        horizontal:
+          begin:    (e) -> @moving = true
+          move:     (e) -> @xPos = e.totalParentDelta.x
+          finally:  (e) -> @xPos = 0; @moving = false
+
+  render: ->
+    Element
+      :centerCenter
+      location: ps: .5, x: @xPos
+      size: 150
+      animators:
+        :location if @xPos == 0
+        :draw
+      on: @state.handlers
+      draw:
+        radius: 20
+        color:  if @moving then :white else #ff8400
+        shadow: blur: 20
+
+      Element
+        clip:   true
+        TextElement
+          location: ps: .5, x: -@xPos, y: -@yPos
+          animators:  @xPos == 0 && @yPos == 0 && location: true
+          axis:       .5
+          text:       :🙂
+          fontSize:   64
+          size: cs:   1
+
+class VerticalThingy extends Component
+  @stateFields
+    yPos:   0
+    moving: false
+
+  getInitialState: ->
+    handlers:
+      createGestureRecognizer
+        flick: (e) -> log VerticalThingy_flick: e.props
+        vertical:
+          begin:    (e) -> @moving = true
+          move:     (e) -> @yPos = e.totalParentDelta.y
+          finally:  (e) -> @yPos = 0; @moving = false
+
+  render: ->
+    Element
+      :moveCursor
+      :centerCenter
+      location: ps: .5, y: @yPos
+      size:     200
+      animators:
+        :location if @yPos == 0
+        :draw
+
+      on: @state.handlers
+      draw:
+        radius: 20
+        color:  if @moving then #f else #ffd400
+        shadow: blur: 20
+
+      TextElement
+        :centerCenter
+        :childrenSize
+        text:     :😉
+        fontSize: 64
+
+      HorizontalThingy {} @yPos
+
+class GesturesMain extends Component
+
+  render: ->
+    Element
+      draw: #7
+
+      TextElement
+        :centerCenter
+        text:     :😍
+        fontSize: 64
+        size: cs: 1
+
+      VerticalThingy()

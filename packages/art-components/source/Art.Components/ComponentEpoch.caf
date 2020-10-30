@@ -1,0 +1,11 @@
+import &StandardImport, &ArtEpochedState
+
+class ComponentEpoch extends Epoch
+  @singletonClass()
+
+  compareComponentDepth = (a, b) ->
+    a._componentDepth - b._componentDepth
+
+  processEpochItems: (changingComponents)->
+    each component in-array changingComponents.sort compareComponentDepth
+      component.processEpoch()

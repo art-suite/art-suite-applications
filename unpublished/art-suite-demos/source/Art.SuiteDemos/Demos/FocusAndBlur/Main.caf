@@ -1,0 +1,40 @@
+import &StandardImport
+
+class FocusAndBlur extends Component
+
+  @stateFields
+    focused: "nothing"
+
+  render: ->
+    Element
+      draw: DemoPalette.lightMuted
+      childrenLayout: :column
+      childrenMargins: 10
+      padding: 10
+      on: blur: @clearFocused
+
+      array name in :Alice :Aimee
+        Element
+          size: :childrenSize
+          padding: 10
+          draw: #7f7
+          draw: if @focused == name then vibrant else muted
+          TextInputElement
+            size: w: 200, hch: 1
+            placeholder: "" focus me, #{name}!
+            on:
+              focus: -> @focused = name
+
+      array name in :Bill :Greg
+        Element
+          size: :childrenSize
+          padding: 10
+          draw: if @focused == name then vibrant else muted
+          cursor: :pointer
+          on:
+            focus: -> @focused = name
+          TextElement mediumText, "no, focus me, #{name}!", size: :childrenSize
+
+      TextElement
+        mediumText
+        "" focused: #{@focused}

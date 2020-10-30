@@ -1,0 +1,16 @@
+import &StandardImport
+
+class PrimaryMenuButton extends ViewStateComponent
+
+  render: ->
+    @props extract
+      color, hoverColor, backgroundColor
+      disabled
+
+    backgroundColor ||= if disabled then AppPalette.mediumGrey else AppPalette.primary
+    hoverColor ||= AppPalette.mediumLightPrimary
+    color ||= TextPalette.white.primary
+
+    &MenuButton
+      @props
+      {} backgroundColor, hoverColor, color, radius: 100, leftPadIcon: true

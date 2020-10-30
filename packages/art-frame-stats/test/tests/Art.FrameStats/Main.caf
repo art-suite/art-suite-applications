@@ -1,0 +1,69 @@
+import &StandardImport
+suite: ->
+  chainedTest ->
+    registerEventColors
+      testEvent: #abcdef
+
+  .thenTest
+    :enableFrameStats ->
+      assert.false getFrameStatsEnabled()
+      enableFrameStats()
+      assert.true getFrameStatsEnabled()
+
+    :startFrame ->
+      startFrame()
+
+    :time1 ->
+      start = startFrameTimer :testTimer1
+      while currentSecond() - start < .010
+        1
+      assert.within
+        endFrameTimer()
+        .008
+        .012
+
+    :time2 ->
+      start = startFrameTimer :testTimer2
+      while currentSecond() - start < .100
+        1
+      assert.within
+        endFrameTimer()
+        .098
+        .102
+
+
+    :logFrameEvent ->
+      logFrameEvent :testEvent :abc123
+
+    :endFrame ->
+      endFrame()
+
+    :inspect ->
+      # log {} frameStatStorage
+      frameStatStorage extract inspectedObjects
+      assert.selectedEq
+        name:   :testEvent
+        color:  #abcdef
+        inspectedObjects.eventsById.abc123
+
+      assert.within
+        inspectedObjects.stats[0].total
+        .11
+        .12
+        :total
+
+      assert.within
+        inspectedObjects.stats[0].sampleSet.testTimer1
+        .01
+        .02
+        :testTimer1
+
+      assert.within
+        inspectedObjects.stats[0].sampleSet.testTimer2
+        .1
+        .11
+        :testTimer2
+
+    :disableFrameStats ->
+      disableFrameStats()
+      assert.false getFrameStatsEnabled()

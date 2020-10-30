@@ -1,0 +1,9 @@
+import &ArtStandardLib
+package: -> &package
+
+webpack:
+  common: {}
+  targets:
+    index: {}
+    web_worker: {}
+    test: {}

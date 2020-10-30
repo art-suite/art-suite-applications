@@ -1,0 +1,80 @@
+import &StandardImport, &Config
+
+class UrlBarState extends ApplicationState
+
+  @stateFields
+    # browserHistory disabled when hot-reload is enabled; it blocks hot-reloading
+    browserHistoryEnabled:  !global.cordova && !module.hot
+    currentUrlState:        null
+    currentPushDepth:       0
+
+  constructor: ->
+    @_bindOnPopState()
+
+    @onNextReady ->
+      @_navigateFromInitialPathAndParams global.location.pathname, parseQuery()
+
+  back: -> if @browserHistoryEnabled then global.history.back()
+
+  ## push
+    IN: state:
+      title:        title
+      path:         pipeline.getConnonicalUrlPath record, urlText
+      pipelineName: pipeline.name
+      record:       record
+  push: (state) ->
+    state extract path
+    if present params = global.location?.search
+      path += params
+
+    state = merge state,
+      pushDepth: @currentPushDepth++
+
+    title = @_setPageTitle state
+    if !eq @currentUrlState, state
+      if @browserHistoryEnabled
+        global.history.pushState state, title, path
+        @models.versionCheck.checkVersion()
+
+      @currentUrlState = state
+
+  ##################
+    PRIVATE
+  ##################
+  _navigateFromInitialPathAndParams: (path, params) ->
+    log.warn TODO: _navigateFromInitialPathAndParams: {} path, params
+
+  ## _navigateFromState
+    IN:
+      state: a previously pushed browserHistory state
+      back: <Boolean> true if we are navigating back to an earlier state
+  _navigateFromState: (state, back) ->
+    log.warn TODO: models.navState.navigateTo: {} state, back
+
+  _bindOnPopState: ->
+    unless @_popStateBound || !@browserHistoryEnabled
+      global.onpopstate = (args...) -> @_onpopstate args...
+      @_popStateBound = true
+
+  _onpopstate:  ({state}) ->
+    state ?= {}
+    state extract pushDepth ? @currentPushDepth
+    back = @currentPushDepth > pushDepth
+    @currentPushDepth = pushDepth
+
+    @_setPageTitle state
+    @_navigateFromState
+      @currentUrlState = state
+      back
+
+  _setPageTitle: (state) ->
+    state extract title, pipelineName
+
+    if pipelineName && !present title
+      title = upperCamelCase pipelineName
+
+    global.document.title =
+      compactFlatten []
+        config.title
+        title
+      .join ' - '
