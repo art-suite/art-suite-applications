@@ -1,0 +1,1251 @@
+import &StandardImport
+
+suite:
+  drawArea:
+    basic: ->
+      renderTest
+        "draw"
+        render: ->
+          Element
+            draw: :red
+            size: 100
+        test: (e) ->
+          assert.eq e.drawArea, rect 0, 0, 100, 100
+
+    compositeModes: ->
+      renderTest
+        "normal"
+        render: ->
+          Element
+            size: 100
+            draw:
+              :red
+              rectangle: rect -25, -25, 50, 50
+              :blue
+        test: (e) ->
+          assert.eq e.drawArea, rect -25, -25, 125, 125
+
+      renderTest
+        "sourceTopInTarget"
+        render: ->
+          Element
+            size: 100
+            draw:
+              :red
+              rectangle: rect -25, -25, 50, 50
+              fill:
+                color: :blue
+                compositeMode: "sourceTopInTarget"
+        test: (e) ->
+          assert.eq e.drawArea, rect 0, 0, 100, 100
+
+      renderTest
+        "targetTopInSource"
+        render: ->
+          Element
+            size: 100
+            draw:
+              :red
+              rectangle: rect -25, -25, 50, 50
+              fill:
+                color: :blue
+                compositeMode: "targetTopInSource"
+        test: (e) ->
+          assert.eq e.drawArea, rect -25, -25, 50, 50
+
+      renderTest
+        "sourceWithoutTarget"
+        render: ->
+          Element
+            size: 100
+            draw:
+              :red
+              rectangle: rect -25, -25, 50, 50
+              fill:
+                color: :blue
+                compositeMode: "sourceWithoutTarget"
+        test: (e) ->
+          assert.eq e.drawArea, rect -25, -25, 50, 50
+
+
+      renderTest
+        "targetWithoutSource"
+        render: ->
+          Element
+            size: 100
+            draw:
+              :red
+              rectangle: rect -25, -25, 50, 50
+              fill:
+                color: :blue
+                compositeMode: "targetWithoutSource"
+        test: (e) ->
+          assert.eq e.drawArea, rect 0, 0, 100, 100
+
+      renderTest
+        "targetTopIntersection"
+        render: ->
+          Element
+            size: 100
+            draw:
+              :red
+              rectangle: rect -25, -25, 50, 50
+              fill:
+                color: :blue
+                compositeMode: "targetTopIntersection"
+        test: (e) ->
+          assert.eq e.drawArea, rect 0, 0, 25, 25
+
+    padding: ->
+      renderTest
+        "and draw drawArea"
+        render: ->
+          Element
+            padding: 10
+            draw: :red
+            RectangleElement()
+        test: (e) ->
+          assert.eq e.drawArea, rect -10, -10, 100, 100
+
+      renderTest
+        "draw padding"
+        render: ->
+          Element
+            draw:
+              :circle
+              padding: 10
+              :red
+        test: (e) ->
+          assert.eq e.drawArea, rect 10, 10, 80, 80
+
+      renderTest
+        "via paddedDrawArea"
+        render: ->
+          Element
+            padding: 10
+            draw:
+              :paddedDrawArea
+              color: :red :yellow :green
+        test: (e) ->
+          assert.eq e.drawArea, rect 80
+
+      renderTest
+        "via padded"
+        render: ->
+          Element
+            padding: 10
+            draw:
+              :padded
+              color: :red :yellow :green
+        test: (e) ->
+          assert.eq e.drawArea, rect 80
+
+      renderTest
+        "and children drawArea"
+        render: ->
+          Element
+            padding: 10
+            Element
+              draw: color: :red :yellow :green
+        test: (e) ->
+          assert.eq e.drawArea, rect 80
+
+    outline: ->
+      renderTest
+        :outline
+        render: ->
+          Element
+            size: 100
+            draw:
+              :children
+              radius: 20
+              outline:
+                lineWidth: 10
+                colors:
+                  1:  rgbColor "#be8e42"
+                  .8: rgbColor "#fef5ac"
+                  .5: rgbColor "#9e682a"
+                  .4: rgbColor "#d7bb73"
+                  0:  rgbColor "#a36828"
+
+                to: :bottomRight
+
+        test: (e) ->
+          assert.eq e.drawArea, rect -5, -5, 110, 110
+
+
+  padding: ->
+    test "pixelsPerPoint: 2", ->
+      e =
+        Element
+          draw: :grey
+          size: 100
+
+          Element
+            size: 30
+            draw: #aaa
+            padding: 10
+            RectangleElement()
+
+          Element
+            location: 30
+            size: 30
+            draw: :orange
+      e.toBitmapBasic pixelsPerPoint: 2
+      .then (bitmap) ->
+        log {bitmap}
+
+  nestingElements: ->
+    renderTest
+      "basic"
+      render: ->
+        Element
+          size: 50
+          name: :parent
+          Element draw: :red, name: :child
+      test: (e) ->
+        assert.eq e.drawArea, rect 50
+
+    renderTest
+      "padding+"
+      render: ->
+        Element
+          size: 50
+          padding: 10
+          Element draw: :red
+      test: (e) ->
+        assert.eq e.drawArea, rect 30
+
+    renderTest
+      "padding-"
+      render: ->
+        Element
+          size: 50
+          padding: -10
+          Element draw: :red
+      test: (e) ->
+        assert.eq e.drawArea, rect 70
+
+    renderTest
+      "padding clip"
+      render: ->
+        Element
+          size: 50
+          padding: 10
+          clip: true
+          Element draw: :red, size: 100
+          Element draw: :orange, size: 10
+      test: (e) ->
+        assert.eq e.drawArea, rect 30
+
+    renderTest
+      "deep nesting"
+      render: ->
+        Element
+          size: h: 50, wcw:1
+          childrenLayout: "column"
+          Element draw: :red, size: 100
+          Element draw: :orange, size: 10
+      test: (e) ->
+        assert.eq e.drawArea, rect 100, 110
+
+  shapes:
+
+    circle: ->
+
+      renderTest
+        "circle"
+        render: -> Element
+          size: 100
+          draw:
+            "circle"
+            fill: color: "red"
+        test: (e) -> assert.eq e.drawArea, rect 100
+
+    drawArea: ->
+
+      renderTest
+        "rect()"
+        render: -> Element
+          size: 100
+          draw:
+            rect 5, 5, 40, 40
+            "red"
+        test: (e) -> assert.eq e.drawArea, rect 5, 5, 40, 40
+
+      renderTest
+        "padding: 10"
+        render: -> Element
+          size: 100
+          draw:
+            padding: 10
+            "red"
+        test: (e) -> assert.eq e.drawArea, rect 10, 10, 80, 80
+
+      renderTest
+        "padding: top bottom"
+        render: -> Element
+          size: 100
+          draw:
+            padding: top: 5, bottom: 10
+            "red"
+        test: (e) -> assert.eq e.drawArea, rect 0, 5, 100, 85
+
+    radiusImpliesRectangle: ->
+      renderTest
+        "radius: 10"
+        render: -> Element
+          size: 100
+          draw:
+            radius: 10
+            color: "orange"
+        test: (e) -> assert.eq e.drawArea, rect 100, 100
+
+      renderTest
+        "radius: tl: 10"
+        render: -> Element
+          size: 100
+          draw:
+            radius: tl: 10
+            color: "orange"
+        test: (e) -> assert.eq e.drawArea, rect 100, 100
+
+      renderTest
+        "radius resets shape"
+        render: -> Element
+          size: 100
+          draw:
+            "circle"
+            radius: 10
+            color: "orange"
+        test: (e) -> assert.eq e.drawArea, rect 100, 100
+
+      renderTest
+        "radius and outline"
+        render: -> Element
+          size: 100
+          draw:
+            radius: 10
+            outline: "orange"
+        test: (e) -> assert.eq e.drawArea.roundOut(), rect -1, -1, 102, 102
+
+      renderTest
+        "radius and rectangle"
+        render: -> Element
+          size: 100
+          draw:
+            radius: 10
+            rectangle: rect 100, 50
+            color: "orange"
+        test: (e) -> assert.eq e.drawArea, rect 100, 50
+
+    rectangle: ->
+      renderTest
+        "rectangle: area function with params"
+        render: -> Element
+          size: 100
+          draw:
+            "grey"
+            rectangle:
+              pos: 10
+              area: ({w,h}, {pos}) -> rect pos, 0, w, h
+            "orange"
+        test: (e) -> assert.eq e.drawArea, rect 110, 100
+
+
+      renderTest
+        "rectangle: radius: 10"
+        render: -> Element
+          size: 100
+          draw:
+            rectangle: radius: 10
+            fill: color: "red"
+        test: (e) -> assert.eq e.drawArea, rect 100
+
+      renderTest
+        "rectangle: radius: tl:20"
+        render: -> Element
+          size: 100
+          draw:
+            rectangle: radius: tl: 20
+            fill: color: "red"
+        test: (e) -> assert.eq e.drawArea, rect 100
+
+      renderTest
+        "rectangle: ->"
+        render: -> Element
+          size: 100
+          draw:
+            rectangle: ({size}) -> rect size.x / 2, size.y / 4
+            fill: color: "red"
+        test: (e) -> assert.eq e.drawArea, rect 50, 25
+
+      renderTest
+        "rectangle: area: ->"
+        render: -> Element
+          size: 100
+          draw:
+            rectangle: area: ({size}) -> rect size.x / 2, size.y / 4
+            fill: color: "red"
+        test: (e) -> assert.eq e.drawArea, rect 50, 25
+
+      renderTest
+        "rectangle: rect()"
+        render: -> Element
+          size: 100
+          draw:
+            rectangle: rect 5, 5, 40, 40
+            fill: color: "red"
+        test: (e) -> assert.eq e.drawArea, rect 5, 5, 40, 40
+
+      renderTest
+        "rectangle: area: ->"
+        render: -> Element
+          size: 100
+          draw:
+            rectangle:
+              area: ({size}) -> rect size.div(4), size.div 2
+              radius: 10
+            fill: color: "red"
+        test: (e) -> assert.eq e.drawArea, rect 25, 25, 50, 50
+
+      renderTest
+        "rectangle: rect()"
+        render: -> Element
+          size: 100
+          draw:
+            rectangle:
+              area: rect 5, 5, 40, 40
+              radius: 10
+            fill: color: "red"
+        test: (e) -> assert.eq e.drawArea, rect 5, 5, 40, 40
+
+      renderTest
+        "rectangle: padding: 10"
+        render: -> Element
+          size: 100
+          draw:
+            rectangle:
+              padding: 10
+              radius: 10
+            fill: color: "red"
+        test: (e) -> assert.eq e.drawArea, rect 10, 10, 80, 80
+
+    custom: ->
+      renderTest
+        "custom with miter"
+        render: -> Element
+          size: 100
+          draw:
+            shape: (context, area) ->
+              {top, left, right, bottom, vCenter, hCenter} = area
+              context.moveTo  hCenter, top
+              context.lineTo  right, bottom
+              context.lineTo  left, bottom
+              context.closePath()
+            fill: color: "orange"
+            outline: lineWidth: 10
+        test: (e) -> assert.eq e.drawArea, rect -15, -15, 130, 130
+
+      renderTest
+        "custom with miterLimit"
+        render: -> Element
+          size: 100
+          draw:
+            shape: (context, area) ->
+              {top, left, right, bottom, vCenter, hCenter} = area
+              context.moveTo  hCenter, top
+              context.lineTo  right, bottom
+              context.lineTo  left, bottom
+              context.closePath()
+            fill: color: "orange"
+            outline: lineWidth: 10 miterLimit: 2
+        test: (e) -> assert.eq e.drawArea, rect -10, -10, 120, 120
+
+      renderTest
+        "custom with round"
+        render: -> Element
+          size: 100
+          draw:
+            shape: (context, area) ->
+              {top, left, right, bottom, vCenter, hCenter} = area
+              context.moveTo  hCenter, top
+              context.lineTo  right, bottom
+              context.lineTo  left, bottom
+              context.closePath()
+            fill: color: "orange"
+            outline: lineWidth: 10 lineJoin: :round
+        test: (e) -> assert.eq e.drawArea, rect -5, -5, 110, 110
+
+      renderTest
+        "custom with area"
+        render: -> Element
+          size: 100
+          draw:
+            shape:
+              area: rect 20, 10, 20, 80
+              path: (context, area) ->
+                {top, left, right, bottom, vCenter, hCenter} = area
+                context.moveTo  hCenter, top
+                context.lineTo  right, bottom
+                context.lineTo  left, bottom
+                context.closePath()
+            fill: :orange
+        test: (e) -> assert.eq e.drawArea, rect 20, 10, 20, 80
+
+
+      renderTest
+        "custom with params"
+        render: -> Element
+          size: 100
+          draw:
+            shape:
+              area: rect 20, 10, 20, 80
+              foo: 35
+              path: (context, area, {foo}) ->
+                {top, left, right, bottom, vCenter, hCenter} = area
+                context.moveTo  hCenter, top
+                context.lineTo  right, foo
+                context.lineTo  left, bottom
+                context.closePath()
+            fill: :orange
+        test: (e) -> assert.eq e.drawArea, rect 20, 10, 20, 80
+
+  reset: ->
+
+    renderTest
+      "'reset' resets everything"
+      render: -> Element
+        size: 100
+        draw:
+          circle:
+            padding: 10
+            radius: 10
+          fill: color: "red"
+          "reset"
+          "clip"
+          outline: color: :red lineWidth: 10
+      test: (e) -> assert.eq e.drawArea, rect 100
+
+    renderTest
+      "'resetDrawArea' only resets drawArea"
+      render: -> Element
+        size: 100
+        draw:
+          circle:
+            padding: 10
+            radius: 10
+          fill: color: "red"
+          "resetDrawArea"
+          "clip"
+          outline: color: :red lineWidth: 10
+      test: (e) -> assert.eq e.drawArea, rect 100
+
+    renderTest
+      "'resetShape' only resets shape"
+      render: -> Element
+        size: 100
+        draw:
+          circle:
+            padding: 10
+            radius: 10
+          fill: color: "red"
+          "resetShape"
+          "clip"
+          outline: color: :red lineWidth: 10
+      test: (e) -> assert.eq e.drawArea, rect 10, 10, 80, 80
+
+    renderTest
+      "rectangle: {} does not reset drawArea"
+      render: -> Element
+        size: 100
+        draw:
+          rectangle:
+            padding: 10
+            radius: 10
+          fill: color: "red"
+          {} rectangle: {}
+          "clip"
+          outline: color: :red lineWidth: 10
+      test: (e) -> assert.eq e.drawArea, rect 10, 10, 80, 80
+
+  fill: ->
+    renderTest
+      "basic"
+      render: -> Element
+        size: 100
+        draw: "red"
+
+    renderTest
+      "rounded"
+      render: -> Element
+        size: 100
+        draw:
+          rectangle: radius: 10
+          color: "red"
+
+
+  gradient: ->
+
+    renderTest
+      "double gradient is that easy"
+      render: -> Element
+        size: 100
+        draw:
+          {}
+            colors: [] #f00 #f000
+          {}
+            colors: [] #0f00 #0f0
+            to: "topRight"
+
+    renderTest
+      "GradientFillStyle"
+      render: -> Element
+        size: 100
+        draw: colors: new GradientFillStyle
+          "topLeft"
+          "bottomRight"
+          #f00 #ff0
+
+    renderTest
+      "gradient basic"
+      render: -> Element
+        size: 100
+        draw: color: :red :yellow
+
+    renderTest
+      "gradient to"
+      render: -> Element
+        size: 100
+        draw:
+          color: :red :yellow
+          to:   yh: 1
+          from: xw: 1
+
+    renderTest
+      "gradient segments"
+      render: -> Element
+        size: 100
+        draw:
+          0:  #f00
+          .4: #ff0
+          .5: #0f0
+          .6: #0ff
+          1:  #00f
+
+  outline: ->
+    renderTest
+      "outline: :red"
+      render: -> Element
+        size: 100
+        draw: outline: :red
+      test: (e) -> assert.eq e.drawArea, rect -.5, -.5, 101, 101
+
+    renderTest
+      "basic scaled"
+      render: ->
+        Element
+          size: cs: 1
+          padding: 10
+          draw: #fee
+          Element
+            size: 10
+            scale: 10
+            draw: outline: "red"
+      # test: (e) -> assert.eq e.drawArea, rect -.5, -.5, 101, 101
+
+    test "scaled 2" ->
+      Element
+        size: cs: 1
+        TextElement
+          size: cs: 1
+          layoutMode: "tight"
+          fontSize: 200
+          fontFamily: "Arial Unicode MS"
+          text: "◼︎"
+
+          OutlineElement
+            type: "outline"
+            color: 'red'
+            lineWidth: 6
+            miterLimit: 10
+
+      .toBitmapBasic size: 1024
+      .then (bitmap) ->
+        log {bitmap}
+
+    renderTest
+      "lineWidth"
+      render: -> Element
+        size: 100
+        draw:
+          outline: color: "red", lineWidth: 10
+      test: (e) -> assert.eq e.drawArea, rect -5, -5, 110, 110
+
+    renderTest
+      "clipped"
+      render: -> Element
+        size: 100
+        draw:
+          rectangle: radius: 10
+          "clip"
+          outline: color: "red", lineWidth: 10
+      test: (e) -> assert.eq e.drawArea, rect 100
+
+    renderTest
+      "rounded"
+      render: -> Element
+        size: 100
+        draw:
+          rectangle: radius: 10
+          outline: color: "red"
+      test: (e) -> assert.eq e.drawArea, rect -.5, -.5, 101, 101
+
+  shadow: ->
+
+    renderTest
+      "fill drawArea"
+      render: -> Element
+        size: 100
+        draw:
+          fill:
+            color: "red"
+            shadow: offset: 10
+      test: (e) ->
+        assert.eq e.drawArea, rect 116
+
+    renderTest
+      "fill padded"
+      render: -> Element
+        size: 100
+        padding: 10
+        draw:
+          fill:
+            color: "red"
+          {}
+            padded: true
+            fill:
+              color: "red"
+              shadow: true
+
+    renderTest
+      "outline drawArea"
+      render: -> Element
+        size: 100
+        draw:
+          outline: color: "red", lineWidth: 10, shadow: blur: 0, offset: 5
+      test: (e) ->
+        assert.eq e.drawArea, rect -5, -5, 116, 116
+
+  clip: ->
+    renderTest
+      "clip"
+      render: -> Element
+        size: 100
+        draw:
+          outline: color: #0f0 lineWidth: 30
+          "clip"
+          outline: color: :red lineWidth: 10
+
+    renderTest
+      "clips even if no drawing"
+      render: -> Element
+        size: 100
+        draw:
+          radius: 10
+          "clip"
+        Element
+          draw: "red"
+
+    renderTest
+      "clip children"
+      render: -> Element
+        size: 100
+        draw:
+          "circle"
+          "clip"
+          "children"
+          clip:     false
+          outline:  lineWidth: 4
+
+        RectangleElement color: "red"
+
+    renderTest
+      "clip: true/false"
+      render: -> Element
+        size: 100
+        draw:
+          outline: color: #0f0 lineWidth: 30
+          {}
+            clip: true
+            outline: color: :red lineWidth: 10
+          {}
+            clip: false
+            outline: color: #ff0a lineWidth: 20 compositeMode: :add
+
+    renderTest
+      "clip applies after shape"
+      render: -> Element
+        size: 100
+        draw:
+          clip:     true
+          rectangle: ({w, h}) -> rect -20, 0, w + 40, h
+          "orange"
+        RectangleElement color: "red"
+
+      test: (e) ->
+        assert.eq e.drawArea, rect -20, 0, 140, 100
+
+    renderTest
+      "draw: clip: clips children"
+      render: -> Element
+        size: 100
+        draw:
+          clip:       true
+          rectangle:  ({w, h}) -> rect -20, 0, w + 40, h
+          "orange"
+        RectangleElement color: "red"
+        RectangleElement
+          location: 50
+          size: 1000
+          color: "blue"
+
+      test: (e) ->
+        assert.eq e.drawArea, rect -20, 0, 140, 100
+
+    renderTest
+      "non-zero-location"
+      render: -> Element
+        size: 100
+        draw: color: :red
+        Element
+          location: 60
+          size: 25
+
+        RectangleElement
+          location: 60
+          size: 25
+          clip: true
+          radius: 1000
+          FillElement color: :white
+
+      test: (e, __, bitmap) ->
+        assert.ok
+          find el from bitmap.getImageDataArray :green
+            el > 0
+          "" expected child to draw somewhere
+
+
+  children: ->
+    renderTest
+      "custom order"
+      render: -> Element
+        size: 100
+        draw:
+          child: :meFirst
+        TextElement key: :meLast  align:  .5 padding: 5 text: "hidden without draw" size: ps: 1
+        Element     key: :meFirst draw:   #ff7
+
+    renderTest
+      "custom order with :children"
+      render: -> Element
+        size: 100
+        clip: true
+        draw:
+          :children
+          child: :meLast
+        TextElement key: :meLast  align: .5 padding: 5 text: "hidden without draw" size: ps: 1
+        Element     key: :meFirst draw:  #ff7
+
+    renderTest
+      "fill first"
+      render: -> Element
+        size: 100
+        draw:
+          fill: :#ff7
+        TextElement align: .5 padding: 5 text: "no background without draw" size: ps: 1
+
+    renderTest
+      "mixed"
+      render: -> Element
+        size: 100
+        draw:
+          fill: #ff7
+          :children
+          :clip
+          outline: color: #7f7a lineWidth: 40
+        TextElement align: .5 padding: 5 text: "in the middle" size: ps: 1
+
+  pokemon: ->
+
+    renderTest
+      "shadow not clipped, children clipped"
+      render: ->
+        Element
+          size: 200
+          stage: true
+          draw:
+            :circle
+            fill: color: :white shadow: offset: 10 blur 10
+            :clip
+            {}
+              rectangle: ({w,h}) -> rect 0, 0, w, h / 2
+              fill:     :red
+              outline:  color: :black lineWidth: 6
+
+            :reset
+            :circle
+            outline: color: :black lineWidth: 6
+
+            {}
+              circle: ({w, h}) -> rect w * .35, h * .35, w * .30, h * .30
+              fill:     :white
+              outline:  color: :black lineWidth: 6
+
+            {}
+              circle: ({w, h}) -> rect w * .40, h * .40, w * .20, h * .20
+              outline:  color: :black lineWidth: .5
+
+      test: (e) -> assert.eq e.drawArea, rect -3, -3, 219, 219
+
+  regressions: ->
+    renderTest
+      "custom area"
+      render: -> Element
+        size: 100
+        draw:
+          "grey"
+          shape:
+            path: Paths.rectanglePath
+            area: ({w, h}) ->
+              u = 10
+              rect -u, 0, w + 2 * u, u
+          "orange"
+      test: (e) -> assert.eq e.drawArea, rect -10, 0, 120, 100
+
+    renderTest
+      "color same as fill: color (should have rounded corners)"
+      render: -> Element
+        size: 100
+        draw:
+          rectangle: radius: 10
+          color: "red"
+      # test: (e) -> assert.eq e.drawArea, rect -10, 0, 120, 100
+
+    wedge = (context, size) ->
+      {x, y, w, h} = size
+      context.moveTo x + 0, y + h
+      context.lineTo x + w, y + h
+      context.lineTo x + w, y + 0
+      context.closePath()
+
+    triangleUp = (context, size) ->
+      {x, y, w, h} = size
+      context.moveTo x + w / 2, y + 0
+      context.lineTo x + w,     y + h
+      context.lineTo x + 0,     y + h
+      context.closePath()
+
+    wedgeArea = ({w, h}) -> rect 0, h / 3, w, h / 3
+    cursorArea = ({w, h}, {pos}) ->
+      unit = h / 4
+      rect pos * w - unit, h - unit, 2 * unit, unit
+
+    renderTest
+      "wedge and cursor left"
+      render: ->
+        Element
+          size: w: 200, h: 60
+          draw:
+            shape:
+              path: wedge
+              area: wedgeArea
+            "grey"
+            shape:
+              pos: 0
+              area: cursorArea
+              path: triangleUp
+            "orange"
+
+      test: (e) -> assert.eq e.drawArea, rect -15, 20, 215, 40
+
+    renderTest
+      "wedge and cursor middle"
+      render: ->
+        Element
+          size: w: 200, h: 60
+          draw:
+            shape:
+              path: wedge
+              area: wedgeArea
+            "grey"
+            shape:
+              pos: .5
+              area: cursorArea
+              path: triangleUp
+            "orange"
+
+      test: (e) -> assert.eq e.drawArea, rect 0, 20, 200, 40
+
+
+    renderTest
+      "wedge and cursor right"
+      render: ->
+        Element
+          size: w: 200, h: 60
+          draw:
+            shape:
+              path: wedge
+              area: wedgeArea
+            "grey"
+            shape:
+              pos: 1
+              area: cursorArea
+              path: triangleUp
+            "orange"
+
+      test: (e) -> assert.eq e.drawArea, rect 0, 20, 215, 40
+
+    renderTest
+      "add draw updates drawArea"
+      render: -> Element
+        size: w: 200, h: 100
+        Element
+          size: ps: 1
+          Element
+            size: 50
+            axis: .5
+            location: ps: .5
+            draw: #0f0
+      test: (e) ->
+        [c] = e.children
+        assert.eq e.drawArea, rect 75, 25, 50, 50
+        assert.eq c.drawArea, rect 75, 25, 50, 50
+        c.draw = "red"
+        e.toBitmapBasic()
+        .then (bitmap) ->
+          log {bitmap}
+          assert.eq e.drawArea, rect 0, 0, 200, 100
+          assert.eq c.drawArea, rect 0, 0, 200, 100
+
+    renderTest
+      "clip drawArea with textElement child"
+      render: ->
+        Element
+          size: w: 50, h: 25
+          key: :drawAreaElement
+          clip: true
+          TextElement
+            key: :changeChild
+            size: ps: 1
+            text: "hi"
+            color: #0ff
+      test: (e) ->
+        [dac] = e.find :drawAreaElement
+        [cc] = e.find :changeChild
+        assert.eq dac.drawArea, rect 20, 24
+        cc.align = :topRight
+        e.toBitmapBasic()
+        .then (bitmap) ->
+          log {bitmap}
+          assert.eq
+            dac.drawArea.roundOut()
+            rect 29, 0, 21, 24
+            "" should update drawArea
+          assert.ok
+            find el from bitmap.getImageDataArray :green
+              el > 0
+            "" expected text to draw somewhere
+
+    renderTest
+      "clip drawArea with draw child"
+      render: ->
+        Element
+          size: w: 50, h: 25
+          key: :drawAreaElement
+          clip: true
+          Element
+            key: :changeChild
+            draw:
+              rect 20
+              #0ff
+      test: (e) ->
+        [dac] = e.find :drawAreaElement
+        [cc] = e.find :changeChild
+        assert.eq dac.drawArea, rect 20
+        cc.draw =
+          rectangle: rect 30, 0, 20, 20
+          #0ff
+        e.toBitmapBasic()
+        .then (bitmap) ->
+          log {bitmap}
+          assert.eq
+            dac.drawArea
+            rect 30, 0, 20, 20
+            "" should update drawArea
+          assert.ok
+            find el from bitmap.getImageDataArray :green
+              el > 0
+            "" expected child to draw somewhere
+
+    renderTest
+      "size change updates drawArea with draw-clip and children"
+      render: ->
+
+        Element
+          key: "parent"
+          size: w:100, h: 5
+
+          draw:
+            clip: true
+            "blue"
+
+          Element
+            key: "child"
+            size: ww:1, h:20
+
+      test: (e) ->
+        assert.eq e.drawArea.h, 5, "should be 5"
+        e.size = w: 100, h: 20
+        e.toBitmapBasic()
+        .then (bitmap)->
+          log shouldBeVisibleNow: {bitmap, e.drawArea}
+          assert.eq e.drawArea.h, 20, "should be 20"
+
+    renderTest
+      "clip rotated 90 degress"
+      render: ->
+        Element
+          draw: "red"
+          Element
+            size: ps: .6
+            location: :centerCenter
+            axis: :centerCenter
+            angle: Math.PI / 2
+            draw:
+              :clip
+              :white
+
+      test: (e) ->
+        # [child] = e.children
+        # assert.eq false, child.getNeedsStagingBitmap(), "need staging bitmap"
+        # assert.eq false, child.requiresParentStagingBitmap, "parent needs staging bitmap"
+
+  compositeMode: ->
+    renderTest
+      "sourceTopInTarget on second draw-step"
+      render: ->
+        Element
+          draw:
+            :circle
+            fill: :red
+
+            :rectangle
+            outline:
+              color:          :orange
+              lineWidth:      20
+              compositeMode:  :sourceTopInTarget
+
+    renderTest
+      "sourceTopIntersection child Element's compositeMode"
+      render: ->
+        Element
+          draw: :circle :red
+          Element
+            compositeMode: "sourceTopIntersection"
+            draw:
+              outline:
+                color: "orange"
+                lineWidth: 20
+      test: (e) ->
+        [child] = e.children
+        assert.eq true, child.getNeedsStagingBitmap(), "need staging bitmap"
+        assert.eq true, child.requiresParentStagingBitmap, "parent needs staging bitmap"
+
+    renderTest
+      "sourceTopIntersection child Element's compositeMode with stage override"
+      render: ->
+        Element
+          draw: :circle :red
+          Element
+            compositeMode: :sourceTopIntersection
+            stage: false
+            draw:
+              outline:
+                color:      :orange
+                lineWidth:  20
+      test: (e) ->
+        [child] = e.children
+        assert.eq false, child.getNeedsStagingBitmap(), "need staging bitmap"
+        assert.eq true, child.requiresParentStagingBitmap, "parent needs staging bitmap"
+
+    renderTest
+      "sourceTopIntersection and lighten child Element's compositeMode and draw compositeMode"
+      render: ->
+        Element
+          draw: :black
+          Element
+            draw: :circle :red
+            Element
+              compositeMode: :sourceTopIntersection
+              draw:
+                {}
+                  fill:     #00f
+                  padding:  bottom: 50
+                :reset
+                outline:
+                  color:          #0f0
+                  compositeMode:  :lighten
+                  lineWidth:      20
+      test: (e) ->
+        [child] = e.children[0].children
+        assert.eq true, child.getNeedsStagingBitmap(),      "need staging bitmap"
+        assert.eq true, child.requiresParentStagingBitmap,  "parent needs staging bitmap"
+
+    renderTest
+      "sourceTopIntersection child Element's only draw compositeMode with auto-stage"
+      render: ->
+        Element
+          draw: "circle", "red"
+          Element
+            draw:
+              outline:
+                color: "orange"
+                lineWidth: 20
+                compositeMode: "sourceTopIntersection"
+      test: (e) ->
+        [child] = e.children
+        assert.eq true, child.getNeedsStagingBitmap(), "need staging bitmap"
+        assert.eq false, child.requiresParentStagingBitmap, "parent needs staging bitmap"
+
+    renderTest
+      "sourceTopIntersection child Element's only draw compositeMode with force stage: false"
+      render: ->
+        Element
+          draw: "circle", "red"
+          Element
+            stage: false
+            draw:
+              outline:
+                color: "orange"
+                lineWidth: 20
+                compositeMode: "sourceTopIntersection"
+      test: (e) ->
+        [child] = e.children
+        assert.eq false, child.getNeedsStagingBitmap(), "need staging bitmap"
+        assert.eq false, child.requiresParentStagingBitmap, "parent needs staging bitmap"
+
+    renderTest
+      "no compositeMode"
+      render: ->
+        Element
+          draw: "circle", "red"
+          Element
+            draw:
+              outline:
+                color: "orange"
+                lineWidth: 20
+      test: (e) ->
+        [child] = e.children
+        assert.eq false, child.getNeedsStagingBitmap(), "need staging bitmap"
+        assert.eq false, child.requiresParentStagingBitmap, "parent needs staging bitmap"

@@ -1,0 +1,245 @@
+import Math, &StandardImport, {} &Style, &FrameSampleSet
+
+class FrameStatStorage extends BaseClass
+  @singletonClass()
+
+  ######################
+    constructor
+  ######################
+  constructor: ->
+    @reset()
+
+  reset: ->
+    @maxMs            = 1.1/60
+    @stats            = []
+    @nextEventIdIndex = 0
+    @eventsById       = {}
+    @eventLegend      = {}
+    @_minSampleTime   = null
+    @_maxSampleTime   = null
+
+  @getter
+    :minSampleTime
+    :maxSampleTime
+    sampleTimeRange:  -> @maxSampleTime - @minSampleTime
+    inspectedObjects: ->
+      {}
+        @maxMs
+        @nextEventIdIndex
+        @eventsById
+        @eventLegend
+        @minSampleTime
+        @maxSampleTime
+        stats: toInspectedObjects @stats
+
+  ######################
+
+  ######################
+  startFrame: ->
+    unless @_minSampleTime
+      @_minSampleTime =
+      @_maxSampleTime = currentSecond()
+
+  addFrame: (sampleTime, total, sampleSet) ->
+    @stats.push new FrameSampleSet sampleTime, total, sampleSet
+
+    @maxMs = max @maxMs, total * 1.5
+    @_logAndResetWhenIdle()
+    @_addSampleTime sampleTime
+    @_addSampleTime sampleTime + max total, 1/60
+
+  logEvent: (name, id) ->
+    now = currentSecond()
+    id ?= name
+    @_addSampleTime now
+
+    color = Style.namedEventColors[name] || Style.namedEventColors.default
+
+    ebi = @eventsById[id] ||= {}
+      name, color
+      startTime:  now
+      endTime:    now
+      index:      @nextEventIdIndex++
+      events:     []
+
+    ebi.startTime = min now, ebi.startTime
+    ebi.endTime   = max now, ebi.endTime
+
+    @eventLegend[name] = color
+
+    ebi.events.push {} name, color, time: now
+
+  #######################
+    PRIVATE
+  #######################
+
+  _addSampleTime: (time) ->
+    @_minSampleTime = min time, @_minSampleTime || time
+    @_maxSampleTime = max time, @_maxSampleTime || time
+
+  _logAndResetWhenIdle: ->
+    if 0 < samples = @stats.length
+      timeout 1000 ->
+        if samples == @stats.length && &Main.getFrameStatsEnabled()
+          if @stats.length > 0
+            log @drawGraph point 1000 600
+          @reset()
+
+  #######################
+    DRAW
+  #######################
+  @getter
+    :drawMatrix
+
+  getGraphX = -> Style.legendWidth + 5
+
+  getGraphWidth = (totalWidth) ->
+    totalWidth - getGraphX()
+
+  getSampleWidth: (graphWidth) ->
+    max 1,
+      graphWidth / @sampleTimeRange
+      / 60
+      - 1
+
+  getDrawMatrix: ({w, h})->
+    @ extract sampleTimeRange, minSampleTime, maxMs
+
+    graphWidth = getGraphWidth w
+    sampleWidth = @getSampleWidth graphWidth
+
+    xScale = graphWidth / sampleTimeRange
+    yScale = h / maxMs
+
+    # log {} graphWidth, sampleWidth, w, h, xScale, yScale
+
+    Matrix.scaleXY  1               -1
+    .translateXY    -minSampleTime, 0
+    .scaleXY        xScale,         yScale
+    .translateXY    getGraphX(),    h
+
+  drawAllSamplesForOneField: (bitmap, sampleField) ->
+    @ extract sampleTimeRange, stats, drawMatrix
+
+    bitmap.size extract w, h
+
+    sampleWidth = @getSampleWidth getGraphWidth w
+
+    each stat in stats
+      stat.drawSample bitmap, drawMatrix, sampleWidth, sampleField, h
+
+  normalizeFrameTimes: ->
+    firstSampleTime = @stats[0]?.sampleTime
+    each stat in @stats
+      stat extract sampleTime
+      flooredSampleTime =
+        sampleTime
+        - firstSampleTime
+        * 60
+        | 0
+        / 60
+        + firstSampleTime
+
+      stat.sampleTime = flooredSampleTime
+
+  drawLabeledHRule: (bitmap, y, color, label) ->
+    @drawLabeledHLineFromTimes
+      bitmap
+      @_minSampleTime
+      @_maxSampleTime
+      y
+      color
+      label
+
+  drawLabeledHLineFromTimes: (bitmap, t1, t2, y, color, label) ->
+    @ extract drawMatrix
+    x1 = floor drawMatrix.transformX t1, 0
+    x2 = floor drawMatrix.transformX t2, 0
+
+    y = floor y
+
+    bitmap.drawRectangle  null, rect(x1, y, x2-x1, 1),    props = {} color
+    bitmap.drawText       point(x1, y-5), label, size:14, props
+
+  drawEvents: (bitmap, eventsById) ->
+    bitmap.size extract w, h
+    drawMatrix = @_drawMatrix
+
+    eventTimeLineHeight = floor h / 20
+    each {index, startTime, endTime, color, events, name}, id in eventsById
+      @drawLabeledHLineFromTimes
+        bitmap
+        startTime
+        endTime
+        y = (index + 1) * eventTimeLineHeight
+        color
+        name
+
+      each {time, name, color} in events
+        x = floor drawMatrix.transformX time, 0
+        bitmap.drawRectangle
+          null
+          rect x, y, 1, eventTimeLineHeight * 1/3
+          {} color
+
+  drawGraph: (size) ->
+    @ extract stats, sampleTimeRange, eventsById
+    bitmap = new Bitmap size
+
+    @normalizeFrameTimes() if Style.normalizeFrameTimes
+
+    @_drawMatrix = drawMatrix = @getDrawMatrix size
+
+    totalFrames         = stats.length
+    averageFrameTimeMs  = sampleTimeRange / totalFrames
+    perfectFrameCount   = sampleTimeRange * 60 + .5 | 0
+    missedFrames        = perfectFrameCount - totalFrames
+
+    bitmap.clear #f
+
+    each sampleField in &Style.statFields
+      @drawAllSamplesForOneField bitmap, sampleField
+
+    @drawLabeledHRule bitmap, drawMatrix.transformY(0 1/100), #0007 10ms
+    @drawLabeledHRule bitmap, drawMatrix.transformY(0 1/200), #0007 5ms
+    @drawEvents bitmap, eventsById
+    @drawLabeledHRule
+      bitmap
+      drawMatrix.transformY 0 1/60
+      :green
+      if 55 > averageFps = 1 / averageFrameTimeMs + .5 | 0
+        "" 60fps - 16.7ms
+      else ''
+
+    @drawLabeledHRule
+      bitmap
+      drawMatrix.transformY 0, averageFrameTimeMs
+      #0007
+      ""
+        average: #{averageFps}fps (miss-rate: #{
+          100 * missedFrames / perfectFrameCount
+          .toPrecision(2)
+
+        }% #{missedFrames}/#{perfectFrameCount})
+
+    @_drawLegend bitmap
+
+    bitmap.drawBorder null, bitmap.size, #e
+
+    bitmap
+
+  _drawLegend: (bitmap) ->
+    &Style extract statFields, statColors, legendWidth
+    y = 0
+    each field in statFields
+      bitmap.drawRectangle
+        null
+        rect    0 y, legendWidth, 23
+        color:  statColors[field]
+
+      bitmap.drawText
+        point   5 y + 18
+        field
+        size:   16 color: :white
+
+      y += 25

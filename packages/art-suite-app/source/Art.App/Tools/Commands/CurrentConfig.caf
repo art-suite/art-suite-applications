@@ -1,0 +1,3 @@
+-> {}
+  artConfigName:  &ArtConfig.configName
+  artConfig:      &ArtConfig.config
