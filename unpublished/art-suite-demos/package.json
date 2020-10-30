@@ -4,7 +4,7 @@
   "dependencies": {
     "art-build-configurator": "^1.28.0",
     "art-color-extractor": "^1.6.0",
-    "art-suite": "^1.9.4",
+    "art-suite": "^1.9.5",
     "quantize": "^1.0.2",
     "tracking": "^1.1.3"
   },
@@ -39,5 +39,5 @@
     "start": "webpack-dev-server --hot --inline --progress --env.devServer",
     "test": "webpack-dev-server  --progress --env.devServer"
   },
-  "version": "0.20.0"
+  "version": "0.20.1"
 }

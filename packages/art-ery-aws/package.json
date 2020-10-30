@@ -2,9 +2,9 @@
   "author": "Shane Brinkman-Davis Delamore, Imikimi LLC",
   "bugs": "https://github.com/art-suite/art-suite-applications/issues",
   "dependencies": {
-    "art-aws": "^1.29.1",
+    "art-aws": "^1.29.2",
     "art-build-configurator": "^1.28.0",
-    "art-ery": "^1.112.3",
+    "art-ery": "^1.112.4",
     "uuid": "^3.4.0"
   },
   "description": "ArtEry for AWS Lambda + DynamoDB",
@@ -21,5 +21,5 @@
     "test": "nn -s;mocha -u tdd",
     "testInBrowser": "webpack-dev-server --progress"
   },
-  "version": "1.35.1"
+  "version": "1.35.2"
 }

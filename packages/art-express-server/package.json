@@ -23,5 +23,5 @@
     "testInBrowser": "webpack-dev-server --progress",
     "testServer": "caf ./TestServer"
   },
-  "version": "1.1.1"
+  "version": "1.1.2"
 }

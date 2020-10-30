@@ -3,7 +3,7 @@
   "bugs": "https://github.com/art-suite/art-suite-applications/issues",
   "dependencies": {
     "art-build-configurator": "^1.28.0",
-    "art-suite": "^1.9.4"
+    "art-suite": "^1.9.5"
   },
   "description": "Art.Engine.Demos",
   "homepage": "https://github.com/art-suite/art-suite-applications",
@@ -19,5 +19,5 @@
     "test": "webpack-dev-server  --progress",
     "testInBrowser": "webpack-dev-server --progress"
   },
-  "version": "1.1.2"
+  "version": "1.1.3"
 }
