@@ -1,0 +1,53 @@
+import &ArtSuite
+
+class MyWrapper extends Component
+
+  @stateFields
+    pad: 20
+
+  render: ->
+    Element
+      :childrenSize
+      padding: @pad
+      draw:
+        outline:  #0003
+        fill:     #0003
+      @props.children
+      Element
+        size: @pad
+        draw: :yellow
+        axis: 1
+        on: pointerClick: -> @pad += 10
+
+class MyComponent extends Component
+
+  @stateFields
+    counter: 1
+    wrapperCount: 4
+
+  render: ->
+    a =
+        TextElement
+          :childrenSize
+          key: :MyWrapperInnerTextElement
+          text: "" Hello ##{@counter}
+          on: pointerClick: -> @counter++
+    @ extract wrapperCount
+    log "render wrapperCount=#{wrapperCount} Virtual TextElement #{a.uniqueId}"
+    wrapperCount--
+    while wrapperCount-- > 0
+      a = MyWrapper a
+
+
+    Element
+      draw: :white
+      :column
+      a
+      Element
+        size: 50
+        draw: :red
+        on: pointerClick: ->
+          if @wrapperCount == 1
+            @wrapperCount = 4
+          else
+            @wrapperCount = 1

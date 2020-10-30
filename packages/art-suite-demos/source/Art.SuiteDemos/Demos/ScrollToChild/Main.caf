@@ -1,0 +1,42 @@
+import &ArtSuite, {} &Button
+
+colors =
+  :red
+  :orange
+  :yellow
+  :green
+  :cyan
+  :blue
+  :magenta
+  :black
+  :white
+
+class MovingTextInput extends Component
+
+  render: ->
+    Element
+      childrenLayout: :row
+
+      Element
+        draw: :white
+        childrenLayout: :column
+        childrenMargins: 10
+        padding: 10
+        array color in colors
+          Button
+            text: "scroll to #{color}"
+            action: ->
+              [child] = @refs.scrollElement.element.find color
+              child.scrollOnScreen()
+
+      ScrollElement
+        key: "scrollElement"
+        childrenMargins: 10
+        padding: 10
+        draw: #eee
+
+        array color in colors
+          Element
+            key:  color
+            size: h: 300
+            draw: color

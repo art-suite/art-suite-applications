@@ -1,0 +1,79 @@
+import &ArtSuite,
+&DemoPalette,
+&DemoTextStyles
+
+Button = &source/ArtSuiteDemos/Button
+
+class MyButton extends Component
+
+  @stateFields
+    color: lightVibrant
+    focused: false
+
+  render: ->
+    {text, noFocus, action} = @props
+    Element
+      noFocus: noFocus
+      size: 300 50
+      cursor: :pointer
+      draw:
+        radius: 10
+        fill:   @color
+        outline: if @focused then color: darkMuted, lineWidth: 4
+
+      on:
+        pointerDown:  -> @color = vibrant
+        pointerUp:    -> @color = lightVibrant; action?()
+        focus:  @triggerFocused
+        blur:   @clearFocused
+
+      TextElement
+        mediumText
+        padding: 10
+        size:   :parentSize
+        align:  :centerLeft
+        text: text ? "button"
+        color: #000a
+
+class MovingTextInput extends Component
+
+  @stateFields
+    focused: false
+
+  render: ->
+    Element
+      childrenLayout: :column
+      padding: 10
+      childrenMargins: 10
+
+      Element
+        padding: 10
+        size: 300 50
+        draw:
+          radius: 10
+          #eee
+          outline: if @focused then color: darkMuted, lineWidth: 4
+        TextInputElement
+          key: :input
+          size: :parentSize
+          placeholder: "your text here"
+          on:
+            focus:  @triggerFocused
+            blur:   @clearFocused
+
+      MyButton
+        text: "doesn't steal focus (noFocus: true)"
+        noFocus: true
+
+      MyButton
+        text: "steals focus"
+
+      MyButton
+        text: "sends focus back to input"
+        action: -> @refs.input.element.focus()
+
+      MyButton
+        text: "focus then blur input"
+        action: ->
+          @refs.input.element.focus()
+          timeout 1000, -> @refs.input.element.blur()

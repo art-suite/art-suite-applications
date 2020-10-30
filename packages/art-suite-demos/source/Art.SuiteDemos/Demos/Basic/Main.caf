@@ -1,0 +1,24 @@
+import &ArtSuite
+
+class MyComponent extends PointerActionsMixin Component
+
+  render: ->
+    Element
+      on:         @buttonHandlers
+      cursor:     :pointer
+      animators:  draw: duration: 1
+
+      draw:
+        color:  if @pointerIsDown then #f00 #700    else #b55 #fcc
+        from:   if @pointerIsDown then :bottomLeft  else :topLeft
+        to:     if @pointerIsDown then :topRight    else :bottomRight
+
+      TextElement
+        size:       "childrenSize"
+        key:        text = unless @pointerIsDown then :Love else "" and War
+        text:       text
+        location:   ps: .5
+        axis:       .5
+        animators:  opacity: toFrom: 0, duration: 1
+        color:      :white
+        fontSize:   50

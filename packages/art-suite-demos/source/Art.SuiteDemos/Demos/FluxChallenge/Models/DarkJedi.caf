@@ -1,0 +1,29 @@
+import &StandardImport
+
+class DarkJedi extends FluxModel
+
+  loadData: (key) ->
+    aborted = false
+
+    # simulate remote request pending
+    log "DarkJedi: pending: #{key}..."
+    @updateFluxStore
+      key
+      status: pending
+      abort:  ->
+        # simulate abort request
+        aborted = true
+        log.warn "DarkJedi: abort: #{key}"
+
+    # simulate remote async request
+    timeout 500 + intRand 500
+    .then ->
+      unless aborted
+        # simulate successful load
+        log "DarkJedi: loaded: #{key}"
+        &Data/DarkJedi[key]
+
+  toKeyString: (a) -> "#{a}"
+
+  fluxStoreEntryRemoved: (entry) ->
+    entry.fluxRecord.abort?()

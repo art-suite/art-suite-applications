@@ -1,0 +1,12 @@
+import &ArtSuite
+
+class ShowTodos extends FluxComponent
+  @subscriptions :todos.todos :viewState.completedTodosVisible
+
+  render: ->
+    ScrollElement
+      clip: true
+      Element
+        childrenLayout: :column
+        array todo from @todos when todo && (@completedTodosVisible || !todo.completed)
+          &ShowTodo todo

@@ -1,0 +1,33 @@
+import &ArtSuite
+
+class MyComponent extends Component
+
+  @stateFields
+    myMatrix: matrix()
+    pointerTransforms: null
+
+  render: ->
+    m = @myMatrix
+    if @pointerTransforms
+      m = m.mul @pointerTransforms
+    Element
+      cursor:     :pointer
+      animators:  draw: duration: 1
+
+
+      draw: :white
+
+      on:
+        pointerMove: (event) ->
+          @pointerTransforms = event.multitouchTransformInParent
+
+        pointerUp:   (event) ->
+          if @pointerTransforms
+            @myMatrix = @myMatrix.mul @pointerTransforms
+            @pointerTransforms = null
+
+      Element
+        elementToParentMatrix: m
+        size: 100
+        axis: .5
+        draw: :blue

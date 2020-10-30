@@ -1,0 +1,26 @@
+import &ArtSuite
+
+class StyleProps extends HotStyleProps
+  @numberStyle:
+    fontFamily: :arial
+    fontWeight: :bold
+    fontSize:   20
+    location:   ps: .5
+    size:       cs: 1
+    axis:       .5
+
+  @colorMap:
+    red:    #E42030
+    green:  #25B650
+    yellow: #ff4
+    blue:   #22489F
+    grey:   #eee
+
+  @backgroundColor: #eee
+
+  @textColorMap:
+    red:    #E42030
+    green:  #25B650
+    yellow: #cc2
+    blue:   #22489F
+    grey:   #ccc

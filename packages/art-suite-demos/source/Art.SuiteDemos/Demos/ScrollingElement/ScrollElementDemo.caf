@@ -1,0 +1,55 @@
+import &StandardImport, &Widgets
+
+class ScrollElementDemo extends FluxComponent
+
+  render: ->
+    @props extract
+      alignment, items, tight
+      track, removeItem, horizontal
+
+    Element
+      draw: color: veryDarkMuted
+      padding: 10
+      childrenLayout: :column
+      childrenMargins: 10
+      size =
+        if tight
+          if horizontal
+            :childrenSizeMaxParentWidth
+          else
+            :childrenSizeMaxParentHeight
+        else
+          :parentSize
+
+      animators: :size
+
+      TextElement
+        mediumText
+        :childrenSize
+        text: "" Containing Element
+        color: lightMuted
+
+
+      ScrollElement
+        size
+        clip:               true
+        track:              track
+        location:           alignment
+        axis:               alignment
+        childrenLayout:     if horizontal then :row else :column
+        childrenAlignment:  alignment
+        animators:          :childrenAlignment :axis :location
+        drawOrder:          darkMuted
+        # padding: 10
+        TextElement
+          mediumText
+          :childrenSize
+          key:      :scrollElementContentsLabel
+          text:     :ScrollElement
+          padding:  10
+          color:    lightMuted
+
+        array text in items
+          SimpleLineItem {}
+            removeItem, text, horizontal
+            key: "Item:#{text}"

@@ -1,0 +1,67 @@
+import &ArtSuite
+
+class StyleProps extends HotStyleProps
+
+  colorAndShadow = (color) -> {} color, shadow: {} color, offset: 0 radius: 10
+
+  @basePadding: 10
+  @textPadding: 14
+  @buttonColor: #69f0d2
+
+  @baseTextStyle:
+    size:       :parentWidthChildrenHeight
+    fontFamily: "" Lucida Console, Monaco5, monospace
+    fontSize:   26
+
+  @backgroundStyle:
+    colors: #1b3061 #192b55
+
+  @appOutlineStyle:
+    radius:   2
+    outline:  merge
+      lineWidth: 3
+      colorAndShadow #35769A
+
+  @buttonOutlineStyle: merge
+    lineWidth: 5
+    colorAndShadow @buttonColor
+
+  @planetMonitorTextStyle: merge
+    @baseTextStyle
+    colorAndShadow #ede66a
+    padding: @textPadding
+
+  @planetMonitorBackgroundStyle:
+    radius:   2
+    color:    #2f5093
+    outline:  merge
+      lineWidth: 5
+      colorAndShadow #87afe7
+
+  @buttonTextStyle: merge
+    @baseTextStyle
+    size:     :parentSize
+    align:    :centerCenter
+    colorAndShadow @buttonColor
+
+  @getButtonBackgoundColor: ({enabled, pointerIsDown, hover})->
+    switch
+    when enabled && pointerIsDown then  :white
+    when enabled && hover         then  #60c7b1
+    else                                #39697A
+
+  @slotOutlineStyle:
+    radius:   1
+    outline:  merge
+      lineWidth: 5
+      colorAndShadow #6af0d3
+
+  @getSlotTextStyle: (red) =>
+    merge
+      @baseTextStyle
+      fontSize: 18
+      colorAndShadow if red then :red else #6af0d3
+
+  @slotSmallTextStyle:
+    margin:   2
+    fontSize: 12

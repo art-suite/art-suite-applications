@@ -1,0 +1,49 @@
+import &StandardImport, &Widgets
+
+class DynamicScroller extends FluxComponent
+
+  @stateFields
+    alignment:  :bottomLeft
+    track:      :bottom
+    tight:      false
+    horizontal: false
+    items:
+      "" Item 1
+      "" Item 2
+
+  count = 3
+  addItem:             -> @items = arrayWith @items, "Item #{count++}"
+  removeItem: (string) -> @items = arrayWithoutValue @items, string
+
+  render: ->
+    Element
+      childrenLayout: :row
+      childrenMargins: 10
+      padding: 10
+      drawOrder: darkBackground
+      &ScrollElementDemo @state, {} @removeItem, @horizontal
+
+      Element
+        size: wcw:1
+        childrenMargins: 10
+        childrenLayout: "column"
+        Button
+          text: if @horizontal then "horizontal" else "vertical"
+          action: @toggleHorizontal
+        Button text: "add element",         action: @addItem
+        array alignment in :topLeft :topRight :bottomLeft :bottomRight
+          Button
+            selected: @alignment == alignment
+            action:   -> @alignment = alignment
+            text:     "align #{alignment}"
+
+        array track in :top :bottom
+          Button
+            selected: @track == track
+            action:   -> @track = track
+            text:     "track #{track}"
+
+        Button
+          selected: @tight
+          action:   @toggleTight
+          text:     "" size: #{if @tight then "tight" else "full"}
