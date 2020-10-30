@@ -1,0 +1,77 @@
+import &StandardImport
+Button = &Button
+
+class DemoElement extends Component
+
+  @stateFields
+    fixedWidth: false
+    weight: 1
+
+  cycleWeight: ->
+    @mode = :variableWidth
+    @weight = if @weight >= 3 then 1 else @weight + 1
+
+  render: ->
+    {hh} = @props
+    Element
+      animators: :layoutWeight
+      childrenLayout: :column
+      childrenAlignment: :center
+      cursor: :pointer
+      margin: 5
+      padding: 10
+      on: pointerClick: @cycleMode
+
+      size:
+        if @fixedWidth
+          w: 70, hh: hh
+        else
+          ww: 1 hh: hh
+
+      layoutWeight: @weight
+
+      draw: vibrant
+
+      Button
+        size: h: 50, ww: 1
+        fontSize: 10
+        action: @toggleFixedWidth
+        if @fixedWidth then "w: 70" else "ww: 1"
+
+      !@fixedWidth && Button
+        size: h: 50, ww: 1
+        fontSize: 10
+        action: @cycleWeight
+        "weight: #{@weight}"
+
+class ChildrenLayoutDemo extends Component
+  @stateFields
+    childrenAlignment: :topLeft
+
+  render: ->
+    Element
+      childrenLayout: :column
+      TextElement
+        mediumText
+        size: :childrenSize
+        text:
+          """
+            childrenLayout: :row
+            When set to :row, children are laid out left to right, much like FlexBox layout in other frameworks.
+        color: muted
+        margin: 10
+
+      &LayoutDemoContainer
+        buttonProps: (alignment) ->
+          text: "" childrenAlignment:\n:#{alignment}
+
+        containerProps: (location) ->
+          childrenLayout: :row
+          childrenAlignment: location
+          animators: :childrenAlignment
+
+        renderChildren: (location) ->
+          []
+            DemoElement hh: .85
+            DemoElement hh: 1
+            DemoElement hh: .7

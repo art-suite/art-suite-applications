@@ -1,0 +1,26 @@
+import &StandardImport, &Components
+&Models
+
+class MyComponent extends FluxComponent
+  @subscriptions
+    :drumMachine.playing
+    :drumMachine.currentTimeslot
+
+  render: ->
+    Element
+      draw: :white
+      :column
+
+      TextElement
+        TextStyles.largeBoldText
+        text: "Drum Machine"
+
+      TextElement
+        TextStyles.largeBoldText
+        text: if @playing then :stop else :play
+        on: pointerClick: @models.drumMachine.togglePlaying
+
+      childrenMargins: 10
+
+      array drum in &DrumData
+        DrumRow {} drum

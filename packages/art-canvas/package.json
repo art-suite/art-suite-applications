@@ -1,0 +1,21 @@
+{
+  "author": "Shane Brinkman-Davis Delamore, Imikimi LLC\"",
+  "bugs": "https://github.com/art-suite/art-suite-applications/issues",
+  "dependencies": {
+    "art-build-configurator": "^1.28.0",
+    "webfontloader": "^1.6.28"
+  },
+  "homepage": "https://github.com/art-suite/art-suite-applications",
+  "license": "ISC",
+  "name": "art-canvas",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/art-suite/art-suite-applications.git"
+  },
+  "scripts": {
+    "build": "webpack --progress",
+    "start": "webpack-dev-server --hot --inline --progress --env.devServer",
+    "test": "webpack-dev-server  --progress --env.devServer"
+  },
+  "version": "1.28.2"
+}

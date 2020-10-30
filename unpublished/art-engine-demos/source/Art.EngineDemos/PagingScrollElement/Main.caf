@@ -1,0 +1,59 @@
+import &ArtStandardLib, &ArtAtomic, &ArtEngine, &ArtEngineFactories
+
+scroll = ({vertical:"vertical", horizontal:"horizontal"}[parseQuery().scroll]) || "vertical"
+log
+  PagingScrollElementDemo:
+    scroll: scroll
+    options:
+      dev: "?dev=true/false"
+      scroll: "?scroll=vertical/horizontal"
+
+generatedChildrenMap = {}
+generateChildren = (centerIndex, spread = 2)->
+  oldGeneratedChildrenMap = generatedChildrenMap
+  generatedChildrenMap = {}
+  startIndex = max 0, centerIndex - spread
+  endIndex = centerIndex + spread
+  out = []
+  pageIndex = startIndex
+  while pageIndex <= endIndex
+    h = modulo pageIndex / 24, 1
+    # log h:h
+    text = round(h * 360) + "°"
+    key = pageIndex.toString()
+    out.push generatedChildrenMap[key] = oldGeneratedChildrenMap[key] || Element
+      size:
+        if scroll == "horizontal"
+          hh:1, w:300
+        else
+          ww:1, h:300
+      key: key
+      # margin: 10
+      RectangleElement color: hslColor h, 1, 1
+      TextElement
+        location: ps: .5
+        axis: .5
+        fontSize: 128
+        color: "#0007"
+        text: text
+    pageIndex++
+  out
+
+->
+  CanvasElement
+    RectangleElement color: "#333"
+    PagingScrollElement
+      padding: 5
+      scroll: scroll
+      childrenAlignment: :bottom
+      # childrenLayout: :column
+      on:
+        scrollUpdate: ({target, props:{focusedPage, currentGeometry}}) ->
+          target.setChildren generateChildren focusedPage.key | 0, currentGeometry.suggestedPageSpread
+
+      generateChildren 0
+
+    TextElement
+      color: "#fffc"
+      location: 10
+      text: "PagingScrollElement Demo"

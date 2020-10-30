@@ -1,0 +1,21 @@
+import &StandardImport, &MenuLib
+
+class MenuInfo extends ViewStateComponent
+
+  render: ->
+    @ extract gridSize
+    @props extract large, text, color = TextPalette.black.secondary
+
+    Element
+      :parentWidthChildrenHeight
+      margin: gridSize / 2
+
+      TextElement
+        if large then TextStyles.mediumText else TextStyles.smallText
+        :textCenterLeft
+        :parentWidthChildrenHeight
+
+        {}
+          color, text
+          padding:          v: gridSize / 2
+          paragraphLeading: 2

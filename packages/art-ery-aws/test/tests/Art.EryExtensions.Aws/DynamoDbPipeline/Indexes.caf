@@ -1,0 +1,132 @@
+import &StandardImport, &ArtAws
+
+myAppMessage = MyAppMessage = null
+setupPromise = null
+
+setupWithMyTable = ->
+  deleteTestTables()
+  .then ->
+    Neptune.Art.Ery.PipelineRegistry._reset()
+    {myAppMessage} = class MyAppMessage extends DynamoDbPipeline
+      @addDatabaseFilters
+        userId:     :id
+        eventAt:    :required :secondsTimestamp
+        text:       :required :trimmedString
+
+      @globalIndexes
+        messagesByUserIdEventAt: :userId/eventAt
+        # example with DynamoDb index creation props:
+        # eventLogsByEventCreatedAt:          projection: :keysOnly key: :event/createdAt
+
+    myAppMessage._vivifyTable()
+
+aliceId = randomString()
+billId = randomString()
+
+suite:
+
+  basic: ->
+    chainedTest setupWithMyTable
+
+    .thenTest "fields are required", ->
+      assert.clientFailure myAppMessage.create
+        data:
+          userId:   aliceId
+          text:     "hi"
+      .then (rejectsWith) -> assert.match rejectsWith.message, /missing.*eventAt/
+
+
+    .thenTest "create then get", ->
+      Promise.all []
+        myAppMessage.create
+          data:
+            userId:   aliceId
+            text:     "message at 1"
+            eventAt:  1
+
+        myAppMessage.create
+          data:
+            userId:   aliceId
+            text:     "message at 2"
+            eventAt:  2
+
+        myAppMessage.create
+          data:
+            userId:   aliceId
+            text:     "message at 3"
+            eventAt:  3
+
+    .tapTest :messagesByUserIdEventAt ->
+      myAppMessage.messagesByUserIdEventAt aliceId
+      .then (messages) ->
+        assert.eq
+          1 2 3
+          array {eventAt} in messages with eventAt
+
+    .tapTest :messagesByUserIdEventAtDesc ->
+      myAppMessage.messagesByUserIdEventAtDesc aliceId
+      .then (messages) ->
+        assert.eq
+          3 2 1
+          array {eventAt} in messages with eventAt
+          {} messages
+
+    .tapTest "where: eventAt: gt: 2" ->
+      myAppMessage.messagesByUserIdEventAt aliceId, props: where: eventAt: gt: 2
+      .then (messages) ->
+        assert.eq
+          [] 3
+          array {eventAt} in messages with eventAt
+
+    .tapTest "where: eventAt: gte: 2" ->
+      myAppMessage.messagesByUserIdEventAt aliceId, props: where: eventAt: gte: 2
+      .then (messages) ->
+        assert.eq
+          2 3
+          array {eventAt} in messages with eventAt
+
+
+    .tapTest "where: eventAt: between: 1 2" ->
+      myAppMessage.messagesByUserIdEventAt aliceId, props: where: eventAt: between: 1 2
+      .then (messages) ->
+        assert.eq
+          1 2
+          array {eventAt} in messages with eventAt
+
+    .tapTest "where: eventAt: 2" ->
+      myAppMessage.messagesByUserIdEventAt aliceId, props: where: eventAt: 2
+      .then (messages) ->
+        assert.eq
+          [] 2
+          array {eventAt} in messages with eventAt
+
+    .tapTest "select: :eventAt" ->
+      myAppMessage.messagesByUserIdEventAt aliceId, props: select: :eventAt
+      .then (messages) ->
+        assert.eq
+          []
+            {} eventAt: 1
+            {} eventAt: 2
+            {} eventAt: 3
+          messages
+
+
+    .tapTest "select: :eventAt :userId" ->
+      myAppMessage.messagesByUserIdEventAt aliceId, props: select: :eventAt :userId
+      .then (messages) ->
+        assert.eq
+          []
+            {} eventAt: 1, userId: aliceId
+            {} eventAt: 2, userId: aliceId
+            {} eventAt: 3, userId: aliceId
+          messages
+
+    .tapTest "select: 'eventAt userId'" ->
+      myAppMessage.messagesByUserIdEventAt aliceId, props: select: "" eventAt userId
+      .then (messages) ->
+        assert.eq
+          []
+            {} eventAt: 1, userId: aliceId
+            {} eventAt: 2, userId: aliceId
+            {} eventAt: 3, userId: aliceId
+          messages

@@ -1,0 +1,5 @@
+[]
+  name: "hat"   file: "foo.wav"
+  name: "kick"  file: "foo.wav"
+  name: "snare" file: "foo.wav"
+  name: "bell"  file: "foo.wav"

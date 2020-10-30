@@ -1,0 +1,79 @@
+import &StandardImport, {} &ToolbarButton
+class SelectedTextPopover extends ViewStateComponent
+
+  @stateFields
+    copied: false
+
+  @propField
+    startLocation: null
+    text:     null
+    context:  null
+    post:     null
+    close:    null
+    buttons:  null
+    ## example:
+      []
+        # Any ToolbarButton prop:
+        icon:   :iconName OR
+        text:   :textName
+        action: ->
+
+  copyText: ->
+    copied = &copyToClipboard @text
+
+    @triggerCopied()
+    timeout 500 -> @close?()
+
+  location: (ps, cs) ->
+    @ extract startLocation
+    startLocation
+
+    .add point
+      if @isTouchScreen then -@buttonSize
+      else @gridSize
+      0
+
+    .bound
+      half = cs.div 2
+      ps.sub half
+
+  textButtonProps =
+    size: wcw:1, h: 45
+    innerPadding: h: 15
+    color: TextPalette.white.primary
+
+  iconButtonProps =
+    size: 45
+    color: TextPalette.white.primary
+    iconScale: 2/3
+
+  render: ->
+    @ extract copied, buttons
+    Element
+      :childrenSize :row
+      if @startLocation then :centerLeft
+      else :centerCenter
+      animators:  opacity: toFrom: 0
+      inFlow:     false
+      draw:
+        radius: 10
+        TextPalette.black.opaquePrimary
+      if @startLocation then {} @location
+
+      ToolbarButton
+        textButtonProps
+        text:   if copied then :copied else :copy
+        action: @copyText
+
+      !copied && buttons && array button in buttons
+        ToolbarButton
+          if button.icon
+            iconButtonProps
+          else
+            textButtonProps
+          button
+
+      !copied && ToolbarButton
+        iconButtonProps
+        icon:   :close
+        action: @close

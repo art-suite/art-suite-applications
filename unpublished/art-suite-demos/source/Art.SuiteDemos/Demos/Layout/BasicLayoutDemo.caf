@@ -1,0 +1,100 @@
+import &StandardImport
+Button = &Button
+
+class DemoElement extends Component
+
+  @stateFields
+    axis: :centerCenter
+    angle: 0
+    scale: 1
+
+  rotateLeft: -> @angle -= Math.PI/6
+  rotateRight: -> @angle += Math.PI/6
+  scaleUp:   -> @scale *= 1.25
+  scaleDown: -> @scale /= 1.25
+  reset: -> @angle = 0; @scale = 1; @axis = .5
+
+  render: ->
+    {hh} = @props
+    AxisButton = (axis, text) ->
+      Button size: 50, selected: axis == @axis, text: "axis:\n#{text}" || axis, action: -> @axis = axis
+
+    Element
+      animators:
+        axis: true
+        location: true
+        angle:
+          f: :easeInBounce
+          d: .4
+        scale:
+          f: :easeInElastic
+          d: 1
+
+      axis: @axis
+      angle: @angle
+      scale: @scale
+      skew: 1
+      location: ps: @props.location || :centerCenter
+
+      size: w: 310, h: 190
+      clip: true
+
+      draw:
+        vibrant
+
+      Element
+        inFlow: false
+        location: ps: @axis
+        size: 80
+        axis: :centerCenter
+        animators: :location
+        draw:
+          radius: 40
+          darkVibrant
+
+      Element
+        padding: 10
+        childrenLayout: :flow
+
+        AxisButton :topLeft         :TL
+        Button size: 50   text: :⬆︎  action: @scaleUp
+        AxisButton :topCenter       :TC
+        Element size: 50
+        AxisButton :topRight        :TR
+
+        AxisButton :centerLeft      :CL
+        Button size: 50   text: :⟲  action: @rotateLeft
+        AxisButton :centerCenter    :CC
+        Button size: 50   text: :⟳  action: @rotateRight
+        AxisButton :centerRight     :CR
+
+        AxisButton :bottomLeft      :BL
+        Button size: 50   text: :⬇︎  action: @scaleDown
+        AxisButton :bottomCenter    :BC
+        Button size: 50   text: :reset  action: @reset
+        AxisButton :bottomRight     :BR
+
+class BasicLayoutDemo extends Component
+  @stateFields
+    demoLocation: :centerCenter
+
+  render: ->
+    Element
+      childrenLayout: :column
+      TextElement
+        mediumText
+        size: ww: 1 hch: 1
+        text:
+          """
+            Location
+            If the parent element does not have childrenLayout set, then the Element's location is based on its `axis` and `location` properties.
+        color: muted
+        margin: 10
+
+      &LayoutDemoContainer
+        buttonProps: (location) ->
+          text: "location: ps:\n:#{location}"
+          action: -> @demoLocation = location
+
+        renderChildren: (location) ->
+          DemoElement {location}

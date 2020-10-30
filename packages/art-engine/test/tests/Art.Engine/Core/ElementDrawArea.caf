@@ -1,0 +1,225 @@
+import &StandardImport
+
+test = (a, f) -> global.test a, f
+
+{stateEpochTest} = &StateEpochTestHelper
+
+suite:
+  basic: ->
+    stateEpochTest "basic parentSpaceDrawArea", ->
+      o = Element size: 400 drawOrder: :red
+      ->
+        assert.eq o.elementSpaceDrawArea, rect 0, 0, 400, 400
+        assert.eq o.parentSpaceDrawArea,  rect 0, 0, 400, 400
+
+    stateEpochTest "default elementSpaceDrawArea with draw", ->
+      o = Element drawOrder: :red
+      ->
+        assert.eq o.elementSpaceDrawArea, rect 0, 0, 100, 100
+
+    stateEpochTest "default elementSpaceDrawArea", ->
+      o = Element()
+      ->
+        assert.eq o.elementSpaceDrawArea, rect()
+
+  rotation: ->
+    stateEpochTest "basic parentSpaceDrawArea", ->
+      standardTextProps = textProps =
+        fontSize: 16
+        fontFamily: "sans-serif"
+        color: "#fffc"
+        align: .5
+        size: ps: 1
+        padding: 10
+
+      standardShadowProps =
+        color:    "#0007"
+        blur:     20
+        offset:   y: 5
+
+      e = Element
+        size: 100
+        clip: true
+        o = Element
+          size: 100
+          axis: .5
+          location: ps: .5
+          angle: (Math.PI/180) * -5
+          RectangleElement color: "green", shadow: standardShadowProps
+          needsStagingElement = Element
+            clip: true
+            TextElement m standardTextProps, text: "hi!"
+
+      ->
+        assert.eq o.elementSpaceDrawArea, rect -25 -20 150 150
+        assert.eq needsStagingElement.elementSpaceDrawArea.roundOut(.1), rect 33.5, 36, 33.1, 32
+
+  children: ->
+    stateEpochTest "with no mask and children", ->
+      o = Element
+        location: point(50,60), size: 400
+        Element location:point(100,200), size: 400 drawOrder: :red
+      ->
+        assert.eq o.elementSpaceDrawArea, rect 100, 200, 400, 400
+        assert.eq o.parentSpaceDrawArea,  rect 150, 260, 400, 400
+
+    stateEpochTest "child moves", ->
+      p = Element
+        size:400
+        c = Element size:23, location:45, drawOrder: :red
+      ->
+        assert.eq p.elementSpaceDrawArea, rect 45, 45, 23, 23
+        c.location = 67
+        ->
+          assert.eq p.elementSpaceDrawArea, rect 67, 67, 23, 23
+
+    stateEpochTest "child added", ->
+      p = Element
+        size:400
+        c = Element size: 23, location: 45 drawOrder: :red
+      ->
+        assert.eq p.elementSpaceDrawArea, rect 45, 45, 23, 23
+        p.addChild Element size:78, location: 89 drawOrder: :red
+        ->
+          assert.eq p.elementSpaceDrawArea, rect 45, 45, 122, 122
+
+    stateEpochTest "child removed", ->
+      p = Element
+        size:400
+        Element size: 23, location: 45 drawOrder: :red
+        c = Element size: 78, location: 89 drawOrder: :red
+      ->
+        assert.eq p.elementSpaceDrawArea, rect 45, 45, 122, 122
+        c.parent = null
+        ->
+          assert.eq p.elementSpaceDrawArea, rect 45, 45, 23, 23
+
+    stateEpochTest "grandchild effects grandparent", ->
+      gp = Element
+        {}
+        p = Element
+          {}
+          c = Element size:23, location:45 drawOrder: :red
+      ->
+        assert.eq gp.elementSpaceDrawArea, rect 45, 45, 23, 23
+        c.location = 12
+        ->
+          assert.eq gp.elementSpaceDrawArea, rect 12, 12, 23, 23
+
+    stateEpochTest "with mask and children outside mask", ->
+      o = Element
+        location:point(50,60), size: 400
+        Element location:point(100,200), size: 400 drawOrder: :red
+        Element isMask:true drawOrder: :red
+
+      ->
+        assert.eq o.elementSpaceDrawArea, rect 100, 200, 300, 200
+        assert.eq o.parentSpaceDrawArea,  rect 150, 260, 300, 200
+
+    stateEpochTest "with some masked and some unmasked children", ->
+      o = Element
+        location:point(50,60), size: 400
+        Element location:point(100,200), size: 400 drawOrder: :red
+        Element compositeMode:"alphaMask" drawOrder: :red
+        Element location:point(-100,-200), size: 40 drawOrder: :red
+
+      ->
+        assert.eq o.parentSpaceDrawArea, rect 50-100, 60-200, 500, 600
+
+
+  transforms: ->
+    stateEpochTest "with intersting transformation matrix", ->
+      o = Element size: 400 drawOrder: :red
+      ->
+        m = Matrix.rotate Math.PI/4
+        assert.eq o.getDrawAreaIn(m).roundOut(), rect -283, 0, 566, 566
+
+  outline: ->
+    stateEpochTest "with outline", ->
+      o = RectangleElement
+        color: #ff0
+        size: 50
+        outline = OutlineElement
+          lineWidth:20
+          lineJoin: "round"
+
+      ->
+        assert.eq o.elementSpaceDrawArea, rect -10, -10, 70, 70
+
+  padding:
+    elementSpace: ->
+      test "positive", ->
+        Element
+          size: 50, padding: 10
+          Element drawOrder: :red
+        .onNextReady (element) ->
+          assert.eq element.elementSpaceDrawArea, rect 30
+
+      test "negative", ->
+        Element
+          size: 50, padding: -10
+          Element drawOrder: :red
+        .onNextReady (element) ->
+          assert.eq element.elementSpaceDrawArea, rect 70
+
+    parentSpace: ->
+      test "positive", ->
+        Element
+          size: 50
+          Element
+            padding: 10
+            Element drawOrder: :red
+        .onNextReady (parent) ->
+          assert.eq parent.elementSpaceDrawArea, rect 10, 10, 30, 30
+
+      test "negative", ->
+        Element
+          size: 50
+          Element
+            padding: -10
+            Element drawOrder: :red
+        .onNextReady (parent) ->
+          assert.eq parent.elementSpaceDrawArea, rect -10, -10, 70, 70
+
+  regressions: ->
+    test "drawing, caching and drawArea", ->
+      parent = Element
+        key: :parent
+        size: 4
+        clip: true
+        RectangleElement color: #480
+        child = Element
+          key: :child
+          cacheDraw: true
+          location: x: 2
+          RectangleElement color: #8ff
+      parent.toBitmapBasic()
+      .then (bitmap)->
+        assert.eq child.elementSpaceDrawArea, rect 0, 0, 4, 4
+        child.location = x: 1
+        parent.toBitmapBasic()
+      .then (bitmap)->
+        assert.eq child.elementSpaceDrawArea, rect 0, 0, 4, 4
+
+    test "over padding should not have negative clipping", ->
+      Element
+        size: 2
+        location: 1
+        padding: right: 3
+        clip: true
+        RectangleElement color: #fff, location: -1, size: 4
+      .onNextReady (e) ->
+        assert.eq e.paddedArea, rect(0, 0, 0, 2), "paddedArea"
+        assert.eq e.elementSpaceDrawArea, rect 0, 0, 0, 2
+
+    test "huh", ->
+      RectangleElement
+        radius: 10
+        clip: true
+        size: w: 389.5, h: 232.75
+        childrenLayout: "column"
+        RectangleElement size: h: 38
+        RectangleElement()
+      .onNextReady (e) ->
+        assert.eq e.drawArea.size, e.currentSize
+        # assert.eq e.elementSpaceDrawArea, rect 0, 0, 0, 2

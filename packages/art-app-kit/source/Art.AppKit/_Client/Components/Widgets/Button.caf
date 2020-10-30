@@ -1,0 +1,44 @@
+import &StandardImport
+
+class Button extends FluxComponent
+  @subscriptions
+    :appKitViewState.buttonSize
+    :appKitViewState.gridSize
+
+  @propFields
+    :action
+    :tight
+    :left
+
+  render: ->
+    @ extract tight, left
+    AppKitButtonWrapper
+
+      draw:
+        radius: 100
+        AppPalette.primary
+
+      if left
+        scaleAxis: y: .5
+      @props
+
+      size: size =
+        if tight
+          h:    @buttonSize
+          wcw:  1
+        else
+          h: @buttonSize
+
+      TextElement
+        TextStyles.mediumText
+        if @props.key?
+          objectWithout @props, :key
+        else @props
+        padding:  @gridSize
+        text:     @props.text ? "" (set button text: propery)
+        size:     size
+        color:    TextPalette.white.primary
+
+        if left
+              :textCenterLeft
+        else  :textCenterCenter

@@ -1,0 +1,67 @@
+import &StandardImport
+
+reducedRange = (bitmap, factor = 32) ->
+  array a in bitmap.getImageDataArray :red
+    Math.round a / factor
+
+suite: ->
+
+  test "fillShape circlePath" ->
+    bitmap = new Bitmap point 6
+    bitmap.clear #000
+    bitmap.fillShape null, (color: :red), circlePath, rect 1, 1, 4, 4
+    log {bitmap}
+    assert.eq
+      reducedRange bitmap
+      compactFlatten []
+        0 0 0 0 0 0
+        0 3 6 7 3 0
+        0 7 8 8 6 0
+        0 7 8 8 7 0
+        0 3 7 7 3 0
+        0 0 0 0 0 0
+
+  test "fillShape rectanglePath" ->
+    bitmap = new Bitmap point 6
+    bitmap.clear #000
+    bitmap.fillShape null, (color: :red), rectanglePath, rect 1, 1, 4, 4
+    log {bitmap}
+    assert.eq
+      reducedRange bitmap
+      compactFlatten []
+        0 0 0 0 0 0
+        0 8 8 8 8 0
+        0 8 8 8 8 0
+        0 8 8 8 8 0
+        0 8 8 8 8 0
+        0 0 0 0 0 0
+
+  test "fillShape rectanglePath radius: 1" ->
+    bitmap = new Bitmap point 6
+    bitmap.clear #000
+    bitmap.fillShape null, (color: :red), rectanglePath, rect(1, 1, 4, 4), radius: 1
+    log {bitmap}
+    assert.eq
+      reducedRange bitmap
+      compactFlatten []
+        0 0 0 0 0 0
+        0 6 8 8 6 0
+        0 8 8 8 8 0
+        0 8 8 8 8 0
+        0 6 8 8 6 0
+        0 0 0 0 0 0
+
+  test "fillShape rectanglePath radius: tl: 1" ->
+    bitmap = new Bitmap point 6
+    bitmap.clear #000
+    bitmap.fillShape null, (color: :red), rectanglePath, rect(1, 1, 4, 4), radius: tl: 1
+    log {bitmap}
+    assert.eq
+      reducedRange bitmap
+      compactFlatten []
+        0 0 0 0 0 0
+        0 6 8 8 8 0
+        0 8 8 8 8 0
+        0 8 8 8 8 0
+        0 8 8 8 8 0
+        0 0 0 0 0 0

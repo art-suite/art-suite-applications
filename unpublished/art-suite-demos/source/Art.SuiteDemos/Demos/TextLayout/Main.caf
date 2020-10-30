@@ -1,0 +1,47 @@
+import &ArtSuite
+
+class MyComponent extends PointerActionsMixin Component
+
+  render: ->
+    Element
+      draw: :white
+      :flow
+
+      Element
+        :childrenSize
+        padding: 40
+        Element
+          :childrenSize
+          draw: #49f
+          TextElement
+            fontFamily: "Times"
+            :childrenSize
+            text: "Query"
+            fontSize:   200
+
+      Element
+        :childrenSize
+        padding: 40
+        Element
+          :childrenSize
+          draw: #49f
+          TextElement
+            fontFamily: "Times"
+            :childrenSize
+            layoutMode: :textual
+            text: "Query"
+            fontSize:   200
+
+
+      Element
+        :childrenSize
+        padding: 40
+        Element
+          :childrenSize
+          draw: #49f
+          TextElement
+            fontFamily: "Times"
+            :childrenSize
+            layoutMode: :tight
+            text: "Query"
+            fontSize:   200

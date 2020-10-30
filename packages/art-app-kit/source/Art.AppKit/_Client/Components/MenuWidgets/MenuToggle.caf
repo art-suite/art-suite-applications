@@ -1,0 +1,21 @@
+import &StandardImport, &MenuLib, &MenuSupportWidgets
+
+class MenuToggle extends ViewStateComponent
+
+  render: ->
+    @viewState extract gridSize, fullScreen, buttonSize, buttonSize
+
+    Element
+      :row :childrenCenterLeft
+      :pointerCursor
+      size:       ww: 1 h: buttonSize
+      animators:  :size
+      padding:    right: gridSize / 2
+      opacity:    if @props.action then 1 else .5
+      on: pointerClick: -> @refs.toggle.toggle()
+
+      IconAndText @props
+
+      Toggle
+        key: :toggle
+        {isOn, action, toggleOnColor, toggleOffColor, toggleHandleColor} = @props

@@ -1,0 +1,22 @@
+import &StandardImport
+
+class Icons extends BaseClass
+
+  @setIcons: (@icons) =>
+    object @icons.library into @
+
+  @classGetter
+    names: -> Object.keys @icons.library
+    inspectedObjects: -> @names
+
+  @pathOptions:
+    object icon in []
+        :chevronLeft
+        :chevronRight
+        :chevronTop
+        :chevronBottom
+        :caretLeft
+        :caretRight
+        :caretTop
+        :caretDown
+      scale: .5

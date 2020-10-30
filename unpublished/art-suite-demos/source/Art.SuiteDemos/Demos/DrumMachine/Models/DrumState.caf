@@ -1,0 +1,12 @@
+import &ArtSuite
+
+class DrumState extends ApplicationState
+
+  @stateFields
+    object drum in &DrumData with-key drum.name
+      array til 16 with false
+
+  toggle: (drumName, timeslot) ->
+    newState = @state[drumName].slice()
+    newState[timeslot] = !newState[timeslot]
+    @setState drumName, newState
