@@ -9,7 +9,7 @@ module.exports = suite =
     Canvas      = require 'art-canvas'
     Engine      = require 'art-engine'
     React       = require 'art-react'
-    Flux        = require 'art-flux'
+    Flux        = require '@art-suite/art-flux'
     EryFlux     = require 'art-ery/Flux'
 
     require 'art-react/mixins'

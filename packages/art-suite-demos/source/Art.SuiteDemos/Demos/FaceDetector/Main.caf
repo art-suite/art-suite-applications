@@ -1,7 +1,7 @@
-&tracking/tracking-min
-&tracking/data/faceMin
-&tracking/data/eyeMin
-&tracking/data/mouthMin
+&tracking/build/tracking-min
+&tracking/build/data/faceMin
+&tracking/build/data/eyeMin
+&tracking/build/data/mouthMin
 {tracking} = global
 import &ArtSuite, &ArtColorExtractor, tracking
 

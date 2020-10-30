@@ -1,4 +1,9 @@
-import &StandardImport, {} &Uuid, &Crypto
+import &StandardImport, {} &Uuid
+
+crypto = if isNode
+  eval(:require:) :crypto
+else
+  global.crypto
 
 secret = randomString()
 

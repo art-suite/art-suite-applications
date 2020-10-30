@@ -1,3 +1,5 @@
+import &ArtStandardLib
+
 webpack:
   common:
     mode: "development"
@@ -6,9 +8,4 @@ webpack:
     HelloWorld: {}
     HelloWorldForIE11: {}
 
-package:
-  description: "See what ArtSuite can do."
-  dependencies:
-    art-suite:            :*
-    art-color-extractor:  :*
-    tracking:             :^1.1.3
+package: -> &package

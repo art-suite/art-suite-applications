@@ -1,5 +1,5 @@
 Foundation = require 'art-foundation'
-Flux = require 'art-flux'
+Flux = require '@art-suite/art-flux'
 Atomic = require 'art-atomic'
 
 {log, createWithPostCreate, shallowClone, timeout, bound} = Foundation
