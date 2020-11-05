@@ -5,9 +5,11 @@ ArtEry = require '../'
 ArtEryQueryFluxModel = require './ArtEryQueryFluxModel'
 
 {
+  lowerCamelCase
   pluralize
   each
   log
+  array
   CommunicationStatus
   select
   isString
@@ -95,16 +97,55 @@ defineModule module, class ArtEryFluxModel extends ArtEry.KeyFieldsMixin FluxMod
   # Queries
   ########################
   _defineQueryModels: ->
-    @_queryModels = object @_pipeline.queries, (pipelineQuery) =>
-      @_createQueryModel pipelineQuery
+    @_queryModels = array @_pipeline.queries, (pipelineQuery) => @_createQueryModel pipelineQuery
 
-  # _createQueryModel TODO
-  # 2020 SBD: I'd like to start naming queries as "byUserId" instead of "postsByUserId"
-  #   This lets the REST api look like: /post/byUserId/abc123 or /post/by-user-id/abc123 or possibly /posts/by-user-id/abc123
-  #   It cuts down on redundency.
-  #   It makes an index definition reusable on other pipelines without renaming.
-  # However, this is a problem for the model-name. The model-name still needs to be postsByUserID
-  # for clarity and to avoid conflicts
+  ### _createQueryModel
+    IN: {options, queryName}
+    queryName can either be
+      pre2020-style:
+        format: pluralized pipeline name - by - fields
+        e.g. postsByUserId
+
+      2020-style-naming:
+        format: by - fields
+        e.g. byUserId
+
+      Either way, the flux-model will be named:
+        format: pluralized pipeline name - by - fields
+        e.g. postsByUserId
+
+    Benefits of 2020-style query names:
+      By dropping the pipeline-name as part of the queryName, we get several advantages:
+
+        DRY:
+          Pipeline definitions:
+            2020 version:
+              class Message extends Pipeline
+                @query byUserId: (request) -> ...
+                @publicRequestTypes :byUserId
+
+            instead of pre2020:
+              class Message extends Pipeline
+                @query messagesByUserId: (request) -> ...
+                @publicRequestTypes :messagesByUserId
+
+          The REST api becomes:
+            2020 version:       /post/byUserId/abc123
+            instead of pre2020: /post/postsByUserId/abc123
+
+        And all the DRY means an objective improvement:
+
+          It is now possible to re-use pipeline query definitions across pipelines:
+
+            class UserOwned extends Pipeline
+              @query byUserId: (request) -> ...
+              @publicRequestTypes :byUserId
+
+            class Message extends UserOwned
+            class Post extends UserOwned
+
+          NOTE: I actually haven't tested that the inheritance part works yet...
+  ###
   _createQueryModel: ({options, queryName}) ->
 
     prototypeProperties = merge options, {
