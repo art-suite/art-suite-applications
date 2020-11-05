@@ -5,6 +5,7 @@ ArtEry = require '../'
 ArtEryQueryFluxModel = require './ArtEryQueryFluxModel'
 
 {
+  pluralize
   each
   log
   CommunicationStatus
@@ -34,7 +35,6 @@ PipelineRegistry = require '../PipelineRegistry'
 
 defineModule module, class ArtEryFluxModel extends ArtEry.KeyFieldsMixin FluxModel
   @abstractClass()
-
 
   ###
   ALIASES
@@ -98,6 +98,13 @@ defineModule module, class ArtEryFluxModel extends ArtEry.KeyFieldsMixin FluxMod
     @_queryModels = object @_pipeline.queries, (pipelineQuery) =>
       @_createQueryModel pipelineQuery
 
+  # _createQueryModel TODO
+  # 2020 SBD: I'd like to start naming queries as "byUserId" instead of "postsByUserId"
+  #   This lets the REST api look like: /post/byUserId/abc123 or /post/by-user-id/abc123 or possibly /posts/by-user-id/abc123
+  #   It cuts down on redundency.
+  #   It makes an index definition reusable on other pipelines without renaming.
+  # However, this is a problem for the model-name. The model-name still needs to be postsByUserID
+  # for clarity and to avoid conflicts
   _createQueryModel: ({options, queryName}) ->
 
     prototypeProperties = merge options, {
@@ -106,8 +113,15 @@ defineModule module, class ArtEryFluxModel extends ArtEry.KeyFieldsMixin FluxMod
       query: (key) -> @_pipeline[queryName] key: key, props: include: "auto"
     }
 
+    modelName = upperCamelCase(
+      if /^by/.test queryName
+        "#{pluralize @_pipeline.name} #{queryName}"
+      else
+        queryName
+    )
+
     new class ArtEryQueryFluxModelChild extends @class.applyMixins @_pipeline, ArtEryQueryFluxModel
-      @_name: upperCamelCase queryName
+      @_name: modelName
 
       @::[k] = v for k, v of prototypeProperties
 
