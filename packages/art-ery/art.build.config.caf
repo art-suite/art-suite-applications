@@ -5,7 +5,7 @@
 target: node: true
 package:
   scripts:
-    testServer: "" caf ./TestServer.caf
+    test-server: "" caf ./TestServer.caf
 
   description:
     ""

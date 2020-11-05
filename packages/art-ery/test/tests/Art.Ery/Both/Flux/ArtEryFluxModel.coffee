@@ -4,7 +4,7 @@
 {ArtEryFluxModel} = require('art-ery').Flux
 SimplePipeline = require '../SimplePipeline'
 {missing, success} = CommunicationStatus
-{FluxSubscriptionsMixin} = require('art-flux')
+{FluxSubscriptionsMixin} = require('@art-suite/art-flux')
 
 Flux = require("@art-suite/art-flux")
 

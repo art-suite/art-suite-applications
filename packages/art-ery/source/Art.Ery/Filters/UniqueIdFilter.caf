@@ -1,7 +1,7 @@
 import &StandardImport, {} &Uuid
 
 crypto = if isNode
-  eval(:require:) :crypto
+  eval(:require) :crypto
 else
   global.crypto
 
@@ -48,7 +48,7 @@ class UniqueIdFilter extends &Filter
     ## compactUniqueId
       OUT: a base-62 string consisting of characters: [a-zA-Z0-9]
     compactUniqueId: ->
-      Crypto.createHmac :sha256 secret
+      crypto.createHmac :sha256 secret
       .update   uuid()
       .digest   :base64
       .slice    0, @numChars
