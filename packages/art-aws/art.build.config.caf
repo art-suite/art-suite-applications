@@ -5,4 +5,14 @@ webpack:
     index: {}
     test: {}
 
-package: (abcPackage) -> &package
+package: (abcPackage) ->
+  sourceDir = :source-source
+  &ArtStandardLib.merge &package,
+    scripts:
+      build:
+        """
+          coffee -m --output source --compile #{sourceDir} &
+          caf -m -c #{sourceDir} -o source &
+          wait
+          nn -s
+      test: "nn -s;mocha -u tdd"
