@@ -26,5 +26,5 @@
     "build": "coffee -m --output source --compile source-source &\ncaf -m -c source-source -o source &\nwait\nnn -s",
     "test": "nn -s;mocha -u tdd"
   },
-  "version": "1.29.3"
+  "version": "1.29.4"
 }
