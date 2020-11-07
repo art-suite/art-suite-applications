@@ -3,7 +3,7 @@
   "bugs": "https://github.com/art-suite/art-suite-applications/issues",
   "dependencies": {
     "@art-suite/cli": "^1.3.7",
-    "art-build-configurator": "^1.29.1",
+    "art-build-configurator": "^1.29.2",
     "art-suite": "^1.9.5"
   },
   "description": "Art.Suite.App",
