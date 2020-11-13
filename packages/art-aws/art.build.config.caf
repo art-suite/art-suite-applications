@@ -1,18 +1,1 @@
-target: node: true
-webpack:
-  common: {}
-  targets:
-    index: {}
-    test: {}
-
-package: (abcPackage) ->
-  sourceDir = :source-source
-  &ArtStandardLib.merge &package,
-    scripts:
-      build:
-        """
-          coffee -m --output source --compile #{sourceDir} &
-          caf -m -c #{sourceDir} -o source &
-          wait
-          nn -s
-      test: "nn -s;mocha -u tdd"
+package: require("../standard-package-builder") &package, coffeeScript: true mocha: true

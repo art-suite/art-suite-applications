@@ -12,13 +12,13 @@
 .init
   artConfig: Art: Aws:
     credentials:
-      accessKeyId:      'blah'
-      secretAccessKey:  'blahblah'
+      accessKeyId:      :blah
+      secretAccessKey:  :blahblah
 
-    region:             'us-east-1'
+    region:             :us-east-1
 
     dynamoDb:
-      endpoint:         'http://localhost:8081'
+      endpoint:         :http://localhost:8081
 
 
   defineTests: -> &Tests

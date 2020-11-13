@@ -16,6 +16,13 @@
     "mock-fs": "^4.10.0"
   },
   "homepage": "https://github.com/art-suite/art-suite-applications",
+  "jest": {
+    "collectCoverageFrom": [
+      "source/**/*.js",
+      "!source/test/**/*.js"
+    ],
+    "testEnvironment": "node"
+  },
   "license": "ISC",
   "name": "art-aws",
   "repository": {
@@ -23,8 +30,23 @@
     "url": "https://github.com/art-suite/art-suite-applications.git"
   },
   "scripts": {
-    "build": "coffee -m --output source --compile source-source &\ncaf -m -c source-source -o source &\nwait\nnn -s",
-    "test": "nn -s;mocha -u tdd"
+    "build": "coffee -m --output source --compile source-source &\nCOFFEE_PID=$!\ncaf -m -c source-source -o source &\nCAF_PID=$!\nwait $COFFEE_PID || exit 1\nwait $CAF_PID || exit 1\nnn -s",
+    "build-clean": "npm run clean; npm run build",
+    "clean": "rm -rf source/*",
+    "test": "mocha -u tdd",
+    "watch": "npm-watch"
   },
-  "version": "1.29.4"
+  "version": "1.29.4",
+  "watch": {
+    "build": {
+      "extensions": [
+        "caf",
+        "coffee"
+      ],
+      "patterns": [
+        "source-source"
+      ],
+      "quiet": false
+    }
+  }
 }
