@@ -23,6 +23,7 @@
   plainObjectsDeepEq
   getCodeWords
   pluralize
+  present
 } = require 'art-standard-lib'
 {normalizeFieldProps} = require 'art-validation'
 {success, missing} = require 'art-communication-status'
@@ -117,7 +118,7 @@ defineModule module, class Pipeline extends require './RequestHandler'
 
   ## isRecord (override as needed)
     # used by Request/Response.withTransformedRecords
-  isRecord: (data) -> data?.id
+  isRecord: (data) -> isPlainObject(data) && present data?.id
 
   ## getFieldsRequestWillModify (override as needed)
     # called by UserOwnedFilter.before.update for correct authorization validation

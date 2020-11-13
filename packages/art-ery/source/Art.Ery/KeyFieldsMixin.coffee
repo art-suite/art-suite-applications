@@ -53,11 +53,12 @@ defineModule module, -> (superClass) -> class KeyFieldsMixin extends superClass
     keyFields:        -> @_keyFields        ?= @class._keyFields
     keyValidator:     -> @_keyValidator     ?= @class._keyValidator
 
-  isRecord: (data) ->
-    if isPlainObject data
-      for keyField in @keyFields
-        return false unless data[keyField]?
-      true
+  allKeyFieldsPresent: (data) ->
+    for keyField in @keyFields
+      return false unless present data[keyField]
+    true
+
+  isRecord: (data) -> isPlainObject(data) && @allKeyFieldsPresent data
 
   # Overrides FluxModel's implementation
   dataToKeyString: (a) ->

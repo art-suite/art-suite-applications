@@ -156,24 +156,20 @@ class LinkFieldsFilter2 extends &ValidationFilter
 
   # TODO: use bulkGet if available
   _prefetchRecords: (request, pipelineName, data) ->
-    switch
-    when data is Array
-      Promise.all array record in data
-        @_prefetchRecords request, pipelineName, record
+    Promise.then ->
+      switch
+      when data is Array
+        Promise.all array record in data
+          @_prefetchRecords request, pipelineName, record
 
-    when data is Object
-      # NOTES: the Con with this is it returns the data twice, let's assume we fix that:
-      # The Pro is it avoids returning the data twice if it is linked in recursively.
-      # @_setPrefetch request, pipelineName, data.id, data
+      when request.pipelines[pipelineName].isRecord?(data) &&
+          getLinkedFieldFilterForPipeline(pipelineName) extract linkFields
 
-      if getLinkedFieldFilterForPipeline(pipelineName) extract linkFields
+        # NOTES: the Con with this is it returns the data twice, let's assume we fix that:
+        # The Pro is it avoids returning the data twice if it is linked in recursively.
+        # @_setPrefetch request, pipelineName, data.id, data
+
         Promise.all array {include, prefetch, idFieldName, pipelineName: _pipelineName}, k in linkFields when include || prefetch
           @_prefetchRecord request, _pipelineName, data[idFieldName]
-
-      else Promise.resolve()
-
-    else
-      log.error {} request, pipelineName, data
-      throw new Error "expecting object or array"
 
     .then -> request.context.dataUpdates

@@ -13,6 +13,9 @@ suite: ->
 
       @filter new PrefetchedRecordsFilter expirationSeconds: .1
 
+      @publicHandlers
+        returnTrue: -> true
+
     assert.eq
       filter.linkFields
       user:
@@ -24,6 +27,10 @@ suite: ->
 
     pipelines.user.create data: name: :George
     .tap (user) -> assert.eq user, name: :George id: :0
+
+  .softTapTest "REGRESSION: returnTrue" ->
+    pipelines.postPipeline.returnTrue()
+    .then (result) -> assert.true result
 
   .tapTest "create with userId", (user) ->
     pipelines.postPipeline.create
