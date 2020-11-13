@@ -1,6 +1,7 @@
 {timeout, array, log, createWithPostCreate, w, isString, Validator, w} = require 'art-foundation'
 {createDatabaseFilters, KeyFieldsMixin} = require('art-ery')
 SimplePipeline = require '../SimplePipeline'
+{assert} = require('art-testbench');
 
 SimplePipelineWithKeys = KeyFieldsMixin SimplePipeline
 

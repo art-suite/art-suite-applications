@@ -2,6 +2,7 @@
 {TimestampFilter} = require('art-ery').Filters
 SimplePipeline = require '../SimplePipeline'
 {FieldTypes} = require 'art-validation'
+{assert} = require('art-testbench');
 
 module.exports = suite: ->
 

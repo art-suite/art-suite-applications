@@ -5,6 +5,7 @@
 SimplePipeline = require '../SimplePipeline'
 {missing, success} = CommunicationStatus
 {FluxSubscriptionsMixin} = require('@art-suite/art-flux')
+{assert} = require('art-testbench');
 
 Flux = require("@art-suite/art-flux")
 

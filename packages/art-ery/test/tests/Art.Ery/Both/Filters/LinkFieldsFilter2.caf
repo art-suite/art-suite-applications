@@ -3,7 +3,7 @@ SimplePipeline = &SimplePipeline
 
 suite: ->
 
-  ChainedTest.setup ->
+  chainedTest ->
     class User extends SimplePipeline
 
     filter = null
@@ -39,7 +39,7 @@ suite: ->
     .then (response) ->
       assert.eq
         response.props
-        data:               userId: :0 message: :hi id: :0
+        data:         userId: :0 message: :hi id: :0
         dataUpdates:  user:   0:    name:    :George   id: :0
 
   .tapTest "user was prefetched", (user) ->
@@ -55,7 +55,7 @@ suite: ->
     .then (response) ->
       assert.eq
         response.props
-        data:               userId: :0    message: :hi       id: :1
+        data:         userId: :0    message: :hi       id: :1
         dataUpdates:  user:   0:    name:    :George   id: :0
 
   .tapTest "create with new user", (user) ->
@@ -68,8 +68,13 @@ suite: ->
     .then (response) ->
       assert.eq
         response.props
-        data:                       id: :2 message: :hi     userId: :1
+        data:                 id: :2 message: :hi     userId: :1
         dataUpdates: user: 1: id: :1 name:    :Frank
+
+  .tapTest "new user was prefetched", ->
+    assert.eq
+      prefetchedRecordsCache.get :user, :1
+      id: :1 name:    :Frank
 
   .tapTest "new user was prefetched", ->
     assert.eq
@@ -83,7 +88,7 @@ suite: ->
     .then (response) ->
       assert.eq
         response.props
-        data:              userId: :0   message: :hi       id: :0
+        data:        userId: :0   message: :hi       id: :0
         dataUpdates: user:   0:   name:    :George   id: :0
 
   .thenTest "get with prefetch: false" ->

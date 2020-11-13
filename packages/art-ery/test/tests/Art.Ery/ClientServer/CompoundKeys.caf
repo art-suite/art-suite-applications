@@ -1,16 +1,10 @@
-{log, createWithPostCreate, RestClient,
- CommunicationStatus} = require 'art-foundation'
-{Pipeline, pipelines, session} = require('art-ery')
-{clientFailure, missing, serverFailure} = CommunicationStatus
+import &StandardImport
 
-module.exports = suite: ->
+suite: ->
   test "get", ->
     pipelines.compoundKeys.reset data: "postAbc/user123": recordData = followerCount: 2
-    .then ->
-      pipelines.compoundKeys.get key: postId: "postAbc", userId: "user123"
-
-    .then (data) ->
-      assert.eq data, recordData
+    .then -> pipelines.compoundKeys.get key: postId: "postAbc", userId: "user123"
+    .then (data) -> assert.eq data, recordData
 
   test "create", ->
     pipelines.compoundKeys.create data: recordData = postId: "postAbc_2", userId: "user123_2", followerCount: 23
@@ -29,8 +23,5 @@ module.exports = suite: ->
         key: postId: "postAbc_3", userId: "user123_3"
         data: recordData = followerCount: 3
 
-    .then ->
-      pipelines.compoundKeys.get key: postId: "postAbc_3", userId: "user123_3"
-
-    .then (data) ->
-      assert.eq data, recordData
+    .then -> pipelines.compoundKeys.get key: postId: "postAbc_3", userId: "user123_3"
+    .then (data) -> assert.eq data, recordData

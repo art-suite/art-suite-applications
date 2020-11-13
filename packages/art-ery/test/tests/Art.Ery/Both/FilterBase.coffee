@@ -1,5 +1,6 @@
 {log, formattedInspect, createWithPostCreate} = require 'art-foundation'
 {Request, Filter} = require('art-ery')
+{assert} = require('art-testbench');
 SimplePipeline = require './SimplePipeline'
 
 module.exports = suite:

@@ -1,7 +1,6 @@
-{log, createWithPostCreate} = require 'art-foundation'
-{missing, Pipeline, pipelines} = require('art-ery')
+import &StandardImport
 
-module.exports = suite: ->
+suite: ->
   test "aliases don't currently add actual alises in pipelines", ->
     createWithPostCreate class MyPipeline extends Pipeline
       @aliases "MyPipelineAlias"

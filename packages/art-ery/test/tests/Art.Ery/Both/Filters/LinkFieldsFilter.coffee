@@ -1,6 +1,7 @@
 {log, createWithPostCreate, isString, Validator, Promise, object, isFunction} = require 'art-foundation'
 {Pipeline, Filters, pipelines, config} = require('art-ery')
 {LinkFieldsFilter} = Filters
+{assert} = require('art-testbench');
 SimplePipeline = require '../SimplePipeline'
 
 module.exports = suite:

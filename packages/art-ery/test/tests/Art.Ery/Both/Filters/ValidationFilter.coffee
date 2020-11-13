@@ -1,6 +1,7 @@
 {log, isString, createWithPostCreate} = require 'art-foundation'
 {ValidationFilter} = require('art-ery').Filters
 SimplePipeline = require '../SimplePipeline'
+{assert} = require('art-testbench');
 
 {FieldTypes} = require 'art-validation'
 

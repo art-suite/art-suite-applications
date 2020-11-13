@@ -1,8 +1,6 @@
-{timeout, log, createWithPostCreate, RestClient, CommunicationStatus} = require 'art-foundation'
-{Pipeline, pipelines, session} = require('art-ery')
-{clientFailure, missing, serverFailure} = CommunicationStatus
+import &StandardImport, &ArtCommunicationStatus
 
-module.exports = suite: ->
+suite: ->
   setup -> session.reset()
   test "setSessionA", ->
     pipelines.myRemote.setSessionA()
@@ -25,14 +23,13 @@ module.exports = suite: ->
       assert.doesNotExist response.responseSession
 
   ###
-  Two parallel requests will clober each other's sessions. It has to be this way
-  because the both return different signed sessions. The client has no power
-  to merge two signed sessions. It's cryptographically guaranteed.
+    Two parallel requests will clober each other's sessions. It has to be this way
+    because the both return different signed sessions. The client has no power
+    to merge two signed sessions. It's cryptographically guaranteed.
 
-  We could merge the unsigned data, BUT the signature won't match, and
-  the server will only see one or the other session which was previously
-  returned by the server.
-  ###
+    We could merge the unsigned data, BUT the signature won't match, and
+    the server will only see one or the other session which was previously
+    returned by the server.
   test "simultanious setSessionA and setSessionB DO clobber each other", ->
     Promise.all([
       pipelines.myRemote.setSessionA()

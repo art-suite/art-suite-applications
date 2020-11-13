@@ -3,7 +3,7 @@ SimplePipeline = &SimplePipeline
 
 suite: ->
 
-  ChainedTest.setup ->
+  chainedTest ->
     class User extends SimplePipeline
 
     class PostPipeline extends SimplePipeline

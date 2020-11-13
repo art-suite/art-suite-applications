@@ -1,8 +1,6 @@
-{log, createWithPostCreate, RestClient, CommunicationStatus} = require 'art-foundation'
-{Pipeline, pipelines, session} = require('art-ery')
-{clientFailure, missing, serverFailure} = CommunicationStatus
+import &StandardImport
 
-module.exports = suite: ->
+suite: ->
 
   test "beforeFilterClientFailure", ->
     assert.rejects pipelines.clientFailures.beforeFilterClientFailure()

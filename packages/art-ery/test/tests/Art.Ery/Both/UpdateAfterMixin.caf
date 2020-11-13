@@ -1,4 +1,4 @@
-import &ArtStandardLib, require('art-ery')
+import &StandardImport
 
 suite: ->
   test "basic" ->

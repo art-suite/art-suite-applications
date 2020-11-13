@@ -1,6 +1,7 @@
 {log, createWithPostCreate, isString, Validator} = require 'art-foundation'
 {UuidFilter} = require('art-ery').Filters
 SimplePipeline = require '../SimplePipeline'
+{assert} = require('art-testbench');
 
 module.exports = suite: ->
 

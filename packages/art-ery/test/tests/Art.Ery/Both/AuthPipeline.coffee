@@ -1,5 +1,6 @@
 {defineModule, log, isString, present, CommunicationStatus, wordsArray} = require 'art-foundation'
 {Response, Request, Pipeline, session, Session} = require('art-ery')
+{assert} = require('art-testbench');
 {clientFailure, success, failure, missing} = CommunicationStatus
 
 isPresentString = (s) -> isString(s) && present s

@@ -1,8 +1,6 @@
-{toMilliseconds, objectWithout, present, merge, isString, log, createWithPostCreate, RestClient, CommunicationStatus} = require 'art-foundation'
-{missing, Pipeline, pipelines, session} = require('art-ery')
-{clientFailureNotAuthorized, clientFailure} = CommunicationStatus
+import &StandardImport
 
-module.exports = suite:
+suite:
   authenticate:
     shouldFail: ->
       test "without username", ->
