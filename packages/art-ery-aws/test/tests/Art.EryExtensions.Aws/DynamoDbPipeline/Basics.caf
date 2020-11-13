@@ -11,10 +11,10 @@ setupWithMyTable = ->
         @publicRequestTypes :get :create :update :delete :getAll :batchGet
         @addDatabaseFilters
           fields:
-            name:   "required string"
-            email:  "required email"
-            rank:               :number
-            attributes:         :array
+            name:       "required string"
+            email:      "required email"
+            rank:       :number
+            attributes: :array
 
         @publicHandlers
           throwServiceUnavailable: (request)->
@@ -69,12 +69,15 @@ suite:
       .then (record) ->
         assert.eq record.rank, .25  "" create
         myTable.get record.id
+
       .then (record) ->
         assert.eq record.rank, .25  "" create-get
         myTable.update key: record.id, data: rank: .75
+
       .then (record) ->
         assert.eq record.rank, .75  "" update
         myTable.get record.id
+
       .then (record) ->
         assert.eq record.rank, .75  "" update-get
 
@@ -204,6 +207,7 @@ suite:
       assert.rejects myTable.update
         key: randomString()
         data: rank: 123
+
       .then (rejectsWith) ->
         assert.eq rejectsWith.info.response.status, missing
 
@@ -220,7 +224,8 @@ suite:
         originatedOnServer: true
         props:
           createOk: true
-          key: userId: "123", postId: "abc"
+          key: userId: :123 postId: :abc
+
       .then (response) ->
         assert.eq response.status, success
 
@@ -228,8 +233,8 @@ suite:
     myManyToManyTable = null
     chainedTest ->
       {myManyToManyTable} = class MyManyToManyTable extends DynamoDbPipeline
-        @primaryKey "userId/postId"
-        @publicRequestTypes :create :get :update :getAll
+        @primaryKey :userId/postId
+        @publicRequestTypes :create :get :update :getAll :byUserId :myManyToManyTablesByUserId
         @addDatabaseFilters
           fields:
             user: "required link"
@@ -238,28 +243,41 @@ suite:
 
       myManyToManyTable._vivifyTable()
 
-    .thenTest "create, get and update", ->
+    .thenTest
+      "create", ->
+        myManyToManyTable.create
+          data:
+            rank: 123
+            userId: randomString()
+            postId: randomString()
 
-      myManyToManyTable.create
-        data:
-          rank: 123
-          userId: "abc123"
-          postId: "xyz123"
-
-      .then (data) ->
+    .tapTest
+      :get (data) ->
         assert.doesNotExist data.id
         myManyToManyTable.get key: data
         .then ({rank}) -> assert.eq rank, 123
-        .then         -> myManyToManyTable.update key: data, data: merge data, rank: 456
-        .then         -> myManyToManyTable.get key: data
+
+      :update (data) ->
+        myManyToManyTable.update key: data, data: merge data, rank: 456
+
+      :getAfterUpdate (data) ->
+        myManyToManyTable.get key: data
         .then ({rank}) -> assert.eq rank, 456
+
+      :byUserId (data) ->
+        myManyToManyTable.byUserId key: data.userId
+        .then ([{rank}]) -> assert.eq rank, 456
+
+      :myManyToManyTablesByUserId-old-style (data) ->
+        myManyToManyTable.myManyToManyTablesByUserId key: data.userId
+        .then ([{rank}]) -> assert.eq rank, 456
 
     .thenTest "create fails with missing required field", ->
 
       assert.rejects myManyToManyTable.create
         data:
           rank:   123
-          userId: :abc123
+          userId: randomString()
 
       .then (expectedError) ->
         assert.eq expectedError.info.response.status, clientFailure
