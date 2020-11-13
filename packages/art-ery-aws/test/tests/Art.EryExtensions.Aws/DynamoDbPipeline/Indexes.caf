@@ -8,13 +8,16 @@ setupWithMyTable = ->
   .then ->
     Neptune.Art.Ery.PipelineRegistry._reset()
     {myAppMessage} = class MyAppMessage extends DynamoDbPipeline
+      @publicRequestTypes :get :create :update :delete :byUserIdEventAt :byUserIdEventAtDesc
+
       @addDatabaseFilters
-        userId:     :id
-        eventAt:    :required :secondsTimestamp
-        text:       :required :trimmedString
+        fields:
+          userId:     :id
+          eventAt:    :required :secondsTimestamp
+          text:       :required :trimmedString
 
       @globalIndexes
-        messagesByUserIdEventAt: :userId/eventAt
+        byUserIdEventAt: :userId/eventAt
         # example with DynamoDb index creation props:
         # eventLogsByEventCreatedAt:          projection: :keysOnly key: :event/createdAt
 
@@ -56,15 +59,15 @@ suite:
             text:     "message at 3"
             eventAt:  3
 
-    .tapTest :messagesByUserIdEventAt ->
-      myAppMessage.messagesByUserIdEventAt aliceId
+    .tapTest :byUserIdEventAt ->
+      myAppMessage.byUserIdEventAt aliceId
       .then (messages) ->
         assert.eq
           1 2 3
           array {eventAt} in messages with eventAt
 
-    .tapTest :messagesByUserIdEventAtDesc ->
-      myAppMessage.messagesByUserIdEventAtDesc aliceId
+    .tapTest :byUserIdEventAtDesc ->
+      myAppMessage.byUserIdEventAtDesc aliceId
       .then (messages) ->
         assert.eq
           3 2 1
@@ -72,14 +75,14 @@ suite:
           {} messages
 
     .tapTest "where: eventAt: gt: 2" ->
-      myAppMessage.messagesByUserIdEventAt aliceId, props: where: eventAt: gt: 2
+      myAppMessage.byUserIdEventAt aliceId, props: where: eventAt: gt: 2
       .then (messages) ->
         assert.eq
           [] 3
           array {eventAt} in messages with eventAt
 
     .tapTest "where: eventAt: gte: 2" ->
-      myAppMessage.messagesByUserIdEventAt aliceId, props: where: eventAt: gte: 2
+      myAppMessage.byUserIdEventAt aliceId, props: where: eventAt: gte: 2
       .then (messages) ->
         assert.eq
           2 3
@@ -87,21 +90,21 @@ suite:
 
 
     .tapTest "where: eventAt: between: 1 2" ->
-      myAppMessage.messagesByUserIdEventAt aliceId, props: where: eventAt: between: 1 2
+      myAppMessage.byUserIdEventAt aliceId, props: where: eventAt: between: 1 2
       .then (messages) ->
         assert.eq
           1 2
           array {eventAt} in messages with eventAt
 
     .tapTest "where: eventAt: 2" ->
-      myAppMessage.messagesByUserIdEventAt aliceId, props: where: eventAt: 2
+      myAppMessage.byUserIdEventAt aliceId, props: where: eventAt: 2
       .then (messages) ->
         assert.eq
           [] 2
           array {eventAt} in messages with eventAt
 
     .tapTest "select: :eventAt" ->
-      myAppMessage.messagesByUserIdEventAt aliceId, props: select: :eventAt
+      myAppMessage.byUserIdEventAt aliceId, props: select: :eventAt
       .then (messages) ->
         assert.eq
           []
@@ -112,7 +115,7 @@ suite:
 
 
     .tapTest "select: :eventAt :userId" ->
-      myAppMessage.messagesByUserIdEventAt aliceId, props: select: :eventAt :userId
+      myAppMessage.byUserIdEventAt aliceId, props: select: :eventAt :userId
       .then (messages) ->
         assert.eq
           []
@@ -122,7 +125,7 @@ suite:
           messages
 
     .tapTest "select: 'eventAt userId'" ->
-      myAppMessage.messagesByUserIdEventAt aliceId, props: select: "" eventAt userId
+      myAppMessage.byUserIdEventAt aliceId, props: select: "" eventAt userId
       .then (messages) ->
         assert.eq
           []

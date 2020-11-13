@@ -9,6 +9,13 @@
   },
   "description": "ArtEry for AWS Lambda + DynamoDB",
   "homepage": "https://github.com/art-suite/art-suite-applications",
+  "jest": {
+    "collectCoverageFrom": [
+      "source/**/*.js",
+      "!source/test/**/*.js"
+    ],
+    "testEnvironment": "node"
+  },
   "license": "ISC",
   "name": "art-ery-aws",
   "repository": {
@@ -16,10 +23,23 @@
     "url": "https://github.com/art-suite/art-suite-applications.git"
   },
   "scripts": {
-    "build": "webpack --progress",
-    "start": "webpack-dev-server --hot --inline --progress",
-    "test": "nn -s;mocha -u tdd",
-    "testInBrowser": "webpack-dev-server --progress"
+    "build": "coffee -m --output source --compile source-source &\nCOFFEE_PID=$!\ncaf -m -c source-source -o source &\nCAF_PID=$!\nwait $COFFEE_PID || exit 1\nwait $CAF_PID || exit 1\nnn -s",
+    "build-clean": "npm run clean; npm run build",
+    "clean": "rm -rf source/*",
+    "test": "mocha -u tdd",
+    "watch": "npm-watch"
   },
-  "version": "1.35.2"
+  "version": "1.35.2",
+  "watch": {
+    "build": {
+      "extensions": [
+        "caf",
+        "coffee"
+      ],
+      "patterns": [
+        "source-source"
+      ],
+      "quiet": false
+    }
+  }
 }

@@ -8,15 +8,18 @@ sharedAfterEventTests = (setupUserWith) ->
 
     User = null
     class User extends DynamoDbPipeline
+      @publicRequestTypes :get :create :update :delete
       @addDatabaseFilters
-        name:               "" required trimmedstring
-        postCount:          :number
-        lastPostCreatedAt:  :timestamp
-        text:               :trimmedstring
+        fields:
+          name:               "" required trimmedstring
+          postCount:          :number
+          lastPostCreatedAt:  :timestamp
+          text:               :trimmedstring
 
     setupUserWith User
 
     class Post extends DynamoDbPipeline
+      @publicRequestTypes :get :create :update :delete
       @addDatabaseFilters
         userOwned:
           publicFields: true
@@ -34,8 +37,9 @@ sharedAfterEventTests = (setupUserWith) ->
               postCount
               lastPostCreatedAt
 
-        text:       "trimmedstring"
-        createdAt:  "timestamp"
+        fields:
+          text:       "trimmedstring"
+          createdAt:  "timestamp"
 
     Promise.all []
       pipelines.user._vivifyTable()

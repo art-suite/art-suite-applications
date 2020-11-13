@@ -1,2 +1,2 @@
 require('../register');
-module.exports = require('./index.coffee');
+module.exports = require('./index.caf');

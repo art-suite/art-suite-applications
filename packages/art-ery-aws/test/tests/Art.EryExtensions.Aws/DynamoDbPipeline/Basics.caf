@@ -8,13 +8,15 @@ setupWithMyTable = ->
     .then ->
       Neptune.Art.Ery.PipelineRegistry._reset()
       {myTable} = class MyTable extends DynamoDbPipeline
+        @publicRequestTypes :get :create :update :delete :getAll :batchGet
         @addDatabaseFilters
-          name:   "required string"
-          email:  "required email"
-          rank:               :number
-          attributes:         :array
+          fields:
+            name:   "required string"
+            email:  "required email"
+            rank:               :number
+            attributes:         :array
 
-        @handlers
+        @publicHandlers
           throwServiceUnavailable: (request)->
             {numFailures} = request.props
             attemptCount = 0
@@ -31,8 +33,9 @@ setupWithMyTable = ->
       {myCompoundKeyTable} = class MyCompoundKeyTable extends DynamoDbPipeline
         @keyFields "userId/postId"
         @addDatabaseFilters
-          user:   "link"
-          post:   "link"
+          fields:
+            user:   "link"
+            post:   "link"
 
       Promise.all []
         myCompoundKeyTable._vivifyTable()
@@ -74,7 +77,6 @@ suite:
         myTable.get record.id
       .then (record) ->
         assert.eq record.rank, .75  "" update-get
-
 
     test "delete", ->
       createData = null
@@ -132,8 +134,8 @@ suite:
       myTable.batchGet props: keys: array {id} in users with id
       .then (users2) ->
         assert.eq
-          users.sort (a, b) -> a.id - b.id
-          users2.sort (a, b) -> a.id - b.id
+          users.sort  (a, b) -> a.id.localeCompare b.id
+          users2.sort (a, b) -> a.id.localeCompare b.id
 
   scan: ->
     setup ->
@@ -227,10 +229,12 @@ suite:
     chainedTest ->
       {myManyToManyTable} = class MyManyToManyTable extends DynamoDbPipeline
         @primaryKey "userId/postId"
+        @publicRequestTypes :create :get :update :getAll
         @addDatabaseFilters
-          user: "required link"
-          post: "required link"
-          rank: :number
+          fields:
+            user: "required link"
+            post: "required link"
+            rank: :number
 
       myManyToManyTable._vivifyTable()
 

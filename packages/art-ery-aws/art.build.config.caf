@@ -1,13 +1,1 @@
-target: node: true
-package:
-  description: 'ArtEry for AWS Lambda + DynamoDB'
-  dependencies:
-    art-ery:            :^1.0.0
-    art-aws:            :^1.0.0
-    uuid:               :^2.0.3
-
-webpack:
-  common: {}
-  targets:
-    index: {}
-    test: {}
+package: require("../standard-package-builder") &package, coffeeScript: true mocha: true
