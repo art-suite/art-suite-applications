@@ -6,8 +6,8 @@
 .addModules({
   ArtEryBaseObject:       require('./ArtEryBaseObject'),
   Config:                 require('./Config'),
+  DatabaseFilters:        require('./DatabaseFilters'),
   Filter:                 require('./Filter'),
-  FilterTools:            require('./FilterTools'),
   KeyFieldsMixin:         require('./KeyFieldsMixin'),
   Pipeline:               require('./Pipeline'),
   PipelineQuery:          require('./PipelineQuery'),

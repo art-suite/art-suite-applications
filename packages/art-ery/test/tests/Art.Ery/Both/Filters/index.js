@@ -5,7 +5,7 @@
 
 .addModules({
   AfterEventsFilter:       require('./AfterEventsFilter'),
-  CreateDatabaseFilters:   require('./CreateDatabaseFilters'),
+  DatabaseFilters:         require('./DatabaseFilters'),
   LinkFieldsFilter:        require('./LinkFieldsFilter'),
   LinkFieldsFilter2:       require('./LinkFieldsFilter2'),
   LinkFieldsFilterInclude: require('./LinkFieldsFilterInclude'),

@@ -33,7 +33,7 @@
 Response = require './Response'
 Request = require './Request'
 Filter = require './Filter'
-FilterTools = require './FilterTools'
+DatabaseFilters = require './DatabaseFilters'
 Session = require './Session'
 {config} = require './Config'
 Filters = require './Filters'
@@ -97,7 +97,7 @@ defineModule module, class Pipeline extends require './RequestHandler'
   @getAliases: -> @_aliases || {}
 
   @addDatabaseFilters: (options) ->
-    @filter FilterTools.createDatabaseFilters options, @
+    @filter DatabaseFilters.createDatabaseFilters options, @
 
   getPrefetchedRecord: (key) ->
     prefetchedRecordsCache.get @pipelineName, key

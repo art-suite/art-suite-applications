@@ -2,7 +2,7 @@ import &StandardImport, &Filters
 
 Validator extract normalizeFieldProps
 
-class FilterTools
+class DatabaseFilters
   ###
     TODO: I want to refactor "userOwned":
 
@@ -45,7 +45,7 @@ class FilterTools
         fields extract id
         userOwned, linkFilterVersion
     else
-      log.warn "DEPRICATED: (Pipeline: #{PipelineClass?.name}) you should now specify fields as: addDatabaseFilters fields: {}"
+      log.warn "DEPRICATED: (Pipeline: #{PipelineClass?.name}) you should now specify fields as: createDatabaseFilters fields: {}"
       (fields = options) extract? id, userOwned
 
     if userOwned
@@ -83,7 +83,7 @@ class FilterTools
             all the transition code at this point.
         switch linkFilterVersion
         when :transition2A
-          log.warn "" TRANSITIONAL: using LinkFieldsFilter v2 + transition2A for #{PipelineClass?.name} (YOU SHOULD: finish the transition and switch fully to addDatabaseFilters linkFilterVersion: 2)
+          log.warn "" TRANSITIONAL: using LinkFieldsFilter v2 + transition2A for #{PipelineClass?.name} (YOU SHOULD: finish the transition and switch fully to createDatabaseFilters linkFilterVersion: 2)
           # USE: convert one pipeline at a time over to this and test. THEN do the same with transition2B.
           # BREAKING CHANGES: server-side subrequests won't have inline, included records
           []
@@ -92,7 +92,7 @@ class FilterTools
             new LinkFieldsFilter2LegacyApiEncode
 
         when :transition2B
-          log.warn "" TRANSITIONAL: using LinkFieldsFilter v2 + transition2B for #{PipelineClass?.name} (YOU SHOULD: finish the transition and switch fully to addDatabaseFilters linkFilterVersion: 2)
+          log.warn "" TRANSITIONAL: using LinkFieldsFilter v2 + transition2B for #{PipelineClass?.name} (YOU SHOULD: finish the transition and switch fully to createDatabaseFilters linkFilterVersion: 2)
           # USE: convert one pipeline at a time over to this and test.
           # THEN LEAVE IT - this will support old clients while providing full functionality to new clients.
           # EVENTUALLY, once we have all clients updated for a few months, switch to full v2 with no legacy support.
@@ -120,7 +120,7 @@ class FilterTools
           new LinkFieldsFilter fields: linkFields
 
         when null, undefined
-          log.warn "" DEPRICATED: defaulting to LinkFieldsFilter v1 for #{PipelineClass?.name}. This will NOT be the default in future versions. USE: addDatabaseFilters linkFilterVersion: 1
+          log.warn "" DEPRICATED: defaulting to LinkFieldsFilter v1 for #{PipelineClass?.name}. This will NOT be the default in future versions. USE: createDatabaseFilters linkFilterVersion: 1
           new LinkFieldsFilter fields: linkFields
 
         else throw new Error "" invalid linkFilterVersion: #{} formattedInspect linkFilterVersion
