@@ -7,7 +7,7 @@
   },
   "description": "Art.React is inspired by Facebook's React. In fact, it is much the same. However, ArtReact is designed from the ground up to run with the Art.Engine.",
   "devDependencies": {
-    "art-testbench": "^2.2.12",
+    "art-testbench": "^3.1.1",
     "case-sensitive-paths-webpack-plugin": "^2.2.0",
     "chai": "^4.2.0",
     "coffee-loader": "^0.7.3",

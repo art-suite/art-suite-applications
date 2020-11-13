@@ -15,7 +15,7 @@
   "devDependencies": {
     "art-ery": "^1.113.1",
     "art-flux": "git@github.com:art-suite/art-flux.git",
-    "art-testbench": "^2.2.12",
+    "art-testbench": "^3.1.1",
     "case-sensitive-paths-webpack-plugin": "^2.2.0",
     "chai": "^4.2.0",
     "coffee-loader": "^0.7.3",
