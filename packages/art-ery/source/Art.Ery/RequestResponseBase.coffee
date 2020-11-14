@@ -63,8 +63,11 @@ defineModule module, class RequestResponseBase extends ArtEryBaseObject
     @
 
   @getter
+    lastFilterLogEntry: ->
+      peek(@filterLog) ? @request?.lastFilterLogEntry
+
     requestTrace: ->
-      if lastFilter = peek @filterLog
+      if lastFilter = @lastFilterLogEntry
         {name, context, time} = lastFilter
 
       compactFlatten [

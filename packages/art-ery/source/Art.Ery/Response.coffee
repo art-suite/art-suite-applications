@@ -228,14 +228,18 @@ module.exports = class Response extends require './RequestResponseBase'
           #   location: #{failedIn.response.location}
 
           compactFlatten([
-            """
-            ArtEry RequestTrace:
-            """
+            ""
+            formattedInspect
+              requestPipeline: @pipeline
+              requestType: @type
+              requestProps: @requestProps
+            "requestTrace:"
             alignTabs(
               (for {time, request, context, name}, i in @requestTrace by -1
-                "Step #{i + 1}\t(#{time*1000|0}ms)\t#{request}:\t#{context}\t#{name}"
+                "    Step #{i + 1}\t(#{time*1000|0}ms)\t#{request}:\t#{context}\t#{name}"
               ).join "\n"
             )
+            ""
           ]).join "\n"
 
         else
