@@ -10,6 +10,9 @@
   success, missing, failure, serverFailure, clientFailure
   Validator
   alignTabs
+  isNode
+  getEnv
+  ARTERY_DETAILED_REQUEST_TRACING
 } = require './StandardImport'
 
 Request = require './Request'
@@ -17,6 +20,30 @@ Request = require './Request'
 
 {dev} = getEnv()
 namespace = require './namespace'
+
+removeFromCleanStackTraceRegExp = ///
+  bluebird
+  |processImmediate
+  |source/Art.Ery/Pipeline
+  |node_modules/.*mocha
+  |node_modules/.*jest
+  |node_modules/.*art-testbench
+  |node_modules/.*@art-suite/assert
+///
+
+repathStackTrace = if isNode
+  path = eval("require") "path"
+  cwd = global.process.cwd()
+  (line) ->
+    line.replace /([^ ]+)(?=:\d+)/, (filePath) ->
+      path.relative cwd, filePath
+else
+  (line) -> line
+
+cleanTraceStack = (stack) ->
+  (for line, i in stack.split "\n" when i > 0 && !removeFromCleanStackTraceRegExp.test line
+    repathStackTrace line
+  ).join "\n"
 
 responseValidator = new Validator
   request:  w "required", instanceof: Request
@@ -215,6 +242,7 @@ module.exports = class Response extends require './RequestResponseBase'
 
   _getRejectionError: ->
     @_preparedRejectionError ||= if true
+      foundStack = false
       messageA =
         @responseData?.message ? @responseProps?.message ? @errorProps?.exception?.message
 
@@ -235,11 +263,15 @@ module.exports = class Response extends require './RequestResponseBase'
               requestProps: @requestProps
             "requestTrace:"
             alignTabs(
-              (for {time, request, context, name}, i in @requestTrace by -1
-                "    Step #{i + 1}\t(#{time*1000|0}ms)\t#{request}:\t#{context}\t#{name}"
+              (for {time, request, context, name, stack}, i in @requestTrace by -1
+                "  Step #{i + 1}\t(#{time*1000|0}ms)\t#{request}:\t#{context}\t#{name}#{if stack then foundStack="\n#{cleanTraceStack stack}" else ''}"
               ).join "\n"
             )
             ""
+            if foundStack
+              "NOTE: getEnv().ARTERY_DETAILED_REQUEST_TRACING detected; requestTraces will include stack-traces. This is slow; turn it off in production.\n"
+            else
+              "TIP: Set getEnv().ARTERY_DETAILED_REQUEST_TRACING to capture the stack-trace for each requestTrace.\n"
           ]).join "\n"
 
         else

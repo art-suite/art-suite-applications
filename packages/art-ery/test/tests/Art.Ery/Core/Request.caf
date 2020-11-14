@@ -432,18 +432,18 @@ suite:
           log.unquoted [i + 1]: v
 
     # uncomment this to see if we get a clear failure message
-    # test "requestTrace3" ->
+    test "requestTrace3" ->
 
-    #   class MyRtUser3 extends Pipeline
+      class MyRtUser3 extends Pipeline
 
-    #   {myRt3} = class MyRt3 extends Pipeline
+      {myRt3} = class MyRt3 extends Pipeline
 
-    #     @publicRequestTypes :create
-    #     @addDatabaseFilters
-    #       linkFilterVersion: 2
-    #       fields:
-    #         myRtUser2: :required :link
-    #         text: :string
+        @publicRequestTypes :create
+        @addDatabaseFilters
+          linkFilterVersion: 2
+          fields:
+            myRtUser2: :required :link
+            text: :string
 
 
-    #   myRt3.create data: text: "hi"
+      myRt3.create data: text: "hi"

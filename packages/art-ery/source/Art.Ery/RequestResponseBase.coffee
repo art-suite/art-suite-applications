@@ -20,7 +20,9 @@
   present
   peek
   dashCase
-} = require 'art-standard-lib'
+  getEnv
+  ARTERY_DETAILED_REQUEST_TRACING
+} = require './StandardImport'
 ArtEry = require './namespace'
 ArtEryBaseObject = require './ArtEryBaseObject'
 {networkFailure, failure, isClientFailure, success, missing, serverFailure, clientFailure, clientFailureNotAuthorized} = require 'art-communication-status'
@@ -47,9 +49,11 @@ defineModule module, class RequestResponseBase extends ArtEryBaseObject
   constructor: (options) ->
     super
     @_creationTime = currentSecond()
-    {@filterLog, @errorProps} = options
+    {@filterLog, @errorProps, @creationStack} = options
+    if ARTERY_DETAILED_REQUEST_TRACING
+      @_creationStack ?= (new Error).stack
 
-  @property "filterLog errorProps creationTime"
+  @property "filterLog errorProps creationTime creationStack"
 
   addFilterLog: (filter, context) ->
     @_filterLog = arrayWith @_filterLog,
@@ -60,6 +64,7 @@ defineModule module, class RequestResponseBase extends ArtEryBaseObject
           filter.getLogName @type
       context: context
       time: currentSecond()
+      stack: @originalRequest?._creationStack
     @
 
   @getter
@@ -68,7 +73,7 @@ defineModule module, class RequestResponseBase extends ArtEryBaseObject
 
     requestTrace: ->
       if lastFilter = @lastFilterLogEntry
-        {name, context, time} = lastFilter
+        {name, context, time, stack} = lastFilter
 
       compactFlatten [
         @parentRequest?.requestTrace
@@ -77,6 +82,7 @@ defineModule module, class RequestResponseBase extends ArtEryBaseObject
           request: @requestString
           context: dashCase context
           name
+          stack
         }
       ]
 

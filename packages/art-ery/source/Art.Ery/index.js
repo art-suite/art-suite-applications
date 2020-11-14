@@ -7,6 +7,7 @@
   ArtEryBaseObject:       require('./ArtEryBaseObject'),
   Config:                 require('./Config'),
   DatabaseFilters:        require('./DatabaseFilters'),
+  Env:                    require('./Env'),
   Filter:                 require('./Filter'),
   KeyFieldsMixin:         require('./KeyFieldsMixin'),
   Pipeline:               require('./Pipeline'),

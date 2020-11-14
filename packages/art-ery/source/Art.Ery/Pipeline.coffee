@@ -24,9 +24,11 @@
   getCodeWords
   pluralize
   present
-} = require 'art-standard-lib'
+  getEnv
+  success, missing
+  ARTERY_DETAILED_REQUEST_TRACING
+} = require './StandardImport'
 {normalizeFieldProps} = require 'art-validation'
-{success, missing} = require 'art-communication-status'
 
 {prefetchedRecordsCache} = require './PrefetchedRecordsCache'
 
@@ -382,6 +384,9 @@ defineModule module, class Pipeline extends require './RequestHandler'
     log.warn "DEPRICATED - options must be an object now" unless isPlainObject options
     options = key: options if isString options
 
+    if ARTERY_DETAILED_REQUEST_TRACING
+      stack = (new Error).stack
+
     Promise
     .then => options.session || @session.loadedDataPromise
     .tapCatch (error) =>
@@ -394,6 +399,7 @@ defineModule module, class Pipeline extends require './RequestHandler'
         type:     type
         pipeline: @
         session:  sessionData
+        creationStack: stack
 
   ###############################
   # Development Reports
