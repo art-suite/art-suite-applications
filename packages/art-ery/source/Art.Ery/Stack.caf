@@ -4,14 +4,17 @@ import &ArtStandardLib
 
 removeFromCleanStackTraceRegExp =
   ///
-    bluebird
-    |processImmediate
-    |source/Art.Ery/Pipeline
-    |node_modules/.*mocha
-    |node_modules/.*jest
-    |node_modules/.*art-testbench
-    |node_modules/.*@art-suite/assert
-    |caffeine-script-runtime
+    processImmediate
+    | source/Art.Ery/(Pipeline|Request|Response)
+    | node_modules/.*(
+      mocha
+      | bluebird
+      | jest
+      | art-testbench
+      | @art-suite/chained-test
+      | @art-suite/assert
+      | caffeine-script-runtime
+    )
 
 repathStackTrace = if isNode
   path = eval("require") "path"
