@@ -64,7 +64,8 @@ defineModule module, class RequestResponseBase extends ArtEryBaseObject
           filter.getLogName @type
       context: context
       time: currentSecond()
-      stack: @originalRequest?._creationStack
+      stack: @originalRequest?.creationStack
+      exception: @errorProps?.exception
     @
 
   @getter
@@ -73,7 +74,7 @@ defineModule module, class RequestResponseBase extends ArtEryBaseObject
 
     requestTrace: ->
       if lastFilter = @lastFilterLogEntry
-        {name, context, time, stack} = lastFilter
+        {name, context, time, stack, exception} = lastFilter
 
       compactFlatten [
         @parentRequest?.requestTrace
@@ -83,6 +84,7 @@ defineModule module, class RequestResponseBase extends ArtEryBaseObject
           context: dashCase context
           name
           stack
+          exception
         }
       ]
 
@@ -347,14 +349,16 @@ defineModule module, class RequestResponseBase extends ArtEryBaseObject
       else
         Promise.resolve request
   ###
-  createRequirementNotMetRequestProps = (pipelineAndType, errors) ->
-    data:
+  createRequirementNotMetRequestProps = (pipelineAndType, errors, stackException) ->
+    data: data =
       details: compactFlatten([pipelineAndType, 'requirement not met', errors]).join ' - '
       message: compactFlatten([errors]).join ' - '
+    errorProps: if ARTERY_DETAILED_REQUEST_TRACING
+      exception: stackException ? new Error data.message
 
-  rejectIfErrors: (errors) ->
+  rejectIfErrors: (errors, stackException) ->
     if errors
-      @clientFailure createRequirementNotMetRequestProps @pipelineAndType, errors
+      @clientFailure createRequirementNotMetRequestProps @pipelineAndType, errors, stackException
       .then (response) -> response.toPromise()
     else
       Promise.resolve @
@@ -378,9 +382,14 @@ defineModule module, class RequestResponseBase extends ArtEryBaseObject
     EXAMPLE: request.require myLegalInputTest, "myLegalInputTest"
   ###
   require: (test, context) ->
+    stackException = new Error context if ARTERY_DETAILED_REQUEST_TRACING
     resolveRequireTestValue test
     .then (test) =>
-      @rejectIfErrors unless test then context ? []
+      @rejectIfErrors(
+        unless test then context ? []
+        stackException
+      )
+
 
   ### requiredFields
     Success if all props in fields exists (are not null or undefined)

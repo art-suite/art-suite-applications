@@ -431,7 +431,8 @@ suite:
         each v, i from requestTrace by -1
           log.unquoted [i + 1]: v
 
-    # uncomment this to see if we get a clear failure message
+  # uncomment these to see if we get a clear failure message
+  # niceStackTraces: ->
     # test "requestTrace3" ->
 
     #   class MyRtUser3 extends Pipeline
@@ -447,3 +448,12 @@ suite:
 
 
     #   myRt3.create data: text: "hi"
+
+    # test "requirements-not-met-nice-trace" ->
+    #   {myRt4} = class MyRt4 extends Pipeline
+
+    #     @publicHandlers
+    #       requireSomething: (request) ->
+    #         request.require 1 == 2, "1 must be 2 - what? that doesn't work in your universe?"
+
+    #   myRt4.requireSomething()

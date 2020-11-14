@@ -239,10 +239,14 @@ module.exports = class Response extends require './RequestResponseBase'
               requestPipeline: @pipeline
               requestType: @type
               requestProps: @requestProps
+              
             "requestTrace:"
+            if exception = @errorProps.exception
+                "  Exception: #{cleanStackTrace exception.stack, true}\n"
+
             alignTabs(
               (for {time, request, context, name, stack}, i in @requestTrace by -1
-                "  Step #{i + 1}\t(#{time*1000|0}ms)\t#{request}:\t#{context}\t#{name}#{if stack then foundStack="\n#{cleanStackTrace stack}" else ''}"
+                "  Step #{i + 1}\t(#{time*1000|0}ms)\t#{request}:\t#{context}\t#{name}#{if stack then foundStack="\n#{cleanStackTrace stack}\n" else ''}"
               ).join "\n"
             )
             ""

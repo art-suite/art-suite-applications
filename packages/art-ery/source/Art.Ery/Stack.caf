@@ -26,7 +26,10 @@ else
   (line) -> line
 
 {}
-  cleanStackTrace = (stack) ->
-    array line, i in stack.split "\n" when i > 0 && !removeFromCleanStackTraceRegExp.test line
+  cleanStackTrace = (stack, keepFirstLine) ->
+    outLines = array line, i in stack.split "\n" when (keepFirstLine || i > 0) && !removeFromCleanStackTraceRegExp.test line
       repathStackTrace line
-    .join "\n"
+
+    if outLines.length == 0
+      stack
+    else outLines.join "\n"
