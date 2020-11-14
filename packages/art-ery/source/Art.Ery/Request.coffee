@@ -75,7 +75,9 @@ module.exports = class Request extends require './RequestResponseBase'
 
   constructor: (options) ->
     super
-    {@verbose, @type, @pipeline, @session, @originalRequest, @parentRequest, @originatedOnServer, @props = {}, context, @remoteRequest} = options
+    {verbose, @type, @pipeline, @session, @originalRequest, @parentRequest, @originatedOnServer, @props = {}, context, @remoteRequest} = options
+
+    @_verbose = verbose
     @_context   = context
     @_startTime = null
 
@@ -89,8 +91,6 @@ module.exports = class Request extends require './RequestResponseBase'
     throw new Error "options.requestOptions is DEPRICATED - use options.props" if options.requestOptions
 
   @property "originalRequest type pipeline session originatedOnServer parentRequest props data key context remoteRequest"
-
-  @setter "verbose"
 
   @getter
     context:        -> @_context ?= {}

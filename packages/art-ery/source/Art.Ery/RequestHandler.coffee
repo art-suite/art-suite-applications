@@ -1,4 +1,4 @@
-{isFailure, missing, ErrorWithInfo, defineModule, Promise, isJsonType, log, neq} = require './StandardImport'
+{isFailure, missing, ErrorWithInfo, defineModule, dashCase, Promise, isJsonType, log, neq} = require './StandardImport'
 RequestResponseBase = require './RequestResponseBase'
 
 defineModule module, class RequestHandler extends require './ArtEryBaseObject'
@@ -29,9 +29,9 @@ defineModule module, class RequestHandler extends require './ArtEryBaseObject'
     if request.verbose
       resultPromise = (
         resultPromise
-        .tap (result) ->
+        .tap (result) =>
           if result != request && neq request.summary, result.summary
-            (if result.failed && !request.failed then log.error else log) "ArtEryApplyHandlerVerbose #{request.pipelineName}-#{request.type} #{context}":
+            (if result.failed && !request.failed then log.error else log) "ArtEryApplyHandlerVerbose #{request.requestString} - #{dashCase context} #{@getLogName @type}":
               before: request.summary
               after:  result.summary
           else
