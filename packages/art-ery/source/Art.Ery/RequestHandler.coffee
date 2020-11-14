@@ -15,7 +15,7 @@ defineModule module, class RequestHandler extends require './ArtEryBaseObject'
     return Promise.resolve request unless handlerFunction
 
     resultPromise = (
-      @_applyHandler request, handlerFunction
+      @_applyHandler request, handlerFunction, context
       .then (response) =>
         if response?.isFailure && !response.errorProps?.failedIn
           response.withMergedErrorProps failedIn: {
@@ -40,10 +40,10 @@ defineModule module, class RequestHandler extends require './ArtEryBaseObject'
 
     resultPromise
 
-  _applyHandler: (request, handlerFunction) ->
+  _applyHandler: (request, handlerFunction, context) ->
 
     Promise.then =>
-      request.addFilterLog @
+      request.addFilterLog @, context
       handlerFunction.call @, request
 
     .then (data) =>

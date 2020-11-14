@@ -18,6 +18,8 @@
   compactFlatten
   objectKeyCount
   present
+  peek
+  dashCase
 } = require 'art-standard-lib'
 ArtEry = require './namespace'
 ArtEryBaseObject = require './ArtEryBaseObject'
@@ -49,17 +51,32 @@ defineModule module, class RequestResponseBase extends ArtEryBaseObject
 
   @property "filterLog errorProps creationTime"
 
-  addFilterLog: (filter) ->
+  addFilterLog: (filter, context) ->
     @_filterLog = arrayWith @_filterLog,
       name:
         if isString filter
           filter
         else
           filter.getLogName @type
+      context: context
       time: currentSecond()
     @
 
   @getter
+    requestTrace: ->
+      if lastFilter = peek @filterLog
+        {name, context, time} = lastFilter
+
+      compactFlatten [
+        @parentRequest?.requestTrace
+        {
+          time: time - @startTime
+          request: @requestString
+          context: dashCase context
+          name
+        }
+      ]
+
     location:           -> @pipeline.location
     requestType:        -> @type
     pipelineName:       -> @pipeline.getName()

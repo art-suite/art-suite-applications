@@ -9,6 +9,7 @@
   getEnv
   success, missing, failure, serverFailure, clientFailure
   Validator
+  alignTabs
 } = require './StandardImport'
 
 Request = require './Request'
@@ -219,14 +220,24 @@ module.exports = class Response extends require './RequestResponseBase'
 
       messageB =
         if failedIn = @errorProps?.failedIn
-          """
-          #{failedIn.response.requestString}
+          # ArtEry request: #{failedIn.response.requestString}
 
-          failedIn:
-            #{failedIn.context}: #{failedIn.handler.name}
-            request: #{failedIn.response.pipelineName}.#{failedIn.response.type}#{if key = failedIn.response.requestProps.key then ' ' + formattedInspect key else ''}
-            location: #{failedIn.response.location}
-          """
+          # failedIn:
+          #   #{failedIn.context}: #{failedIn.handler.name}
+          #   request: #{failedIn.response.pipelineName}.#{failedIn.response.type}#{if key = failedIn.response.requestProps.key then ' ' + formattedInspect key else ''}
+          #   location: #{failedIn.response.location}
+
+          compactFlatten([
+            """
+            ArtEry RequestTrace:
+            """
+            alignTabs(
+              (for {time, request, context, name}, i in @requestTrace by -1
+                "Step #{i + 1}\t(#{time*1000|0}ms)\t#{request}:\t#{context}\t#{name}"
+              ).join "\n"
+            )
+          ]).join "\n"
+
         else
           @requestString
 

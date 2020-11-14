@@ -24,6 +24,7 @@ suite: ->
 
       assert.eq objectWithout(response.handledBy, "time"),
         name: "POST http://localhost:8085/api/filterLocation-filterTest"
+        context: :remoteRequest
 
   test "both location", ->
     {location} = config
@@ -41,4 +42,4 @@ suite: ->
         "serverFilter@both"
         "clientFilter@both"
 
-      assert.eq objectWithout(response.handledBy, "time"), name: "filterTest-handler"
+      assert.eq objectWithout(response.handledBy, "time"), name: :filterTest-handler context: :handler

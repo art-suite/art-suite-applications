@@ -213,5 +213,5 @@ module.exports = class Request extends require './RequestResponseBase'
       merge response, {status, message}
 
     .then (remoteResponse) =>
-      @addFilterLog "#{remoteRequest.method.toLocaleUpperCase()} #{remoteRequest.url}"
+      @addFilterLog "#{remoteRequest.method.toLocaleUpperCase()} #{remoteRequest.url}", "remoteRequest"
       .toResponse remoteResponse.status, merge remoteResponse, {remoteRequest, remoteResponse}
