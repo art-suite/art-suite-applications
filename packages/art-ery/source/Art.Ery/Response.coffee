@@ -255,6 +255,10 @@ module.exports = class Response extends require './RequestResponseBase'
           #   request: #{failedIn.response.pipelineName}.#{failedIn.response.type}#{if key = failedIn.response.requestProps.key then ' ' + formattedInspect key else ''}
           #   location: #{failedIn.response.location}
 
+          envHowTo = if isNode
+            "env "
+          else "?"
+
           compactFlatten([
             ""
             formattedInspect
@@ -269,9 +273,9 @@ module.exports = class Response extends require './RequestResponseBase'
             )
             ""
             if foundStack
-              "NOTE: getEnv().ARTERY_DETAILED_REQUEST_TRACING detected; requestTraces will include stack-traces. This is slow; turn it off in production.\n"
+              "NOTE: #{envHowTo}ARTERY_DETAILED_REQUEST_TRACING=#{ARTERY_DETAILED_REQUEST_TRACING} detected; requestTraces will include stack-traces. This is slow; turn it off in production.\n"
             else
-              "TIP: Set getEnv().ARTERY_DETAILED_REQUEST_TRACING to capture the stack-trace for each requestTrace.\n"
+              "TIP: Set #{envHowTo}ARTERY_DETAILED_REQUEST_TRACING=true to capture the stack-trace for each requestTrace.\n"
           ]).join "\n"
 
         else
