@@ -88,7 +88,9 @@ module.exports = class Request extends require './RequestResponseBase'
 
     throw new Error "options.requestOptions is DEPRICATED - use options.props" if options.requestOptions
 
-  @property "verbose originalRequest type pipeline session originatedOnServer parentRequest props data key context remoteRequest"
+  @property "originalRequest type pipeline session originatedOnServer parentRequest props data key context remoteRequest"
+
+  @setter "verbose"
 
   @getter
     context:        -> @_context ?= {}

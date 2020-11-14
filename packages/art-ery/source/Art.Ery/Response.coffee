@@ -88,7 +88,6 @@ module.exports = class Response extends require './RequestResponseBase'
   @setter "status"
 
   @getter
-    verbose: -> @request.verbose
     status: ->
       if @_status == failure
         switch @location
@@ -239,7 +238,7 @@ module.exports = class Response extends require './RequestResponseBase'
               requestPipeline: @pipeline
               requestType: @type
               requestProps: @requestProps
-              
+
             "requestTrace:"
             if exception = @errorProps.exception
                 "  Exception: #{cleanStackTrace exception.stack, true}\n"

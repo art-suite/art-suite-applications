@@ -88,6 +88,7 @@ defineModule module, class RequestResponseBase extends ArtEryBaseObject
         }
       ]
 
+    verbose:            -> @_verbose || @originalRequest?._verbose || @rootRequest?._verbose
     location:           -> @pipeline.location
     requestType:        -> @type
     pipelineName:       -> @pipeline.getName()
