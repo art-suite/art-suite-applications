@@ -1,0 +1,29 @@
+import &ArtStandardLib
+
+# // at Object.array (/Users/shanebdavis/dev/experiments/genui-peopleperf/node_modules/caffeine-script-runtime/source/Iteration2.js:161:23)
+
+removeFromCleanStackTraceRegExp =
+  ///
+    bluebird
+    |processImmediate
+    |source/Art.Ery/Pipeline
+    |node_modules/.*mocha
+    |node_modules/.*jest
+    |node_modules/.*art-testbench
+    |node_modules/.*@art-suite/assert
+    |caffeine-script-runtime
+
+repathStackTrace = if isNode
+  path = eval("require") "path"
+  cwd = global.process.cwd()
+  (line) ->
+    line.replace /([^ (]+)(?=:\d+)/, (filePath) ->
+      path.relative cwd, filePath
+else
+  (line) -> line
+
+{}
+  cleanStackTrace = (stack) ->
+    array line, i in stack.split "\n" when i > 0 && !removeFromCleanStackTraceRegExp.test line
+      repathStackTrace line
+    .join "\n"

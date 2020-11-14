@@ -2,4 +2,5 @@
   &ArtClassSystem
   &ArtCommunicationStatus
   &ArtValidation
+  &Stack
   &env

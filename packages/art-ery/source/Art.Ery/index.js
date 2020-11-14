@@ -19,6 +19,7 @@
   RequestResponseBase:    require('./RequestResponseBase'),
   Response:               require('./Response'),
   Session:                require('./Session'),
+  Stack:                  require('./Stack'),
   StandardImport:         require('./StandardImport'),
   UpdateAfterMixin:       require('./UpdateAfterMixin')
 });

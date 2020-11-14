@@ -9,6 +9,7 @@
   Request:             require('./Request'),
   RequestResponseBase: require('./RequestResponseBase'),
   Response:            require('./Response'),
-  Session:             require('./Session')
+  Session:             require('./Session'),
+  Stack:               require('./Stack')
 });
 require('./Pipeline');

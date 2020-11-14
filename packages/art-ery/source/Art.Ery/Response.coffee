@@ -6,44 +6,18 @@
   isPlainArray, objectKeyCount, arrayWith, inspect,
   RequestError, isPlainObject, log, CommunicationStatus,
   merge, isJsonType, formattedInspect, w, neq
-  getEnv
   success, missing, failure, serverFailure, clientFailure
   Validator
   alignTabs
   isNode
-  getEnv
   ARTERY_DETAILED_REQUEST_TRACING
+  cleanStackTrace
 } = require './StandardImport'
 
 Request = require './Request'
 {config} = require './Config'
 
-{dev} = getEnv()
 namespace = require './namespace'
-
-removeFromCleanStackTraceRegExp = ///
-  bluebird
-  |processImmediate
-  |source/Art.Ery/Pipeline
-  |node_modules/.*mocha
-  |node_modules/.*jest
-  |node_modules/.*art-testbench
-  |node_modules/.*@art-suite/assert
-///
-
-repathStackTrace = if isNode
-  path = eval("require") "path"
-  cwd = global.process.cwd()
-  (line) ->
-    line.replace /([^ ]+)(?=:\d+)/, (filePath) ->
-      path.relative cwd, filePath
-else
-  (line) -> line
-
-cleanTraceStack = (stack) ->
-  (for line, i in stack.split "\n" when i > 0 && !removeFromCleanStackTraceRegExp.test line
-    repathStackTrace line
-  ).join "\n"
 
 responseValidator = new Validator
   request:  w "required", instanceof: Request
@@ -268,7 +242,7 @@ module.exports = class Response extends require './RequestResponseBase'
             "requestTrace:"
             alignTabs(
               (for {time, request, context, name, stack}, i in @requestTrace by -1
-                "  Step #{i + 1}\t(#{time*1000|0}ms)\t#{request}:\t#{context}\t#{name}#{if stack then foundStack="\n#{cleanTraceStack stack}" else ''}"
+                "  Step #{i + 1}\t(#{time*1000|0}ms)\t#{request}:\t#{context}\t#{name}#{if stack then foundStack="\n#{cleanStackTrace stack}" else ''}"
               ).join "\n"
             )
             ""
