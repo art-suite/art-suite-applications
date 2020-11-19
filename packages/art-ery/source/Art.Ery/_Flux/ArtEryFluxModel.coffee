@@ -33,6 +33,7 @@ ArtEryQueryFluxModel = require './ArtEryQueryFluxModel'
 
 PipelineRegistry = require '../PipelineRegistry'
 
+{prefetchedRecordsCache} = require '../PrefetchedRecordsCache'
 {missing, success, pending} = CommunicationStatus
 
 defineModule module, class ArtEryFluxModel extends ArtEry.KeyFieldsMixin FluxModel
@@ -81,7 +82,9 @@ defineModule module, class ArtEryFluxModel extends ArtEry.KeyFieldsMixin FluxMod
 
 
   @pipeline: (@_pipeline) -> @_pipeline
-  @getter "pipeline"
+  @getter
+    pipelineName: -> @_pipeline.getName()
+    "pipeline"
 
   ########################
   # Constructor
@@ -170,7 +173,8 @@ defineModule module, class ArtEryFluxModel extends ArtEry.KeyFieldsMixin FluxMod
   # FluxModel Overrides
   ########################
   loadData: (key) ->
-    @_pipeline.get returnNullIfMissing: true, key: key, props: include: "auto"
+    (prefetchedRecordsCache.get @pipelineName, key) ?                       # LinkFieldsFilterV2
+    @_pipeline.get {key, returnNullIfMissing: true, props: include: "auto"} # include: :auto is for LinkFieldsFilterV1
 
   ################################################
   # DataUpdatesFilter callbacks
