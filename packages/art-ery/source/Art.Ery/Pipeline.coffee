@@ -26,7 +26,7 @@
   present
   getEnv
   success, missing
-  ARTERY_DETAILED_REQUEST_TRACING
+  getDetailedRequestTracingEnabled
 } = require './StandardImport'
 {normalizeFieldProps} = require 'art-validation'
 
@@ -384,7 +384,7 @@ defineModule module, class Pipeline extends require './RequestHandler'
     log.warn "DEPRICATED - options must be an object now" unless isPlainObject options
     options = key: options if isString options
 
-    if ARTERY_DETAILED_REQUEST_TRACING
+    if getDetailedRequestTracingEnabled()
       stack = (new Error).stack
 
     Promise

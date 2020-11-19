@@ -10,7 +10,9 @@
   Validator
   alignTabs
   isNode
-  ARTERY_DETAILED_REQUEST_TRACING
+  getDetailedRequestTracingEnabled
+  getDetailedRequestTracingExplanation
+  getEnv
   cleanStackTrace
 } = require './StandardImport'
 
@@ -243,16 +245,15 @@ module.exports = class Response extends require './RequestResponseBase'
             if exception = @errorProps.exception
                 "  Exception: #{cleanStackTrace exception.stack, true}\n"
 
-            alignTabs(
-              (for {time, request, context, name, stack}, i in @requestTrace by -1
-                "  Step #{i + 1}\t(#{time*1000|0}ms)\t#{request}:\t#{context}\t#{name}#{if stack then foundStack="\n#{cleanStackTrace stack}\n" else ''}"
-              ).join "\n"
-            )
+            (for {time, request, context, name, stack, filterLog}, i in @requestTrace by -1
+              "  Step #{i + 1}
+                (#{time*1000|0}ms)
+                #{request}: #{if filterLog? then (name for {name} in filterLog).join " -> " else "#{context} #{name}"}
+                #{if stack then foundStack="\n#{cleanStackTrace stack}\n" else ''}
+                "
+            ).join "\n"
             ""
-            if foundStack
-              "NOTE: #{envHowTo}ARTERY_DETAILED_REQUEST_TRACING=#{ARTERY_DETAILED_REQUEST_TRACING} detected; requestTraces will include stack-traces. This is slow; turn it off in production.\n"
-            else
-              "TIP: Set #{envHowTo}ARTERY_DETAILED_REQUEST_TRACING=true to capture the stack-trace for each requestTrace.\n"
+            getDetailedRequestTracingExplanation()
           ]).join "\n"
 
         else

@@ -35,7 +35,7 @@ defineModule module, class RequestHandler extends require './ArtEryBaseObject'
               before: request.summary
               after:  result.summary
           else
-            log "ArtEryApplyHandlerVerbose #{request.pipelineName}-#{request.type} #{context}": "no-change"
+            log "ArtEryApplyHandlerVerbose #{request.requestString} - #{dashCase context} #{@getLogName @type}": "no-change"
       )
 
     resultPromise

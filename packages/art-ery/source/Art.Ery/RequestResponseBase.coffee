@@ -21,7 +21,7 @@
   peek
   dashCase
   getEnv
-  ARTERY_DETAILED_REQUEST_TRACING
+  getDetailedRequestTracingEnabled
 } = require './StandardImport'
 ArtEry = require './namespace'
 ArtEryBaseObject = require './ArtEryBaseObject'
@@ -50,7 +50,7 @@ defineModule module, class RequestResponseBase extends ArtEryBaseObject
     super
     @_creationTime = currentSecond()
     {@filterLog, @errorProps, @creationStack} = options
-    if ARTERY_DETAILED_REQUEST_TRACING
+    if getDetailedRequestTracingEnabled()
       @_creationStack ?= (new Error).stack
 
   @property "filterLog errorProps creationTime creationStack"
@@ -82,6 +82,7 @@ defineModule module, class RequestResponseBase extends ArtEryBaseObject
           time: time - @startTime
           request: @requestString
           context: dashCase context
+          filterLog:  compactFlatten [@beforeFilterLog, @afterFilterLog]
           name
           stack
           exception
@@ -354,7 +355,7 @@ defineModule module, class RequestResponseBase extends ArtEryBaseObject
     data: data =
       details: compactFlatten([pipelineAndType, 'requirement not met', errors]).join ' - '
       message: compactFlatten([errors]).join ' - '
-    errorProps: if ARTERY_DETAILED_REQUEST_TRACING
+    errorProps: if getDetailedRequestTracingEnabled()
       exception: stackException ? new Error data.message
 
   rejectIfErrors: (errors, stackException) ->
@@ -383,7 +384,7 @@ defineModule module, class RequestResponseBase extends ArtEryBaseObject
     EXAMPLE: request.require myLegalInputTest, "myLegalInputTest"
   ###
   require: (test, context) ->
-    stackException = new Error context if ARTERY_DETAILED_REQUEST_TRACING
+    stackException = new Error context if getDetailedRequestTracingEnabled()
     resolveRequireTestValue test
     .then (test) =>
       @rejectIfErrors(
