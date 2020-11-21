@@ -1,4 +1,3 @@
-&register       # for coffeescript
 &StandardImport
 &art-aws/Server
 &source
