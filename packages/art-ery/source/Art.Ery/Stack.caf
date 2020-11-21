@@ -27,9 +27,11 @@ else
 
 {}
   cleanStackTrace = (stack, keepFirstLine) ->
+    return stack if getEnv().ARYERY_RAW_STACK_TRACE
     outLines = array line, i in stack.split "\n" when (keepFirstLine || i > 0) && !removeFromCleanStackTraceRegExp.test line
       repathStackTrace line
 
     if outLines.length == 0
       stack
     else outLines.join "\n"
+    + "" \nNOTE: cleanStackTrace applied. Disable with: getEnv().ARYERY_RAW_STACK_TRACE=true
