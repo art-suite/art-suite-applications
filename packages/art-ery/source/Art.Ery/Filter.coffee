@@ -223,7 +223,7 @@ defineModule module, class Filter extends require './RequestHandler'
         (if nextHandler = filterChain[nextIndex = currentFilterChainIndex + 1]
           nextHandler.handleRequest request, filterChain, nextIndex
         else
-          request.missing "no Handler for request type: #{request.type}"
+          request.failure "INTERNAL-ERROR: no nextHandler in for request type: #{request.type}"
         ).then (response) =>
           if response.isSuccessful || @filterFailures
             @processAfter response

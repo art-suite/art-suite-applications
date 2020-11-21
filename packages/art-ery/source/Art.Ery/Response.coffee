@@ -252,7 +252,6 @@ module.exports = class Response extends require './RequestResponseBase'
                 #{if stack then foundStack="\n#{cleanStackTrace stack}\n" else ''}
                 "
             ).join "\n"
-            ""
             getDetailedRequestTracingExplanation()
           ]).join "\n"
 
