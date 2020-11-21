@@ -53,10 +53,6 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
     super
     if ([hashKey] = keyFields = @getKeyFields()) && keyFields?.length == 2
       @query @_getAutoDefinedQueries
-        # Keeping this for backward compatability - should we DEPRICATE?
-        "#{@getPluralPipelineName()}By#{upperCamelCase hashKey}": @getKeyFieldsString()
-
-        # NEW style query-naming
         "by#{upperCamelCase hashKey}": @getKeyFieldsString()
 
   ###########################################

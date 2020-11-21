@@ -70,7 +70,6 @@
       if ((ref2 = keyFields = this.getKeyFields(), hashKey = ref2[0], ref2) && (keyFields != null ? keyFields.length : void 0) === 2) {
         return this.query(this._getAutoDefinedQueries((
           obj = {},
-          obj[(this.getPluralPipelineName()) + "By" + (upperCamelCase(hashKey))] = this.getKeyFieldsString(),
           obj["by" + (upperCamelCase(hashKey))] = this.getKeyFieldsString(),
           obj
         )));

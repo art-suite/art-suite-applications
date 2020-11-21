@@ -229,12 +229,30 @@ suite:
       .then (response) ->
         assert.eq response.status, success
 
-  "compound primary key": ->
+  primaryKey: ->
+    test "no primaryKey defines no queries" ->
+      {thing} = class Thing extends DynamoDbPipeline
+      assert.eq {}, thing.queries
+
+    test "primaryKey :userId defines no queries" ->
+      {thing} = class Thing extends DynamoDbPipeline
+        @primaryKey :userId
+      assert.eq {}, thing.queries
+
+    test "primaryKey :userId/postId defines correct queries" ->
+      {thing} = class Thing extends DynamoDbPipeline
+        @primaryKey :userId/postId
+      assert.eq
+        :byUserId, :byUserIdDesc
+        Object.keys thing.queries
+        .sort()
+
+  "compound primaryKey": ->
     myManyToManyTable = null
     chainedTest ->
       {myManyToManyTable} = class MyManyToManyTable extends DynamoDbPipeline
         @primaryKey :userId/postId
-        @publicRequestTypes :create :get :update :getAll :byUserId :myManyToManyTablesByUserId
+        @publicRequestTypes :create :get :update :getAll :byUserId
         @addDatabaseFilters
           fields:
             user: "required link"
@@ -242,6 +260,10 @@ suite:
             rank: :number
 
       myManyToManyTable._vivifyTable()
+
+    .softTapTest
+      "primaryKey defines the correct queries" ->
+        log {} myManyToManyTable.queries
 
     .thenTest
       "create", ->
@@ -266,10 +288,6 @@ suite:
 
       :byUserId (data) ->
         myManyToManyTable.byUserId key: data.userId
-        .then ([{rank}]) -> assert.eq rank, 456
-
-      :myManyToManyTablesByUserId-old-style (data) ->
-        myManyToManyTable.myManyToManyTablesByUserId key: data.userId
         .then ([{rank}]) -> assert.eq rank, 456
 
     .thenTest "create fails with missing required field", ->
