@@ -4,6 +4,11 @@ Uuid = require 'uuid'
 {FieldTypes} = require 'art-validation'
 
 defineModule module, class UuidFilter extends Filter
+
+  constructor: ->
+    super
+    log.warn "DEPRICATED: UuidFilter. USE: UniqueIdFilter"
+
   @alwaysForceNewIds: true
   @before
     create: (request) ->

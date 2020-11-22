@@ -11,3 +11,4 @@ suite: ->
       """
         \_ at source/index.js:1:5
           at Object.array (source/index.js:1:5)
+        NOTE: cleanStackTrace applied. Disable with: getEnv().ARYERY_RAW_STACK_TRACE=true
