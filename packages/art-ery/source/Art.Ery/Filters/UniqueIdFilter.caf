@@ -1,11 +1,18 @@
-import &StandardImport, {} &Uuid
+import &StandardImport
 
-crypto = if isNode
-  eval(:require) :crypto
-else
-  global.crypto
+getRandomValues = if isNode
+  crypto = eval(:require) :crypto
+  (typedArray) ->
+    typedArray.set crypto.randomBytes typedArray.length
+    typedArray
 
-secret = randomString()
+else (typedArray) -> global.crypto.getRandomValues typedArray
+
+cryptoRandomBase62Id = (numChars) ->
+  randomString
+    numChars
+    base62Characters
+    getRandomValues new Uint8Array numChars
 
 log2_62 = Math.log(62) / Math.log(2)
 
@@ -36,23 +43,12 @@ class UniqueIdFilter extends &Filter
           The new Ids' length will be different from the old ids, and therefor,
           are guaranteed not to collide with them.
   constructor: (options)->
-    # Caf should support:
-    #   (extract? @bits = 70) ->
     @bits = options?.bits || 70
     throw new Error "too many bits: #{@bits}. max = 256" unless @bits <= 256
     @numChars = ceil @bits / log2_62
 
-  @uuid: uuid = -> Uuid.v4()
-
   @getter
-    ## compactUniqueId
-      OUT: a base-62 string consisting of characters: [a-zA-Z0-9]
-    compactUniqueId: ->
-      crypto.createHmac :sha256 secret
-      .update   uuid()
-      .digest   :base64
-      .slice    0, @numChars
-      .replace  /[\/+=]/g, randomBase62Character
+    compactUniqueId: -> cryptoRandomBase62Id @numChars
 
   @before
     create: (request) ->
