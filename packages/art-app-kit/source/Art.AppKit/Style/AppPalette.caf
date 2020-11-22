@@ -34,6 +34,7 @@ class AppPalette extends HotStyleProps
         mediumDarkPrimary:  primary.withScaledLightness 7/8
         darkPrimary:        primary.withScaledLightness 4/8
 
+        textOnPrimary:      &TextPalette.white.primary
 
         white:              :white
         background:         :white

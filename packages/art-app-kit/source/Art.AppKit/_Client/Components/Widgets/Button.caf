@@ -37,7 +37,7 @@ class Button extends FluxComponent
         padding:  @gridSize
         text:     @props.text ? "" (set button text: propery)
         size:     size
-        color:    TextPalette.white.primary
+        color:    AppPalette.textOnPrimary
 
         if left
               :textCenterLeft

@@ -106,7 +106,8 @@ class ToolbarButton extends ViewStateComponent
       size = if labelBottom
         @buttonSize
       else
-        :childrenWidthParentHeight
+        w: (ps, cs) -> max cs.x, @gridSize * 3
+        hh: 1
 
     size = getSizePointLayout size if size
 
