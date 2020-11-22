@@ -4,7 +4,7 @@
   "dependencies": {
     "art-build-configurator": "^1.29.2",
     "art-rest-client": "^1.8.8",
-    "aws-sdk": "^2.792.0",
+    "aws-sdk": "^2.797.0",
     "aws4": "^1.6.0",
     "corsproxy": "^1.5.0",
     "dynamodb-local": "0.0.31"
