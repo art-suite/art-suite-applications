@@ -9,7 +9,7 @@ class PrimaryMenuButton extends ViewStateComponent
 
     backgroundColor ||= if disabled then AppPalette.mediumGrey else AppPalette.primary
     hoverColor ||= AppPalette.mediumLightPrimary
-    color ||= TextPalette.white.primary
+    color ||= AppPalette.textOnPrimary
 
     &MenuButton
       @props

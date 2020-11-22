@@ -54,14 +54,14 @@ class Page extends ViewStateComponent
             TextStyles.mediumText
             :parentSize
             :textCenterCenter
-            color:    TextPalette.white.primary
+            color:    AppPalette.textOnPrimary
             text:     title
 
           if @pageStackIndex > 0
             IconButton
               icon:   :chevronLeft
               size:   titleBarSize
-              color:  TextPalette.white.primary
+              color:  AppPalette.textOnPrimary
               action: @back
 
       Element
