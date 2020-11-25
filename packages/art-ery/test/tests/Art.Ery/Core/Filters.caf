@@ -122,7 +122,7 @@ suite:
       p = new MyPipeline
       p.foo returnResponseObject: true
       .then (response) ->
-        assert.eq [:MyBeforeFooFilter, :foo-handler], array {name} in response.beforeFilterLog with name
+        assert.eq [:created :MyBeforeFooFilter, :foo-handler], array {name} in response.beforeFilterLog with name
         assert.eq [:MyAfterFooFilter               ], array {name} in response.afterFilterLog  with name
         assert.eq
           response.data

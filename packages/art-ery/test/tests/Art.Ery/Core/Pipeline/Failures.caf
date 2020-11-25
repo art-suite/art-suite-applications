@@ -31,7 +31,7 @@ suite:
       .then (error) ->
         {response} = error.props
         assert.present response.errorProps.failedIn
-        assert.eq ["create-handler"],         array {name} from response.beforeFilterLog with name
+        assert.eq [:created "create-handler"],         array {name} from response.beforeFilterLog with name
         assert.eq ["myFilter1", "myFilter2"], array {name} from response.afterFilterLog with name
         assert.match response.data.message, "you lose!"
         assert.doesNotExist error.props.response.errorProps.source
@@ -49,7 +49,7 @@ suite:
       .then (error) ->
         {response} = error.props
         assert.present response.errorProps.failedIn
-        assert.eq ["myFilter3", "myFilter2"], array {name} from response.beforeFilterLog with name
+        assert.eq [:created "myFilter3", "myFilter2"], array {name} from response.beforeFilterLog with name
         assert.eq response.afterFilterLog, []
         assert.eq response.handledBy.name, "myFilter2"
         assert.eq response.data.message, "you lose!"

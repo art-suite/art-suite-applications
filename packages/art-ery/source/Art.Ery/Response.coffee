@@ -66,7 +66,7 @@ IN:
 
 module.exports = class Response extends require './RequestResponseBase'
   constructor: (options) ->
-    super
+    super merge options, creationStack: options.request.creationStack
     responseValidator.validate options, context: "Art.Ery.Response options", logErrors: true
     {@request, @status, @props = {}, @session, @remoteRequest, @remoteResponse} = options
 
@@ -216,25 +216,11 @@ module.exports = class Response extends require './RequestResponseBase'
     else Promise.reject @_getRejectionError()
 
   _getRejectionError: ->
-    @_preparedRejectionError ||= if true
-      foundStack = false
-      messageA =
-        @responseData?.message ? @responseProps?.message ? @errorProps?.exception?.message
-
-      messageB =
-        if failedIn = @errorProps?.failedIn
-          # ArtEry request: #{failedIn.response.requestString}
-
-          # failedIn:
-          #   #{failedIn.context}: #{failedIn.handler.name}
-          #   request: #{failedIn.response.pipelineName}.#{failedIn.response.type}#{if key = failedIn.response.requestProps.key then ' ' + formattedInspect key else ''}
-          #   location: #{failedIn.response.location}
-
-          envHowTo = if isNode
-            "env "
-          else "?"
-
+    @_preparedRejectionError ||=
+      new RequestError {
+        message:
           compactFlatten([
+            @responseData?.message ? @responseProps?.message ? @errorProps?.exception?.message
             ""
             formattedInspect
               requestPipeline: @pipeline
@@ -242,29 +228,18 @@ module.exports = class Response extends require './RequestResponseBase'
               requestProps: @requestProps
 
             "requestTrace:"
-            if exception = @errorProps.exception
+            if exception = @errorProps?.exception
                 "  Exception: #{cleanStackTrace exception.stack, true}\n"
 
             (for {time, request, context, name, stack, filterLog}, i in @requestTrace by -1
-              "  Step #{i + 1}
+              "  Step #{i}
                 (#{time*1000|0}ms)
                 #{request}: #{if filterLog? then (name for {name} in filterLog).join " -> " else "#{context} #{name}"}
-                #{if stack then foundStack="\n#{cleanStackTrace stack}\n" else ''}
+                #{if stack then "\n#{cleanStackTrace stack}\n" else ''}
                 "
             ).join "\n"
             getDetailedRequestTracingExplanation()
           ]).join "\n"
-
-        else
-          @requestString
-
-      message = if messageA
-        messageA + "\n" + messageB
-      else
-        messageB
-
-      new RequestError {
-        message
 
         @type
         @status

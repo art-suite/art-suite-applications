@@ -107,24 +107,24 @@ suite:
 
   plainObjectsResponse: ->
     test "basic", ->
-      assert.eq
+      assert.selectedEq
         status: "success"
         newResponse().plainObjectsResponse
 
     test "data: 123", ->
-      assert.eq
+      assert.selectedEq
         status: "success"
         props: data: 123
         newResponse(data: 123).plainObjectsResponse
 
     test "session: 123", ->
-      assert.eq
+      assert.selectedEq
         status: "success"
         session: userId: "abc123"
         newResponse(session: userId: "abc123").plainObjectsResponse
 
     test "props: foo: 123", ->
-      assert.eq
+      assert.selectedEq
         status: "success"
         props: foo: 123
         newResponse(props: foo: 123).plainObjectsResponse

@@ -75,6 +75,14 @@ module.exports = class Request extends require './RequestResponseBase'
 
   constructor: (options) ->
     super
+
+    unless @_filterLog
+      @_filterLog = [
+        name: "created"
+        stack: @_creationStack
+        time: currentSecond()
+      ]
+
     {verbose, @type, @pipeline, @session, @originalRequest, @parentRequest, @originatedOnServer, @props = {}, context, @remoteRequest} = options
 
     @_verbose = verbose

@@ -1,5 +1,10 @@
 # Major Changes
 
+### Improved Errors
+
+`originatedOnServer required to issue non-public requests`
+
+Gives a useless stack trace.
 
 ### Returning null/undefined in a filter should return the passed-in request/response object instead of creating a "missing" response
   - handlers would still create a missing response for null/undefined
