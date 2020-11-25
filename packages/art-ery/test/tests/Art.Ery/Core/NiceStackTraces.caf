@@ -1,0 +1,97 @@
+import &StandardImport
+
+  # uncomment these to see if we get a clear failure message
+
+indent = (str, indentString = "  ", wordWrapIndent = "  ") ->
+  array line in str.split("\n")
+    [__, spaces, line] = line.match /^(\s*)(.*)/
+    lineIndent = indentString + spaces
+
+    lineIndent +
+      &ansiWordwrap line, width:
+        global.process?.stdout?.columns || 80
+        - lineIndent.length
+        - wordWrapIndent.length
+        - 1
+      .replace :\n :\n + lineIndent + wordWrapIndent
+
+  .join :\n
+
+testNiceStackTrace = (name, tester) ->
+  test name, ->
+    assert.rejects tester
+    .then (error) ->
+      log "" \n------------------------------\nNiceStackTrace
+      log indent error.message.red
+      log ''
+      log indent error.stack.grey
+    # catch error
+    #   log error
+    #   null
+
+  #  ->
+  #   try
+  #     tester()
+  #   catch error
+  #     log niceStackTrace: name
+  #     log error.stack
+
+suite: ->
+  testNiceStackTrace "bad request arguments" ->
+
+    class MyPipeline extends Pipeline
+      @handlers get: -> 1
+
+    .singleton.get originatedOnServer: :invalidValue
+
+  testNiceStackTrace "requestTrace3" ->
+
+    class MyRtUser3 extends Pipeline
+
+    class MyRt3 extends Pipeline
+
+      @publicRequestTypes :create
+      @addDatabaseFilters
+        linkFilterVersion: 2
+        fields:
+          myRtUser2: :required :link
+          text: :string
+
+
+    .singleton.create data: text: "hi"
+
+  testNiceStackTrace "originatedOnServer required to issue non-public requests" ->
+
+    class MyRtUser3 extends Pipeline
+
+    {myRt3} = class MyRt3 extends Pipeline
+        @handlers
+          get: -> 123
+
+    myRt3.get()
+
+  testNiceStackTrace "requirements-not-met-nice-trace" ->
+    {myRt4} = class MyRt4 extends Pipeline
+
+      @publicHandlers
+        requireSomething: (request) ->
+          request.require 1 == 2, "1 must be 2 - what? that doesn't work in your universe?"
+
+    myRt4.requireSomething()
+
+  testNiceStackTrace "with filters" ->
+    {myRt4} = class MyRt4 extends Pipeline
+
+      @filter
+        name: :filterMan
+        before: failBig: (request) ->
+          request.withMergedData filteredBy: :filterMan
+
+      @publicHandlers
+        failBig: (request) ->
+          throw new Error "failed BIG in handler"
+
+        outterRequest: (request) ->
+          request.pipeline.failBig request
+
+    myRt4.outterRequest()

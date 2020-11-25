@@ -14,6 +14,7 @@
   getDetailedRequestTracingExplanation
   getEnv
   cleanStackTrace
+  getCleanStackTraceWarning
 } = require './StandardImport'
 
 Request = require './Request'
@@ -78,9 +79,6 @@ module.exports = class Response extends require './RequestResponseBase'
       @request.session
 
     @_endTime = null
-
-    if @status != success
-      @_captureErrorStack()
 
     @setGetCache() if @type == "create" || @type == "get"
 
@@ -222,24 +220,14 @@ module.exports = class Response extends require './RequestResponseBase'
           compactFlatten([
             @responseData?.message ? @responseProps?.message ? @errorProps?.exception?.message
             ""
-            formattedInspect
-              requestPipeline: @pipeline
-              requestType: @type
-              requestProps: @requestProps
-
-            "requestTrace:"
-            if exception = @errorProps?.exception
-                "  Exception: #{cleanStackTrace exception.stack, true}\n"
-
-            (for {time, request, context, name, stack, filterLog}, i in @requestTrace by -1
-              "  Step #{i}
-                (#{time*1000|0}ms)
-                #{request}: #{if filterLog? then (name for {name} in filterLog).join " -> " else "#{context} #{name}"}
-                #{if stack then "\n#{cleanStackTrace stack}\n" else ''}
-                "
-            ).join "\n"
-            getDetailedRequestTracingExplanation()
+            "request: #{@pipeline}.#{@type}"
+            formattedInspect {
+              @status
+              @session
+              props: @requestProps
+            }
           ]).join "\n"
+          # + "\n"
 
         @type
         @status
@@ -247,15 +235,17 @@ module.exports = class Response extends require './RequestResponseBase'
         @responseData
         sourceLib:  "ArtEry"
         response:   @
-        stack:      @errorProps?.exception?.stack
+        stack: compactFlatten([
+          if exception = @errorProps?.exception
+              "Exception stack:\n#{cleanStackTrace exception.stack, false, true}\n"
+
+          (for {time, request, context, name, stack, filterLog}, i in @requestTrace by -1
+            "#{request}: #{if filterLog? then (name for {name} in filterLog when name != "created").join " -> " else "#{context} #{name}"}
+              (request-depth: #{i + 1}, start-time: #{time*1000|0}ms)
+              #{if stack then "\n#{cleanStackTrace stack, null, true}\n" else ''}
+              "
+          ).join "\n"
+          getDetailedRequestTracingExplanation()
+          getCleanStackTraceWarning()
+        ]).join "\n"
       }
-
-  ###
-  EFFECT:
-    If we create the RequestError when the error-response is created
-    we are much more likely to capture the correct stack-trace for the
-    events that lead to the error.
-
-  TODO: We may only want to do this when artPromiseDebug=true or dev=true
-  ###
-  _captureErrorStack: -> @_getRejectionError()

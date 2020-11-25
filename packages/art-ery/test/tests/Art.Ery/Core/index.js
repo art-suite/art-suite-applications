@@ -5,6 +5,7 @@
 
 .addModules({
   Filters:             require('./Filters'),
+  NiceStackTraces:     require('./NiceStackTraces'),
   PrefetchedRecords:   require('./PrefetchedRecords'),
   Request:             require('./Request'),
   RequestResponseBase: require('./RequestResponseBase'),

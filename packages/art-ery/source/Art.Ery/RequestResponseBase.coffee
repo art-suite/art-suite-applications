@@ -354,7 +354,7 @@ defineModule module, class RequestResponseBase extends ArtEryBaseObject
   createRequirementNotMetRequestProps = (pipelineAndType, errors, stackException) ->
     data: data =
       details: compactFlatten([pipelineAndType, 'requirement not met', errors]).join ' - '
-      message: compactFlatten([errors]).join ' - '
+      message: "Request requirement not met: " + compactFlatten([errors]).join ' - '
     errorProps: if getDetailedRequestTracingEnabled()
       exception: stackException ? new Error data.message
 

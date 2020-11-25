@@ -26,12 +26,26 @@ else
   (line) -> line
 
 {}
-  cleanStackTrace = (stack, keepFirstLine) ->
-    return stack if getEnv().ARYERY_RAW_STACK_TRACE
-    outLines = array line, i in stack.split "\n" when (keepFirstLine || i > 0) && !removeFromCleanStackTraceRegExp.test line
-      repathStackTrace line
+  getCleanStackTraceWarning = ->
+    unless getEnv().ARYERY_CLEAN_STACK_TRACE == false
+      "" NOTE: cleanStackTrace applied. Disable with: getEnv().ARYERY_CLEAN_STACK_TRACE=false
+    else ''
 
-    if outLines.length == 0
-      stack
-    else outLines.join "\n"
-    + "" \nNOTE: cleanStackTrace applied. Disable with: getEnv().ARYERY_RAW_STACK_TRACE=true
+  cleanStackTrace = (stack, keepFirstLine, quiet) ->
+    return stack if getEnv().ARYERY_CLEAN_STACK_TRACE == false
+    if (error = stack) instanceof Error
+      error.stack = cleanStackTrace error.stack, keepFirstLine, quiet
+      error
+
+    else
+      outLines = array line, i in stack.split "\n" when (keepFirstLine || i > 0) && !removeFromCleanStackTraceRegExp.test line
+        repathStackTrace line
+
+      out = if outLines.length == 0
+        stack
+      else outLines.join "\n"
+      if quiet then out
+      else
+        out
+        + if /\n\s*$/.test out then '' else :\n
+        + getCleanStackTraceWarning()

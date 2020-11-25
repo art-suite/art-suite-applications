@@ -307,6 +307,7 @@ defineModule module, class Pipeline extends require './RequestHandler'
       parts.push pluralize parts.pop()
       @_pluralPipelineName = lowerCamelCase parts
 
+  toString: -> @pipelineName
   getLogName: (requestType) -> "#{requestType}-handler"
   @getter "options",
     pipelineName: -> @class.getPipelineName()
