@@ -434,6 +434,13 @@ suite:
   # uncomment these to see if we get a clear failure message
 ##
   niceStackTraces: ->
+    test "bad request arguments" ->
+
+      class MyPipeline extends Pipeline
+        @handlers get: -> 1
+
+      .singleton.get originatedOnServer: :invalidValue
+
     test "requestTrace3" ->
 
       class MyRtUser3 extends Pipeline

@@ -27,6 +27,7 @@
   getEnv
   success, missing
   getDetailedRequestTracingEnabled
+  cleanStackTrace
 } = require './StandardImport'
 {normalizeFieldProps} = require 'art-validation'
 
@@ -400,6 +401,11 @@ defineModule module, class Pipeline extends require './RequestHandler'
         pipeline: @
         session:  sessionData
         creationStack: stack
+    .catch (error) =>
+      if stack?
+        error.stack = cleanStackTrace stack
+      error.message += "\n\ninside #{@name}." + formattedInspect createRequest: {type, options}
+      throw error
 
   ###############################
   # Development Reports

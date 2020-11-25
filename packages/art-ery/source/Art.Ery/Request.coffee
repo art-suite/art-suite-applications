@@ -94,7 +94,7 @@ module.exports = class Request extends require './RequestResponseBase'
     @_props.data = options.data if options.data?
     @_originalRequest ?= @
 
-    requestConstructorValidator().validate options, context: "Art.Ery.Request options", logErrors: true
+    requestConstructorValidator().validate options, context: "create Art.Ery.Request options", logErrors: true
 
     throw new Error "options.requestOptions is DEPRICATED - use options.props" if options.requestOptions
 
