@@ -2,7 +2,7 @@ Foundation = require 'art-foundation'
 Atomic = require 'art-atomic'
 Engine = require 'art-engine'
 Helper = require '../Helper'
-Canvas = require 'art-canvas'
+Canvas = require '@art-suite/art-canvas'
 
 {inspect, log} = Foundation
 {point, rect, matrix, Matrix} = Atomic

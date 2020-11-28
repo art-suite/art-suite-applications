@@ -1,6 +1,6 @@
 Foundation = require 'art-foundation'
 Atomic = require 'art-atomic'
-Canvas = require 'art-canvas'
+Canvas = require '@art-suite/art-canvas'
 Engine = require 'art-engine'
 
 {rgbColor, point, matrix, Matrix, perimeter} = Atomic

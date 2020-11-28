@@ -1,5 +1,7 @@
 import &ArtStandardLib
 
+{assert} = &ArtTestbench
+
 class Helpers
   @reduceImageDataRange: (pixelData) => array v from pixelData with v >> 4
 

@@ -1,7 +1,7 @@
 'use strict';
 {objectWithout, defineModule, formattedInspect, clone, max, isFunction, log, object, isNumber, isArray, isPlainObject, isString, each, isPlainObject, merge, mergeInto} = require 'art-standard-lib'
 {Matrix, identityMatrix, Color, point, rect, rgbColor, isRect, isColor, perimeter, Rectangle} = require 'art-atomic'
-{GradientFillStyle, Paths} = require 'art-canvas'
+{GradientFillStyle, Paths} = require '@art-suite/art-canvas'
 {rectanglePath, ellipsePath, circlePath} = Paths
 {BaseClass} = require 'art-class-system'
 DrawAreaCollector = require './DrawAreaCollector'

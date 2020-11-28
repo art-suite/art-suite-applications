@@ -2,7 +2,7 @@
   &ArtStandardLib
   &ArtClassSystem
   &ArtAtomic
-  &ArtCanvas
+  &@ArtSuite/ArtCanvas
   require :../index
   test: (args...) -> global.test args...
   setup: (args...) -> global.setup args...

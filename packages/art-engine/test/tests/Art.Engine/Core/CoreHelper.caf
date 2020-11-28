@@ -1,4 +1,4 @@
-import &ArtStandardLib, &source/Art/Engine, &ArtCanvas, &ArtAtomic
+import &ArtStandardLib, &source/Art/Engine, &@ArtSuite/ArtCanvas, &ArtAtomic
 
 class CoreHelper
   @getRedImageData: getRedImageData = (bitmap, testArea) ->

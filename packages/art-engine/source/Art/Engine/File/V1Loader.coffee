@@ -4,7 +4,7 @@
 
 {BaseClass}           = require 'art-class-system'
 {point, rect, matrix} = require 'art-atomic'
-{Bitmap}              = require 'art-canvas'
+{Bitmap}              = require '@art-suite/art-canvas'
 {EncodedImage}        = require 'art-binary'
 
 {xbd} = require 'art-xbd'

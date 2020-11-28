@@ -29,7 +29,7 @@ Element = require './Element'
 
 {showPartialDrawAreas} = getEnv()
 {createWithPostCreate} = require 'art-class-system'
-{Bitmap} = require 'art-canvas'
+{Bitmap} = require '@art-suite/art-canvas'
 
 {getOrientationAngle, simpleBrowserInfo} = Browser = require 'art-browser-tools'
 HtmlCanvas = Browser.DomElementFactories.Canvas

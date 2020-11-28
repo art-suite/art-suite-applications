@@ -9,7 +9,7 @@
 
 } = require 'art-standard-lib'
 {Matrix, identityMatrix, Color, point, rect, rgbColor, isRect, isColor, perimeter} = require 'art-atomic'
-{GradientFillStyle, Paths} = require 'art-canvas'
+{GradientFillStyle, Paths} = require '@art-suite/art-canvas'
 {rectanglePath, ellipsePath, circlePath} = Paths
 {BaseClass} = require 'art-class-system'
 defaultMiterLimit = 3

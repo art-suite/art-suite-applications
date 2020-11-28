@@ -19,7 +19,7 @@ for textual, have two areas:
 } = require 'art-standard-lib'
 {BaseClass} = require 'art-class-system'
 
-{Bitmap} = require 'art-canvas'
+{Bitmap} = require '@art-suite/art-canvas'
 {point, rect, point0, Rectangle} = require 'art-atomic'
 
 TextLayoutFragment = require './TextLayoutFragment'

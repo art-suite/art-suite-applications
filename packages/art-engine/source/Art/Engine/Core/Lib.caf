@@ -1,11 +1,11 @@
-import &ArtStandardLib, &ArtCanvas
+import &ArtStandardLib, &@ArtSuite/ArtCanvas
 
 propsEq:        plainObjectsDeepEq
 shallowPropsEq: shallowEq
 
 flushAllCaches: flushAllCaches = ->
   &Drawing/DrawCacheManager.drawCacheManager.flushCache()
-  &ArtCanvas.MipmapCache.singleton.releaseAll()
+  &@ArtSuite/ArtCanvas.MipmapCache.singleton.releaseAll()
   null
 
 releaseAllCaches: flushAllCaches

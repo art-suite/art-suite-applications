@@ -1,8 +1,8 @@
 {point, point0, point1, rect, rgbColor, matrix, Matrix} = require 'art-atomic'
 {w, inspect, log, eq} = require 'art-standard-lib'
 {EncodedImage} = require 'art-binary'
-{BitmapBase, Bitmap, GradientFillStyle, supportedCompositeModes} = require 'art-canvas'
-
+{BitmapBase, Bitmap, GradientFillStyle, supportedCompositeModes} = require '@art-suite/art-canvas'
+{assert} = require 'art-testbench'
 module.exports = (bitmapFactory, bitmapClassName) ->
 
   testCompositeModes = w "
@@ -300,17 +300,19 @@ module.exports = (bitmapFactory, bitmapClassName) ->
         bitmap.drawRectangle null, rect(1.25, 1.25, 1.75, 1.3), color:"red"
         log bitmap
         imageData = bitmap.getImageDataArray("red")
-        assert.within [
-          0,   0,   0,   0,
-          0, 145, 192,   0,
-          0, 105, 141,   0,
-          0,   0,   0,   0
-        ], imageData, [
-          0,   0,   0,   0,
-          0, 145, 192,   0,
-          0, 105, 141,   0,
-          0,   0,   0,   0
-        ]
+        assert.within imageData,
+          [
+            0,   0,   0,   0,
+            0, 140, 192,   0,
+            0, 105, 141,   0,
+            0,   0,   0,   0
+          ]
+          [
+            0,   0,   0,   0,
+            0, 145, 192,   0,
+            0, 105, 141,   0,
+            0,   0,   0,   0
+          ]
 
       test "drawRectangle pixelSnap on", ->
         bitmap = bitmapFactory.newBitmap point(4, 4)

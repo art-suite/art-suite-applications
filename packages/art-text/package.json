@@ -3,7 +3,7 @@
   "bugs": "https://github.com/art-suite/art-suite-applications/issues",
   "dependencies": {
     "art-build-configurator": "^1.29.2",
-    "art-canvas": "^1.28.2"
+    "@art-suite/art-canvas": "^1.28.2"
   },
   "description": "Art.Text",
   "homepage": "https://github.com/art-suite/art-suite-applications",

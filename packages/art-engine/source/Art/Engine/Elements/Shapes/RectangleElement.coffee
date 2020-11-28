@@ -1,7 +1,7 @@
 Atomic = require 'art-atomic'
 Text = require 'art-text'
 ShadowableElement = require '../ShadowableElement'
-{Paths} = require 'art-canvas'
+{Paths} = require '@art-suite/art-canvas'
 {pureMerge, float32Eq0, log, AtomElement, defineModule, isPlainObject, isNumber} = require 'art-standard-lib'
 {rectanglePath} = Paths
 

@@ -19,7 +19,7 @@ AnimatedElementMixin = require './AnimatedElementMixin'
   compactFlattenFast
   w
 } = require 'art-standard-lib'
-{Bitmap} = require 'art-canvas'
+{Bitmap} = require '@art-suite/art-canvas'
 
 ###
 ElementBase adds:

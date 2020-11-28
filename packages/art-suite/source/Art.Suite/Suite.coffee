@@ -6,7 +6,7 @@ module.exports = suite =
   # using merge because we are OK with
   # ignoring values from multiple same-named props
   merge (require './Core'),
-    Canvas      = require 'art-canvas'
+    Canvas      = require '@art-suite/art-canvas'
     Engine      = require 'art-engine'
     React       = require 'art-react'
     Flux        = require '@art-suite/art-flux'

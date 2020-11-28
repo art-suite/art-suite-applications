@@ -1,6 +1,6 @@
 Foundation = require 'art-foundation'
 Atomic = require 'art-atomic'
-Canvas = require 'art-canvas'
+Canvas = require '@art-suite/art-canvas'
 AtomElement = require './AtomElement'
 {PointLayout, PointLayoutBase} = require '../Layout'
 {log, isPlainObject, min, max, createWithPostCreate, isNumber, merge} = Foundation

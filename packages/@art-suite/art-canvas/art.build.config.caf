@@ -1,6 +1,4 @@
-package:
-  dependencies:
-    webfontloader: :1.*
+package: -> &package
 webpack:
   common:
     mode: :development

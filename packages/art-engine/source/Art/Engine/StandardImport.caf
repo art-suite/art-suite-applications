@@ -1,5 +1,5 @@
 &ArtStandardLib.mergeWithSelf
   &ArtClassSystem
   &ArtAtomic
-  &ArtCanvas
+  &@ArtSuite/ArtCanvas
   &ArtFrameStats

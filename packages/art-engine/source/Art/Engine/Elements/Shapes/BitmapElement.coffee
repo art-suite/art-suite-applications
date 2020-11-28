@@ -5,7 +5,7 @@
 } = require 'art-standard-lib'
 {BaseClass} = require 'art-class-system'
 {point, rect, Matrix, point0, point1} = require 'art-atomic'
-{isImage, Bitmap, BitmapBase} = require 'art-canvas'
+{isImage, Bitmap, BitmapBase} = require '@art-suite/art-canvas'
 ShadowableElement = require '../ShadowableElement'
 
 {SourceToBitmapCache} = require '../../Core'

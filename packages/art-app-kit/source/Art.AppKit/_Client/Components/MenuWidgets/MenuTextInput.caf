@@ -83,7 +83,7 @@ class MenuTextInput extends ViewStateComponent
           padding: v: textStyle.fontSize * 1/3
           on: pointerClick: @startEdit
           if present v = displayValue ? value
-            v
+            text: v
           else
             color: TextPalette.black.secondary
             text: placeholder

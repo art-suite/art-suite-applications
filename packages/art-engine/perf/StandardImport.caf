@@ -1,6 +1,6 @@
 &ArtStandardLib.merge
   &ArtAtomic
-  &ArtCanvas
+  &@ArtSuite/ArtCanvas
   &ArtEngine
   &ArtClassSystem
   &ArtStandardLib

@@ -3,7 +3,7 @@
 {Browser} = require 'art-foundation'
 {Meta, Link} = Browser.DomElementFactories
 {getDomReadyPromise} = Browser
-{FontLoader} = require 'art-canvas'
+{FontLoader} = require '@art-suite/art-canvas'
 {rgbColor} = require 'art-atomic'
 
 iOSNative = global.cordova

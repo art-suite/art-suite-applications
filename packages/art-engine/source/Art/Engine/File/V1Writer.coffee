@@ -1,12 +1,12 @@
 Foundation = require 'art-foundation'
 Atomic = require 'art-atomic'
-Canvas = require 'art-canvas'
+Canvas = require '@art-suite/art-canvas'
 Xbd = require 'art-xbd'
 Core = require '../Core'
 Elements = require '../Elements'
 
 compositeModes = require './V1CompositeModes'
-{normalizedCompositeModeMap} = require 'art-canvas'
+{normalizedCompositeModeMap} = require '@art-suite/art-canvas'
 
 {
   BaseClass, log, createObjectTreeFactories, createWithPostCreate, float32Eq0, Promise

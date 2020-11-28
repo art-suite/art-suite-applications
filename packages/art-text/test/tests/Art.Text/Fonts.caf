@@ -1,5 +1,5 @@
-import &ArtStandardLib, &artCanvas
-# {GoogleFontLoader} = require 'art-canvas'
+import &ArtStandardLib, &@ArtSuite/ArtCanvas
+# {GoogleFontLoader} = require '@art-suite/art-canvas'
 
 
 ###

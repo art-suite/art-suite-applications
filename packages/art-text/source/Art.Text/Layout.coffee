@@ -1,5 +1,5 @@
 Foundation = require "art-foundation"
-{Bitmap} = require "art-canvas"
+{Bitmap} = require '@art-suite/art-canvas'
 Atomic = require 'art-atomic'
 Metrics = require './Metrics'
 {isMatrix, rect, matrix, Matrix, Rectangle, point} = Atomic

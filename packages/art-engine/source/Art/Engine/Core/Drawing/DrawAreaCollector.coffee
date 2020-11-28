@@ -2,7 +2,7 @@
 {clone, defineModule, log, min, max} = require 'art-standard-lib'
 {BaseClass} = require 'art-class-system'
 {rect, Rectangle} = require 'art-atomic'
-{compositeModeMap} = require 'art-canvas'
+{compositeModeMap} = require '@art-suite/art-canvas'
 
 defineModule module, ->
 

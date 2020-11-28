@@ -5,6 +5,7 @@ CommonBitmapTests = require './CommonBitmapTests'
 {each, w, Binary, log, eq, defineModule, merge} = Foundation
 {point, point0, point1, rect, rgbColor, matrix, Matrix} = Atomic
 {Bitmap} = Canvas
+{assert} = require 'art-testbench'
 
 array = (a) -> i for i in a
 
