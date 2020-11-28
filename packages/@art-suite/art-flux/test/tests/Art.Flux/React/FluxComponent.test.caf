@@ -1,0 +1,65 @@
+import &StandardImport, &ArtReact, &ArtCommunicationStatus
+
+resetAll = ->
+  &source._reset()
+
+myModelSetup = ->
+  resetAll()
+  class MyModel extends ApplicationState
+    @stateFields myField: null, myField2: null
+
+suite:
+  "subscriptions declaration types": ->
+    setup myModelSetup
+
+    testSubscriptionDefinition = (subDef, subField) ->
+      subField ||= Object.keys(subDef)[0]
+
+      statusField = "#{subField}Status"
+      test "#{formattedInspect subDef}", ->
+        new Promise (resolve) ->
+          MyComponent = class MyComponent extends FluxComponent
+            @subscriptions subDef
+
+            componentWillUpdate: (newProps, newState)->
+              if newState[statusField] == success
+                assert.eq newState[subField], name: :bob
+                resolve()
+
+            render: -> Element {}
+
+          myComponent = MyComponent myModelId: :myField myModelName: :myModel
+          ._instantiate()
+          assert.eq myComponent.state[statusField], success
+          models.myModel.myField = name:"bob"
+
+    testSubscriptionDefinition myModel: 'myField'
+    testSubscriptionDefinition bob: model: "myModel", key: "myField"
+    testSubscriptionDefinition myField: model: 'myModel'
+
+    testSubscriptionDefinition "myModel.myField", "myField"
+    testSubscriptionDefinition "myModel", "myModel"
+
+    testSubscriptionDefinition myModel: -> 'myField'
+    testSubscriptionDefinition myModel: ({myModelId}) -> myModelId
+    testSubscriptionDefinition bob:
+      model: ({myModelName}) -> myModelName
+      key:   ({myModelId}) -> myModelId
+
+    test "two fields with the same model", ->
+      new Promise (resolve) ->
+        MyComponent = class MyComponent extends FluxComponent
+          @subscriptions "myModel.myField myModel.myField2"
+
+          preprocessState: (newState)->
+            if newState.myField && newState.myField2 && newState.myFieldStatus == success && newState.myField2Status == success
+              assert.eq newState.myField  , name: :bill
+              assert.eq newState.myField2 , name: :alice
+              resolve()
+            newState
+
+          render: -> Element {}
+
+        (myComponent = MyComponent())._instantiate()
+        models.myModel.myField  = name: :bill
+        models.myModel.myField2 = name: :alice

@@ -1,0 +1,82 @@
+import &ArtStandardLib, &ArtValidation
+
+subscriptionFormPatterns =
+  global:  /[_a-z][._a-z0-9]*/gi
+  modelKey: /^([_a-z0-9]+)\.([_a-z0-9]+)/i
+  modelBy:  /^([_a-z0-9]+)By([a-z]+$)/i
+
+subscriptionValidator = new Validator
+  stateField: "present string"
+  model:      required: validate: (v) -> isFunction(v) || isString(v)
+  key:        required: validate: (v) -> v != "undefined"
+
+normalizeSubscriptionOptions: normalizeSubscriptionOptions = (stateField, subscriptionOptions) ->
+  if subscriptionOptions is Object
+    subscriptionOptions extract key, model
+    {}
+      stateField
+      model:  model ? stateField
+      key:    key   ? stateField
+
+  else
+    {}
+      stateField
+      model:  stateField
+      key:    subscriptionOptions
+
+parseSubscriptions: (subscriptions) ->
+  out = {}
+  add = (stateField, subscriptionOptions) ->
+    if out[stateField]
+      throw new ErrorWithInfo
+        "duplicate subscription declaration for: #{stateField}"
+        {}
+          stateField
+          first-subscription-options: out[stateField]
+          duplicate-subscription-options: subscriptionOptions
+          subscriptions
+
+    subscriptionOptions = normalizeSubscriptionOptions stateField, subscriptionOptions
+
+    subscriptionValidator.validate subscriptionOptions
+
+    out[stateField] = subscriptionOptions
+
+  each subscriptionDeclaration in compactFlatten subscriptions into out
+    switch
+    when isPlainObject subscriptionDeclaration
+      array subscriptionOptions, stateField in subscriptionDeclaration
+        add stateField, subscriptionOptions
+
+    when isString subscriptionDeclaration
+      each subscriptionName in subscriptionDeclaration.match subscriptionFormPatterns.global
+
+        switch
+          when matches = subscriptionName.match subscriptionFormPatterns.modelBy
+            [modelName, _, fieldName] = matches
+            fieldName = lowerCamelCase fieldName
+            add
+              subscriptionName
+              key:
+                if matches = fieldName.match /^([_0-9a-zA-Z]+)Id$/
+                  [_, recordType] = matches
+                  (props) -> props[recordType]?.id || props[fieldName]
+                else
+                  (props) -> props[fieldName]
+
+          when matches = subscriptionName.match subscriptionFormPatterns.modelKey
+            [_, modelName, stateField] = matches
+            add stateField, model: modelName
+
+          else
+            subscriptionNameId = subscriptionName + "Id"
+
+            add
+              subscriptionName
+              key: (props) -> props[subscriptionName]?.id || props[subscriptionNameId]
+
+    else throw new ErrorWithInfo
+      "unsupported subscription declaration"
+      {}
+        invalid-subscription-delcaration: subscriptionDeclaration
+        subscriptions
