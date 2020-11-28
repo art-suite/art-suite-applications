@@ -4,7 +4,8 @@
 (module.exports = require('./namespace'))
 
 .addModules({
-  FluxModel:              require('./FluxModel'),
-  FluxStore:              require('./FluxStore'),
-  FluxSubscriptionsMixin: require('./FluxSubscriptionsMixin')
+  FluxModel:                 require('./FluxModel'),
+  FluxStore:                 require('./FluxStore'),
+  FluxSubscriptionMixinTest: require('./FluxSubscriptionMixin.test'),
+  FluxSubscriptionsMixin:    require('./FluxSubscriptionsMixin')
 });

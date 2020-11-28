@@ -184,17 +184,3 @@ module.exports = suite:
           timeout 10 # not the best method to give the setState-reject a chance to fire before resolving, can anyone think of a better way?
         .then ->
           resolve()
-
-
-  extras: ->
-
-    test "subscribeOnModelRegistered", ->
-      new Promise (resolve, reject) ->
-        createWithPostCreate class MyModelA extends FluxSubscriptionsMixin FluxModel
-          constructor: ->
-            super
-            @subscribeOnModelRegistered "mySubscriptionKey", "myModelB", "myFluxKey", (updatesCallback: ->)
-            .then resolve, reject
-
-        createWithPostCreate class MyModelB extends FluxModel
-

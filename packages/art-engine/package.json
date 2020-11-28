@@ -8,7 +8,7 @@
     "art-events": "^1.3.7",
     "art-foundation": "git://github.com/imikimi/art-foundation.git",
     "art-frame-stats": "^1.2.2",
-    "art-text": "^1.2.7",
+    "art-text": "^1.2.8",
     "art-xbd": "^1.1.0",
     "javascript-detect-element-resize": "^0.5.3",
     "keyboardevent-key-polyfill": "^1.0.2"
@@ -44,5 +44,5 @@
     "start": "webpack-dev-server --hot --inline --progress --env.devServer",
     "test": "webpack-dev-server  --progress --env.devServer"
   },
-  "version": "4.4.6"
+  "version": "4.4.7"
 }

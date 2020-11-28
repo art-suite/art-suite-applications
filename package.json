@@ -40,6 +40,7 @@
     "art-xbd": "^1.1.0",
     "aws-sdk": "^2.799.0",
     "aws4": "^1.6.0",
+    "caffeine-script": "^0.73.0",
     "case-sensitive-paths-webpack-plugin": "^2.2.0",
     "chai": "^4.2.0",
     "coffee-loader": "^0.7.3",

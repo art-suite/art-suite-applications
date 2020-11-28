@@ -7,11 +7,11 @@
     "art-atomic": "^1.27.9",
     "art-browser-tools": "^1.2.7",
     "art-build-configurator": "^1.29.2",
-    "art-engine": "^4.4.6",
+    "art-engine": "^4.4.7",
     "art-ery": "^1.117.2",
     "art-events": "^1.3.7",
     "art-react": "^1.35.2",
-    "art-text": "^1.2.7",
+    "art-text": "^1.2.8",
     "art-validation": "^1.9.4",
     "art-xbd": "^1.1.0"
   },
@@ -49,5 +49,5 @@
     "start": "webpack-dev-server --hot --inline --progress --env.devServer",
     "test": "webpack-dev-server  --progress --env.devServer"
   },
-  "version": "1.9.5"
+  "version": "1.9.7"
 }

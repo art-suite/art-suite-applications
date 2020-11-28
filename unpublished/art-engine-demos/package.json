@@ -3,7 +3,7 @@
   "bugs": "https://github.com/art-suite/art-suite-applications/issues",
   "dependencies": {
     "art-build-configurator": "^1.29.2",
-    "art-suite": "^1.9.5"
+    "art-suite": "^1.9.6"
   },
   "description": "Art.Engine.Demos",
   "homepage": "https://github.com/art-suite/art-suite-applications",

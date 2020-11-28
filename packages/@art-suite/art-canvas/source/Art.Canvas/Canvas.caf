@@ -1,0 +1,5 @@
+[]
+  {isCanvas, isImage, getImageSize} = &BitmapBase
+  {mipmapCache} = &MipmapCache
+  &Tools
+  &CompositeModes
