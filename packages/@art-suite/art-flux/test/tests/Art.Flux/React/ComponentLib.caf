@@ -13,44 +13,27 @@ testDeclaration = (declaration, expected) ->
 suite:
   strings: ->
     testDeclaration :post (parsed) ->
-      {key} = find parsed
-      assert.eq
-        key {} post: id: :abc
-        :abc
-        {} key
+      # {key} = find parsed
+      # assert.eq
+      #   key {} post: id: :abc
+      #   :abc
+      #   {} key
 
-      assert.eq
-        key {} postId: :def
-        :def
-        {} key
+      # assert.eq
+      #   key {} postId: :def
+      #   :def
+      #   {} key
 
       post:
         stateField: :post
         model:      :post
-        key:        key
+        key:        undefined
 
     testDeclaration :viewState.gridSize (parsed) ->
       gridSize:
         stateField: :gridSize
         model:      :viewState
         key:        :gridSize
-
-    testDeclaration :postsByUserId (parsed) ->
-      {key} = find parsed
-      assert.eq
-        key {} user: id: :abc
-        :abc
-        {} key
-
-      assert.eq
-        key {} userId: :def
-        :def
-        {} key
-
-      postsByUserId:
-        stateField: :postsByUserId
-        model:      :postsByUserId
-        key:        parsed.postsByUserId.key
 
   options: ->
     testDeclaration
@@ -75,7 +58,7 @@ suite:
         aPost:
           stateField: :aPost
           model:      :post
-          key:        :aPost
+          key:        undefined
 
     testDeclaration
       {} aPost:

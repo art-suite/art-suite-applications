@@ -74,19 +74,17 @@ defineModule module, class FluxComponent extends FluxSubscriptionsMixin Componen
   @_prepareSubscription: (subscription) ->
     {stateField, model, key} = subscription
 
-    throw new Error "no model specified in subscription: #{formattedInspect stateField:stateField, model:model, class:@name, subscription:subscription}" unless model
+    subscription.propsToModel = switch
+      when isFunction model then model
+      when isString model
+        unless model = ModelRegistry.models[model]
+          throw new Error "#{@getName()}::subscriptions() model '#{modelName}' not registered (component = #{@getNamespacePath()})"
+        -> model
+      else throw new Error "no model specified in subscription: #{formattedInspect stateField:stateField, model:model, class:@name, subscription:subscription}" unless model
 
-    if isString model
-      modelName = model
-      model = ModelRegistry.models[modelName]
-      unless model
-        console.error error = "#{@getName()}::subscriptions() model '#{modelName}' not registered (component = #{@getNamespacePath()})"
-        throw new Error error
-
-    subscription.model = model
-    subscription.keyFunction = if isFunction key
+    subscription.propsToKey = if isFunction key
         key
-      else
+      else if key?
         -> key
 
   @_prepareSubscriptions: ->
@@ -117,28 +115,32 @@ defineModule module, class FluxComponent extends FluxSubscriptionsMixin Componen
 
   _updateAllSubscriptions: (props = @props) ->
     for stateField, subscriptionProps of @class.getSubscriptionProperties()
-      {keyFunction, model} = subscriptionProps
+      {propsToKey, propsToModel} = subscriptionProps
 
       model = try
-        if isFunction model
-          model props
-        else
-          model
+        propsToModel props, stateField
 
       catch error
-        log "UpdateSubscription modelFunction error": {FluxComponent: @, stateField, model, subscriptionProps, error}
+        log.error error
+        log.error "UpdateSubscription propsToModel error": {FluxComponent: @, stateField, subscriptionProps, props}
         null
 
-      if isString model
-        unless model = @models[model]
-          console.error "Could not find model named #{formattedInspect model} for subscription in component #{@inspectedName}"
+      if isString modelName = model
+        unless model = @models[modelName]
+          log.error "UpdateSubscription could not find model-name returned from propsToModel": {FluxComponent: @, stateField, subscriptionProps, props, modelName}
 
       if model
         key = try
-          keyFunction props
+          if propsToKey?
+            propsToKey props, stateField
+          else
+            model.propsToKey props, stateField
+
         catch error
-          log "UpdateSubscription keyFunction error": {FluxComponent: @, stateField, model, subscriptionProps, error}
+          log.error error
+          log.error "UpdateSubscription propsToKey error": {FluxComponent: @, stateField, subscriptionProps, props}
           null
+
         @_updateSubscription stateField, key, model, props
 
     null

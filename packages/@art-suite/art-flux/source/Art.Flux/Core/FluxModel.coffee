@@ -273,6 +273,14 @@ defineModule module, class FluxModel extends InstanceFunctionBindingMixin BaseOb
   dataToKeyString: (obj) ->
     throw new Error "FluxModel #{@name}: must override dataToKeyString for converting objects to key-strings."
 
+  @getRecordPropsToKeyFunction: (recordType) ->
+    (props, stateField) =>
+      log {props, stateField}
+      propsField = stateField ? recordType
+      log props[propsField]?.id ? props[propsField + "Id"]
+
+  @getter
+    propsToKey: -> @_propsToKey ?= FluxModel.getRecordPropsToKeyFunction @modelName
 
   # Override to respond to entries being added or removed from the flux-store
 

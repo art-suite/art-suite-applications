@@ -3,80 +3,73 @@ import &ArtStandardLib, &ArtValidation
 subscriptionFormPatterns =
   global:  /[_a-z][._a-z0-9]*/gi
   modelKey: /^([_a-z0-9]+)\.([_a-z0-9]+)/i
-  modelBy:  /^([_a-z0-9]+)By([a-z]+$)/i
 
 subscriptionValidator = new Validator
-  stateField: "present string"
-  model:      required: validate: (v) -> isFunction(v) || isString(v)
-  key:        required: validate: (v) -> v != "undefined"
+  stateField: :present :string
+  key:        {}
+  model:      required: validate: (v) ->
+    v is Function
+    || v is String
 
-normalizeSubscriptionOptions: normalizeSubscriptionOptions = (stateField, subscriptionOptions) ->
-  if subscriptionOptions is Object
-    subscriptionOptions extract key, model
-    {}
-      stateField
-      model:  model ? stateField
-      key:    key   ? stateField
-
-  else
-    {}
-      stateField
-      model:  stateField
-      key:    subscriptionOptions
 
 parseSubscriptions: (subscriptions) ->
   out = {}
-  add = (stateField, subscriptionOptions) ->
+  add = ({stateField, model, key}) ->
     if out[stateField]
       throw new ErrorWithInfo
         "duplicate subscription declaration for: #{stateField}"
         {}
           stateField
           first-subscription-options: out[stateField]
-          duplicate-subscription-options: subscriptionOptions
+          duplicate-subscription-options: {} stateField, model, key
           subscriptions
 
-    subscriptionOptions = normalizeSubscriptionOptions stateField, subscriptionOptions
-
-    subscriptionValidator.validate subscriptionOptions
-
-    out[stateField] = subscriptionOptions
+    subscriptionValidator.validate out[stateField] = {} stateField, model, key
 
   each subscriptionDeclaration in compactFlatten subscriptions into out
     switch
     when isPlainObject subscriptionDeclaration
-      array subscriptionOptions, stateField in subscriptionDeclaration
-        add stateField, subscriptionOptions
+      each subscriptionOptions, stateField in subscriptionDeclaration
+        switch
+        when subscriptionOptions is Function
+          add {}
+            stateField
+            model:  stateField
+            key:    subscriptionOptions
+
+        when subscriptionOptions is String
+          add {}
+            stateField
+            model:  stateField
+            key:    subscriptionOptions
+
+        when subscriptionOptions is Object
+          subscriptionOptions extract model, key
+          add {}
+            stateField
+            model:  model ? stateField
+            key:    if key is Function then key else key
+
+        else throw new ErrorWithInfo
+          "invalid value for subscription. Expecting key-function or object"
+          {} stateField, subscriptionOptions
 
     when isString subscriptionDeclaration
       each subscriptionName in subscriptionDeclaration.match subscriptionFormPatterns.global
+        if matches = subscriptionName.match subscriptionFormPatterns.modelKey
+          [_, modelName, stateField] = matches
+          add {}
+            stateField
+            model:  modelName
+            key:    stateField
 
-        switch
-          when matches = subscriptionName.match subscriptionFormPatterns.modelBy
-            [modelName, _, fieldName] = matches
-            fieldName = lowerCamelCase fieldName
-            add
-              subscriptionName
-              key:
-                if matches = fieldName.match /^([_0-9a-zA-Z]+)Id$/
-                  [_, recordType] = matches
-                  (props) -> props[recordType]?.id || props[fieldName]
-                else
-                  (props) -> props[fieldName]
-
-          when matches = subscriptionName.match subscriptionFormPatterns.modelKey
-            [_, modelName, stateField] = matches
-            add stateField, model: modelName
-
-          else
-            subscriptionNameId = subscriptionName + "Id"
-
-            add
-              subscriptionName
-              key: (props) -> props[subscriptionName]?.id || props[subscriptionNameId]
+        else
+          add
+            stateField: subscriptionName
+            model:      subscriptionName
 
     else throw new ErrorWithInfo
-      "unsupported subscription declaration"
+      "unsupported subscription declaration. Expecting string or object."
       {}
         invalid-subscription-delcaration: subscriptionDeclaration
         subscriptions
