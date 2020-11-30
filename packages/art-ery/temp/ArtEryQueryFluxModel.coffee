@@ -40,7 +40,8 @@ defineModule module, class ArtEryQueryFluxModel extends ArtEry.KeyFieldsMixin Fl
     Promise.resolve @query key, @pipeline
     .then (data) => @localSort data
 
-  @getter "recordsModel pipeline queryName"
+  @setter "recordsModel pipeline"
+  @getter "recordsModel pipeline"
 
   #########################
   # OVERRIDEABLES
@@ -60,7 +61,7 @@ defineModule module, class ArtEryQueryFluxModel extends ArtEry.KeyFieldsMixin Fl
       pipeline, but the rest will be left untouched and placed in the FluxRecord's data field.
       Or should they be put in an auxiliary field???
   ###
-  query: (key) -> @_pipeline[@_queryName] key: key, props: include: "auto"
+  query: (key) -> []
 
   ###
     override for to sort records when updating local query data in response to local record changes

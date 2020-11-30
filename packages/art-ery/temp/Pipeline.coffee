@@ -40,6 +40,7 @@ DatabaseFilters = require './DatabaseFilters'
 Session = require './Session'
 {config} = require './Config'
 Filters = require './Filters'
+PipelineQuery = require './PipelineQuery'
 
 PipelineRegistry = require './PipelineRegistry'
 RequestResponseBase = require './RequestResponseBase'
@@ -254,7 +255,8 @@ defineModule module, class Pipeline extends require './RequestHandler'
         myQueryName: queryKey
   ###
   @query: (map) ->
-    @extendQueries object map, (options, queryName) => @_normalizeQuery queryName, options
+    @extendQueries object map, (options, queryName) -> new PipelineQuery queryName, options
+    # @extendQueries object map, (options, queryName) => @_normalizeQuery queryName, options
 
   ###
   aliases

@@ -1,15 +1,6 @@
-{merge, compactFlatten} = require 'art-standard-lib'
-{
-  createWithPostCreate
-  missing
-  Pipeline
-  Filter
-  merge
-  log
-} = merge compactFlatten require '../../../StandardImport'
+import &StandardImport
 
-log {Pipeline}
-module.exports = createWithPostCreate class SimplePipeline extends Pipeline
+class SimplePipeline extends Pipeline
 
   constructor: ->
     super
@@ -32,7 +23,7 @@ module.exports = createWithPostCreate class SimplePipeline extends Pipeline
       @_store[key]
 
     getAll: ->
-      for k in (Object.keys(@_store).sort())
+      array k in (Object.keys(@_store).sort())
         @store[k]
 
     create: (request) ->

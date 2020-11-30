@@ -5,5 +5,6 @@
 
 .addModules({
   ArtEryFluxModel:      require('./ArtEryFluxModel'),
-  ArtEryQueryFluxModel: require('./ArtEryQueryFluxModel')
+  ArtEryQueryFluxModel: require('./ArtEryQueryFluxModel'),
+  StandardImport:       require('./StandardImport')
 });

@@ -294,7 +294,7 @@ suite:
           subrequestHandlers
           subrequestCompatibleHandlers
           bar: (request) -> merge request.props, isSubrequest: !!request.parentRequest
-        @publicRequestTypes log "HOWHOW", Object.keys handlers
+        @publicRequestTypes "HOWHOW", Object.keys handlers
 
     key = "myKey"
     props = prop1: "propValue1"
@@ -422,11 +422,4 @@ suite:
 
           innerRequest: (request) -> request.requestTrace
 
-        # @filter
-        #   name: :failWhale
-        #   after: innerRequest: -> throw new Error :boom
-
       myRt2.outterRequest key: randomString()
-      .then (requestTrace) ->
-        each v, i from requestTrace by -1
-          log.unquoted [i + 1]: v

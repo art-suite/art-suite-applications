@@ -1,8 +1,4 @@
-import
-  &StandardImport
-  require('art-ery').Flux
-  Flux = require "@art-suite/art-flux"
-  {} &SimplePipeline
+import &StandardImport
 
 suite:
   pre2020Style: ->
@@ -22,8 +18,6 @@ suite:
             array record in response.data
               merge record, message: "#{record.message} :)"
 
-      ArtEryFluxModel.defineModelsForAllPipelines()
-
     test "query model defined", ->
       assert.instanceOf models.postsByUserId, ArtEryQueryFluxModel
 
@@ -34,64 +28,75 @@ suite:
           userId: "abc123", message: "Hi! :)"
           userId: "abc123", message: "Really? :)"
 
-  2020Style: ->
-    setup ->
-      Flux._reset()
+  2020Style:
+    basic: ->
+      messagesByUserId = null
+      setup ->
+        Flux._reset()
 
-      class Message extends Pipeline
-        @query byUserId: (request) ->
-          []
-            userId: request.key, message: "Hi!"
-            userId: request.key, message: "Really?"
+        class Message extends Pipeline
+          @query
+            byUserId:
+              query: (request) ->
+                []
+                  userId: request.key, message: "Hi!"
+                  userId: request.key, message: "Really?"
+              keyFields: [] :userId
 
-        @publicRequestTypes :byUserId
+          @publicRequestTypes :byUserId
 
-        @filter after: all: (response) ->
-          response.withData
-            array record in response.data
-              merge record, message: "#{record.message} :)"
+          @filter after: all: (response) ->
+            response.withData
+              array record in response.data
+                merge record, message: "#{record.message} :)"
 
-      ArtEryFluxModel.defineModelsForAllPipelines()
+        {messagesByUserId} = models
 
-    test "query model defined", ->
-      assert.instanceOf models.messagesByUserId, ArtEryQueryFluxModel
+      test "query model defined", ->
+        assert.instanceOf messagesByUserId, ArtEryQueryFluxModel
 
-    test "query loadData goes through pipeline", ->
-      models.messagesByUserId.loadData "abc123"
-      .then (res) ->
-        assert.eq res, []
-          userId: "abc123", message: "Hi! :)"
-          userId: "abc123", message: "Really? :)"
+      test "query loadData goes through pipeline", ->
+        messagesByUserId.loadData "abc123"
+        .then (res) ->
+          assert.eq res, []
+            userId: "abc123", message: "Hi! :)"
+            userId: "abc123", message: "Really? :)"
 
-  2020StyleCodeReuse: ->
-    setup ->
-      Flux._reset()
+      test "queryModel.propsToKey" ->
+        assert.eq :user1    messagesByUserId.propsToKey user: id: :user1
+        # assert.eq :user2    user.propsToKey userId: :user2
+        # assert.eq :user3    user.propsToKey(user: {id: :user3}, userId: :user4), "" whole object has precidence
+        # assert.eq undefined user.propsToKey {}
 
-      class UserOwned extends Pipeline
-        @query byUserId: (request) ->
-          []
-            userId: request.key, message: "Hi!"
-            userId: request.key, message: "Really?"
+    codeReuse: ->
+      setup ->
+        Flux._reset()
 
-        @publicRequestTypes :byUserId
+        class UserOwned extends Pipeline
+          @query byUserId: (request) ->
+            []
+              userId: request.key, message: "Hi!"
+              userId: request.key, message: "Really?"
 
-        @filter after: all: (response) ->
-          response.withData
-            array record in response.data
-              merge record, message: "#{response.pipeline.name}: #{record.message} :)"
+          @publicRequestTypes :byUserId
 
-      class Email extends UserOwned
-      class Photo extends UserOwned
+          @filter after: all: (response) ->
+            response.withData
+              array record in response.data
+                merge record, message: "#{response.pipeline.name}: #{record.message} :)"
 
-      ArtEryFluxModel.defineModelsForAllPipelines()
+        class Email extends UserOwned
+        class Photo extends UserOwned
 
-    test "query model defined", ->
-      assert.instanceOf models.emailsByUserId, ArtEryQueryFluxModel
-      assert.instanceOf models.photosByUserId, ArtEryQueryFluxModel
+        ArtEryFluxModel.defineModelsForAllPipelines()
 
-    test "query loadData goes through pipeline", ->
-      models.emailsByUserId.loadData "abc123"
-      .then (res) ->
-        assert.eq res, []
-          userId: "abc123", message: "email: Hi! :)"
-          userId: "abc123", message: "email: Really? :)"
+      test "query model defined", ->
+        assert.instanceOf models.emailsByUserId, ArtEryQueryFluxModel
+        assert.instanceOf models.photosByUserId, ArtEryQueryFluxModel
+
+      test "query loadData goes through pipeline", ->
+        models.emailsByUserId.loadData "abc123"
+        .then (res) ->
+          assert.eq res, []
+            userId: "abc123", message: "email: Hi! :)"
+            userId: "abc123", message: "email: Really? :)"

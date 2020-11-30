@@ -66,7 +66,7 @@ suite:
       assert.rejects p.create()
       .then (error) ->
         {response} = error.props
-        assert.present log response.errorProps.failedIn
+        assert.present response.errorProps.failedIn
         assert.eq filterLog, ["myFilter3", "myFilter2"]
         assert.match error.message, "internal oops"
         assert.eq response.errorProps.source.this.name, "myFilter2"

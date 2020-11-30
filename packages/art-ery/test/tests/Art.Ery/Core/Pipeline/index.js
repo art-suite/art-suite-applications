@@ -4,10 +4,10 @@
 (module.exports = require('./namespace'))
 
 .addModules({
-  Aliases:        require('./Aliases'),
-  CustomRequests: require('./CustomRequests'),
-  Failures:       require('./Failures'),
-  Handlers:       require('./Handlers'),
-  KeyFieldsMixin: require('./KeyFieldsMixin'),
-  Subrequests:    require('./Subrequests')
+  PipelineAliases:        require('./PipelineAliases'),
+  PipelineBasics:         require('./PipelineBasics'),
+  PipelineCustomRequests: require('./PipelineCustomRequests'),
+  PipelineFailures:       require('./PipelineFailures'),
+  PipelineHandlers:       require('./PipelineHandlers'),
+  PipelineSubrequests:    require('./PipelineSubrequests')
 });

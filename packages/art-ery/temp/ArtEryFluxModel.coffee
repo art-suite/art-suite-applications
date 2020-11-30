@@ -151,27 +151,31 @@ defineModule module, class ArtEryFluxModel extends ArtEry.KeyFieldsMixin FluxMod
           NOTE: I actually haven't tested that the inheritance part works yet...
   ###
   _createQueryModel: ({options, queryName}) ->
-    {localMerge, localSort, dataToKeyString, keyFields} = options
 
-    recordsModel = @
-    pipeline = @_pipeline
+    {localMerge, localSort} = options
+
+    prototypeProperties = merge {
+      localMerge
+      localSort
+      @_pipeline
+      _recordsModel: @
+      query: (key) -> @_pipeline[queryName] key: key, props: include: "auto"
+    }
+
+    modelName = upperCamelCase(
+      if /^by/.test queryName
+        "#{pluralize @_pipeline.name} #{queryName}"
+      else
+        queryName
+    )
 
     new class ArtEryQueryFluxModelChild extends @class.applyMixins @_pipeline, ArtEryQueryFluxModel
-      @_name: upperCamelCase(
-        if /^by/.test queryName
-          "#{pluralize pipeline.name} #{queryName}"
-        else
-          queryName
-      )
+      @_name: modelName
 
-      _pipeline:      pipeline
-      _recordsModel:  recordsModel
-      _queryName:     queryName
+      if options.keyFields
+        @keyFields options.keyFields
 
-      @keyFields keyFields if keyFields
-
-      # Overrides
-      @::[k] = v for k, v of merge {localMerge, localSort, dataToKeyString}
+      @::[k] = v for k, v of prototypeProperties
 
   ########################
   # FluxModel Overrides
