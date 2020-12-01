@@ -11,7 +11,6 @@
   Filter:                 require('./Filter'),
   KeyFieldsMixin:         require('./KeyFieldsMixin'),
   Pipeline:               require('./Pipeline'),
-  PipelineQuery:          require('./PipelineQuery'),
   PipelineRegistry:       require('./PipelineRegistry'),
   PrefetchedRecordsCache: require('./PrefetchedRecordsCache'),
   Request:                require('./Request'),
