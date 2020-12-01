@@ -13,8 +13,8 @@
   },
   "description": "A pipelined business-logic framework for cloud-backed data. ArtEry conceptially allows you to write apps 100% as client-code, but with the security and performance of cloud-code.",
   "devDependencies": {
-    "@art-suite/art-flux": "^2.0.0",
-    "art-ery": "^1.117.2",
+    "@art-suite/art-flux": "^2.1.1",
+    "art-ery": "^1.118.2",
     "art-testbench": "^3.2.0",
     "mocha": "^7.2.0"
   },

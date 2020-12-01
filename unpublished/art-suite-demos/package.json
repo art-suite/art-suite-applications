@@ -4,7 +4,7 @@
   "dependencies": {
     "art-build-configurator": "^1.29.2",
     "art-color-extractor": "^1.6.0",
-    "art-suite": "^1.9.7",
+    "art-suite": "^2.0.0",
     "quantize": "^1.0.2",
     "tracking": "^1.1.3"
   },

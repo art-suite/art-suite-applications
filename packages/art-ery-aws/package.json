@@ -4,7 +4,7 @@
   "dependencies": {
     "art-aws": "^1.29.4",
     "art-build-configurator": "^1.29.2",
-    "art-ery": "^1.117.2",
+    "art-ery": "^1.118.2",
     "uuid": "^8.3.1"
   },
   "description": "ArtEry for AWS Lambda + DynamoDB",
