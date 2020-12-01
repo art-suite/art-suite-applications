@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1595304575038" clover="3.2.0">
-  <project timestamp="1595304575038" name="All files">
-    <metrics statements="1104" coveredstatements="730" conditionals="436" coveredconditionals="247" methods="378" coveredmethods="193" elements="1918" coveredelements="1170" complexity="0" loc="1104" ncloc="1104" packages="3" files="9" classes="9"/>
+<coverage generated="1606839583415" clover="3.2.0">
+  <project timestamp="1606839583415" name="All files">
+    <metrics statements="1105" coveredstatements="731" conditionals="436" coveredconditionals="247" methods="378" coveredmethods="193" elements="1919" coveredelements="1171" complexity="0" loc="1105" ncloc="1105" packages="3" files="10" classes="10"/>
     <package name="source-source.Art.Atomic">
       <metrics statements="1100" coveredstatements="726" conditionals="436" coveredconditionals="247" methods="377" coveredmethods="192"/>
-      <file name="Atomic.coffee" path="/Users/shanebdavis/dev/imikimi/npm/art-atomic/source-source/Art.Atomic/Atomic.coffee">
+      <file name="Atomic.coffee" path="/Users/shanebdavis/dev/art-suite-applications/packages/art-atomic/source-source/Art.Atomic/Atomic.coffee">
         <metrics statements="6" coveredstatements="6" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
         <line num="1" count="6" type="stmt"/>
         <line num="2" count="6" type="stmt"/>
@@ -13,7 +13,7 @@
         <line num="5" count="6" type="stmt"/>
         <line num="7" count="6" type="stmt"/>
       </file>
-      <file name="Base.coffee" path="/Users/shanebdavis/dev/imikimi/npm/art-atomic/source-source/Art.Atomic/Base.coffee">
+      <file name="Base.coffee" path="/Users/shanebdavis/dev/art-suite-applications/packages/art-atomic/source-source/Art.Atomic/Base.coffee">
         <metrics statements="98" coveredstatements="79" conditionals="14" coveredconditionals="11" methods="41" coveredmethods="28"/>
         <line num="1" count="834" type="cond" truecount="2" falsecount="0"/>
         <line num="15" count="6" type="stmt"/>
@@ -114,7 +114,7 @@
         <line num="373" count="30" type="stmt"/>
         <line num="374" count="120" type="stmt"/>
       </file>
-      <file name="Color.coffee" path="/Users/shanebdavis/dev/imikimi/npm/art-atomic/source-source/Art.Atomic/Color.coffee">
+      <file name="Color.coffee" path="/Users/shanebdavis/dev/art-suite-applications/packages/art-atomic/source-source/Art.Atomic/Color.coffee">
         <metrics statements="275" coveredstatements="160" conditionals="153" coveredconditionals="58" methods="84" coveredmethods="37"/>
         <line num="1" count="930" type="cond" truecount="2" falsecount="0"/>
         <line num="2" count="6" type="stmt"/>
@@ -392,7 +392,7 @@
         <line num="625" count="888" type="stmt"/>
         <line num="627" count="6" type="stmt"/>
       </file>
-      <file name="Matrix.coffee" path="/Users/shanebdavis/dev/imikimi/npm/art-atomic/source-source/Art.Atomic/Matrix.coffee">
+      <file name="Matrix.coffee" path="/Users/shanebdavis/dev/art-suite-applications/packages/art-atomic/source-source/Art.Atomic/Matrix.coffee">
         <metrics statements="258" coveredstatements="181" conditionals="100" coveredconditionals="63" methods="72" coveredmethods="43"/>
         <line num="1" count="930" type="cond" truecount="2" falsecount="0"/>
         <line num="56" count="6" type="stmt"/>
@@ -653,7 +653,7 @@
         <line num="595" count="0" type="stmt"/>
         <line num="596" count="0" type="stmt"/>
       </file>
-      <file name="Perimeter.coffee" path="/Users/shanebdavis/dev/imikimi/npm/art-atomic/source-source/Art.Atomic/Perimeter.coffee">
+      <file name="Perimeter.coffee" path="/Users/shanebdavis/dev/art-suite-applications/packages/art-atomic/source-source/Art.Atomic/Perimeter.coffee">
         <metrics statements="61" coveredstatements="35" conditionals="73" coveredconditionals="51" methods="17" coveredmethods="10"/>
         <line num="6" count="930" type="cond" truecount="2" falsecount="0"/>
         <line num="7" count="6" type="stmt"/>
@@ -717,7 +717,7 @@
         <line num="125" count="3" type="stmt"/>
         <line num="126" count="3" type="stmt"/>
       </file>
-      <file name="Point.coffee" path="/Users/shanebdavis/dev/imikimi/npm/art-atomic/source-source/Art.Atomic/Point.coffee">
+      <file name="Point.coffee" path="/Users/shanebdavis/dev/art-suite-applications/packages/art-atomic/source-source/Art.Atomic/Point.coffee">
         <metrics statements="202" coveredstatements="124" conditionals="40" coveredconditionals="24" methods="96" coveredmethods="39"/>
         <line num="6" count="930" type="cond" truecount="2" falsecount="0"/>
         <line num="7" count="6" type="stmt"/>
@@ -922,7 +922,7 @@
         <line num="397" count="132" type="stmt"/>
         <line num="399" count="6" type="stmt"/>
       </file>
-      <file name="Rectangle.coffee" path="/Users/shanebdavis/dev/imikimi/npm/art-atomic/source-source/Art.Atomic/Rectangle.coffee">
+      <file name="Rectangle.coffee" path="/Users/shanebdavis/dev/art-suite-applications/packages/art-atomic/source-source/Art.Atomic/Rectangle.coffee">
         <metrics statements="200" coveredstatements="141" conditionals="56" coveredconditionals="40" methods="67" coveredmethods="35"/>
         <line num="1" count="930" type="cond" truecount="2" falsecount="0"/>
         <line num="2" count="6" type="stmt"/>
@@ -1127,15 +1127,19 @@
       </file>
     </package>
     <package name="source.Art.Atomic">
-      <metrics statements="1" coveredstatements="1" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
-      <file name="namespace.js" path="/Users/shanebdavis/dev/imikimi/npm/art-atomic/source/Art.Atomic/namespace.js">
+      <metrics statements="2" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+      <file name="index.js" path="/Users/shanebdavis/dev/art-suite-applications/packages/art-atomic/source/Art.Atomic/index.js">
+        <metrics statements="1" coveredstatements="1" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="4" count="6" type="stmt"/>
+      </file>
+      <file name="namespace.js" path="/Users/shanebdavis/dev/art-suite-applications/packages/art-atomic/source/Art.Atomic/namespace.js">
         <metrics statements="1" coveredstatements="1" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
         <line num="4" count="6" type="stmt"/>
       </file>
     </package>
-    <package name="source.Jest">
+    <package name="source.jest">
       <metrics statements="3" coveredstatements="3" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
-      <file name="StandardImport.js" path="/Users/shanebdavis/dev/imikimi/npm/art-atomic/source/Jest/StandardImport.js">
+      <file name="StandardImport.js" path="/Users/shanebdavis/dev/art-suite-applications/packages/art-atomic/source/jest/StandardImport.js">
         <metrics statements="3" coveredstatements="3" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
         <line num="2" count="6" type="stmt"/>
         <line num="3" count="6" type="stmt"/>

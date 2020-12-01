@@ -2352,6 +2352,16 @@ BRF:56
 BRH:40
 end_of_record
 TN:
+SF:source/Art.Atomic/index.js
+FNF:0
+FNH:0
+DA:4,6
+LF:1
+LH:1
+BRF:0
+BRH:0
+end_of_record
+TN:
 SF:source/Art.Atomic/namespace.js
 FNF:0
 FNH:0
@@ -2362,7 +2372,7 @@ BRF:0
 BRH:0
 end_of_record
 TN:
-SF:source/Jest/StandardImport.js
+SF:source/jest/StandardImport.js
 FN:3,(anonymous_0)
 FNF:1
 FNH:1

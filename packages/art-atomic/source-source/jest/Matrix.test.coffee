@@ -1,5 +1,6 @@
 {
   describe, log, floatEq, point, rect, matrix, Matrix, identityMatrix, Point
+  assert
 } = require './StandardImport'
 
 module.exports = describe

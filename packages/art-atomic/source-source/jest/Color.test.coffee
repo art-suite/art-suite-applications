@@ -1,4 +1,7 @@
-{rgbColor, hslColor, Color, log, formattedInspect, describe, test} = require './StandardImport'
+{
+  rgbColor, hslColor, Color, log, formattedInspect, describe, test
+  assert
+} = require './StandardImport'
 
 module.exports = describe
     rgbColor: ->

@@ -6,7 +6,7 @@ Caf.defMod(module, () => {
     [global, require("./StandardImport")],
     (describe, test, perimeter, assert, rect, point) => {
       return describe({
-        new: function() {
+        new: function () {
           test("0", () => {
             let p;
             p = perimeter(0);
@@ -54,7 +54,7 @@ Caf.defMod(module, () => {
               left: 1,
               right: 1,
               top: 2,
-              bottom: 2
+              bottom: 2,
             });
           });
           test("horizontal:1, vertical:2", () => {
@@ -64,7 +64,7 @@ Caf.defMod(module, () => {
               left: 1,
               right: 1,
               top: 2,
-              bottom: 2
+              bottom: 2,
             });
           });
           test("left: 1, right: 2, top: 3, bottom: 4", () => {
@@ -74,7 +74,7 @@ Caf.defMod(module, () => {
               left: 1,
               right: 2,
               top: 3,
-              bottom: 4
+              bottom: 4,
             });
           });
           test("l: 1, r: 2, t: 3, b: 4", () => {
@@ -84,7 +84,7 @@ Caf.defMod(module, () => {
               left: 1,
               right: 2,
               top: 3,
-              bottom: 4
+              bottom: 4,
             });
           });
           test("l: 1, r: 2, v: 3", () => {
@@ -94,7 +94,7 @@ Caf.defMod(module, () => {
               left: 1,
               right: 2,
               top: 3,
-              bottom: 3
+              bottom: 3,
             });
           });
           test("l: 1, t: 2", () => {
@@ -104,7 +104,7 @@ Caf.defMod(module, () => {
               left: 1,
               right: 0,
               top: 2,
-              bottom: 0
+              bottom: 0,
             });
           });
           return test("l: 1, r: 2, t: 3, b: 4, h: 10, v: 100", () => {
@@ -114,11 +114,11 @@ Caf.defMod(module, () => {
               left: 11,
               right: 12,
               top: 103,
-              bottom: 104
+              bottom: 104,
             });
           });
         },
-        computedProperties: function() {
+        computedProperties: function () {
           test("width", () => {
             let p;
             p = perimeter({ l: 1, r: 2, t: 3, b: 4 });
@@ -130,7 +130,7 @@ Caf.defMod(module, () => {
             return assert.eq(p.height, 7);
           });
         },
-        pad: function() {
+        pad: function () {
           test("top bottom", () => {
             let p;
             p = perimeter({ top: 5, bottom: 10 });
@@ -147,7 +147,7 @@ Caf.defMod(module, () => {
             return assert.eq(p.pad(rect(100)), rect(5, 0, 85, 100));
           });
         },
-        interpolate: function() {
+        interpolate: function () {
           return test("height", () => {
             let a, b, c;
             a = perimeter({ l: 1.0, r: 2.0, t: 3.0, b: 4.0 });
@@ -157,12 +157,12 @@ Caf.defMod(module, () => {
             return assert.eq(c, a.interpolate(b, 0.5));
           });
         },
-        eq: function() {
+        eq: function () {
           test("eq 0 0 0 0", () =>
             assert.true(perimeter(0, 0, 0, 0).eq(0, 0, 0, 0)));
           return test("eq 1 2 3 4", () =>
             assert.true(perimeter(1, 2, 3, 4).eq(1, 2, 3, 4)));
-        }
+        },
       });
     }
   );

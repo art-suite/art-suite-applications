@@ -11,12 +11,12 @@ Caf.defMod(module, () => {
       "Math",
       "point1",
       "floatEq",
-      "rect"
+      "rect",
     ],
     [global, require("./StandardImport")],
     (describe, test, Point, assert, point, Math, point1, floatEq, rect) => {
       return describe({
-        basics: function() {
+        basics: function () {
           test("allocate point", () => {
             let p;
             p = new Point(3, 7);
@@ -275,7 +275,7 @@ Caf.defMod(module, () => {
             return assert.eq(p1.interpolate(p2, 0.5), point(2, 4));
           });
         },
-        fitInto: function() {
+        fitInto: function () {
           let fitIntoTest;
           fitIntoTest = (p, intoPoint) =>
             test(`${Caf.toString(p.inspect())}.fitInto ${Caf.toString(
@@ -297,7 +297,7 @@ Caf.defMod(module, () => {
           fitIntoTest(point(100, 100), point(2, 1));
           return fitIntoTest(point(1, 1), point(200, 100));
         },
-        withSameAreaAs: function() {
+        withSameAreaAs: function () {
           let withSameAreaAsTest;
           withSameAreaAsTest = (p, p2) =>
             test(`${Caf.toString(p.inspect())}.withSameAreaAs ${Caf.toString(
@@ -320,7 +320,7 @@ Caf.defMod(module, () => {
           withSameAreaAsTest(point(100, 100), point(2, 1));
           return withSameAreaAsTest(point(1, 1), point(200, 100));
         },
-        fill: function() {
+        fill: function () {
           let fillTest;
           fillTest = (p, p2) =>
             test(`${Caf.toString(p.inspect())}.fill ${Caf.toString(
@@ -340,7 +340,7 @@ Caf.defMod(module, () => {
           fillTest(point(100, 100), point(2, 1));
           return fillTest(point(1, 1), point(200, 100));
         },
-        withArea: function() {
+        withArea: function () {
           let testWithArea;
           testWithArea = (area, ...pointArgs) => {
             let p;
@@ -361,7 +361,7 @@ Caf.defMod(module, () => {
           testWithArea(100, point(2, 1));
           return testWithArea(0, point(2, 1));
         },
-        "aspectRatio-area": function() {
+        "aspectRatio-area": function () {
           let aaTest;
           aaTest = (aspectRatio, area) => {
             let ratioString, testName;
@@ -403,7 +403,7 @@ Caf.defMod(module, () => {
             return assert.eq(p.y, 0, "y");
           });
         },
-        intersection: function() {
+        intersection: function () {
           test("intersection with rect", () => {
             let p, r, out;
             p = point(100);
@@ -422,13 +422,13 @@ Caf.defMod(module, () => {
             return assert.equal(out, r);
           });
         },
-        ratios: function() {
+        ratios: function () {
           test("minRatio", () =>
             assert.eq(point(2, 6).minRatio(point(1, 2)), 2));
           return test("maxRatio", () =>
             assert.eq(point(2, 6).maxRatio(point(1, 2)), 3));
         },
-        regressions: function() {
+        regressions: function () {
           test("point1.neq point -1", () => {
             let p;
             p = new Point(-1, -1);
@@ -440,7 +440,7 @@ Caf.defMod(module, () => {
             assert.selectedEq({ x: -1, y: -1 }, point(-1)));
           return test("point 0, -1", () =>
             assert.selectedEq({ x: 0, y: -1 }, point(0, -1)));
-        }
+        },
       });
     }
   );

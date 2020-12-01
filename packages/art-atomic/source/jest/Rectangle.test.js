@@ -6,7 +6,7 @@ Caf.defMod(module, () => {
     [global, require("./StandardImport")],
     (describe, test, rect, assert, point, Rectangle, Infinity) => {
       return describe({
-        basic: function() {
+        basic: function () {
           test("allocate rect from numbers", () => {
             let r;
             r = rect(5, 5, 10, 10);
@@ -84,7 +84,7 @@ Caf.defMod(module, () => {
               point(3, 5),
               point(10, 5),
               point(10, 16),
-              point(3, 16)
+              point(3, 16),
             ]);
           });
           test("top, left, right, bottom", () => {
@@ -326,7 +326,7 @@ Caf.defMod(module, () => {
             ));
         },
         cutout: {
-          oneOutput: function() {
+          oneOutput: function () {
             let a;
             a = rect(1, 2, 4, 6);
             test("no overlap", () =>
@@ -345,7 +345,7 @@ Caf.defMod(module, () => {
             return test("top half", () =>
               assert.eq([rect(1, 2, 4, 3)], a.cutout(rect(0, 5, 10, 10))));
           },
-          twoOutput: function() {
+          twoOutput: function () {
             let a;
             a = rect(1, 2, 4, 6);
             test("minus bottomRight", () =>
@@ -379,7 +379,7 @@ Caf.defMod(module, () => {
                 a.cutout(rect(a.left + a.w / 2, a.top, 1, 10))
               ));
           },
-          threeOutput: function() {
+          threeOutput: function () {
             let a;
             a = rect(1, 2, 4, 6);
             test("minus centerDown", () =>
@@ -403,7 +403,7 @@ Caf.defMod(module, () => {
                 a.cutout(rect(a.left, a.vCenter, 1, 1))
               ));
           },
-          fourOutput: function() {
+          fourOutput: function () {
             let a;
             a = rect(1, 2, 4, 6);
             return test("minus center", () =>
@@ -412,13 +412,13 @@ Caf.defMod(module, () => {
                   rect(1, 2, 2, 6),
                   rect(4, 2, 1, 6),
                   rect(3, 2, 1, 3),
-                  rect(3, 6, 1, 2)
+                  rect(3, 6, 1, 2),
                 ],
                 a.cutout(rect(a.hCenter, a.vCenter, 1, 1))
               ));
-          }
+          },
         },
-        regressions: function() {
+        regressions: function () {
           return test("union contains edge case", () => {
             let a, b;
             a = rect({ h: 76, w: 87 + 1 / 3, x: 25, y: 714 + 2 / 6 });
@@ -426,7 +426,7 @@ Caf.defMod(module, () => {
               h: 76 + 2 / 6,
               w: 87 + 2 / 6,
               x: 24.666666666666664,
-              y: 714 + 1 / 3
+              y: 714 + 1 / 3,
             });
             assert.eq(true, a.overlaps(b));
             assert.eq(true, b.overlaps(a));
@@ -438,7 +438,7 @@ Caf.defMod(module, () => {
             );
           });
         },
-        intersection: function() {
+        intersection: function () {
           test("two rectangles", () => {
             let r1, r2, out1, out2;
             r1 = rect(10, -5, 40, 50);
@@ -505,7 +505,7 @@ Caf.defMod(module, () => {
               rect(0, 0, 5, 5)
             );
           });
-        }
+        },
       });
     }
   );

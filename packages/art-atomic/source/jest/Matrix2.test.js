@@ -9,12 +9,12 @@ Caf.defMod(module, () => {
       "test",
       "formattedInspect",
       "Matrix",
-      "assert"
+      "assert",
     ],
     [global, require("./StandardImport")],
     (describe, point, Math, test, formattedInspect, Matrix, assert) => {
       return describe({
-        multitouch: function() {
+        multitouch: function () {
           let testMultitouch;
           testMultitouch = (testName, from1, to1, from2, to2, options = {}) =>
             test(`${Caf.toString(testName)} ${Caf.toString(
@@ -31,7 +31,7 @@ Caf.defMod(module, () => {
                 {
                   angle,
                   exactScale: scale != null && point(scale),
-                  location: translate != null && point(translate)
+                  location: translate != null && point(translate),
                 },
                 m
               );
@@ -60,7 +60,7 @@ Caf.defMod(module, () => {
             point(0, 1),
             { angle: Math.PI / 2, scale: 1, translate: 0 }
           );
-        }
+        },
       });
     }
   );
