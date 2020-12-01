@@ -507,7 +507,7 @@ defineModule module, class Pipeline extends require './RequestHandler'
 
         #{formattedInspect {queryName, options}}"
       """
-    log {queryName, options}
+    {queryName, options}
 
   _normalizeRequest: (request) ->
     if isPlainObject request
