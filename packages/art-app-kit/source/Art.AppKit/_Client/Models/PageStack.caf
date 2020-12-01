@@ -11,6 +11,9 @@ class PageStack extends ApplicationState
     stacks:             null
     maxPageStackSize:   20
 
+  @getter
+    propsToKey: -> ({pageStackId}) -> pageStackId
+
   init: ({pageStacks, pages}) ->
     @_pages = pages
     @stacks = array stackEntry in pageStacks
@@ -44,7 +47,7 @@ class PageStack extends ApplicationState
   @setter
     stacks: (stacks) ->
       @setState {} stacks
-      @currentPageStackId ?= stacks[0].id
+      @currentPageStackId ?= stacks[0]?.id
       each rootStackEntry in stacks
         @setState rootStackEntry.id, [] @_normalizeStackEntry rootStackEntry
 
@@ -95,7 +98,6 @@ class PageStack extends ApplicationState
         state
         currentPageStackId
         currentStack
-
 
   #################
     PRIVATE
