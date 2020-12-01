@@ -406,6 +406,7 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
           queries[queryModelName] =
             query:            (request) -> doDynamoQuery request
             dataToKeyString:  (data)    -> data[hashKey]
+            keyFields:        [hashKey]
 
             localSort: (queryData) -> withSort queryData, (a, b) ->
               if 0 == ret = compare a[sortKey], b[sortKey]
@@ -416,6 +417,7 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
           queries[queryModelName+"Desc"] =
             query:            (request) -> doDynamoQuery request, true
             dataToKeyString:  (data)    -> data[hashKey]
+            keyFields:        [hashKey]
 
             localSort: (queryData) -> withSort queryData, (b, a) ->
               if 0 == ret = compare a[sortKey], b[sortKey]
