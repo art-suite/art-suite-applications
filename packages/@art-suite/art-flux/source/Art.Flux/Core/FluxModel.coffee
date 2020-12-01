@@ -275,9 +275,8 @@ defineModule module, class FluxModel extends InstanceFunctionBindingMixin BaseOb
 
   @getRecordPropsToKeyFunction: (recordType) ->
     (props, stateField) =>
-      log {props, stateField}
       propsField = stateField ? recordType
-      log props[propsField]?.id ? props[propsField + "Id"]
+      props[propsField]?.id ? props[propsField + "Id"]
 
   @getter
     propsToKey: -> @_propsToKey ?= FluxModel.getRecordPropsToKeyFunction @modelName
