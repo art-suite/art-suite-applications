@@ -10,6 +10,7 @@ sharedAfterEventTests = (setupUserWith) ->
     class User extends DynamoDbPipeline
       @publicRequestTypes :get :create :update :delete
       @addDatabaseFilters
+        linkFilterVersion: 2
         fields:
           name:               "" required trimmedstring
           postCount:          :number
@@ -21,6 +22,7 @@ sharedAfterEventTests = (setupUserWith) ->
     class Post extends DynamoDbPipeline
       @publicRequestTypes :get :create :update :delete
       @addDatabaseFilters
+        linkFilterVersion: 2
         userOwned:
           publicFields: true
           userCreatableFields:
@@ -119,10 +121,12 @@ suite:
         User = null
         class User extends DynamoDbPipeline
           @addDatabaseFilters
-            name:               "" required trimmedstring
-            postCount:          :number
-            lastPostCreatedAt:  :timestamp
-            text:               :trimmedstring
+            linkFilterVersion: 2
+            fields:
+              name:               "" required trimmedstring
+              postCount:          :number
+              lastPostCreatedAt:  :timestamp
+              text:               :trimmedstring
 
       test "basic", ->
         assert.eq

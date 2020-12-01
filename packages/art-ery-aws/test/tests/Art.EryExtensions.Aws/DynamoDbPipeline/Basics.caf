@@ -10,6 +10,7 @@ setupWithMyTable = ->
       {myTable} = class MyTable extends DynamoDbPipeline
         @publicRequestTypes :get :create :update :delete :getAll :batchGet
         @addDatabaseFilters
+          linkFilterVersion: 2
           fields:
             name:       "required string"
             email:      "required email"
@@ -33,6 +34,7 @@ setupWithMyTable = ->
       {myCompoundKeyTable} = class MyCompoundKeyTable extends DynamoDbPipeline
         @keyFields "userId/postId"
         @addDatabaseFilters
+          linkFilterVersion: 2
           fields:
             user:   "link"
             post:   "link"
@@ -254,6 +256,7 @@ suite:
         @primaryKey :userId/postId
         @publicRequestTypes :create :get :update :getAll :byUserId
         @addDatabaseFilters
+          linkFilterVersion: 2
           fields:
             user: "required link"
             post: "required link"
@@ -263,7 +266,17 @@ suite:
 
     .softTapTest
       "primaryKey defines the correct queries" ->
-        log {} myManyToManyTable.queries
+        assert.eq
+          Object.keys myManyToManyTable.queries
+          .sort()
+          :byUserId :byUserIdDesc
+
+      "primaryKey queries have correct keyFields" ->
+        each query, queryName in myManyToManyTable.queries
+          assert.eq
+            query.options.keyFields
+            [] :userId
+            conext: {} queryName, query
 
     .thenTest
       "create", ->

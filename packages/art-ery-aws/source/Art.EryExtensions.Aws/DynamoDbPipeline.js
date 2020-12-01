@@ -611,6 +611,7 @@
               dataToKeyString: function(data) {
                 return data[hashKey];
               },
+              keyFields: [hashKey],
               localSort: function(queryData) {
                 return withSort(queryData, function(a, b) {
                   var ret;
@@ -629,6 +630,7 @@
               dataToKeyString: function(data) {
                 return data[hashKey];
               },
+              keyFields: [hashKey],
               localSort: function(queryData) {
                 return withSort(queryData, function(b, a) {
                   var ret;
