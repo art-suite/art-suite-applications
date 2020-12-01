@@ -131,6 +131,10 @@ defineModule module, class ApplicationState extends StateFieldsMixin FluxModel
 
       key
 
+  @getter
+    propsToKey: ->
+      @_propsToKey ?= (props) -> @modelName
+
   # remove one key-value pair
   removeState: (key) ->
     @_removeFromFluxStore key
