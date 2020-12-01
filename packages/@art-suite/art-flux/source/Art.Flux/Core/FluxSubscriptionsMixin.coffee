@@ -92,7 +92,7 @@ defineModule module, ->
 
       # unless key and modelName are present, clear stateFields and return after unsubscribing
       unless rubyTrue(key) && modelName
-        return @setStateFromFluxRecord stateField, initialFluxRecord || status: success
+        return @setStateFromFluxRecord stateField, initialFluxRecord || status: success, null, key
 
       unless model = @models[modelName]
         throw new Error "No model registered with the name: #{modelName}. Registered models:\n  #{Object.keys(@models).join "\n  "}"
@@ -101,7 +101,7 @@ defineModule module, ->
 
       subscriptionFunction = (fluxRecord) =>
         updatesCallback? fluxRecord
-        @setStateFromFluxRecord stateField, fluxRecord
+        @setStateFromFluxRecord stateField, fluxRecord, null, key
 
       @_subscriptions[subscriptionKey] = {modelName, fluxKey, subscriptionFunction}
 
@@ -109,6 +109,7 @@ defineModule module, ->
       @setStateFromFluxRecord stateField,
         fluxStore.subscribe modelName, fluxKey, subscriptionFunction, initialFluxRecord
         initialFluxRecord
+        key
 
     ###
     IN: same as @subscribe
@@ -148,14 +149,15 @@ defineModule module, ->
         fluxStore._getEntry modelName, key
         .reload()
 
-    setStateFromFluxRecord: (stateField, fluxRecord, initialFluxRecord) ->
+    setStateFromFluxRecord: (stateField, fluxRecord, initialFluxRecord, key) ->
       if fluxRecord?.status != success && initialFluxRecord?.status == success
         fluxRecord = initialFluxRecord
       if stateField && isFunction @setState
         {status = null, progress = null, data = null} = fluxRecord if fluxRecord
         @setState stateField, data
-        @setState stateField + "Status",   status
-        @setState stateField + "Progress", progress
+        @setState stateField + "Key",       key ? fluxRecord.key
+        @setState stateField + "Status",    status
+        @setState stateField + "Progress",  progress
         @setState stateField + "FailureInfo",
           if fluxRecord && isFailure status
             {reloadAt, tryCount, modelName, key} = fluxRecord
