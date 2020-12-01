@@ -5,15 +5,7 @@ target:
       They just can't be used *directly* in the browser
   node: false
 
-npm:
-  description: "" Art.App.Kit
-  dependencies:
-    copy-to-clipboard: :*
-    art-markdown: :*
-    art-canvas-path: :*
-
-  scripts:
-    build-assets: "" cpf-tool asset-source/font-awesome/*.svg -o assets/icons.cpf --camelCase
+package: -> &package
 
 indexHtml: true
 

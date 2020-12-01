@@ -7,7 +7,7 @@ import &StandardImport
 
     @getter object v, k in model.stateFields with     -> model[k]
     @setter object v, k in model.stateFields with (v) -> model[k] = v
-    modelName
+    [modelName]: key: modelName
 
   @subscriptions: (args...) ->
     super array arg in args
