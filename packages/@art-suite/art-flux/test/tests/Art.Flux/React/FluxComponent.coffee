@@ -116,7 +116,7 @@ defineModule module, suite:
       renderLog = []
 
       MyComponent = createWithPostCreate class MyComponent extends FluxComponent
-        @subscriptions "myModel"
+        @subscriptions myModel: ({myModelId}) -> myModelId
 
         render: ->
           renderLog.push @state.myModel

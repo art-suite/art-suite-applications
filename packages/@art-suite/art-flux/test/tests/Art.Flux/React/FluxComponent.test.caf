@@ -47,7 +47,7 @@ suite:
   "subscriptions declaration types":
     "stateFields == modelName": ->
       setup myModelSetup
-      testSubscriptionDefinition "simplest"           :myModel
+      testSubscriptionDefinition "simplest"           :myModel                myField: :alice myField2: :bob
       testSubscriptionDefinition "dot-hard-coded key" :myModel.myField2       :bob
       testSubscriptionDefinition "hard-coded key"     {myModel: :myField2}    :bob
       testSubscriptionDefinition "custom propsToKey"  {myModel: -> :myField2} :bob
@@ -56,8 +56,11 @@ suite:
     "custom stateField name": ->
       setup myModelSetup
 
-      testSubscriptionDefinition "explicit model"         {myCustomName: model: :myModel} :bob
-      testSubscriptionDefinition "explicit model"         {myCustomName2: model: :myModel} :bob
+      # TODO - ApplicationState now overrides FluxModel's propsToKey
+      #   So these two tests won't work; however, I want to ALSO test FluxModel's propsToKey
+      #   FURTHER - I think we should test it with model aliases
+      # testSubscriptionDefinition "explicit model"         {myCustomName: model: :myModel} :bob
+      # testSubscriptionDefinition "explicit model"         {myCustomName2: model: :myModel} :bob
       testSubscriptionDefinition "explicit model and key" anyName: key: :myField model: :myModel
       testSubscriptionDefinition "custom modelToKey"      anyName: key: :myField model: ({myModelName}) -> myModelName
 
