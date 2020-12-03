@@ -40,7 +40,7 @@ module.exports = class TableApiBaseClass
       out
     else if array = data.L
       decodeDynamoData v for v in array
-    else if string = data.S
+    else if (string = data.S)?
       string
     else if (number = data.N)?
       parseFloat number

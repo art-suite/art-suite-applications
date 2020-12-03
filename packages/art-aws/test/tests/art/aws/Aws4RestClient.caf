@@ -1,4 +1,4 @@
-import &ArtStandardLib, &ArtAws
+import &StandardImport
 suite: ->
   test :basics ->
     assert.isClass Aws4RestClient

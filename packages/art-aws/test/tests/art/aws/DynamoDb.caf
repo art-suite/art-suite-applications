@@ -271,3 +271,31 @@ suite: "real requests to dynamoDb":
           chatRoom: "string"
         globalIndexes:
           chatsByChatRoom: "chatRoom/createdAt"
+
+  regressions: ->
+
+    chainedTest ->
+      setupForDynamoDbTests()
+      .then ->
+        dynamoDb.createTable
+          table: testTableName
+          attributes:
+            id:         :string
+            chatRoom:   :string
+            description: :string
+          globalIndexes:
+            chatRoomsByName: :chatRoom
+
+    .thenTest
+      "putItem '' (empty string)"
+      -> dynamoDb.putItem table: testTableName, item: id: :abc123 chatRoom: :chat-room-a description: ''
+
+      "getItem with empty string"
+      -> dynamoDb.getItem table: testTableName, key: :abc123
+
+      "query"
+      -> dynamoDb.query
+        table: testTableName
+        index: :chatRoomsByName
+        where: chatRoom: :chat-room-a
+

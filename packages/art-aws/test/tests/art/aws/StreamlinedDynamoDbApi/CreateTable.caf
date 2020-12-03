@@ -1,4 +1,4 @@
-import &ArtStandardLib, &ArtAws.StreamlinedDynamoDbApi
+import &StandardImport, &ArtAws.StreamlinedDynamoDbApi
 
 translateTest = (method, input, output) ->
   test "#{method} #{formattedInspect input}", ->

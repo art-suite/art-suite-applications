@@ -49,7 +49,7 @@
           results.push(decodeDynamoData(v));
         }
         return results;
-      } else if (string = data.S) {
+      } else if ((string = data.S) != null) {
         return string;
       } else if ((number = data.N) != null) {
         return parseFloat(number);
