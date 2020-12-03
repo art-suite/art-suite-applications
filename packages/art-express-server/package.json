@@ -6,7 +6,7 @@
     "compression": "^1.7.2",
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",
-    "throng": "^4.0.0"
+    "throng": "^5.0.0"
   },
   "description": "Extensible, Promise-based HTTP Server based on Express",
   "homepage": "https://github.com/art-suite/art-suite-applications",

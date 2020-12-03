@@ -133,7 +133,7 @@ defineModule module, class UserOwnedFilter extends &Filter
         response.withTransformedRecords
           when: (record) -> response.pipeline.isRecord(record) && record.userId != userId
           with: (record) ->
-            if (find  v, k in record when v? && allowedFields[k])?
+            if (find v, k in record when v? && allowedFields[k])?
               object v, k in record when allowedFields[k]
       else response
 
