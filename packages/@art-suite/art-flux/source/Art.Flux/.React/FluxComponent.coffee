@@ -76,11 +76,15 @@ defineModule module, class FluxComponent extends FluxSubscriptionsMixin Componen
 
     subscription.propsToModel = switch
       when isFunction model then model
-      when isString model
+      when isString modelName = model
         unless model = ModelRegistry.models[model]
-          throw new Error "#{@getName()}::subscriptions() model '#{modelName}' not registered (component = #{@getNamespacePath()})"
+          throw new Error "#{@getName()}::subscriptions() model '#{modelName}' not registered (#{@getNamespacePath()})"
         -> model
-      else throw new Error "no model specified in subscription: #{formattedInspect stateField:stateField, model:model, class:@name, subscription:subscription}" unless model
+      else
+        if !model
+          throw new Error "no model specified in subscription: #{
+            formattedInspect {stateField, model, class: @name, subscription}
+          }"
 
     subscription.propsToKey = if isFunction key
         key
