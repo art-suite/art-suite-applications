@@ -29,5 +29,5 @@
     "start": "webpack-dev-server --hot --inline --progress --env.devServer",
     "test": "webpack-dev-server  --progress --env.devServer"
   },
-  "version": "2.1.1"
+  "version": "2.1.2"
 }
