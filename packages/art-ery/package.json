@@ -26,8 +26,6 @@
     "url": "https://github.com/art-suite/art-suite-applications.git"
   },
   "scripts": {
-    "build": "webpack --progress",
-    "start": "webpack-dev-server --hot --inline --progress --env.devServer",
     "test": "nn -s;mocha -u tdd",
     "test-server": "caf ./TestServer.caf",
     "testInBrowser": "webpack-dev-server --progress --env.devServer"

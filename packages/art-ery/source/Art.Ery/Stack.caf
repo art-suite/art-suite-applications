@@ -37,7 +37,7 @@ else
       error.stack = cleanStackTrace error.stack, keepFirstLine, quiet
       error
 
-    else
+    else if stack is String
       outLines = array line, i in stack.split "\n" when (keepFirstLine || i > 0) && !removeFromCleanStackTraceRegExp.test line
         repathStackTrace line
 
@@ -49,3 +49,5 @@ else
         out
         + if /\n\s*$/.test out then '' else :\n
         + getCleanStackTraceWarning()
+
+    else stack
