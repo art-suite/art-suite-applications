@@ -12,6 +12,7 @@ AtomicBase = require './Base'
   float32Eq0
   object
   isNumber
+  round
 } = require 'art-standard-lib'
 
 colorFloatEq = float32Eq #(n1, n2) -> Math.abs(n1 - n2) < 1/256
@@ -430,6 +431,14 @@ module.exports = class Color extends AtomicBase
   withAlpha: (a) -> new Color @r, @g, @b, a
   withLightness: (v) -> hslColor @h, @s, v, @a
   withHue: (v) -> hslColor v, @s, @l, @a
+  withSimilarHue: (similarToHue, hueSegments = 3 * 2 * 2) ->
+    similarToHue = rgbColor(similarToHue).h unless similarToHue is Number
+
+    roundedTargetHue = round similarToHue, hueVarianceRange = 1 / hueSegments
+    hueOffset = @h % hueVarianceRange
+    hueOffset -= hueVarianceRange if hueVarianceRange / 2 < hueOffset
+    hslColor roundedTargetHue + hueOffset, @s, @l, @a
+
   withHueShift: (amount) -> hslColor @h + amount, @s, @l, @a
   withSat: withSat = (v) -> hslColor @h, v, @l, @a
   withSaturation: withSat

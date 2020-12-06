@@ -4,6 +4,7 @@
 (module.exports = require('./namespace'))
 
 .addModules({
+  ColorMoreTest:  require('./Color.more.test'),
   ColorTest:      require('./Color.test'),
   MatrixTest:     require('./Matrix.test'),
   Matrix2Test:    require('./Matrix2.test'),
