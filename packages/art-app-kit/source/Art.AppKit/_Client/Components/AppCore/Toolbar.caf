@@ -10,14 +10,15 @@ class Toolbar extends ViewStateComponent
       gridSize, buttonSize, toolbarHorizontal, wideLayout, toolbarLocation
       currentPageStackId
 
+    models.pageStack extract currentPageStack
+
     if AppPalette extract toolbarColor
       unless @wideLayout
         toolbarColor = AppPalette.offWhite
       else if .9 > toolbarColor.perceptualLightness
         lightColor = true
 
-    @props extract
-      hiddenStacks
+    @props extract hiddenStacks
 
     commonProps = {}
       tight:        wideLayout
@@ -27,14 +28,13 @@ class Toolbar extends ViewStateComponent
     Element
       draw:
         fill:
-          color: toolbarColor
+          color:  toolbarColor
           shadow: unless wideLayout
             color:  #0004
             blur:   4
             offset: 0
         padding:
           [toolbarLocation]: -@safePadding[toolbarLocation]
-
 
       size: @props.size
 
@@ -50,10 +50,11 @@ class Toolbar extends ViewStateComponent
         else  v: gridSize / 2
 
       if wideLayout
+        showTitle = if currentPageStack?.length > 1
+          peek currentPageStack
+          .title
         Element
-          :row
-          :parentWidthChildrenHeight
-          :childrenCenterLeft
+          :row :parentWidthChildrenHeight :childrenCenterLeft
           if @models.pageStack.showBackButton
             Element
               :childrenSize
@@ -68,17 +69,15 @@ class Toolbar extends ViewStateComponent
                 icon:   :chevronLeft
                 action: @models.pageStack.pop
 
-          if &Config.config extract titleComponent
+          if !showTitle && &Config.config extract titleComponent
             titleComponent()
 
           else
-            Element
-              TextElement
-                TextStyles.mediumText
-                :childrenWidthParentHeight
-                :textCenterCenter
-                text: &Config.config.title
-                color: AppPalette.primary
+            TextElement
+              TextStyles.mediumText
+              :childrenWidthParentHeight :textCenterCenter
+              text:   showTitle ? &Config.config.title
+              color:  AppPalette.primary
 
       array {id, icon, title, hidden} in @stacks
         if @viewSize.x < 768 && !commonProps.labelBottom
@@ -86,7 +85,7 @@ class Toolbar extends ViewStateComponent
         ToolbarButton
           commonProps
           {}
-            hidden: hiddenStacks && id in hiddenStacks
+            hidden:       hiddenStacks && id in hiddenStacks
             icon
             text:         title
             selected:     currentPageStackId == id
