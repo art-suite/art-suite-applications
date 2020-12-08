@@ -1,4 +1,5 @@
-{defineModule, pluralize, log, Validator, merge, Promise} = require 'art-foundation'
+{defineModule, pluralize, log, merge, Promise, ErrorWithInfo} = require 'art-standard-lib'
+{Validator} = require 'art-validation'
 Filter = require '../Filter'
 
 ###
@@ -39,14 +40,15 @@ defineModule module, class ValidationFilter extends Filter
           (unexpectedFields ||= []).push k
 
         if unexpectedFields
-          Promise.reject
-            message: "#{context} failed. #{pluralize unexpectedFields.length, "unexpected field"}: #{unexpectedFields.join ', '}"
-            info: unexpected: unexpectedFields
+          throw new ErrorWithInfo(
+            "#{context} failed. #{pluralize unexpectedFields.length, "Unexpected field"}: #{unexpectedFields.join ', '}"
+            unexpected: unexpectedFields
+          )
 
       rejection || request.withData data
 
     .catch (exception) ->
       {message, info} = exception
       request.clientFailure
-        data: merge {message}, info
+        data: merge info, message: "ValidationFilter: #{message}"
         errorProps: {exception}

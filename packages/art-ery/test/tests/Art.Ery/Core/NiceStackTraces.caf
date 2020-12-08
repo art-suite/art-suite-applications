@@ -44,7 +44,7 @@ suite: ->
 
     .singleton.get originatedOnServer: :invalidValue
 
-  testNiceStackTrace "requestTrace3" ->
+  testNiceStackTrace "ValidationFilter missing field" ->
 
     class MyRtUser3 extends Pipeline
 
@@ -59,6 +59,19 @@ suite: ->
 
 
     .singleton.create data: text: "hi"
+
+  testNiceStackTrace "ValidationFilter create with unexpected field" ->
+
+    class MyPipeline extends Pipeline
+
+      @publicRequestTypes :create
+      @addDatabaseFilters
+        linkFilterVersion: 2
+        fields:
+          text: :string
+
+
+    pipelines.myPipeline.create data: text: "hi" name: :John
 
   testNiceStackTrace "originatedOnServer required to issue non-public requests" ->
 
