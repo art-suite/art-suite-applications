@@ -1,0 +1,12 @@
+import &ArtSuite
+
+class StyleProps extends HotStyleProps
+  @text:
+    fontFamily:         :Arial
+    fontSize:           18
+
+  @line:
+    size:               ww: 1 h: 40
+    padding:            10
+    childrenLayout:     :row
+    childrenAlignment:  :centerRight

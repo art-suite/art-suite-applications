@@ -1,0 +1,45 @@
+import &StandardImport
+
+class ActivityBadge extends Component
+
+  render: ->
+    @props extract count, location, axis, radius, border
+    radius ||= 5
+    border = if border then 1 else 0
+
+    size = if count > 0
+      count = min count, 99
+      13 + radius + border
+    else
+      3 + radius + border
+
+    Element
+      animators: scale:
+        toFrom:   0
+        duration: 1
+        f:        :easeInElastic
+      location: location  ?
+        xw: 11/12
+        yw: 1/12
+
+      axis:     axis      ? :topRight
+      inFlow:   false
+      size:     size
+      draw:
+        radius: 1000
+        fill: AppPalette.activityBadge
+        outline: if border > 0 then "white"
+        lineWidth: border
+
+      if count > 0
+        TextElement
+          TextStyles.bittyText
+          :childrenSize
+          location:
+            ps: .5
+            x:  if count == 1 then -.5 else 0
+            y:  -.5
+          layoutMode: :tight
+          axis:       .5
+          color:      :white
+          text:       count

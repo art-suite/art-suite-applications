@@ -1,0 +1,27 @@
+{
+  "author": "Shane Brinkman-Davis Delamore, Imikimi LLC",
+  "bugs": "https://github.com/art-suite/art-suite-applications/issues",
+  "dependencies": {
+    "art-build-configurator": "^1.29.2",
+    "compression": "^1.7.2",
+    "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
+    "throng": "^5.0.0"
+  },
+  "description": "Extensible, Promise-based HTTP Server based on Express",
+  "homepage": "https://github.com/art-suite/art-suite-applications",
+  "license": "ISC",
+  "name": "art-express-server",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/art-suite/art-suite-applications.git"
+  },
+  "scripts": {
+    "build": "webpack --progress",
+    "start": "webpack-dev-server --hot --inline --progress",
+    "test": "nn -s;mocha -u tdd",
+    "testInBrowser": "webpack-dev-server --progress",
+    "testServer": "caf ./TestServer"
+  },
+  "version": "1.1.2"
+}

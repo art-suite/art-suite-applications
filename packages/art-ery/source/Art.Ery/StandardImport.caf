@@ -1,0 +1,6 @@
+&ArtStandardLib.mergeWithSelf
+  &ArtClassSystem
+  &ArtCommunicationStatus
+  &ArtValidation
+  &Stack
+  &env

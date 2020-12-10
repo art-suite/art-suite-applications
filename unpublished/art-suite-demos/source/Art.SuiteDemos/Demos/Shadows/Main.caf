@@ -1,0 +1,23 @@
+import &ArtSuite
+
+class MyComponent extends PointerActionsMixin Component
+
+  render: ->
+    Element
+      padding: 50
+      childrenMargins: 50
+      :flow
+
+      array blur til 100 by 5
+        Element
+          size: 100
+          draw:
+            fill:
+              color: #e
+              shadow:
+                color:  :black
+                offset: 0
+                blur:   blur
+          TextElement
+            :textCenterCenter
+            text: "blur: #{blur}"

@@ -1,0 +1,65 @@
+import &StandardImport, {} &Widgets/Icon
+
+icons =
+  :moon
+  :sun
+  # merge Icons.sun, scale: 1.5
+
+class Spinner extends Component
+
+  @stateFields
+    renderCount: 0
+    enabled: false
+
+  @propFields
+    monocrome:  false # turns off background and switches to black for the forground by default
+    color:      undefined # foreground color
+    delay:      1000 # seconds; if set, don't show spinner for this long
+
+  @getter
+    iconNumber: -> @renderCount % icons.length
+    icon:       -> icons[@iconNumber]
+    color: ->
+      @props.color ? if @monocrome then TextPalette.black.primary else :white
+
+  componentWillMount: ->
+    @timer = interval 3000 -> @renderCount++
+    timeout 100 @triggerEnabled
+    super
+
+  componentWillUnmount: ->
+    @timer?.stop()
+    super
+
+  render: ->
+    Element
+      :centerCenter
+      size: 35
+      draw:
+        :circle
+        unless @monocrome
+          AppPalette.primary
+          .withLightness .5 + .5 * @iconNumber
+        :clip
+
+      animators:
+        opacity: toFrom: 0
+        draw:
+          f: :easeBothQuad
+          duration: 1
+
+      @enabled && Element
+        location: xw: .5  yh: 2
+        axis:     x:  .5   y: 2
+        key:      @iconNumber
+        animators:
+          angle:
+            duration: 1
+            f:        :easeBothQuad
+            to:       -Math.PI / 5
+            from:     Math.PI / 5
+
+        Icon
+          icon:   @icon
+          color:  @color
+          size:   14

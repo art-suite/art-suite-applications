@@ -1,0 +1,19 @@
+import &StandardImport
+
+buttonHandlers =
+  mouseIn:          -> { return fn.call(_this); }
+  mouseOut:         -> { return fn.call(_this); }
+  pointerDown:      -> { return fn.call(_this); }
+  pointerIn:        -> { return fn.call(_this); }
+  pointerUp:        -> { return fn.call(_this); }
+  pointerCancel:    -> { return fn.call(_this); }
+  pointerOut:       -> { return fn.call(_this); }
+  pointerUpInside:  ->
+
+suite: ->
+  benchmark "foo" ->
+
+createRealworldElementTree = ->
+  ##
+    WIP - I want to have ArtEngine output a 100% legal chunk of code from a
+    live createRealworldElementTree so I can just copy-paste it here.

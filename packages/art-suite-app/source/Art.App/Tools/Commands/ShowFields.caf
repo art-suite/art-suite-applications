@@ -1,0 +1,6 @@
+options: pipeline: "" art-ery pipeline name
+run: ({pipeline}) ->
+  {fields, normalizedFields} = &ArtEry.pipelines[pipeline]
+  fields: fields
+  normalizedFields: normalizedFields
+

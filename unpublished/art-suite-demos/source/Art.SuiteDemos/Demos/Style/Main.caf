@@ -1,0 +1,89 @@
+import &ArtSuite
+
+c1 = rgbColor :red
+c2 = c1.withLightness c1.l * .75
+c3 = rgbColor :white
+
+fontSize     = 128
+medianWeight = fontSize * .1
+
+class MyComponent extends PointerActionsMixin Component
+
+  renderEffect: (number)->
+    []
+      FillElement color: c1, c2, c1
+
+      ShadowElement
+        key:            "shadow1-#{number}"
+        color:          :black
+        opacity:        .4
+        inverted:       true
+        compositeMode:  :sourceTopInTarget
+        location:       point 0, -medianWeight * .25
+
+      ShadowElement
+        key:            "shadow2-#{number}"
+        color:          "white"
+        opacity:        .4
+        inverted:       true
+        compositeMode:  :sourceTopInTarget
+        location:       point 0, medianWeight * .25
+
+      OutlineElement
+        color:          c3
+        lineWidth:      medianWeight * .9
+        location:       point 0, medianWeight * .2
+        lineJoin:       :round
+        compositeMode:  :targetTopUnion
+
+      ShadowElement
+        key:      "shadow3-#{number}"
+        color:    :black
+        opacity:  .4
+        location: point 0, medianWeight * .5
+
+  render: ->
+
+    Element
+      on: @buttonHandlers
+      :pointerCursor
+
+      draw: if @pointerIsDown then :red else :pink
+      animators: draw: d: 1
+
+      Element
+        :childrenSize :centerCenter
+        scale:      if @pointerIsDown then 1.25 else 1
+        cacheDraw:  true
+        animators:  scale: d: 1
+
+        TextElement
+          :childrenSize :textCenterCenter
+          color:      c1
+          text:       :Yummy
+          fontSize:   fontSize
+          fontFamily: "" HoeflerText-BlackItalic, serif
+          layoutMode: :tight0
+
+          @renderEffect 1
+
+        Element
+          location: y: 115
+          size: w: 348, h: 30
+
+          RectangleElement
+            inFlow: false
+            # padding: -10
+            color: c1, c2, c1
+            radius: 100
+            clip: false
+            @renderEffect 2
+
+          TextElement
+            :childrenSize :centerCenter
+            :italic :bold
+            fontFamily: "" AvenirNext-Bold, sans-serif
+            fontSize:   18
+            layoutMode: :tight
+            color:      :white
+            text:       "" breakfast for tummies

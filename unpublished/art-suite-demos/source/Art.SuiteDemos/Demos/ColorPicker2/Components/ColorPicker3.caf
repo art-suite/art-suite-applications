@@ -1,0 +1,59 @@
+import &StandardImport, &ArtAtomic, &ArtCanvas
+
+class ColorPicker3 extends Component
+
+  getInitialState: ->
+    bitmap = new Bitmap size = 256
+    bitmap extract imageData
+    imageData extract data
+    lineLength = size * 4
+    halfSize = Math.floor size / 2
+    pi2 = 2 * Math.PI
+    each r, i in data by 4
+      x =
+        i % lineLength
+        / 4
+        - halfSize
+
+      y =
+        i / lineLength
+        | 0
+        - halfSize
+      angle = Math.atan2 y, x
+      h = .5 + angle / pi2
+
+      [r, g, b] = hsl2Rgb h, 1, 1
+
+      data[i  ] = r * 255
+      data[i+1] = g * 255
+      data[i+2] = b * 255
+      data[i+3] = 255
+    bitmap.putImageData imageData
+    log {} bitmap
+
+  render: ->
+    Element
+      location: :centerCenter
+      axis: :centerCenter
+      size: (ps) -> ps.min()
+      padding: 10
+      Element
+        draw:
+          child: :bitmap
+          null
+          shape: (context, area) ->
+            {top, left, right, bottom, vCenter, hCenter} = area
+            context.rect
+              left - 1
+              top - 1
+              right-left + 1
+              bottom-top + 1
+            context.moveTo hCenter, vCenter
+            context.arc hCenter, vCenter, right - hCenter, 0, Math.PI*2
+            context.moveTo hCenter, vCenter
+            context.arc hCenter, vCenter, .5 * (right - hCenter), 0, Math.PI*2
+          fill:
+            compositeMode: :targetWithoutSource
+            color: :blue
+
+        BitmapElement @state, key: :bitmap

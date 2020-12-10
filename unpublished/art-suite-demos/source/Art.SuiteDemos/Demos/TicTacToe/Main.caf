@@ -1,0 +1,68 @@
+import &ArtSuite # 2 tokens         >> 220 total tokens (projected final: 208)
+
+textStyle =                         # 10 tokens
+  fontFamily: "" "Century Gothic", Futura, sans-serif
+  fontSize:   14
+  margin:     10
+  size:       :childrenSize
+
+calculateWinner = (board) ->        # 57
+  find line in []
+      0 1 2
+      3 4 5
+      6 7 8
+      0 3 6
+      1 4 7
+      2 5 8
+      0 4 8
+      2 4 6
+    [a, b, c] = array el in line    # -2: upcoming-dot-backref: array line\n board[.]
+      board[el]
+    a == b && a == c && a           # -2 less when we have: a if a == b == c
+
+class Square extends Component      # 24 tokens
+  render: ->
+    Element
+      size: 35
+      draw: outline:      :black
+      on:   pointerClick: @props.play
+      TextElement
+        textStyle
+        fontSize:   18
+        :bold
+        :centerCenter
+        @props
+
+class TicTacToe extends Component     # 125 tokens
+  @stateFields turnNumber: 0 history: [] array til 9 with null # -1 without 'with'
+
+  play: (player, boardIndex) ->       # 27 tokens
+    @history = arrayWith
+      @history.slice 0 @turnNumber + 1   # -3 when we have: array in @history to @turnNumber
+      arrayWithElementReplaced @history[@turnNumber++], player, boardIndex # -2 - replace ',' with new-lines
+
+  render: ->                          # 83 tokens
+    winner = calculateWinner board = @history[@turnNumber]
+    player = if @turnNumber % 2 then :X else :O
+    Element
+      size:     w: 125
+      padding:  10
+      :flow
+
+      array text, boardIndex in board
+        Square {} text, play: unless winner || text # -1 - replace ',' with new-lines
+          -> @play player, boardIndex               # -1 - replace ',' with new-lines
+
+      TextElement
+        textStyle
+        text:
+          if winner then  "Winner: "      + winner
+          else            "Next player: " + player
+
+      array i til @history.length
+        TextElement
+          textStyle
+          on: pointerClick: -> @turnNumber = i
+          text:
+            if i then     "Go to move #" + i
+            else          "Go to game start"

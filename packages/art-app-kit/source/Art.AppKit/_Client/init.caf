@@ -1,0 +1,61 @@
+import &StandardImport
+
+##
+  options:
+    SEE: ArtSuiteApp.initArtSuiteClient
+    PLUS:
+      App: (reqired) <ReactComponentFactory>
+        This is your root app component. It
+        should NOT have a CanvasElement;
+        that will be provided for you.
+
+      pageStacks: (optional)
+        passed to models.appKitPageStack.init
+        see AppKitPageStack.init
+
+      appPalette: <Object> name: colorish (rgaColor input compatible value)
+
+      appNamespace: The NeptuneNamespace your app resides in
+        This is primarily used to get the Version of your app.
+        If not present, your App component or pages Namespace will be
+        scanned for version info.
+
+      pages: Namespace containing all your apps main page-components
+
+init: (options) ->
+  options extract App, title, appPalette, icons, appNamespace as namespace, pages
+
+  if namespace ?= pages ? App
+    while !namespace.version && namespace extract namespace
+      null # CaffeineScript TODO - empty while body should be OK
+
+    if namespace
+      log "starting #{namespace.namespacePath} v#{namespace.version}..."
+
+  App ?= &Components/AppCore/App
+
+  if appPalette
+    &Style.AppPalette.setAppPalette appPalette
+
+  unless App is Function && App.class?.prototype && App.class? instanceof Component
+    if App instanceof Component
+      log.warn "ArtAppKit.init: App is a Component instance, not a Component Factory"
+    throw new Error log.warn "ArtAppKit.init: App must be an ArtReact Component Factory"
+
+  models.pageStack.init merge options
+
+  &ArtSuiteApp.initArtSuiteClient log {}
+    title
+    prepare: ->
+      getArrayBuffer getAssetUrl icons ? :icons.cpf
+      .then   &ArtCanvasPath.decodeCpf
+      .then   &Icons.setIcons
+      .catch  log.error
+
+    artConfig: Art: AppKit: Client: {}
+      options.title
+      options.titleComponent
+      appNamespace: namespace
+
+    MainComponent: &Components/AppCore/CanvasComponent
+    MainComponentProps: {} App

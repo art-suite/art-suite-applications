@@ -1,0 +1,67 @@
+import &StandardImport
+
+class AppPalette extends HotStyleProps
+
+  @setColors: (colors) ->
+    object color in colors into @
+      rgbColor color
+
+  @setAppPalette: (appPalette) =>
+    primary   = rgbColor appPalette?.primary ? #55b13f
+    saturated = primary.sat
+
+    @setColors merge
+      {}
+        red   = hslColor 0/360,   saturated * .9  1
+        green = hslColor 120/360, saturated * .9  .8
+
+        # primaryLight5:           primary.blend :white, 7/8
+        # primaryLight4:           primary.blend :white, 6/8
+        # primaryLight3:           primary.blend :white, 5/8
+        # primaryLight2:           primary.blend :white, 4/8
+        # primaryLight1:           primary.blend :white, 3/8
+        primary
+        # primaryDark1:         primary.withScaledLightness 7/8
+        # primaryDark2:         primary.withScaledLightness 6/8
+        # primaryDark3:         primary.withScaledLightness 5/8
+        # primaryDark4:         primary.withScaledLightness 4/8
+        # primaryDark5:         primary.withScaledLightness 3/8
+
+        veryLightPrimary:   primary.blend :white, 7/8
+        lightPrimary:       primary.blend :white, 5/8
+        mediumLightPrimary: primary.blend :white, 3/8
+        mediumPrimary:      primary
+        mediumDarkPrimary:  primary.withScaledLightness 7/8
+        darkPrimary:        primary.withScaledLightness 4/8
+
+        textOnPrimary:      &TextPalette.white.primary
+
+        white:              :white
+        background:         :white
+        toolbarColor:       :white
+        offWhite:           #f9
+
+        warning:            warning = red.withHue 55/360
+        lightWarning:       warning.blend :white .5
+        activityBadge:      red
+
+        veryLightGrey:      #f9
+        lightGrey:          #ee
+        mediumLightGrey:    #bb
+        mediumGrey:         #aa
+        mediumDarkGrey:     #77
+        darkGrey:           #22
+
+        veryLightDarken:    #00000007
+        lightDarken:        #00000011
+        mediumLightDarken:  #00000044
+        mediumDarken:       #00000066
+        heavyDarken:        #000000dd
+
+      appPalette
+
+    # aliases
+    @grey     = @mediumGrey
+    @darkent  = @mediumDarken
+
+  @setAppPalette()

@@ -1,0 +1,132 @@
+import &StandardImport, &Config
+
+startTime = currentSecond()
+
+class Cordova
+
+  @appRatePrompt: =>
+    if global.cordova
+      if global.AppRate
+        @cordovaEvent :appRate:prompt:start
+        global.AppRate.promptForRating false
+        @cordovaEvent :appRate:prompt:startSuccess
+      else
+        @cordovaEvent :appRate:prompt:notLoaded
+
+  @getDeviceInfo: ->
+    if self.device
+      {cordova, model, isVirtual, platform, version, manufacturer} = self.device
+    else if self.cordova
+      throw new Error "" We have cordova, but device isn't ready.
+
+    {}
+      platform:              platform ? "web"
+      platformVirtual:       isVirtual
+      platformModel:         model
+      platformVersion:       version
+      platformManufacturer:  manufacturer
+      cordovaVersion:        cordova
+
+  @appReady: ->
+    if self.navigator && self.navigator.splashscreen
+      timeout 100, -> self.navigator.splashscreen.hide()
+
+  #################
+    Event Logging
+  #################
+  @cordovaEvent: (key, props) ->
+    key = log "" cordova:#{key}
+    models.event?.create
+      key
+      data: merge
+        Cordova.getDeviceInfo()
+        version:    &package.version
+        userAgent:  global.navigator.userAgent
+        upTime:     currentSecond() - startTime | 0
+        props
+
+  #################
+    Init Tasks
+  #################
+  @initMemoryWarning: ->
+    document.addEventListener :memorywarning =>
+      @cordovaEvent :memoryWarning Engine.getCacheInfo()
+      Engine.flushCache()
+
+  # https://github.com/pushandplay/cordova-plugin-apprate
+  @initAppRate: ->
+    if global.AppRate && config extract cordova extract? appRate
+      @cordovaEvent :appRate:loading
+      mergeInto global.AppRate.preferences, appRate,
+        callbacks: merge
+          onRateDialogShow:       -> @cordovaEvent :appRate:prompt:dialogShown
+          onButtonClicked: (buttonIndex) ->
+            switch buttonIndex
+              when 0 then @cordovaEvent :appRate:prompt:clicked:rateItNow
+              when 1 then @cordovaEvent :appRate:prompt:clicked:remindMeLater
+              when 2 then @cordovaEvent :appRate:prompt:clicked:notRightNow
+              else        @cordovaEvent "" appRate:prompt:clicked:button#{buttonIndex}
+
+          appRate.callbacks
+
+
+      @cordovaEvent :appRate:loaded
+    else
+      @cordovaEvent :appRate:notLoaded
+
+  @initDeepLinking: ->
+    global.universalLinks?.subscribe
+      null
+      (eventData) ->
+        {params, path, host, scheme, url} = eventData
+        params = object v in params
+          if v == ""
+            true
+          else v
+
+        log "universalLinks event 1"
+        log universalLinks: eventData
+        models.urlBarState.initFromPathAndParams path, params, true
+        log "universalLinks event done"
+
+  # https://github.com/ionic-team/cordova-plugin-ionic-keyboard
+  @initKeyboard: ->
+    global.initKeyboard = :pending...
+    if global.Keyboard
+      global.initKeyboard = :running...
+      console.log "Keyboard cordova plugin detected"
+      focusElement = (msDelay = 0)->
+        if focusedElement = global.canvasElement.focusedElement
+          timeout msDelay, ->
+            log :keyboardWillFocusElement
+            focusedElement.scrollOnscreen()
+
+      window.addEventListener :keyboardWillHide -> log :keyboardWillHide ; timeout 500, ->    models.appKitViewState.updateKeyboardVisible false
+      window.addEventListener :keyboardWillShow -> log :keyboardWillShow ; focusElement(500); models.appKitViewState.updateKeyboardVisible true
+      window.addEventListener :keyboardDidHide  -> log :keyboardDidHide  ;                    models.appKitViewState.updateKeyboardVisible false
+      window.addEventListener :keyboardDidShow  -> log :keyboardDidShow  ; focusElement();    models.appKitViewState.updateKeyboardVisible true
+      global.initKeyboard = :done
+    else
+      global.initKeyboard = :skipped
+
+  @_triggerCordovaLoadedEvent: -> @cordovaEvent :loaded
+
+  @_initAfterDeviceReady: ->
+    global.cordovaSetup = :running...
+
+    # fire once a day
+    interval secondsPer.day * 1000, @_triggerCordovaLoadedEvent
+    @_triggerCordovaLoadedEvent()
+
+    @initAppRate()
+    @initKeyboard()
+    @initDeepLinking()
+    @initMemoryWarning()
+    global.cordovaSetup = :completed2
+
+
+  if global.cordova
+    global.cordovaSetup = :pending1
+    global.document.addEventListener :deviceready ->
+      global.cordovaSetup = :pending2
+      Cordova._initAfterDeviceReady()

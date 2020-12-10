@@ -1,0 +1,12 @@
+import &StandardImport
+
+class MainStackView extends FluxComponent
+  @subscriptions
+    :pageStack.stacks
+
+  render: ->
+    Element
+      array {id} in @stacks
+        &PageStack
+          key:          id
+          pageStackId:  id

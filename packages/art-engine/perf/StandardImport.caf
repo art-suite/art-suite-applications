@@ -1,0 +1,8 @@
+&ArtStandardLib.merge
+  &ArtAtomic
+  &@ArtSuite/ArtCanvas
+  &ArtEngine
+  &ArtClassSystem
+  &ArtStandardLib
+  &Factories
+  test: (args...) -> global.test args...

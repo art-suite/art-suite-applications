@@ -1,0 +1,135 @@
+# 305
+import &React # 2
+
+calculateWinner = (board) -> # 58
+  find line in
+      0 1 2
+      3 4 5
+      6 7 8
+      0 3 6
+      1 4 7
+      2 5 8
+      0 4 8
+      2 4 6
+    [a, b, c] = array el in line
+      board[el]
+    a == b && a == c && a # -2 less when we have: a == b == c
+
+Square = (props) -> # 17
+  createElement
+    :button
+    className: :square
+    onClick: props.onClick
+    props.value
+
+class Board extends Component # 59
+
+  renderSquare: (i) -> # 20
+    createElement
+      Square
+      value:    @props.squares[i]
+      onClick:  -> @props.onClick i
+
+  render: -> # 35
+    createElement
+      :div
+      null
+      createElement
+        :div
+        className: :board-row
+        @renderSquare 0
+        @renderSquare 1
+        @renderSquare 2
+
+      createElement
+        :div
+        className: "board-row"
+        @renderSquare 3
+        @renderSquare 4
+        @renderSquare 5
+
+      createElement
+        :div
+        className: :board-row
+        @renderSquare 6
+        @renderSquare 7
+        @renderSquare 8
+
+class Game extends Component # 158
+
+  constructor: (props) -> # 19
+    @state =
+      history:    [] squares: array til 9 with null
+      stepNumber: 0
+      xIsNext:    true
+
+  handleClick: (i) -> # 65
+    @state extract
+      history
+      stepNumber
+      xIsNext
+
+    current = history[stepNumber]
+    squares = current.squares.slice()
+
+    unless squares[i] || calculateWinner squares # 41
+      squares[i] = if xIsNext then :X else :O # 11
+      @setState # 22
+        history:
+          history.slice 0, stepNumber + 1
+          .concat [] {} squares
+
+        stepNumber: stepNumber + 1
+        xIsNext:    !xIsNext
+
+  jumpTo: (step) -> # 14
+    @setState
+      stepNumber: step
+      xIsNext:    step % 2 == 0
+
+  render: -> # 57
+    @state extract
+      history
+      stepNumber
+
+    history[stepNumber] extract squares
+
+    createElement
+      :div
+      className: :game
+      createElement
+        :div
+        className: :game-board
+        createElement
+          Board
+          squares: squares
+          onClick: (i) -> @handleClick i
+
+      createElement
+        :div
+        className: :game-info
+        createElement
+          :div
+          null
+          if winner = calculateWinner squares
+            "Winner: " + winner
+          else
+            "Next player: " + if @state.xIsNext then :X else :O
+
+        createElement # 26
+          :ol
+          null
+          array step til history.length
+            createElement
+              :li
+              key: step
+              createElement
+                :button
+                onClick: -> @jumpTo move
+                if step then  'Go to move #' + step
+                else          'Go to game start'
+
+# 11
+&ReactDOM.render
+  createElement Game, null
+  document.getElementById :root

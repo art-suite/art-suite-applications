@@ -1,0 +1,54 @@
+import &StandardImport
+
+class Formatters
+  longFormUnits =
+    k: :thousand
+    m: :million
+    b: :billion
+
+  @formatted3DigitCount: formatted3DigitCount = (number, longForm) ->
+    number = switch
+      when number < 1e3
+        number
+      when number < 1e6
+        unit = :k
+        if number < 1e5
+          number / 1e2 | 0
+          / 10
+        else
+          number / 1e3 | 0
+
+      when number < 1e9
+        unit = :m
+        if number < 1e6
+          number / 1e5 | 0
+          / 10
+        else
+          number / 1e6 | 0
+      else
+        unit = :b
+        number / 1e9 | 0
+
+    if unit
+      unit = " " + longFormUnits[unit] if longForm
+      "#{number}#{unit}"
+    else
+      number
+
+  @pluralize3DidgetCount: (number, noun, longForm) ->
+    "#{formatted3DigitCount number, longForm} #{if number != 1 then pluralize noun else noun}"
+
+  @nicePluralize: (number, noun, small) ->
+    if number == 1
+      "#{number} #{noun}"
+    else
+      numberString = if small
+        if number >= 1000000
+          "" #{number / 1000000 | 0}m
+        else if number >= 1000
+          "" #{number / 1000 | 0}k
+        else
+          "" #{number}
+      else commaize number
+
+      "#{numberString} #{pluralize noun}"

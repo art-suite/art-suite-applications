@@ -1,0 +1,24 @@
+import &StandardImport
+
+class ClassPathPreview extends Component
+
+  @propFields encoded: null
+
+  render: ->
+    Element
+      location: :centerCenter
+      axis: :centerCenter
+      size: (ps) ->
+        if @encoded
+          point {} @encoded.aspectRatio
+          .fitInto ps
+
+        else 0
+
+      draw:
+        :white
+
+        shape: (context, area) -> @encoded?.applyPath context, area
+        fill:
+          fillRule: :nonzero
+          colors: :black #777

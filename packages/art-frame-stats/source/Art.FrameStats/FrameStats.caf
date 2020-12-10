@@ -1,0 +1,7 @@
+[]
+  {enableFrameStats, disableFrameStats, getFrameStatsEnabled,
+  startFrame, endFrame,
+  startFrameTimer, endFrameTimer,
+  logFrameEvent, logEvent} = &Main
+  {registerStatColor, registerEventColors} = &Style
+  {frameStatStorage} = &FrameStatStorage

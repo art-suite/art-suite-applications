@@ -1,0 +1,30 @@
+import &StandardImport
+
+class DrumMachine extends ApplicationState
+
+  @stateFields
+    bpm: 120
+    playing: false
+    currentTimeslot: null
+    playStartedAt: null
+
+  togglePlaying: ->
+    unless @playing
+      @playStartedAt = currentSecond()
+      @_playUpdate()
+    else
+      @playStartedAt = @currentTimeslot = null
+
+    @playing = !@playing
+
+  _playUpdate: ->
+    @onNextReady ->
+      if @playing
+        @currentTimeslot =
+          currentSecond() - @playStartedAt
+          * @bpm / 60
+          * 4
+          | 0
+          % DrumStyle.timeslots
+
+        @_playUpdate()

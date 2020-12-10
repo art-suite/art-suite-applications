@@ -1,0 +1,63 @@
+import &StandardImport
+
+class Button extends PointerActionsMixin Component
+  render: ->
+    Element
+      on: @pointerHandlers
+      padding: 10
+      size: ww:1, hch: 1
+      drawOrder: [
+        rectangle: radius: 10
+        color: if @pointerIsDown then lightVibrant else vibrant
+      ]
+      animators: :color
+      TextElement
+        fontFamily: :sans-serif
+        color: "white"
+        size: ww:1, hch:1
+        align: .5
+        text: @props.text || "button"
+
+
+class Main extends Component
+
+  @stateFields
+    showTextInput: false
+
+
+  render: ->
+    Element
+      drawOrder: :grey
+
+      Element
+        size: w: 320, hch: 1
+        axis: .5
+        location: ps: .5
+        padding: 10
+        drawOrder:
+          rectangle: radius: 10
+          color: #fff shadow: blur: 100 offset: y: 10
+        childrenLayout: :column
+        Button
+          action: ->
+            log "focus"
+            @refs.textInput.element.domElement.focus()
+            timeout 10 -> log document.activeElement
+          text: "tap to focus text input"
+        TextInputElement
+          key: "textInput"
+          padding: 10
+          size: ww: 1, h: 60
+          placeholder: "" start typing here
+
+        Button
+          action: @toggleShowTextInput
+          text: "toggle show text input"
+
+        if @showTextInput
+          TextInputElement
+            key: "textInput"
+            focusOnCreation: true
+            padding: 10
+            size: ww: 1, h: 60
+            placeholder: "" start typing here

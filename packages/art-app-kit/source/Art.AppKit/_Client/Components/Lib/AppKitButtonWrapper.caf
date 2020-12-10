@@ -1,0 +1,99 @@
+import &StandardImport
+&ArtEngine.Element extract getSizePointLayout
+
+class AppKitButtonWrapper extends PointerActionsMixin FluxComponent
+  @subscriptions :appKitViewState.gridSize
+
+  @stateFields
+    children:   []
+    hoverScale: 1.1
+    downScale:  .9
+    draw:       null
+    disabled:   false
+
+  action: (args...) ->
+    if @props extract disabledAction, action
+      action args...
+    else if disabledAction
+      disabledAction args...
+
+  preprocessProps: (props) ->
+    props extract disabled, action, size
+    @setState {children, draw} = props
+    @disabled = disabled ? !action
+
+    merge
+      objectWithout props, :children, :draw
+      {}
+        rawSize: size
+        size:       getSizePointLayout size ? :parentSize
+        on:         @buttonHandlers
+        childArea:  :ignoreTransforms
+
+  preprocessState: (state) ->
+    state extract gridSize, hover
+    if hover != @hover
+      @props.onHoverChanged? hover
+
+    merge
+      super
+      hoverScale: @props.hoverScale ?
+        if size = @refs?.rootElement?.element?.currentSize.max()
+          size + gridSize / 2
+          / size
+        else 1.1
+      downScale: @props.downScale ?
+        if size = @refs?.rootElement?.element?.currentSize.max()
+          bound
+            .85
+            size - gridSize
+            / size
+            1
+        else 1.1
+
+  render: ->
+    @ extract gridSize, draw, disabled
+
+    @props extract
+      size
+      disabledOpacity = .5
+      scaleAxis = .5
+      noZoom
+      hoverExpand
+      baseScale
+
+    baseScale ?= 1
+
+    Element
+      @props
+      visible: !@props.hidden
+
+      Element
+        key:        :rootElement
+        cursor:     !disabled && :pointer
+        location:   ps: scaleAxis
+        axis:       scaleAxis
+        opacity:    if disabled then disabledOpacity else 1
+        size:       if size.childrenRelative then size
+        draw:
+          if draw is Function then draw @state, @props
+          else draw
+
+        scale:
+          switch
+          when noZoom then baseScale
+          when !disabled && @pointerIsDown then @downScale
+          when hoverExpand && @hover
+            @hoverScale
+          else baseScale
+
+        animators:
+          scale:    duration: .15
+          opacity:  true
+          draw:     true
+
+        array child in @children
+          if child is Function
+            child @state
+          else
+            child

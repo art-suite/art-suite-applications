@@ -1,0 +1,4 @@
+&ArtStandardLib.merge
+  &ArtStandardLib
+  &ArtTestbench
+  &source/Art/Aws

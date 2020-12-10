@@ -1,0 +1,11 @@
+import &ArtSuite, &StyleProps
+
+class App extends Component
+
+  render: ->
+    Element
+      childrenLayout: :row
+      draw: palette.grayBackground
+
+      &ChatView currentUser: :Alice
+      &ChatView currentUser: :Bill

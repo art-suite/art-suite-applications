@@ -1,0 +1,14 @@
+menuItemLayout: ({buttonSize}) ->
+  size:     ww: 1 h: buttonSize
+  # padding:  h: -gridSize / 2
+  animators:
+    size: toFrom: ww: 1  h: 0
+    clip: toFrom: true
+
+menuSectionLayout: ({gridSize}) ->
+  location: :topCenter
+  axis:     :topCenter
+  size:
+    hch:  1
+    ww:   1
+    max:  w: gridSize * 45

@@ -1,0 +1,61 @@
+import &StandardImport
+
+class Icon extends &ViewStateComponent
+
+  preprocessProps: (props) ->
+    props extract icon, iconScale
+    iconOptions = Icons.pathOptions[icon]
+    if iconScale
+      iconOptions = merge iconOptions, scale:
+        iconOptions?.scale ? 1
+        * iconScale
+
+    merge props, {} iconOptions
+
+  render: ->
+    @props extract
+      location
+      size
+      align
+      color
+      animators
+      icon
+      iconAngle
+      angle = iconAngle
+      shadow
+      iconOptions
+      lightColor
+      axis
+
+    color ?= if lightColor
+      TextPalette.white.primary
+    else
+      TextPalette.black.primary
+
+    size ?= @buttonSize
+
+    Element
+      {} location, size, align, animators, angle, axis
+      :cacheDraw
+      animators:
+        :draw
+        angle: duration: .5
+
+      draw:
+        shape: if iconPath = Icons[icon]
+          (context, size) ->
+            iconPath.applyPathFit context, size, iconOptions
+
+        padding:  @gridSize / 4
+        radius:   unless iconPath then @gridSize / 4
+        fill: {}
+          color
+          shadow
+
+      unless iconPath
+        TextElement
+          TextStyles.mediumBoldText
+          compositeMode: :targetWithoutSource
+          layoutMode: :tight
+          text: upperCase icon[0]
+          :parentSize :textCenterCenter
