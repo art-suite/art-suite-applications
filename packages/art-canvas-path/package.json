@@ -3,39 +3,26 @@
   "bin": {
     "cpf-tool": "./cpf-tool"
   },
-  "bugs": "https:/github.com/art-suite/art-canvas-path/issues",
+  "bugs": "https://github.com/art-suite/art-suite-applications/issues",
   "dependencies": {
-    "art-build-configurator": "*",
     "canvas": "^2.0.0",
-    "canvg": "^2.0.0",
-    "jsdom": "^13.0.0",
+    "canvg": "^3.0.7",
+    "jsdom": "^16.4.0",
     "xmldom": "^0.1.27"
   },
   "description": "Art.Canvas.Path",
   "devDependencies": {
-    "art-testbench": "*",
-    "case-sensitive-paths-webpack-plugin": "^2.2.0",
-    "chai": "^4.2.0",
-    "coffee-loader": "^0.7.3",
-    "css-loader": "^3.0.0",
-    "json-loader": "^0.5.7",
-    "mocha": "^6.2.0",
-    "mock-fs": "^4.10.0",
-    "script-loader": "^0.7.2",
-    "style-loader": "^1.0.0",
-    "webpack": "^4.39.1",
-    "webpack-cli": "*",
-    "webpack-dev-server": "^3.7.2",
-    "webpack-merge": "^4.2.1",
-    "webpack-node-externals": "^1.7.2",
-    "webpack-stylish": "^0.1.8"
+    "art-build-configurator": "^1.29.2",
+    "art-testbench": "^3.2.1",
+    "caffeine-script": "^0.73.0",
+    "mocha": "^7.2.0"
   },
-  "homepage": "https://github.com/art-suite/art-canvas-path",
+  "homepage": "https://github.com/art-suite/art-suite-applications",
   "license": "ISC",
   "name": "art-canvas-path",
   "repository": {
     "type": "git",
-    "url": "https://github.com/art-suite/art-canvas-path.git"
+    "url": "https://github.com/art-suite/art-suite-applications.git"
   },
   "scripts": {
     "build": "webpack --progress",

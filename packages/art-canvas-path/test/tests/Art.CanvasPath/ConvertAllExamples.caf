@@ -8,12 +8,15 @@ suite: ->
       out.xbd.toXbd().then (xbd) ->
         out extract canvasPath
         # canvasPath.normalize()
-        log {} canvasPath
-        log {}
-          canvasPath
-          canvasPathDrawArea = canvasPath.drawArea
-          drawArea = out.drawArea
-          xbd
+        # log {} canvasPath
+        canvasPathDrawArea = canvasPath.drawArea
+        drawArea = out.drawArea
+
+        # log {}
+        #   canvasPath
+        #   canvasPathDrawArea = canvasPath.drawArea
+        #   drawArea = out.drawArea
+        #   xbd
 
         assert.true
           expandedCanvasPathDrawArea = canvasPathDrawArea.grow canvasPathDrawArea.size.max() * .001
@@ -26,13 +29,14 @@ suite: ->
 
         canvasPath.normalize()
         canvasPath.removeStyles()
-        canvasPath.xbd.toXbd().then (xbd) ->
-          log normalized: {}
-            canvasPath
-            encoded: canvasPath.xbd
-            decoded: fromXbd xbd
-            reconstituted: decodeCpf xbd
-            xbd
+        canvasPath.xbd.toXbd()
+        # .then (xbd) ->
+        #   log normalized: {}
+        #     canvasPath
+        #     encoded: canvasPath.xbd
+        #     decoded: fromXbd xbd
+        #     reconstituted: decodeCpf xbd
+        #     xbd
 
   each svg, name in &Data
     pathTester name, svg

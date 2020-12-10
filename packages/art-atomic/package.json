@@ -3,12 +3,12 @@
   "bugs": "https://github.com/art-suite/art-suite-applications/issues",
   "dependencies": {
     "art-class-system": "^1.11.10",
-    "art-standard-lib": "^1.70.4"
+    "art-standard-lib": "^1.70.5"
   },
   "description": "atomic data-types such as Color, Point, Rectangle and Matrix",
   "devDependencies": {
     "art-build-configurator": "^1.29.2",
-    "art-testbench": "^3.2.0",
+    "art-testbench": "^3.2.1",
     "jest": "^26.6.3"
   },
   "homepage": "https://github.com/art-suite/art-suite-applications",

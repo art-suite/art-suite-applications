@@ -4,14 +4,14 @@
   "dependencies": {
     "art-build-configurator": "^1.29.2",
     "art-rest-client": "^1.8.8",
-    "aws-sdk": "^2.800.0",
+    "aws-sdk": "^2.807.0",
     "aws4": "^1.6.0",
     "corsproxy": "^1.5.0",
     "dynamodb-local": "0.0.31"
   },
   "description": "Streamlined APIs for AWS SDK with Promises and Art.Foundation",
   "devDependencies": {
-    "art-testbench": "^3.2.0",
+    "art-testbench": "^3.2.1",
     "mocha": "^7.2.0",
     "mock-fs": "^4.10.0"
   },

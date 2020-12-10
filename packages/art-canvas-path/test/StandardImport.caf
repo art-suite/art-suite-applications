@@ -1,4 +1,5 @@
-&ArtStandardLib.mergeWithSelf
+[]
+  &ArtStandardLib
   &ArtClassSystem
   &ArtCanvasPath
-  test: (args...) -> global.test args...
+  &ArtTestbench

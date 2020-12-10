@@ -3,4 +3,4 @@ import Extractor
 
 suite: ->
   test "nonzero fill - flourishBracket" ->
-    log svgToCanvasPath &Data.flourishBracket
+    svgToCanvasPath &Data.flourishBracket
