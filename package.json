@@ -4,7 +4,7 @@
     "@art-suite/art-canvas": "file:packages/@art-suite/art-canvas",
     "@art-suite/art-flux": "file:packages/@art-suite/art-flux",
     "@art-suite/monorepo": "^1.6.0",
-    "@art-suite/pipelines": "file:packages/@art-suite/pipelines",
+    "@art-suite/pipelines": "file:unpublished/@art-suite/pipelines",
     "art-app-kit": "file:packages/art-app-kit",
     "art-atomic": "file:packages/art-atomic",
     "art-aws": "file:packages/art-aws",

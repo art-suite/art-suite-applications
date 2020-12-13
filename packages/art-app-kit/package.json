@@ -3,7 +3,7 @@
   "bugs": "https://github.com/art-suite/art-suite-applications/issues",
   "dependencies": {
     "art-build-configurator": "^1.29.3",
-    "art-canvas-path": "^0.5.4",
+    "art-canvas-path": "^0.5.5",
     "art-markdown": "*",
     "copy-to-clipboard": "*"
   },
@@ -39,5 +39,5 @@
     "start": "webpack-dev-server --hot --inline --progress --env.devServer",
     "test": "webpack-dev-server  --progress --env.devServer"
   },
-  "version": "1.0.6"
+  "version": "1.0.7"
 }
