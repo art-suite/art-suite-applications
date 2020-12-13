@@ -4,7 +4,7 @@ React = require 'art-react'
 {createWithPostCreate} = require 'art-class-system'
 
 {stateEpoch} = Engine.Core.StateEpoch
-{ChainedTest} = require 'art-testbench'
+{chainedTest} = require 'art-testbench'
 
 {Element, RectangleElement, createComponentFactory, Component, VirtualElement, ReactArtEngineEpoch} = React
 {reactArtEngineEpoch} = ReactArtEngineEpoch
@@ -160,7 +160,7 @@ module.exports = suite:
               subRenderCount: 1
               testProps
 
-      defineCommonTests ChainedTest.setup "subcomponent rerender tests", ->
+      defineCommonTests chainedTest "subcomponent rerender tests", ->
         testProps =
           rootRenderCount: 0
           subRenderCount: 0
@@ -183,7 +183,7 @@ module.exports = suite:
           TestRootComponent
         }
 
-      defineCommonTests ChainedTest.setup "just because subcomponent has preprocessProps means it should rerender any different than without", ->
+      defineCommonTests chainedTest "just because subcomponent has preprocessProps means it should rerender any different than without", ->
         testProps =
           rootRenderCount: 0
           subRenderCount: 0
