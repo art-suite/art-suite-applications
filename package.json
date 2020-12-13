@@ -12,7 +12,7 @@
     "art-build-configurator": "^1.29.3",
     "art-canvas-path": "file:packages/art-canvas-path",
     "art-class-system": "^1.11.13",
-    "art-color-extractor": "^1.6.0",
+    "art-color-extractor": "file:packages/art-color-extractor",
     "art-components": "file:unpublished/art-components",
     "art-components-dom": "file:unpublished/art-components-dom",
     "art-components-engine": "file:unpublished/art-components-engine",

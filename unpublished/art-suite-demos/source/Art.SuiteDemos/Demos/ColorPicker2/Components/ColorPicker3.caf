@@ -1,4 +1,4 @@
-import &StandardImport, &ArtAtomic, &ArtCanvas
+import &StandardImport, &ArtAtomic, &@ArtSuite/ArtCanvas
 
 class ColorPicker3 extends Component
 
