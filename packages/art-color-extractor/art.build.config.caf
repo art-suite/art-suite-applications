@@ -5,13 +5,13 @@ target:
       They just can't be used *directly* in the browser
   node: true
 
-npm:
-  description: "" Art.Color.Extractor
-  dependencies: {}
+package: -> &package
 
 webpack:
   # common properties are merged into each target's properties
   common: {}
 
   # each target's individual properties
-  targets: index: {}
+  targets:
+    test: {}
+    perf: {}

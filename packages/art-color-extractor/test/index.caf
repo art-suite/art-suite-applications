@@ -1,3 +1,2 @@
-&ArtColorExtractor
 &ArtTestbench/testing
 .init defineTests: -> &Tests

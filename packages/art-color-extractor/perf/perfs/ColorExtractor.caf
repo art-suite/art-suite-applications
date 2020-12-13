@@ -1,0 +1,24 @@
+import &ArtStandardLib, &@art-suite/art-canvas, &ArtAtomic, &source, &ArtTestbench
+
+suite: object file in :8mpSunset.jpg :boy2.jpg
+  ->
+    bitmap = null
+    colorInfo = null
+    setup ->
+      Assets.load file
+      .then (_bitmap) ->
+        bitmap = _bitmap
+        colorInfo = extractColors bitmap
+        previewBitmap = generatePreviewBitmap colorInfo
+
+        mipmap = {}
+          mipmap = bitmap.getMipmap mipmapSize
+          mipmap.size
+          colorInfo:     mmCi = extractColors mipmap
+          previewBitmap: generatePreviewBitmap mmCi
+
+        log setup: {bitmap, colorInfo, previewBitmap, mipmap}
+
+    benchmark "bitmap.mipmap", -> bitmap.getMipmap mipmapSize
+    benchmark "extractColors bitmap", -> extractColors bitmap
+    benchmark "generatePreviewBitmap", -> generatePreviewBitmap colorInfo

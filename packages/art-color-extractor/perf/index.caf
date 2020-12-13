@@ -1,0 +1,6 @@
+global.Assets = require '../test/assets'
+
+&art-testbench/testing
+.init
+  synchronous: true
+  defineTests: -> &perfs

@@ -18,8 +18,6 @@
 
 quantize = require 'quantize'
 
-
-
 defineModule module, ->
 
   # minimum number % of pixels with that color to allow it to be picked

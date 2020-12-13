@@ -4,10 +4,10 @@ import &StandardImport
 if verbose
   log 'verbose=true'
 else
-  log """
-
-    verbose=false
-      set ENV 'verbose=true' for verbose-mode
+  log
+    """
+      verbose=false
+        set ENV 'verbose=true' for verbose-mode
 
 suite: ->
   test "perceptualLightness", ->
@@ -23,7 +23,7 @@ suite: ->
         (group || []).sort (a, b) -> a.s - b.s
       log groups
 
-  p = ChainedTest.setup "load #{&Assets.files.length} assets", -> &Assets.loadAll()
+  p = chainedTest "load #{&Assets.files.length} assets", -> &Assets.loadAll()
 
   array file in &Assets.files
     p.thenTest file, (assets) ->

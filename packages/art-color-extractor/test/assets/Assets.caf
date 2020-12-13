@@ -1,22 +1,20 @@
-{w, Promise, object} = require 'art-foundation'
-{Bitmap} = require 'art-canvas'
+import &ArtStandardLib, &@art-suite/art-canvas
 
-module.exports = class Assets
-  @files: w "
-    boy2.jpg
-    rose.jpg
-    boy1.jpg
-    cockpit.jpg
-    colors.jpg
-    dessert.jpg
-    leaves.jpg
-    science.jpg
-    grey.jpg
-    8mpSunset.jpg
-    shane.jpg
-    challenge.jpg
-    zo_mask_128.png
-    "
+class Assets
+  @files:
+    :boy2.jpg
+    :rose.jpg
+    :boy1.jpg
+    :cockpit.jpg
+    :colors.jpg
+    :dessert.jpg
+    :leaves.jpg
+    :science.jpg
+    :grey.jpg
+    :8mpSunset.jpg
+    :shane.jpg
+    :challenge.jpg
+    :zo_mask_128.png
 
   # An intersting test case that fails pretty bad for Vibrant is: animegalleries.jpg
   # Found this image here:
@@ -28,8 +26,8 @@ module.exports = class Assets
 
   # OUT: promise -> {filename: bitmap, ...}
   @loadAll: =>
-    @_loadPromise ||= Promise.deepAll object @files, (file) ->
-      Bitmap.get if file.match /http/ then file else 'test/assets/' + file
+    @_loadPromise ||= Promise.deepAll object file in @files
+      Bitmap.get if file.match /http/ then file else '/test/assets/' + file
 
   # OUT: promise -> bitmap
   @load: (file) =>

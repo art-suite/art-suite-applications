@@ -1,6 +1,6 @@
 &ArtStandardLib.merge
   &ArtStandardLib
   &ArtAtomic
-  &ArtCanvas
-  &ArtColorExtractor
+  &@ArtSuite/ArtCanvas
+  &source
   &ArtTestbench

@@ -67,7 +67,7 @@ currentSecond
 } = require 'art-standard-lib'
 
 {rgb256Color, rgbColor, point, Matrix} = require 'art-atomic'
-{Bitmap} = require 'art-canvas'
+{Bitmap} = require '@art-suite/art-canvas'
 
 defaultColorMapSize = point 3
 
@@ -78,7 +78,6 @@ defaultColorMapSize = point 3
 ] = [10, 5] # [7, 2] # is not bad and about 30% faster, but I can see banding on the 8pmSunset image.
 
 module.exports =
-  version: version = (require '../../../package.json').version
 
   getColorMap: getColorMap = (bitmap, targetSize = defaultColorMapSize) ->
     b = bitmap.getMipmap targetSize
@@ -152,7 +151,7 @@ module.exports =
 
     startTime = currentSecond()
     out = merge
-      version:    version.split(".")[0] | 0
+      version:    require("./namespace").version.split(".")[0] | 0
       colorMap:   getColorMap bitmap unless options?.noColorMap
       colors:     new Vibrant(data, options).colors
 
