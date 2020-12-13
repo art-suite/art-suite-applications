@@ -6,7 +6,7 @@
   "bugs": "https://github.com/art-suite/art-suite-applications/issues",
   "dependencies": {
     "canvas": "^2.0.0",
-    "canvg": "^3.0.7",
+    "canvg": "^2.0.0",
     "jsdom": "^16.4.0",
     "xmldom": "^0.1.27"
   },
