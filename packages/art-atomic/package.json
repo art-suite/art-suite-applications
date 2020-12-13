@@ -2,13 +2,13 @@
   "author": "Shane Brinkman-Davis Delamore, Imikimi LLC",
   "bugs": "https://github.com/art-suite/art-suite-applications/issues",
   "dependencies": {
-    "art-class-system": "^1.11.10",
-    "art-standard-lib": "^1.70.5"
+    "art-class-system": "^1.11.13",
+    "art-standard-lib": "^1.70.6"
   },
   "description": "atomic data-types such as Color, Point, Rectangle and Matrix",
   "devDependencies": {
-    "art-build-configurator": "^1.29.2",
-    "art-testbench": "^3.2.1",
+    "art-build-configurator": "^1.29.3",
+    "art-testbench": "^3.2.2",
     "jest": "^26.6.3"
   },
   "homepage": "https://github.com/art-suite/art-suite-applications",
@@ -29,7 +29,7 @@
     "testInBrowser": "webpack-dev-server --progress --env.devServer",
     "watch": "npm-watch"
   },
-  "version": "1.28.0",
+  "version": "1.28.1",
   "watch": {
     "build": {
       "extensions": "caf,coffee",

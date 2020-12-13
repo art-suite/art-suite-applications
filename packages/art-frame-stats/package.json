@@ -2,8 +2,8 @@
   "author": "Shane Brinkman-Davis Delamore, Imikimi LLC\"",
   "bugs": "https://github.com/art-suite/art-suite-applications/issues",
   "dependencies": {
-    "@art-suite/art-canvas": "^1.28.3",
-    "art-build-configurator": "^1.29.2"
+    "@art-suite/art-canvas": "^1.28.4",
+    "art-build-configurator": "^1.29.3"
   },
   "description": "Art.Frame.Stats",
   "homepage": "https://github.com/art-suite/art-suite-applications",
@@ -19,5 +19,5 @@
     "test": "nn -s;mocha -u tdd",
     "testInBrowser": "webpack-dev-server --progress --env.devServer"
   },
-  "version": "1.2.2"
+  "version": "1.2.3"
 }
