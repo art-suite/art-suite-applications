@@ -3,6 +3,7 @@ Atomic = require 'art-atomic'
 Canvas = require '@art-suite/art-canvas'
 Engine = require 'art-engine'
 StateEpochTestHelper = require './StateEpochTestHelper'
+{skipKnownFailingTest} = require 'art-testbench'
 
 {point, matrix, Matrix} = Atomic
 {inspect, nextTick, eq, log, merge} = Foundation

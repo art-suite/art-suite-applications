@@ -1,57 +1,50 @@
-define [
+{log, BaseObject} = require "art-foundation"
+{point, Matrix} = require "art-atomic"
+{StateEpoch, Element} = require("art-engine").Core
+{Bitmap} = require "@art-suite/art-canvas"
+{stateEpoch} = StateEpoch
 
-  'art-foundation'
-  'art-atomic'
-  'art-canvas'
-  'art-engine'
-], (Foundation, Atomic, Canvas, Engine) ->
-  {log, BaseObject} = Foundation
+module.exports = class Helper extends BaseObject
+  @drawTest: (element, text, options={})->
 
-  {point, Matrix} = Atomic
-  {StateEpoch, Element} = Engine.Core
-  {stateEpoch} = StateEpoch
+    stateEpoch.onNextReady ->
+      b = new Bitmap element.currentSize.add 50
+      b.clear "#eee"
+      m = element.elementToParentMatrix.mul Matrix.translate 10
 
-  class Helper extends BaseObject
-    @drawTest: (element, text, options={})->
+      options.beforeDraw?()
+      element.drawOnBitmap b, m
+      options.afterDraw?()
+      log b, text:"#{text}"
+      options.done?()
 
-      stateEpoch.onNextReady ->
-        b = new Canvas.Bitmap element.currentSize.add 50
-        b.clear "#eee"
-        m = element.elementToParentMatrix.mul Matrix.translate 10
+  # options done: -> # function called just before test's "done()"
+  @drawTest2: (text, f, options)=>
+    test text, (done) =>
+      d2 = if options?.done
+        ->
+          options.done()
+          done()
+      else
+        done
+      @drawTest f(), text, done:d2
+      null
 
-        options.beforeDraw?()
-        element.drawOnBitmap b, m
-        options.afterDraw?()
-        log b, text:"#{text}"
-        options.done?()
+  @drawTest3: (text, options={})=>
+    test text, (done)=>
+      element = options.element()
+      stagingBitmapsCreated = stagingBitmapsCreatedBefore = null
 
-    # options done: -> # function called just before test's "done()"
-    @drawTest2: (text, f, options)=>
-      test text, (done) =>
-        d2 = if options?.done
-          ->
-            options.done()
-            done()
-        else
-          done
-        @drawTest f(), text, done:d2
-        null
+      @drawTest element, text,
+        beforeDraw: -> stagingBitmapsCreatedBefore = Element.stats.stagingBitmapsCreated
+        afterDraw: -> stagingBitmapsCreated = Element.stats.stagingBitmapsCreated - stagingBitmapsCreatedBefore
+        done: ->
+          if (v = options.stagingBitmapsCreateShouldBe)?
+            assert.eq stagingBitmapsCreated, v, "stagingBitmapsCreateShouldBe"
+          if (v = options.elementSpaceDrawAreaShouldBe)?
+            assert.eq element.elementSpaceDrawArea, v, "stagingBitmapsCreateShouldBe"
 
-    @drawTest3: (text, options={})=>
-      test text, (done)=>
-        element = options.element()
-        stagingBitmapsCreated = stagingBitmapsCreatedBefore = null
+          options.test? element
 
-        @drawTest element, text,
-          beforeDraw: -> stagingBitmapsCreatedBefore = Element.stats.stagingBitmapsCreated
-          afterDraw: -> stagingBitmapsCreated = Element.stats.stagingBitmapsCreated - stagingBitmapsCreatedBefore
-          done: ->
-            if (v = options.stagingBitmapsCreateShouldBe)?
-              assert.eq stagingBitmapsCreated, v, "stagingBitmapsCreateShouldBe"
-            if (v = options.elementSpaceDrawAreaShouldBe)?
-              assert.eq element.elementSpaceDrawArea, v, "stagingBitmapsCreateShouldBe"
-
-            options.test? element
-
-            done()
-        null
+          done()
+      null

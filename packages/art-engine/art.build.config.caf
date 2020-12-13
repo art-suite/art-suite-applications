@@ -6,15 +6,4 @@ webpack:
     test: {}
     # perf: {}
 
-package:
-  description: "" The ArtEngine is a layout, rendering and event engine for creating user interfaces in HTML5 Canvas elements.
-  dependencies:
-    art-foundation:                   :git://github.com/imikimi/art-foundation.git
-    art-canvas:                       :git://github.com/imikimi/art-canvas.git
-    art-xbd:                          :*
-    art-text:                         :*
-    art-atomic:                       :*
-    art-events:                       :*
-    art-frame-stats:                  :*
-    keyboardevent-key-polyfill:       :^1.0.2
-    javascript-detect-element-resize: :^0.5.3
+package: -> &package

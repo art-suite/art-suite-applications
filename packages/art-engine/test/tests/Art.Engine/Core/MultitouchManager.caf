@@ -36,7 +36,7 @@ assertTransformDidntChange = (mm, f) ->
 
 suite:
   singleTouchBasics: ->
-    ChainedTest.setup ->
+    chainedTest ->
       {}
         mm = new MultitouchManager
         p = pointer 0 point0
@@ -62,7 +62,7 @@ suite:
       assert.eq 0 mm.numActivePointers
 
   multitouchBasics: ->
-    ChainedTest.setup ->
+    chainedTest ->
       {}
         mm = new MultitouchManager
         p1 = pointer 0 point0
@@ -81,7 +81,7 @@ suite:
 
   multitouchTransform:
     singleTouch: ->
-      ChainedTest.setup ->
+      chainedTest ->
         {}
           mm = new MultitouchManager
           p1 = pointer 0 point 10
@@ -133,7 +133,7 @@ suite:
 
   realworldMultitouch:
     addingTouches: ->
-      ChainedTest.setup ->
+      chainedTest ->
         mm: new MultitouchManager
         p1: pointer 1 point0
         p2: pointer 2 point 2 1
@@ -160,7 +160,7 @@ suite:
           mm.removeActivePointer p2
 
     removingTouches: ->
-      ChainedTest.setup ->
+      chainedTest ->
         mm: new MultitouchManager
         p1: pointer 1 point 0 0
         p2: pointer 2 point 0 1
@@ -181,7 +181,7 @@ suite:
           mm.removeActivePointer p2
 
     scaleMove: ->
-      ChainedTest.setup ->
+      chainedTest ->
         mm: new MultitouchManager
         p1: pointer 1 point 0, -1
         p2: pointer 2 point 0 1
