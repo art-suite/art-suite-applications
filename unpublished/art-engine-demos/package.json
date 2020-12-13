@@ -1,0 +1,23 @@
+{
+  "author": "Shane Brinkman-Davis Delamore, Imikimi LLC",
+  "bugs": "https://github.com/art-suite/art-suite-applications/issues",
+  "dependencies": {
+    "art-build-configurator": "^1.29.3",
+    "art-suite": "^2.0.3"
+  },
+  "description": "Art.Engine.Demos",
+  "homepage": "https://github.com/art-suite/art-suite-applications",
+  "license": "ISC",
+  "name": "art-engine-demos",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/art-suite/art-suite-applications.git"
+  },
+  "scripts": {
+    "build": "webpack --progress",
+    "start": "webpack-dev-server --hot --inline --progress",
+    "test": "webpack-dev-server  --progress",
+    "testInBrowser": "webpack-dev-server --progress"
+  },
+  "version": "1.1.4"
+}

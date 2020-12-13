@@ -1,0 +1,63 @@
+import &StandardImport, &MenuLib
+
+class MenuSectionLabel extends ViewStateComponent
+
+  render: ->
+    @viewState extract gridSize, heightAdjustedButtonSize
+    @props extract label, warning, text = label
+
+    if /\t/.test text
+      [text, centerText, rightText] = text.split "\t"
+
+    Element
+      menuSectionLayout @viewState
+      :row
+      :childrenBottomLeft
+
+      animators:
+        size: toFrom: ww: 1  h: 0
+        clip: toFrom: true
+
+      padding: h: gridSize / 2
+
+      draw:
+        padding:  h: -@gridSize / 2
+        radius:   @gridSize / 4
+        color:    if warning then AppPalette.lightWarning else AppPalette.veryLightGrey
+        {}
+          padding:
+            h: -@gridSize / 2 + .5
+            v: .5
+          radius:   @gridSize / 4
+          outline:  color: #0002
+
+      TextElement
+        TextStyles.smallText
+        :parentWidthChildrenHeight
+        textProps =
+          padding:
+            bottom: bottomPadding = gridSize / 2
+            top:
+              if @phoneLandscapeLayout
+                bottomPadding
+              else
+                heightAdjustedButtonSize * .5
+
+          color:  TextPalette.black.secondary
+          text:   text
+
+      if present centerText
+        TextElement
+          TextStyles.smallText
+          :parentWidthChildrenHeight
+          :textCenterCenter
+          textProps
+          text: centerText
+
+      if present rightText
+        TextElement
+          TextStyles.smallText
+          :parentWidthChildrenHeight
+          :textCenterRight
+          textProps
+          text: rightText

@@ -1,0 +1,42 @@
+import &StandardImport
+
+class CanvasPathLibrary extends BaseClass
+
+  constructor: (a) ->
+    @_canvasPathSets = {}
+    if a instanceof XbdTag
+      @_initFromXbd a
+
+  @property :canvasPathSets
+
+  @getter
+    drawArea: ->
+      reduce area, p in @canvasPathSets inject rect()
+        p.drawArea.unionInto area
+
+    xbd: ->
+      CanvasPathLibraryTag
+        array p, name in @canvasPathSets with p.xbd
+
+    inspectedObjects: ->
+      CanvasPathLibrary: toInspectedObjects @_canvasPathSets
+
+    library: -> @_canvasPathSets
+
+  add: (name, pathSet) ->
+    @canvasPathSets[name] = pathSet
+    .name = name
+
+  normalize: ->
+    each p in @canvasPathSets
+      p.normalize()
+
+  flatten: ->
+    @_canvasPathSets = object p in @canvasPathSets
+      p.flattened
+
+  _initFromXbd: (xbdTag) ->
+    each pathTag in xbdTag.tags
+      if TagType = &namespace[pathTag.name]
+        tag = new TagType pathTag
+        @_canvasPathSets[tag.name] = tag

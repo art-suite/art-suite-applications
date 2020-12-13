@@ -1,0 +1,2 @@
+&ToolLib.createPipelineCommand (pipeline) ->
+  &ArtAws.DynamoDb.singleton.scan table: pipeline.tableName

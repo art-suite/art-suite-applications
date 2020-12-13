@@ -1,0 +1,504 @@
+import &StandardImport, &ArtObjectTreeFactory, &Helpers, {} &Counters, &VirtualNode
+&ComponentEpoch extract componentEpoch
+
+getEnv() extract artComponentsDebug
+
+devMode = &DevMode
+
+emptyProps = {}
+
+class Component extends &EpochedStateMixin &InstanceFunctionBindingMixin VirtualNode
+  @abstractClass()
+
+  @nonBindingFunctions:
+    :componentWillMount
+    :componentWillUnmount
+    :render
+
+  @rerenderAllComponents: &RootComponents.rerenderAllComponents
+
+  @toComponentFactory: ->
+    &Helpers extract objectTreeFactoryOptions
+
+    createObjectTreeFactory
+      objectTreeFactoryOptions
+      @
+
+  ###############################
+    EpochedStateMixin Overrides
+  ###############################
+  @getter epoch: -> componentEpoch
+
+  ## processEpoch
+    NOTES:
+      - newProps is non-null if this component is being updated from a non-instantiated Component.
+      - This is where @props gets set for any update, but not where it gets set for component initializiation.
+  processEpoch: (newProps) ->
+    return unless @_epochUpdateQueued || newProps
+    Counters.componentUpdated()
+
+    oldProps = @props
+    oldState = @state
+
+    if newProps
+      @props = @_preprocessProps
+        @_rawProps = newProps
+        false
+
+    super()
+
+    @_reRenderAndUpdateComponent()
+
+  #########################
+  # HOT RELOAD SUPPORT
+  #########################
+  @getModule: getModule = (spec = @prototype)->
+    spec.module || spec.hotModule || getModuleBeingDefined()
+
+  @getCanHotReload: -> @getModule()?.hot
+
+  @_hotReloadUpdate: (@_moduleState) ->
+    name = @getClassName()
+    if hotInstances = @_moduleState.hotInstances
+      log.warn "Art.React.Component #{@getName()} HotReload":
+        instanceToRerender: hotInstances.length
+
+      # update all instances
+      each instance in-array hotInstances
+        instance._componentDidHotReload()
+
+  @postCreateConcreteClass: ({classModuleState, hotReloadEnabled})->
+    super
+    @_hotReloadUpdate classModuleState if hotReloadEnabled
+    @toComponentFactory()
+
+  #########################
+  # INSTANCE
+  #########################
+  constructor: (props, children) ->
+    Counters.componentCreated()
+
+    props = if children
+      propsChildren = {} children
+      if props?
+        merge props, propsChildren
+      else propsChildren
+    else props ? emptyProps
+
+    super props
+
+    @_componentDepth =
+      @_renderedIn?._componentDepth ? 0
+      + 1
+
+    @_refs =
+    @_pendingState =
+    @_pendingUpdates =
+    @_virtualSubtree = null
+
+    @_mounted = false
+
+  clone: ->
+    new @class @props
+
+  release: ->
+    @_virtualSubtree?.release @
+    @_virtualSubtree = null
+
+  ## withElement
+    SEE: VirtualElement#withElement for more
+    IN: f = (concreteElement) -> x
+    OUT: promise.then (x) ->
+  withElement: (f) -> @_virtualSubtree.withElement f
+
+  rerenderAllComponents: ->
+    @_queueRerender()
+    @eachSubcomponent (component) -> component.rerenderAllComponents()
+    null
+
+  ######################
+  # INSPECTION
+  ######################
+
+  @getter
+    verboseInspectedObjects: -> @getInspectedObjects true
+    inspectedName: -> "#{@className}#{if @key then "-"+@key  else ''}"
+    inspectedObjects: (verbose) ->
+      inspectedObjects = [@inspectedName]: merge {}
+        @key
+        props:    if objectHasKeys @props then merge @props
+        state:    if objectHasKeys @state then merge @state
+        rendered: @_virtualSubtree?.inspectedObjects
+
+      if verbose
+        {}
+          class: @class.getNamespacePathWithExtendsInfo()
+          @inspectedPathName
+          inspectedObjects
+
+      else
+        inspectedObjects
+
+
+    mounted: -> @_mounted
+    element: -> @_virtualSubtree?.element
+
+    subcomponents: ->
+      ret = []
+      @eachSubcomponent (c) -> ret.push c
+      ret
+
+    refs: ->
+      unless @_refs
+        @_refs = {}
+        @_virtualSubtree?._captureRefs @
+
+      @_refs
+
+  eachSubcomponent: (f) ->
+    @_virtualSubtree?.eachInComponent (node) ->
+      f node if node instanceof Component
+
+    null
+
+  ### find - find components in this branch of the VirtualTree that match pattern
+    IN
+      pattern: one of:
+        <String>
+        <RegExp>
+        (testString) -> t/f
+
+      options:
+        findAll: t/f  # by default find won't return children of matching Elements, set to true to return all matches
+        verbose: t/f  # log useful information on found objects
+
+      matches: internal use
+
+    OUT: <Array Components>
+  find: (pattern, options, matches = []) ->
+    options extract? findAll, verbose
+
+    if matchFound = @testMatchesPattern pattern
+      matches.push @
+
+    if verbose && (matchFound || verbose == :all)
+      log merge {} matchFound, @inspectedName, functionResult: if pattern is Function then pattern @
+
+    if !matchFound || findAll
+      @eachSubcomponent (child) -> child.find pattern, options, matches
+
+    matches
+
+  findElements: (pattern, options, matches = []) ->
+
+    if @_virtualSubtree
+      if options?.verbose
+        log "findElements in #{@inspectedName}"
+      @_virtualSubtree.findElements pattern, options, matches
+
+    matches
+
+  ##############################
+    propFields declaration
+  ##############################
+  @extendableProperty
+    propFields: emptyPropFields = {}
+
+  ### @propFields
+    Declare prop fields you intend to use.
+    IN: fields
+      map from field names to:
+        default-values
+
+    FUTURE-NOTE:
+      If we decide we want more options than just 'default-values',
+      we can add a new declarator: @propFieldsWithOptions
+      where the map-to-values must all be options objects.
+
+    EFFECTS:
+      used to define getters for @prop
+  ###
+  @propFields: propFields = @_normalizeAndValidateObjectDeclarations (fields) ->
+    @extendPropFields fields
+    each defaultValue, field in-object fields
+      @addGetter field, ~> @props[field]
+
+  # ALIAS
+  @propField: propFields
+
+  ################################################
+  # Component LifeCycle
+  ################################################
+
+  ### preprocessProps
+
+    When:         Called on component instantiation and any time props are updated
+
+    IN:           newProps - The props received from the render call which created/updated this component
+
+    OUT:          plain Object - becomes @props. Can be newProps, based on newProps or entirely new.
+
+    Guarantee:    @props will allways be passed through preprocessProps before it is set.
+                  i.e. Your render code will never see a @props that hasen't been preprocessed.
+
+    Be sure your preprocessProps: (requirements)
+      - returns a plain Object
+      - doesn't modify the newProps object passed in (create and return new object to add/alter props)
+      - call super!
+
+    Examples:
+      # minimal
+      preprocessProps: ->
+        merge super, myProp: 123
+
+      # a little of everything
+      preprocessProps: ->
+        newProps = super
+        @setState foo: newProps.foo
+        merge newProps, myProp: "dude: #{newProps.foo}"
+
+    Okay:
+      you can call @setState (Art.Flux.Component does exactly this!)
+
+    Description:
+      Either return exactly newProps which were passed in OR create a new, plain object.
+      The returned object can contain anything you want.
+      These are the props the component will see in any subsequent lifecycle calls.
+
+    NOTE: Unique to Art.React. Not in Facebook's React.
+
+    NOTES RE Facebook.React:
+      Why add this? Well, often you want to apply a transformation to @props whenever its set OR it changes.
+      With Facebook.React there is no one lifecycle place for this. Component instantiation/mounting
+      and component updating are kept separate. I have found it is very error-prone to implement
+      this common functionality manually on each component that needs it.
+  ###
+  preprocessProps: defaultPreprocessProps = (newProps) -> newProps
+
+  ### componentWillMount
+    Invoked once, immediately before the initial rendering occurs.
+    ALLOWED: setState
+    IN/OUT: ignored
+  componentWillMount: defaultComponentWillMount = ->
+
+  ### componentWillUnmount
+    Invoked once, immediately before a component is unmounted.
+    IN/OUT: ignored
+  componentWillUnmount: defaultComponentWillUnmount = ->
+
+  ### componentDidHotReload
+    Called each time webpack hot-reloads a module.
+    It is important that this change the components state to trigger a rerender.
+  componentDidHotReload: ->
+    @setState
+      :_hotModuleReloadCount
+      @state._hotModuleReloadCount
+      ? 0
+      + 1
+
+  ######################
+  # PRIVATE
+  ######################
+  _captureRefs: (component) ->
+    if component == @renderedIn
+      if key = @key
+        component._refs[key] = @
+
+      each child in-array @props.children
+        child._captureRefs component
+
+    @
+
+  _unmount: ->
+    @_removeHotInstance()
+    @_componentWillUnmount()
+
+    @_virtualSubtree?._unmount()
+    @_mounted = false
+
+  _addHotInstance: ->
+    if moduleState = @class._moduleState
+      (moduleState.hotInstances ||= []).push @
+
+  _removeHotInstance: ->
+    if moduleState = @class._moduleState
+      {hotInstances} = moduleState
+      if hotInstances && 0 <= index = hotInstances.indexOf @
+        moduleState.hotInstances = arrayWithout hotInstances, index
+
+  ## _instantiate
+    OUT: this
+  emptyState = @_emptyState
+  _instantiate: (parentComponent, parentVirtualNode) ->
+    if parentComponent != @_renderedIn && parentComponent? && @_renderedIn?
+      return @clone()._instantiate parentComponent, parentVirtualNode
+
+    super
+
+    Counters.componentInstantiated()
+
+    @bindFunctionsToInstance()
+    @_addHotInstance()
+
+    @props = @_preprocessProps @props, true
+    @_componentWillMount()
+
+    @_instantiateState()
+
+    @_instantiateVirtualSubtree()
+
+    @_mounted = true
+    @
+
+  _instantiateVirtualSubtree: ->
+    if @_virtualSubtree = @_render()
+      VirtualNode.currentlyRendering = @
+      @_virtualSubtree._instantiate @, @
+      VirtualNode.currentlyRendering = null
+
+  _render: ->
+    # <performance monitoring>
+    startFrameTimer :acRender
+    Counters.componentRendered()
+
+    log "render component: #{@className}" if artComponentsDebug
+
+    @_refs = null
+    VirtualNode.currentlyRendering = @
+    try
+      rendered = @render()
+      unless rendered instanceof VirtualNode
+        @_reportInvalidRenderResult rendered
+
+    catch error
+      log.error "Error rendering #{@inspectedPath}", error
+      rendered = null
+
+    VirtualNode.currentlyRendering = null
+
+    endFrameTimer()
+
+    rendered
+
+  _canUpdateFrom: (b)->
+    @class == b.class &&
+    @key == b.key
+
+  _shouldReRenderComponent: (componentInstance) ->
+    @_propsChanged(componentInstance) || @_pendingState
+
+  # renders the component and updates the Virtual-AIM as needed.
+  _reRenderAndUpdateComponent: ->
+
+    startFrameTimer :acUpdate
+
+    unless @_virtualSubtree
+      @_instantiateVirtualSubtree()
+    else if newRenderResult = @_render()
+
+      if @_virtualSubtree._canUpdateFrom newRenderResult
+        # log "Component._reRenderAndUpdateComponent _updateFrom #{newRenderResult.inspectedName}/#{newRenderResult.uniqueId}"
+        VirtualNode.currentlyRendering = @
+        @_virtualSubtree._updateFrom newRenderResult
+        VirtualNode.currentlyRendering = null
+
+      else if @ extract parentVirtualElement
+        @_virtualSubtree?._unmount()
+        @_virtualSubtree = newRenderResult
+        ._instantiate @
+
+        parentVirtualElement._updateConcreteChildren()
+
+      else @_reportInvalidRenderResult newRenderResult
+
+    endFrameTimer()
+
+    null
+
+  ## _reportInvalidRenderResult
+  _reportInvalidRenderResult: (newRenderResult) ->
+    log.error
+      "" Art.Components Component Render Error: (render ignored)\n\n
+      + if newRenderResult instanceof VirtualNode
+        """
+          The render function's top-level Component/VirtualElement changed
+          too much: The VirtualNode returned by a component's render function
+          cannot change its Type or Key if it is the root node of the entire
+          virtual tree.
+
+          Solution: Wrap your changing VirtualNode with a non-changing VirtualElement.
+
+      else
+        """
+          Invalid render result. Must return a VirtualElement or Component instance.
+
+    log invalidRenderDetails:
+      component:              @getInspectedObjects true
+      invalidRenderResult:    newRenderResult
+      keyChanged:             @_virtualSubtree?.key != newRenderResult?.key
+      typeChanged:
+        @_virtualSubtree?.class != newRenderResult?.class
+        || @_virtualSubtree.elementClassName != newRenderResult.elementClassName
+
+  ## _updateFrom
+    EFFECT:
+      1. Modifies @ to be an exact clone of componentInstance.
+      2. Updates the true-Elements as we go.
+
+    OUT: @
+  _updateFrom: (componentInstance) ->
+    if @_shouldReRenderComponent componentInstance
+      @processEpoch componentInstance.props
+
+    @
+
+  ########################
+    PRIVATE - LifeCycle Management
+  ########################
+
+  ###
+    NOTE: The reason for defaultComponent* values instead of making the defaults NULL
+      is so inheritors can call "super" safely.
+
+  _preprocessProps: (props, firstCall) ->
+    if emptyPropFields != propFields = @getPropFields()
+      merge propFields, props
+    else props
+
+    # props = super props # triggers PropFieldsMixin - which will include any default values from @propFields
+    return props if defaultPreprocessProps == @preprocessProps
+    try @preprocessProps props, firstCall
+    catch error
+      @_logLifeCycleError error
+      props
+
+  _componentDidHotReload: ->
+    @bindFunctionsToInstance true
+    try @componentDidHotReload()
+    catch error
+      @_logLifeCycleError error
+
+    null
+
+  _componentWillMount:    -> @_doCustomLifeCycle defaultComponentWillMount,   @componentWillMount,   null
+  _componentWillUnmount:  -> @_doCustomLifeCycle defaultComponentWillUnmount, @componentWillUnmount, null
+
+  _doCustomLifeCycle: (defaultLifeCycle, customLifeCycle, defaultReturnValue) ->
+    if defaultLifeCycle != customLifeCycle
+      try
+        customLifeCycle.call @
+      catch error
+        @_logLifeCycleError error
+        defaultReturnValue
+    else defaultReturnValue
+
+  _logLifeCycleError: (error) ->
+    log.error ArtComponents_lifeCycle: {} error, Component: @
+    null
+
+
+  #####################
+    PRIVATE
+  #####################
+  _queueRerender: ->
+    @_getPendingState()

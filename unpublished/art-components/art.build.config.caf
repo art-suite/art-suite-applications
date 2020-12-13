@@ -1,0 +1,22 @@
+target:
+  ##
+    false: use false and run "npm start" if you want to run tests/perfs in the browser
+    true: use true and 'webpack' to generate stand-alone build
+  node: true
+
+npm:
+  description: "" Art.Components
+  dependencies:
+    art-epoched-state: :*
+
+  scripts:
+    perf: "nn -s;mocha -u tdd perf/"
+
+webpack:
+  # common properties are merged into each target's properties
+  common: {}
+
+  # each target's individual properties
+  targets:
+    index: {}
+    perf: {}

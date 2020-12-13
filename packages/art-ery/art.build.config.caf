@@ -1,0 +1,8 @@
+import &ArtStandardLib
+
+package: ->
+  merge &package,
+    scripts:
+      test-server:    "" caf ./TestServer.caf
+      test:           "" nn -s;mocha -u tdd
+      testInBrowser:  "" webpack-dev-server --progress --env.devServer

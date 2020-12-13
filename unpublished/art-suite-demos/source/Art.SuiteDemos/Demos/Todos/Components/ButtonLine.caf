@@ -1,0 +1,24 @@
+import &ArtSuite
+
+class ButtonLine extends Component
+  render: ->
+    {children, action, text} = @props
+
+    Element
+      &StyleProps.line
+
+      draw:
+        radius: 5
+        #00bcd4
+
+      children
+
+      TextElement
+        &StyleProps.text
+        size:       cs: 1
+        text:       text
+        margin:     5
+        color:      if action then :white else #fffa
+        on:         pointerClick: action
+        animators:  :color
+        cursor:     if action then :pointer else null

@@ -1,0 +1,72 @@
+import &ArtSuite, {} &Demos
+
+textStyle =
+  fontFamily: :Helvetica
+  fontSize:   16
+  color:      #fffc
+
+class DemoButton extends PointerActionsMixin Component
+
+  render: ->
+    Element
+      on:         @buttonHandlers
+      size:       :parentWidthChildrenHeight
+      animators:  :draw
+      cursor:     :pointer
+      draw:       if @hover then #fff else #fff0
+
+      TextElement
+        textStyle
+        size:     :parentWidthChildrenHeight
+        color:    #0007
+        padding:  10
+        text: @props.name
+
+class Loader extends Component
+
+  @stateFields selectedDemo: if Demos[getEnv().demo]? then getEnv().demo else null
+
+  render: ->
+    {selectedDemo} = @
+
+    Element
+      childrenLayout: :column
+
+      Element
+        size:               ww: 1 h: 50
+        childrenLayout:     :row
+        childrenAlignment:  :centerLeft
+        draw:               #333
+        padding:            10
+
+        &Button text: :back action: @clearSelectedDemo if selectedDemo
+
+        TextElement
+          textStyle
+          align:    :centerLeft
+          fontSize: 20
+          margin:   10
+          text:     selectedDemo || "" Art Suite Demos
+
+      Element
+        clip: true
+        draw: :white
+
+        if selectedDemo
+          Element
+            key:        "" demo-#{selectedDemo}
+            clip:       true
+            animators:  axis: toFrom: point -1 0
+
+            Demos[selectedDemo].Main()
+
+        else
+          ScrollElement
+            key:            :select-demo
+            childrenLayout: :column
+            animators:      axis: toFrom: :topRight
+            draw:           :#eee
+
+            array name in Demos.getNamespaceNames()
+              DemoButton {} name, action: -> @setSelectedDemo name
+

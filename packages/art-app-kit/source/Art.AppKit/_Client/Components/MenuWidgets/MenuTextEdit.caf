@@ -1,0 +1,93 @@
+import &StandardImport
+
+class MenuTextEdit extends ViewStateComponent
+
+  @stateFields
+    value: null
+
+  preprocessProps: (props) ->
+    @setState value: props.value
+    props
+
+  submit: ->
+    @props.submit? @value
+    @props.close?()
+
+  @getOverlayPageProps: (props) ->
+    okay: (instance) =>
+      global.submitMenuTextEdit = instance
+      instance.submit()
+    title: props.title
+
+  render: ->
+    {title, info, spellcheck, value, placeholder, cancel, close, textArea, maxLength} = @props
+    {gridSize, viewHeight, isTouchScreen, nativeApp} = @viewState
+
+    unknownKeyboardHeight = isTouchScreen && !nativeApp
+
+    &MenuSection
+      &MenuInfo text: info if info?
+
+      Element
+        key:      :edit
+        padding:  v: gridSize / 2
+        on:       focus: textArea && @clearDisplayOnly
+        size:
+          if textArea && !unknownKeyboardHeight
+            :parentSize
+          else
+            :parentWidthChildrenHeight
+
+        if textArea
+          valueLength = @value?.length || 0
+          []
+            if unknownKeyboardHeight
+              Element
+                draw:
+                  radius:   gridSize / 2
+                  fill:     AppPalette.lightGrey
+                  padding:  -gridSize / 2
+
+                size: ww: 1, h: viewHeight * 1/4
+
+            TextInputElement
+              TextStyles.mediumText
+              spellcheck: spellcheck
+              size:
+                if textArea
+                  if unknownKeyboardHeight
+                    ww: 1, h: viewHeight * 1/4
+                  else
+                    :parentSize
+                else
+                  :parentWidthChildrenHeight
+
+              placeholder:  placeholder
+              key:          :menuTextEditInput
+              type:         :textarea
+              value:        @props.value
+              maxLength:    maxLength
+              on:
+                valueChanged:       ({props}) -> @value = props.value
+                domElementAttached: ({target}) -> target.focus(); target.selectAll()
+
+            maxLength? && (valueLength / maxLength) > .5 && TextElement
+              TextStyles.tinyText
+              :childrenSize
+              :bottomRight
+              inFlow:   false
+              color:    TextPalette.black.secondary
+              text:
+                pluralize maxLength - valueLength, :char
+                + " left"
+
+        else
+          SubmitField {}
+            value
+            placeholder
+            @submit
+            whiteBackground:  true
+            noButtons:        true
+            maxLength:        maxLength
+            large:            true
+            valueChanged:     ({value}) -> @value = value

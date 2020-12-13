@@ -1,0 +1,29 @@
+import &StandardImport
+
+class IntermediateCanvasPathSet extends BaseClass
+
+  constructor: (@paths = []) ->
+
+  @property :paths
+
+  normalize: ->
+    minX = minY = maxX = maxY = 0
+    firstPath = true
+
+    each path in @paths
+      path.resolveMatrix()
+
+      {originalMaxX, originalMaxY, originalMinX, originalMinY} = path
+
+      if firstPath
+        maxX = originalMaxX
+        minX = originalMinX
+        maxY = originalMaxY
+        minY = originalMinY
+
+      minX = min minX, originalMinX
+      minY = min minY, originalMinY
+      maxX = max maxX, originalMaxX
+      maxY = max maxY, originalMaxY
+
+

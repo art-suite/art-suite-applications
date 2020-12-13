@@ -1,0 +1,9 @@
+import &StandardImport
+
+class RootComponent extends Component
+
+  render: ->
+    CanvasElement
+      draw:     :white
+      padding:  10
+      TextElement text: :hello

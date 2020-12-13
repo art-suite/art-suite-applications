@@ -1,0 +1,23 @@
+import &ArtStandardLib
+target: node: true
+package: (abcPackage) ->
+  sourceDir = :source-source
+  merge &package,
+    scripts: merge &package.scripts,
+      test: "jest"
+      build:
+        """
+          coffee --output source --compile --map #{sourceDir} &
+          caf -p -c #{sourceDir} -o source --map &
+          wait
+          nn -sq
+
+      build-clean:  "" rm -rf source/*; npm run build
+      watch:        "" npm-watch
+
+webpack:
+  common: {}
+  targets:
+    index: {}
+    test: target: "web"
+    perf: target: "web"

@@ -1,0 +1,23 @@
+import &ArtStandardLib
+
+if isNode
+  # prevent webpack from including Server code
+  nodeOnlyRequire = eval 'require'
+  global.AWS = nodeOnlyRequire 'aws-sdk'
+
+else
+  &Client
+
+unless global.AWS
+  throw new Error
+    """
+      Art.Aws: global.AWS required
+
+      Please use one of the following:
+
+        > require 'art-aws/Client'
+        > require 'art-aws/Server'
+
+[]
+  config: require('./Config').config
+  require './DynamoDb'

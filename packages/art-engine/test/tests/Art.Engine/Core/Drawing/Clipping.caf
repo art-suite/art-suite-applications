@@ -1,0 +1,71 @@
+import &StandardImport
+
+{testDownsampledRedChannelEq, testCompactRedChannelEq} = &CoreHelper
+
+suite: ->
+  testDownsampledRedChannelEq
+    "basic clipping"
+    Element
+      size: 4
+      RectangleElement color: #000, size: 4
+      Element
+        size: 2
+        location: 1
+        clip: true
+        RectangleElement color: #fff, location: -1, size: 4
+    compactFlatten []
+      0 0 0 0
+      0 7 7 0
+      0 7 7 0
+      0 0 0 0
+
+  testDownsampledRedChannelEq
+    "padding with non-zero clipping"
+    Element
+      size: 4
+      RectangleElement color: #000, size: 4
+      Element
+        size: 2
+        location: 1
+        padding: right: 1
+        clip: true
+        RectangleElement color: #fff, location: -1, size: 4
+    compactFlatten []
+      0 0 0 0
+      0 7 0 0
+      0 7 0 0
+      0 0 0 0
+
+  testDownsampledRedChannelEq
+    "negative padding"
+    Element
+      size: 4
+      RectangleElement color: #000, size: 4
+      Element
+        size: 2
+        location: 1
+        padding: right: -1
+        clip: true
+        RectangleElement color: #fff, location: -1, size: 4
+    compactFlatten []
+      0 0 0 0
+      0 7 7 7
+      0 7 7 7
+      0 0 0 0
+
+  testDownsampledRedChannelEq
+    "over padding should not have negative clipping"
+    Element
+      size: 4
+      RectangleElement color: #000, size: 4
+      Element
+        size: 2
+        location: 1
+        padding: right: 3
+        clip: true
+        RectangleElement color: #fff, location: -1, size: 4
+    compactFlatten []
+      0 0 0 0
+      0 0 0 0
+      0 0 0 0
+      0 0 0 0

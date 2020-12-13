@@ -1,0 +1,46 @@
+import &ArtStandardLib, &ArtEngine, &ArtEngineFactories
+Demos = &namespace.namespaces
+
+class LoaderButton extends &ArtEngine.Element
+  constructor: (options)->
+    super
+    @on =
+      pointerDown:      -> @showWillActivate()
+      pointerOut:       -> @showWontActivate()
+      pointerIn:        -> @showWillActivate()
+      pointerUpInside:  -> @showWontActivate(); options.action?()
+    @margin     = 10
+    @size       = w: 200, h: 60
+    @children   = []
+      Element
+        cursor: :pointer
+        axis: .5
+        animators: scale: true
+        location: ps: .5
+        RectangleElement color: #ff8400
+        TextElement
+          size: ps: 1
+          fontFamily: "sans-serif"
+          align: "centerCenter"
+          text: options.text || "Button"
+
+  showWillActivate: -> @children[0].scale = .95
+  showWontActivate: -> @children[0].scale = 1
+
+FullScreenApp.init()
+.then ->
+  query = parseQuery()
+  demo = Demos[upperCamelCase query.demo || ""]
+
+  if demo
+    demo.Main()
+  else
+    CanvasElement
+      RectangleElement color: #333
+      Element
+        childrenLayout: :flow
+        padding: 10
+        array Demo, name in Demos
+          new LoaderButton
+            text: name
+            action: -> document.location = "?demo=#{name}"

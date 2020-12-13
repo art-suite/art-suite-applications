@@ -1,0 +1,22 @@
+import &StandardImport
+
+describe
+  with: ->
+    test "withHue" ->
+      assert.eq
+        rgbColor #f00
+        rgbColor #0f0
+        .withHue 0
+
+    test "withSimilarHue" ->
+      assert.eq
+        rgbColor #f00
+        rgbColor #0f1
+        .withHue 0
+
+      assert.eq
+        rgbColor #f10
+        .hexString
+        rgbColor #0f1
+        .withSimilarHue 0
+        .hexString

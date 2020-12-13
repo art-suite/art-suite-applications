@@ -1,0 +1,47 @@
+import &StandardImport
+
+class App extends FluxComponent
+  @subscriptions :paginator.paginator :obiWan.location
+
+  render: ->
+    @paginator extract
+      pageDownEnabled
+      pageUpEnabled
+      loadDirection
+      startDarkJediId
+      loadedSlots
+
+    find darkJedi in loadedSlots when darkJedi?.homeworld.id == @location.id
+      pageUpEnabled = pageDownEnabled = false
+
+    Element
+      :centerCenter
+      size:       ww: 1 hch: 1 max: w: 800
+      draw:       appOutlineStyle
+
+      Element
+        :parentWidthChildrenHeight
+        :column
+        padding:          basePadding
+        childrenMargins:  basePadding
+
+        &YodasCurrentPlanet {} @location
+
+        Element
+          :parentWidthChildrenHeight
+          :row
+          childrenMargins:  basePadding
+
+          Element
+            :parentWidthChildrenHeight
+            :column
+            childrenMargins:  basePadding
+            array darkJedi in loadedSlots
+              &ListItem {} darkJedi, alert: darkJedi?.homeworld.id == @location?.id
+
+          Element
+            :column
+            size:             w: 100 hh: 1
+            childrenMargins:  basePadding
+            &Button action:   pageUpEnabled    && @models.paginator.pageUp, up: true
+            &Button action:   pageDownEnabled  && @models.paginator.pageDown

@@ -1,0 +1,85 @@
+import &ArtSuite
+
+boardNums =
+  red:    2  3  4  5  6  7  8  9  10 11 12 :🔓
+  yellow: 2  3  4  5  6  7  8  9  10 11 12 :🔓
+  green:  12 11 10 9  8  7  6  5  4  3  2  :🔓
+  blue:   12 11 10 9  8  7  6  5  4  3  2  :🔓
+  grey:   -5 -5 -5 -5
+
+colors = Object.keys boardNums
+
+StyleProps  = &StyleProps
+ColorScore  = &ColorScore
+ColorRow    = &ColorRow
+
+class Quixx extends FluxComponent
+
+  @subscriptions "" quixx.board quixx.subScores quixx.score
+
+  render: ->
+    {board, subScores, score} = @state
+
+    Element
+      drawOrder: StyleProps.backgroundColor
+
+      ScrollElement
+
+        Element
+          size:             ww: 1 hch: 1
+          childrenLayout:   :column
+
+          &Logo()
+
+          Element
+            key:            :board
+            size:           ww: 1 hch: 1
+            padding:        10
+            childrenLayout: :column
+
+            array nums, c in board
+              ColorRow
+                checks: board[c]
+                color:  c
+                nums:   boardNums[c]
+
+          Element
+            key:            :scores
+            size:           ww: 1 hch: 1
+            drawOrder:      #999
+
+            Element
+              size:           ww: 1 hch: 1
+              padding:        10
+              childrenLayout: :flow
+              childrenAlignment: :center
+
+              array c, i in colors with []
+                Element
+                  size: cs: 1
+                  childrenLayout: :row
+                  margin: 7
+                  ColorScore color: c, score: subScores[c]
+
+                  TextElement
+                    size:       wcw: 1 hh: 1
+                    align:      :centerCenter
+                    text:       if i == colors.length - 1 then "=" else "+"
+                    color:      #777
+                    fontFamily: :Arial
+                    fontSize:   28
+
+              ColorScore width: 100 color: :black score: score
+
+          Element
+            key:      :reset
+            size:     ww: 1 h:60
+            cursor:   :pointer
+            on: pointerClick: @models.quixx.reset
+
+            drawOrder: padding: 10, color: StyleProps.textColorMap.grey, rectangle: radius: 5
+
+            TextElement
+              StyleProps.numberStyle
+              text:   :reset
+              color:  StyleProps.colorMap.grey

@@ -1,0 +1,21 @@
+import &StandardImport, &MenuLib
+
+class MenuHeading extends ViewStateComponent
+
+
+  render: ->
+    {gridSize, buttonSize} = @viewState
+    {text} = @props
+
+    Element
+      menuItemLayout @viewState
+      :parentWidthChildrenHeight
+      margin: top: gridSize * 1.5, bottom: gridSize
+
+      TextElement
+        TextStyles.mediumBoldText
+        :centerLeft :parentWidthChildrenHeight
+        padding:          h: gridSize / 2, top: gridSize / 2
+        color:            TextPalette.black.secondary
+        paragraphLeading: 2
+        @props

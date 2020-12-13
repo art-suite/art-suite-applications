@@ -1,0 +1,214 @@
+import &ArtStandardLib, &ArtCommunicationStatus
+&colors
+
+memoryCheckCycleMs = 10000
+
+class Server extends &LoggingMixin &ArtClassSystem.BaseClass
+
+  @defaults:
+    port:   8085
+    server: :http://localhost
+
+  @start: (manyOptions...) ->
+    new Server
+    .start manyOptions...
+
+  ##
+    ENV: SEE README.MD
+
+    IN: options: one or more options objects, merged
+      port:     (number) port to listen on
+
+      static:   # if present, serve static assets
+        root:   path to static assets to serve
+        headers: {} # headers to return with every request
+
+      handlers:
+        single or array of objects that implement:
+
+          getMiddleware: (options) -> express-use-function
+
+        Example:
+          class MyInfoHandler extends &PrimseHandler
+            @getter handleUrlRegex: -> /// \/ info
+
+            handleApiRequest: (request, requestData) ->
+              info: "" Result from MyInfoHandler
+
+          &ArtExpressServer.start handlers: MyInfoHandler
+
+        NOTE: The final, merged options-object is passed into
+          start is also passed to each getMiddleware() call.
+
+      numWorkers: number
+        if > 1, will spawn that many workers to handle requests
+
+      allowAllCors: true
+        If set, then headers and OPTIONS requests will be handled in such a way
+        that ALL requests are accepted, regardless of CORS.
+
+        This is the way the interenet should work. The problem is COOKIES.
+
+        If your client uses COOKIES, then don't use this, but if you maintain your
+        sessions some other way, it is safe to do.
+
+        SEE: http://www.essenceandartifact.com/2017/01/why-cors-why.html
+  start: (manyOptions...) ->
+    {WEB_CONCURRENCY, PORT, ART_EXPRESS_SERVER_VERBOSE} = getEnv()
+
+    @verbose = true if ART_EXPRESS_SERVER_VERBOSE?
+
+    {numWorkers} = @options = @_allowAllCors merge
+        Server.defaults
+        numWorkers:   WEB_CONCURRENCY || 1
+        port:         PORT
+        manyOptions...
+
+    numWorkers = numWorkers | 0 if numWorkers?
+
+    if numWorkers > 1
+      &throng
+        workers: numWorkers
+        master: ->
+          @logEnvironment()
+          @log start: throng: workers: numWorkers
+
+        start: fastBind @_startOneServer, @
+    else
+      @logEnvironment()
+      @_startOneServer()
+
+  logEnvironment: ->
+    @logVerbose start: {}
+      @options
+      @verbose
+      env:
+        merge
+          object v, k from process.env when k.match /^art/
+          {}
+            getEnv().WEB_CONCURRENCY
+            getEnv().WEB_MEMORY
+            getEnv().MEMORY_AVAILABLE
+            getEnv().PORT
+            getEnv().ART_EXPRESS_SERVER_MAX_AGE_SECONDS
+            getEnv().ART_EXPRESS_SERVER_MAX_SIZE_MB
+            getEnv().ART_EXPRESS_SERVER_VERBOSE
+
+      Neptune: Neptune.getVersions()
+
+
+  ##################
+  # PRIVATE
+  ##################
+  _allowAllCors: (options) ->
+    if options.allowAllCors
+      merge
+        options
+        commonResponseHeaders: merge
+          &AllowAllCorsHandler.commonResponseHeaders
+          options.commonResponseHeaders
+
+        handlers: compactFlatten []
+          &AllowAllCorsHandler
+          options.handlers
+    else options
+
+  timeAgeString = (actualAge, testAge) ->
+    testAge ?= actualAge
+
+    if testAge <= 60 # 1 minute
+      "#{(actualAge).toFixed 2}s"
+    else if testAge <= 60 * 60 # 1 hour
+      "#{(actualAge / 60).toFixed 2}m"
+    else
+      "#{(actualAge / (60 * 60)).toFixed 2}h"
+
+  _initMonitors: (server) ->
+    {ART_EXPRESS_SERVER_MAX_AGE_SECONDS, ART_EXPRESS_SERVER_MAX_SIZE_MB} = getEnv()
+
+    if ART_EXPRESS_SERVER_MAX_AGE_SECONDS
+      ART_EXPRESS_SERVER_MAX_AGE_SECONDS = ART_EXPRESS_SERVER_MAX_AGE_SECONDS | 0
+      maxAgeMs = 1000 * ART_EXPRESS_SERVER_MAX_AGE_SECONDS * (.9 + Math.random() * .2) | 0
+      maxAgeTimeString = timeAgeString maxAgeMs/1000, ART_EXPRESS_SERVER_MAX_AGE_SECONDS
+      @log "ART_EXPRESS_SERVER_MAX_AGE_SECONDS=#{ART_EXPRESS_SERVER_MAX_AGE_SECONDS} -> shut down after #{maxAgeTimeString} (+/- 10% randomly)".green
+
+      timeout maxAgeMs
+      .then ->
+        @log "ART_EXPRESS_SERVER_MAX_AGE_SECONDS=#{ART_EXPRESS_SERVER_MAX_AGE_SECONDS} -> shutting down: #{maxAgeTimeString} expired".red
+
+        server.close()
+        process.exit 0
+
+    if ART_EXPRESS_SERVER_MAX_SIZE_MB
+      ART_EXPRESS_SERVER_MAX_SIZE_MB = ART_EXPRESS_SERVER_MAX_SIZE_MB | 0
+      @log "ART_EXPRESS_SERVER_MAX_SIZE_MB=#{ART_EXPRESS_SERVER_MAX_SIZE_MB} -> shut down when MemoryUsage(#{(process.memoryUsage().rss / (1024*1024))| 0}MB) > #{ART_EXPRESS_SERVER_MAX_SIZE_MB}MB (check every: #{memoryCheckCycleMs / 1000 | 0}s)".green
+
+      timeout memoryCheckCycleMs, checkMemory = ->
+
+        if ART_EXPRESS_SERVER_MAX_SIZE_MB < rssMegabytes = (process.memoryUsage().rss / (1024*1024)) | 0
+          @log "ART_EXPRESS_SERVER_MAX_SIZE_MB=#{ART_EXPRESS_SERVER_MAX_SIZE_MB} -> shutting down: MemoryUsage(#{rssMegabytes}MB) > #{ART_EXPRESS_SERVER_MAX_SIZE_MB}. (uptime: #{@uptimeString}, #{@requestCount} requests)".red
+          server.close()
+          process.exit 0
+
+        else @logVerbose "ART_EXPRESS_SERVER_MAX_SIZE_MB=#{ART_EXPRESS_SERVER_MAX_SIZE_MB} -> tested OK! MemoryUsage(#{rssMegabytes}MB) <= #{ART_EXPRESS_SERVER_MAX_SIZE_MB}MB (uptime: #{@uptimeString}, #{@requestCount} requests)".green
+        timeout memoryCheckCycleMs, checkMemory
+
+
+
+  @getter
+    uptime: -> currentSecond() - @startTime
+    uptimeString: -> timeAgeString @uptime
+
+  _startOneServer: (@workerId) ->
+    @startTime = currentSecond()
+
+    {static: staticOptions, initWorker, port, posthandlers, handlers, postmiddleware, middleware, commonResponseHeaders} = @options
+
+    @app = &express()
+
+    initWorker? @
+
+    @requestCount = 0
+
+    if commonResponseHeaders && objectHasKeys commonResponseHeaders
+      @app.use (request, response, next) ->
+        each v, k from commonResponseHeaders
+          response.setHeader k, v
+        next()
+
+    @app.use (_a, _b, next) -> @requestCount++; next()
+
+    @app.use &compression()
+
+    if middleware is Object
+      each callback, path in compactFlatten [middleware]
+        @app.use path, callback
+
+    else if middleware?
+      each mw in compactFlatten [middleware]
+        @app.use mw
+
+    each handler in compactFlatten [handlers]
+      @app.use handler.getMiddleware @options
+
+    if staticOptions
+      @app.use &express.static staticOptions.root, merge
+        maxAge:       3600 * 24 * 7 # 1 week
+        setHeaders: (response, path) ->
+          switch &path.extname(path).toLowerCase()
+            when :.js then response.setHeader "Content-Type", "application/javascript; charset=UTF-8"
+
+          each v, k from staticOptions.headers
+            response.setHeader k, v
+        staticOptions
+
+    each handler in compactFlatten [posthandlers]
+      @app.use handler.getMiddleware @options
+
+    each mw in compactFlatten [postmiddleware]
+      @app.use mw
+
+    server = @app.listen port | 0, =>
+      @log "" listening on: http://localhost:#{port}
+
+    @_initMonitors server

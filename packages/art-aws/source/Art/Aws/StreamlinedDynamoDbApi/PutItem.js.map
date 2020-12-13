@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "PutItem.js",
+  "sourceRoot": "../../../..",
+  "sources": [
+    "source-source/Art/Aws/StreamlinedDynamoDbApi/PutItem.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,sEAAO,wDAEP,oDAAsB,mHAIpB,QAAkB,CAAC,SACjB,oBAAgB,SAChB,8BAA0B,gBAC1B,gDAEF,QAAgB,CAAC,yBACf,EAAC,MAAM,QAAQ,SACf,QAAI,QAAK,YACsC,mDACvC,oBAAQ,iBAAa,cAC7B,0DAEF,QAA0B,CAAC,SACzB,wCAAoC,SACpC,6BAAyB,QAAQ,2BACjC,6BAAyB,QAAQ,uCACjC,6BAAyB,QAAQ"
+}

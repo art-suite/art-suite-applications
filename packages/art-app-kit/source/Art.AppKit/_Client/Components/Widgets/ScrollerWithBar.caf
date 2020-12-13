@@ -1,0 +1,188 @@
+import &StandardImport
+
+flushProximity = 20
+
+class ScrollerWithBar extends FluxComponent
+  @subscriptions :appKitViewState.appKitViewState
+
+  @stateFields
+    scrollBarActive:    false
+    recentlyScrolled:   false
+    contentsDontFit:    false
+    flushStartDistance: 0
+    flushEndDistance:   0
+
+    portionShown: 0
+    scrollPosition: 0
+    scrollUpdate: null
+
+  @getter
+    showScrollBar: -> @recentlyScrolled || @scrollBarActive
+
+  constructor: ->
+    @scrollBarTimer = new ReschedulableTimer
+
+  ###
+    scrollUpdate needs to be created in getInitialState because
+    otherwise it is considered "different" every render, and since it
+    TRIGGERS a render... and an update to handlers causes ScrollElement to re-bind
+    it's event handlers... basically it breaks gestures - they get canceled
+
+  getInitialState: ->
+    scrollUpdate: (event) ->
+      @props.on?.scrollUpdate? event
+      event.props extract windowSize, childrenSize, childrenOffset, scrollRatio
+
+      @flushStartDistance = -childrenOffset
+      @flushEndDistance = childrenSize + childrenOffset - windowSize
+
+      @contentsDontFit = childrenSize > windowSize
+      @recentlyScrolled = !float32Eq0 event.props.childrenOffsetDelta
+      @scrollBarTimer.timeout 500, -> @clearRecentlyScrolled()
+
+      @scrollPosition = scrollRatio
+      @portionShown = windowSize / childrenSize
+
+  @getter
+    scrollElement:    -> @refs[@scrollElementKey].element
+    scrollElementKey: -> @props.key ? :scrollElement
+
+  render: ->
+    @appKitViewState extract gridSize, isTouchScreen
+    @props extract
+      key
+      topEdgeShadow
+      leftEdgeShadow
+      rightEdgeShadow
+      bottomEdgeShadow
+      barPadding
+      childrenLayout, size, noPadding, scrollBarOpacity = 0
+
+    commonEdgeShadowProps = if topEdgeShadow || leftEdgeShadow || rightEdgeShadow || bottomEdgeShadow
+      animators:  opacity: toFrom: 0
+      draw:
+        color:  :black
+        shadow: offset: 0 blur: gridSize * 2
+
+    Element
+      size: size
+      clip: @props.clip
+      ScrollElement
+        :column # can switch childrenLayout to :row in @props
+        objectWithout @props, :children, :clip
+        size: size
+        key: key ? :scrollElement
+        on: {} @scrollUpdate
+        @props.children
+
+      if @contentsDontFit
+        mainAxis = if horizontal = childrenLayout == :row
+          :x
+        else
+          :y
+        barSize = gridSize # * if isTouchScreen then .5 else 1
+        barDisplaySize = if isTouchScreen then 3.5 else gridSize * 2/3
+
+        displayScrollPosition = bound 0, @scrollPosition, 1
+
+        overScroll =
+          Math.abs displayScrollPosition - @scrollPosition
+          * (1 - @portionShown)
+
+        Element
+          animators: opacity: toFrom: 0
+
+          receivePointerEvents: if isTouchScreen then :never
+
+          cursor:   :pointer
+          if horizontal
+            location: :bottomLeft
+            axis:     :bottomLeft
+            size: h: barSize
+          else
+            location: :topRight
+            axis:     :topRight
+            size: w: barSize
+
+          on:
+            pointerDown: ->
+              @_scrollPositionAtPointerDown = @scrollPosition
+
+            pointerMove: ({totalDelta, target, leftDeadzone}) ->
+              target?.capturePointerEvents?() if leftDeadzone
+              @scrollElement.scrollRatio =
+                @_scrollPositionAtPointerDown +
+                totalDelta[mainAxis] /
+                  1 - @portionShown
+                  * target.currentSize[mainAxis]
+
+            mouseIn: @triggerScrollBarActive
+            mouseOut: @clearScrollBarActive
+
+          padding: barPadding ? unless noPadding
+            barSize - barDisplaySize
+            / 2
+          Element
+            if horizontal
+              location: yh: .5 xw:  displayScrollPosition
+              axis:     y:  .5 x:   displayScrollPosition
+              size:
+                h: barDisplaySize
+                xw: max 0, @portionShown - overScroll
+            else
+              location: xw: .5 yh:  displayScrollPosition
+              axis:     x:  .5 y:   displayScrollPosition
+              size:
+                w: barDisplaySize
+                yh: max 0, @portionShown - overScroll
+
+            opacity:
+              if @showScrollBar
+                .9
+              else scrollBarOpacity
+
+            animators:
+              opacity: duration: .5
+              draw: true
+            draw:
+              radius: 100
+              if @scrollBarActive then #000a else #0007
+              # shadow:
+              #   offset: 0
+              #   blur: barDisplaySize * 2
+              #   color: :white
+
+      Element
+        receivePointerEvents: :never
+        clip: true
+        if topEdgeShadow && @contentsDontFit && @flushStartDistance > 0
+          Element
+            key:        :topEdgeShadow
+            axis:       :bottomCenter
+            location:   xw: .5 y: -1
+            opacity:    min 1 @flushStartDistance / flushProximity
+            commonEdgeShadowProps
+
+        if bottomEdgeShadow && @contentsDontFit && @flushStartDistance > 0
+          Element
+            key:        :bottomEdgeShadow
+            axis:       :topCenter
+            location:   xw: .5 yh: 1 y: 1
+            opacity:    min 1 @flushEndDistance / flushProximity
+            commonEdgeShadowProps
+
+        if leftEdgeShadow && @contentsDontFit && @flushStartDistance > 0
+          Element
+            key:        :leftEdgeShadow
+            axis:       :centerRight
+            location:   yh: .5, x: -1
+            opacity:    min 1 @flushStartDistance / flushProximity
+            commonEdgeShadowProps
+
+        if rightEdgeShadow && @contentsDontFit && @flushEndDistance > 0
+          Element
+            key:        :rightEdgeShadow
+            axis:       :centerLeft
+            location:   yh: .5 xw: 1 x: 1
+            opacity:    min 1 @flushEndDistance / flushProximity
+            commonEdgeShadowProps

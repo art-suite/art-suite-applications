@@ -1,0 +1,88 @@
+import &StandardImport, &Widgets
+
+class Page extends ViewStateComponent
+  @subscriptions
+    :pageStack
+
+  @propFields
+    :component
+    :pageStackIndex
+    :hideTitle
+    :title
+
+  preprocessProps: (props) ->
+    if props.visible
+      @models.appKitPresentationState.statusBarStyle = props.statusBarStyle ? :light
+    props
+
+  back: ->
+    @props.onBack? merge @props, @state
+    @models.pageStack.pop()
+
+  render: ->
+    @viewState extract gridSize
+
+    Element
+      :column
+      {visible} = @props
+      draw:
+        padding:
+          left:   -@safePadding.left
+          right:  -@safePadding.right
+        :white
+        # :green
+
+      animators:
+        visible:  duration: .125
+        opacity:  duration: .125 toFrom:   0
+        location: duration: .125 toFrom: x: gridSize * 3
+
+      location: x: if visible then 0 else -gridSize * 3
+
+      unless @hideTitle || @viewState.wideLayout
+        @props extract title
+
+        Element
+          size: h: titleBarSize = if @phoneLandscapeLayout then @reducedButtonSize else @buttonSize
+          draw:
+            padding:
+              top: -@safePadding.top
+              h: -gridSize * 3
+            AppPalette.primary ? :red
+
+          TextElement
+            TextStyles.mediumText
+            :parentSize
+            :textCenterCenter
+            color:    AppPalette.textOnPrimary
+            text:     title
+
+          if @pageStackIndex > 0
+            IconButton
+              icon:   :chevronLeft
+              size:   titleBarSize
+              color:  AppPalette.textOnPrimary
+              action: @back
+
+      Element
+        padding:
+          top:    if @isPhone then 0 else @gridSize / 4
+          bottom: -@safePadding.bottom
+        draw:
+          unless @hideTitle then []
+            padding:
+              h: -1000
+              bottom: -@safePadding.bottom
+            :clip
+        :column
+
+        if @props.noScroll
+          Element
+            @props.children
+
+        else
+          ScrollerWithBar
+            @props.children
+
+        Element
+          size: h: @safePadding.bottom

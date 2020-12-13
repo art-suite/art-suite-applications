@@ -1,0 +1,18 @@
+import &StandardImport
+
+class DrumTimeslot extends PointerActionsMixin Component
+
+  render: ->
+    Element
+      size: DrumStyle.drumSize
+      draw:
+        padding: 5
+        switch
+        when @hover     then if @props.on then #0f0 else #080
+        when @props.on  then #0d0
+        else #4
+        #fff5 if @props.playing
+
+
+      cursor: :pointer
+      on:     @buttonHandlers

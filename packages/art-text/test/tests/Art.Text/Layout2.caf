@@ -1,0 +1,122 @@
+import &StandardImport, &Fonts
+
+suite:
+  tight: ->
+
+    # Safari bug tracker: https://bugs.webkit.org/show_bug.cgi?id=46987
+    test "layoutMode:tight 64pt well? area and drawArea - safari failes due to rounded fontSizes", ->
+      layout = new Layout "well?", {fontSize: 5.5}, {layoutMode:"tight"}
+      bitmap = layout.toBitmap area: :drawArea, background: #ff0
+      log scaled: scaledBitmap = layout.toBitmap scale: 30 area: :drawArea, background: #ff0
+
+
+      {area, drawArea} = layout
+      log {bitmap, size: bitmap.size, layout, area, drawArea, area.aspectRatio}
+
+      assert.within
+        area
+        rect 0, 0, 11, 3
+        rect 0, 0, 12, 4
+        :area
+
+      assert.eq
+        true
+        neq drawArea, area
+        && drawArea.contains area.expand .5
+        && area.expand(5).contains drawArea
+        "drawArea"
+
+      assert.within
+        scaledBitmap.autoCropRectangle
+        rect(29, 28, 348, 116)
+        rect(30, 30, 350, 116)
+
+
+    test "layoutMode:tight 64pt", ->
+      layout = new Layout "Sing!?!", {fontSize:64}, {layoutMode:"tight"}
+      bitmap = layout.toBitmap()
+      log {bitmap, size: bitmap.size, layout}
+      log scaled: layout.toBitmap scale: 10
+      assert.within bitmap.size, point(180, 58), point(183, 61)
+
+    test "layoutMode:tight 16pt", ->
+      layout = new Layout "Sing!?!", {fontSize:16}, {layoutMode:"tight"}
+      bitmap = layout.toBitmap()
+      log {bitmap, size: bitmap.size, layout}
+      log scaled: layout.toBitmap scale: 10
+      assert.within bitmap.size, point(45, 15), point(45, 15)
+
+    test "layoutMode:tight area and drawArea", ->
+      layout = new Layout "Sing!?!", {fontSize:64}, {layoutMode:"tight"}
+      bitmap = layout.toBitmap()
+      log bitmap
+      {area, drawArea} = layout
+      assert.within area,      rect(0, 0, 179, 57), rect(0, 0, 181, 59), "area"
+      assert.eq
+        true
+        neq drawArea, area
+        && drawArea.contains area.expand .5
+        && area.expand(5).contains drawArea
+        "drawArea"
+
+  leading: ->
+    test "leading", ->
+      layout = new Layout
+        """
+          Testing leading: 1.25 (default)
+          line 2
+          line 3
+        {}
+
+      assert.eq
+        array fragment in layout.fragments
+          parseInt fragment.layoutArea.y
+        0 20 40
+
+      log leading_1_25:layout.toBitmap()
+      layout = new Layout
+        """
+          Testing leading: 2.0
+          line 2
+          line 3
+        {}
+        leading: 2
+
+      log leading_2_00:layout.toBitmap()
+      assert.eq
+        array fragment in layout.fragments
+          parseInt fragment.layoutArea.y
+        0 32 64
+
+  regressions: ->
+    test "layoutMode:tight 16pt", ->
+      layout = new Layout
+        "are awesome"
+        fontFamily: "Arial, sans-serif"
+        fontSize: 10
+        {} layoutMode: :tight
+      bitmap = layout.toBitmap()
+      log {bitmap, size: bitmap.size, layout}
+      log scaled: layout.toBitmap scale: 10
+      assert.eq bitmap.size, point 60, 6
+
+  fancyFonts: ->
+    global.suiteSetup ->
+      Promise.all
+        array {tags}, fontName in fonts when /light|dirty/.test tags
+          loadFont fontName
+
+    testFancyFont = (font) ->
+      test font, ->
+        layout = new Layout
+          "" Sing!?!
+          fontSize: 16
+          fontFamily: fonts[font].fontFamily
+          {} layoutMode:"tight"
+
+        log {}
+          layout.toBitmap()
+          scaled: layout.toBitmap scale: 10
+
+    each {tags}, fontName in fonts when /light|dirty/.test tags
+      testFancyFont fontName

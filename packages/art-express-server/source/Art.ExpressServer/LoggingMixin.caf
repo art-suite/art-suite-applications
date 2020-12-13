@@ -1,0 +1,26 @@
+import &ArtStandardLib
+
+(superClass) -> class LoggingMixin extends superClass
+
+  log: (toLog) ->
+    if toLog is String
+      log "#{@logHeader}: #{toLog}"
+    else
+      log.withOptions {color: true}, @preprocessLog toLog
+
+  logError:   (toLog) -> log.error @preprocessLog toLog
+  logVerbose: (toLog) -> @log toLog if @verbose
+
+  preprocessLog: (toLog) -> "#{@logHeader}": toLog
+
+  @setter "verbose"
+
+  @getter
+    logTime:    -> dateFormat :UTC:yyyy-mm-dd_HH-MM-ss
+    verbose:    -> @_verbose || @options?.verbose
+    logHeader:  ->
+      compactFlatten []
+        @logTime
+        @workerId && "worker#{pad @workerId, 4, "0", true}"
+        @class.getName()
+      .join ' '

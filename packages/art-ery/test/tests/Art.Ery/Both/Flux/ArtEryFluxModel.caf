@@ -1,0 +1,58 @@
+import &StandardImport
+
+suite: ->
+  orderLog = []
+  User = null
+  user = null
+  setup ->
+    Flux._reset()
+    class User extends SimplePipeline
+      @filter new UniqueIdFilter
+      @filter new TimestampFilter
+      @filter new ValidationFilter
+        username: :trimmedString
+        message:  :trimmedString
+
+    {user} = models
+
+  test "model.propsToKey" ->
+    assert.eq :user1    user.propsToKey user: id: :user1
+    assert.eq :user2    user.propsToKey userId: :user2
+    assert.eq :user3    user.propsToKey(user: {id: :user3}, userId: :user4), "" whole object has precidence
+    assert.eq undefined user.propsToKey {}
+
+  test "user instanceof FluxModel", ->
+    assert.eq Flux.models.user, user
+    assert.instanceOf Flux.models.user, Flux.FluxModel
+
+  test "myModel.create", ->
+    user.create username: "Shane", message: "Hi"
+
+  test "create with missing required field", ->
+    user.create username: "Shane", message: ""
+
+  class MySubscriber extends FluxSubscriptionsMixin BaseObject
+    ;
+
+  test "subscribe when state is success", ->
+    user.pipeline.reset data: 123: name: "alice"
+    .then ->
+      mySubscriber = new MySubscriber
+      new Promise (resolve) ->
+        mySubscriber.subscribe
+          modelName:  "user"
+          key:        "123"
+          callback:   (fluxRecord) ->
+            resolve() if fluxRecord.status == success
+
+  test "subscribe when state is missing", ->
+    user.pipeline.reset data: 123: name: "alice"
+    .then ->
+      mySubscriber = new MySubscriber
+      new Promise (resolve) ->
+        mySubscriber.subscribe
+          modelName:  "user"
+          key:        "456"
+          callback:   (fluxRecord) ->
+            resolve() if fluxRecord.status == missing
+

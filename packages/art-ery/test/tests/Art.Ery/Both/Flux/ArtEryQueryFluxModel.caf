@@ -1,0 +1,102 @@
+import &StandardImport
+
+suite:
+  pre2020Style: ->
+    setup ->
+      Flux._reset()
+
+      class Post extends Pipeline
+        @query postsByUserId: (request) ->
+          []
+            userId: request.key, message: "Hi!"
+            userId: request.key, message: "Really?"
+
+        @publicRequestTypes :postsByUserId
+
+        @filter after: all: (response) ->
+          response.withData
+            array record in response.data
+              merge record, message: "#{record.message} :)"
+
+    test "query model defined", ->
+      assert.instanceOf models.postsByUserId, ArtEryQueryFluxModel
+
+    test "query loadData goes through pipeline", ->
+      models.postsByUserId.loadData "abc123"
+      .then (res) ->
+        assert.eq res, []
+          userId: "abc123", message: "Hi! :)"
+          userId: "abc123", message: "Really? :)"
+
+  2020Style:
+    basic: ->
+      messagesByUserId = null
+      setup ->
+        Flux._reset()
+
+        class Message extends Pipeline
+          @query
+            byUserId:
+              query: (request) ->
+                []
+                  userId: request.key, message: "Hi!"
+                  userId: request.key, message: "Really?"
+              keyFields: [] :userId
+
+          @publicRequestTypes :byUserId
+
+          @filter after: all: (response) ->
+            response.withData
+              array record in response.data
+                merge record, message: "#{record.message} :)"
+
+        {messagesByUserId} = models
+
+      test "query model defined", ->
+        assert.instanceOf messagesByUserId, ArtEryQueryFluxModel
+
+      test "query loadData goes through pipeline", ->
+        messagesByUserId.loadData "abc123"
+        .then (res) ->
+          assert.eq res, []
+            userId: "abc123", message: "Hi! :)"
+            userId: "abc123", message: "Really? :)"
+
+      test "queryModel.propsToKey" ->
+        assert.eq :user1    messagesByUserId.propsToKey user: id: :user1
+        # assert.eq :user2    user.propsToKey userId: :user2
+        # assert.eq :user3    user.propsToKey(user: {id: :user3}, userId: :user4), "" whole object has precidence
+        # assert.eq undefined user.propsToKey {}
+
+    codeReuse: ->
+      setup ->
+        Flux._reset()
+
+        class UserOwned extends Pipeline
+          @query byUserId: (request) ->
+            []
+              userId: request.key, message: "Hi!"
+              userId: request.key, message: "Really?"
+
+          @publicRequestTypes :byUserId
+
+          @filter after: all: (response) ->
+            response.withData
+              array record in response.data
+                merge record, message: "#{response.pipeline.name}: #{record.message} :)"
+
+        class Email extends UserOwned
+        class Photo extends UserOwned
+
+        ArtEryFluxModel.defineModelsForAllPipelines()
+
+      test "query model defined", ->
+        assert.instanceOf models.emailsByUserId, ArtEryQueryFluxModel
+        assert.instanceOf models.photosByUserId, ArtEryQueryFluxModel
+
+      test "query loadData goes through pipeline", ->
+        models.emailsByUserId.loadData "abc123"
+        .then (res) ->
+          assert.eq res, []
+            userId: "abc123", message: "email: Hi! :)"
+            userId: "abc123", message: "email: Really? :)"

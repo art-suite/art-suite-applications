@@ -1,0 +1,42 @@
+import &StandardImport
+
+class Home extends ViewStateComponent
+
+  @stateField
+    isOn: false
+
+  render: ->
+    Page
+      @props
+      MenuSectionGroup
+        MenuSection
+          label: "" Demos
+
+          MenuButton
+            icon:       :foo
+            text:       "" Menu Widgets Demo
+            rightText:  :rightText
+            action: ->
+              @models.pageStack.push :Widgets
+
+          MenuMarkdown
+            text:
+              """
+                # Welcome to the Kitchen Sink Demo
+
+                This demo is here to show all the widgets available in Art.AppKit. Every
+                part of AppKit's code should be represented here.
+
+          MenuToggle {}
+            @isOn
+            icon: if @isOn then :caretDown else :caretRight
+            text: "" Show about me
+            action: @toggleIsOn
+
+        if @isOn
+          MenuSection
+            label: "" About Me
+            MenuMarkdown text:
+              """
+                My name is Shane Brinkman-Davis Delamore. I created the ArtSuite to unify and streamline app development. Developer productivity is king.
+

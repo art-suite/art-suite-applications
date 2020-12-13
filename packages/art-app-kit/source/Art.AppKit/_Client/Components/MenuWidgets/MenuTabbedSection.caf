@@ -1,0 +1,7 @@
+import &StandardImport
+
+class MenuTabbedSection extends ViewStateComponent
+  render: ->
+    TabbedSection
+      @props
+      :parentWidthChildrenHeight

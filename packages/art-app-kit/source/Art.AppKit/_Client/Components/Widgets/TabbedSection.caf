@@ -1,0 +1,94 @@
+import &StandardImport
+
+##
+  props:
+    tabs: {} TabName -> TabProps
+      Example:
+        invites:
+          title: :Invites
+          icon: :ticket
+          details: "" you have been invited to join these streams
+          children: InvitesSectionComponent()
+
+    tabOrder: [] TabName
+      specifies the display-order of tabs
+
+  TabName: <String>
+
+  TabProps:
+    title:    <String> Display title
+    icon:     <String> Display Icon (optional)
+    details:  <String> Display text displayed below title (optional)
+    action:   <Function> invoked with clicked on details
+    children: <VirtualElement children, single, array, or function returning single or array>
+class TabbedSection extends ViewStateComponent
+
+  @stateFields
+    selectedTab:  null
+
+  @propFields :tabs :tabOrder
+
+  @getter
+    selectTab: -> @setSelectedTab
+    tabOrder: -> @props.tabOrder ? Object.keys @tabs
+    selectedTab: ->
+      @state extract selectedTab
+      @ extract tabs
+
+      tabs[selectedTab] && selectedTab
+      ? find tab in @tabOrder when tabs[tab]
+
+  render: ->
+    @ extract
+      tabs
+      tabOrder
+      gridSize
+      buttonSize
+      selectedTab
+
+    Element
+      :column
+      :parentWidthChildrenHeight
+      Element
+        :parentWidthChildrenHeight
+        # padding: {left, right, top} = suggestedPadding
+        &TabbedSectionTabs @props, {} @selectedTab, @selectTab, hideDetails: true
+
+      Element
+        :parentWidthChildrenHeight
+        array tabName in tabOrder when tabs[tabName]?.children
+          tabs[tabName] extract children, details, action
+          Element
+            key:      "#{tabName} children"
+            visible:  tabName == selectedTab
+            padding:  top:    gridSize / 2
+            :parentWidthChildrenHeight
+            :column
+            # padding:
+            #   left:   suggestedPadding.left
+            #   right:  suggestedPadding.right
+            #   bottom: suggestedPadding.bottom
+
+            if details
+              Element
+                size: h: buttonSize + gridSize / 2
+                padding: bottom: gridSize / 2
+                :row :childrenCenterLeft
+                :pointerCursor if action
+
+                on: if action then pointerClick: action
+
+                animators:
+                  clip: toFrom: true
+                  size: toFrom: ww:1, h: 0
+
+                TextElement
+                  TextStyles.smallText
+                  :parentWidthChildrenHeight
+                  color:    TextPalette.black.secondary
+                  text:     details
+
+            if children is Function
+              children() if tabName == selectedTab
+            else
+              children
