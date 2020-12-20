@@ -2,6 +2,17 @@
 
 # New Features
 
+### Routes
+
+We need this anyway, but how to do it nicely?
+
+```
+# And, when we know our routes, pageStack can have:
+models.pageStack.route {} review
+
+# instead of this:
+models.pageStack.push :review {} @review
+```
 
 ### PageStack
 

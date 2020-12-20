@@ -5,54 +5,46 @@ class Toolbar extends ViewStateComponent
     :appKitPresentationState.*
     :pageStack.*
 
+  @propFields :hiddenStacks presentationProps: {}
+  @getter currentPageStack: -> models.pageStack.currentPageStack
+
   render: ->
-    @ extract
-      gridSize, buttonSize, toolbarHorizontal, wideLayout, toolbarLocation
-      currentPageStackId
-
-    models.pageStack extract currentPageStack
-
     if AppPalette extract toolbarColor
       unless @wideLayout
         toolbarColor = AppPalette.offWhite
       else if .9 > toolbarColor.perceptualLightness
         lightColor = true
 
-    @props extract hiddenStacks
-
     commonProps = {}
-      tight:        wideLayout
-      labelBottom:  @isTouchScreen || !wideLayout
+      tight:        @wideLayout
+      labelBottom:  @isTouchScreen || !@wideLayout
       lightColor:   lightColor
 
     Element
       draw:
         fill:
           color:  toolbarColor
-          shadow: unless wideLayout
+          shadow: unless @wideLayout
             color:  #0004
             blur:   4
             offset: 0
-        padding:
-          [toolbarLocation]: -@safePadding[toolbarLocation]
+        padding: [@toolbarLocation]: -@safePadding[@toolbarLocation]
 
       size: @props.size
 
-      if toolbarHorizontal
-           :row
-      else :column
-
-      :childrenCenterLeft if wideLayout && toolbarHorizontal
+      if @toolbarHorizontal                 then :row else :column
+      if @wideLayout && @toolbarHorizontal  then :childrenCenterLeft
 
       padding:
-        if toolbarHorizontal
-              h: gridSize / 2
-        else  v: gridSize / 2
+        if @toolbarHorizontal
+              h: @gridSize / 2
+        else  v: @gridSize / 2
 
-      if wideLayout
-        showTitle = if currentPageStack?.length > 1
-          peek currentPageStack
+      if @wideLayout
+        showTitle = if @currentPageStack?.length > 1
+          peek @currentPageStack
           .title
+
         Element
           :row :parentWidthChildrenHeight :childrenCenterLeft
           if @models.pageStack.showBackButton
@@ -85,8 +77,9 @@ class Toolbar extends ViewStateComponent
         ToolbarButton
           commonProps
           {}
-            hidden:       hiddenStacks && id in hiddenStacks
+            hidden:       @hiddenStacks && id in @hiddenStacks
             icon
             text:         title
-            selected:     currentPageStackId == id
+            selected:     @currentPageStackId == id
             action:       -> @models.pageStack.showStack id
+          log @presentationProps[id]
