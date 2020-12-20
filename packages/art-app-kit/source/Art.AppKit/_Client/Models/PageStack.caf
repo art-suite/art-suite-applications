@@ -56,8 +56,8 @@ class PageStack extends ApplicationState
     @setState (state) ->
       objectWith state, stackId, state[stackId].slice 0, 1
 
-  push: (stackEntry) ->
-    stackEntry = @_normalizeStackEntry stackEntry
+  push: (a, b) ->
+    stackEntry = @_normalizeStackEntry a, b
     @setState (state) ->
       state extract currentPageStackId, maxPageStackSize
 
@@ -102,9 +102,9 @@ class PageStack extends ApplicationState
   #################
     PRIVATE
   #################
-  _normalizeStackEntry: (stackEntry) ->
+  _normalizeStackEntry: (stackEntry, props) ->
     if stackEntry is String
-      stackEntry = component: @_pages?[upperCamelCase stackEntry]
+      stackEntry = merge {} props, component: @_pages?[upperCamelCase stackEntry]
     unless component = stackEntry.component ? @_pages?[upperCamelCase stackEntry.id]
       throw new Error "" component not found for stackEntry: #{formattedInspect stackEntry}
 

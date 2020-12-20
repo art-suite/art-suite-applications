@@ -3,10 +3,8 @@ import &StandardImport, &MenuSupportWidgets
 class MenuButton extends ViewStateComponent
 
   render: ->
-    @viewState extract gridSize, buttonSize
-
     AppKitButtonWrapper
-      size: ww: 1 h: buttonSize
+      size: ww: 1 h: @buttonSize
       animators: :draw :size
       draw: drawButton
       noFocus: true
