@@ -44,7 +44,7 @@ init: (options) ->
 
   models.pageStack.init merge options
 
-  &ArtSuiteApp.initArtSuiteClient log {}
+  &ArtSuiteApp.initArtSuiteClient {}
     title
     prepare: ->
       getArrayBuffer getAssetUrl icons ? :icons.cpf

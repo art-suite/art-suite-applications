@@ -39,13 +39,10 @@ class CurrentSession extends FluxSubscriptionsMixin ApplicationState
     PRIVATE
   ####################################
   _bindSessionChangeEvent: ->
-    log "onModelRegistered :user A"
     @onModelRegistered :user
     .then ->
-      log "onModelRegistered :user B"
       session.loadSession()
       .then ->
-        log sessionLoaded: {} session.data.userId
         @_setCurrentUserId session.data.userId
 
         session.on change: (event) ->
@@ -58,7 +55,6 @@ class CurrentSession extends FluxSubscriptionsMixin ApplicationState
           .catch (invalidSessionError) ->
             log.error "Session is invalid. Resetting." invalidSessionError
             session.reset()
-    log "onModelRegistered :user C"
 
   _setCurrentUserId: (userId) ->
     @currentUser = null if @currentUser?.id != userId

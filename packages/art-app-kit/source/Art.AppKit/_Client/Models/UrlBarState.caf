@@ -42,14 +42,14 @@ class UrlBarState extends ApplicationState
     PRIVATE
   ##################
   _navigateFromInitialPathAndParams: (path, params) ->
-    log.warn TODO: _navigateFromInitialPathAndParams: {} path, params
+    # log.warn TODO: _navigateFromInitialPathAndParams: {} path, params
 
   ## _navigateFromState
     IN:
       state: a previously pushed browserHistory state
       back: <Boolean> true if we are navigating back to an earlier state
   _navigateFromState: (state, back) ->
-    log.warn TODO: models.navState.navigateTo: {} state, back
+    # log.warn TODO: models.navState.navigateTo: {} state, back
 
   _bindOnPopState: ->
     unless @_popStateBound || !@browserHistoryEnabled

@@ -10,7 +10,6 @@ class FullPageTextEdit extends ViewStateComponent
     @models.pageStack.pop()
 
   render: ->
-    log {} @nativeApp, @keyboardCoversScreen
     &Page
       @props
       title: @props.title ? @props.placeholder ? :edit

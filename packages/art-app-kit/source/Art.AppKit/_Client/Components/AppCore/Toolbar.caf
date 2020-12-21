@@ -82,4 +82,5 @@ class Toolbar extends ViewStateComponent
             text:         title
             selected:     @currentPageStackId == id
             action:       -> @models.pageStack.showStack id
-          log @presentationProps[id]
+
+          @presentationProps[id]

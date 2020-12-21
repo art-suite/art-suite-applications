@@ -23,10 +23,7 @@ class AppKitViewState extends ApplicationState
     if nativeApp
       if global.Keyboard && !!keyboardVisible != !!global.Keyboard.isVisible
         # just in case we get events out of order
-        log "set keyboardTimer"
-        keyboardTimer.timeout 250 ->
-          log "keyboardTimer keyboardVisible: #{!!global.Keyboard.isVisible}"
-          @updateKeyboardVisible !!global.Keyboard.isVisible
+        keyboardTimer.timeout 250 -> @updateKeyboardVisible !!global.Keyboard.isVisible
     else
       if os == :android
         keyboardVisible = viewSize?.y < .5 * screenHeight
