@@ -1,4 +1,6 @@
-import &ArtStandardLib, &ArtAtomic, touchSupported: &ArtBrowserTools.simpleBrowserInfo.touch
+import &ArtStandardLib, &ArtAtomic
+
+touchSupported = &ArtBrowserTools.simpleBrowserInfo.touch
 
 (superClass) -> class PointerActionsMixin extends superClass
   @abstractClass()
