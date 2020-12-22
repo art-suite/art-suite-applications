@@ -20,5 +20,6 @@
   },
   "scripts": {
     "start": "webpack-dev-server --hot --inline --progress --env.devServer"
-  }
+  },
+  "version": "1.0.0"
 }
