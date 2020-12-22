@@ -1,0 +1,20 @@
+import &ArtSuite, &source
+
+initArtSuiteApp MainComponent: class MyHelloWorldComponent extends Component
+
+  render: ->
+    CanvasElement
+      draw: #eef
+      Element
+        padding: 10
+        :column
+        childrenMargins: 10
+        TextElement
+          :parentWidthChildrenHeight
+          margin: 10
+          text: "" Hello world.
+        &demoFiles/DemoComponent()
+        Element
+          size: 100
+          draw: #b
+          &demoFiles/Draggable()

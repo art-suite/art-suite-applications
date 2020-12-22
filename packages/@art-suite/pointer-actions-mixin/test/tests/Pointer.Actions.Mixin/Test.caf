@@ -1,0 +1,3 @@
+import &StandardImport
+suite: ->
+  test 'Mixin' -> assert.eq 1, 1
