@@ -3,8 +3,7 @@ import &ArtStandardLib, &ArtAtomic, touchSupported: &ArtBrowserTools.simpleBrows
 (superClass) -> class PointerActionsMixin extends superClass
   @abstractClass()
 
-  constructor: ->
-    @_pointerDownAt = point()
+  constructor: -> @_pointerDownInParentAt = @_pointerDownAt = point0
 
   deadZone: 3
 
@@ -15,7 +14,7 @@ import &ArtStandardLib, &ArtAtomic, touchSupported: &ArtBrowserTools.simpleBrows
     dragOffset:     point()
     dragging:       false
 
-  @property :pointerDownAt
+  @property :pointerDownInParentAt :pointerDownAt
 
   setHover: (bool) ->
     @hover = bool
@@ -83,7 +82,8 @@ import &ArtStandardLib, &ArtAtomic, touchSupported: &ArtBrowserTools.simpleBrows
     dragPointerDownHandler: -> @_dragPointerDownHandler ?= (event) ->
       @dragPrepare event
       @pointerDownHandler event
-      @pointerDownAt    = event.parentLocation
+      @pointerDownInParentAt = event.parentLocation
+      @pointerDownAt = event.location
       @dragOffset       = point()
       @_pointerDownKey  = pdk = (@_pointerDownKey ? 0) + 1
       event = event.clone()
@@ -93,19 +93,19 @@ import &ArtStandardLib, &ArtAtomic, touchSupported: &ArtBrowserTools.simpleBrows
           @_drag event if !@dragging && @pointerIsDown && @_pointerDownKey == pdk
 
     dragPointerMoveHandler: -> @_dragPointerMoveHandler ?= (event) ->
-      offset = event.parentLocation.sub @pointerDownAt
+      offset = event.parentLocation.sub @pointerDownInParentAt
       if @dragging || (!touchSupported && Math.max(Math.abs(offset.x), Math.abs(offset.y)) > @deadZone)
-        @_drag event
+        @_drag event, offset
 
     dragPointerUpHandler: -> @_dragPointerUpHandler ?= (event) ->
       @pointerUpHandler event
-      if @dragging then @dragEnd event, event.parentLocation.sub @pointerDownAt
+      if @dragging then @dragEnd event, event.parentLocation.sub @pointerDownInParentAt
       @dragFinally event, @dragging, false
       @dragOffset     = point()
       @dragging       = false
 
-  _drag: (event) ->
-    @dragOffset = offset = event.parentLocation.sub @pointerDownAt
+  _drag: (event, offset) ->
+    @dragOffset = offset ?= event.parentLocation.sub @pointerDownInParentAt
 
     unless @dragging
       @dragging = true

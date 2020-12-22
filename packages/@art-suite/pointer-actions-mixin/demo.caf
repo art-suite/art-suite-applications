@@ -4,17 +4,17 @@ initArtSuiteApp MainComponent: class MyHelloWorldComponent extends Component
 
   render: ->
     CanvasElement
-      draw: #eef
+      draw: #e
       Element
-        padding: 10
         :column
-        childrenMargins: 10
-        TextElement
-          :parentWidthChildrenHeight
-          margin: 10
-          text: "" Hello world.
+        padding:          10
+        childrenMargins:  10
+        TextElement :parentWidthChildrenHeight text: "" Button demo: (with @hover and @pointerDown)
+
         &demoFiles/DemoComponent()
+
+        TextElement :parentWidthChildrenHeight text: "" Drag demo:
         Element
-          size: 100
+          size: 200
           draw: #b
           &demoFiles/Draggable()
