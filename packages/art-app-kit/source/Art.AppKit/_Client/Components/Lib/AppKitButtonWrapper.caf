@@ -83,8 +83,7 @@ class AppKitButtonWrapper extends PointerActionsMixin FluxComponent
           switch
           when noZoom then baseScale
           when !disabled && @pointerIsDown then @downScale
-          when hoverExpand && @hover
-            @hoverScale
+          when hoverExpand && @hover then @hoverScale
           else baseScale
 
         animators:

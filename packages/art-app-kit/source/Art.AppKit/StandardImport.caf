@@ -1,2 +1,3 @@
-&ArtSuite/Node.mergeWithSelf
+[]
+  &ArtSuite/Node
   HotStyleProps: global.Neptune.Art.Suite?.HotStyleProps ? Object
