@@ -2,7 +2,8 @@
 // file: Art.Components.Engine/index.js
 
 (module.exports = require('./namespace'))
-
+.includeInNamespace(require('./Engine'))
 .addModules({
-  StandardImport: require('./StandardImport')
+  EngineVirtualElement: require('./EngineVirtualElement'),
+  StandardImport:       require('./StandardImport')
 });
