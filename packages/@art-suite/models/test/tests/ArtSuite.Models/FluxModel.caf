@@ -1,20 +1,11 @@
-Foundation = require 'art-foundation'
-{models} = Flux = require '@art-suite/art-flux'
-{merge, log, isString, Promise, BaseObject, Epoch, timeout, createWithPostCreate, CommunicationStatus} = Foundation
-
-{FluxModel, fluxStore, ModelRegistry} = Flux
-{success, failure, missing, pending} = CommunicationStatus
-{assert} = require 'art-testbench'
-
-reset = -> Flux._reset()
-
-module.exports = suite:
+import &StandardImport
+suite:
   load: ->
 
     test "model with async load", ->
       new Promise (resolve) ->
-        reset()
-        createWithPostCreate class MyBasicModel extends FluxModel
+        _reset()
+        class MyBasicModel extends FluxModel
 
           load: (key) ->
             fluxStore.onNextReady => @updateFluxStore key, status: missing
@@ -33,8 +24,8 @@ module.exports = suite:
 
     test "model with @loadFluxRecord", ->
       new Promise (resolve) ->
-        reset()
-        createWithPostCreate class MyBasicModel extends FluxModel
+        _reset()
+        class MyBasicModel extends FluxModel
 
           loadFluxRecord: (key) ->
             timeout(20).then -> status: missing
@@ -50,8 +41,8 @@ module.exports = suite:
           res
 
     test "model with custom load - delayed", ->
-      reset()
-      createWithPostCreate class MyBasicModel extends FluxModel
+      _reset()
+      class MyBasicModel extends FluxModel
 
         load: (key, callback) ->
           @updateFluxStore key, -> status: success, data: theKeyIs:key
@@ -76,24 +67,24 @@ module.exports = suite:
             resolve()
 
     test "model with custom load - immediate", ->
-      reset()
-      createWithPostCreate class MyBasicModel extends FluxModel
+      _reset()
+      class MyBasicModel extends FluxModel
 
         load: (key, callback) ->
           @updateFluxStore key, status: success, data: theKeyIs:key
 
-      new Promise (resolve) ->
+      new Promise (resolve, reject) ->
         res = fluxStore.subscribe "myBasicModel", "123", (fluxRecord) ->
           log.error "THIS SHOULDN'T HAPPEN!"
           reject()
         assert.selectedEq
           status: success, key: "123", modelName: "myBasicModel", data: theKeyIs:"123"
           res
-        fluxStore.onNextReady -> resolve()
+        fluxStore.onNextReady resolve
 
     test "model with @loadData", ->
-      reset()
-      createWithPostCreate class MyBasicModel extends FluxModel
+      _reset()
+      class MyBasicModel extends FluxModel
         loadData: (key) -> Promise.resolve theKeyIs:key
 
       new Promise (resolve) ->
@@ -113,12 +104,12 @@ module.exports = suite:
   simultanious: ->
 
     test "two simultantious FluxModel requests on the same key only triggers one store request", ->
-      reset()
+      _reset()
       counts =
         load: 0
         subscription1: 0
         subscription2: 0
-      createWithPostCreate class MyBasicModel extends FluxModel
+      class MyBasicModel extends FluxModel
         load: (key, callback) ->
           counts.load++
           @updateFluxStore key, status: success, data: theKeyIs:key
@@ -133,12 +124,12 @@ module.exports = suite:
         assert.eq counts, load: 1, subscription1: 1, subscription2: 1
 
     test "two simultantious FluxModel requests on the different keys triggers two store requests", ->
-      reset()
+      _reset()
       counts =
         load: 0
         sub1: 0
         sub2: 0
-      createWithPostCreate class MyBasicModel extends FluxModel
+      class MyBasicModel extends FluxModel
         load: (key, callback) ->
           counts.load++
           @updateFluxStore key, status: success, data: theKeyIs:key
@@ -158,9 +149,9 @@ module.exports = suite:
     teardown -> fluxStore.onNextReady()
 
     test "multiple loadPromises with the same key only load once", ->
-      reset()
+      _reset()
       loadCount = 0
-      createWithPostCreate class User extends FluxModel
+      class User extends FluxModel
         loadData: (key) ->
           timeout 10
           .then ->
@@ -179,18 +170,18 @@ module.exports = suite:
 
   aliases: ->
     test "@aliases adds aliases to the model registry", ->
-      reset()
-      createWithPostCreate class User extends FluxModel
+      _reset()
+      class User extends FluxModel
         @aliases "owner", "sister"
 
-      assert.eq Flux.models.user.class, User
-      assert.eq Flux.models.user, Flux.models.owner
-      assert.eq Flux.models.user, Flux.models.sister
+      assert.eq models.user.class, User
+      assert.eq models.user, models.owner
+      assert.eq models.user, models.sister
 
   functionsBoundToInstances: ->
     test "use bound function", ->
-      reset()
-      createWithPostCreate class User extends FluxModel
+      _reset()
+      class User extends FluxModel
         foo: -> @_foo = (@_foo || 0) + 1
 
       {user} = User
