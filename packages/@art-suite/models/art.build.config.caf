@@ -5,10 +5,3 @@ package:
     targetDir: :build
     coffeeScript: true
     mocha: true
-
-webpack:
-  common: {}
-  targets:
-    index: {}
-    web_worker: {}
-    test: {}
