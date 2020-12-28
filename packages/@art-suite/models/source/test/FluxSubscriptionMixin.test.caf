@@ -1,9 +1,9 @@
 import &StandardImport, {} &ApplicationState
 
-suite:
+describe
   subscribeOnModelRegistered: ->
-    setup _reset
-    global.teardown -> fluxStore.onNextReady()
+    beforeEach _reset
+    afterEach -> fluxStore.onNextReady()
 
     test "subscribeOnModelRegistered", ->
       new Promise (resolve, reject) ->

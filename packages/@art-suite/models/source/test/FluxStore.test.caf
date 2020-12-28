@@ -6,7 +6,7 @@ reset = ->
   class MyModel extends FluxModel
   assert.eq true, !!models.myModel,{models}
 
-suite: ->
+describe basic: ->
   test "fluxStore.reset & length", ->
     reset()
     assert.eq fluxStore.length, 0

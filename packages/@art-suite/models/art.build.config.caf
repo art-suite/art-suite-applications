@@ -4,4 +4,3 @@ package:
     sourceDir: :source
     targetDir: :build
     coffeeScript: true
-    mocha: true

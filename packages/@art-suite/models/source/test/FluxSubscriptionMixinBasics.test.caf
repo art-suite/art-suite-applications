@@ -1,8 +1,8 @@
 import &StandardImport, {} &ApplicationState
 
-suite:
+describe
   subscribe: ->
-    setup _reset
+    beforeEach _reset
     test "with modelName and stateField", -> new Promise (resolve, reject) ->
       class MyModel extends ApplicationState
 
@@ -30,7 +30,7 @@ suite:
       assert.hasNoKeys myObject.subscriptions
 
   change: ->
-    setup _reset
+    beforeEach _reset
 
     test "change subscription", -> new Promise (resolve, reject) ->
       class MyModel extends ApplicationState
@@ -60,7 +60,7 @@ suite:
         models.myModel.setState "myFluxKey2", "hi"
 
   unsubscribe: ->
-    setup _reset
+    beforeEach _reset
 
     test "unsubscribe", -> new Promise (resolve, reject) ->
       class MyModel extends ApplicationState

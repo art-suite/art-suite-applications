@@ -1,5 +1,7 @@
 import &StandardImport
-suite:
+
+describe
+
   load: ->
 
     test "model with async load", ->
@@ -146,7 +148,7 @@ suite:
   loadPromise: ->
     # flux pending updates so following tests dont fail
     # when this test model no longer exists.
-    teardown -> fluxStore.onNextReady()
+    afterEach -> fluxStore.onNextReady()
 
     test "multiple loadPromises with the same key only load once", ->
       _reset()

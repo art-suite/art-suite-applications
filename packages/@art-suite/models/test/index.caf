@@ -1,2 +1,0 @@
-&ArtTestbench/testing
-.init defineTests: -> &tests
