@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "Models.js",
+  "sourceRoot": "../..",
+  "sources": [
+    "source/ArtSuite.Models/Models.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,kCACE,2CACA,6CAGA,oBACE,kDACA"
+}
