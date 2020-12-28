@@ -134,12 +134,12 @@
 
 
         /*
-        IN: same as @subscribe
-        OUT: promise.then -> # subscription has been created
-        USE:
-          Primarilly useful for models which want to subscribe to
-          other models when they are constructed. This solves the
-          loading-order problem.
+          IN: same as @subscribe
+          OUT: promise.then -> # subscription has been created
+          USE:
+            Primarilly useful for models which want to subscribe to
+            other models when they are constructed. This solves the
+            loading-order problem.
          */
 
         FluxSubscriptionsMixin.prototype.subscribeOnModelRegistered = function(subscriptionKeyOrOptions, modelName, fluxKey, options) {

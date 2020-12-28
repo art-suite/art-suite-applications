@@ -1,0 +1,24 @@
+import &StandardImport
+
+class ApplicationState extends FluxModel
+  @abstractClass()
+
+  constructor: ->
+    @state = {}
+
+  setState: (key, value) ->
+    # log AppState.setState: {} key, value, propsEq @state[key], value
+    if !propsEq @state[key], value
+      # log AppState.setState.forReal: :keykey
+      @state[key] = value
+      @load key
+
+  load: (key) ->
+    # log load: key
+    @updateFluxStore
+      key
+      fluxRecord = if @state.hasOwnProperty key
+            status: success, data: @state[key]
+      else  status: missing
+
+    fluxRecord

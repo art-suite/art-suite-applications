@@ -83,7 +83,6 @@ defineModule module, ->
         If you need to update anything based on the current value, use the return result.
     ###
     subscribe: (subscriptionKey, modelName, key, options) ->
-
       if isPlainObject allOptions = subscriptionKey
         {subscriptionKey, modelName, key, stateField, initialFluxRecord, updatesCallback, callback} = allOptions
         updatesCallback ?= callback
@@ -119,12 +118,12 @@ defineModule module, ->
         key
 
     ###
-    IN: same as @subscribe
-    OUT: promise.then -> # subscription has been created
-    USE:
-      Primarilly useful for models which want to subscribe to
-      other models when they are constructed. This solves the
-      loading-order problem.
+      IN: same as @subscribe
+      OUT: promise.then -> # subscription has been created
+      USE:
+        Primarilly useful for models which want to subscribe to
+        other models when they are constructed. This solves the
+        loading-order problem.
     ###
     subscribeOnModelRegistered: (subscriptionKeyOrOptions, modelName, fluxKey, options) ->
       if isPlainObject subscriptionKeyOrOptions
@@ -159,6 +158,7 @@ defineModule module, ->
     setStateFromFluxRecord: (stateField, fluxRecord, initialFluxRecord, key) ->
       if fluxRecord?.status != success && initialFluxRecord?.status == success
         fluxRecord = initialFluxRecord
+
       if stateField && isFunction @setState
         {status = null, progress = null, data = null} = fluxRecord if fluxRecord
         @setState stateField, data

@@ -1,14 +1,62 @@
-import &StandardImport
+import &StandardImport, {} &ApplicationState
 
-suite: ->
-  global.teardown -> fluxStore.onNextReady()
+suite:
+  subscribeOnModelRegistered: ->
+    setup _reset
+    global.teardown -> fluxStore.onNextReady()
 
-  test "subscribeOnModelRegistered", ->
-    new Promise (resolve, reject) ->
-      class MyModelB extends FluxModel
+    test "subscribeOnModelRegistered", ->
+      new Promise (resolve, reject) ->
+        class MyModelB extends FluxModel
 
-      class MyModelA extends FluxSubscriptionsMixin FluxModel
+        class MyModelA extends FluxSubscriptionsMixin FluxModel
+          constructor: ->
+            super
+            @subscribeOnModelRegistered :mySubscriptionKey :myModelB :myFluxKey updatesCallback: ->
+            .then resolve, reject
+
+  "subscribe and initialFluxRecord": ->
+
+    chainedTest "with stateField and initialFluxRecord", ->
+      _reset()
+      class MyModel extends &ApplicationState
+
+      new class MyObject extends FluxSubscriptionsMixin BaseObject
+
         constructor: ->
-          super
-          @subscribeOnModelRegistered :mySubscriptionKey :myModelB :myFluxKey updatesCallback: ->
-          .then resolve, reject
+          @subscribe :mySubscriptionKey :myModel :myFluxKey,
+            initialFluxRecord: data: :myInitialData
+            stateField: :myStateField
+
+      assert.selectedEq
+        status:       pending
+        data:         :myInitialData
+        key:          :myFluxKey
+        modelName:    :myModel
+        fluxStore.get :myModel :myFluxKey
+
+      fluxStore.onNextReady()
+
+    # .thenTest "still pending?" ->
+    #   assert.selectedEq
+    #     status:       success
+    #     data:         :myInitialData
+    #     key:          :myFluxKey
+    #     modelName:    :myModel
+    #     fluxStore.get :myModel :myFluxKey
+
+    test "with stateField and no initialFluxRecord", ->
+      _reset()
+      class MyModel extends &ApplicationState
+
+      new class MyObject extends FluxSubscriptionsMixin BaseObject
+
+        constructor: ->
+          @subscribe "mySubscriptionKey", "myModel", "myFluxKey",
+            stateField: "myStateField"
+
+      assert.selectedEq
+        status:     missing
+        key:        "myFluxKey"
+        modelName:  "myModel"
+        fluxStore.get "myModel", "myFluxKey"
