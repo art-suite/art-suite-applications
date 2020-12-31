@@ -12,7 +12,8 @@ module.exports = class ReactArtEngineEpoch extends Epoch
       for component in changingComponents
         component._applyPendingState()
 
+# TODO: see Component's comment on ArtEngineCore
 # bind to GlobalEpochCycle if not web-worker
-if ArtEngineCore = Neptune.Art.Engine.Core
+if ArtEngineCore = global.Neptune.Art?.Engine?.Core
   {GlobalEpochCycle} = ArtEngineCore
   GlobalEpochCycle.singleton.includeReact ReactArtEngineEpoch.singleton

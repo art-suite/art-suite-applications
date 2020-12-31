@@ -39,7 +39,11 @@ React = require './namespace'
 StateFieldsMixin = require './StateFieldsMixin'
 PropFieldsMixin = require './PropFieldsMixin'
 
-if ArtEngineCore = Neptune.Art.Engine.Core
+# TODO - Models shouldn't care about ArtEngine
+# INSTEAD - ALL Epoched classes should auto-bind to a global Epoch
+#   AND - there should be some way this local StateEpoch can select what order it is bound in.
+#   IDEA - we just hard-code the order by role: :events :models :components :engine
+if ArtEngineCore = Neptune?.Art?.Engine?.Core
   {stateEpoch} = ArtEngineCore.StateEpoch
   onNextStateEpochReady = (f) -> stateEpoch.onNextReady f
 else
