@@ -9,7 +9,7 @@ class FluxEntry extends BaseObject
     newValue = newFluxRecord[field]
     oldValue = oldFluxRecord?[field]
     if newFluxRecord.hasOwnProperty(field) && newValue != oldValue
-      console.warn "#{FluxEntry.namespacePath}: Ignoring attempt to update the key of the Entry. Do not attempt to update the '#{field}' field. Attempted new value: #{formattedInspect newValue}. Unchanged, old value: #{formattedInspect oldValue}."
+      console.warn "" #{FluxEntry.namespacePath}: Ignoring attempt to update the key of the Entry. Do not attempt to update the '#{field}' field. You attempted to change the key from #{formattedInspect oldValue} to #{formattedInspect newValue}.
 
   @warnUnsettableFields: warnUnsettableFields = (newFluxRecord, oldFluxRecord) ->
     warnCantSetField newFluxRecord, oldFluxRecord, :key
