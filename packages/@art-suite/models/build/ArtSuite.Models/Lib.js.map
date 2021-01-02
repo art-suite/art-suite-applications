@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "Lib.js",
+  "sourceRoot": "../..",
+  "sources": [
+    "source/ArtSuite.Models/Lib.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,4GAAO,wGAEP,QACE,wBAAgB,CAAC,OAAO,SAAS,SAAU,OACzC,CAAO,QACL,cAAM,IAAI,MAAK,gBAAI,0BAAY,kBAAoB,iCAEvD,iDAAsB,QAAG,CAAC,UAAW,aAChC,cAAM,IAAI,kCAAyB,oBAExC,sCAA8B,CAAC,WAAY,kBAC1B,eAAe,kBAC5B,uBAAuB"
+}

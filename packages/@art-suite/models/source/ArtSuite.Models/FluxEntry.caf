@@ -1,51 +1,34 @@
-import &StandardImport, &ModelRegistry
+import &StandardImport, &ModelRegistry, &Lib
 
 getFluxStore = -> _fluxStore ?= &FluxStore.fluxStore
 
 retryExponent = 2
 
 class FluxEntry extends BaseObject
-  @warnCantSetField: warnCantSetField = (newFluxRecord, oldFluxRecord, field) ->
-    newValue = newFluxRecord[field]
-    oldValue = oldFluxRecord?[field]
-    if newFluxRecord.hasOwnProperty(field) && newValue != oldValue
-      console.warn "" #{FluxEntry.namespacePath}: Ignoring attempt to update the key of the Entry. Do not attempt to update the '#{field}' field. You attempted to change the key from #{formattedInspect oldValue} to #{formattedInspect newValue}.
-
-  @warnUnsettableFields: warnUnsettableFields = (newFluxRecord, oldFluxRecord) ->
-    warnCantSetField newFluxRecord, oldFluxRecord, :key
-    warnCantSetField newFluxRecord, oldFluxRecord, :modelName
-
   # assumes FluxEntry "owns" the fluxRecord - it will alter the object by adding a "key" field
-  constructor: (modelName, key) ->
+  constructor: (modelName, key, initialFluxRecord = {}) ->
     @_model       = models[modelName]
     @_autoReload  = @_model.autoReloadEnabled
 
-    @_updatedAt = @_createdAt = toSeconds()
-    @_reloadAt  = @_lastSuccessfulLoadAt = null
-    @_tryCount  = 0
+    @_currentPendingReload = null
 
-    @_fluxRecord = {} key, modelName, @createdAt, @updatedAt, status: pending
+    initialFluxRecord.key ?= key
+    initialFluxRecord.modelName ?= modelName
+    @setFluxRecord initialFluxRecord
 
     @_subscribers = []
     @_previousFluxRecord = null
 
-  @property :createdAt :updatedAt :reloadAt :lastSuccessfulLoadAt :tryCount
   @getter :previousFluxRecord :fluxRecord :subscribers :model :autoReload
   @getter
-    dataChanged: -> !propsEq @_fluxRecord?.data, @_previousFluxRecord?.data
-    fluxRecordChanged: -> !propsEq @_fluxRecord, @_previousFluxRecord
-    subscriberCount:  -> @_subscribers.length
-    key:              -> @_fluxRecord.key
-    modelName:        -> @_fluxRecord.modelName
-    status:           -> @_fluxRecord.status
-    reloadAt:         -> @_fluxRecord.reloadAt
-
-    age: ->
-      now = toSeconds()
-      reload:             now - @reloadAt             | 0
-      created:            now - @createdAt            | 0
-      updated:            now - @updatedAt            | 0
-      lastSuccessfulLoad: now - @lastSuccessfulLoadAt | 0
+    subscriberCount:    -> @_subscribers.length
+    key:                -> @_fluxRecord.key
+    modelName:          -> @_fluxRecord.modelName
+    status:             -> @_fluxRecord.status
+    inspectedObjects:   -> merge {}
+      @modelName, @key, @status
+      @createdAt, @updatedAt, @reloadAt
+      @fluxRecord.data, @fluxRecord.message, @fluxRecord.error
 
     nextNetworkFailureRetryDelay: ->
       if 0 < m = @model.getMinNetworkFailureReloadSeconds()
@@ -59,82 +42,98 @@ class FluxEntry extends BaseObject
           m * Math.pow @tryCount ? 1, retryExponent
           @model.getMaxServerFailureReloadSeconds()
 
-    plainStructure: -> fluxRecord: @_fluxRecord, subscribers: @_subscribers
-    hasSubscribers: -> @_subscribers.length > 0
+  @getter hardDeprecatedFunctionsAsMap :dataChanged :fluxRecordChanged :age :plainStructure :hasSubscribers
+
+  each fluxRecordSetter in :tryCount :reloadAt :updatedAt :createdAt
+    @getter [fluxRecordSetter]: -> @_fluxRecord[fluxRecordSetter]
+    @setter [fluxRecordSetter]: (v) -> @_fluxRecord[fluxRecordSetter] = v
 
   @setter
     fluxRecord: (newFluxRecord)->
-      throw new Error "fluxRecord must be an object" unless newFluxRecord is Object
-      warnUnsettableFields newFluxRecord, oldFluxRecord = @_fluxRecord
+      validateInputs newFluxRecord is Object, "New fluxRecord must be an object.", newFluxRecord
 
-      @_fluxRecord extract key, modelName
+      (@_fluxRecord ? newFluxRecord) extract key, modelName, createdAt
       @_fluxRecord = newFluxRecord
-      newFluxRecord.key           = key
-      newFluxRecord.modelName     = modelName
-      newFluxRecord.status        ?= pending
-      newFluxRecord.createdAt     = @_createdAt
-      newFluxRecord.updatedAt     = @_updatedAt = now = toSeconds()
+      newFluxRecord.key       =   key
+      newFluxRecord.modelName =   modelName
+      newFluxRecord.status    ?=  pending
+      newFluxRecord.updatedAt =   now = toSeconds()
+      newFluxRecord.createdAt =   createdAt ? now
 
       @_updateAutoReloadFields() if @_autoReload
 
-    reloadAt: (reloadAt) -> if 0 < reloadAt
-      delta = reloadAt - now = toSeconds()
-      rangePerterbation = if delta < 80 then 1 else 15
-      rangeMin = delta - rangePerterbation
-      rangeMax = delta + rangePerterbation
+  # IN: reloadDelta: number greater than 0 miliseconds, OR ignore this call and don't schedule reload
+  scheduleReload: (reloadDelta) -> if reloadDelta > 0
+    reloadAt = @updatedAt + reloadDelta
+    delta = max 1, reloadAt - now = toSeconds()
+    rangePerterbation = if delta < 80 then 1 else 15
+    rangeMin = delta - rangePerterbation
+    rangeMax = delta + rangePerterbation
 
-      # queue reload if there isn't one already queued within [rangeMin, rangeMax]
-      unless @_reloadAt && (oldDelta = @_reloadAt - now) >= rangeMin && oldDelta <= rangeMax
+    # check if we already have a reload scheduled sooner than rangeMax
+    unless @reloadAt < now + rangeMax
 
-        _memoryLeakFreeReloader
-          @modelName
-          @key
-          # +/- random pertubation so reloads are distributed
-          @_reloadAt = reloadAt = now + rangeMin + (rangeMax - rangeMin) * Math.random()
-
-      @_fluxRecord.reloadAt = @_reloadAt
+      # schedule reloadAt between rangeMin and range Max (random pertubation so reloads are distributed)
+      @reloadAt = now + rangeMin + (rangeMax - rangeMin) * Math.random()
+      @ extract modelName, key
+      @_currentPendingReload = thisPendingReload = timeoutAt @reloadAt, ~>
+        entry = getFluxStore()._getEntry modelName, key
+        if thisPendingReload == entry?._currentPendingReload
+          entry._resetAutoReload()
+          entry.reload()
 
   reload: -> @model.reload @key
+
+  load: ->
+    try
+      @setFluxRecord fluxRecord if fluxRecord = @model.load @key
+
+    catch error
+      @setFluxRecord {}
+        error, status: failure
+        message: @_getAndLogErrorMessage error, :loading
+
+    @
+
+  # added, removed and updated are triggered by FluxStore during the Epoch update
+  added:    -> @model.fluxStoreEntryAdded @
+  removed:  -> @model.fluxStoreEntryRemoved @
+  updated:  ->
+    @model.fluxStoreEntryUpdated @
+    @_notifySubscribers()
 
   ##########################
     PRIVATE
   ##########################
-  ## _memoryLeakFreeReloader
-    IN: modelName <String>, key <String>, reloadAt: <Number>
-    Schedule the reload, but don't hold on to any references to this entry.
-    If this entry is gone by the time the reload comes around, we shouldn't hold on to this entry the whole time.
-    NOTE: _memoryLeakFreeReloader is NOT a member function so "this" doesn't hold on to the object.
-  _memoryLeakFreeReloader = (modelName, key, reloadAt) ->
-    timeoutAt reloadAt, ->
-      if floatEq reloadAt, entry = getFluxStore()._getEntry(modelName, key)?.reloadAt
-        entry.reload()
+  _resetAutoReload: -> @_currentPendingReload = @reloadAt = null; @tryCount = 0
 
   _updateAutoReloadFields: ->
-    reloadDelta = if isSuccess @status
-      @lastSuccessfulLoadAt = @_updatedAt
+    if isSuccess @status
       @tryCount = 1
-      @model.getStaleDataReloadSeconds()
+      @scheduleReload @model.getStaleDataReloadSeconds()
 
     else if isFailure @status
       @tryCount += 1
       switch @status
-        when networkFailure         then @nextNetworkFailureRetryDelay
-        when serverFailure, failure then @nextServerFailureRetryDelay
+        when networkFailure         then @scheduleReload @nextNetworkFailureRetryDelay
+        when serverFailure, failure then @scheduleReload @nextServerFailureRetryDelay
 
-    @_fluxRecord.lastSuccessfulLoadAt = @lastSuccessfulLoadAt
-    @_fluxRecord.tryCount = @tryCount
-    @reloadAt = if reloadDelta > 0 then @_updatedAt + reloadDelta else null
-
-  _notifySubscribers: -> if @_previousFluxRecord
-    each subscriber in @_subscribers
-      subscriber @_fluxRecord, @_previousFluxRecord
-    @_previousFluxRecord = null
+  # OUT: message generated
+  _getAndLogErrorMessage: (error, failedAction, _log = log.error) ->
+    _log {} error, message = "" Error #{failedAction} Entry for model: #{@modelName}, key: #{formattedInspect @key}
+    message
 
   _updateFluxRecord: (updateFunction) ->
     @_previousFluxRecord ?= @_fluxRecord
-    @setFluxRecord updateFunction?(@_fluxRecord) || {}
-    if propsEq @_fluxRecord, @_previousFluxRecord
-      @_previousFluxRecord = null
+    try @setFluxRecord updateFunction?(@_fluxRecord) || {}
+    catch error
+      @_getAndLogErrorMessage error, :updating
+
+    @_previousFluxRecord = null if propsEq @_fluxRecord, @_previousFluxRecord
+
+  _notifySubscribers: -> if @_previousFluxRecord
+    each subscriber in-array @_subscribers with subscriber @_fluxRecord, @_previousFluxRecord
+    @_previousFluxRecord = null
 
   # subscriber is a function with the signature: (FluxEntry) ->
   # to unsubscribe, you must provide the exact same subscription function

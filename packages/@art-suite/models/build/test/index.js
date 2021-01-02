@@ -9,5 +9,6 @@
   FluxStoreTest:                   require('./FluxStore.test'),
   FluxSubscriptionMixinTest:       require('./FluxSubscriptionMixin.test'),
   FluxSubscriptionMixinBasicsTest: require('./FluxSubscriptionMixinBasics.test'),
+  LibTest:                         require('./Lib.test'),
   StandardImport:                  require('./StandardImport')
 });

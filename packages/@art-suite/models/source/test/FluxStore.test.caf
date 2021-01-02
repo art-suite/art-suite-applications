@@ -11,7 +11,7 @@ describe basic: ->
     reset()
     assert.eq fluxStore.length, 0
 
-  test "fluxStore.update basic", ->
+  chainedTest "fluxStore.update basic", ->
     reset()
     fluxStore.subscribe "myModel", "myKey", -> # required to make the record persist
     fluxStore.update "myModel", "myKey", bar:1
@@ -19,17 +19,42 @@ describe basic: ->
     fluxStore.onNextReady ->
       assert.eq fluxStore.length, 1
       assert.selectedEq
-        entryCount:1
-        entrySubscribers:1
-        modelCount:1
+        entryCount:       1
+        entrySubscribers: 1
+        modelCount:       1
         fluxStore.status
 
       assert.selectedEq
-        status: pending, bar: 1, key: "myKey", modelName: "myModel"
-        fluxRecord = fluxStore.get "myModel", "myKey"
+        status: pending, bar: 1 key: :myKey modelName: :myModel
+        fluxRecord = fluxStore.get :myModel :myKey
+
       assert.isNumber fluxRecord.updatedAt
       assert.isNumber fluxRecord.createdAt
       assert.lt fluxRecord.createdAt, fluxRecord.updatedAt
+
+  .tapTest
+    "fluxEntry._getAndLogErrorMessage" ->
+      logged = []
+      myLog = (a) -> logged.push a
+      error = {}
+      message = fluxStore._entriesByModelName.myModel.myKey._getAndLogErrorMessage error, :giggle myLog
+      assert.isString message
+      assert.true :giggle in message
+      assert.eq logged.length, 1
+
+    "fluxStore.inspectedObjects" ->
+      fluxStore extract inspectedObjects extract myModel.myKey extract createdAt, updatedAt
+      assert.isNumber createdAt
+      assert.isNumber updatedAt
+      assert.eq
+        inspectedObjects
+        myModel:
+          myKey: {}
+            modelName: :myModel
+            key:       :myKey
+            status:    :pending
+            createdAt
+            updatedAt
 
   test "fluxStore.update with no subscriber is noop", ->
     reset()
@@ -51,14 +76,14 @@ describe basic: ->
         status: pending, baz: 2, key: "myKey", modelName: "myModel"
         fluxStore.get "myModel", "myKey"
 
-  test "fluxStore.getHasSubscribers", ->
-    reset()
-    fluxStore.subscribe "myModel", "myKey", -> # required to make the record persist
-    assert.eq false, fluxStore.getHasSubscribers "myModel", "myKey"
-    assert.eq false, fluxStore.getHasSubscribers "myModel", "myKey"
+  # test "fluxStore.getHasSubscribers", ->
+  #   reset()
+  #   fluxStore.subscribe "myModel", "myKey", -> # required to make the record persist
+  #   assert.eq false, fluxStore.getHasSubscribers "myModel", "myKey"
+  #   assert.eq false, fluxStore.getHasSubscribers "myModel", "myKey"
 
-    fluxStore.onNextReady ->
-      assert.eq true, fluxStore.getHasSubscribers "myModel", "myKey"
+  #   fluxStore.onNextReady ->
+  #     assert.eq true, fluxStore.getHasSubscribers "myModel", "myKey"
 
   test "fluxStore.update with update function can merge", ->
     reset()

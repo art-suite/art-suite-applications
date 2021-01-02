@@ -8,6 +8,7 @@
   FluxModel:              require('./FluxModel'),
   FluxStore:              require('./FluxStore'),
   FluxSubscriptionsMixin: require('./FluxSubscriptionsMixin'),
+  Lib:                    require('./Lib'),
   ModelRegistry:          require('./ModelRegistry'),
   StandardImport:         require('./StandardImport')
 });

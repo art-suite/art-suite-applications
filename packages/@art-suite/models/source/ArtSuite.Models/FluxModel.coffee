@@ -1,8 +1,5 @@
 {
-  log, decapitalize, merge, isString,
-  isoDateRegexp
-  time
-  globalCount
+  log, decapitalize, merge, isString
   compactFlatten
   Promise
   formattedInspect
@@ -39,9 +36,6 @@ defineModule module, class FluxModel extends InstanceFunctionBindingMixin BaseOb
   @register: ->
     @singletonClass()
     ModelRegistry.register @getSingleton()
-
-  register: ->
-    ModelRegistry.register @
 
   @postCreateConcreteClass: ({hotReloaded}) ->
     if hotReloaded
@@ -222,9 +216,8 @@ defineModule module, class FluxModel extends InstanceFunctionBindingMixin BaseOb
   # override reload if your load does not always updateFluxStore (eventually)
   reload: (key) ->
     if @loadData || @loadFluxRecord
-      @loadPromise key
-    else
-      @load key
+          @loadPromise key
+    else  @load key
 
   # called before actually calling @loadData within @loadPromise
   # EFFECT: marks record status as pending if it was previously a failure
@@ -234,13 +227,10 @@ defineModule module, class FluxModel extends InstanceFunctionBindingMixin BaseOb
     if isFailure (fluxRecord = @fluxStoreGet key)?.status
       @updateFluxStore key, merge fluxRecord, status: pending
 
-  # shortcut for updating the fluxStore for the current model
-  updateFluxStore: (key, fluxRecord) -> fluxStore.update @_name, key, fluxRecord
+  fluxStoreGet:     (key) -> fluxStore.get @_name, @toKeyString key
+  updateFluxStore:  (key, fluxRecord) -> fluxStore.update @_name, key, fluxRecord
 
   onModelRegistered: (modelName) -> ModelRegistry.onModelRegistered modelName
-
-  fluxStoreGet: (key) ->
-    fluxStore.get @_name, @toKeyString key
 
   # IN: key
   # OUT: promise.then data
@@ -248,23 +238,23 @@ defineModule module, class FluxModel extends InstanceFunctionBindingMixin BaseOb
   get: (key) ->
     key = @toKeyString key
     Promise.then =>
-      if currentFluxRecord = @fluxStoreGet(key)
-        if currentFluxRecord.status == pending
-          currentFluxRecord = null
-      currentFluxRecord || @loadPromise key
+      if (currentFluxRecord = @fluxStoreGet(key))?.status == pending
+        currentFluxRecord = null
+
+      currentFluxRecord ? @loadPromise key
+
     .then (fluxRecord)->
       {status, data} = fluxRecord
       unless status == success
-        new ErrorWithInfo "FluxModel#get: Error getting data. Status: #{status}.", {status, fluxRecord}
+        throw new ErrorWithInfo "FluxModel#get: Error getting data. Status: #{status}.", {status, fluxRecord}
+
       data
 
   # Override to support non-string keys
   # return: string representation of key
   toKeyString: (key) ->
-    if isPlainObject key
-      @dataToKeyString key
-    else if isString key
-      key
+    if isPlainObject key then @dataToKeyString key
+    else if isString key then key
     else
       throw new Error "FluxModel #{@name}: Must implement
         custom toKeyString for
