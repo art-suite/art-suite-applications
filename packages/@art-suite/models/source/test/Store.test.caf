@@ -3,7 +3,7 @@ import &StandardImport
 reset = ->
   store._reset()
   ModelRegistry._reset()
-  class MyModel extends FluxModel
+  class MyModel extends Model
   assert.eq true, !!models.myModel,{models}
 
 describe basic: ->
@@ -162,7 +162,7 @@ describe basic: ->
     new Promise (resolve) ->
       reset()
       updateCount = addedCount = removedCount = 0
-      class MyModel2 extends FluxModel
+      class MyModel2 extends Model
         storeEntryUpdated:  (entry) -> updateCount++
         storeEntryAdded:    (entry) -> addedCount++
         storeEntryRemoved:  (entry) ->
@@ -178,14 +178,14 @@ describe basic: ->
   test "subscribe triggers load on model", ->
     new Promise (resolve) ->
       reset()
-      class MyBasicModel extends FluxModel
+      class MyBasicModel extends Model
         load: resolve
 
       store.subscribe :myBasicModel :123 (fluxRecord) -> null
 
   test "subscribe with initial value does not trigger load on model nor subscription callback", ->
     reset()
-    class MyBasicModel extends FluxModel
+    class MyBasicModel extends Model
       load: (key) -> assert.fail()
 
     store.subscribe

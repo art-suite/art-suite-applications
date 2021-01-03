@@ -4,9 +4,9 @@
 (module.exports = require('./namespace'))
 .includeInNamespace(require('./Models'))
 .addModules({
-  FluxModel:              require('./FluxModel'),
   FluxSubscriptionsMixin: require('./FluxSubscriptionsMixin'),
   Lib:                    require('./Lib'),
+  Model:                  require('./Model'),
   ModelRegistry:          require('./ModelRegistry'),
   StandardImport:         require('./StandardImport'),
   Store:                  require('./Store'),

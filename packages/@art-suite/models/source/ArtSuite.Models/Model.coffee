@@ -15,7 +15,7 @@
 ModelRegistry = require './ModelRegistry'
 
 
-defineModule module, class FluxModel extends InstanceFunctionBindingMixin BaseObject
+defineModule module, class Model extends InstanceFunctionBindingMixin BaseObject
   @abstractClass()
 
   @declarable
@@ -53,7 +53,7 @@ defineModule module, class FluxModel extends InstanceFunctionBindingMixin BaseOb
   NOTE: @aliases can be called multiple times.
 
   example:
-    class Post extends FluxModel
+    class Post extends Model
       @aliases "chapterPost"
 
   purpose:
@@ -246,7 +246,7 @@ defineModule module, class FluxModel extends InstanceFunctionBindingMixin BaseOb
     .then (fluxRecord)->
       {status, data} = fluxRecord
       unless status == success
-        throw new ErrorWithInfo "FluxModel#get: Error getting data. Status: #{status}.", {status, fluxRecord}
+        throw new ErrorWithInfo "Model#get: Error getting data. Status: #{status}.", {status, fluxRecord}
 
       data
 
@@ -256,12 +256,12 @@ defineModule module, class FluxModel extends InstanceFunctionBindingMixin BaseOb
     if isPlainObject key then @dataToKeyString key
     else if isString key then key
     else
-      throw new Error "FluxModel #{@name}: Must implement
+      throw new Error "Model #{@name}: Must implement
         custom toKeyString for
         non-string keys like: #{formattedInspect key}"
 
   dataToKeyString: (obj) ->
-    throw new Error "FluxModel #{@name}: must override dataToKeyString for converting objects to key-strings."
+    throw new Error "Model #{@name}: must override dataToKeyString for converting objects to key-strings."
 
   @getRecordPropsToKeyFunction: (recordType) ->
     (props, stateField) =>
@@ -269,7 +269,7 @@ defineModule module, class FluxModel extends InstanceFunctionBindingMixin BaseOb
       props[propsField]?.id ? props[propsField + "Id"]
 
   @getter
-    propsToKey: -> @_propsToKey ?= FluxModel.getRecordPropsToKeyFunction @modelName
+    propsToKey: -> @_propsToKey ?= Model.getRecordPropsToKeyFunction @modelName
 
   ###################################################
   # OVERRIDES
@@ -290,7 +290,7 @@ defineModule module, class FluxModel extends InstanceFunctionBindingMixin BaseOb
   # localStorage helper methods
   ###################################################
 
-  _localStoreKey: (id) -> "fluxModel:#{@_name}:#{id}"
+  _localStoreKey: (id) -> "model:#{@_name}:#{id}"
 
   _localStoreGet: (id) ->
     if data = localStorage.getItem @_localStoreKey id

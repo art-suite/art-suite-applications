@@ -3,12 +3,12 @@
 
 (module.exports = require('./namespace'))
 
-.addModules({
-  ApplicationState:                require('./ApplicationState'),
-  FluxModelTest:                   require('./FluxModel.test'),
-  FluxSubscriptionMixinTest:       require('./FluxSubscriptionMixin.test'),
-  FluxSubscriptionMixinBasicsTest: require('./FluxSubscriptionMixinBasics.test'),
-  LibTest:                         require('./Lib.test'),
-  StandardImport:                  require('./StandardImport'),
-  StoreTest:                       require('./Store.test')
-});
+  .addModules({
+    ApplicationState: require('./ApplicationState'),
+    ModelTest: require('./Model.test'),
+    FluxSubscriptionMixinTest: require('./FluxSubscriptionMixin.test'),
+    FluxSubscriptionMixinBasicsTest: require('./FluxSubscriptionMixinBasics.test'),
+    LibTest: require('./Lib.test'),
+    StandardImport: require('./StandardImport'),
+    StoreTest: require('./Store.test')
+  });

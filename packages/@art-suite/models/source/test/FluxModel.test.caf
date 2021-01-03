@@ -7,7 +7,7 @@ describe
     test "model with async load", ->
       new Promise (resolve) ->
         _reset()
-        class MyBasicModel extends FluxModel
+        class MyBasicModel extends Model
 
           load: (key) ->
             store.onNextReady => @updateStore key, status: missing
@@ -27,7 +27,7 @@ describe
     test "model with @loadFluxRecord", ->
       new Promise (resolve) ->
         _reset()
-        class MyBasicModel extends FluxModel
+        class MyBasicModel extends Model
 
           loadFluxRecord: (key) ->
             timeout(20).then -> status: missing
@@ -44,7 +44,7 @@ describe
 
     test "model with custom load - delayed", ->
       _reset()
-      class MyBasicModel extends FluxModel
+      class MyBasicModel extends Model
 
         load: (key, callback) ->
           @updateStore key, -> status: success, data: theKeyIs:key
@@ -70,7 +70,7 @@ describe
 
     test "model with custom load - immediate", ->
       _reset()
-      class MyBasicModel extends FluxModel
+      class MyBasicModel extends Model
 
         load: (key, callback) ->
           @updateStore key, status: success, data: theKeyIs:key
@@ -86,7 +86,7 @@ describe
 
     test "model with @loadData", ->
       _reset()
-      class MyBasicModel extends FluxModel
+      class MyBasicModel extends Model
         loadData: (key) -> Promise.resolve theKeyIs:key
 
       new Promise (resolve) ->
@@ -105,13 +105,13 @@ describe
 
   simultanious: ->
 
-    test "two simultantious FluxModel requests on the same key only triggers one store request", ->
+    test "two simultantious Model requests on the same key only triggers one store request", ->
       _reset()
       counts =
         load: 0
         subscription1: 0
         subscription2: 0
-      class MyBasicModel extends FluxModel
+      class MyBasicModel extends Model
         load: (key, callback) ->
           counts.load++
           @updateStore key, status: success, data: theKeyIs:key
@@ -125,13 +125,13 @@ describe
       store.onNextReady ->
         assert.eq counts, load: 1, subscription1: 1, subscription2: 1
 
-    test "two simultantious FluxModel requests on the different keys triggers two store requests", ->
+    test "two simultantious Model requests on the different keys triggers two store requests", ->
       _reset()
       counts =
         load: 0
         sub1: 0
         sub2: 0
-      class MyBasicModel extends FluxModel
+      class MyBasicModel extends Model
         load: (key, callback) ->
           counts.load++
           @updateStore key, status: success, data: theKeyIs:key
@@ -153,7 +153,7 @@ describe
     test "multiple loadPromises with the same key only load once", ->
       _reset()
       loadCount = 0
-      class User extends FluxModel
+      class User extends Model
         loadData: (key) ->
           timeout 10
           .then ->
@@ -173,7 +173,7 @@ describe
   aliases: ->
     test "@aliases adds aliases to the model registry", ->
       _reset()
-      class User extends FluxModel
+      class User extends Model
         @aliases "owner", "sister"
 
       assert.eq models.user.class, User
@@ -183,7 +183,7 @@ describe
   functionsBoundToInstances: ->
     test "use bound function", ->
       _reset()
-      class User extends FluxModel
+      class User extends Model
         foo: -> @_foo = (@_foo || 0) + 1
 
       {user} = User

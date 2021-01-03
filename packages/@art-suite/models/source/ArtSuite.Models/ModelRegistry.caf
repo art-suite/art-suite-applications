@@ -1,7 +1,7 @@
 import &ArtStandardLib, &ArtClassSystem
 
 class ModelRegistry extends BaseObject
-  @models: global.artFluxModels ?= {}
+  @models: global.artModels ?= {}
   @_modelRegistrationPromiseResolvers: {}
   @_modelRegistrationPromises: {}
 

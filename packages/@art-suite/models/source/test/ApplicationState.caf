@@ -1,6 +1,6 @@
 import &StandardImport
 
-class ApplicationState extends FluxModel
+class ApplicationState extends Model
   @abstractClass()
 
   constructor: ->
