@@ -118,7 +118,7 @@
     });
 
     Model.prototype.subscribe = function(fluxKey, subscriptionFunction) {
-      log.error("DEPRICATED - use FluxSubscriptionsMixin and it's subscribe");
+      log.error("DEPRICATED - use ModelSubscriptionsMixin and it's subscribe");
       return store.subscribe(this._name, fluxKey, subscriptionFunction);
     };
 

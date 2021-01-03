@@ -12,8 +12,8 @@ ModelRegistry = require './ModelRegistry'
 
 defineModule module, ->
   # when CafScript arrives, this line will just be:
-  # mixin FluxSubscriptionsMixin
-  (superClass) -> class FluxSubscriptionsMixin extends superClass
+  # mixin ModelSubscriptionsMixin
+  (superClass) -> class ModelSubscriptionsMixin extends superClass
     ################################
     # constructor
     ################################

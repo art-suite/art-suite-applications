@@ -9,7 +9,7 @@ describe
       new Promise (resolve, reject) ->
         class MyModelB extends Model
 
-        class MyModelA extends FluxSubscriptionsMixin Model
+        class MyModelA extends ModelSubscriptionsMixin Model
           constructor: ->
             super
             @subscribeOnModelRegistered :mySubscriptionKey :myModelB :myFluxKey updatesCallback: ->
@@ -21,7 +21,7 @@ describe
       _reset()
       class MyModel extends &ApplicationState
 
-      new class MyObject extends FluxSubscriptionsMixin BaseObject
+      new class MyObject extends ModelSubscriptionsMixin BaseObject
 
         constructor: ->
           @subscribe :mySubscriptionKey :myModel :myFluxKey,
@@ -49,7 +49,7 @@ describe
       _reset()
       class MyModel extends &ApplicationState
 
-      new class MyObject extends FluxSubscriptionsMixin BaseObject
+      new class MyObject extends ModelSubscriptionsMixin BaseObject
 
         constructor: ->
           @subscribe "mySubscriptionKey", "myModel", "myFluxKey",

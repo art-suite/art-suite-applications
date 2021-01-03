@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1609651028045" clover="3.2.0">
-  <project timestamp="1609651028045" name="All files">
+<coverage generated="1609651353138" clover="3.2.0">
+  <project timestamp="1609651353138" name="All files">
     <metrics statements="313" coveredstatements="259" conditionals="185" coveredconditionals="99" methods="145" coveredmethods="112" elements="643" coveredelements="470" complexity="0" loc="313" ncloc="313" packages="2" files="10" classes="10"/>
     <package name="build.ArtSuite.Models">
       <metrics statements="2" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
@@ -15,60 +15,6 @@
     </package>
     <package name="source.ArtSuite.Models">
       <metrics statements="311" coveredstatements="257" conditionals="185" coveredconditionals="99" methods="145" coveredmethods="112"/>
-      <file name="FluxSubscriptionsMixin.coffee" path="/Users/shanebdavis/dev/art-suite-applications/packages/@art-suite/models/source/ArtSuite.Models/FluxSubscriptionsMixin.coffee">
-        <metrics statements="51" coveredstatements="41" conditionals="30" coveredconditionals="24" methods="16" coveredmethods="15"/>
-        <line num="1" count="1155" type="cond" truecount="2" falsecount="0"/>
-        <line num="9" count="5" type="stmt"/>
-        <line num="10" count="5" type="stmt"/>
-        <line num="11" count="5" type="stmt"/>
-        <line num="13" count="5" type="stmt"/>
-        <line num="16" count="8" type="stmt"/>
-        <line num="21" count="8" type="stmt"/>
-        <line num="22" count="8" type="stmt"/>
-        <line num="27" count="8" type="stmt"/>
-        <line num="28" count="8" type="stmt"/>
-        <line num="29" count="2" type="stmt"/>
-        <line num="85" count="8" type="stmt"/>
-        <line num="87" count="0" type="stmt"/>
-        <line num="88" count="0" type="stmt"/>
-        <line num="89" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="91" count="9" type="stmt"/>
-        <line num="93" count="0" type="stmt"/>
-        <line num="94" count="0" type="cond" truecount="2" falsecount="0"/>
-        <line num="97" count="9" type="stmt"/>
-        <line num="101" count="1" type="cond" truecount="2" falsecount="0"/>
-        <line num="104" count="0" type="stmt"/>
-        <line num="106" count="8" type="stmt"/>
-        <line num="108" count="8" type="stmt"/>
-        <line num="109" count="0" type="stmt"/>
-        <line num="110" count="2" type="stmt"/>
-        <line num="115" count="8" type="stmt"/>
-        <line num="128" count="8" type="stmt"/>
-        <line num="130" count="0" type="stmt"/>
-        <line num="132" count="1" type="stmt"/>
-        <line num="133" count="1" type="stmt"/>
-        <line num="138" count="8" type="stmt"/>
-        <line num="140" count="3" type="stmt"/>
-        <line num="141" count="3" type="stmt"/>
-        <line num="142" count="3" type="stmt"/>
-        <line num="143" count="11" type="stmt"/>
-        <line num="145" count="8" type="stmt"/>
-        <line num="146" count="2" type="stmt"/>
-        <line num="147" count="1" type="stmt"/>
-        <line num="148" count="1" type="stmt"/>
-        <line num="153" count="8" type="stmt"/>
-        <line num="154" count="5" type="stmt"/>
-        <line num="155" count="0" type="stmt"/>
-        <line num="158" count="8" type="stmt"/>
-        <line num="160" count="0" type="stmt"/>
-        <line num="163" count="7" type="cond" truecount="4" falsecount="2"/>
-        <line num="164" count="7" type="stmt"/>
-        <line num="165" count="7" type="cond" truecount="1" falsecount="1"/>
-        <line num="166" count="7" type="stmt"/>
-        <line num="167" count="7" type="stmt"/>
-        <line num="168" count="7" type="stmt"/>
-        <line num="174" count="11" type="stmt"/>
-      </file>
       <file name="Lib.caf" path="/Users/shanebdavis/dev/art-suite-applications/packages/@art-suite/models/source/ArtSuite.Models/Lib.caf">
         <metrics statements="8" coveredstatements="8" conditionals="2" coveredconditionals="2" methods="9" coveredmethods="9"/>
         <line num="1" count="10" type="stmt"/>
@@ -200,6 +146,60 @@
         <line num="42" count="34" type="stmt"/>
         <line num="43" count="5" type="stmt"/>
         <line num="46" count="31" type="stmt"/>
+      </file>
+      <file name="ModelSubscriptionsMixin.coffee" path="/Users/shanebdavis/dev/art-suite-applications/packages/@art-suite/models/source/ArtSuite.Models/ModelSubscriptionsMixin.coffee">
+        <metrics statements="51" coveredstatements="41" conditionals="30" coveredconditionals="24" methods="16" coveredmethods="15"/>
+        <line num="1" count="1155" type="cond" truecount="2" falsecount="0"/>
+        <line num="9" count="5" type="stmt"/>
+        <line num="10" count="5" type="stmt"/>
+        <line num="11" count="5" type="stmt"/>
+        <line num="13" count="5" type="stmt"/>
+        <line num="16" count="8" type="stmt"/>
+        <line num="21" count="8" type="stmt"/>
+        <line num="22" count="8" type="stmt"/>
+        <line num="27" count="8" type="stmt"/>
+        <line num="28" count="8" type="stmt"/>
+        <line num="29" count="2" type="stmt"/>
+        <line num="85" count="8" type="stmt"/>
+        <line num="87" count="0" type="stmt"/>
+        <line num="88" count="0" type="stmt"/>
+        <line num="89" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="91" count="9" type="stmt"/>
+        <line num="93" count="0" type="stmt"/>
+        <line num="94" count="0" type="cond" truecount="2" falsecount="0"/>
+        <line num="97" count="9" type="stmt"/>
+        <line num="101" count="1" type="cond" truecount="2" falsecount="0"/>
+        <line num="104" count="0" type="stmt"/>
+        <line num="106" count="8" type="stmt"/>
+        <line num="108" count="8" type="stmt"/>
+        <line num="109" count="0" type="stmt"/>
+        <line num="110" count="2" type="stmt"/>
+        <line num="115" count="8" type="stmt"/>
+        <line num="128" count="8" type="stmt"/>
+        <line num="130" count="0" type="stmt"/>
+        <line num="132" count="1" type="stmt"/>
+        <line num="133" count="1" type="stmt"/>
+        <line num="138" count="8" type="stmt"/>
+        <line num="140" count="3" type="stmt"/>
+        <line num="141" count="3" type="stmt"/>
+        <line num="142" count="3" type="stmt"/>
+        <line num="143" count="11" type="stmt"/>
+        <line num="145" count="8" type="stmt"/>
+        <line num="146" count="2" type="stmt"/>
+        <line num="147" count="1" type="stmt"/>
+        <line num="148" count="1" type="stmt"/>
+        <line num="153" count="8" type="stmt"/>
+        <line num="154" count="5" type="stmt"/>
+        <line num="155" count="0" type="stmt"/>
+        <line num="158" count="8" type="stmt"/>
+        <line num="160" count="0" type="stmt"/>
+        <line num="163" count="7" type="cond" truecount="4" falsecount="2"/>
+        <line num="164" count="7" type="stmt"/>
+        <line num="165" count="7" type="cond" truecount="1" falsecount="1"/>
+        <line num="166" count="7" type="stmt"/>
+        <line num="167" count="7" type="stmt"/>
+        <line num="168" count="7" type="stmt"/>
+        <line num="174" count="11" type="stmt"/>
       </file>
       <file name="Models.caf" path="/Users/shanebdavis/dev/art-suite-applications/packages/@art-suite/models/source/ArtSuite.Models/Models.caf">
         <metrics statements="2" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="2"/>

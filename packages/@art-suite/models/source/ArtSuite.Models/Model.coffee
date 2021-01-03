@@ -89,7 +89,7 @@ defineModule module, class Model extends InstanceFunctionBindingMixin BaseObject
 
   # DEPRICATED
   subscribe: (fluxKey, subscriptionFunction) ->
-    log.error "DEPRICATED - use FluxSubscriptionsMixin and it's subscribe"
+    log.error "DEPRICATED - use ModelSubscriptionsMixin and it's subscribe"
     store.subscribe @_name, fluxKey, subscriptionFunction
 
   @getter "name",

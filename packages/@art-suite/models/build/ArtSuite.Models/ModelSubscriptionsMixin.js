@@ -14,18 +14,18 @@
 
   defineModule(module, function() {
     return function(superClass) {
-      var FluxSubscriptionsMixin;
-      return FluxSubscriptionsMixin = (function(superClass1) {
+      var ModelSubscriptionsMixin;
+      return ModelSubscriptionsMixin = (function(superClass1) {
         var getRetryNow;
 
-        extend(FluxSubscriptionsMixin, superClass1);
+        extend(ModelSubscriptionsMixin, superClass1);
 
-        function FluxSubscriptionsMixin() {
-          FluxSubscriptionsMixin.__super__.constructor.apply(this, arguments);
+        function ModelSubscriptionsMixin() {
+          ModelSubscriptionsMixin.__super__.constructor.apply(this, arguments);
           this._subscriptions = {};
         }
 
-        FluxSubscriptionsMixin.getter({
+        ModelSubscriptionsMixin.getter({
           models: function() {
             return ModelRegistry.models;
           },
@@ -87,7 +87,7 @@
             If you need to update anything based on the current value, use the return result.
          */
 
-        FluxSubscriptionsMixin.prototype.subscribe = function(subscriptionKey, modelName, key, options) {
+        ModelSubscriptionsMixin.prototype.subscribe = function(subscriptionKey, modelName, key, options) {
           var allOptions, callback, fluxKey, initialFluxRecord, model, stateField, subscriptionFunction, updatesCallback;
           if (isPlainObject(allOptions = subscriptionKey)) {
             subscriptionKey = allOptions.subscriptionKey, modelName = allOptions.modelName, key = allOptions.key, stateField = allOptions.stateField, initialFluxRecord = allOptions.initialFluxRecord, updatesCallback = allOptions.updatesCallback, callback = allOptions.callback;
@@ -142,7 +142,7 @@
             loading-order problem.
          */
 
-        FluxSubscriptionsMixin.prototype.subscribeOnModelRegistered = function(subscriptionKeyOrOptions, modelName, fluxKey, options) {
+        ModelSubscriptionsMixin.prototype.subscribeOnModelRegistered = function(subscriptionKeyOrOptions, modelName, fluxKey, options) {
           if (isPlainObject(subscriptionKeyOrOptions)) {
             modelName = subscriptionKeyOrOptions.modelName;
           }
@@ -153,7 +153,7 @@
           })(this));
         };
 
-        FluxSubscriptionsMixin.prototype.unsubscribe = function(subscriptionKey) {
+        ModelSubscriptionsMixin.prototype.unsubscribe = function(subscriptionKey) {
           var fluxKey, modelName, subscription, subscriptionFunction;
           if (subscription = this._subscriptions[subscriptionKey]) {
             subscriptionFunction = subscription.subscriptionFunction, modelName = subscription.modelName, fluxKey = subscription.fluxKey;
@@ -163,7 +163,7 @@
           return null;
         };
 
-        FluxSubscriptionsMixin.prototype.unsubscribeAll = function() {
+        ModelSubscriptionsMixin.prototype.unsubscribeAll = function() {
           var __, ref2, subscriptionKey;
           ref2 = this._subscriptions;
           for (subscriptionKey in ref2) {
@@ -179,7 +179,7 @@
           };
         };
 
-        FluxSubscriptionsMixin.prototype.setStateFromFluxRecord = function(stateField, fluxRecord, initialFluxRecord, key) {
+        ModelSubscriptionsMixin.prototype.setStateFromFluxRecord = function(stateField, fluxRecord, initialFluxRecord, key) {
           var data, modelName, progress, ref2, ref3, ref4, reloadAt, status, tryCount;
           if ((fluxRecord != null ? fluxRecord.status : void 0) !== success && (initialFluxRecord != null ? initialFluxRecord.status : void 0) === success) {
             fluxRecord = initialFluxRecord;
@@ -202,7 +202,7 @@
           return fluxRecord;
         };
 
-        return FluxSubscriptionsMixin;
+        return ModelSubscriptionsMixin;
 
       })(superClass);
     };
@@ -210,4 +210,4 @@
 
 }).call(this);
 
-//# sourceMappingURL=FluxSubscriptionsMixin.js.map
+//# sourceMappingURL=ModelSubscriptionsMixin.js.map

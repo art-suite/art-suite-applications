@@ -4,11 +4,11 @@
 (module.exports = require('./namespace'))
 
 .addModules({
-  ApplicationState:                require('./ApplicationState'),
-  FluxModelTest:                   require('./FluxModel.test'),
-  FluxSubscriptionMixinTest:       require('./FluxSubscriptionMixin.test'),
-  FluxSubscriptionMixinBasicsTest: require('./FluxSubscriptionMixinBasics.test'),
-  LibTest:                         require('./Lib.test'),
-  StandardImport:                  require('./StandardImport'),
-  StoreTest:                       require('./Store.test')
+  ApplicationState:                 require('./ApplicationState'),
+  LibTest:                          require('./Lib.test'),
+  ModelTest:                        require('./Model.test'),
+  ModelSubscriptionMixinTest:       require('./ModelSubscriptionMixin.test'),
+  ModelSubscriptionMixinBasicsTest: require('./ModelSubscriptionMixinBasics.test'),
+  StandardImport:                   require('./StandardImport'),
+  StoreTest:                        require('./Store.test')
 });

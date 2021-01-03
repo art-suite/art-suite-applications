@@ -4,11 +4,11 @@
 (module.exports = require('./namespace'))
 .includeInNamespace(require('./Models'))
 .addModules({
-  FluxSubscriptionsMixin: require('./FluxSubscriptionsMixin'),
-  Lib:                    require('./Lib'),
-  Model:                  require('./Model'),
-  ModelRegistry:          require('./ModelRegistry'),
-  StandardImport:         require('./StandardImport'),
-  Store:                  require('./Store'),
-  StoreEntry:             require('./StoreEntry')
+  Lib:                     require('./Lib'),
+  Model:                   require('./Model'),
+  ModelRegistry:           require('./ModelRegistry'),
+  ModelSubscriptionsMixin: require('./ModelSubscriptionsMixin'),
+  StandardImport:          require('./StandardImport'),
+  Store:                   require('./Store'),
+  StoreEntry:              require('./StoreEntry')
 });
