@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/8</span>
+                <span class='fraction'>8/8</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/2</span>
+                <span class='fraction'>2/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/9</span>
+                <span class='fraction'>9/9</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/8</span>
+                <span class='fraction'>8/8</span>
             </div>
         
             
@@ -55,7 +55,7 @@
             Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the previous block.
         </p>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -69,38 +69,38 @@
 <a name='L10'></a><a href='#L10'>10</a>
 <a name='L11'></a><a href='#L11'>11</a>
 <a name='L12'></a><a href='#L12'>12</a>
-<a name='L13'></a><a href='#L13'>13</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<a name='L13'></a><a href='#L13'>13</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">561x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">31x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >import <span class="fstat-no" title="function not covered" >&amp;</span>StandardImport</span></span>
+<span class="cline-any cline-yes">30x</span></td><td class="text"><pre class="prettyprint lang-js">import &amp;StandardImport
 &nbsp;
-<span class="cstat-no" title="statement not covered" >{}</span>
-<span class="fstat-no" title="function not covered" >  validateInputs: (</span>valid, message, inputs) -&gt;<span class="cstat-no" title="statement not covered" ></span>
+{}
+  validateInputs: (valid, message, inputs) -&gt;
     unless valid
-<span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >      throw n</span>ew Error "#{message}\n#{formattedInspect {} inputs}"</span>
+      throw new Error "#{message}\n#{formattedInspect {} inputs}"
 &nbsp;
-  hardDeprecatedFunction<span class="fstat-no" title="function not covered" > = (</span>message) -&gt;<span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" ></span></span>
-    -&gt; <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >throw n</span>ew Error "" DEPRECATED: #{} message</span>
+  hardDeprecatedFunction = (message) -&gt;
+    -&gt; throw new Error "" DEPRECATED: #{} message
 &nbsp;
-<span class="fstat-no" title="function not covered" >  hardDeprecatedFunctionsAsMap: (</span>names...) -&gt;<span class="cstat-no" title="statement not covered" ></span>
-    object name in compactFlatten <span class="fstat-no" title="function not covered" >names</span>
-<span class="cstat-no" title="statement not covered" >      hardDeprecatedFunction name</span></pre></td></tr></table></pre>
+  hardDeprecatedFunctionsAsMap: (names...) -&gt;
+    object name in compactFlatten names
+      hardDeprecatedFunction name</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank">istanbul</a>
-                at Sat Jan 02 2021 06:57:03 GMT-0800 (Pacific Standard Time)
+                at Sat Jan 02 2021 21:11:42 GMT-0800 (Pacific Standard Time)
             </div>
         </div>
         <script src="../../prettify.js"></script>

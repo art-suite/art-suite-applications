@@ -1,8 +1,8 @@
 {}
   &ModelRegistry.models
-  &FluxStore.fluxStore
+  &Store.store
 
   # ONLY for testing
   _reset: ->
-    &FluxStore.fluxStore._reset()
+    &Store.store._reset()
     &ModelRegistry._reset()

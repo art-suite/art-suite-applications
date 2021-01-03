@@ -11,7 +11,7 @@
 {InstanceFunctionBindingMixin} = require "@art-suite/instance-function-binding-mixin"
 
 {missing, success, pending, failure, validStatus, isFailure} = require 'art-communication-status'
-{fluxStore} = require "./FluxStore"
+{store} = require "./Store"
 ModelRegistry = require './ModelRegistry'
 
 
@@ -69,7 +69,7 @@ defineModule module, class FluxModel extends InstanceFunctionBindingMixin BaseOb
 
   @_aliases: []
 
-  onNextReady: (f) -> fluxStore.onNextReady f
+  onNextReady: (f) -> store.onNextReady f
 
   constructor: (name)->
     super
@@ -79,28 +79,28 @@ defineModule module, class FluxModel extends InstanceFunctionBindingMixin BaseOb
 
   @classGetter
     models: -> ModelRegistry.models
-    fluxStore: -> fluxStore
+    store: -> store
 
   @getter
     models: -> ModelRegistry.models
-    fluxStore: -> fluxStore
+    store: -> store
     singlesModel: -> @_singlesModel || @
-    fluxStoreEntries: -> fluxStore.getEntriesForModel @name
+    storeEntries: -> store.getEntriesForModel @name
 
   # DEPRICATED
   subscribe: (fluxKey, subscriptionFunction) ->
     log.error "DEPRICATED - use FluxSubscriptionsMixin and it's subscribe"
-    fluxStore.subscribe @_name, fluxKey, subscriptionFunction
+    store.subscribe @_name, fluxKey, subscriptionFunction
 
   @getter "name",
     modelName: -> @_name
 
   ### load:
-    load the requested data for the given key and update the fluxStore
+    load the requested data for the given key and update the store
 
     required:
-      Should ALWAYS call fluxStore.update immediately OR once the data is available.
-      Clients will assume that a call to "load" forces a reload of the data in the fluxStore.
+      Should ALWAYS call store.update immediately OR once the data is available.
+      Clients will assume that a call to "load" forces a reload of the data in the store.
 
     optional:
       If the data is immediately available, you can return the fluxRecord instead of "null"
@@ -109,23 +109,23 @@ defineModule module, class FluxModel extends InstanceFunctionBindingMixin BaseOb
         first render.
 
     Note:
-      Typically called automatically by the fluxStore when a Component subscribes to
+      Typically called automatically by the store when a Component subscribes to
       data from this model with the given key.
 
     The simplest possible load function:
-      load: (key) -> @updateFluxStore key, {}
+      load: (key) -> @updateStore key, {}
 
     The "load" function below is:
       Simplest "load" with immediate fluxRecord return.
       Immediate return means:
-      - fluxStore.subscribe() will return the fluxRecord returned from this "load"
+      - store.subscribe() will return the fluxRecord returned from this "load"
       - FluxComponent subscriptions will update state in time for the inital render.
 
     inputs:
       key: string
 
     side effects:
-      expected to call fluxStore.update @_name, key, fluxRecord
+      expected to call store.update @_name, key, fluxRecord
         - when fluxRecord.status is no longer pending
         - optionally as progress is made loading the fluxRecord.data
 
@@ -143,18 +143,18 @@ defineModule module, class FluxModel extends InstanceFunctionBindingMixin BaseOb
                         promise.catch (a validStatus or error info, status becomes failure) ->
       loadFluxRecord: (key) -> promise.then (fluxRecord) ->
 
-      @load will take care of updating FluxStore.
+      @load will take care of updating Store.
   ###
   load: (key) ->
-    # ensure fluxStore is updated in case this is not beind called from the fluxStore itself
-    # returns {status: missing} since updateFluxStore returns the last argument,
+    # ensure store is updated in case this is not beind called from the store itself
+    # returns {status: missing} since updateStore returns the last argument,
     #   this makes the results immediately available to subscribers.
 
     if @loadData || @loadFluxRecord
       @loadPromise key
       null
     else
-      @updateFluxStore key, status: missing
+      @updateStore key, status: missing
 
   ### loadPromise:
     NOTE: @loadData or @loadFluxRecord should be implemented.
@@ -164,19 +164,19 @@ defineModule module, class FluxModel extends InstanceFunctionBindingMixin BaseOb
 
     The down-side is @loadPromise cannot immediately update the flux-store. If you have
     a model which stores its data locally, like ApplicationState, then override @load
-    for immediate fluxStore updates.
+    for immediate store updates.
 
     However, if your model always has to get the data asynchronously, override @loadData
     or @loadFluxRecord and use @loadPromise anytime you need to manually trigger a load.
 
     EFFECTS:
     - Triggers loadData or loadFluxRecord.
-    - Puts the results in the fluxStore.
+    - Puts the results in the store.
     - Elegently reduces multiple in-flight requests with the same key to one Promise.
       @loadData or @loadFluxRecord will only be invoked once per key while their
       returned promises are unresolved.
-      NOTE: the block actually extends all the way through to the fluxStore being updated.
-      That means you can immediately call @fluxStoreGet and get the latest data - when
+      NOTE: the block actually extends all the way through to the store being updated.
+      That means you can immediately call @storeGet and get the latest data - when
       the promise resolves.
 
     OUT: promise.then (fluxRecord) ->
@@ -191,29 +191,29 @@ defineModule module, class FluxModel extends InstanceFunctionBindingMixin BaseOb
     p = if @loadData
       Promise.then    => @loadingRecord key
       .then           => @loadData key
-      .then (data)    => @updateFluxStore key, if data? then status: success, data: data else status: missing
+      .then (data)    => @updateStore key, if data? then status: success, data: data else status: missing
       .catch (error)  =>
         status = if validStatus status = error?.info?.status || error
           status
         else failure
         info = error?.info
         error = null unless error instanceof Error
-        @updateFluxStore key, {status, info, error}
+        @updateStore key, {status, info, error}
 
     else if @loadFluxRecord
       @loadFluxRecord key
-      .then (fluxRecord) => @updateFluxStore key, fluxRecord
-      .catch (error)     => @updateFluxStore key, status: failure, error: error
+      .then (fluxRecord) => @updateStore key, fluxRecord
+      .catch (error)     => @updateStore key, status: failure, error: error
     else
-      Promise.resolve @updateFluxStore key, status: missing
+      Promise.resolve @updateStore key, status: missing
 
     @_activeLoadingRequests[key] = p
     .then (result) => @onNextReady(); result
     .then (result) => @_activeLoadingRequests[key] = null; result
 
-  # load is not required to updateFluxStore
-  # reload guarantees fluxStore is updated
-  # override reload if your load does not always updateFluxStore (eventually)
+  # load is not required to updateStore
+  # reload guarantees store is updated
+  # override reload if your load does not always updateStore (eventually)
   reload: (key) ->
     if @loadData || @loadFluxRecord
           @loadPromise key
@@ -224,21 +224,21 @@ defineModule module, class FluxModel extends InstanceFunctionBindingMixin BaseOb
   #   If it was previously a success, subscribers should keep showing the previously
   #   successful load until the new one completes.
   loadingRecord: (key) ->
-    if isFailure (fluxRecord = @fluxStoreGet key)?.status
-      @updateFluxStore key, merge fluxRecord, status: pending
+    if isFailure (fluxRecord = @storeGet key)?.status
+      @updateStore key, merge fluxRecord, status: pending
 
-  fluxStoreGet:     (key) -> fluxStore.get @_name, @toKeyString key
-  updateFluxStore:  (key, fluxRecord) -> fluxStore.update @_name, key, fluxRecord
+  storeGet:     (key) -> store.get @_name, @toKeyString key
+  updateStore:  (key, fluxRecord) -> store.update @_name, key, fluxRecord
 
   onModelRegistered: (modelName) -> ModelRegistry.onModelRegistered modelName
 
   # IN: key
   # OUT: promise.then data
-  # EFFECT: if already loaded in fluxStore, just returns what's in fluxstore
+  # EFFECT: if already loaded in store, just returns what's in fluxstore
   get: (key) ->
     key = @toKeyString key
     Promise.then =>
-      if (currentFluxRecord = @fluxStoreGet(key))?.status == pending
+      if (currentFluxRecord = @storeGet(key))?.status == pending
         currentFluxRecord = null
 
       currentFluxRecord ? @loadPromise key
@@ -277,14 +277,14 @@ defineModule module, class FluxModel extends InstanceFunctionBindingMixin BaseOb
   # Override to respond to entries being added or removed from the flux-store
 
   # called when an entry is updated OR added OR if it is about to be removed
-  # this is called before fluxStoreEntryAdded or fluxStoreEntryRemoved
-  fluxStoreEntryUpdated: (entry) ->
+  # this is called before storeEntryAdded or storeEntryRemoved
+  storeEntryUpdated: (entry) ->
 
   # called only when an entry is added
-  fluxStoreEntryAdded: (entry) ->
+  storeEntryAdded: (entry) ->
 
   # called when an entry was moved (when subscriber count goes to 0)
-  fluxStoreEntryRemoved: (entry) ->
+  storeEntryRemoved: (entry) ->
 
   ###################################################
   # localStorage helper methods

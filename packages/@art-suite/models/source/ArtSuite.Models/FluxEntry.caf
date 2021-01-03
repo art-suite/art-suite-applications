@@ -1,6 +1,6 @@
 import &StandardImport, &ModelRegistry, &Lib
 
-getFluxStore = -> _fluxStore ?= &FluxStore.fluxStore
+getStore = -> _store ?= &Store.store
 
 retryExponent = 2
 
@@ -77,7 +77,7 @@ class FluxEntry extends BaseObject
       @reloadAt = now + rangeMin + (rangeMax - rangeMin) * Math.random()
       @ extract modelName, key
       @_currentPendingReload = thisPendingReload = timeoutAt @reloadAt, ~>
-        entry = getFluxStore()._getEntry modelName, key
+        entry = getStore()._getEntry modelName, key
         if thisPendingReload == entry?._currentPendingReload
           entry._resetAutoReload()
           entry.reload()
@@ -95,11 +95,11 @@ class FluxEntry extends BaseObject
 
     @
 
-  # added, removed and updated are triggered by FluxStore during the Epoch update
-  added:    -> @model.fluxStoreEntryAdded @
-  removed:  -> @model.fluxStoreEntryRemoved @
+  # added, removed and updated are triggered by Store during the Epoch update
+  added:    -> @model.storeEntryAdded @
+  removed:  -> @model.storeEntryRemoved @
   updated:  ->
-    @model.fluxStoreEntryUpdated @
+    @model.storeEntryUpdated @
     @_notifySubscribers()
 
   ##########################

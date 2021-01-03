@@ -10,10 +10,10 @@ describe
         class MyBasicModel extends FluxModel
 
           load: (key) ->
-            fluxStore.onNextReady => @updateFluxStore key, status: missing
+            store.onNextReady => @updateStore key, status: missing
             null
 
-        res = fluxStore.subscribe "myBasicModel", "123", (fluxRecord) ->
+        res = store.subscribe "myBasicModel", "123", (fluxRecord) ->
           return unless fluxRecord.status != pending
           assert.selectedEq
             status: missing, key: "123", modelName: "myBasicModel"
@@ -32,7 +32,7 @@ describe
           loadFluxRecord: (key) ->
             timeout(20).then -> status: missing
 
-        res = fluxStore.subscribe "myBasicModel", "123", (fluxRecord) ->
+        res = store.subscribe "myBasicModel", "123", (fluxRecord) ->
           return unless fluxRecord.status != pending
           assert.selectedEq
             status: missing, key: "123", modelName: "myBasicModel"
@@ -47,11 +47,11 @@ describe
       class MyBasicModel extends FluxModel
 
         load: (key, callback) ->
-          @updateFluxStore key, -> status: success, data: theKeyIs:key
+          @updateStore key, -> status: success, data: theKeyIs:key
           null
 
       new Promise (resolve) ->
-        res = fluxStore.subscribe "myBasicModel", "123", (fluxRecord) ->
+        res = store.subscribe "myBasicModel", "123", (fluxRecord) ->
           assert.selectedEq
             status: success, key: "123", modelName: "myBasicModel", data: theKeyIs:"123"
             fluxRecord
@@ -62,7 +62,7 @@ describe
 
       .then ->
         new Promise (resolve) ->
-          fluxStore.subscribe "myBasicModel", "456", (fluxRecord) ->
+          store.subscribe "myBasicModel", "456", (fluxRecord) ->
             assert.selectedEq
               status: success, key: "456", modelName: "myBasicModel", data: theKeyIs:"456"
               fluxRecord
@@ -73,16 +73,16 @@ describe
       class MyBasicModel extends FluxModel
 
         load: (key, callback) ->
-          @updateFluxStore key, status: success, data: theKeyIs:key
+          @updateStore key, status: success, data: theKeyIs:key
 
       new Promise (resolve, reject) ->
-        res = fluxStore.subscribe "myBasicModel", "123", (fluxRecord) ->
+        res = store.subscribe "myBasicModel", "123", (fluxRecord) ->
           log.error "THIS SHOULDN'T HAPPEN!"
           reject()
         assert.selectedEq
           status: success, key: "123", modelName: "myBasicModel", data: theKeyIs:"123"
           res
-        fluxStore.onNextReady resolve
+        store.onNextReady resolve
 
     test "model with @loadData", ->
       _reset()
@@ -90,14 +90,14 @@ describe
         loadData: (key) -> Promise.resolve theKeyIs:key
 
       new Promise (resolve) ->
-        fluxStore.subscribe "myBasicModel", "123", (fluxRecord) ->
+        store.subscribe "myBasicModel", "123", (fluxRecord) ->
           assert.selectedEq
             status: success, key: "123", modelName: "myBasicModel", data: theKeyIs:"123"
             fluxRecord
           resolve()
       .then ->
         new Promise (resolve) ->
-          fluxStore.subscribe "myBasicModel", "456", (fluxRecord) ->
+          store.subscribe "myBasicModel", "456", (fluxRecord) ->
             assert.selectedEq
               status: success, key: "456", modelName: "myBasicModel", data: theKeyIs:"456"
               fluxRecord
@@ -114,15 +114,15 @@ describe
       class MyBasicModel extends FluxModel
         load: (key, callback) ->
           counts.load++
-          @updateFluxStore key, status: success, data: theKeyIs:key
+          @updateStore key, status: success, data: theKeyIs:key
 
-      fluxStore.subscribe "myBasicModel", "123", (fluxRecord) -> assert.eq(fluxRecord.count, 2);counts.subscription1++
-      fluxStore.subscribe "myBasicModel", "123", (fluxRecord) -> assert.eq(fluxRecord.count, 2);counts.subscription2++
+      store.subscribe "myBasicModel", "123", (fluxRecord) -> assert.eq(fluxRecord.count, 2);counts.subscription1++
+      store.subscribe "myBasicModel", "123", (fluxRecord) -> assert.eq(fluxRecord.count, 2);counts.subscription2++
 
-      fluxStore.update "myBasicModel", "123", (fluxRecord) -> count: (fluxRecord.count || 0)+ 1
-      fluxStore.update "myBasicModel", "123", (fluxRecord) -> count: (fluxRecord.count || 0)+ 1
+      store.update "myBasicModel", "123", (fluxRecord) -> count: (fluxRecord.count || 0)+ 1
+      store.update "myBasicModel", "123", (fluxRecord) -> count: (fluxRecord.count || 0)+ 1
 
-      fluxStore.onNextReady ->
+      store.onNextReady ->
         assert.eq counts, load: 1, subscription1: 1, subscription2: 1
 
     test "two simultantious FluxModel requests on the different keys triggers two store requests", ->
@@ -134,21 +134,21 @@ describe
       class MyBasicModel extends FluxModel
         load: (key, callback) ->
           counts.load++
-          @updateFluxStore key, status: success, data: theKeyIs:key
+          @updateStore key, status: success, data: theKeyIs:key
 
-      fluxStore.subscribe "myBasicModel", "123", (fluxRecord) -> assert.eq(fluxRecord.count, 1);counts.sub1++
-      fluxStore.subscribe "myBasicModel", "456", (fluxRecord) -> assert.eq(fluxRecord.count, 1);counts.sub2++
+      store.subscribe "myBasicModel", "123", (fluxRecord) -> assert.eq(fluxRecord.count, 1);counts.sub1++
+      store.subscribe "myBasicModel", "456", (fluxRecord) -> assert.eq(fluxRecord.count, 1);counts.sub2++
 
-      fluxStore.update "myBasicModel", "123", (fluxRecord) -> count: (fluxRecord.count || 0)+ 1
-      fluxStore.update "myBasicModel", "456", (fluxRecord) -> count: (fluxRecord.count || 0)+ 1
+      store.update "myBasicModel", "123", (fluxRecord) -> count: (fluxRecord.count || 0)+ 1
+      store.update "myBasicModel", "456", (fluxRecord) -> count: (fluxRecord.count || 0)+ 1
 
-      fluxStore.onNextReady ->
+      store.onNextReady ->
         assert.eq counts, load: 2, sub1: 1, sub2: 1
 
   loadPromise: ->
     # flux pending updates so following tests dont fail
     # when this test model no longer exists.
-    afterEach -> fluxStore.onNextReady()
+    afterEach -> store.onNextReady()
 
     test "multiple loadPromises with the same key only load once", ->
       _reset()

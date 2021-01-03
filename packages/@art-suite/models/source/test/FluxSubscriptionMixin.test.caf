@@ -3,7 +3,7 @@ import &StandardImport, {} &ApplicationState
 describe
   subscribeOnModelRegistered: ->
     beforeEach _reset
-    afterEach -> fluxStore.onNextReady()
+    afterEach -> store.onNextReady()
 
     test "subscribeOnModelRegistered", ->
       new Promise (resolve, reject) ->
@@ -33,9 +33,9 @@ describe
         data:         :myInitialData
         key:          :myFluxKey
         modelName:    :myModel
-        fluxStore.get :myModel :myFluxKey
+        store.get :myModel :myFluxKey
 
-      fluxStore.onNextReady()
+      store.onNextReady()
 
     # .thenTest "still pending?" ->
     #   assert.selectedEq
@@ -43,7 +43,7 @@ describe
     #     data:         :myInitialData
     #     key:          :myFluxKey
     #     modelName:    :myModel
-    #     fluxStore.get :myModel :myFluxKey
+    #     store.get :myModel :myFluxKey
 
     test "with stateField and no initialFluxRecord", ->
       _reset()
@@ -59,4 +59,4 @@ describe
         status:     missing
         key:        "myFluxKey"
         modelName:  "myModel"
-        fluxStore.get "myModel", "myFluxKey"
+        store.get "myModel", "myFluxKey"

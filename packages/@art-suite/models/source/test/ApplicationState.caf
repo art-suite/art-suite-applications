@@ -15,7 +15,7 @@ class ApplicationState extends FluxModel
 
   load: (key) ->
     # log load: key
-    @updateFluxStore
+    @updateStore
       key
       fluxRecord = if @state.hasOwnProperty key
             status: success, data: @state[key]

@@ -1,13 +1,13 @@
 import &StandardImport, &ArtEpochedState, &Lib, {} &FluxEntry, &ModelRegistry
 
-## FluxStore:
+## Store:
   a key-fields store
   'fields' are plain Objects with any fields with any values you want except:
     the 'key' field is set automatically to match the Object's key in the store
   Updates to values result in NEW Objects. A Value object is never altered.
   Epoched
   Supports change-notificaiton subscriptions per key.
-class FluxStore extends EpochClass
+class Store extends EpochClass
   @singletonClass()
 
   constructor: -> @_reset()
@@ -43,7 +43,7 @@ class FluxStore extends EpochClass
   @getter hardDeprecatedFunctionsAsMap :hasSubscribers
 
   ## subscribe
-    subscribe to all changes to the fluxStore FluxEntry identified by modelName and Key.
+    subscribe to all changes to the store FluxEntry identified by modelName and Key.
 
     subscribers:
       are notified on all changes to the entry's:
@@ -207,7 +207,7 @@ class FluxStore extends EpochClass
     @_addedEntries = []
     null
 
-  # TODO 2020-12-31: FluxStore should automatically bind to a standard global epoch cycle as the "models" epoched-state
+  # TODO 2020-12-31: Store should automatically bind to a standard global epoch cycle as the "models" epoched-state
   # bind to GlobalEpochCycle if not web-worker
   if GlobalEpochCycle = Neptune.Art.Engine?.Core?.GlobalEpochCycle
-    GlobalEpochCycle.singleton.includeFlux FluxStore.singleton
+    GlobalEpochCycle.singleton.includeFlux Store.singleton

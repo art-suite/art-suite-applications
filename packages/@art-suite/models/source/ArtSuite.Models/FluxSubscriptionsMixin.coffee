@@ -7,7 +7,7 @@
   isFunction
 } = require 'art-standard-lib'
 {success, isFailure} = require 'art-communication-status'
-{fluxStore} = require './FluxStore'
+{store} = require './Store'
 ModelRegistry = require './ModelRegistry'
 
 defineModule module, ->
@@ -65,7 +65,7 @@ defineModule module, ->
     OUT: existingFluxRecord || initialFluxRecord || status: missing fluxRecord
 
     EFFECT:
-      Establishes a FluxStore subscription for the given model and fluxKey.
+      Establishes a Store subscription for the given model and fluxKey.
       Upon any changes to the fluxRecord, will:
         call updatesCallback, if provided
         and/or @setStateFromFluxRecord if stateField was provided
@@ -111,9 +111,9 @@ defineModule module, ->
 
       @_subscriptions[subscriptionKey] = {modelName, fluxKey, subscriptionFunction}
 
-      # NOTE: subscriptionFunction is the 'handle' needed later to unsubscribe from the fluxStore
+      # NOTE: subscriptionFunction is the 'handle' needed later to unsubscribe from the store
       @setStateFromFluxRecord stateField,
-        fluxStore.subscribe modelName, fluxKey, subscriptionFunction, initialFluxRecord
+        store.subscribe modelName, fluxKey, subscriptionFunction, initialFluxRecord
         initialFluxRecord
         key
 
@@ -138,7 +138,7 @@ defineModule module, ->
     unsubscribe: (subscriptionKey)->
       if subscription = @_subscriptions[subscriptionKey]
         {subscriptionFunction, modelName, fluxKey} = subscription
-        fluxStore.unsubscribe modelName, fluxKey, subscriptionFunction
+        store.unsubscribe modelName, fluxKey, subscriptionFunction
         delete @_subscriptions[subscriptionKey]
       null
 
@@ -152,7 +152,7 @@ defineModule module, ->
     ################################
     getRetryNow = (modelName, key) ->
       ->
-        fluxStore._getEntry modelName, key
+        store._getEntry modelName, key
         .reload()
 
     setStateFromFluxRecord: (stateField, fluxRecord, initialFluxRecord, key) ->
