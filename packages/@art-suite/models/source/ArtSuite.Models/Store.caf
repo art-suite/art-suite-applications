@@ -1,4 +1,4 @@
-import &StandardImport, &ArtEpochedState, &Lib, {} &FluxEntry, &ModelRegistry
+import &StandardImport, &ArtEpochedState, &Lib, {} &StoreEntry, &ModelRegistry
 
 ## Store:
   a key-fields store
@@ -43,7 +43,7 @@ class Store extends EpochClass
   @getter hardDeprecatedFunctionsAsMap :hasSubscribers
 
   ## subscribe
-    subscribe to all changes to the store FluxEntry identified by modelName and Key.
+    subscribe to all changes to the store StoreEntry identified by modelName and Key.
 
     subscribers:
       are notified on all changes to the entry's:
@@ -136,7 +136,7 @@ class Store extends EpochClass
 
   _addEntry: (modelName, key, initialFluxRecord) ->
     @_length++
-    @_addedEntries.push entry = @_getEntriesForModelName(modelName)[key] = new FluxEntry modelName, key, initialFluxRecord
+    @_addedEntries.push entry = @_getEntriesForModelName(modelName)[key] = new StoreEntry modelName, key, initialFluxRecord
     entry
 
   _removeEntry: (entry) ->

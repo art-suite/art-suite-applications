@@ -33,7 +33,7 @@ describe basic: ->
       assert.lt fluxRecord.createdAt, fluxRecord.updatedAt
 
   .tapTest
-    "fluxEntry._getAndLogErrorMessage" ->
+    "storeEntry._getAndLogErrorMessage" ->
       logged = []
       myLog = (a) -> logged.push a
       error = {}
