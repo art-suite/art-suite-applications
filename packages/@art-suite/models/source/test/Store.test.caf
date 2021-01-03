@@ -26,11 +26,11 @@ describe basic: ->
 
       assert.selectedEq
         status: pending, bar: 1 key: :myKey modelName: :myModel
-        fluxRecord = store.get :myModel :myKey
+        modelRecord = store.get :myModel :myKey
 
-      assert.isNumber fluxRecord.updatedAt
-      assert.isNumber fluxRecord.createdAt
-      assert.lt fluxRecord.createdAt, fluxRecord.updatedAt
+      assert.isNumber modelRecord.updatedAt
+      assert.isNumber modelRecord.createdAt
+      assert.lt modelRecord.createdAt, modelRecord.updatedAt
 
   .tapTest
     "storeEntry._getAndLogErrorMessage" ->
@@ -126,14 +126,14 @@ describe basic: ->
 
       reset()
 
-      store.subscribe "myModel", "myKey", (fluxRecord, previousFluxRecord) ->
+      store.subscribe "myModel", "myKey", (modelRecord, previousModelRecord) ->
         assert.selectedEq
           status: missing, key: "myKey", modelName: "myModel"
-          previousFluxRecord
+          previousModelRecord
 
         assert.selectedEq
           status: pending, bar: 1, key: "myKey", modelName: "myModel"
-          fluxRecord
+          modelRecord
         resolve()
 
       store.update "myModel", "myKey", bar: 1
@@ -142,8 +142,8 @@ describe basic: ->
     reset()
     count1 = 0
     count2 = 0
-    subscriber1 = (fluxRecord) -> count1++
-    subscriber2 = (fluxRecord) -> count2++
+    subscriber1 = (modelRecord) -> count1++
+    subscriber2 = (modelRecord) -> count2++
 
     store.subscribe "myModel", "myKey", subscriber1
     store.subscribe "myModel", "myKey", subscriber2
@@ -181,7 +181,7 @@ describe basic: ->
       class MyBasicModel extends Model
         load: resolve
 
-      store.subscribe :myBasicModel :123 (fluxRecord) -> null
+      store.subscribe :myBasicModel :123 (modelRecord) -> null
 
   test "subscribe with initial value does not trigger load on model nor subscription callback", ->
     reset()
@@ -191,7 +191,7 @@ describe basic: ->
     store.subscribe
       :myBasicModel
       :123
-      (fluxRecord) -> assert.fail()
+      (modelRecord) -> assert.fail()
       data: foo: 1 bar: 2
 
     store.onNextReady ->

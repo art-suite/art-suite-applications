@@ -36,7 +36,7 @@ class Store extends EpochClass
 
       {} entryCount, entrySubscribers, modelCount, reloadsPending, nextReload
 
-  get:                (modelName, key) -> @_getEntry(modelName, key)?.fluxRecord
+  get:                (modelName, key) -> @_getEntry(modelName, key)?.modelRecord
   getSubscribers:     (modelName, key) -> @_getEntry(modelName, key)?.subscribers
   getEntriesForModel: (modelName)      -> @_entriesByModelName[modelName]
 
@@ -47,7 +47,7 @@ class Store extends EpochClass
 
     subscribers:
       are notified on all changes to the entry's:
-        @fluxRecord object
+        @modelRecord object
         @subscribers list
       are NOT explicitly notified of when the entry is first added or removed
         However, when an entry is added, subscribers will be notified that a change happened.
@@ -58,32 +58,32 @@ class Store extends EpochClass
       modelName: string
       key: string
 
-      subscriber: (fluxRecord, previousFluxRecord) -> null
+      subscriber: (modelRecord, previousModelRecord) -> null
         IN:
-          fluxRecord: plain object; the current value for the fluxRecord
-          previousFluxRecord: plain object; the last value for the fluxRecord
+          modelRecord: plain object; the current value for the modelRecord
+          previousModelRecord: plain object; the last value for the modelRecord
         GUARANTEES:
-          1. !propsEq fluxRecord, previousFluxRecord
+          1. !propsEq modelRecord, previousModelRecord
           2. only called once per change
 
-      initialFluxRecord: if set, and the key is not in the store, this is used
+      initialModelRecord: if set, and the key is not in the store, this is used
         as the initial value instead of calling "load" on the model.
 
     OUT:
-      entry's current fluxRecord
-      It is possible fluxRecord will be already populated with viable data (e.g. if initialFluxRecord was provided or if the model can load the data synchronously).
+      entry's current modelRecord
+      It is possible modelRecord will be already populated with viable data (e.g. if initialModelRecord was provided or if the model can load the data synchronously).
       If not, it'll have status: pending.
 
     side effects:
-      vivifies a new entry with fluxRecord = {status: pending} if one isn't present
+      vivifies a new entry with modelRecord = {status: pending} if one isn't present
       calls ModelRegistry[modelName].load key if vivification occured
       Notifies all subscribers.
 
-    returns: current fluxRecord for the entry
-  subscribe: (modelName, key, subscriber, initialFluxRecord) ->
+    returns: current modelRecord for the entry
+  subscribe: (modelName, key, subscriber, initialModelRecord) ->
     @_queueChange {} modelName, key, addSubscriber: subscriber
-    @_vivifyAndLoadEntry modelName, key, initialFluxRecord
-    .fluxRecord
+    @_vivifyAndLoadEntry modelName, key, initialModelRecord
+    .modelRecord
 
   ## unsubscribe
     inputs:
@@ -99,23 +99,23 @@ class Store extends EpochClass
 
   ## update
     put updates or creates the record
-    updateFunctionOrNewFluxRecord: can be:
-      1) an arbitrary function: (oldFluxRecord) -> newFluxRecord
-        oldFluxRecord will be null/undefined only if the record has not been created.
-        do not alter oldFluxRecord
+    updateFunctionOrNewModelRecord: can be:
+      1) an arbitrary function: (oldModelRecord) -> newModelRecord
+        oldModelRecord will be null/undefined only if the record has not been created.
+        do not alter oldModelRecord
         must return a new Object or null/undefined (in which case an empty Object is created)
       2) a new Object to replace the existing object
 
     Notifies all subscribers.
-    returns: updateFunctionOrNewFluxRecord
-  update: (modelName, key, updateFunctionOrNewFluxRecord) ->
+    returns: updateFunctionOrNewModelRecord
+  update: (modelName, key, updateFunctionOrNewModelRecord) ->
     validateInputs key is String, "Key must be a string." key
     @_queueChange {} modelName, key, updateFunction:
-      if isFunction updateFunctionOrNewFluxRecord
-            updateFunctionOrNewFluxRecord
-      else  -> updateFunctionOrNewFluxRecord
+      if isFunction updateFunctionOrNewModelRecord
+            updateFunctionOrNewModelRecord
+      else  -> updateFunctionOrNewModelRecord
 
-    updateFunctionOrNewFluxRecord
+    updateFunctionOrNewModelRecord
 
   ########################
   # PRIVATE
@@ -134,14 +134,14 @@ class Store extends EpochClass
     validateInputs key is String, "Expected 'key' to be a String." key
     @_getEntriesForModelName(modelName)[key]
 
-  _addEntry: (modelName, key, initialFluxRecord) ->
+  _addEntry: (modelName, key, initialModelRecord) ->
     @_length++
-    @_addedEntries.push entry = @_getEntriesForModelName(modelName)[key] = new StoreEntry modelName, key, initialFluxRecord
+    @_addedEntries.push entry = @_getEntriesForModelName(modelName)[key] = new StoreEntry modelName, key, initialModelRecord
     entry
 
   _removeEntry: (entry) ->
     @_length--
-    delete @_getEntriesForModelName(entry.fluxRecord.modelName)[entry.fluxRecord.key]
+    delete @_getEntriesForModelName(entry.modelRecord.modelName)[entry.modelRecord.key]
     entry
 
   ## _vivifyEntry
@@ -152,25 +152,25 @@ class Store extends EpochClass
     ? @_addEntry modelName, key
 
   ## _vivifyAndLoadEntry
-    Returns existing entry if there is one, otherwise it vivifies a "defaultFluxRecord" and starts the model.load.
+    Returns existing entry if there is one, otherwise it vivifies a "defaultModelRecord" and starts the model.load.
 
     _vivifyAndLoadEntry solves the problem of two or more subscriptions starting in the same epoch
     on a new entry. Without this, we'd try to call "load" on the same model+key more than once.
     Ex: if we are loading remote images, loading the same remote image multiple times is a huge waste.
 
     OUT: entry
-  _vivifyAndLoadEntry: (modelName, key, initialFluxRecord) ->
+  _vivifyAndLoadEntry: (modelName, key, initialModelRecord) ->
     @_getEntry modelName, key
-    ? @_createAndInitEntry modelName, key, initialFluxRecord
+    ? @_createAndInitEntry modelName, key, initialModelRecord
 
-  _getGlobalInitialFluxRecordForEntry: (modelName, key) ->
-    if data = (global.artFluxInit ? global.artSuiteModelsInit)?[modelName]?[key]
-      initialFluxRecord = {} data, status: success
+  _getGlobalInitialModelRecordForEntry: (modelName, key) ->
+    if data = global.artSuiteModelsInit?[modelName]?[key]
+      initialModelRecord = {} data, status: success
 
-  _createAndInitEntry: (modelName, key, initialFluxRecord) ->
-    entry = @_addEntry modelName, key, initialFluxRecord ?= @_getGlobalInitialFluxRecordForEntry modelName, key
+  _createAndInitEntry: (modelName, key, initialModelRecord) ->
+    entry = @_addEntry modelName, key, initialModelRecord ?= @_getGlobalInitialModelRecordForEntry modelName, key
 
-    entry.load() unless initialFluxRecord
+    entry.load() unless initialModelRecord
 
     entry
 
@@ -193,7 +193,7 @@ class Store extends EpochClass
 
     each {modelName, key, addSubscriber, removeSubscriber, updateFunction} in-array changes
       pushIfNotPresent updatedEntries, entry = @_vivifyEntry modelName, key
-      if updateFunction        then entry._updateFluxRecord updateFunction
+      if updateFunction        then entry._updateModelRecord updateFunction
       else if addSubscriber    then entry._subscribe addSubscriber
       else if removeSubscriber then entry._unsubscribe removeSubscriber
 
@@ -206,8 +206,3 @@ class Store extends EpochClass
 
     @_addedEntries = []
     null
-
-  # TODO 2020-12-31: Store should automatically bind to a standard global epoch cycle as the "models" epoched-state
-  # bind to GlobalEpochCycle if not web-worker
-  if GlobalEpochCycle = Neptune.Art.Engine?.Core?.GlobalEpochCycle
-    GlobalEpochCycle.singleton.includeFlux Store.singleton

@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">67.83% </span>
+                <span class="strong">69.44% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>78/115</span>
+                <span class='fraction'>75/108</span>
             </div>
         
             
@@ -37,16 +37,16 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">57.78% </span>
+                <span class="strong">61.9% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>26/45</span>
+                <span class='fraction'>26/42</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">66.67% </span>
+                <span class="strong">67.03% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>64/96</span>
+                <span class='fraction'>61/91</span>
             </div>
         
             
@@ -347,18 +347,7 @@
 <a name='L288'></a><a href='#L288'>288</a>
 <a name='L289'></a><a href='#L289'>289</a>
 <a name='L290'></a><a href='#L290'>290</a>
-<a name='L291'></a><a href='#L291'>291</a>
-<a name='L292'></a><a href='#L292'>292</a>
-<a name='L293'></a><a href='#L293'>293</a>
-<a name='L294'></a><a href='#L294'>294</a>
-<a name='L295'></a><a href='#L295'>295</a>
-<a name='L296'></a><a href='#L296'>296</a>
-<a name='L297'></a><a href='#L297'>297</a>
-<a name='L298'></a><a href='#L298'>298</a>
-<a name='L299'></a><a href='#L299'>299</a>
-<a name='L300'></a><a href='#L300'>300</a>
-<a name='L301'></a><a href='#L301'>301</a>
-<a name='L302'></a><a href='#L302'>302</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">715x</span>
+<a name='L291'></a><a href='#L291'>291</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">715x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -612,6 +601,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-yes">12x</span>
@@ -645,20 +637,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">{
   log, decapitalize, merge, isString
   compactFlatten
@@ -681,9 +659,9 @@ defineModule module, class Model extends InstanceFunctionBindingMixin BaseObject
 &nbsp;
   @declarable
     staleDataReloadSeconds:         null # if &gt;0, reload stale data as soon as its older than this number in seconds
-    minNetworkFailureReloadSeconds: null # if &gt;0, and isFailure(fluxRecord.status) is true, that record well get a model.reload(key) call within this number of seconds after the failure
+    minNetworkFailureReloadSeconds: null # if &gt;0, and isFailure(modelRecord.status) is true, that record well get a model.reload(key) call within this number of seconds after the failure
     maxNetworkFailureReloadSeconds: Infinity # repeated failed reloads retry with exponential fall offs; this caps the max interval for retrying
-    minServerFailureReloadSeconds:  null # if &gt;0, and isFailure(fluxRecord.status) is true, that record well get a model.reload(key) call within this number of seconds after the failure
+    minServerFailureReloadSeconds:  null # if &gt;0, and isFailure(modelRecord.status) is true, that record well get a model.reload(key) call within this number of seconds after the failure
     maxServerFailureReloadSeconds:  Infinity # repeated failed reloads retry with exponential fall offs; this caps the max interval for retrying
 &nbsp;
   @getter
@@ -719,7 +697,7 @@ defineModule module, class Model extends InstanceFunctionBindingMixin BaseObject
 &nbsp;
   purpose:
     - declare alternative names to access this model.
-    - allows you to use the shortest form of FluxComponent subscriptions for each alias:
+    - allows you to use the shortest form of Components subscriptions for each alias:
         @subscriptions "chapterPost"
       in addition to the model's class name:
         @subscriptions "post"
@@ -749,9 +727,9 @@ defineModule module, class Model extends InstanceFunctionBindingMixin BaseObject
     storeEntries: <span class="fstat-no" title="function not covered" >-&gt; <span class="cstat-no" title="statement not covered" >s</span>tore.</span>getEntriesForModel @name
 &nbsp;
   # DEPRICATED
-  subscribe: <span class="fstat-no" title="function not covered" >(f</span>luxKey, subscriptionFunction) -&gt;
+  subscribe: <span class="fstat-no" title="function not covered" >(m</span>odelKey, subscriptionFunction) -&gt;
 <span class="cstat-no" title="statement not covered" >    log.</span>error "DEPRICATED - use ModelSubscriptionsMixin and it's subscribe"
-<span class="cstat-no" title="statement not covered" >    store.</span>subscribe @_name, fluxKey, subscriptionFunction
+<span class="cstat-no" title="statement not covered" >    store.</span>subscribe @_name, modelKey, subscriptionFunction
 &nbsp;
   @getter "name",
     modelName: -&gt; @_name
@@ -764,9 +742,9 @@ defineModule module, class Model extends InstanceFunctionBindingMixin BaseObject
       Clients will assume that a call to "load" forces a reload of the data in the store.
 &nbsp;
     optional:
-      If the data is immediately available, you can return the fluxRecord instead of "null"
+      If the data is immediately available, you can return the modelRecord instead of "null"
       If load was called because of a new Component being mounted and its subscriptions initialized,
-        returning the fluxRecord immediately will guarantee the Component has valid data for its
+        returning the modelRecord immediately will guarantee the Component has valid data for its
         first render.
 &nbsp;
     Note:
@@ -774,25 +752,25 @@ defineModule module, class Model extends InstanceFunctionBindingMixin BaseObject
       data from this model with the given key.
 &nbsp;
     The simplest possible load function:
-      load: (key) -&gt; @updateStore key, {}
+      load: (key) -&gt; @updateModelRecord key, {}
 &nbsp;
     The "load" function below is:
-      Simplest "load" with immediate fluxRecord return.
+      Simplest "load" with immediate modelRecord return.
       Immediate return means:
-      - store.subscribe() will return the fluxRecord returned from this "load"
-      - FluxComponent subscriptions will update state in time for the inital render.
+      - store.subscribe() will return the modelRecord returned from this "load"
+      - Components subscriptions will update state in time for the inital render.
 &nbsp;
     inputs:
       key: string
 &nbsp;
     side effects:
-      expected to call store.update @_name, key, fluxRecord
-        - when fluxRecord.status is no longer pending
-        - optionally as progress is made loading the fluxRecord.data
+      expected to call store.update @_name, key, modelRecord
+        - when modelRecord.status is no longer pending
+        - optionally as progress is made loading the modelRecord.data
 &nbsp;
-    returns: null OR fluxRecord if the value is immediately available
-      NOTE: load can return null or fluxRecord as it chooses. The client shouldn't
-        rely on the fact that it returned a fluxRecord with a set of inputs, it might not
+    returns: null OR modelRecord if the value is immediately available
+      NOTE: load can return null or modelRecord as it chooses. The client shouldn't
+        rely on the fact that it returned a modelRecord with a set of inputs, it might not
         the next time.
 &nbsp;
     Optionally, you can implement one of two altenative load functions with Promise support:
@@ -802,47 +780,47 @@ defineModule module, class Model extends InstanceFunctionBindingMixin BaseObject
                           if data is null or undefined, status will be set to missing
                           otherwise, status will be success
                         promise.catch (a validStatus or error info, status becomes failure) -&gt;
-      loadFluxRecord: (key) -&gt; promise.then (fluxRecord) -&gt;
+      loadModelRecord: (key) -&gt; promise.then (modelRecord) -&gt;
 &nbsp;
       @load will take care of updating Store.
   ###
   load: (key) -&gt;
     # ensure store is updated in case this is not beind called from the store itself
-    # returns {status: missing} since updateStore returns the last argument,
+    # returns {status: missing} since updateModelRecord returns the last argument,
     #   this makes the results immediately available to subscribers.
 &nbsp;
-    if @loadData || @loadFluxRecord
+    if @loadData || @loadModelRecord
       @loadPromise key
       null
     else
-      @updateStore key, status: missing
+      @updateModelRecord key, status: missing
 &nbsp;
   ### loadPromise:
-    NOTE: @loadData or @loadFluxRecord should be implemented.
+    NOTE: @loadData or @loadModelRecord should be implemented.
     @loadPromise is an alternative to @load
 &nbsp;
     Unlike @load, @loadPromise returns a promise that resolves when the load is done.
 &nbsp;
-    The down-side is @loadPromise cannot immediately update the flux-store. If you have
+    The down-side is @loadPromise cannot immediately update the Store. If you have
     a model which stores its data locally, like ApplicationState, then override @load
     for immediate store updates.
 &nbsp;
     However, if your model always has to get the data asynchronously, override @loadData
-    or @loadFluxRecord and use @loadPromise anytime you need to manually trigger a load.
+    or @loadModelRecord and use @loadPromise anytime you need to manually trigger a load.
 &nbsp;
     EFFECTS:
-    - Triggers loadData or loadFluxRecord.
+    - Triggers loadData or loadModelRecord.
     - Puts the results in the store.
     - Elegently reduces multiple in-flight requests with the same key to one Promise.
-      @loadData or @loadFluxRecord will only be invoked once per key while their
+      @loadData or @loadModelRecord will only be invoked once per key while their
       returned promises are unresolved.
       NOTE: the block actually extends all the way through to the store being updated.
-      That means you can immediately call @storeGet and get the latest data - when
+      That means you can immediately call @getModelRecord and get the latest data - when
       the promise resolves.
 &nbsp;
-    OUT: promise.then (fluxRecord) -&gt;
-      fluxRecord: the latest, just-loaded data
-      ERRORS: errors are encoded into the fluxRecord. The promise should always resolve.
+    OUT: promise.then (modelRecord) -&gt;
+      modelRecord: the latest, just-loaded data
+      ERRORS: errors are encoded into the modelRecord. The promise should always resolve.
   ###
   loadPromise: (key) -&gt;
     if p = @_activeLoadingRequests[key]
@@ -852,31 +830,31 @@ defineModule module, class Model extends InstanceFunctionBindingMixin BaseObject
     p = if @loadData
       Promise.then    =&gt; @loadingRecord key
       .then           =&gt; @loadData key
-      .then (data)    =&gt; @updateStore key, if data? then status: success, data: data else <span class="branch-1 cbranch-no" title="branch not covered" >status: missing</span>
+      .then (data)    =&gt; @updateModelRecord key, if data? then status: success, data: data else <span class="branch-1 cbranch-no" title="branch not covered" >status: missing</span>
       .catch (error)  =&gt;
 <span class="cstat-no" title="statement not covered" >        status = if validStatus status = error?.info?.status || error</span>
           status
         else failure
 <span class="cstat-no" title="statement not covered" >        info = error?.info</span>
 <span class="cstat-no" title="statement not covered" >        error = null unless e</span>rror instanceof Error
-<span class="cstat-no" title="statement not covered" >        @u</span>pdateStore key, {status, info, error}
+<span class="cstat-no" title="statement not covered" >        @u</span>pdateModelRecord key, {status, info, error}
 &nbsp;
-    else if @loadFluxRecord
-      @loadFluxRecord key
-      .then (fluxRecord) =&gt; @updateStore key, fluxRecord
-      .catch (error)     =&gt; <span class="cstat-no" title="statement not covered" >@u</span>pdateStore key, status: failure, error: error
+    else if @loadModelRecord
+      @loadModelRecord key
+      .then (modelRecord) =&gt; @updateModelRecord key, modelRecord
+      .catch (error)     =&gt; <span class="cstat-no" title="statement not covered" >@u</span>pdateModelRecord key, status: failure, error: error
     else
-<span class="branch-1 cbranch-no" title="branch not covered" >      Promise.</span>resolve @updateStore key, status: missing
+<span class="branch-1 cbranch-no" title="branch not covered" >      Promise.</span>resolve @updateModelRecord key, status: missing
 &nbsp;
     @_activeLoadingRequests[key] = p
     .then (result) =&gt; @onNextReady(); result
     .then (result) =&gt; @_activeLoadingRequests[key] = null; result
 &nbsp;
-  # load is not required to updateStore
+  # load is not required to updateModelRecord
   # reload guarantees store is updated
-  # override reload if your load does not always updateStore (eventually)
+  # override reload if your load does not always updateModelRecord (eventually)
   reload: <span class="fstat-no" title="function not covered" >(k</span>ey) -&gt;
-    if @loadData || @loadFluxRecord
+    if @loadData || @loadModelRecord
 <span class="cstat-no" title="statement not covered" >          @l</span>oadPromise key
     else  <span class="cstat-no" title="statement not covered" >@l</span>oad key
 &nbsp;
@@ -885,32 +863,35 @@ defineModule module, class Model extends InstanceFunctionBindingMixin BaseObject
   #   If it was previously a success, subscribers should keep showing the previously
   #   successful load until the new one completes.
   loadingRecord: (key) -&gt;
-    if isFailure (fluxRecord = @storeGet key)?.status
-<span class="cstat-no" title="statement not covered" >      @u</span>pdateStore key, merge fluxRecord, status: pending
+    if isFailure (modelRecord = @getModelRecord key)?.status
+<span class="cstat-no" title="statement not covered" >      @u</span>pdateModelRecord key, merge modelRecord, status: pending
 &nbsp;
-  storeGet:     (key) -&gt; store.get @_name, @toKeyString key
-  updateStore:  (key, fluxRecord) -&gt; store.update @_name, key, fluxRecord
+  getModelRecord:     (key) -&gt; store.get @_name, @toKeyString key
+  updateModelRecord:  (key, modelRecord) -&gt; store.update @_name, key, modelRecord
 &nbsp;
   onModelRegistered: <span class="fstat-no" title="function not covered" >(m</span>odelName) -&gt; <span class="cstat-no" title="statement not covered" >ModelRegistry.</span>onModelRegistered modelName
 &nbsp;
   # IN: key
   # OUT: promise.then data
-  # EFFECT: if already loaded in store, just returns what's in fluxstore
+  # EFFECT: if already loaded in store, just returns what's in Store
   get: <span class="fstat-no" title="function not covered" >(k</span>ey) -&gt;
 <span class="cstat-no" title="statement not covered" >    key = @t</span>oKeyString key
 <span class="cstat-no" title="statement not covered" >    Promise.</span>then <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >=&gt;</span></span>
-      if (currentFluxRecord = @storeGet(key))?.status == pending
-<span class="cstat-no" title="statement not covered" >        currentFluxRecord = null</span>
+      if (currentModelRecord = @getModelRecord(key))?.status == pending
+<span class="cstat-no" title="statement not covered" >        currentModelRecord = null</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >      currentFluxRecord ? @l</span>oadPromise key
+<span class="cstat-no" title="statement not covered" >      currentModelRecord ? @l</span>oadPromise key
 &nbsp;
-    .then <span class="fstat-no" title="function not covered" >(f</span>luxRecord)-&gt;
-      {<span class="cstat-no" title="statement not covered" >status, data} = fluxRecord</span>
+    .then <span class="fstat-no" title="function not covered" >(m</span>odelRecord)-&gt;
+      {<span class="cstat-no" title="statement not covered" >status, data} = modelRecord</span>
       unless status == success
-<span class="cstat-no" title="statement not covered" >        throw new E</span>rrorWithInfo "Model#get: Error getting data. Status: #{status}.", {status, fluxRecord}
+<span class="cstat-no" title="statement not covered" >        throw new E</span>rrorWithInfo "Model#get: Error getting data. Status: #{status}.", {status, modelRecord}
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      data</span>
 &nbsp;
+  ###################################################
+  # OVERRIDES - Non-String Keys
+  ###################################################
   # Override to support non-string keys
   # return: string representation of key
   toKeyString: (key) -&gt;
@@ -933,9 +914,9 @@ defineModule module, class Model extends InstanceFunctionBindingMixin BaseObject
     propsToKey: <span class="fstat-no" title="function not covered" >-&gt; <span class="cstat-no" title="statement not covered" >@</span>_propsToKey ?= Model.</span>getRecordPropsToKeyFunction @modelName
 &nbsp;
   ###################################################
-  # OVERRIDES
+  # OVERRIDES - Events
   ###################################################
-  # Override to respond to entries being added or removed from the flux-store
+  # Override to respond to entries being added or removed from the Store
 &nbsp;
   # called when an entry is updated OR added OR if it is about to be removed
   # this is called before storeEntryAdded or storeEntryRemoved
@@ -946,20 +927,6 @@ defineModule module, class Model extends InstanceFunctionBindingMixin BaseObject
 &nbsp;
   # called when an entry was moved (when subscriber count goes to 0)
   storeEntryRemoved: (entry) -&gt;
-&nbsp;
-  ###################################################
-  # localStorage helper methods
-  ###################################################
-&nbsp;
-  _localStoreKey: <span class="fstat-no" title="function not covered" >(i</span>d) -&gt; <span class="cstat-no" title="statement not covered" >"model:#{@_name}:#{id}"</span>
-&nbsp;
-  _localStoreGet: <span class="fstat-no" title="function not covered" >(i</span>d) -&gt;
-    if data = localStorage.getItem @_localStoreKey id
-<span class="cstat-no" title="statement not covered" >      JSON.</span>parse data
-    else
-<span class="cstat-no" title="statement not covered" >      null</span>
-&nbsp;
-  _localStoreSet: <span class="fstat-no" title="function not covered" >(i</span>d, data) -&gt; <span class="cstat-no" title="statement not covered" >localStorage.</span>setItem @_localStoreKey(id), JSON.stringify data
 &nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -967,7 +934,7 @@ defineModule module, class Model extends InstanceFunctionBindingMixin BaseObject
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank">istanbul</a>
-                at Sat Jan 02 2021 21:22:33 GMT-0800 (Pacific Standard Time)
+                at Sat Jan 02 2021 22:50:59 GMT-0800 (Pacific Standard Time)
             </div>
         </div>
         <script src="../../prettify.js"></script>

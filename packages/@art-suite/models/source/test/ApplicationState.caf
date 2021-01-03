@@ -15,10 +15,10 @@ class ApplicationState extends Model
 
   load: (key) ->
     # log load: key
-    @updateStore
+    @updateModelRecord
       key
-      fluxRecord = if @state.hasOwnProperty key
+      modelRecord = if @state.hasOwnProperty key
             status: success, data: @state[key]
       else  status: missing
 
-    fluxRecord
+    modelRecord

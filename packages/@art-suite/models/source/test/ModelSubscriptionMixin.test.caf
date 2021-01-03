@@ -12,28 +12,28 @@ describe
         class MyModelA extends ModelSubscriptionsMixin Model
           constructor: ->
             super
-            @subscribeOnModelRegistered :mySubscriptionKey :myModelB :myFluxKey updatesCallback: ->
+            @subscribeOnModelRegistered :mySubscriptionKey :myModelB :myModelKey updatesCallback: ->
             .then resolve, reject
 
-  "subscribe and initialFluxRecord": ->
+  "subscribe and initialModelRecord": ->
 
-    chainedTest "with stateField and initialFluxRecord", ->
+    chainedTest "with stateField and initialModelRecord", ->
       _reset()
       class MyModel extends &ApplicationState
 
       new class MyObject extends ModelSubscriptionsMixin BaseObject
 
         constructor: ->
-          @subscribe :mySubscriptionKey :myModel :myFluxKey,
-            initialFluxRecord: data: :myInitialData
+          @subscribe :mySubscriptionKey :myModel :myModelKey,
+            initialModelRecord: data: :myInitialData
             stateField: :myStateField
 
       assert.selectedEq
         status:       pending
         data:         :myInitialData
-        key:          :myFluxKey
+        key:          :myModelKey
         modelName:    :myModel
-        store.get :myModel :myFluxKey
+        store.get :myModel :myModelKey
 
       store.onNextReady()
 
@@ -41,22 +41,22 @@ describe
     #   assert.selectedEq
     #     status:       success
     #     data:         :myInitialData
-    #     key:          :myFluxKey
+    #     key:          :myModelKey
     #     modelName:    :myModel
-    #     store.get :myModel :myFluxKey
+    #     store.get :myModel :myModelKey
 
-    test "with stateField and no initialFluxRecord", ->
+    test "with stateField and no initialModelRecord", ->
       _reset()
       class MyModel extends &ApplicationState
 
       new class MyObject extends ModelSubscriptionsMixin BaseObject
 
         constructor: ->
-          @subscribe "mySubscriptionKey", "myModel", "myFluxKey",
+          @subscribe "mySubscriptionKey", "myModel", "myModelKey",
             stateField: "myStateField"
 
       assert.selectedEq
         status:     missing
-        key:        "myFluxKey"
+        key:        "myModelKey"
         modelName:  "myModel"
-        store.get "myModel", "myFluxKey"
+        store.get "myModel", "myModelKey"

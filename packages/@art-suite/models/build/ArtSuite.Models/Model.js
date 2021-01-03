@@ -67,7 +67,7 @@
     
     purpose:
       - declare alternative names to access this model.
-      - allows you to use the shortest form of FluxComponent subscriptions for each alias:
+      - allows you to use the shortest form of Components subscriptions for each alias:
           @subscriptions "chapterPost"
         in addition to the model's class name:
           @subscriptions "post"
@@ -117,9 +117,9 @@
       }
     });
 
-    Model.prototype.subscribe = function(fluxKey, subscriptionFunction) {
+    Model.prototype.subscribe = function(modelKey, subscriptionFunction) {
       log.error("DEPRICATED - use ModelSubscriptionsMixin and it's subscribe");
-      return store.subscribe(this._name, fluxKey, subscriptionFunction);
+      return store.subscribe(this._name, modelKey, subscriptionFunction);
     };
 
     Model.getter("name", {
@@ -137,9 +137,9 @@
         Clients will assume that a call to "load" forces a reload of the data in the store.
     
       optional:
-        If the data is immediately available, you can return the fluxRecord instead of "null"
+        If the data is immediately available, you can return the modelRecord instead of "null"
         If load was called because of a new Component being mounted and its subscriptions initialized,
-          returning the fluxRecord immediately will guarantee the Component has valid data for its
+          returning the modelRecord immediately will guarantee the Component has valid data for its
           first render.
     
       Note:
@@ -147,25 +147,25 @@
         data from this model with the given key.
     
       The simplest possible load function:
-        load: (key) -> @updateStore key, {}
+        load: (key) -> @updateModelRecord key, {}
     
       The "load" function below is:
-        Simplest "load" with immediate fluxRecord return.
+        Simplest "load" with immediate modelRecord return.
         Immediate return means:
-        - store.subscribe() will return the fluxRecord returned from this "load"
-        - FluxComponent subscriptions will update state in time for the inital render.
+        - store.subscribe() will return the modelRecord returned from this "load"
+        - Components subscriptions will update state in time for the inital render.
     
       inputs:
         key: string
     
       side effects:
-        expected to call store.update @_name, key, fluxRecord
-          - when fluxRecord.status is no longer pending
-          - optionally as progress is made loading the fluxRecord.data
+        expected to call store.update @_name, key, modelRecord
+          - when modelRecord.status is no longer pending
+          - optionally as progress is made loading the modelRecord.data
     
-      returns: null OR fluxRecord if the value is immediately available
-        NOTE: load can return null or fluxRecord as it chooses. The client shouldn't
-          rely on the fact that it returned a fluxRecord with a set of inputs, it might not
+      returns: null OR modelRecord if the value is immediately available
+        NOTE: load can return null or modelRecord as it chooses. The client shouldn't
+          rely on the fact that it returned a modelRecord with a set of inputs, it might not
           the next time.
     
       Optionally, you can implement one of two altenative load functions with Promise support:
@@ -175,17 +175,17 @@
                             if data is null or undefined, status will be set to missing
                             otherwise, status will be success
                           promise.catch (a validStatus or error info, status becomes failure) ->
-        loadFluxRecord: (key) -> promise.then (fluxRecord) ->
+        loadModelRecord: (key) -> promise.then (modelRecord) ->
     
         @load will take care of updating Store.
      */
 
     Model.prototype.load = function(key) {
-      if (this.loadData || this.loadFluxRecord) {
+      if (this.loadData || this.loadModelRecord) {
         this.loadPromise(key);
         return null;
       } else {
-        return this.updateStore(key, {
+        return this.updateModelRecord(key, {
           status: missing
         });
       }
@@ -193,31 +193,31 @@
 
 
     /* loadPromise:
-      NOTE: @loadData or @loadFluxRecord should be implemented.
+      NOTE: @loadData or @loadModelRecord should be implemented.
       @loadPromise is an alternative to @load
     
       Unlike @load, @loadPromise returns a promise that resolves when the load is done.
     
-      The down-side is @loadPromise cannot immediately update the flux-store. If you have
+      The down-side is @loadPromise cannot immediately update the Store. If you have
       a model which stores its data locally, like ApplicationState, then override @load
       for immediate store updates.
     
       However, if your model always has to get the data asynchronously, override @loadData
-      or @loadFluxRecord and use @loadPromise anytime you need to manually trigger a load.
+      or @loadModelRecord and use @loadPromise anytime you need to manually trigger a load.
     
       EFFECTS:
-      - Triggers loadData or loadFluxRecord.
+      - Triggers loadData or loadModelRecord.
       - Puts the results in the store.
       - Elegently reduces multiple in-flight requests with the same key to one Promise.
-        @loadData or @loadFluxRecord will only be invoked once per key while their
+        @loadData or @loadModelRecord will only be invoked once per key while their
         returned promises are unresolved.
         NOTE: the block actually extends all the way through to the store being updated.
-        That means you can immediately call @storeGet and get the latest data - when
+        That means you can immediately call @getModelRecord and get the latest data - when
         the promise resolves.
     
-      OUT: promise.then (fluxRecord) ->
-        fluxRecord: the latest, just-loaded data
-        ERRORS: errors are encoded into the fluxRecord. The promise should always resolve.
+      OUT: promise.then (modelRecord) ->
+        modelRecord: the latest, just-loaded data
+        ERRORS: errors are encoded into the modelRecord. The promise should always resolve.
      */
 
     Model.prototype.loadPromise = function(key) {
@@ -235,7 +235,7 @@
         };
       })(this)).then((function(_this) {
         return function(data) {
-          return _this.updateStore(key, data != null ? {
+          return _this.updateModelRecord(key, data != null ? {
             status: success,
             data: data
           } : {
@@ -250,24 +250,24 @@
           if (!(error instanceof Error)) {
             error = null;
           }
-          return _this.updateStore(key, {
+          return _this.updateModelRecord(key, {
             status: status,
             info: info,
             error: error
           });
         };
-      })(this)) : this.loadFluxRecord ? this.loadFluxRecord(key).then((function(_this) {
-        return function(fluxRecord) {
-          return _this.updateStore(key, fluxRecord);
+      })(this)) : this.loadModelRecord ? this.loadModelRecord(key).then((function(_this) {
+        return function(modelRecord) {
+          return _this.updateModelRecord(key, modelRecord);
         };
       })(this))["catch"]((function(_this) {
         return function(error) {
-          return _this.updateStore(key, {
+          return _this.updateModelRecord(key, {
             status: failure,
             error: error
           });
         };
-      })(this)) : Promise.resolve(this.updateStore(key, {
+      })(this)) : Promise.resolve(this.updateModelRecord(key, {
         status: missing
       }));
       return this._activeLoadingRequests[key] = p.then((function(_this) {
@@ -284,7 +284,7 @@
     };
 
     Model.prototype.reload = function(key) {
-      if (this.loadData || this.loadFluxRecord) {
+      if (this.loadData || this.loadModelRecord) {
         return this.loadPromise(key);
       } else {
         return this.load(key);
@@ -292,20 +292,20 @@
     };
 
     Model.prototype.loadingRecord = function(key) {
-      var fluxRecord, ref2;
-      if (isFailure((ref2 = (fluxRecord = this.storeGet(key))) != null ? ref2.status : void 0)) {
-        return this.updateStore(key, merge(fluxRecord, {
+      var modelRecord, ref2;
+      if (isFailure((ref2 = (modelRecord = this.getModelRecord(key))) != null ? ref2.status : void 0)) {
+        return this.updateModelRecord(key, merge(modelRecord, {
           status: pending
         }));
       }
     };
 
-    Model.prototype.storeGet = function(key) {
+    Model.prototype.getModelRecord = function(key) {
       return store.get(this._name, this.toKeyString(key));
     };
 
-    Model.prototype.updateStore = function(key, fluxRecord) {
-      return store.update(this._name, key, fluxRecord);
+    Model.prototype.updateModelRecord = function(key, modelRecord) {
+      return store.update(this._name, key, modelRecord);
     };
 
     Model.prototype.onModelRegistered = function(modelName) {
@@ -316,19 +316,19 @@
       key = this.toKeyString(key);
       return Promise.then((function(_this) {
         return function() {
-          var currentFluxRecord, ref2;
-          if (((ref2 = (currentFluxRecord = _this.storeGet(key))) != null ? ref2.status : void 0) === pending) {
-            currentFluxRecord = null;
+          var currentModelRecord, ref2;
+          if (((ref2 = (currentModelRecord = _this.getModelRecord(key))) != null ? ref2.status : void 0) === pending) {
+            currentModelRecord = null;
           }
-          return currentFluxRecord != null ? currentFluxRecord : _this.loadPromise(key);
+          return currentModelRecord != null ? currentModelRecord : _this.loadPromise(key);
         };
-      })(this)).then(function(fluxRecord) {
+      })(this)).then(function(modelRecord) {
         var data, status;
-        status = fluxRecord.status, data = fluxRecord.data;
+        status = modelRecord.status, data = modelRecord.data;
         if (status !== success) {
           throw new ErrorWithInfo("Model#get: Error getting data. Status: " + status + ".", {
             status: status,
-            fluxRecord: fluxRecord
+            modelRecord: modelRecord
           });
         }
         return data;
@@ -370,23 +370,6 @@
     Model.prototype.storeEntryAdded = function(entry) {};
 
     Model.prototype.storeEntryRemoved = function(entry) {};
-
-    Model.prototype._localStoreKey = function(id) {
-      return "model:" + this._name + ":" + id;
-    };
-
-    Model.prototype._localStoreGet = function(id) {
-      var data;
-      if (data = localStorage.getItem(this._localStoreKey(id))) {
-        return JSON.parse(data);
-      } else {
-        return null;
-      }
-    };
-
-    Model.prototype._localStoreSet = function(id, data) {
-      return localStorage.setItem(this._localStoreKey(id), JSON.stringify(data));
-    };
 
     return Model;
 

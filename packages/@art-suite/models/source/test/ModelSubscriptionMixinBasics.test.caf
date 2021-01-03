@@ -12,14 +12,14 @@ describe
           resolve() if key == "myStateField" && value == "hi"
 
         constructor: ->
-          @subscribe "mySubscriptionKey", "myModel", "myFluxKey", stateField: "myStateField"
+          @subscribe "mySubscriptionKey", "myModel", "myModelKey", stateField: "myStateField"
 
       assert.hasKeys myObject.subscriptions
 
       timeout()
-      .then -> models.myModel.setState "myFluxKey", "hi"
+      .then -> models.myModel.setState "myModelKey", "hi"
 
-    test "with fluxKey = null means dont subscribe", ->
+    test "with modelKey = null means dont subscribe", ->
       class MyModel extends ApplicationState
 
       myObject = new class MyObject extends ModelSubscriptionsMixin BaseObject
@@ -45,19 +45,19 @@ describe
               reject wrongSetState: {key, value}
 
         constructor: ->
-          @subscribe "mySubscriptionKey", "myModel", "myFluxKey", stateField: "myStateField"
+          @subscribe "mySubscriptionKey", "myModel", "myModelKey", stateField: "myStateField"
 
       timeout()
       .then ->
         # change the subscription
-        myObject.subscribe "mySubscriptionKey", "myModel", "myFluxKey2", stateField: "myStateField"
+        myObject.subscribe "mySubscriptionKey", "myModel", "myModelKey2", stateField: "myStateField"
 
       .then ->
         # should be ignored if properly not listening to old key
-        models.myModel.setState "myFluxKey", "oops, still listening to old key"
+        models.myModel.setState "myModelKey", "oops, still listening to old key"
 
         # should trigger updates, if properly listening to new key
-        models.myModel.setState "myFluxKey2", "hi"
+        models.myModel.setState "myModelKey2", "hi"
 
   unsubscribe: ->
     beforeEach _reset
@@ -76,7 +76,7 @@ describe
               reject wrongSetState: {key, value}
 
         constructor: ->
-          @subscribe "mySubscriptionKey", "myModel", "myFluxKey", stateField: "myStateField"
+          @subscribe "mySubscriptionKey", "myModel", "myModelKey", stateField: "myStateField"
 
       timeout()
       .then ->
@@ -84,7 +84,7 @@ describe
         myObject.unsubscribe "mySubscriptionKey"
 
         # should be ignored if properly not listening to old key
-        models.myModel.setState "myFluxKey", "oops, still listening to old key"
+        models.myModel.setState "myModelKey", "oops, still listening to old key"
 
         timeout 10 # not the best method to give the setState-reject a chance to fire before resolving, can anyone think of a better way?
 
@@ -104,7 +104,7 @@ describe
               reject wrongSetState: {key, value}
 
         constructor: ->
-          @subscribe "mySubscriptionKey", "myModel", "myFluxKey", stateField: "myStateField"
+          @subscribe "mySubscriptionKey", "myModel", "myModelKey", stateField: "myStateField"
 
       timeout()
       .then ->
@@ -112,7 +112,7 @@ describe
         myObject.unsubscribeAll()
 
         # should be ignored if properly not listening to old key
-        models.myModel.setState "myFluxKey", "oops, still listening to old key"
+        models.myModel.setState "myModelKey", "oops, still listening to old key"
 
         timeout 10 # not the best method to give the setState-reject a chance to fire before resolving, can anyone think of a better way?
 

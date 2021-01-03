@@ -10,33 +10,33 @@ describe
         class MyBasicModel extends Model
 
           load: (key) ->
-            store.onNextReady => @updateStore key, status: missing
+            store.onNextReady => @updateModelRecord key, status: missing
             null
 
-        res = store.subscribe "myBasicModel", "123", (fluxRecord) ->
-          return unless fluxRecord.status != pending
+        res = store.subscribe "myBasicModel", "123", (modelRecord) ->
+          return unless modelRecord.status != pending
           assert.selectedEq
             status: missing, key: "123", modelName: "myBasicModel"
-            fluxRecord
+            modelRecord
           resolve()
         assert.selectedEq
           status: pending, key: "123", modelName: "myBasicModel"
           res
 
 
-    test "model with @loadFluxRecord", ->
+    test "model with @loadModelRecord", ->
       new Promise (resolve) ->
         _reset()
         class MyBasicModel extends Model
 
-          loadFluxRecord: (key) ->
+          loadModelRecord: (key) ->
             timeout(20).then -> status: missing
 
-        res = store.subscribe "myBasicModel", "123", (fluxRecord) ->
-          return unless fluxRecord.status != pending
+        res = store.subscribe "myBasicModel", "123", (modelRecord) ->
+          return unless modelRecord.status != pending
           assert.selectedEq
             status: missing, key: "123", modelName: "myBasicModel"
-            fluxRecord
+            modelRecord
           resolve()
         assert.selectedEq
           status: pending, key: "123", modelName: "myBasicModel"
@@ -47,14 +47,14 @@ describe
       class MyBasicModel extends Model
 
         load: (key, callback) ->
-          @updateStore key, -> status: success, data: theKeyIs:key
+          @updateModelRecord key, -> status: success, data: theKeyIs:key
           null
 
       new Promise (resolve) ->
-        res = store.subscribe "myBasicModel", "123", (fluxRecord) ->
+        res = store.subscribe "myBasicModel", "123", (modelRecord) ->
           assert.selectedEq
             status: success, key: "123", modelName: "myBasicModel", data: theKeyIs:"123"
-            fluxRecord
+            modelRecord
           resolve()
         assert.selectedEq
           status: pending, key: "123", modelName: "myBasicModel"
@@ -62,10 +62,10 @@ describe
 
       .then ->
         new Promise (resolve) ->
-          store.subscribe "myBasicModel", "456", (fluxRecord) ->
+          store.subscribe "myBasicModel", "456", (modelRecord) ->
             assert.selectedEq
               status: success, key: "456", modelName: "myBasicModel", data: theKeyIs:"456"
-              fluxRecord
+              modelRecord
             resolve()
 
     test "model with custom load - immediate", ->
@@ -73,10 +73,10 @@ describe
       class MyBasicModel extends Model
 
         load: (key, callback) ->
-          @updateStore key, status: success, data: theKeyIs:key
+          @updateModelRecord key, status: success, data: theKeyIs:key
 
       new Promise (resolve, reject) ->
-        res = store.subscribe "myBasicModel", "123", (fluxRecord) ->
+        res = store.subscribe "myBasicModel", "123", (modelRecord) ->
           log.error "THIS SHOULDN'T HAPPEN!"
           reject()
         assert.selectedEq
@@ -90,17 +90,17 @@ describe
         loadData: (key) -> Promise.resolve theKeyIs:key
 
       new Promise (resolve) ->
-        store.subscribe "myBasicModel", "123", (fluxRecord) ->
+        store.subscribe "myBasicModel", "123", (modelRecord) ->
           assert.selectedEq
             status: success, key: "123", modelName: "myBasicModel", data: theKeyIs:"123"
-            fluxRecord
+            modelRecord
           resolve()
       .then ->
         new Promise (resolve) ->
-          store.subscribe "myBasicModel", "456", (fluxRecord) ->
+          store.subscribe "myBasicModel", "456", (modelRecord) ->
             assert.selectedEq
               status: success, key: "456", modelName: "myBasicModel", data: theKeyIs:"456"
-              fluxRecord
+              modelRecord
             resolve()
 
   simultanious: ->
@@ -114,13 +114,13 @@ describe
       class MyBasicModel extends Model
         load: (key, callback) ->
           counts.load++
-          @updateStore key, status: success, data: theKeyIs:key
+          @updateModelRecord key, status: success, data: theKeyIs:key
 
-      store.subscribe "myBasicModel", "123", (fluxRecord) -> assert.eq(fluxRecord.count, 2);counts.subscription1++
-      store.subscribe "myBasicModel", "123", (fluxRecord) -> assert.eq(fluxRecord.count, 2);counts.subscription2++
+      store.subscribe "myBasicModel", "123", (modelRecord) -> assert.eq(modelRecord.count, 2);counts.subscription1++
+      store.subscribe "myBasicModel", "123", (modelRecord) -> assert.eq(modelRecord.count, 2);counts.subscription2++
 
-      store.update "myBasicModel", "123", (fluxRecord) -> count: (fluxRecord.count || 0)+ 1
-      store.update "myBasicModel", "123", (fluxRecord) -> count: (fluxRecord.count || 0)+ 1
+      store.update "myBasicModel", "123", (modelRecord) -> count: (modelRecord.count || 0)+ 1
+      store.update "myBasicModel", "123", (modelRecord) -> count: (modelRecord.count || 0)+ 1
 
       store.onNextReady ->
         assert.eq counts, load: 1, subscription1: 1, subscription2: 1
@@ -134,19 +134,19 @@ describe
       class MyBasicModel extends Model
         load: (key, callback) ->
           counts.load++
-          @updateStore key, status: success, data: theKeyIs:key
+          @updateModelRecord key, status: success, data: theKeyIs:key
 
-      store.subscribe "myBasicModel", "123", (fluxRecord) -> assert.eq(fluxRecord.count, 1);counts.sub1++
-      store.subscribe "myBasicModel", "456", (fluxRecord) -> assert.eq(fluxRecord.count, 1);counts.sub2++
+      store.subscribe "myBasicModel", "123", (modelRecord) -> assert.eq(modelRecord.count, 1);counts.sub1++
+      store.subscribe "myBasicModel", "456", (modelRecord) -> assert.eq(modelRecord.count, 1);counts.sub2++
 
-      store.update "myBasicModel", "123", (fluxRecord) -> count: (fluxRecord.count || 0)+ 1
-      store.update "myBasicModel", "456", (fluxRecord) -> count: (fluxRecord.count || 0)+ 1
+      store.update "myBasicModel", "123", (modelRecord) -> count: (modelRecord.count || 0)+ 1
+      store.update "myBasicModel", "456", (modelRecord) -> count: (modelRecord.count || 0)+ 1
 
       store.onNextReady ->
         assert.eq counts, load: 2, sub1: 1, sub2: 1
 
   loadPromise: ->
-    # flux pending updates so following tests dont fail
+    # wait for pending Store updates so following test's dont fail
     # when this test model no longer exists.
     afterEach -> store.onNextReady()
 

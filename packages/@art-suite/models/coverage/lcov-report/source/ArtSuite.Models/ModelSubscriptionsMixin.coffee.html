@@ -462,40 +462,40 @@ defineModule module, -&gt;
         # if provided, will call @setState(stateField, ...) immediately and with every change
         stateField: string
 &nbsp;
-        initialFluxRecord: fluxRecord-style object
+        initialModelRecord: modelRecord-style object
 &nbsp;
         # get called with every change
-        callback / updatesCallback:  (fluxRecord) -&gt; ignored
+        callback / updatesCallback:  (modelRecord) -&gt; ignored
 &nbsp;
       NOTE: One of options.stateField OR options.updatesCallback is REQUIRED.
 &nbsp;
-    OUT: existingFluxRecord || initialFluxRecord || status: missing fluxRecord
+    OUT: existingModelRecord || initialModelRecord || status: missing modelRecord
 &nbsp;
     EFFECT:
-      Establishes a Store subscription for the given model and fluxKey.
-      Upon any changes to the fluxRecord, will:
+      Establishes a Store subscription for the given model and modelKey.
+      Upon any changes to the modelRecord, will:
         call updatesCallback, if provided
-        and/or @setStateFromFluxRecord if stateField was provided
+        and/or @setStateFromModelRecord if stateField was provided
 &nbsp;
-      Will also call @setStateFromFluxRecord immediately, if stateField is provided,
-        with either the initialFluxRecord, or the existing fluxRecord, if any
+      Will also call @setStateFromModelRecord immediately, if stateField is provided,
+        with either the initialModelRecord, or the existing modelRecord, if any
 &nbsp;
       If there was already a subscription in this object with they same subscriptionKey,
       then @unsubscribe subscriptionKey will be called before setting up the new subscription.
 &nbsp;
       NOTE:
-        updateCallback only gets called when fluxRecord changes. It will not be called with the
-        current value. HOWEVER, the current fluxRecord is returned from the subscribe call.
+        updateCallback only gets called when modelRecord changes. It will not be called with the
+        current value. HOWEVER, the current modelRecord is returned from the subscribe call.
 &nbsp;
         If you need to update anything based on the current value, use the return result.
     ###
     subscribe: (subscriptionKey, modelName, key, options) -&gt;
       if isPlainObject allOptions = subscriptionKey
-        {<span class="cstat-no" title="statement not covered" >subscriptionKey, modelName, key, stateField, initialFluxRecord, updatesCallback, callback} = allOptions</span>
+        {<span class="cstat-no" title="statement not covered" >subscriptionKey, modelName, key, stateField, initialModelRecord, updatesCallback, callback} = allOptions</span>
 <span class="cstat-no" title="statement not covered" >        updatesCallback ?= callback</span>
 <span class="cstat-no" title="statement not covered" >        subscriptionKey ?= stateField || "#{</span>modelName} #{key}"
       else
-        {stateField, initialFluxRecord, updatesCallback} = options
+        {stateField, initialModelRecord, updatesCallback} = options
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      throw new E</span>rror "REQUIRED: subscriptionKey" unless isString subscriptionKey
 <span class="cstat-no" title="statement not covered" >      throw new E</span>rror "REQUIRED: updatesCallback or stateField" unless isString(stateField) || isFunction updatesCallback
@@ -505,23 +505,23 @@ defineModule module, -&gt;
 &nbsp;
       # unless key and modelName are present, clear stateFields and return after unsubscribing
       unless rubyTrue(key) &amp;&amp; modelName
-        return @setStateFromFluxRecord stateField, initialFluxRecord || status: success, null, key
+        return @setStateFromModelRecord stateField, initialModelRecord || status: success, null, key
 &nbsp;
       unless model = @models[modelName]
 <span class="cstat-no" title="statement not covered" >        throw new E</span>rror "No model registered with the name: #{modelName}. Registered models:\n  #{Object.keys(@models).join "\n  "}"
 &nbsp;
-      fluxKey = model.toKeyString key
+      modelKey = model.toKeyString key
 &nbsp;
-      subscriptionFunction = (fluxRecord) =&gt;
-<span class="cstat-no" title="statement not covered" >        updatesCallback? fluxRecord</span>
-        @setStateFromFluxRecord stateField, fluxRecord, null, key
+      subscriptionFunction = (modelRecord) =&gt;
+<span class="cstat-no" title="statement not covered" >        updatesCallback? modelRecord</span>
+        @setStateFromModelRecord stateField, modelRecord, null, key
 &nbsp;
-      @_subscriptions[subscriptionKey] = {modelName, fluxKey, subscriptionFunction}
+      @_subscriptions[subscriptionKey] = {modelName, modelKey, subscriptionFunction}
 &nbsp;
       # NOTE: subscriptionFunction is the 'handle' needed later to unsubscribe from the store
-      @setStateFromFluxRecord stateField,
-        store.subscribe modelName, fluxKey, subscriptionFunction, initialFluxRecord
-        initialFluxRecord
+      @setStateFromModelRecord stateField,
+        store.subscribe modelName, modelKey, subscriptionFunction, initialModelRecord
+        initialModelRecord
         key
 &nbsp;
     ###
@@ -532,20 +532,20 @@ defineModule module, -&gt;
         other models when they are constructed. This solves the
         loading-order problem.
     ###
-    subscribeOnModelRegistered: (subscriptionKeyOrOptions, modelName, fluxKey, options) -&gt;
+    subscribeOnModelRegistered: (subscriptionKeyOrOptions, modelName, modelKey, options) -&gt;
       if isPlainObject subscriptionKeyOrOptions
         {<span class="cstat-no" title="statement not covered" >modelName} = subscriptionKeyOrOptions</span>
 &nbsp;
       ModelRegistry.onModelRegistered modelName
-      .then =&gt; @subscribe subscriptionKeyOrOptions, modelName, fluxKey, options
+      .then =&gt; @subscribe subscriptionKeyOrOptions, modelName, modelKey, options
 &nbsp;
     ################################
     # Unsubscribe
     ################################
     unsubscribe: (subscriptionKey)-&gt;
       if subscription = @_subscriptions[subscriptionKey]
-        {subscriptionFunction, modelName, fluxKey} = subscription
-        store.unsubscribe modelName, fluxKey, subscriptionFunction
+        {subscriptionFunction, modelName, modelKey} = subscription
+        store.unsubscribe modelName, modelKey, subscriptionFunction
         delete @_subscriptions[subscriptionKey]
       null
 &nbsp;
@@ -562,23 +562,23 @@ defineModule module, -&gt;
 <span class="cstat-no" title="statement not covered" >        store.</span>_getEntry modelName, key
         .reload()
 &nbsp;
-    setStateFromFluxRecord: (stateField, fluxRecord, initialFluxRecord, key) -&gt;
-      if fluxRecord?.<span class="branch-1 cbranch-no" title="branch not covered" >status != s</span>uccess &amp;&amp; initialFluxRecord?.status == success
-<span class="cstat-no" title="statement not covered" >        fluxRecord = initialFluxRecord</span>
+    setStateFromModelRecord: (stateField, modelRecord, initialModelRecord, key) -&gt;
+      if modelRecord?.<span class="branch-1 cbranch-no" title="branch not covered" >status != s</span>uccess &amp;&amp; initialModelRecord?.status == success
+<span class="cstat-no" title="statement not covered" >        modelRecord = initialModelRecord</span>
 &nbsp;
       if stateField &amp;&amp; isFunction @setState
-        {status = <span class="branch-1 cbranch-no" title="branch not covered" >null, <span class="branch-0 cbranch-no" title="branch not covered" >p</span>rogress = n</span>ull, data = null} = fluxRecord if fluxRecord
+        {status = <span class="branch-1 cbranch-no" title="branch not covered" >null, <span class="branch-0 cbranch-no" title="branch not covered" >p</span>rogress = n</span>ull, data = null} = modelRecord if modelRecord
         @setState stateField, data
-        @setState stateField + "Key",       key ? <span class="branch-1 cbranch-no" title="branch not covered" >fluxRecord.key</span>
+        @setState stateField + "Key",       key ? <span class="branch-1 cbranch-no" title="branch not covered" >modelRecord.key</span>
         @setState stateField + "Status",    status
         @setState stateField + "Progress",  progress
         @setState stateField + "FailureInfo",
-          if fluxRecord &amp;&amp; isFailure status
-            {reloadAt, tryCount, modelName, key} = fluxRecord
+          if modelRecord &amp;&amp; isFailure status
+            {reloadAt, tryCount, modelName, key} = modelRecord
             {reloadAt, tryCount, status, retryNow: getRetryNow modelName, key}
           else null
 &nbsp;
-      fluxRecord
+      modelRecord
 &nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -586,7 +586,7 @@ defineModule module, -&gt;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank">istanbul</a>
-                at Sat Jan 02 2021 21:22:33 GMT-0800 (Pacific Standard Time)
+                at Sat Jan 02 2021 22:50:59 GMT-0800 (Pacific Standard Time)
             </div>
         </div>
         <script src="../../prettify.js"></script>

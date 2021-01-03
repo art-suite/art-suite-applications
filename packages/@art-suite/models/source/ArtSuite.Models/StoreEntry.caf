@@ -5,30 +5,30 @@ getStore = -> _store ?= &Store.store
 retryExponent = 2
 
 class StoreEntry extends BaseObject
-  # assumes StoreEntry "owns" the fluxRecord - it will alter the object by adding a "key" field
-  constructor: (modelName, key, initialFluxRecord = {}) ->
+  # assumes StoreEntry "owns" the modelRecord - it will alter the object by adding a "key" field
+  constructor: (modelName, key, initialModelRecord = {}) ->
     @_model       = models[modelName]
     @_autoReload  = @_model.autoReloadEnabled
 
     @_currentPendingReload = null
 
-    initialFluxRecord.key ?= key
-    initialFluxRecord.modelName ?= modelName
-    @setFluxRecord initialFluxRecord
+    initialModelRecord.key ?= key
+    initialModelRecord.modelName ?= modelName
+    @setModelRecord initialModelRecord
 
     @_subscribers = []
-    @_previousFluxRecord = null
+    @_previousModelRecord = null
 
-  @getter :previousFluxRecord :fluxRecord :subscribers :model :autoReload
+  @getter :previousModelRecord :modelRecord :subscribers :model :autoReload
   @getter
     subscriberCount:    -> @_subscribers.length
-    key:                -> @_fluxRecord.key
-    modelName:          -> @_fluxRecord.modelName
-    status:             -> @_fluxRecord.status
+    key:                -> @_modelRecord.key
+    modelName:          -> @_modelRecord.modelName
+    status:             -> @_modelRecord.status
     inspectedObjects:   -> merge {}
       @modelName, @key, @status
       @createdAt, @updatedAt, @reloadAt
-      @fluxRecord.data, @fluxRecord.message, @fluxRecord.error
+      @modelRecord.data, @modelRecord.message, @modelRecord.error
 
     nextNetworkFailureRetryDelay: ->
       if 0 < m = @model.getMinNetworkFailureReloadSeconds()
@@ -42,23 +42,23 @@ class StoreEntry extends BaseObject
           m * Math.pow @tryCount ? 1, retryExponent
           @model.getMaxServerFailureReloadSeconds()
 
-  @getter hardDeprecatedFunctionsAsMap :dataChanged :fluxRecordChanged :age :plainStructure :hasSubscribers
+  @getter hardDeprecatedFunctionsAsMap :dataChanged :modelRecordChanged :age :plainStructure :hasSubscribers
 
-  each fluxRecordSetter in :tryCount :reloadAt :updatedAt :createdAt
-    @getter [fluxRecordSetter]: -> @_fluxRecord[fluxRecordSetter]
-    @setter [fluxRecordSetter]: (v) -> @_fluxRecord[fluxRecordSetter] = v
+  each modelRecordSetter in :tryCount :reloadAt :updatedAt :createdAt
+    @getter [modelRecordSetter]: -> @_modelRecord[modelRecordSetter]
+    @setter [modelRecordSetter]: (v) -> @_modelRecord[modelRecordSetter] = v
 
   @setter
-    fluxRecord: (newFluxRecord)->
-      validateInputs newFluxRecord is Object, "New fluxRecord must be an object.", newFluxRecord
+    modelRecord: (newModelRecord)->
+      validateInputs newModelRecord is Object, "New modelRecord must be an object.", newModelRecord
 
-      (@_fluxRecord ? newFluxRecord) extract key, modelName, createdAt
-      @_fluxRecord = newFluxRecord
-      newFluxRecord.key       =   key
-      newFluxRecord.modelName =   modelName
-      newFluxRecord.status    ?=  pending
-      newFluxRecord.updatedAt =   now = toSeconds()
-      newFluxRecord.createdAt =   createdAt ? now
+      (@_modelRecord ? newModelRecord) extract key, modelName, createdAt
+      @_modelRecord = newModelRecord
+      newModelRecord.key       =   key
+      newModelRecord.modelName =   modelName
+      newModelRecord.status    ?=  pending
+      newModelRecord.updatedAt =   now = toSeconds()
+      newModelRecord.createdAt =   createdAt ? now
 
       @_updateAutoReloadFields() if @_autoReload
 
@@ -86,10 +86,10 @@ class StoreEntry extends BaseObject
 
   load: ->
     try
-      @setFluxRecord fluxRecord if fluxRecord = @model.load @key
+      @setModelRecord modelRecord if modelRecord = @model.load @key
 
     catch error
-      @setFluxRecord {}
+      @setModelRecord {}
         error, status: failure
         message: @_getAndLogErrorMessage error, :loading
 
@@ -123,17 +123,17 @@ class StoreEntry extends BaseObject
     _log {} error, message = "" Error #{failedAction} Entry for model: #{@modelName}, key: #{formattedInspect @key}
     message
 
-  _updateFluxRecord: (updateFunction) ->
-    @_previousFluxRecord ?= @_fluxRecord
-    try @setFluxRecord updateFunction?(@_fluxRecord) || {}
+  _updateModelRecord: (updateFunction) ->
+    @_previousModelRecord ?= @_modelRecord
+    try @setModelRecord updateFunction?(@_modelRecord) || {}
     catch error
       @_getAndLogErrorMessage error, :updating
 
-    @_previousFluxRecord = null if propsEq @_fluxRecord, @_previousFluxRecord
+    @_previousModelRecord = null if propsEq @_modelRecord, @_previousModelRecord
 
-  _notifySubscribers: -> if @_previousFluxRecord
-    each subscriber in-array @_subscribers with subscriber @_fluxRecord, @_previousFluxRecord
-    @_previousFluxRecord = null
+  _notifySubscribers: -> if @_previousModelRecord
+    each subscriber in-array @_subscribers with subscriber @_modelRecord, @_previousModelRecord
+    @_previousModelRecord = null
 
   # subscriber is a function with the signature: (StoreEntry) ->
   # to unsubscribe, you must provide the exact same subscription function

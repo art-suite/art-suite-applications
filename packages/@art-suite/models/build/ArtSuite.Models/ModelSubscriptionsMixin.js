@@ -59,38 +59,38 @@
              * if provided, will call @setState(stateField, ...) immediately and with every change
             stateField: string
         
-            initialFluxRecord: fluxRecord-style object
+            initialModelRecord: modelRecord-style object
         
              * get called with every change
-            callback / updatesCallback:  (fluxRecord) -> ignored
+            callback / updatesCallback:  (modelRecord) -> ignored
         
           NOTE: One of options.stateField OR options.updatesCallback is REQUIRED.
         
-        OUT: existingFluxRecord || initialFluxRecord || status: missing fluxRecord
+        OUT: existingModelRecord || initialModelRecord || status: missing modelRecord
         
         EFFECT:
-          Establishes a Store subscription for the given model and fluxKey.
-          Upon any changes to the fluxRecord, will:
+          Establishes a Store subscription for the given model and modelKey.
+          Upon any changes to the modelRecord, will:
             call updatesCallback, if provided
-            and/or @setStateFromFluxRecord if stateField was provided
+            and/or @setStateFromModelRecord if stateField was provided
         
-          Will also call @setStateFromFluxRecord immediately, if stateField is provided,
-            with either the initialFluxRecord, or the existing fluxRecord, if any
+          Will also call @setStateFromModelRecord immediately, if stateField is provided,
+            with either the initialModelRecord, or the existing modelRecord, if any
         
           If there was already a subscription in this object with they same subscriptionKey,
           then @unsubscribe subscriptionKey will be called before setting up the new subscription.
         
           NOTE:
-            updateCallback only gets called when fluxRecord changes. It will not be called with the
-            current value. HOWEVER, the current fluxRecord is returned from the subscribe call.
+            updateCallback only gets called when modelRecord changes. It will not be called with the
+            current value. HOWEVER, the current modelRecord is returned from the subscribe call.
         
             If you need to update anything based on the current value, use the return result.
          */
 
         ModelSubscriptionsMixin.prototype.subscribe = function(subscriptionKey, modelName, key, options) {
-          var allOptions, callback, fluxKey, initialFluxRecord, model, stateField, subscriptionFunction, updatesCallback;
+          var allOptions, callback, initialModelRecord, model, modelKey, stateField, subscriptionFunction, updatesCallback;
           if (isPlainObject(allOptions = subscriptionKey)) {
-            subscriptionKey = allOptions.subscriptionKey, modelName = allOptions.modelName, key = allOptions.key, stateField = allOptions.stateField, initialFluxRecord = allOptions.initialFluxRecord, updatesCallback = allOptions.updatesCallback, callback = allOptions.callback;
+            subscriptionKey = allOptions.subscriptionKey, modelName = allOptions.modelName, key = allOptions.key, stateField = allOptions.stateField, initialModelRecord = allOptions.initialModelRecord, updatesCallback = allOptions.updatesCallback, callback = allOptions.callback;
             if (updatesCallback == null) {
               updatesCallback = callback;
             }
@@ -98,7 +98,7 @@
               subscriptionKey = stateField || (modelName + " " + key);
             }
           } else {
-            stateField = options.stateField, initialFluxRecord = options.initialFluxRecord, updatesCallback = options.updatesCallback;
+            stateField = options.stateField, initialModelRecord = options.initialModelRecord, updatesCallback = options.updatesCallback;
           }
           if (!isString(subscriptionKey)) {
             throw new Error("REQUIRED: subscriptionKey");
@@ -108,28 +108,28 @@
           }
           this.unsubscribe(subscriptionKey);
           if (!(rubyTrue(key) && modelName)) {
-            return this.setStateFromFluxRecord(stateField, initialFluxRecord || {
+            return this.setStateFromModelRecord(stateField, initialModelRecord || {
               status: success
             }, null, key);
           }
           if (!(model = this.models[modelName])) {
             throw new Error("No model registered with the name: " + modelName + ". Registered models:\n  " + (Object.keys(this.models).join("\n  ")));
           }
-          fluxKey = model.toKeyString(key);
+          modelKey = model.toKeyString(key);
           subscriptionFunction = (function(_this) {
-            return function(fluxRecord) {
+            return function(modelRecord) {
               if (typeof updatesCallback === "function") {
-                updatesCallback(fluxRecord);
+                updatesCallback(modelRecord);
               }
-              return _this.setStateFromFluxRecord(stateField, fluxRecord, null, key);
+              return _this.setStateFromModelRecord(stateField, modelRecord, null, key);
             };
           })(this);
           this._subscriptions[subscriptionKey] = {
             modelName: modelName,
-            fluxKey: fluxKey,
+            modelKey: modelKey,
             subscriptionFunction: subscriptionFunction
           };
-          return this.setStateFromFluxRecord(stateField, store.subscribe(modelName, fluxKey, subscriptionFunction, initialFluxRecord), initialFluxRecord, key);
+          return this.setStateFromModelRecord(stateField, store.subscribe(modelName, modelKey, subscriptionFunction, initialModelRecord), initialModelRecord, key);
         };
 
 
@@ -142,22 +142,22 @@
             loading-order problem.
          */
 
-        ModelSubscriptionsMixin.prototype.subscribeOnModelRegistered = function(subscriptionKeyOrOptions, modelName, fluxKey, options) {
+        ModelSubscriptionsMixin.prototype.subscribeOnModelRegistered = function(subscriptionKeyOrOptions, modelName, modelKey, options) {
           if (isPlainObject(subscriptionKeyOrOptions)) {
             modelName = subscriptionKeyOrOptions.modelName;
           }
           return ModelRegistry.onModelRegistered(modelName).then((function(_this) {
             return function() {
-              return _this.subscribe(subscriptionKeyOrOptions, modelName, fluxKey, options);
+              return _this.subscribe(subscriptionKeyOrOptions, modelName, modelKey, options);
             };
           })(this));
         };
 
         ModelSubscriptionsMixin.prototype.unsubscribe = function(subscriptionKey) {
-          var fluxKey, modelName, subscription, subscriptionFunction;
+          var modelKey, modelName, subscription, subscriptionFunction;
           if (subscription = this._subscriptions[subscriptionKey]) {
-            subscriptionFunction = subscription.subscriptionFunction, modelName = subscription.modelName, fluxKey = subscription.fluxKey;
-            store.unsubscribe(modelName, fluxKey, subscriptionFunction);
+            subscriptionFunction = subscription.subscriptionFunction, modelName = subscription.modelName, modelKey = subscription.modelKey;
+            store.unsubscribe(modelName, modelKey, subscriptionFunction);
             delete this._subscriptions[subscriptionKey];
           }
           return null;
@@ -179,27 +179,27 @@
           };
         };
 
-        ModelSubscriptionsMixin.prototype.setStateFromFluxRecord = function(stateField, fluxRecord, initialFluxRecord, key) {
+        ModelSubscriptionsMixin.prototype.setStateFromModelRecord = function(stateField, modelRecord, initialModelRecord, key) {
           var data, modelName, progress, ref2, ref3, ref4, reloadAt, status, tryCount;
-          if ((fluxRecord != null ? fluxRecord.status : void 0) !== success && (initialFluxRecord != null ? initialFluxRecord.status : void 0) === success) {
-            fluxRecord = initialFluxRecord;
+          if ((modelRecord != null ? modelRecord.status : void 0) !== success && (initialModelRecord != null ? initialModelRecord.status : void 0) === success) {
+            modelRecord = initialModelRecord;
           }
           if (stateField && isFunction(this.setState)) {
-            if (fluxRecord) {
-              status = (ref2 = fluxRecord.status) != null ? ref2 : null, progress = (ref3 = fluxRecord.progress) != null ? ref3 : null, data = (ref4 = fluxRecord.data) != null ? ref4 : null;
+            if (modelRecord) {
+              status = (ref2 = modelRecord.status) != null ? ref2 : null, progress = (ref3 = modelRecord.progress) != null ? ref3 : null, data = (ref4 = modelRecord.data) != null ? ref4 : null;
             }
             this.setState(stateField, data);
-            this.setState(stateField + "Key", key != null ? key : fluxRecord.key);
+            this.setState(stateField + "Key", key != null ? key : modelRecord.key);
             this.setState(stateField + "Status", status);
             this.setState(stateField + "Progress", progress);
-            this.setState(stateField + "FailureInfo", fluxRecord && isFailure(status) ? ((reloadAt = fluxRecord.reloadAt, tryCount = fluxRecord.tryCount, modelName = fluxRecord.modelName, key = fluxRecord.key, fluxRecord), {
+            this.setState(stateField + "FailureInfo", modelRecord && isFailure(status) ? ((reloadAt = modelRecord.reloadAt, tryCount = modelRecord.tryCount, modelName = modelRecord.modelName, key = modelRecord.key, modelRecord), {
               reloadAt: reloadAt,
               tryCount: tryCount,
               status: status,
               retryNow: getRetryNow(modelName, key)
             }) : null);
           }
-          return fluxRecord;
+          return modelRecord;
         };
 
         return ModelSubscriptionsMixin;

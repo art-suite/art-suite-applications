@@ -9,67 +9,61 @@ Models are is a simple, elegant solution to the following design problems:
   - whenever the data changes
 - If the data is available immediately upon component instantiation, the component’s first render will reflect that data.
 - Data is addressed by model-name and key-string.
-  - Non-string keys are supported via custom `toFluxKey` methods.
+  - Non-string keys are supported via custom `dataToKeyString` or `toKeyString` methods.
 - Model and subscription definitions are simple and lean.
 - Mutations are available as simple functions attached to each model.
 
 ## See
 
 * [Subscription Declarations](#subscription-declarations)
-* [FluxComponent Subscriptions](#FluxComponent-Subscriptions)
-* [Flux Conventions](#flux-conventions)
+* [Model Subscriptions](#Model-Subscriptions)
+* [ArtSuite/Models Conventions](#flux-conventions)
 
 ## How It Works
 
-There are three main parts to Art.Flux: FluxModels, FluxComponents and the FluxStore:
+There are two main parts to ArtSuite/Models: Models, and the Store:
 
 ![](/Imikimi-LLC/art-flux/wiki/images/art-flux-nodes.png)
 
-Using Art.Flux consists of registering one or more FluxModels and creating FluxComponents that subscribe to data provided by those models.
+Using ArtSuite/Models consists of registering one or more Models and then subscribe to data provided by those models.
 
-Behind the scenes, the FluxStore, a singleton class, manages all component subscriptions and provides epoch state updates. Epoch state updates queue all state changes in Flux turing a time unit, usually one animation frame, and  applies them atomically to the FluxStore's internal state. Immediately after the internal state update, FluxStore notifies all subscribers of changes.
+Behind the scenes, the Store, a singleton class, manages all component subscriptions and provides epoch state updates. Epoch state updates queue all state changes in Models turing a time unit, usually one animation frame, and  applies them atomically to the Store's internal state. Immediately after the internal state update, Store notifies all subscribers of changes.
 
-New subscriptions to data not currently in the FluxStore indirectly cause loads to be invoked on the appropriate models. FluxModels are responsible for updating the FluxStore on the progress of those loads and the final result. FluxModels can later update the FluxStore if that data is updated locally or remotely.
+New subscriptions to data not currently in the Store indirectly cause loads to be invoked on the appropriate models. Models are responsible for updating the Store on the progress of those loads and the final result. Models can later update the Store if that data is updated locally or remotely.
 
-When all subscribers to a particular piece of data go away, the FluxStore releases the data. In this way the FluxStore only keeps in memory what is actually being used by active FluxComponents.
+When all subscribers to a particular piece of data go away, the Store releases the data. In this way the Store only keeps in memory what is actually being used by active subscribers. Using the ModelSubscribersMixin makes tracking active subscribers easy.
 
 ![](/Imikimi-LLC/art-flux/wiki/images/art-flux-lines.png)
 
-The diagram above shows typical method invocations that cause data to flow around the Flux loop. Only the `myModel.myMutator` needs to be invoked in your application code. FluxComponent state is automatically updated, and standard FluxModels take care of updating the FluxStore for you.
+The diagram above shows typical method invocations that cause data to flow around the data-flow loop. Only the `myModel.myMutator` needs to be invoked in your application code. Subscribers are automatically updated, and standard Models take care of updating the Store for you.
 
 # Example
 
-To use Art.Flux, create your a custom model and custom FluxComponent with a subscription to the model:
+To use ArtSuite/Models, create your a custom model and custom Component with a subscription to the model:
 
 ```coffeescript
-# models/nav_state.coffee
-{ApplicationState} = require 'art-flux'
+# models/nav_state.caf
+import &@ArtSuite/Models
 
-module.exports = class NavState extends ApplicationState
-  @stateFields currentTab: "home"
+class NavState extends ApplicationState
+  @stateFields currentTab: :home
 
   nextTab: ->
-    @currentTab = switch @currentTab
-      when "home" then "search"
-      else "home"
-
-  @register()
+    @currentTab =
+      switch @currentTab
+      when :home then :search
+      else :home
 ```
 
 ```coffeescript
-# components/my_component.coffee
-{TextElement} = require 'art-react'
-{createFluxComponentFactory} = require 'art-flux'
+# components/my_component.caf
+import &@ArtSuite/Models
 
-module.exports = createFluxComponentFactory
-  @subscriptions ”navState.currentTab”
+# class Component
+#   setState: (key, value) -> ...
 
-  nextTab: -> @models.navState.nextTab()
-
-  render: ->
-    TextElement
-      text: @state.currentTab
-      on: pointerClick: @nextTab
+class UserView extends ModelSubscriptionsMixin Component
+  @subscriptions :navState.currentTab
 ```
 
 # Subscription Declarations
@@ -144,7 +138,7 @@ In addition to declaring subscriptions with object-notation, you can also use a 
 
 ### Model Form
 
-This form is useful for subscribing to a single record from a table. This pattern works best if you follow the [[Flux Conventions]].
+This form is useful for subscribing to a single record from a table. This pattern works best if you follow the [[ArtSuite/Models Conventions]].
 
 ```coffeescript
 @subscriptions "myField"
@@ -217,9 +211,9 @@ Whenever @props changes (e.g. when componentWillReceiveProps is called), these
 key-functions are re-evaluated. If the return value changes, subscriptions are
 updated and new data is requested where needed.
 
-# FluxComponent Subscriptions
+# Model Subscriptions
 
-Declaring a subscription on a FluxComponent has a few important effects. For a given subscription with a state-field name 'myStatefield':
+Declaring a subscription in an object extending ModelSubscriptionsMixin has a few important effects. For a given subscription with a state-field name 'myStatefield':
 
 * defines the getter: `@myStatefield`
 * sets multiple fields on @state:
@@ -229,7 +223,7 @@ Declaring a subscription on a FluxComponent has a few important effects. For a g
 
 Example
 ```coffeescript
-class UserView extends FluxComponent
+class UserView extends ModelSubscriptionsMixin Object
   @subscriptions "user"
 
   render: ->
@@ -238,7 +232,7 @@ class UserView extends FluxComponent
 
 ```
 
-# Flux Conventions
+# ArtSuite/Models Conventions
 
 * model-names which represent tables of records should be singular. Examples:
   - user
@@ -252,15 +246,21 @@ class UserView extends FluxComponent
 If you follow these patterns, your subscription declarations are nice and concise. Example:
 
 ```coffeescript
-class UserView extends FluxComponent
-  @subscriptions "user post"
+class UserView extends ModelSubscriptionsMixin Object
+  @subscriptions :user :post
 ```
 
-Equivalant to
+By default, the name of the subscription-field is used to find the model, and the model's `propsToKey`
+function is used to extract the key from props. It's equivalent to:
 
 ```coffeescript
-class UserView extends FluxComponent
- @subscriptions
-   user: ({user, userId}) -> user?.id || userId
-   post: ({post, postId}) -> post?.id || postId
+class UserView extends ModelSubscriptionsMixin Object
+  @subscriptions
+    user:
+      model:  :user
+      key:    ({user, userId}) -> user?.id || userId
+
+    post:
+      model:  :user
+      key:    ({post, postId}) -> post?.id || postId
 ```
