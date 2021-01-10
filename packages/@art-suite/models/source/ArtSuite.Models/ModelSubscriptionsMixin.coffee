@@ -68,9 +68,9 @@ defineModule module, ->
       Establishes a ModelStore subscription for the given model and modelKey.
       Upon any changes to the modelRecord, will:
         call updatesCallback, if provided
-        and/or @setStateFromModelRecord if stateField was provided
+        and/or @_setStateFromModelRecord if stateField was provided
 
-      Will also call @setStateFromModelRecord immediately, if stateField is provided,
+      Will also call @_setStateFromModelRecord immediately, if stateField is provided,
         with either the initialModelRecord, or the existing modelRecord, if any
 
       If there was already a subscription in this object with they same subscriptionKey,
@@ -98,7 +98,7 @@ defineModule module, ->
 
       # unless key and modelName are present, clear stateFields and return after unsubscribing
       unless rubyTrue(key) && modelName
-        return @setStateFromModelRecord stateField, initialModelRecord || status: success, null, key
+        return @_setStateFromModelRecord stateField, initialModelRecord || {status: success}, null, key
 
       unless model = @models[modelName]
         throw new Error "No model registered with the name: #{modelName}. Registered models:\n  #{Object.keys(@models).join "\n  "}"
@@ -107,12 +107,12 @@ defineModule module, ->
 
       subscriptionFunction = (modelRecord) =>
         updatesCallback? modelRecord
-        @setStateFromModelRecord stateField, modelRecord, null, key
+        @_setStateFromModelRecord stateField, modelRecord, null, key
 
       @_subscriptions[subscriptionKey] = {modelName, modelKey, subscriptionFunction}
 
       # NOTE: subscriptionFunction is the 'handle' needed later to unsubscribe from the modelStore
-      @setStateFromModelRecord stateField,
+      @_setStateFromModelRecord stateField,
         modelStore.subscribe modelName, modelKey, subscriptionFunction, initialModelRecord
         initialModelRecord
         key
@@ -150,12 +150,15 @@ defineModule module, ->
     ################################
     # Helpers
     ################################
-    getRetryNow = (modelName, key) ->
+    _getRetryNow = (modelName, key) ->
       ->
         modelStore._getEntry modelName, key
         .reload()
 
-    setStateFromModelRecord: (stateField, modelRecord, initialModelRecord, key) ->
+    ################################
+    # Overridables
+    ################################
+    _setStateFromModelRecord: (stateField, modelRecord, initialModelRecord, key) ->
       if modelRecord?.status != success && initialModelRecord?.status == success
         modelRecord = initialModelRecord
 
@@ -168,7 +171,7 @@ defineModule module, ->
         @setState stateField + "FailureInfo",
           if modelRecord && isFailure status
             {reloadAt, tryCount, modelName, key} = modelRecord
-            {reloadAt, tryCount, status, retryNow: getRetryNow modelName, key}
+            {reloadAt, tryCount, status, retryNow: _getRetryNow modelName, key}
           else null
 
       modelRecord

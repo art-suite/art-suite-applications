@@ -16,7 +16,7 @@
     return function(superClass) {
       var ModelSubscriptionsMixin;
       return ModelSubscriptionsMixin = (function(superClass1) {
-        var getRetryNow;
+        var _getRetryNow;
 
         extend(ModelSubscriptionsMixin, superClass1);
 
@@ -72,9 +72,9 @@
           Establishes a ModelStore subscription for the given model and modelKey.
           Upon any changes to the modelRecord, will:
             call updatesCallback, if provided
-            and/or @setStateFromModelRecord if stateField was provided
+            and/or @_setStateFromModelRecord if stateField was provided
         
-          Will also call @setStateFromModelRecord immediately, if stateField is provided,
+          Will also call @_setStateFromModelRecord immediately, if stateField is provided,
             with either the initialModelRecord, or the existing modelRecord, if any
         
           If there was already a subscription in this object with they same subscriptionKey,
@@ -108,7 +108,7 @@
           }
           this.unsubscribe(subscriptionKey);
           if (!(rubyTrue(key) && modelName)) {
-            return this.setStateFromModelRecord(stateField, initialModelRecord || {
+            return this._setStateFromModelRecord(stateField, initialModelRecord || {
               status: success
             }, null, key);
           }
@@ -121,7 +121,7 @@
               if (typeof updatesCallback === "function") {
                 updatesCallback(modelRecord);
               }
-              return _this.setStateFromModelRecord(stateField, modelRecord, null, key);
+              return _this._setStateFromModelRecord(stateField, modelRecord, null, key);
             };
           })(this);
           this._subscriptions[subscriptionKey] = {
@@ -129,7 +129,7 @@
             modelKey: modelKey,
             subscriptionFunction: subscriptionFunction
           };
-          return this.setStateFromModelRecord(stateField, modelStore.subscribe(modelName, modelKey, subscriptionFunction, initialModelRecord), initialModelRecord, key);
+          return this._setStateFromModelRecord(stateField, modelStore.subscribe(modelName, modelKey, subscriptionFunction, initialModelRecord), initialModelRecord, key);
         };
 
 
@@ -173,13 +173,13 @@
           return null;
         };
 
-        getRetryNow = function(modelName, key) {
+        _getRetryNow = function(modelName, key) {
           return function() {
             return modelStore._getEntry(modelName, key).reload();
           };
         };
 
-        ModelSubscriptionsMixin.prototype.setStateFromModelRecord = function(stateField, modelRecord, initialModelRecord, key) {
+        ModelSubscriptionsMixin.prototype._setStateFromModelRecord = function(stateField, modelRecord, initialModelRecord, key) {
           var data, modelName, progress, ref2, ref3, ref4, reloadAt, status, tryCount;
           if ((modelRecord != null ? modelRecord.status : void 0) !== success && (initialModelRecord != null ? initialModelRecord.status : void 0) === success) {
             modelRecord = initialModelRecord;
@@ -196,7 +196,7 @@
               reloadAt: reloadAt,
               tryCount: tryCount,
               status: status,
-              retryNow: getRetryNow(modelName, key)
+              retryNow: _getRetryNow(modelName, key)
             }) : null);
           }
           return modelRecord;

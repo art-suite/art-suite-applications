@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1610320883404" clover="3.2.0">
-  <project timestamp="1610320883404" name="All files">
+<coverage generated="1610321506748" clover="3.2.0">
+  <project timestamp="1610321506748" name="All files">
     <metrics statements="306" coveredstatements="255" conditionals="178" coveredconditionals="96" methods="142" coveredmethods="112" elements="626" coveredelements="463" complexity="0" loc="306" ncloc="306" packages="2" files="10" classes="10"/>
     <package name="build.ArtSuite.Models">
       <metrics statements="2" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
