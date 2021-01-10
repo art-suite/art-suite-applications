@@ -11,19 +11,18 @@
 {InstanceFunctionBindingMixin} = require "@art-suite/instance-function-binding-mixin"
 
 {missing, success, pending, failure, validStatus, isFailure} = require 'art-communication-status'
-{store} = require "./Store"
+{modelStore} = require "./ModelStore"
 ModelRegistry = require './ModelRegistry'
-
 
 defineModule module, class Model extends InstanceFunctionBindingMixin BaseObject
   @abstractClass()
 
   @declarable
-    staleDataReloadSeconds:         null # if >0, reload stale data as soon as its older than this number in seconds
-    minNetworkFailureReloadSeconds: null # if >0, and isFailure(modelRecord.status) is true, that record well get a model.reload(key) call within this number of seconds after the failure
-    maxNetworkFailureReloadSeconds: Infinity # repeated failed reloads retry with exponential fall offs; this caps the max interval for retrying
-    minServerFailureReloadSeconds:  null # if >0, and isFailure(modelRecord.status) is true, that record well get a model.reload(key) call within this number of seconds after the failure
-    maxServerFailureReloadSeconds:  Infinity # repeated failed reloads retry with exponential fall offs; this caps the max interval for retrying
+    staleDataReloadSeconds:         null      # if >0, reload stale data as soon as its older than this number in seconds
+    minNetworkFailureReloadSeconds: null      # if >0, and isFailure(modelRecord.status) is true, that record well get a model.reload(key) call within this number of seconds after the failure
+    maxNetworkFailureReloadSeconds: Infinity  # repeated failed reloads retry with exponential fall offs; this caps the max interval for retrying
+    minServerFailureReloadSeconds:  null      # if >0, and isFailure(modelRecord.status) is true, that record well get a model.reload(key) call within this number of seconds after the failure
+    maxServerFailureReloadSeconds:  Infinity  # repeated failed reloads retry with exponential fall offs; this caps the max interval for retrying
 
   @getter
     autoReloadEnabled: ->
@@ -45,23 +44,23 @@ defineModule module, class Model extends InstanceFunctionBindingMixin BaseObject
     super
 
   ###
-  INPUT: zero or more strings or arrays of strings
-    - arbitrary nesting of arrays is OK
-    - nulls are OK, they are ignored
-  OUTPUT: null
+    INPUT: zero or more strings or arrays of strings
+      - arbitrary nesting of arrays is OK
+      - nulls are OK, they are ignored
+    OUTPUT: null
 
-  NOTE: @aliases can be called multiple times.
+    NOTE: @aliases can be called multiple times.
 
-  example:
-    class Post extends Model
-      @aliases "chapterPost"
+    example:
+      class Post extends Model
+        @aliases "chapterPost"
 
-  purpose:
-    - declare alternative names to access this model.
-    - allows you to use the shortest form of Components subscriptions for each alias:
-        @subscriptions "chapterPost"
-      in addition to the model's class name:
-        @subscriptions "post"
+    purpose:
+      - declare alternative names to access this model.
+      - allows you to use the shortest form of Components subscriptions for each alias:
+          @subscriptions "chapterPost"
+        in addition to the model's class name:
+          @subscriptions "post"
   ###
   @aliases: (args...) ->
     @_aliases = compactFlatten [args, @_aliases]
@@ -69,7 +68,7 @@ defineModule module, class Model extends InstanceFunctionBindingMixin BaseObject
 
   @_aliases: []
 
-  onNextReady: (f) -> store.onNextReady f
+  onNextReady: (f) -> modelStore.onNextReady f
 
   constructor: (name)->
     super
@@ -79,28 +78,28 @@ defineModule module, class Model extends InstanceFunctionBindingMixin BaseObject
 
   @classGetter
     models: -> ModelRegistry.models
-    store: -> store
+    modelStore: -> modelStore
 
   @getter
     models: -> ModelRegistry.models
-    store: -> store
+    modelStore: -> modelStore
     singlesModel: -> @_singlesModel || @
-    storeEntries: -> store.getEntriesForModel @name
+    modelStoreEntries: -> modelStore.getEntriesForModel @name
 
   # DEPRICATED
   subscribe: (modelKey, subscriptionFunction) ->
     log.error "DEPRICATED - use ModelSubscriptionsMixin and it's subscribe"
-    store.subscribe @_name, modelKey, subscriptionFunction
+    modelStore.subscribe @_name, modelKey, subscriptionFunction
 
   @getter "name",
     modelName: -> @_name
 
   ### load:
-    load the requested data for the given key and update the store
+    load the requested data for the given key and update the modelStore
 
     required:
-      Should ALWAYS call store.update immediately OR once the data is available.
-      Clients will assume that a call to "load" forces a reload of the data in the store.
+      Should ALWAYS call modelStore.update immediately OR once the data is available.
+      Clients will assume that a call to "load" forces a reload of the data in the modelStore.
 
     optional:
       If the data is immediately available, you can return the modelRecord instead of "null"
@@ -109,7 +108,7 @@ defineModule module, class Model extends InstanceFunctionBindingMixin BaseObject
         first render.
 
     Note:
-      Typically called automatically by the store when a Component subscribes to
+      Typically called automatically by the modelStore when a Component subscribes to
       data from this model with the given key.
 
     The simplest possible load function:
@@ -118,14 +117,14 @@ defineModule module, class Model extends InstanceFunctionBindingMixin BaseObject
     The "load" function below is:
       Simplest "load" with immediate modelRecord return.
       Immediate return means:
-      - store.subscribe() will return the modelRecord returned from this "load"
+      - modelStore.subscribe() will return the modelRecord returned from this "load"
       - Components subscriptions will update state in time for the inital render.
 
     inputs:
       key: string
 
     side effects:
-      expected to call store.update @_name, key, modelRecord
+      expected to call modelStore.update @_name, key, modelRecord
         - when modelRecord.status is no longer pending
         - optionally as progress is made loading the modelRecord.data
 
@@ -143,10 +142,10 @@ defineModule module, class Model extends InstanceFunctionBindingMixin BaseObject
                         promise.catch (a validStatus or error info, status becomes failure) ->
       loadModelRecord: (key) -> promise.then (modelRecord) ->
 
-      @load will take care of updating Store.
+      @load will take care of updating ModelStore.
   ###
   load: (key) ->
-    # ensure store is updated in case this is not beind called from the store itself
+    # ensure modelStore is updated in case this is not beind called from the modelStore itself
     # returns {status: missing} since updateModelRecord returns the last argument,
     #   this makes the results immediately available to subscribers.
 
@@ -162,20 +161,20 @@ defineModule module, class Model extends InstanceFunctionBindingMixin BaseObject
 
     Unlike @load, @loadPromise returns a promise that resolves when the load is done.
 
-    The down-side is @loadPromise cannot immediately update the Store. If you have
-    a model which stores its data locally, like ApplicationState, then override @load
-    for immediate store updates.
+    The down-side is @loadPromise cannot immediately update the ModelStore. If you have
+    a model which modelStores its data locally, like ApplicationState, then override @load
+    for immediate modelStore updates.
 
     However, if your model always has to get the data asynchronously, override @loadData
     or @loadModelRecord and use @loadPromise anytime you need to manually trigger a load.
 
     EFFECTS:
     - Triggers loadData or loadModelRecord.
-    - Puts the results in the store.
+    - Puts the results in the modelStore.
     - Elegently reduces multiple in-flight requests with the same key to one Promise.
       @loadData or @loadModelRecord will only be invoked once per key while their
       returned promises are unresolved.
-      NOTE: the block actually extends all the way through to the store being updated.
+      NOTE: the block actually extends all the way through to the modelStore being updated.
       That means you can immediately call @getModelRecord and get the latest data - when
       the promise resolves.
 
@@ -212,7 +211,7 @@ defineModule module, class Model extends InstanceFunctionBindingMixin BaseObject
     .then (result) => @_activeLoadingRequests[key] = null; result
 
   # load is not required to updateModelRecord
-  # reload guarantees store is updated
+  # reload guarantees modelStore is updated
   # override reload if your load does not always updateModelRecord (eventually)
   reload: (key) ->
     if @loadData || @loadModelRecord
@@ -227,14 +226,14 @@ defineModule module, class Model extends InstanceFunctionBindingMixin BaseObject
     if isFailure (modelRecord = @getModelRecord key)?.status
       @updateModelRecord key, merge modelRecord, status: pending
 
-  getModelRecord:     (key) -> store.get @_name, @toKeyString key
-  updateModelRecord:  (key, modelRecord) -> store.update @_name, key, modelRecord
+  getModelRecord:     (key) -> modelStore.get @_name, @toKeyString key
+  updateModelRecord:  (key, modelRecord) -> modelStore.update @_name, key, modelRecord
 
   onModelRegistered: (modelName) -> ModelRegistry.onModelRegistered modelName
 
   # IN: key
   # OUT: promise.then data
-  # EFFECT: if already loaded in store, just returns what's in Store
+  # EFFECT: if already loaded in modelStore, just returns what's in ModelStore
   get: (key) ->
     key = @toKeyString key
     Promise.then =>
@@ -277,14 +276,14 @@ defineModule module, class Model extends InstanceFunctionBindingMixin BaseObject
   ###################################################
   # OVERRIDES - Events
   ###################################################
-  # Override to respond to entries being added or removed from the Store
+  # Override to respond to entries being added or removed from the ModelStore
 
   # called when an entry is updated OR added OR if it is about to be removed
-  # this is called before storeEntryAdded or storeEntryRemoved
-  storeEntryUpdated: (entry) ->
+  # this is called before modelStoreEntryAdded or modelStoreEntryRemoved
+  modelStoreEntryUpdated: (entry) ->
 
   # called only when an entry is added
-  storeEntryAdded: (entry) ->
+  modelStoreEntryAdded: (entry) ->
 
   # called when an entry was moved (when subscriber count goes to 0)
-  storeEntryRemoved: (entry) ->
+  modelStoreEntryRemoved: (entry) ->

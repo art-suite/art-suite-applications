@@ -7,7 +7,7 @@
   isFunction
 } = require 'art-standard-lib'
 {success, isFailure} = require 'art-communication-status'
-{store} = require './Store'
+{modelStore} = require './ModelStore'
 ModelRegistry = require './ModelRegistry'
 
 defineModule module, ->
@@ -65,7 +65,7 @@ defineModule module, ->
     OUT: existingModelRecord || initialModelRecord || status: missing modelRecord
 
     EFFECT:
-      Establishes a Store subscription for the given model and modelKey.
+      Establishes a ModelStore subscription for the given model and modelKey.
       Upon any changes to the modelRecord, will:
         call updatesCallback, if provided
         and/or @setStateFromModelRecord if stateField was provided
@@ -111,9 +111,9 @@ defineModule module, ->
 
       @_subscriptions[subscriptionKey] = {modelName, modelKey, subscriptionFunction}
 
-      # NOTE: subscriptionFunction is the 'handle' needed later to unsubscribe from the store
+      # NOTE: subscriptionFunction is the 'handle' needed later to unsubscribe from the modelStore
       @setStateFromModelRecord stateField,
-        store.subscribe modelName, modelKey, subscriptionFunction, initialModelRecord
+        modelStore.subscribe modelName, modelKey, subscriptionFunction, initialModelRecord
         initialModelRecord
         key
 
@@ -138,7 +138,7 @@ defineModule module, ->
     unsubscribe: (subscriptionKey)->
       if subscription = @_subscriptions[subscriptionKey]
         {subscriptionFunction, modelName, modelKey} = subscription
-        store.unsubscribe modelName, modelKey, subscriptionFunction
+        modelStore.unsubscribe modelName, modelKey, subscriptionFunction
         delete @_subscriptions[subscriptionKey]
       null
 
@@ -152,7 +152,7 @@ defineModule module, ->
     ################################
     getRetryNow = (modelName, key) ->
       ->
-        store._getEntry modelName, key
+        modelStore._getEntry modelName, key
         .reload()
 
     setStateFromModelRecord: (stateField, modelRecord, initialModelRecord, key) ->

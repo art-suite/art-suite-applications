@@ -346,8 +346,7 @@
 <a name='L287'></a><a href='#L287'>287</a>
 <a name='L288'></a><a href='#L288'>288</a>
 <a name='L289'></a><a href='#L289'>289</a>
-<a name='L290'></a><a href='#L290'>290</a>
-<a name='L291'></a><a href='#L291'>291</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">715x</span>
+<a name='L290'></a><a href='#L290'>290</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">715x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -362,7 +361,6 @@
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">5x</span>
@@ -650,19 +648,18 @@
 {InstanceFunctionBindingMixin} = require "@art-suite/instance-function-binding-mixin"
 &nbsp;
 {missing, success, pending, failure, validStatus, isFailure} = require 'art-communication-status'
-{store} = require "./Store"
+{modelStore} = require "./ModelStore"
 ModelRegistry = require './ModelRegistry'
-&nbsp;
 &nbsp;
 defineModule module, class Model extends InstanceFunctionBindingMixin BaseObject
   @abstractClass()
 &nbsp;
   @declarable
-    staleDataReloadSeconds:         null # if &gt;0, reload stale data as soon as its older than this number in seconds
-    minNetworkFailureReloadSeconds: null # if &gt;0, and isFailure(modelRecord.status) is true, that record well get a model.reload(key) call within this number of seconds after the failure
-    maxNetworkFailureReloadSeconds: Infinity # repeated failed reloads retry with exponential fall offs; this caps the max interval for retrying
-    minServerFailureReloadSeconds:  null # if &gt;0, and isFailure(modelRecord.status) is true, that record well get a model.reload(key) call within this number of seconds after the failure
-    maxServerFailureReloadSeconds:  Infinity # repeated failed reloads retry with exponential fall offs; this caps the max interval for retrying
+    staleDataReloadSeconds:         null      # if &gt;0, reload stale data as soon as its older than this number in seconds
+    minNetworkFailureReloadSeconds: null      # if &gt;0, and isFailure(modelRecord.status) is true, that record well get a model.reload(key) call within this number of seconds after the failure
+    maxNetworkFailureReloadSeconds: Infinity  # repeated failed reloads retry with exponential fall offs; this caps the max interval for retrying
+    minServerFailureReloadSeconds:  null      # if &gt;0, and isFailure(modelRecord.status) is true, that record well get a model.reload(key) call within this number of seconds after the failure
+    maxServerFailureReloadSeconds:  Infinity  # repeated failed reloads retry with exponential fall offs; this caps the max interval for retrying
 &nbsp;
   @getter
     autoReloadEnabled: -&gt;
@@ -684,23 +681,23 @@ defineModule module, class Model extends InstanceFunctionBindingMixin BaseObject
     super
 &nbsp;
   ###
-  INPUT: zero or more strings or arrays of strings
-    - arbitrary nesting of arrays is OK
-    - nulls are OK, they are ignored
-  OUTPUT: null
+    INPUT: zero or more strings or arrays of strings
+      - arbitrary nesting of arrays is OK
+      - nulls are OK, they are ignored
+    OUTPUT: null
 &nbsp;
-  NOTE: @aliases can be called multiple times.
+    NOTE: @aliases can be called multiple times.
 &nbsp;
-  example:
-    class Post extends Model
-      @aliases "chapterPost"
+    example:
+      class Post extends Model
+        @aliases "chapterPost"
 &nbsp;
-  purpose:
-    - declare alternative names to access this model.
-    - allows you to use the shortest form of Components subscriptions for each alias:
-        @subscriptions "chapterPost"
-      in addition to the model's class name:
-        @subscriptions "post"
+    purpose:
+      - declare alternative names to access this model.
+      - allows you to use the shortest form of Components subscriptions for each alias:
+          @subscriptions "chapterPost"
+        in addition to the model's class name:
+          @subscriptions "post"
   ###
   @aliases: (<span class="branch-1 cbranch-no" title="branch not covered" >args...) -&gt;</span>
     @_aliases = compactFlatten [args, @_aliases]
@@ -708,7 +705,7 @@ defineModule module, class Model extends InstanceFunctionBindingMixin BaseObject
 &nbsp;
   @_aliases: []
 &nbsp;
-  onNextReady: (f) -&gt; store.onNextReady f
+  onNextReady: (f) -&gt; modelStore.onNextReady f
 &nbsp;
   constructor: (name)-&gt;
     super
@@ -718,28 +715,28 @@ defineModule module, class Model extends InstanceFunctionBindingMixin BaseObject
 &nbsp;
   @classGetter
     models: <span class="fstat-no" title="function not covered" >-&gt; <span class="cstat-no" title="statement not covered" >M</span>odelRegistry.models</span>
-    store: <span class="fstat-no" title="function not covered" >-&gt; <span class="cstat-no" title="statement not covered" >s</span>tore</span>
+    modelStore: <span class="fstat-no" title="function not covered" >-&gt; <span class="cstat-no" title="statement not covered" >m</span>odelStore</span>
 &nbsp;
   @getter
     models: <span class="fstat-no" title="function not covered" >-&gt; <span class="cstat-no" title="statement not covered" >M</span>odelRegistry.models</span>
-    store: <span class="fstat-no" title="function not covered" >-&gt; <span class="cstat-no" title="statement not covered" >s</span>tore</span>
+    modelStore: <span class="fstat-no" title="function not covered" >-&gt; <span class="cstat-no" title="statement not covered" >m</span>odelStore</span>
     singlesModel: <span class="fstat-no" title="function not covered" >-&gt; <span class="cstat-no" title="statement not covered" >@</span>_singlesModel || @</span>
-    storeEntries: <span class="fstat-no" title="function not covered" >-&gt; <span class="cstat-no" title="statement not covered" >s</span>tore.</span>getEntriesForModel @name
+    modelStoreEntries: <span class="fstat-no" title="function not covered" >-&gt; <span class="cstat-no" title="statement not covered" >m</span>odelStore.</span>getEntriesForModel @name
 &nbsp;
   # DEPRICATED
   subscribe: <span class="fstat-no" title="function not covered" >(m</span>odelKey, subscriptionFunction) -&gt;
 <span class="cstat-no" title="statement not covered" >    log.</span>error "DEPRICATED - use ModelSubscriptionsMixin and it's subscribe"
-<span class="cstat-no" title="statement not covered" >    store.</span>subscribe @_name, modelKey, subscriptionFunction
+<span class="cstat-no" title="statement not covered" >    modelStore.</span>subscribe @_name, modelKey, subscriptionFunction
 &nbsp;
   @getter "name",
     modelName: -&gt; @_name
 &nbsp;
   ### load:
-    load the requested data for the given key and update the store
+    load the requested data for the given key and update the modelStore
 &nbsp;
     required:
-      Should ALWAYS call store.update immediately OR once the data is available.
-      Clients will assume that a call to "load" forces a reload of the data in the store.
+      Should ALWAYS call modelStore.update immediately OR once the data is available.
+      Clients will assume that a call to "load" forces a reload of the data in the modelStore.
 &nbsp;
     optional:
       If the data is immediately available, you can return the modelRecord instead of "null"
@@ -748,7 +745,7 @@ defineModule module, class Model extends InstanceFunctionBindingMixin BaseObject
         first render.
 &nbsp;
     Note:
-      Typically called automatically by the store when a Component subscribes to
+      Typically called automatically by the modelStore when a Component subscribes to
       data from this model with the given key.
 &nbsp;
     The simplest possible load function:
@@ -757,14 +754,14 @@ defineModule module, class Model extends InstanceFunctionBindingMixin BaseObject
     The "load" function below is:
       Simplest "load" with immediate modelRecord return.
       Immediate return means:
-      - store.subscribe() will return the modelRecord returned from this "load"
+      - modelStore.subscribe() will return the modelRecord returned from this "load"
       - Components subscriptions will update state in time for the inital render.
 &nbsp;
     inputs:
       key: string
 &nbsp;
     side effects:
-      expected to call store.update @_name, key, modelRecord
+      expected to call modelStore.update @_name, key, modelRecord
         - when modelRecord.status is no longer pending
         - optionally as progress is made loading the modelRecord.data
 &nbsp;
@@ -782,10 +779,10 @@ defineModule module, class Model extends InstanceFunctionBindingMixin BaseObject
                         promise.catch (a validStatus or error info, status becomes failure) -&gt;
       loadModelRecord: (key) -&gt; promise.then (modelRecord) -&gt;
 &nbsp;
-      @load will take care of updating Store.
+      @load will take care of updating ModelStore.
   ###
   load: (key) -&gt;
-    # ensure store is updated in case this is not beind called from the store itself
+    # ensure modelStore is updated in case this is not beind called from the modelStore itself
     # returns {status: missing} since updateModelRecord returns the last argument,
     #   this makes the results immediately available to subscribers.
 &nbsp;
@@ -801,20 +798,20 @@ defineModule module, class Model extends InstanceFunctionBindingMixin BaseObject
 &nbsp;
     Unlike @load, @loadPromise returns a promise that resolves when the load is done.
 &nbsp;
-    The down-side is @loadPromise cannot immediately update the Store. If you have
-    a model which stores its data locally, like ApplicationState, then override @load
-    for immediate store updates.
+    The down-side is @loadPromise cannot immediately update the ModelStore. If you have
+    a model which modelStores its data locally, like ApplicationState, then override @load
+    for immediate modelStore updates.
 &nbsp;
     However, if your model always has to get the data asynchronously, override @loadData
     or @loadModelRecord and use @loadPromise anytime you need to manually trigger a load.
 &nbsp;
     EFFECTS:
     - Triggers loadData or loadModelRecord.
-    - Puts the results in the store.
+    - Puts the results in the modelStore.
     - Elegently reduces multiple in-flight requests with the same key to one Promise.
       @loadData or @loadModelRecord will only be invoked once per key while their
       returned promises are unresolved.
-      NOTE: the block actually extends all the way through to the store being updated.
+      NOTE: the block actually extends all the way through to the modelStore being updated.
       That means you can immediately call @getModelRecord and get the latest data - when
       the promise resolves.
 &nbsp;
@@ -851,7 +848,7 @@ defineModule module, class Model extends InstanceFunctionBindingMixin BaseObject
     .then (result) =&gt; @_activeLoadingRequests[key] = null; result
 &nbsp;
   # load is not required to updateModelRecord
-  # reload guarantees store is updated
+  # reload guarantees modelStore is updated
   # override reload if your load does not always updateModelRecord (eventually)
   reload: <span class="fstat-no" title="function not covered" >(k</span>ey) -&gt;
     if @loadData || @loadModelRecord
@@ -866,14 +863,14 @@ defineModule module, class Model extends InstanceFunctionBindingMixin BaseObject
     if isFailure (modelRecord = @getModelRecord key)?.status
 <span class="cstat-no" title="statement not covered" >      @u</span>pdateModelRecord key, merge modelRecord, status: pending
 &nbsp;
-  getModelRecord:     (key) -&gt; store.get @_name, @toKeyString key
-  updateModelRecord:  (key, modelRecord) -&gt; store.update @_name, key, modelRecord
+  getModelRecord:     (key) -&gt; modelStore.get @_name, @toKeyString key
+  updateModelRecord:  (key, modelRecord) -&gt; modelStore.update @_name, key, modelRecord
 &nbsp;
   onModelRegistered: <span class="fstat-no" title="function not covered" >(m</span>odelName) -&gt; <span class="cstat-no" title="statement not covered" >ModelRegistry.</span>onModelRegistered modelName
 &nbsp;
   # IN: key
   # OUT: promise.then data
-  # EFFECT: if already loaded in store, just returns what's in Store
+  # EFFECT: if already loaded in modelStore, just returns what's in ModelStore
   get: <span class="fstat-no" title="function not covered" >(k</span>ey) -&gt;
 <span class="cstat-no" title="statement not covered" >    key = @t</span>oKeyString key
 <span class="cstat-no" title="statement not covered" >    Promise.</span>then <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >=&gt;</span></span>
@@ -916,17 +913,17 @@ defineModule module, class Model extends InstanceFunctionBindingMixin BaseObject
   ###################################################
   # OVERRIDES - Events
   ###################################################
-  # Override to respond to entries being added or removed from the Store
+  # Override to respond to entries being added or removed from the ModelStore
 &nbsp;
   # called when an entry is updated OR added OR if it is about to be removed
-  # this is called before storeEntryAdded or storeEntryRemoved
-  storeEntryUpdated: (entry) -&gt;
+  # this is called before modelStoreEntryAdded or modelStoreEntryRemoved
+  modelStoreEntryUpdated: (entry) -&gt;
 &nbsp;
   # called only when an entry is added
-  storeEntryAdded: (entry) -&gt;
+  modelStoreEntryAdded: (entry) -&gt;
 &nbsp;
   # called when an entry was moved (when subscriber count goes to 0)
-  storeEntryRemoved: (entry) -&gt;
+  modelStoreEntryRemoved: (entry) -&gt;
 &nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -934,7 +931,7 @@ defineModule module, class Model extends InstanceFunctionBindingMixin BaseObject
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank">istanbul</a>
-                at Sat Jan 02 2021 22:50:59 GMT-0800 (Pacific Standard Time)
+                at Sun Jan 10 2021 15:17:08 GMT-0800 (Pacific Standard Time)
             </div>
         </div>
         <script src="../../prettify.js"></script>

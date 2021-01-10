@@ -1,0 +1,197 @@
+import &StandardImport
+
+reset = ->
+  modelStore._reset()
+  ModelRegistry._reset()
+  class MyModel extends Model
+  assert.eq true, !!models.myModel,{models}
+
+describe basic: ->
+  test "modelStore.reset & length", ->
+    reset()
+    assert.eq modelStore.length, 0
+
+  chainedTest "modelStore.update basic", ->
+    reset()
+    modelStore.subscribe "myModel", "myKey", -> # required to make the record persist
+    modelStore.update "myModel", "myKey", bar:1
+
+    modelStore.onNextReady ->
+      assert.eq modelStore.length, 1
+      assert.selectedEq
+        entryCount:       1
+        entrySubscribers: 1
+        modelCount:       1
+        modelStore.status
+
+      assert.selectedEq
+        status: pending, bar: 1 key: :myKey modelName: :myModel
+        modelRecord = modelStore.get :myModel :myKey
+
+      assert.isNumber modelRecord.updatedAt
+      assert.isNumber modelRecord.createdAt
+      assert.lt modelRecord.createdAt, modelRecord.updatedAt
+
+  .tapTest
+    "modelStoreEntry._getAndLogErrorMessage" ->
+      logged = []
+      myLog = (a) -> logged.push a
+      error = {}
+      message = modelStore._entriesByModelName.myModel.myKey._getAndLogErrorMessage error, :giggle myLog
+      assert.isString message
+      assert.true :giggle in message
+      assert.eq logged.length, 1
+
+    "modelStore.inspectedObjects" ->
+      modelStore extract inspectedObjects extract myModel.myKey extract createdAt, updatedAt
+      assert.isNumber createdAt
+      assert.isNumber updatedAt
+      assert.eq
+        inspectedObjects
+        myModel:
+          myKey: {}
+            modelName: :myModel
+            key:       :myKey
+            status:    :pending
+            createdAt
+            updatedAt
+
+  test "modelStore.update with no subscriber is noop", ->
+    reset()
+    modelStore.update "myModel", "myKey", bar:1
+
+    modelStore.onNextReady ->
+      assert.eq modelStore.length, 0
+      assert.eq !!modelStore._getEntry("myModel", "myKey"), false
+
+  test "modelStore.update twice replaces old value", ->
+    reset()
+    modelStore.subscribe "myModel", "myKey", -> # required to make the record persist
+    modelStore.update "myModel", "myKey", bar:1
+    modelStore.update "myModel", "myKey", baz:2
+
+    modelStore.onNextReady ->
+      assert.eq modelStore.length, 1
+      assert.selectedEq
+        status: pending, baz: 2, key: "myKey", modelName: "myModel"
+        modelStore.get "myModel", "myKey"
+
+  # test "modelStore.getHasSubscribers", ->
+  #   reset()
+  #   modelStore.subscribe "myModel", "myKey", -> # required to make the record persist
+  #   assert.eq false, modelStore.getHasSubscribers "myModel", "myKey"
+  #   assert.eq false, modelStore.getHasSubscribers "myModel", "myKey"
+
+  #   modelStore.onNextReady ->
+  #     assert.eq true, modelStore.getHasSubscribers "myModel", "myKey"
+
+  test "modelStore.update with update function can merge", ->
+    reset()
+    modelStore.subscribe "myModel", "myKey", -> # required to make the record persist
+    modelStore.update "myModel", "myKey", bar:1
+    modelStore.update "myModel", "myKey", (old) -> merge old, baz:2
+
+    modelStore.onNextReady ->
+      assert.eq modelStore.length, 1
+      assert.selectedEq
+        status: pending, bar:1, baz: 2, key: "myKey", modelName: "myModel"
+        modelStore.get "myModel", "myKey"
+
+  test "modelStore.update cant set key", ->
+    reset()
+    modelStore.subscribe :myModel :myKey -> # required to make the record persist
+    modelStore.update    :myModel :myKey bar: 1 key: :boggle
+
+    modelStore.onNextReady ->
+      assert.doesNotExist modelStore.get :myModel :boggle
+      assert.selectedEq
+        status: pending, bar: 1 key: :myKey modelName: :myModel
+        modelStore.get :myModel :myKey
+
+  test "modelStore.update cant update key", ->
+    reset()
+    modelStore.subscribe "myModel", "myKey", -> # required to make the record persist
+    modelStore.update "myModel", "myKey", bar:1
+
+    modelStore.onNextReady ->
+      modelStore.update "myModel", "myKey", bar:1, key: "boggle2"
+
+      modelStore.onNextReady ->
+        assert.selectedEq
+          status: pending, bar: 1, key: "myKey", modelName: "myModel"
+          modelStore.get "myModel", "myKey"
+
+  test "modelStore.subscribe basic", ->
+    new Promise (resolve) ->
+
+      reset()
+
+      modelStore.subscribe "myModel", "myKey", (modelRecord, previousModelRecord) ->
+        assert.selectedEq
+          status: missing, key: "myKey", modelName: "myModel"
+          previousModelRecord
+
+        assert.selectedEq
+          status: pending, bar: 1, key: "myKey", modelName: "myModel"
+          modelRecord
+        resolve()
+
+      modelStore.update "myModel", "myKey", bar: 1
+
+  test "modelStore.unsubscribe", ->
+    reset()
+    count1 = 0
+    count2 = 0
+    subscriber1 = (modelRecord) -> count1++
+    subscriber2 = (modelRecord) -> count2++
+
+    modelStore.subscribe "myModel", "myKey", subscriber1
+    modelStore.subscribe "myModel", "myKey", subscriber2
+    modelStore.update "myModel", "myKey", bar: 1
+    modelStore.onNextReady ->
+      assert.eq count1, 1
+      assert.eq count2, 1
+      modelStore.unsubscribe "myModel", "myKey", subscriber2
+      modelStore.update "myModel", "myKey", bar: 2
+      modelStore.onNextReady ->
+        assert.eq count1, 2
+        assert.eq count2, 1
+
+
+  test "modelStore model callbacks: modelStoreEntryUpdated, modelStoreEntryAdded, modelStoreEntryRemoved", ->
+    new Promise (resolve) ->
+      reset()
+      updateCount = addedCount = removedCount = 0
+      class MyModel2 extends Model
+        modelStoreEntryUpdated:  (entry) -> updateCount++
+        modelStoreEntryAdded:    (entry) -> addedCount++
+        modelStoreEntryRemoved:  (entry) ->
+          assert.eq 2, updateCount
+          assert.eq 1, addedCount
+          assert.eq 1, ++removedCount
+          resolve()
+
+      modelStore.subscribe "myModel2", "myKey", mySubscription = -> 123
+      modelStore.onNextReady ->
+        modelStore.unsubscribe "myModel2", "myKey", mySubscription
+
+  test "subscribe triggers load on model", ->
+    new Promise (resolve) ->
+      reset()
+      class MyBasicModel extends Model
+        load: resolve
+
+      modelStore.subscribe :myBasicModel :123 (modelRecord) -> null
+
+  test "subscribe with initial value does not trigger load on model nor subscription callback", ->
+    reset()
+    class MyBasicModel extends Model
+      load: (key) -> assert.fail()
+
+    modelStore.subscribe
+      :myBasicModel
+      :123
+      (modelRecord) -> assert.fail()
+      data: foo: 1 bar: 2
+
+    modelStore.onNextReady ->

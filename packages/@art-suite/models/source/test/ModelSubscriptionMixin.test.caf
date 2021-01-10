@@ -3,7 +3,7 @@ import &StandardImport, {} &ApplicationState
 describe
   subscribeOnModelRegistered: ->
     beforeEach _reset
-    afterEach -> store.onNextReady()
+    afterEach -> modelStore.onNextReady()
 
     test "subscribeOnModelRegistered", ->
       new Promise (resolve, reject) ->
@@ -33,9 +33,9 @@ describe
         data:         :myInitialData
         key:          :myModelKey
         modelName:    :myModel
-        store.get :myModel :myModelKey
+        modelStore.get :myModel :myModelKey
 
-      store.onNextReady()
+      modelStore.onNextReady()
 
     # .thenTest "still pending?" ->
     #   assert.selectedEq
@@ -43,7 +43,7 @@ describe
     #     data:         :myInitialData
     #     key:          :myModelKey
     #     modelName:    :myModel
-    #     store.get :myModel :myModelKey
+    #     modelStore.get :myModel :myModelKey
 
     test "with stateField and no initialModelRecord", ->
       _reset()
@@ -59,4 +59,4 @@ describe
         status:     missing
         key:        "myModelKey"
         modelName:  "myModel"
-        store.get "myModel", "myModelKey"
+        modelStore.get "myModel", "myModelKey"

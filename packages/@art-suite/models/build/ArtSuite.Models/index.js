@@ -7,8 +7,8 @@
   Lib:                     require('./Lib'),
   Model:                   require('./Model'),
   ModelRegistry:           require('./ModelRegistry'),
+  ModelStore:              require('./ModelStore'),
+  ModelStoreEntry:         require('./ModelStoreEntry'),
   ModelSubscriptionsMixin: require('./ModelSubscriptionsMixin'),
-  StandardImport:          require('./StandardImport'),
-  Store:                   require('./Store'),
-  StoreEntry:              require('./StoreEntry')
+  StandardImport:          require('./StandardImport')
 });

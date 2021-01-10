@@ -10,10 +10,10 @@ describe
         class MyBasicModel extends Model
 
           load: (key) ->
-            store.onNextReady => @updateModelRecord key, status: missing
+            modelStore.onNextReady => @updateModelRecord key, status: missing
             null
 
-        res = store.subscribe "myBasicModel", "123", (modelRecord) ->
+        res = modelStore.subscribe "myBasicModel", "123", (modelRecord) ->
           return unless modelRecord.status != pending
           assert.selectedEq
             status: missing, key: "123", modelName: "myBasicModel"
@@ -32,7 +32,7 @@ describe
           loadModelRecord: (key) ->
             timeout(20).then -> status: missing
 
-        res = store.subscribe "myBasicModel", "123", (modelRecord) ->
+        res = modelStore.subscribe "myBasicModel", "123", (modelRecord) ->
           return unless modelRecord.status != pending
           assert.selectedEq
             status: missing, key: "123", modelName: "myBasicModel"
@@ -51,7 +51,7 @@ describe
           null
 
       new Promise (resolve) ->
-        res = store.subscribe "myBasicModel", "123", (modelRecord) ->
+        res = modelStore.subscribe "myBasicModel", "123", (modelRecord) ->
           assert.selectedEq
             status: success, key: "123", modelName: "myBasicModel", data: theKeyIs:"123"
             modelRecord
@@ -62,7 +62,7 @@ describe
 
       .then ->
         new Promise (resolve) ->
-          store.subscribe "myBasicModel", "456", (modelRecord) ->
+          modelStore.subscribe "myBasicModel", "456", (modelRecord) ->
             assert.selectedEq
               status: success, key: "456", modelName: "myBasicModel", data: theKeyIs:"456"
               modelRecord
@@ -76,13 +76,13 @@ describe
           @updateModelRecord key, status: success, data: theKeyIs:key
 
       new Promise (resolve, reject) ->
-        res = store.subscribe "myBasicModel", "123", (modelRecord) ->
+        res = modelStore.subscribe "myBasicModel", "123", (modelRecord) ->
           log.error "THIS SHOULDN'T HAPPEN!"
           reject()
         assert.selectedEq
           status: success, key: "123", modelName: "myBasicModel", data: theKeyIs:"123"
           res
-        store.onNextReady resolve
+        modelStore.onNextReady resolve
 
     test "model with @loadData", ->
       _reset()
@@ -90,14 +90,14 @@ describe
         loadData: (key) -> Promise.resolve theKeyIs:key
 
       new Promise (resolve) ->
-        store.subscribe "myBasicModel", "123", (modelRecord) ->
+        modelStore.subscribe "myBasicModel", "123", (modelRecord) ->
           assert.selectedEq
             status: success, key: "123", modelName: "myBasicModel", data: theKeyIs:"123"
             modelRecord
           resolve()
       .then ->
         new Promise (resolve) ->
-          store.subscribe "myBasicModel", "456", (modelRecord) ->
+          modelStore.subscribe "myBasicModel", "456", (modelRecord) ->
             assert.selectedEq
               status: success, key: "456", modelName: "myBasicModel", data: theKeyIs:"456"
               modelRecord
@@ -105,7 +105,7 @@ describe
 
   simultanious: ->
 
-    test "two simultantious Model requests on the same key only triggers one store request", ->
+    test "two simultantious Model requests on the same key only triggers one modelStore request", ->
       _reset()
       counts =
         load: 0
@@ -116,16 +116,16 @@ describe
           counts.load++
           @updateModelRecord key, status: success, data: theKeyIs:key
 
-      store.subscribe "myBasicModel", "123", (modelRecord) -> assert.eq(modelRecord.count, 2);counts.subscription1++
-      store.subscribe "myBasicModel", "123", (modelRecord) -> assert.eq(modelRecord.count, 2);counts.subscription2++
+      modelStore.subscribe "myBasicModel", "123", (modelRecord) -> assert.eq(modelRecord.count, 2);counts.subscription1++
+      modelStore.subscribe "myBasicModel", "123", (modelRecord) -> assert.eq(modelRecord.count, 2);counts.subscription2++
 
-      store.update "myBasicModel", "123", (modelRecord) -> count: (modelRecord.count || 0)+ 1
-      store.update "myBasicModel", "123", (modelRecord) -> count: (modelRecord.count || 0)+ 1
+      modelStore.update "myBasicModel", "123", (modelRecord) -> count: (modelRecord.count || 0)+ 1
+      modelStore.update "myBasicModel", "123", (modelRecord) -> count: (modelRecord.count || 0)+ 1
 
-      store.onNextReady ->
+      modelStore.onNextReady ->
         assert.eq counts, load: 1, subscription1: 1, subscription2: 1
 
-    test "two simultantious Model requests on the different keys triggers two store requests", ->
+    test "two simultantious Model requests on the different keys triggers two modelStore requests", ->
       _reset()
       counts =
         load: 0
@@ -136,19 +136,19 @@ describe
           counts.load++
           @updateModelRecord key, status: success, data: theKeyIs:key
 
-      store.subscribe "myBasicModel", "123", (modelRecord) -> assert.eq(modelRecord.count, 1);counts.sub1++
-      store.subscribe "myBasicModel", "456", (modelRecord) -> assert.eq(modelRecord.count, 1);counts.sub2++
+      modelStore.subscribe "myBasicModel", "123", (modelRecord) -> assert.eq(modelRecord.count, 1);counts.sub1++
+      modelStore.subscribe "myBasicModel", "456", (modelRecord) -> assert.eq(modelRecord.count, 1);counts.sub2++
 
-      store.update "myBasicModel", "123", (modelRecord) -> count: (modelRecord.count || 0)+ 1
-      store.update "myBasicModel", "456", (modelRecord) -> count: (modelRecord.count || 0)+ 1
+      modelStore.update "myBasicModel", "123", (modelRecord) -> count: (modelRecord.count || 0)+ 1
+      modelStore.update "myBasicModel", "456", (modelRecord) -> count: (modelRecord.count || 0)+ 1
 
-      store.onNextReady ->
+      modelStore.onNextReady ->
         assert.eq counts, load: 2, sub1: 1, sub2: 1
 
   loadPromise: ->
-    # wait for pending Store updates so following test's dont fail
+    # wait for pending ModelStore updates so following test's dont fail
     # when this test model no longer exists.
-    afterEach -> store.onNextReady()
+    afterEach -> modelStore.onNextReady()
 
     test "multiple loadPromises with the same key only load once", ->
       _reset()

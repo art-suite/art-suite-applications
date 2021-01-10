@@ -1,13 +1,13 @@
-import &StandardImport, &ArtEpochedState, &Lib, {} &StoreEntry, &ModelRegistry
+import &StandardImport, &ArtEpochedState, &Lib, {} &ModelStoreEntry, &ModelRegistry
 
-## Store:
-  a key-fields store
+## ModelStore:
+  a key-fields modelStore
   'fields' are plain Objects with any fields with any values you want except:
-    the 'key' field is set automatically to match the Object's key in the store
+    the 'key' field is set automatically to match the Object's key in the modelStore
   Updates to values result in NEW Objects. A Value object is never altered.
   Epoched
   Supports change-notificaiton subscriptions per key.
-class Store extends EpochClass
+class ModelStore extends EpochClass
   @singletonClass()
 
   constructor: -> @_reset()
@@ -43,7 +43,7 @@ class Store extends EpochClass
   @getter hardDeprecatedFunctionsAsMap :hasSubscribers
 
   ## subscribe
-    subscribe to all changes to the store StoreEntry identified by modelName and Key.
+    subscribe to all changes to the modelStore ModelStoreEntry identified by modelName and Key.
 
     subscribers:
       are notified on all changes to the entry's:
@@ -52,7 +52,7 @@ class Store extends EpochClass
       are NOT explicitly notified of when the entry is first added or removed
         However, when an entry is added, subscribers will be notified that a change happened.
         When an entry is removed, subscribers will be again notified, and the "subscribers" param will be [].
-      See subscribeToStore for notifications about entries being added or removed
+      See subscribeToModelStore for notifications about entries being added or removed
 
     IN:
       modelName: string
@@ -66,7 +66,7 @@ class Store extends EpochClass
           1. !propsEq modelRecord, previousModelRecord
           2. only called once per change
 
-      initialModelRecord: if set, and the key is not in the store, this is used
+      initialModelRecord: if set, and the key is not in the modelStore, this is used
         as the initial value instead of calling "load" on the model.
 
     OUT:
@@ -136,7 +136,7 @@ class Store extends EpochClass
 
   _addEntry: (modelName, key, initialModelRecord) ->
     @_length++
-    @_addedEntries.push entry = @_getEntriesForModelName(modelName)[key] = new StoreEntry modelName, key, initialModelRecord
+    @_addedEntries.push entry = @_getEntriesForModelName(modelName)[key] = new ModelStoreEntry modelName, key, initialModelRecord
     entry
 
   _removeEntry: (entry) ->

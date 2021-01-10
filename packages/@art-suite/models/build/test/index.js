@@ -7,8 +7,8 @@
   ApplicationState:                 require('./ApplicationState'),
   LibTest:                          require('./Lib.test'),
   ModelTest:                        require('./Model.test'),
+  ModelStoreTest:                   require('./ModelStore.test'),
   ModelSubscriptionMixinTest:       require('./ModelSubscriptionMixin.test'),
   ModelSubscriptionMixinBasicsTest: require('./ModelSubscriptionMixinBasics.test'),
-  StandardImport:                   require('./StandardImport'),
-  StoreTest:                        require('./Store.test')
+  StandardImport:                   require('./StandardImport')
 });

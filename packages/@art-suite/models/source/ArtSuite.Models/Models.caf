@@ -1,8 +1,8 @@
 {}
   &ModelRegistry.models
-  &Store.store
+  &ModelStore.modelStore
 
   # ONLY for testing
   _reset: ->
-    &Store.store._reset()
+    &ModelStore.modelStore._reset()
     &ModelRegistry._reset()

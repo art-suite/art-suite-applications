@@ -1,11 +1,11 @@
 import &StandardImport, &ModelRegistry, &Lib
 
-getStore = -> _store ?= &Store.store
+getModelStore = -> _modelStore ?= &ModelStore.modelStore
 
 retryExponent = 2
 
-class StoreEntry extends BaseObject
-  # assumes StoreEntry "owns" the modelRecord - it will alter the object by adding a "key" field
+class ModelStoreEntry extends BaseObject
+  # assumes ModelStoreEntry "owns" the modelRecord - it will alter the object by adding a "key" field
   constructor: (modelName, key, initialModelRecord = {}) ->
     @_model       = models[modelName]
     @_autoReload  = @_model.autoReloadEnabled
@@ -77,7 +77,7 @@ class StoreEntry extends BaseObject
       @reloadAt = now + rangeMin + (rangeMax - rangeMin) * Math.random()
       @ extract modelName, key
       @_currentPendingReload = thisPendingReload = timeoutAt @reloadAt, ~>
-        entry = getStore()._getEntry modelName, key
+        entry = getModelStore()._getEntry modelName, key
         if thisPendingReload == entry?._currentPendingReload
           entry._resetAutoReload()
           entry.reload()
@@ -95,11 +95,11 @@ class StoreEntry extends BaseObject
 
     @
 
-  # added, removed and updated are triggered by Store during the Epoch update
-  added:    -> @model.storeEntryAdded @
-  removed:  -> @model.storeEntryRemoved @
+  # added, removed and updated are triggered by ModelStore during the Epoch update
+  added:    -> @model.modelStoreEntryAdded @
+  removed:  -> @model.modelStoreEntryRemoved @
   updated:  ->
-    @model.storeEntryUpdated @
+    @model.modelStoreEntryUpdated @
     @_notifySubscribers()
 
   ##########################
@@ -135,7 +135,7 @@ class StoreEntry extends BaseObject
     each subscriber in-array @_subscribers with subscriber @_modelRecord, @_previousModelRecord
     @_previousModelRecord = null
 
-  # subscriber is a function with the signature: (StoreEntry) ->
+  # subscriber is a function with the signature: (ModelStoreEntry) ->
   # to unsubscribe, you must provide the exact same subscription function
   _subscribe:   (subscriber) -> pushIfNotPresent @_subscribers, subscriber
   _unsubscribe: (subscriber) -> removeFirstMatch @_subscribers, subscriber
