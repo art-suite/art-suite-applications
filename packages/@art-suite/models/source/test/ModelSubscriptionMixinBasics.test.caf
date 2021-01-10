@@ -2,7 +2,7 @@ import &StandardImport, {} &ApplicationState
 
 describe
   subscribe: ->
-    beforeEach _reset
+    beforeEach _resetArtSuiteModels
     test "with modelName and stateField", -> new Promise (resolve, reject) ->
       class MyModel extends ApplicationState
 
@@ -30,7 +30,7 @@ describe
       assert.hasNoKeys myObject.subscriptions
 
   change: ->
-    beforeEach _reset
+    beforeEach _resetArtSuiteModels
 
     test "change subscription", -> new Promise (resolve, reject) ->
       class MyModel extends ApplicationState
@@ -60,7 +60,7 @@ describe
         models.myModel.setState "myModelKey2", "hi"
 
   unsubscribe: ->
-    beforeEach _reset
+    beforeEach _resetArtSuiteModels
 
     test "unsubscribe", -> new Promise (resolve, reject) ->
       class MyModel extends ApplicationState

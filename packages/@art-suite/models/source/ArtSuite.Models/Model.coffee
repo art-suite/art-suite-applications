@@ -162,7 +162,7 @@ defineModule module, class Model extends InstanceFunctionBindingMixin BaseObject
     Unlike @load, @loadPromise returns a promise that resolves when the load is done.
 
     The down-side is @loadPromise cannot immediately update the ModelStore. If you have
-    a model which modelStores its data locally, like ApplicationState, then override @load
+    a model which stores its data locally, like ApplicationState, then override @load
     for immediate modelStore updates.
 
     However, if your model always has to get the data asynchronously, override @loadData
@@ -190,7 +190,7 @@ defineModule module, class Model extends InstanceFunctionBindingMixin BaseObject
     p = if @loadData
       Promise.then    => @loadingRecord key
       .then           => @loadData key
-      .then (data)    => @updateModelRecord key, if data? then status: success, data: data else status: missing
+      .then (data)    => @updateModelRecord key, if data? then {data, status: success} else status: missing
       .catch (error)  =>
         status = if validStatus status = error?.info?.status || error
           status

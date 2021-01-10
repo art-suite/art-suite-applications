@@ -3,6 +3,6 @@
   &ModelStore.modelStore
 
   # ONLY for testing
-  _reset: ->
+  _resetArtSuiteModels: ->
     &ModelStore.modelStore._reset()
     &ModelRegistry._reset()

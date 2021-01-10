@@ -199,7 +199,7 @@
       Unlike @load, @loadPromise returns a promise that resolves when the load is done.
     
       The down-side is @loadPromise cannot immediately update the ModelStore. If you have
-      a model which modelStores its data locally, like ApplicationState, then override @load
+      a model which stores its data locally, like ApplicationState, then override @load
       for immediate modelStore updates.
     
       However, if your model always has to get the data asynchronously, override @loadData
@@ -236,8 +236,8 @@
       })(this)).then((function(_this) {
         return function(data) {
           return _this.updateModelRecord(key, data != null ? {
-            status: success,
-            data: data
+            data: data,
+            status: success
           } : {
             status: missing
           });

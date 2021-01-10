@@ -1,8 +1,7 @@
 import &StandardImport
 
 reset = ->
-  modelStore._reset()
-  ModelRegistry._reset()
+  _resetArtSuiteModels()
   class MyModel extends Model
   assert.eq true, !!models.myModel,{models}
 

@@ -6,7 +6,7 @@ describe
 
     test "model with async load", ->
       new Promise (resolve) ->
-        _reset()
+        _resetArtSuiteModels()
         class MyBasicModel extends Model
 
           load: (key) ->
@@ -26,7 +26,7 @@ describe
 
     test "model with @loadModelRecord", ->
       new Promise (resolve) ->
-        _reset()
+        _resetArtSuiteModels()
         class MyBasicModel extends Model
 
           loadModelRecord: (key) ->
@@ -43,7 +43,7 @@ describe
           res
 
     test "model with custom load - delayed", ->
-      _reset()
+      _resetArtSuiteModels()
       class MyBasicModel extends Model
 
         load: (key, callback) ->
@@ -69,7 +69,7 @@ describe
             resolve()
 
     test "model with custom load - immediate", ->
-      _reset()
+      _resetArtSuiteModels()
       class MyBasicModel extends Model
 
         load: (key, callback) ->
@@ -85,7 +85,7 @@ describe
         modelStore.onNextReady resolve
 
     test "model with @loadData", ->
-      _reset()
+      _resetArtSuiteModels()
       class MyBasicModel extends Model
         loadData: (key) -> Promise.resolve theKeyIs:key
 
@@ -106,7 +106,7 @@ describe
   simultanious: ->
 
     test "two simultantious Model requests on the same key only triggers one modelStore request", ->
-      _reset()
+      _resetArtSuiteModels()
       counts =
         load: 0
         subscription1: 0
@@ -126,7 +126,7 @@ describe
         assert.eq counts, load: 1, subscription1: 1, subscription2: 1
 
     test "two simultantious Model requests on the different keys triggers two modelStore requests", ->
-      _reset()
+      _resetArtSuiteModels()
       counts =
         load: 0
         sub1: 0
@@ -151,7 +151,7 @@ describe
     afterEach -> modelStore.onNextReady()
 
     test "multiple loadPromises with the same key only load once", ->
-      _reset()
+      _resetArtSuiteModels()
       loadCount = 0
       class User extends Model
         loadData: (key) ->
@@ -172,7 +172,7 @@ describe
 
   aliases: ->
     test "@aliases adds aliases to the model registry", ->
-      _reset()
+      _resetArtSuiteModels()
       class User extends Model
         @aliases "owner", "sister"
 
@@ -182,7 +182,7 @@ describe
 
   functionsBoundToInstances: ->
     test "use bound function", ->
-      _reset()
+      _resetArtSuiteModels()
       class User extends Model
         foo: -> @_foo = (@_foo || 0) + 1
 
