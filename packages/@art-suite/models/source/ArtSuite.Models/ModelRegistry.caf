@@ -34,6 +34,8 @@ class ModelRegistry extends BaseObject
           #{} formattedInspect {} name, model, previouslyRegisteredModel: @models[name]
 
     @models[name] = model
+    model.modelRegistered()
+    model
 
   @_registerAliases: (model) =>
     each alias in model.class._aliases with @_registerModel alias, model

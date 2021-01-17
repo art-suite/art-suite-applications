@@ -287,3 +287,6 @@ defineModule module, class Model extends InstanceFunctionBindingMixin BaseObject
 
   # called when an entry was moved (when subscriber count goes to 0)
   modelStoreEntryRemoved: (entry) ->
+
+  # called after the model has been registered
+  modelRegistered: ->

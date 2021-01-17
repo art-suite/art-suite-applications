@@ -36,9 +36,9 @@ class ModelStore extends EpochClass
 
       {} entryCount, entrySubscribers, modelCount, reloadsPending, nextReload
 
-  get:                (modelName, key) -> @_getEntry(modelName, key)?.modelRecord
-  getSubscribers:     (modelName, key) -> @_getEntry(modelName, key)?.subscribers
-  getEntriesForModel: (modelName)      -> @_entriesByModelName[modelName]
+  get:                (modelName, key) -> @_validateModelNameAndKey(modelName, key); @_getEntry(modelName, key)?.modelRecord
+  getSubscribers:     (modelName, key) -> @_validateModelNameAndKey(modelName, key); @_getEntry(modelName, key)?.subscribers
+  getEntriesForModel: (modelName)      -> @_validateModelNameAndKey(modelName); @_entriesByModelName[modelName]
 
   @getter hardDeprecatedFunctionsAsMap :hasSubscribers
 
@@ -95,7 +95,8 @@ class ModelStore extends EpochClass
       Notifies all subscribers.
 
     returns: null
-  unsubscribe: (modelName, key, subscriber) -> @_queueChange {} modelName, key, removeSubscriber: subscriber
+  unsubscribe: (modelName, key, subscriber) ->
+    @_queueChange {} modelName, key, removeSubscriber: subscriber
 
   ## update
     put updates or creates the record
@@ -109,7 +110,6 @@ class ModelStore extends EpochClass
     Notifies all subscribers.
     returns: updateFunctionOrNewModelRecord
   update: (modelName, key, updateFunctionOrNewModelRecord) ->
-    validateInputs key is String, "Key must be a string." key
     @_queueChange {} modelName, key, updateFunction:
       if isFunction updateFunctionOrNewModelRecord
             updateFunctionOrNewModelRecord
@@ -123,15 +123,27 @@ class ModelStore extends EpochClass
 
   # broken out for testing
   _reset: ->
-    @_length = 0
-    @_entriesByModelName = {}
-    @_addedEntries = []
+    @onNextReady ->
+      @_length = 0
+      @_entriesByModelName = {}
+      @_addedEntries = []
 
   _getEntriesForModelName: (modelName) -> @_entriesByModelName[modelName] ?= {}
 
+  ## _validateModelNameAndKey
+    THROWS: error unless model is regiestered and key is either undefined/null or a string
+    OUT: true if valid
+  _validateModelNameAndKey: (modelName, key) ->
+    !!@models[modelName]
+    || throw new Error
+        """
+          Expected valid modelName. Inputs: #{formattedInspect {modelName, key}}
+          Valid models: #{Object.keys(@models).join('\n') || "(no models registered)"}
+
+    && !key? || key is String
+    || throw new Error "" Expected 'key' to be a String. Inputs: #{formattedInspect {modelName, key}}
+
   _getEntry: (modelName, key) ->
-    validateInputs @models[modelName], "Expected valid modelName." modelName
-    validateInputs key is String, "Expected 'key' to be a String." key
     @_getEntriesForModelName(modelName)[key]
 
   _addEntry: (modelName, key, initialModelRecord) ->
@@ -178,8 +190,7 @@ class ModelStore extends EpochClass
   _queueChange: (change) ->
     change extract modelName, key
 
-    validateInputs @models[modelName],  "Expected 'modelName' to be a valid model name.", change
-    validateInputs key is String,       "Expected 'key' to be a String.", change
+    @_validateModelNameAndKey modelName, key
 
     @queueItem change
     null
@@ -192,6 +203,7 @@ class ModelStore extends EpochClass
     removedEntries = []
 
     each {modelName, key, addSubscriber, removeSubscriber, updateFunction} in-array changes
+      @_validateModelNameAndKey modelName, key
       pushIfNotPresent updatedEntries, entry = @_vivifyEntry modelName, key
       if updateFunction        then entry._updateModelRecord updateFunction
       else if addSubscriber    then entry._subscribe addSubscriber

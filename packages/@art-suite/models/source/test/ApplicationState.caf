@@ -7,14 +7,11 @@ class ApplicationState extends Model
     @state = {}
 
   setState: (key, value) ->
-    # log AppState.setState: {} key, value, propsEq @state[key], value
     if !propsEq @state[key], value
-      # log AppState.setState.forReal: :keykey
       @state[key] = value
       @load key
 
   load: (key) ->
-    # log load: key
     @updateModelRecord
       key
       modelRecord = if @state.hasOwnProperty key

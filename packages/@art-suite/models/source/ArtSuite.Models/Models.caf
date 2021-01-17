@@ -5,4 +5,4 @@
   # ONLY for testing
   _resetArtSuiteModels: ->
     &ModelStore.modelStore._reset()
-    &ModelRegistry._reset()
+    .then -> &ModelRegistry._reset()

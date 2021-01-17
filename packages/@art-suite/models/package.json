@@ -17,6 +17,7 @@
     "testEnvironment": "node"
   },
   "license": "ISC",
+  "name": "@art-suite/models",
   "repository": {
     "type": "git",
     "url": "https://github.com/art-suite/art-suite-applications.git"

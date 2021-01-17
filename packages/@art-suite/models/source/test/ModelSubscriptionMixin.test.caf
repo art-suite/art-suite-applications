@@ -17,8 +17,7 @@ describe
 
   "subscribe and initialModelRecord": ->
 
-    chainedTest "with stateField and initialModelRecord", ->
-      _resetArtSuiteModels()
+    chainedTest "with stateField and initialModelRecord", -> _resetArtSuiteModels().then ->
       class MyModel extends &ApplicationState
 
       new class MyObject extends ModelSubscriptionsMixin BaseObject
@@ -45,8 +44,7 @@ describe
     #     modelName:    :myModel
     #     modelStore.get :myModel :myModelKey
 
-    test "with stateField and no initialModelRecord", ->
-      _resetArtSuiteModels()
+    test "with stateField and no initialModelRecord", -> _resetArtSuiteModels().then ->
       class MyModel extends &ApplicationState
 
       new class MyObject extends ModelSubscriptionsMixin BaseObject

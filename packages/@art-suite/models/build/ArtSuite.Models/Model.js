@@ -371,6 +371,8 @@
 
     Model.prototype.modelStoreEntryRemoved = function(entry) {};
 
+    Model.prototype.modelRegistered = function() {};
+
     return Model;
 
   })(InstanceFunctionBindingMixin(BaseObject)));

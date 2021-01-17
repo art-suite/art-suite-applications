@@ -3,10 +3,10 @@ import &StandardImport
 describe
 
   load: ->
+    beforeEach _resetArtSuiteModels
 
     test "model with async load", ->
       new Promise (resolve) ->
-        _resetArtSuiteModels()
         class MyBasicModel extends Model
 
           load: (key) ->
@@ -26,7 +26,6 @@ describe
 
     test "model with @loadModelRecord", ->
       new Promise (resolve) ->
-        _resetArtSuiteModels()
         class MyBasicModel extends Model
 
           loadModelRecord: (key) ->
@@ -43,7 +42,6 @@ describe
           res
 
     test "model with custom load - delayed", ->
-      _resetArtSuiteModels()
       class MyBasicModel extends Model
 
         load: (key, callback) ->
@@ -69,7 +67,6 @@ describe
             resolve()
 
     test "model with custom load - immediate", ->
-      _resetArtSuiteModels()
       class MyBasicModel extends Model
 
         load: (key, callback) ->
@@ -85,7 +82,6 @@ describe
         modelStore.onNextReady resolve
 
     test "model with @loadData", ->
-      _resetArtSuiteModels()
       class MyBasicModel extends Model
         loadData: (key) -> Promise.resolve theKeyIs:key
 
@@ -104,9 +100,9 @@ describe
             resolve()
 
   simultanious: ->
+    beforeEach _resetArtSuiteModels
 
     test "two simultantious Model requests on the same key only triggers one modelStore request", ->
-      _resetArtSuiteModels()
       counts =
         load: 0
         subscription1: 0
@@ -126,7 +122,6 @@ describe
         assert.eq counts, load: 1, subscription1: 1, subscription2: 1
 
     test "two simultantious Model requests on the different keys triggers two modelStore requests", ->
-      _resetArtSuiteModels()
       counts =
         load: 0
         sub1: 0
@@ -146,12 +141,13 @@ describe
         assert.eq counts, load: 2, sub1: 1, sub2: 1
 
   loadPromise: ->
+    beforeEach _resetArtSuiteModels
+
     # wait for pending ModelStore updates so following test's dont fail
     # when this test model no longer exists.
     afterEach -> modelStore.onNextReady()
 
     test "multiple loadPromises with the same key only load once", ->
-      _resetArtSuiteModels()
       loadCount = 0
       class User extends Model
         loadData: (key) ->
@@ -171,8 +167,8 @@ describe
         assert.neq p1, p3
 
   aliases: ->
+    beforeEach _resetArtSuiteModels
     test "@aliases adds aliases to the model registry", ->
-      _resetArtSuiteModels()
       class User extends Model
         @aliases "owner", "sister"
 
@@ -181,8 +177,8 @@ describe
       assert.eq models.user, models.sister
 
   functionsBoundToInstances: ->
+    beforeEach _resetArtSuiteModels
     test "use bound function", ->
-      _resetArtSuiteModels()
       class User extends Model
         foo: -> @_foo = (@_foo || 0) + 1
 
