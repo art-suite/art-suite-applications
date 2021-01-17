@@ -1,0 +1,6 @@
+import &ArtStandardLib
+warned = {}
+{}
+  artFluxDeprecatedWarning = (deprecated, useInstead) ->
+    unless warned[deprecated]
+      log.warn "ArtFlux >> ArtSuite/Models transition -- DEPRICATED: model.#{deprecated}. " + if useInstead then "Use model.#{useInstead} instead." else "No longer supported."

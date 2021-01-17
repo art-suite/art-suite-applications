@@ -14,85 +14,12 @@ resetAll = ->
 
 myModelSetup = ->
   resetAll()
-  createWithPostCreate class MyModel extends ApplicationState
-    @stateFields myField: {}, myField2: {}
+  .then ->
+    createWithPostCreate class MyModel extends ApplicationState
+      @stateFields myField: {}, myField2: {}
 
 defineModule module, suite:
 
-  initialValues: ->
-    setup resetAll
-
-    test "subscriptions - component with subscription to model with immediate result only renders once", -> new Promise (resolve)->
-      createWithPostCreate class MyModel extends FluxModel
-        load: (key) -> data: key, status: success
-
-      renderCount = 0
-      MyComponent = createWithPostCreate class MyComponent extends FluxComponent
-        @subscriptions
-          myModel: -> "hi"
-
-        render: ->
-          renderCount++
-          assert.eq renderCount, 1
-          timeout 50, => resolve()
-          Element {}
-
-      (myComponent = MyComponent())._instantiate()
-
-    test "subscription with initial value passed in as prop should not trigger load", -> new Promise (resolve)->
-      createWithPostCreate class User extends FluxModel
-        load: -> assert.fail()
-
-      MyComponent = createWithPostCreate class MyComponent extends FluxComponent
-        @subscriptions "user"
-
-        render: ->
-          assert.eq @state.user, name:"george", id:"124"
-          timeout 50, => resolve()
-          Element {}
-
-      MyComponent(user: id:"124", name:"george")._instantiate()
-
-    test "subscriptions - post - declarative subscriptions", -> new Promise (resolve) ->
-      myModelSetup()
-
-      MyComponent = createWithPostCreate class MyComponent extends FluxComponent
-        @subscriptions "myModel.myField"
-
-        render: ->
-          resolve() if @myField == "bob"
-          Element {}
-
-      models.myModel.myField = "bob"
-      models.myModel.onNextReady -> MyComponent()._instantiate()
-
-  getters: ->
-    setup myModelSetup
-    test "models getter", -> new Promise (resolve) ->
-
-      MyComponent = createWithPostCreate class MyComponent extends FluxComponent
-        @subscriptions "myModel.myField"
-
-        test: -> @models.myModel.myField = "honor"
-
-        render: ->
-          resolve() if @state.myField == "honor"
-          Element()
-
-      MyComponent()._instantiate()
-      .test()
-
-    test "subscription field getters", -> new Promise (resolve) ->
-
-      MyComponent = createWithPostCreate class MyComponent extends FluxComponent
-        @subscriptions "myModel.myField"
-
-        render: ->
-          resolve() if @myField == "bob"
-          Element {}
-
-      MyComponent()._instantiate()
-      models.myModel.myField = "bob"
 
   misc: ->
     setup myModelSetup

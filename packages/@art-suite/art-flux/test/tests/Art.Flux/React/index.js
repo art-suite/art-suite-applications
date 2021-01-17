@@ -6,5 +6,6 @@
 .addModules({
   ComponentLib:      require('./ComponentLib'),
   FluxComponent:     require('./FluxComponent'),
-  FluxComponentTest: require('./FluxComponent.test')
+  FluxComponentTest: require('./FluxComponent.test'),
+  StandardImport:    require('./StandardImport')
 });

@@ -3,6 +3,8 @@
 
 (module.exports = require('./namespace'))
 .includeInNamespace(require('./Flux'))
-;
-require('./Core');
-require('./Models');
+.addModules({
+  ApplicationState: require('./ApplicationState'),
+  FluxModel:        require('./FluxModel'),
+  Lib:              require('./Lib')
+});

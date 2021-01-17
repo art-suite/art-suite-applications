@@ -13,17 +13,6 @@ testDeclaration = (declaration, expected) ->
 suite:
   strings: ->
     testDeclaration :post (parsed) ->
-      # {key} = find parsed
-      # assert.eq
-      #   key {} post: id: :abc
-      #   :abc
-      #   {} key
-
-      # assert.eq
-      #   key {} postId: :def
-      #   :def
-      #   {} key
-
       post:
         stateField: :post
         model:      :post

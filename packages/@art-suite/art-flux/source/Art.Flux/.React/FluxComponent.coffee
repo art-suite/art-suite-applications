@@ -1,27 +1,26 @@
-{Component, createComponentFactory} = Neptune.Art.React
-
 {
   defineModule
   log, isPlainObject, isString, isFunction
   globalCount
   formattedInspect
 } = require 'art-standard-lib'
-
-{ModelRegistry, FluxSubscriptionsMixin} = require '../Core'
 {success} = require 'art-communication-status'
+{ModelRegistry, ModelSubscriptionsMixin} = require '@art-suite/models'
+{Component, createComponentFactory} = require "art-react"
+{artFluxDeprecatedWarning} = require "../Lib"
+
 {parseSubscriptions} = require './ComponentLib'
 
 ###
-FluxComponent
+  FluxComponent
 
-Declarative (automatic) Flux Subscription support:
-- @subscriptions declaration method
+  Declarative (automatic) Flux Subscription support:
+  - @subscriptions declaration method
 
-TODO:
-  * _prepareSubscription should be triggered via createWithPostCreate rather than with each component creation
+  TODO:
+    * _prepareSubscription should be triggered via createWithPostCreate rather than with each component creation
 ###
-
-defineModule module, class FluxComponent extends FluxSubscriptionsMixin Component
+defineModule module, class FluxComponent extends ModelSubscriptionsMixin Component
   @abstractClass()
 
   ##########################
@@ -100,20 +99,12 @@ defineModule module, class FluxComponent extends FluxSubscriptionsMixin Componen
   ##########################
   # PRIVATE MEMBER METHODS
   ##########################
-  _toFluxKey: (stateField, key, model, props) ->
-    key ?= props[stateField]?.id
-    if key?
-      model.toKeyString key
-    else
-      null
-
   _updateSubscription: (stateField, key, model, props) ->
-
     @subscribe stateField,
       model.modelName
       key
       stateField: stateField
-      initialFluxRecord: if initialData = props[stateField]
+      initialModelRecord: if initialData = props[stateField]
         status: success
         data:   initialData
 

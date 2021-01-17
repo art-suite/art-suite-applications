@@ -6,5 +6,3 @@ module.exports = require('neptune-namespaces-runtime').addNamespace(
   (class Flux extends Neptune.PackageNamespace {})
   ._configureNamespace(require('../../package.json'))
 );
-require('./Core/namespace');
-require('./Models/namespace');

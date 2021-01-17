@@ -5,5 +5,4 @@ module.exports = require('../namespace').addNamespace(
   'Art.Flux',
   class Flux extends Neptune.PackageNamespace {}
 );
-require('./Core/namespace');
 require('./React/namespace');
