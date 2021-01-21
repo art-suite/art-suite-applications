@@ -1,20 +1,20 @@
-import &StandardImport, &ArtEpochedState, &Lib, {} &ModelStoreEntry, &ModelRegistry
+import &StandardImport, &ArtEpochedState, &Lib, {} &ArtModelStoreEntry, &ArtModelRegistry
 
-## ModelStore:
-  a key-fields modelStore
+## ArtModelStore:
+  a key-fields artModelStore
   'fields' are plain Objects with any fields with any values you want except:
-    the 'key' field is set automatically to match the Object's key in the modelStore
+    the 'key' field is set automatically to match the Object's key in the artModelStore
   Updates to values result in NEW Objects. A Value object is never altered.
   Epoched
   Supports change-notificaiton subscriptions per key.
-class ModelStore extends EpochClass
+class ArtModelStore extends EpochClass
   @singletonClass()
 
   constructor: -> @_reset()
 
   @getter
     :length
-    models: -> ModelRegistry.models
+    models: -> ArtModelRegistry.models
     inspectedObjects: -> toInspectedObjects @_entriesByModelName
     status: ->
       entrySubscribers = 0
@@ -43,7 +43,7 @@ class ModelStore extends EpochClass
   @getter hardDeprecatedFunctionsAsMap :hasSubscribers
 
   ## subscribe
-    subscribe to all changes to the modelStore ModelStoreEntry identified by modelName and Key.
+    subscribe to all changes to the artModelStore ArtModelStoreEntry identified by modelName and Key.
 
     subscribers:
       are notified on all changes to the entry's:
@@ -66,7 +66,7 @@ class ModelStore extends EpochClass
           1. !propsEq modelRecord, previousModelRecord
           2. only called once per change
 
-      initialModelRecord: if set, and the key is not in the modelStore, this is used
+      initialModelRecord: if set, and the key is not in the artModelStore, this is used
         as the initial value instead of calling "load" on the model.
 
     OUT:
@@ -76,7 +76,7 @@ class ModelStore extends EpochClass
 
     side effects:
       vivifies a new entry with modelRecord = {status: pending} if one isn't present
-      calls ModelRegistry[modelName].load key if vivification occured
+      calls ArtModelRegistry[modelName].load key if vivification occured
       Notifies all subscribers.
 
     returns: current modelRecord for the entry
@@ -148,7 +148,7 @@ class ModelStore extends EpochClass
 
   _addEntry: (modelName, key, initialModelRecord) ->
     @_length++
-    @_addedEntries.push entry = @_getEntriesForModelName(modelName)[key] = new ModelStoreEntry modelName, key, initialModelRecord
+    @_addedEntries.push entry = @_getEntriesForModelName(modelName)[key] = new ArtModelStoreEntry modelName, key, initialModelRecord
     entry
 
   _removeEntry: (entry) ->

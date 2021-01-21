@@ -11,8 +11,8 @@
 {InstanceFunctionBindingMixin} = require "@art-suite/instance-function-binding-mixin"
 
 {missing, success, pending, failure, validStatus, isFailure} = require 'art-communication-status'
-{modelStore} = require "./ModelStore"
-ModelRegistry = require './ModelRegistry'
+{artModelStore} = require "./ArtModelStore"
+ArtModelRegistry = require './ArtModelRegistry'
 
 defineModule module, class ArtModel extends InstanceFunctionBindingMixin BaseObject
   @abstractClass()
@@ -34,7 +34,7 @@ defineModule module, class ArtModel extends InstanceFunctionBindingMixin BaseObj
   # NOTE: @fields calls register for you, so if you use @fields, you don't need to call @register
   @register: ->
     @singletonClass()
-    ModelRegistry.register @getSingleton()
+    ArtModelRegistry.register @getSingleton()
 
   @postCreateConcreteClass: ({hotReloaded}) ->
     if hotReloaded
@@ -68,7 +68,7 @@ defineModule module, class ArtModel extends InstanceFunctionBindingMixin BaseObj
 
   @_aliases: []
 
-  onNextReady: (f) -> modelStore.onNextReady f
+  onNextReady: (f) -> artModelStore.onNextReady f
 
   constructor: (name)->
     super
@@ -77,29 +77,29 @@ defineModule module, class ArtModel extends InstanceFunctionBindingMixin BaseObj
     @_activeLoadingRequests = {}
 
   @classGetter
-    models: -> ModelRegistry.models
-    modelStore: -> modelStore
+    models: -> ArtModelRegistry.models
+    artModelStore: -> artModelStore
 
   @getter
-    models: -> ModelRegistry.models
-    modelStore: -> modelStore
+    models: -> ArtModelRegistry.models
+    artModelStore: -> artModelStore
     singlesModel: -> @_singlesModel || @
-    modelStoreEntries: -> modelStore.getEntriesForModel @name
+    modelStoreEntries: -> artModelStore.getEntriesForModel @name
 
   # DEPRICATED
   subscribe: (modelKey, subscriptionFunction) ->
-    log.error "DEPRICATED - use ModelSubscriptionsMixin and it's subscribe"
-    modelStore.subscribe @_name, modelKey, subscriptionFunction
+    log.error "DEPRICATED - use ArtModelSubscriptionsMixin and it's subscribe"
+    artModelStore.subscribe @_name, modelKey, subscriptionFunction
 
   @getter "name",
     modelName: -> @_name
 
   ### load:
-    load the requested data for the given key and update the modelStore
+    load the requested data for the given key and update the artModelStore
 
     required:
-      Should ALWAYS call modelStore.update immediately OR once the data is available.
-      Clients will assume that a call to "load" forces a reload of the data in the modelStore.
+      Should ALWAYS call artModelStore.update immediately OR once the data is available.
+      Clients will assume that a call to "load" forces a reload of the data in the artModelStore.
 
     optional:
       If the data is immediately available, you can return the modelRecord instead of "null"
@@ -108,7 +108,7 @@ defineModule module, class ArtModel extends InstanceFunctionBindingMixin BaseObj
         first render.
 
     Note:
-      Typically called automatically by the modelStore when a Component subscribes to
+      Typically called automatically by the artModelStore when a Component subscribes to
       data from this model with the given key.
 
     The simplest possible load function:
@@ -117,14 +117,14 @@ defineModule module, class ArtModel extends InstanceFunctionBindingMixin BaseObj
     The "load" function below is:
       Simplest "load" with immediate modelRecord return.
       Immediate return means:
-      - modelStore.subscribe() will return the modelRecord returned from this "load"
+      - artModelStore.subscribe() will return the modelRecord returned from this "load"
       - Components subscriptions will update state in time for the inital render.
 
     inputs:
       key: string
 
     side effects:
-      expected to call modelStore.update @_name, key, modelRecord
+      expected to call artModelStore.update @_name, key, modelRecord
         - when modelRecord.status is no longer pending
         - optionally as progress is made loading the modelRecord.data
 
@@ -142,10 +142,10 @@ defineModule module, class ArtModel extends InstanceFunctionBindingMixin BaseObj
                         promise.catch (a validStatus or error info, status becomes failure) ->
       loadModelRecord: (key) -> promise.then (modelRecord) ->
 
-      @load will take care of updating ModelStore.
+      @load will take care of updating ArtModelStore.
   ###
   load: (key) ->
-    # ensure modelStore is updated in case this is not beind called from the modelStore itself
+    # ensure artModelStore is updated in case this is not beind called from the artModelStore itself
     # returns {status: missing} since updateModelRecord returns the last argument,
     #   this makes the results immediately available to subscribers.
 
@@ -161,20 +161,20 @@ defineModule module, class ArtModel extends InstanceFunctionBindingMixin BaseObj
 
     Unlike @load, @loadPromise returns a promise that resolves when the load is done.
 
-    The down-side is @loadPromise cannot immediately update the ModelStore. If you have
+    The down-side is @loadPromise cannot immediately update the ArtModelStore. If you have
     a model which stores its data locally, like ApplicationState, then override @load
-    for immediate modelStore updates.
+    for immediate artModelStore updates.
 
     However, if your model always has to get the data asynchronously, override @loadData
     or @loadModelRecord and use @loadPromise anytime you need to manually trigger a load.
 
     EFFECTS:
     - Triggers loadData or loadModelRecord.
-    - Puts the results in the modelStore.
+    - Puts the results in the artModelStore.
     - Elegently reduces multiple in-flight requests with the same key to one Promise.
       @loadData or @loadModelRecord will only be invoked once per key while their
       returned promises are unresolved.
-      NOTE: the block actually extends all the way through to the modelStore being updated.
+      NOTE: the block actually extends all the way through to the artModelStore being updated.
       That means you can immediately call @getModelRecord and get the latest data - when
       the promise resolves.
 
@@ -211,7 +211,7 @@ defineModule module, class ArtModel extends InstanceFunctionBindingMixin BaseObj
     .then (result) => @_activeLoadingRequests[key] = null; result
 
   # load is not required to updateModelRecord
-  # reload guarantees modelStore is updated
+  # reload guarantees artModelStore is updated
   # override reload if your load does not always updateModelRecord (eventually)
   reload: (key) ->
     if @loadData || @loadModelRecord
@@ -226,14 +226,14 @@ defineModule module, class ArtModel extends InstanceFunctionBindingMixin BaseObj
     if isFailure (modelRecord = @getModelRecord key)?.status
       @updateModelRecord key, merge modelRecord, status: pending
 
-  getModelRecord:     (key) -> modelStore.get @_name, @toKeyString key
-  updateModelRecord:  (key, modelRecord) -> modelStore.update @_name, key, modelRecord
+  getModelRecord:     (key) -> artModelStore.get @_name, @toKeyString key
+  updateModelRecord:  (key, modelRecord) -> artModelStore.update @_name, key, modelRecord
 
-  onModelRegistered: (modelName) -> ModelRegistry.onModelRegistered modelName
+  onModelRegistered: (modelName) -> ArtModelRegistry.onModelRegistered modelName
 
   # IN: key
   # OUT: promise.then data
-  # EFFECT: if already loaded in modelStore, just returns what's in ModelStore
+  # EFFECT: if already loaded in artModelStore, just returns what's in ArtModelStore
   get: (key) ->
     key = @toKeyString key
     Promise.then =>
@@ -276,7 +276,7 @@ defineModule module, class ArtModel extends InstanceFunctionBindingMixin BaseObj
   ###################################################
   # OVERRIDES - Events
   ###################################################
-  # Override to respond to entries being added or removed from the ModelStore
+  # Override to respond to entries being added or removed from the ArtModelStore
 
   # called when an entry is updated OR added OR if it is about to be removed
   # this is called before modelStoreEntryAdded or modelStoreEntryRemoved

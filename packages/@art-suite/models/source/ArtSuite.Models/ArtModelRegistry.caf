@@ -1,6 +1,6 @@
 import &ArtStandardLib, &ArtClassSystem
 
-class ModelRegistry extends BaseObject
+class ArtModelRegistry extends BaseObject
   @models: global.artModels ?= {}
   @_modelRegistrationPromiseResolvers: {}
   @_modelRegistrationPromises: {}
@@ -30,7 +30,7 @@ class ModelRegistry extends BaseObject
     if @models[name]
       throw new Error
         """
-          #{ModelRegistry.namespacePath}: model already registered with same name
+          #{ArtModelRegistry.namespacePath}: model already registered with same name
           #{} formattedInspect {} name, model, previouslyRegisteredModel: @models[name]
 
     @models[name] = model

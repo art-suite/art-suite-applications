@@ -1,11 +1,11 @@
-import &StandardImport, &ModelRegistry, &Lib
+import &StandardImport, &ArtModelRegistry, &Lib
 
-getModelStore = -> _modelStore ?= &ModelStore.modelStore
+getModelStore = -> _modelStore ?= &ArtModelStore.artModelStore
 
 retryExponent = 2
 
-class ModelStoreEntry extends BaseObject
-  # assumes ModelStoreEntry "owns" the modelRecord - it will alter the object by adding a "key" field
+class ArtModelStoreEntry extends BaseObject
+  # assumes ArtModelStoreEntry "owns" the modelRecord - it will alter the object by adding a "key" field
   constructor: (modelName, key, initialModelRecord = {}) ->
     @_model       = models[modelName]
     @_autoReload  = @_model.autoReloadEnabled
@@ -95,7 +95,7 @@ class ModelStoreEntry extends BaseObject
 
     @
 
-  # added, removed and updated are triggered by ModelStore during the Epoch update
+  # added, removed and updated are triggered by ArtModelStore during the Epoch update
   added:    -> @model.modelStoreEntryAdded @
   removed:  -> @model.modelStoreEntryRemoved @
   updated:  ->
@@ -135,7 +135,7 @@ class ModelStoreEntry extends BaseObject
     each subscriber in-array @_subscribers with subscriber @_modelRecord, @_previousModelRecord
     @_previousModelRecord = null
 
-  # subscriber is a function with the signature: (ModelStoreEntry) ->
+  # subscriber is a function with the signature: (ArtModelStoreEntry) ->
   # to unsubscribe, you must provide the exact same subscription function
   _subscribe:   (subscriber) -> pushIfNotPresent @_subscribers, subscriber
   _unsubscribe: (subscriber) -> removeFirstMatch @_subscribers, subscriber

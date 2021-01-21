@@ -7,13 +7,13 @@
   isFunction
 } = require 'art-standard-lib'
 {success, isFailure} = require 'art-communication-status'
-{modelStore} = require './ModelStore'
-ModelRegistry = require './ModelRegistry'
+{artModelStore} = require './ArtModelStore'
+ArtModelRegistry = require './ArtModelRegistry'
 
 defineModule module, ->
   # when CafScript arrives, this line will just be:
-  # mixin ModelSubscriptionsMixin
-  (superClass) -> class ModelSubscriptionsMixin extends superClass
+  # mixin ArtModelSubscriptionsMixin
+  (superClass) -> class ArtModelSubscriptionsMixin extends superClass
     ################################
     # constructor
     ################################
@@ -25,7 +25,7 @@ defineModule module, ->
     # getters
     ################################
     @getter
-      models: -> ModelRegistry.models
+      models: -> ArtModelRegistry.models
       subscriptions: -> @_subscriptions
 
     ################################
@@ -65,7 +65,7 @@ defineModule module, ->
     OUT: existingModelRecord || initialModelRecord || status: missing modelRecord
 
     EFFECT:
-      Establishes a ModelStore subscription for the given model and modelKey.
+      Establishes a ArtModelStore subscription for the given model and modelKey.
       Upon any changes to the modelRecord, will:
         call updatesCallback, if provided
         and/or @_setStateFromModelRecord if stateField was provided
@@ -111,9 +111,9 @@ defineModule module, ->
 
       @_subscriptions[subscriptionKey] = {modelName, modelKey, subscriptionFunction}
 
-      # NOTE: subscriptionFunction is the 'handle' needed later to unsubscribe from the modelStore
+      # NOTE: subscriptionFunction is the 'handle' needed later to unsubscribe from the artModelStore
       @_setStateFromModelRecord stateField,
-        modelStore.subscribe modelName, modelKey, subscriptionFunction, initialModelRecord
+        artModelStore.subscribe modelName, modelKey, subscriptionFunction, initialModelRecord
         initialModelRecord
         key
 
@@ -129,7 +129,7 @@ defineModule module, ->
       if isPlainObject subscriptionKeyOrOptions
         {modelName} = subscriptionKeyOrOptions
 
-      ModelRegistry.onModelRegistered modelName
+      ArtModelRegistry.onModelRegistered modelName
       .then => @subscribe subscriptionKeyOrOptions, modelName, modelKey, options
 
     ################################
@@ -138,7 +138,7 @@ defineModule module, ->
     unsubscribe: (subscriptionKey)->
       if subscription = @_subscriptions[subscriptionKey]
         {subscriptionFunction, modelName, modelKey} = subscription
-        modelStore.unsubscribe modelName, modelKey, subscriptionFunction
+        artModelStore.unsubscribe modelName, modelKey, subscriptionFunction
         delete @_subscriptions[subscriptionKey]
       null
 
@@ -152,7 +152,7 @@ defineModule module, ->
     ################################
     _getRetryNow = (modelName, key) ->
       ->
-        modelStore._getEntry modelName, key
+        artModelStore._getEntry modelName, key
         .reload()
 
     ################################

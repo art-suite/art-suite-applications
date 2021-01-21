@@ -1,8 +1,8 @@
 {}
-  &ModelRegistry.models
-  &ModelStore.modelStore
+  &ArtModelRegistry.models
+  &ArtModelStore.artModelStore
 
   # ONLY for testing
   _resetArtSuiteModels: ->
-    &ModelStore.modelStore._reset()
-    .then -> &ModelRegistry._reset()
+    &ArtModelStore.artModelStore._reset()
+    .then -> &ArtModelRegistry._reset()
