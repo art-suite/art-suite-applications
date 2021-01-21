@@ -14,7 +14,7 @@
 {modelStore} = require "./ModelStore"
 ModelRegistry = require './ModelRegistry'
 
-defineModule module, class Model extends InstanceFunctionBindingMixin BaseObject
+defineModule module, class ArtModel extends InstanceFunctionBindingMixin BaseObject
   @abstractClass()
 
   @declarable
@@ -52,7 +52,7 @@ defineModule module, class Model extends InstanceFunctionBindingMixin BaseObject
     NOTE: @aliases can be called multiple times.
 
     example:
-      class Post extends Model
+      class Post extends ArtModel
         @aliases "chapterPost"
 
     purpose:
@@ -245,7 +245,7 @@ defineModule module, class Model extends InstanceFunctionBindingMixin BaseObject
     .then (modelRecord)->
       {status, data} = modelRecord
       unless status == success
-        throw new ErrorWithInfo "Model#get: Error getting data. Status: #{status}.", {status, modelRecord}
+        throw new ErrorWithInfo "ArtModel#get: Error getting data. Status: #{status}.", {status, modelRecord}
 
       data
 
@@ -258,12 +258,12 @@ defineModule module, class Model extends InstanceFunctionBindingMixin BaseObject
     if isPlainObject key then @dataToKeyString key
     else if isString key then key
     else
-      throw new Error "Model #{@name}: Must implement
+      throw new Error "ArtModel #{@name}: Must implement
         custom toKeyString for
         non-string keys like: #{formattedInspect key}"
 
   dataToKeyString: (obj) ->
-    throw new Error "Model #{@name}: must override dataToKeyString for converting objects to key-strings."
+    throw new Error "ArtModel #{@name}: must override dataToKeyString for converting objects to key-strings."
 
   @getRecordPropsToKeyFunction: (recordType) ->
     (props, stateField) =>
@@ -271,7 +271,7 @@ defineModule module, class Model extends InstanceFunctionBindingMixin BaseObject
       props[propsField]?.id ? props[propsField + "Id"]
 
   @getter
-    propsToKey: -> @_propsToKey ?= Model.getRecordPropsToKeyFunction @modelName
+    propsToKey: -> @_propsToKey ?= ArtModel.getRecordPropsToKeyFunction @modelName
 
   ###################################################
   # OVERRIDES - Events

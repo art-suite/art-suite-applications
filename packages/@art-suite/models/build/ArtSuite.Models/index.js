@@ -4,8 +4,8 @@
 (module.exports = require('./namespace'))
 .includeInNamespace(require('./Models'))
 .addModules({
+  ArtModel:                require('./ArtModel'),
   Lib:                     require('./Lib'),
-  Model:                   require('./Model'),
   ModelRegistry:           require('./ModelRegistry'),
   ModelStore:              require('./ModelStore'),
   ModelStoreEntry:         require('./ModelStoreEntry'),

@@ -7,9 +7,9 @@ describe
 
     test "subscribeOnModelRegistered", ->
       new Promise (resolve, reject) ->
-        class MyModelB extends Model
+        class MyModelB extends ArtModel
 
-        class MyModelA extends ModelSubscriptionsMixin Model
+        class MyModelA extends ModelSubscriptionsMixin ArtModel
           constructor: ->
             super
             @subscribeOnModelRegistered :mySubscriptionKey :myModelB :myModelKey updatesCallback: ->

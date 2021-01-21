@@ -3,7 +3,7 @@ import &StandardImport
 reset = ->
   _resetArtSuiteModels()
   .then ->
-    class MyModel extends Model
+    class MyModel extends ArtModel
     assert.eq true, !!models.myModel,{models}
 
 describe basic: ->
@@ -150,7 +150,7 @@ describe basic: ->
   test "modelStore model callbacks: modelStoreEntryUpdated, modelStoreEntryAdded, modelStoreEntryRemoved", ->
     new Promise (resolve) -> reset().then ->
       updateCount = addedCount = removedCount = 0
-      class MyModel2 extends Model
+      class MyModel2 extends ArtModel
         modelStoreEntryUpdated:  (entry) -> updateCount++
         modelStoreEntryAdded:    (entry) -> addedCount++
         modelStoreEntryRemoved:  (entry) ->
@@ -165,13 +165,13 @@ describe basic: ->
 
   test "subscribe triggers load on model", -> reset().then ->
     new Promise (resolve) ->
-      class MyBasicModel extends Model
+      class MyBasicModel extends ArtModel
         load: resolve
 
       modelStore.subscribe :myBasicModel :123 (modelRecord) -> null
 
   test "subscribe with initial value does not trigger load on model nor subscription callback", -> reset().then ->
-    class MyBasicModel extends Model
+    class MyBasicModel extends ArtModel
       load: (key) -> assert.fail()
 
     modelStore.subscribe

@@ -1,6 +1,6 @@
 import &StandardImport
 
-class ApplicationState extends Model
+class ApplicationState extends ArtModel
   @abstractClass()
 
   constructor: ->
