@@ -3,48 +3,41 @@ import &ArtSuite, &StyleProps
 class ChatView extends FluxComponent
   @subscriptions :chat.history
 
+  @propFields :currentUser
+
   postMessage: ({target}) ->
-    {currentUser} = @props
-    @models.chat.postMessage currentUser, target.value
+    @models.chat.postMessage @currentUser, target.value
     target.value = ""
 
   render: ->
-    {currentUser} = @props
-
     Element
+      :column
       padding: 10
-      childrenLayout: :column
-
       draw: chatViewBackground
 
       Element
-        size: ww:1, hch:1
-
+        :parentWidthChildrenHeight
         draw: color: palette.primaryBackground
-
-        TextElement titleText, padding: 10, text: currentUser
+        TextElement titleText, padding: 10 text: @currentUser
 
       PagingScrollElement
         clip: true
 
         Element
-          padding:        10
-          size:           hch: 1, ww: 1
-          childrenLayout: :column
+          :column :parentWidthChildrenHeight
+          padding: 10
 
-          Element inFlow: false, size: 0 # hack ensures first added message animates in
+          Element inFlow: false size: 0 # hack ensures first added message animates in
 
-          array postMessage from @history
-            &ChatMessage
-              postMessage
-              currentUser: currentUser
+          array message from @history
+            &ChatMessage message, {} @currentUser
 
       Element
-        size: ww: 1, h: 45
+        size: ww: 1 h: 45
         draw: palette.grayBackground
 
         TextInputElement
           mediumText
           on: enter: @postMessage
           padding: 10
-          placeholder: "" new message from #{currentUser}
+          placeholder: "" new message from #{} @currentUser
