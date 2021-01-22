@@ -3,8 +3,8 @@ import &StandardImport
 class YodasCurrentPlanet extends Component
   render: ->
     Element
-      size:  :parentWidthChildrenHeight
-      draw:  planetMonitorBackgroundStyle
+      :parentWidthChildrenHeight
+      draw: planetMonitorBackgroundStyle
 
       TextElement
         planetMonitorTextStyle

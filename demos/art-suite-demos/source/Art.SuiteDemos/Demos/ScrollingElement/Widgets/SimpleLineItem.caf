@@ -2,35 +2,28 @@ import &StandardImport, {} &Button
 
 class SimpleLineItem extends FluxComponent
 
-  colors = array c in []
-      :red
-      :orange
-      :yellow
-      #0f0
-      :blue
-      :magenta
+  colors = array c in :red :orange :yellow #0f0 :blue :magenta
     rgbColor c
 
   @stateFields
     colorIndex: 0
     clickCount: 0
 
+  @propFields :text
+
   @getter
     color: -> colors[@colorIndex %% colors.length]
 
   getInitialState: ->
     colorIndex =
-      @props.text.match(/\d+/)[0]
+      @text.match(/\d+/)[0]
       | 0
       - 1
     colorIndex = 0 unless colorIndex is Number
     colorIndex: max 0, colorIndex
 
   render: ->
-    @props extract text
-    @ extract color, clickCount
-    color.perceptualLightness
-    textColor = if color.perceptualLightness >= .8
+    textColor = if @color.perceptualLightness >= .8
           TextPalette.black.primary
     else  TextPalette.white.primary
 
@@ -41,7 +34,7 @@ class SimpleLineItem extends FluxComponent
       childrenMargins: 10
       margin: 5
       padding: h: 50, v: 100
-      draw: color
+      draw: @color
       on:
         pointerDown:  a = -> @clickCount++
         pointerUp:    a
@@ -50,10 +43,11 @@ class SimpleLineItem extends FluxComponent
         mediumText
         :childrenSize
         fontSize: 128
-        text: text
-        color: textColor
+        text:     @text
+        color:    textColor
+
       TextElement
         mediumText
         :childrenSize
-        text: "click #{clickCount}"
-        color: textColor
+        text:   "click #{@clickCount}"
+        color:  textColor

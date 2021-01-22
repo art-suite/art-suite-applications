@@ -2,20 +2,19 @@ import &StandardImport
 
 class ListItem extends Component
 
+  @propFields :darkJedi :alert
+
   render: ->
-    @props extract darkJedi, alert
-    slotTextStyleForAlert = getSlotTextStyle alert
     Element
-      size:           :parentWidthChildrenHeight
-      childrenLayout: :column
-      padding:        textPadding
-      draw:           &StyleProps.slotOutlineStyle
+      :column :parentWidthChildrenHeight
+      padding:  textPadding
+      draw:     &StyleProps.slotOutlineStyle
 
       TextElement
-        slotTextStyleForAlert
-        text: darkJedi?.name ? ''
+        slotTextStyleForAlert = getSlotTextStyle @alert
+        text: @darkJedi?.name ? ''
 
       TextElement
         slotTextStyleForAlert
         slotSmallTextStyle
-        text: darkJedi?.homeworld.name ? ''
+        text: @darkJedi?.homeworld.name ? ''

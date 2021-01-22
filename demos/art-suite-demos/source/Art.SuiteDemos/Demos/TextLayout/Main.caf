@@ -1,47 +1,32 @@
 import &ArtSuite
 
+demoText =
+  :childrenSize
+  fontFamily: :Times
+  fontSize:   200
+  text:       :Query
+
+container =
+  :childrenSize
+  draw: #49f
+
 class MyComponent extends PointerActionsMixin Component
 
   render: ->
     Element
-      draw: :white
       :flow
+      draw:             :white
+      childrenMargins:  80
+      padding:          40
 
       Element
-        :childrenSize
-        padding: 40
-        Element
-          :childrenSize
-          draw: #49f
-          TextElement
-            fontFamily: "Times"
-            :childrenSize
-            text: "Query"
-            fontSize:   200
+        container
+        TextElement demoText
 
       Element
-        :childrenSize
-        padding: 40
-        Element
-          :childrenSize
-          draw: #49f
-          TextElement
-            fontFamily: "Times"
-            :childrenSize
-            layoutMode: :textual
-            text: "Query"
-            fontSize:   200
-
+        container
+        TextElement demoText, layoutMode: :textual
 
       Element
-        :childrenSize
-        padding: 40
-        Element
-          :childrenSize
-          draw: #49f
-          TextElement
-            fontFamily: "Times"
-            :childrenSize
-            layoutMode: :tight
-            text: "Query"
-            fontSize:   200
+        container
+        TextElement demoText, layoutMode: :tight

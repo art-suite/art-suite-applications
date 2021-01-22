@@ -20,21 +20,18 @@ class App extends FluxComponent
       draw:       appOutlineStyle
 
       Element
-        :parentWidthChildrenHeight
-        :column
+        :column :parentWidthChildrenHeight
         padding:          basePadding
         childrenMargins:  basePadding
 
         &YodasCurrentPlanet {} @location
 
         Element
-          :parentWidthChildrenHeight
-          :row
+          :row :parentWidthChildrenHeight
           childrenMargins:  basePadding
 
           Element
-            :parentWidthChildrenHeight
-            :column
+            :column :parentWidthChildrenHeight
             childrenMargins:  basePadding
             array darkJedi in loadedSlots
               &ListItem {} darkJedi, alert: darkJedi?.homeworld.id == @location?.id

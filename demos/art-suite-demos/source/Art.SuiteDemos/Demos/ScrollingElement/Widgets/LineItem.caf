@@ -2,45 +2,44 @@ import &StandardImport, {} &Button
 
 class LineItem extends FluxComponent
 
-  @stateFields
-    addSize: 100
+  @stateFields addSize: 100
+  @propFields :removeItem :text :horizontal
 
   expand: -> @addSize += max 50, @addSize
   collapse: -> @addSize =
     max 0, min @addSize / 2, @addSize - 50
 
-  removeItem: ->
-    log remove: @props.text
-    @props.removeItem @props.text
+  removeItemNow: -> @removeItem @text
 
   render: ->
     {text, horizontal} = @props
     Element
-      key: "lineItem:#{text}"
-      size: cs: 1
+      :childrenSize :clip
+      key:    "" lineItem:#{text}
       margin: 5
       animators:
-        size:   toFrom: if horizontal then hch:1, w: 0 else wcw:1, h: 0
+        size:   toFrom: if horizontal then hch: 1 w: 0 else wcw: 1 h: 0
         margin: toFrom: 0
-      clip: true
-      draw: color: vibrant
+      draw: vibrant
+
       Element
         size:
           if horizontal
-            cs: 1, w: @addSize
-          else
-            cs: 1, h: @addSize
-        animators: :size
-        childrenLayout: if horizontal then :column else :row
-        childrenAlignment: :topLeft
-        childrenMargins: 15
-        padding: 20
+                cs: 1 w: @addSize
+          else  cs: 1 h: @addSize
+        animators:          :size
+        childrenMargins:    15
+        padding:            20
+        :childrenTopLeft
+        if horizontal then :column else :row
+
         TextElement
           mediumText
+          :childrenSize
           fontSize: 64
-          size: "childrenSize"
-          text: text
-          color: lightMuted
-        Button text: "delete", action: @removeItem
-        Button text: "bigger", action: @expand
-        Button text: "smaller", action: @collapse
+          text:     text
+          color:    lightMuted
+
+        Button text: :delete  action: @removeItemNow
+        Button text: :bigger  action: @expand
+        Button text: :smaller action: @collapse
