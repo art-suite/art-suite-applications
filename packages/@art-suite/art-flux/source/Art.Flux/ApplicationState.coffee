@@ -12,7 +12,7 @@
   isFunction
 } = require 'art-standard-lib'
 
-{ArtModel} = require '@art-suite/models'
+{ArtModel} = require '@art-suite/art-models'
 
 {pending, success, failure, missing} = require "art-communication-status"
 StateFieldsMixin = require 'art-react/StateFieldsMixin'

@@ -3,7 +3,7 @@
   "file": "ArtModelRegistry.js",
   "sourceRoot": "../..",
   "sources": [
-    "source/ArtSuite.Models/ArtModelRegistry.caf"
+    "source/ArtSuite.ArtModels/ArtModelRegistry.caf"
   ],
   "names": [],
   "mappings": "AAAA;;AAAA,6HAAO,6BAAiB,+GAExB,sEAA+B,qHACpB,oCAAgB,0HAOd,CAAC,WACV,sBAAkB,QAClB,oBAAgB,iBAAiB,eACjC,sBAAkB,mCAOA,CAAC,iCAAa,0BAChC,iCAA4B,8BAAU,mBAAI,aAAY,kBAAG,OACvD,sBAAQ,8BACN,IAAI,QAAQ,CAAC,YAA+C,wCAAC,aAAa,uCAK/D,CAAC,MAAM,WACtB,IAAG,YAAQ,QACT,MAAM,IAAI,MAAK,gBAET,0FACE,iBAAgB,CAAI,MAAM,OAAO,2BAA2B,YAAQ,eAEvE,YAAC,QAAQ,OAChB,gCACA,iCAEiB,CAAC,oBACJ,iCAA0B,oBAAgB,OAAO,iCAE9C,CAAC,sBAAS,iBAC3B,yCAAoC,4CAAkB,eACtD,uBAGF,YAAY,iBAAU,YAAY,qBAAa,OAAO,YAAQ"

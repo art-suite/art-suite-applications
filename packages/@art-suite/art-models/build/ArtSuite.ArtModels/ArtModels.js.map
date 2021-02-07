@@ -1,9 +1,9 @@
 {
   "version": 3,
-  "file": "Models.js",
+  "file": "ArtModels.js",
   "sourceRoot": "../..",
   "sources": [
-    "source/ArtSuite.Models/Models.caf"
+    "source/ArtSuite.ArtModels/ArtModels.caf"
   ],
   "names": [],
   "mappings": "AAAA;;AAAA,kCACE,8CACA,yDAGA,kCAAwB,OACtB,uDACK,MAAI"

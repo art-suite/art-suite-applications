@@ -1,6 +1,6 @@
-# Art-Suite: Models
+# Art-Suite: ArtModels
 
-Models are is a simple, elegant solution to the following design problems:
+ArtModels are a simple, elegant solution to the following design problems:
 
 - (ArtReact or React) Components can subscribe to remote or shared data
 - Subscribing Components' states are automatically updated:
@@ -17,33 +17,33 @@ Models are is a simple, elegant solution to the following design problems:
 
 * [Subscription Declarations](#subscription-declarations)
 * [Model Subscriptions](#Model-Subscriptions)
-* [ArtSuite/Models Conventions](#flux-conventions)
+* [ArtModels Conventions](#flux-conventions)
 
 ## How It Works
 
-There are two main parts to ArtSuite/Models: Models, and the Store:
+There are two main parts to ArtModels, and the Store:
 
 ![](/Imikimi-LLC/art-flux/wiki/images/art-flux-nodes.png)
 
-Using ArtSuite/Models consists of registering one or more Models and then subscribe to data provided by those models.
+Using ArtModels consists of registering one or more ArtModels and then subscribe to data provided by those models.
 
-Behind the scenes, the Store, a singleton class, manages all component subscriptions and provides epoch state updates. Epoch state updates queue all state changes in Models turing a time unit, usually one animation frame, and  applies them atomically to the Store's internal state. Immediately after the internal state update, Store notifies all subscribers of changes.
+Behind the scenes, the Store, a singleton class, manages all component subscriptions and provides epoch state updates. Epoch state updates queue all state changes in ArtModels turing a time unit, usually one animation frame, and  applies them atomically to the Store's internal state. Immediately after the internal state update, Store notifies all subscribers of changes.
 
-New subscriptions to data not currently in the Store indirectly cause loads to be invoked on the appropriate models. Models are responsible for updating the Store on the progress of those loads and the final result. Models can later update the Store if that data is updated locally or remotely.
+New subscriptions to data not currently in the Store indirectly cause loads to be invoked on the appropriate models. ArtModels are responsible for updating the Store on the progress of those loads and the final result. ArtModels can later update the Store if that data is updated locally or remotely.
 
 When all subscribers to a particular piece of data go away, the Store releases the data. In this way the Store only keeps in memory what is actually being used by active subscribers. Using the ModelSubscribersMixin makes tracking active subscribers easy.
 
 ![](/Imikimi-LLC/art-flux/wiki/images/art-flux-lines.png)
 
-The diagram above shows typical method invocations that cause data to flow around the data-flow loop. Only the `myModel.myMutator` needs to be invoked in your application code. Subscribers are automatically updated, and standard Models take care of updating the Store for you.
+The diagram above shows typical method invocations that cause data to flow around the data-flow loop. Only the `myModel.myMutator` needs to be invoked in your application code. Subscribers are automatically updated, and standard ArtModels take care of updating the Store for you.
 
 # Example
 
-To use ArtSuite/Models, create your a custom model and custom Component with a subscription to the model:
+To use ArtModels, create your a custom model and custom Component with a subscription to the model:
 
 ```coffeescript
 # models/nav_state.caf
-import &@ArtSuite/Models
+import &@ArtModels
 
 class NavState extends ApplicationState
   @stateFields currentTab: :home
@@ -57,7 +57,7 @@ class NavState extends ApplicationState
 
 ```coffeescript
 # components/my_component.caf
-import &@ArtSuite/Models
+import &@ArtModels
 
 # class Component
 #   setState: (key, value) -> ...
@@ -138,7 +138,7 @@ In addition to declaring subscriptions with object-notation, you can also use a 
 
 ### Model Form
 
-This form is useful for subscribing to a single record from a table. This pattern works best if you follow the [[ArtSuite/Models Conventions]].
+This form is useful for subscribing to a single record from a table. This pattern works best if you follow the [[ArtModels Conventions]].
 
 ```coffeescript
 @subscriptions "myField"
@@ -232,7 +232,7 @@ class UserView extends ModelSubscriptionsMixin Object
 
 ```
 
-# ArtSuite/Models Conventions
+# ArtModels Conventions
 
 * model-names which represent tables of records should be singular. Examples:
   - user

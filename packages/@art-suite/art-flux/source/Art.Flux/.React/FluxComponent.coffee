@@ -5,7 +5,7 @@
   formattedInspect
 } = require 'art-standard-lib'
 {success} = require 'art-communication-status'
-{ArtModelRegistry, ArtModelSubscriptionsMixin} = require '@art-suite/models'
+{ArtModelRegistry, ArtModelSubscriptionsMixin} = require '@art-suite/art-models'
 {Component, createComponentFactory} = require "art-react"
 {artFluxDeprecatedWarning} = require "../Lib"
 

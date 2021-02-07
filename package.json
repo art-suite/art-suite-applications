@@ -1,10 +1,11 @@
 {
   "bugs": "https://github.com/art-suite/art-suite-applications/issues",
   "dependencies": {
+    "@art-suite/art-app-kit-auth": "file:packages/@art-suite/art-app-kit-auth",
     "@art-suite/art-canvas": "file:packages/@art-suite/art-canvas",
     "@art-suite/art-flux": "file:packages/@art-suite/art-flux",
+    "@art-suite/art-models": "file:packages/@art-suite/art-models",
     "@art-suite/instance-function-binding-mixin": "^1.0.0",
-    "@art-suite/models": "file:packages/@art-suite/models",
     "@art-suite/monorepo": "^1.6.0",
     "@art-suite/pipelines": "file:unpublished/@art-suite/pipelines",
     "@art-suite/pointer-actions-mixin": "file:packages/@art-suite/pointer-actions-mixin",

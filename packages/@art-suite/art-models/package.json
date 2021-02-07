@@ -17,7 +17,7 @@
     "testEnvironment": "node"
   },
   "license": "ISC",
-  "name": "@art-suite/models",
+  "name": "@art-suite/art-models",
   "repository": {
     "type": "git",
     "url": "https://github.com/art-suite/art-suite-applications.git"
@@ -30,6 +30,7 @@
     "test": "npm run nn\njest",
     "watch": "npm-watch"
   },
+  "version": "0.1.0",
   "sourceDir": "source",
   "targetDir": "build",
   "watch": {

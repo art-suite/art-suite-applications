@@ -1,5 +1,5 @@
 {defineModule, log} = require 'art-standard-lib'
-{ArtModel} = require "@art-suite/models"
+{ArtModel} = require "@art-suite/art-models"
 {artFluxDeprecatedWarning} = require "./Lib"
 
 defineModule module, class FluxModel extends ArtModel

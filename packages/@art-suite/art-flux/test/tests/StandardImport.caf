@@ -2,5 +2,5 @@
   &ArtStandardLib
   &ArtTestbench
   &ArtCommunicationStatus
-  &@ArtSuite/Models
+  &@ArtSuite/ArtModels
   &source
