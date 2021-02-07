@@ -1,0 +1,4 @@
+
+createPipelines: (dbPipelineClass) ->
+  each pipelineFunction in &Pipelines.modules
+    pipelineFunction dbPipelineClass

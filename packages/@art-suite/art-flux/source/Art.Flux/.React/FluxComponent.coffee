@@ -5,7 +5,7 @@
   formattedInspect
 } = require 'art-standard-lib'
 {success} = require 'art-communication-status'
-{ModelRegistry, ModelSubscriptionsMixin} = require '@art-suite/models'
+{ArtModelRegistry, ArtModelSubscriptionsMixin} = require '@art-suite/models'
 {Component, createComponentFactory} = require "art-react"
 {artFluxDeprecatedWarning} = require "../Lib"
 
@@ -20,7 +20,7 @@
   TODO:
     * _prepareSubscription should be triggered via createWithPostCreate rather than with each component creation
 ###
-defineModule module, class FluxComponent extends ModelSubscriptionsMixin Component
+defineModule module, class FluxComponent extends ArtModelSubscriptionsMixin Component
   @abstractClass()
 
   ##########################
@@ -76,7 +76,7 @@ defineModule module, class FluxComponent extends ModelSubscriptionsMixin Compone
     subscription.propsToModel = switch
       when isFunction model then model
       when isString modelName = model
-        unless model = ModelRegistry.models[model]
+        unless model = ArtModelRegistry.models[model]
           throw new Error "#{@getName()}::subscriptions() model '#{modelName}' not registered (#{@getNamespacePath()})"
         -> model
       else

@@ -1,14 +1,14 @@
 import &@ArtSuite/Models
 
-fluxStore = ModelStore.singleton
+fluxStore = ArtModelStore.singleton
 
 ##
   TODO 2020-12-31:
     Refactor GlobalEpochCycle: It should be its own Package, and it should provide
     a Class to inherit from that handles registering each Epoch class. e.g.:
 
-      # ArtSuite/Models.ModelStore:
-      class ModelStore extends GlobalEpochCycleClass
+      # ArtSuite/Models.ArtModelStore:
+      class ArtModelStore extends GlobalEpochCycleClass
         @epochStep :appState
 
     I think we'll just hard-code a legal ordering:
@@ -23,9 +23,9 @@ if GlobalEpochCycle = Neptune.Art.Engine?.Core?.GlobalEpochCycle
   GlobalEpochCycle.singleton.includeFlux fluxStore
 
 {}
-  ModelRegistry
-  models:                 ModelRegistry.models
+  ModelRegistry:          ArtModelRegistry
+  models:                 ArtModelRegistry.models
   _reset:                 _resetArtSuiteModels
   fluxStore:              fluxStore
   FluxStore:              {} fluxStore
-  FluxSubscriptionsMixin: ModelSubscriptionsMixin
+  FluxSubscriptionsMixin: ArtModelSubscriptionsMixin

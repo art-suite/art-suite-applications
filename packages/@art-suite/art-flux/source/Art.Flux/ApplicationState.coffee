@@ -12,7 +12,7 @@
   isFunction
 } = require 'art-standard-lib'
 
-{Model} = require '@art-suite/models'
+{ArtModel} = require '@art-suite/models'
 
 {pending, success, failure, missing} = require "art-communication-status"
 StateFieldsMixin = require 'art-react/StateFieldsMixin'
@@ -65,7 +65,7 @@ StateFieldsMixin = require 'art-react/StateFieldsMixin'
         render: ->
           TextElement text: "showingWelcome: #{@ozAppState.showingWelcome}"
 ###
-defineModule module, class ApplicationState extends StateFieldsMixin Model
+defineModule module, class ApplicationState extends StateFieldsMixin ArtModel
   @abstractClass()
   @persistant: -> @_persistant = true
 
@@ -86,8 +86,11 @@ defineModule module, class ApplicationState extends StateFieldsMixin Model
 
     ret
 
-  modelRegistered: ->
-    @_updateAllState @state = @_getInitialState()
+  constructor: ->
+    super
+    @state = @_getInitialState()
+
+  modelRegistered: -> @_updateAllState @state
 
   ###
     provided for consistency with React Components

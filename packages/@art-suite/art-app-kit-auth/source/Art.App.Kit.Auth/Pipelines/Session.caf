@@ -1,0 +1,88 @@
+import &StandardImport, &Lib
+
+(dbPipeline) -> class Session extends dbPipeline
+  @publicRequestTypes
+    :authenticate
+    :userExists
+    :createUser
+    :logOut
+    :changePassword
+
+  requireStandardAuthFields = (request) ->
+    request.props extract
+      address
+      password
+
+    password = null unless present password
+    address = null unless present address
+
+    request.requiredFields {} address, password
+
+  @handler
+    userExists: (request) ->
+      pipelines.authenticationKey.get request, {}
+        request.key
+        returnNullIfMissing: true
+      .then (result) -> !!result
+
+    logOut: (request) ->
+      request.success session: userId: null
+
+    createUser: (request) ->
+      requireStandardAuthFields request
+      .then ({address, password}) ->
+
+        tempUserId = "creatingUser-#{randomString 16}"
+
+        pipelines.authenticationKey.create request, props:
+          data: {} address, userId: tempUserId
+          conditionExpression:
+            address: attributeNotExists: true
+        .catch (error) ->
+          if /ConditionalCheckFailedException/.test error.message
+            request.clientFailure "" That email is already in use. Did you already create an account? Try logging in instead.
+            .then (response) -> response.toPromise()
+          else throw error
+
+        # double-check race condition, dynamoDb should prevent this
+        .tap (authKey) ->
+          request.require authKey.userId == tempUserId, "tried to create two users with the same key simultaneously"
+
+        .then (authKey) -> pipelines.user.create request, props: {} authKey
+        .tap (user) -> pipelines.password.create request, props:  {} password, data: {} user
+        .tap (user) ->
+          pipelines.authenticationKey.update request,
+            key: address
+            data: {}
+              address
+              userId: user.id
+
+        .then (user) ->
+          request.success
+            data:     user
+            session:  userId: user.id
+
+    changePassword: (request) ->
+      {password, newPassword} = request.props
+      requireCurrentUser request
+      .then -> request.requiredFields {password, newPassword}
+      .then -> pipelines.password.compare(request, props: {} password, key: request.session.userId)
+      .then (passwordValid) ->
+        if passwordValid
+          request.require password != newPassword, "passwords must be different"
+          .then -> request.require isString(newPassword) && present(newPassword), "new password must not be blank"
+          .then -> pipelines.password.update request, key: request.session.userId, props: {} password: newPassword
+        else
+          request.clientFailureNotAuthorized "" invalid password
+
+    authenticate: (request)->
+      requireStandardAuthFields request
+      .then ({address, password}) ->
+        pipelines.authenticationKey.get request, address
+        .then ({userId}) ->
+          pipelines.password.compare request, props: {} password, key: userId
+          .then (passwordOk) ->
+            if passwordOk
+              pipelines.authenticationKey.update request, address, data: lastUsedAt: toSeconds() | 0
+              .then -> request.respondWithSession {} userId
+            else request.clientFailureNotAuthorized "" invalid password

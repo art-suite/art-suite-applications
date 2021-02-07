@@ -1,0 +1,77 @@
+import &StandardImport
+
+class MenuSlider extends PointerActionsMixin ViewStateComponent
+
+  @propFields
+    :customRender :customDraw :onChange :increment
+    minValue:     0
+    maxValue:     1
+    increment:    .01
+    disabled:     false
+
+  @stateFields
+    value:        null
+
+  @getter
+    value:              -> if @state.value? then round @state.value, @increment
+    range:              -> @maxValue - @minValue
+    proportionalValue:  -> @valueToProportional @value
+    handleSize:         -> @gridSize * 2
+    customProps:        -> {}
+      @hover, @pointerIsDown, @mouseIsIn, @dragging
+      @value, @proportionalValue
+      @valueToProportional, @buttonSize, @handleSize
+
+  eventToProportional:  (e) -> bound 0, e.location.x / e.target.paddedSize.x, 1
+  proportionalToValue:  (d) -> @range * d + @minValue
+  valueToProportional:  (v) -> (v - @minValue) / @range
+  applyIncrement:       (v) -> if @increment? then round v, @increment else v
+
+  preprocessProps: (props) ->
+    props extract value, minValue, maxValue
+
+    if (value is Number) && (value != @props.value || !@value?)
+      @value = bound minValue, value, maxValue
+
+    props
+
+  dragMove: (event) -> unless @disabled
+    @value = value = @applyIncrement @proportionalToValue @eventToProportional event
+    @onChange? value
+
+  dragPrepare: (event) -> @dragMove event
+
+  render: ->
+    Element
+      @props
+      :pointerCursor unless @disabled
+      size:     h: @buttonSize
+      margin:   10
+      padding:  @buttonSize / 2
+      on:       @dragHandlers
+
+      Element
+        animators: :draw
+        draw:
+          @customDraw? @customProps
+          || {}
+            padding:  -@gridSize / 4
+            radius:   100
+            color:    AppPalette.lightGrey
+
+      @customRender? @customProps
+      || Element
+        axis:       .5
+        size:       @handleSize
+        animators:  :location
+        location:   xw: @proportionalValue
+        draw:
+          :circle
+          color:    AppPalette.primary
+          shadow:   true
+
+        @value? && TextElement
+          TextStyles.smallText
+          :parentSize :textCenterCenter
+          color:  TextPalette.black.secondary
+          text:   @value | 0

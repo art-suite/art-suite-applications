@@ -10,7 +10,7 @@ import &StandardImport, &ArtEpochedState, &Lib, {} &ArtModelStoreEntry, &ArtMode
 class ArtModelStore extends EpochClass
   @singletonClass()
 
-  constructor: -> @_reset()
+  constructor: -> @__reset()
 
   @getter
     :length
@@ -123,10 +123,12 @@ class ArtModelStore extends EpochClass
 
   # broken out for testing
   _reset: ->
-    @onNextReady ->
-      @_length = 0
-      @_entriesByModelName = {}
-      @_addedEntries = []
+    @onNextReady -> @__reset()
+
+  __reset: ->
+    @_length = 0
+    @_entriesByModelName = {}
+    @_addedEntries = []
 
   _getEntriesForModelName: (modelName) -> @_entriesByModelName[modelName] ?= {}
 

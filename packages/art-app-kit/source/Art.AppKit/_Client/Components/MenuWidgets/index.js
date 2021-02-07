@@ -13,6 +13,7 @@
   MenuSection:        require('./MenuSection'),
   MenuSectionGroup:   require('./MenuSectionGroup'),
   MenuSectionLabel:   require('./MenuSectionLabel'),
+  MenuSlider:         require('./MenuSlider'),
   MenuTabbedSection:  require('./MenuTabbedSection'),
   MenuTextEdit:       require('./MenuTextEdit'),
   MenuTextInput:      require('./MenuTextInput'),

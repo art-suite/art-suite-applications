@@ -15,5 +15,6 @@
   TabbedSectionTabs:   require('./TabbedSectionTabs'),
   Toggle:              require('./Toggle'),
   ToolbarButton:       require('./ToolbarButton'),
+  ValidatedTextInput:  require('./ValidatedTextInput'),
   WidgetLib:           require('./WidgetLib')
 });
