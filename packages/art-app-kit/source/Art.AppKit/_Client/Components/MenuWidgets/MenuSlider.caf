@@ -3,19 +3,22 @@ import &StandardImport
 class MenuSlider extends PointerActionsMixin ViewStateComponent
 
   @propFields
-    :customRender :customDraw :onChange :increment
-    minValue:     0
-    maxValue:     1
-    increment:    .01
+    :customRender :customDraw :onChange
+    minValue:     1
+    maxValue:     100
+    increment:    1
     disabled:     false
+    hideValue:    false
+    editable:     true
 
   @stateFields
     value:        null
 
   @getter
     value:              -> if @state.value? then round @state.value, @increment
+    editable:           -> @props.editable && !@disabled
     range:              -> @maxValue - @minValue
-    proportionalValue:  -> @valueToProportional @value
+    proportionalValue:  -> @valueToProportional @value ? @minValue
     handleSize:         -> @gridSize * 2
     customProps:        -> {}
       @hover, @pointerIsDown, @mouseIsIn, @dragging
@@ -35,7 +38,7 @@ class MenuSlider extends PointerActionsMixin ViewStateComponent
 
     props
 
-  dragMove: (event) -> unless @disabled
+  dragMove: (event) -> unless @editable
     @value = value = @applyIncrement @proportionalToValue @eventToProportional event
     @onChange? value
 
@@ -44,11 +47,13 @@ class MenuSlider extends PointerActionsMixin ViewStateComponent
   render: ->
     Element
       @props
-      :pointerCursor unless @disabled
+      :pointerCursor unless @editable
       size:     h: @buttonSize
       margin:   10
       padding:  @buttonSize / 2
       on:       @dragHandlers
+      animators: :opacity
+      opacity: if @disabled then .5 else 1
 
       Element
         animators: :draw
@@ -65,13 +70,10 @@ class MenuSlider extends PointerActionsMixin ViewStateComponent
         size:       @handleSize
         animators:  :location
         location:   xw: @proportionalValue
-        draw:
-          :circle
-          color:    AppPalette.primary
-          shadow:   true
+        draw:       :circle AppPalette.primary
 
-        @value? && TextElement
+        @value? && !@hideValue && TextElement
           TextStyles.smallText
           :parentSize :textCenterCenter
-          color:  TextPalette.black.secondary
+          color:  AppPalette.textOnPrimary
           text:   @value | 0
