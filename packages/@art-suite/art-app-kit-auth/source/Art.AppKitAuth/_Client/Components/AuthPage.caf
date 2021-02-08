@@ -1,5 +1,6 @@
 import &StandardImport
 
+
 networkFailureMessage = "" We're sorry, but we couldn't reach our servers. Please check your internet connection and try again.
 unknownFailureMessage = "" Oops! Something went wrong on our end. We'll get right on fixing it. Thank you for your patience.
 
@@ -8,7 +9,7 @@ authStatusMessages =
   clientFailureNotAuthorized: "" Invalid password.
   missing:                    "" Email not found.
 
-class SignUp extends ViewStateComponent
+class AuthPage extends ViewStateComponent
 
   @subscriptions
     :currentSession.currentUser

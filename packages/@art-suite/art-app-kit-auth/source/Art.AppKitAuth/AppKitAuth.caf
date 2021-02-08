@@ -1,0 +1,10 @@
+import &StandardImport
+
+createPipelines: (dbPipelineClass) ->
+  class DbPipelineWithLinkFilterV2 extends dbPipelineClass
+    @addDatabaseFilters: (options) ->
+      super merge options, linkFilterVersion: 2
+
+  each pipelineFunction, key in &Pipelines.modules when pipelineFunction is Function
+    log createPipeline: key
+    pipelineFunction DbPipelineWithLinkFilterV2

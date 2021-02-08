@@ -76,6 +76,9 @@ defineModule module, class ArtModel extends InstanceFunctionBindingMixin BaseObj
     @bindFunctionsToInstance()
     @_activeLoadingRequests = {}
 
+  register: ->
+    log.warn "DEPRICATED: ArtModel#register is no longer used. Instead, the class is registered automatically post-create."
+
   @classGetter
     models: -> ArtModelRegistry.models
     artModelStore: -> artModelStore

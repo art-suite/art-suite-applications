@@ -1,1 +1,1 @@
-module.exports = require('./Art.App.Kit.Auth');
+module.exports = require('./Art.AppKitAuth');

@@ -1,0 +1,2 @@
+import &ArtStandardLib
+&@ArtSuite/ArtAppKitAuth.createPipelines &ArtEryAws.DynamoDbPipeline

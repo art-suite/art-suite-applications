@@ -93,6 +93,10 @@
       this._activeLoadingRequests = {};
     }
 
+    ArtModel.prototype.register = function() {
+      return log.warn("DEPRICATED: ArtModel#register is no longer used. Instead, the class is registered automatically post-create.");
+    };
+
     ArtModel.classGetter({
       models: function() {
         return ArtModelRegistry.models;
