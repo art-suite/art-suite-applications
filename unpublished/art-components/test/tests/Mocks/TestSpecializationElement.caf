@@ -1,0 +1,14 @@
+import &StandardImport
+
+class TestSpecializationElement extends BaseClass
+  constructor: (@elementType, @props, @children, @creatingVirtualElement) ->
+
+  @getter
+    inspectedObjects: -> ["Concrete" + @elementType]: merge
+      props: if objectHasKeys @props then @props
+      children: if @children?.length > 0 then toInspectedObjects @children
+
+  @property :children
+
+  setProperty:    (k, v) -> @props[k] = v
+  resetProperty:  (k)    -> delete @props[k]

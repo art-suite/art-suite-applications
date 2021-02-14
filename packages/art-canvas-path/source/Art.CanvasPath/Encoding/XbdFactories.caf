@@ -1,0 +1,2 @@
+import &ArtXbd
+createTagFactories "CanvasPathSet CanvasPath CanvasPathLibrary"

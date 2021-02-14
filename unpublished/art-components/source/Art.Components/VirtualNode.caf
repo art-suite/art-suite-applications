@@ -1,0 +1,131 @@
+import &StandardImport
+
+ArtComponents = &namespace
+
+emptyObject = {}
+class VirtualNode extends BaseClass
+
+  @virtualElementPoolEnabled = false
+
+  @currentlyRendering: null
+
+  constructor: (props) ->
+    @_initVirtualNode props
+
+  _initVirtualNode: (props) ->
+    @_resetVirtualNodeProps()
+    @_released          = false
+    @_renderedIn        = VirtualNode.currentlyRendering
+    @props = @_rawProps = props ?= emptyObject
+    @key                = props.key
+
+  _resetVirtualNodeProps: ->
+    @_released = true
+    @_propsLength = -1
+
+    @_renderedIn =
+    @_parentVirtualNode =
+    @_parentComponent =
+    @key =
+    @props =
+    @_rawProps = null
+
+  _resetAllProps: ->
+    @_resetVirtualNodeProps()
+
+  #####################
+  # INSPECTION
+  #####################
+  findFirstElement: (pattern, options) ->
+    found = @findElements pattern, options
+    found?[0]
+
+  @getter
+    :rawProps
+    :reusable
+    :parentComponent
+    :renderedIn
+    inspectedName:      -> "" VirtualNode<#{@key}>
+    inspectedNameAndId: -> "" #{@inspectedName}-#{@uniqueId}
+    inspectedPath:      -> @parentComponent?.inspectedPathName ? ""
+    inspectedPathName:  -> @inspectedPath + "/" + @inspectedName
+
+    parentVirtualElement: ->
+      if @_parentVirtualNode instanceof ArtComponents.VirtualElement
+        @_parentVirtualNode
+      else @_parentVirtualNode?.parentVirtualElement
+
+    propsLength: ->
+      if @_propsLength >= 0
+            @_propsLength
+      else  @_propsLength = objectKeyCount @props
+
+  #####################
+  @setter
+    propsLength: (v)-> @_propsLength = v
+
+  eachInComponent: (f) -> f @
+
+  checkin: ->
+
+  release: ->
+    throw new Error "VirtualNode.release: already released #{@inspectedNameAndId}" if @_released
+
+    if @_parentComponent == @_renderedIn
+      @_resetAllProps()
+      @checkin()
+
+    @
+
+  testMatchesPattern: (pattern, testString) ->
+    if isFunction pattern
+      !!pattern @
+    else
+      (testString ? @inspectedName).match pattern
+
+  #####################
+  # PRIVATE
+  #####################
+
+  _validateChildren: (children) ->
+    return children unless children
+    each child in-array children
+      unless child instanceof VirtualNode
+        console.warn "invalid VirtualNode child": child, parent:@
+        console.warn "Hint: Did you place properties AFTER a child element?" if isObject child
+        throw new Error "VirtualNode child is not a VirtualNode.\ninvalid child: #{inspect child}\nparent: #{@inspectedName}"
+    children
+
+  ##
+    OUT:
+      false IFF prop-count same && all props are propsEq
+      propsEq - is it more overhead than its worth?
+  _propsChanged: (virtualNode) ->
+    newProps = virtualNode._rawProps
+    _propsLength = 0
+
+    each v, k in-object @_rawProps
+      _propsLength++
+      return true unless propsEq v, newProps[k]
+
+    @_propsLength = _propsLength
+
+    != virtualNode.getPropsLength()
+
+  ## _updateFrom
+    Post conditions:
+      This and its entire Virtual-AIM sub-branch has been updated to be an exact clone of sourceNode,
+      except it is _instantiated and the True-AIM is fully updated as well.
+    returns this
+  _updateFrom: (sourceNode) ->
+
+  # return true if _updateFrom can work with sourceNode
+  _canUpdateFrom: (sourceNode) -> false
+
+  ## _instantiate
+    Post conditions:
+      Virtual-AIM sub-branch is fully generated
+      All True-AIM elements have been created and assembled
+    returns this
+  _instantiate: (@_parentComponent, @_parentVirtualNode) ->
+    @

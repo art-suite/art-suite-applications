@@ -1,0 +1,3 @@
+import &StandardImport
+suite: ->
+  test 'Auth' -> assert.eq 1, 1

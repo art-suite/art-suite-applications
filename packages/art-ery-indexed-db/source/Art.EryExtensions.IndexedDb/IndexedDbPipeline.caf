@@ -1,0 +1,94 @@
+import &StandardImport
+IndexedDb = &IndexeddbPromised
+
+globalIndexDb = null
+
+getGlobalIndexDb = ->
+  unless globalIndexDb
+    dbVersion = 0
+    dbName = null
+    each pipeline in pipelines when pipeline instanceof IndexedDbPipeline
+      dbVersion += pipeline.dbVersion || 1
+      dbName ||= pipeline.dbName
+    globalIndexDb = new IndexedDb dbName ||= :IndexedDbPipeline
+    globalIndexDb.setVersion dbVersion
+    each pipeline in pipelines when pipeline instanceof IndexedDbPipeline
+      {name} = pipeline
+      {_indexes} = pipeline.class
+      keyType = keyPath: :id
+      # log addObjectStore: {dbVersion, dbName, name, keyType}
+      indexes = if _indexes
+        array indexKey, queryModelName from _indexes
+          [selectBy, orderBy] = indexKey.split "/"
+          name: queryModelName
+          keyPath: [selectBy, orderBy]
+          options: unique: false
+
+      log addObjectStore: {dbVersion, dbName, name, keyType, indexes}
+      globalIndexDb.addObjectStore {dbVersion, dbName, name, keyType, indexes}
+    globalIndexDb = globalIndexDb.build()
+  globalIndexDb
+
+class IndexedDbPipeline extends KeyFieldsMixin UpdateAfterMixin Pipeline
+  @abstractClass()
+
+  @getter
+    objectStore: ->
+      @_objectStore ||= getGlobalIndexDb()[@pipelineName]
+
+  ########################
+  # indexes
+  ########################
+  @indexes: (indexes) ->
+    @_indexes = indexes
+    @query @_getAutoDefinedQueries indexes
+
+  @_getAutoDefinedQueries: (indexes) ->
+    queries = {}
+
+    each indexKey, queryModelName from indexes
+      [selectBy, orderBy] = indexKey.split "/"
+      whereClause = {}
+      queries[queryModelName] =
+        query: (request) ->
+          {key} = request
+          request.pipeline.objectStore.getAll()
+          .then (items) ->
+            array item from items when item[selectBy] == key
+
+        dataToKeyString: (data) ->
+          data[selectBy]
+
+        localSort: (queryData) -> withSort queryData, (a, b) ->
+          if 0 == ret = compare a[orderBy], b[orderBy]
+            compare a.id, b.id
+          else
+            ret
+
+    queries
+
+  ########################
+  # handlers
+  ########################
+  @handlers
+    get: (request) ->
+      @objectStore.get request.key
+
+    getAll: (request) ->
+      @objectStore.getAll()
+
+    create: (request) ->
+      @objectStore.add request.data
+      .then -> request.data
+
+    update: (request) ->
+      @objectStore.get request.key
+      .then (oldData) ->
+        @objectStore.put newData = merge oldData, request.data
+        .then -> newData
+
+    delete: (request) ->
+      @objectStore.get request.key
+      .then (oldData) ->
+        @objectStore.delete request.key
+        .then -> oldData

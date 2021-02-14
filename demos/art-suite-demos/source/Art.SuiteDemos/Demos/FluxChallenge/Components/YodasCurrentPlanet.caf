@@ -1,0 +1,11 @@
+import &StandardImport
+
+class YodasCurrentPlanet extends Component
+  render: ->
+    Element
+      :parentWidthChildrenHeight
+      draw: planetMonitorBackgroundStyle
+
+      TextElement
+        planetMonitorTextStyle
+        text: @props.location?.name || :unknown

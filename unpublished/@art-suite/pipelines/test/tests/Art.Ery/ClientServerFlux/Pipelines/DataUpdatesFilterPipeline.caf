@@ -1,0 +1,35 @@
+import &StandardImport, &FluxLog
+
+class DataUpdatesFilterPipeline extends &SimpleStore
+
+  @publicRequestTypes :subrequestTest :update :delete
+
+  @remoteServer :http://localhost:8085
+
+  @fluxModelMixin &DataUpdatesFilterFluxModelMixin
+
+  @filter DataUpdatesFilter
+
+  @filter
+    before:
+      create: (request) -> request.withMergedData createdAt: 123, updatedAt: 123
+      update: (request) -> request.withMergedData updatedAt: 321
+
+  @filter
+    location: :client
+    before: reset: (request) -> resetFluxLog(); request
+
+  @getter fluxLog: getFluxLog
+
+  @query
+    userByEmail:
+      query:            ({key}) -> array v, k from @db when v.email == key
+      dataToKeyString:  ({email}) -> email
+
+  @handlers
+    subrequestTest: (request) ->
+      {key, data, type} = request.data
+      request.require isString(type), "subrequestTest needs a request-type"
+      .then ->
+        log subrequestTest: {} key, data, type
+        request.subrequest request.pipelineName, type, {} key, data

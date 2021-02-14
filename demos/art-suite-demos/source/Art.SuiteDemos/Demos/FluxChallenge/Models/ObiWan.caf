@@ -1,0 +1,7 @@
+import &StandardImport
+
+class ObiWan extends ApplicationState
+  @stateFields location: null
+
+  constructor:  -> interval 2000 @next
+  next:         -> @location = randomElement &Data.Worlds

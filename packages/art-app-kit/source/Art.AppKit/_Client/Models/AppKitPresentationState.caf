@@ -1,0 +1,46 @@
+import &StandardImport
+
+&AppKitViewState
+
+class AppKitPresentationState extends FluxSubscriptionsMixin ApplicationState
+
+  @stateFields
+    ## statusBarStyle
+      Mobile (iOS) status-bar text style:
+
+      Values:
+        :off    # status-bar is 100% off
+        :dark   # text is near-black
+        :light  # text is near-white
+    statusBarStyle:     :dark
+
+    ##
+      :bottom
+      :top
+      :right
+      # Not used: :left
+      :hidden
+    toolbarLocation:    :top
+    toolbarHorizontal:  true
+
+  @setter
+    toolbarLocation: (l) ->
+      @toolbarHorizontal = l == :top || l == :bottom
+      @setState :toolbarLocation, l
+
+  constructor: ->
+    @onModelRegistered :appKitViewState
+    .then ->
+      @_updateFromFluxRecord @subscribe
+        modelName:        :appKitViewState
+        key:              :appKitViewState
+        updatesCallback:  @_updateFromFluxRecord
+
+  _updateFromFluxRecord: ({data:{deviceLayoutMode, keyboardVisible, simpleBrowserInfo}})->
+    @toolbarLocation = if keyboardVisible && simpleBrowserInfo?.deviceType == :phone
+      :hidden
+    else switch deviceLayoutMode
+      when :phonePortraitLayout       then :bottom
+      when :phoneLandscapeLayout      then :right
+      when :wideLayout :narrowLayout  then :top
+      else throw new Error "" wtf: #{} deviceLayoutMode

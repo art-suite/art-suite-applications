@@ -1,0 +1,8 @@
+&ArtStandardLib.merge
+  &ArtStandardLib
+  &ArtClassSystem
+  &ArtAtomic
+  &@ArtSuite/ArtCanvas
+  require :../index
+  test: (args...) -> global.test args...
+  setup: (args...) -> global.setup args...

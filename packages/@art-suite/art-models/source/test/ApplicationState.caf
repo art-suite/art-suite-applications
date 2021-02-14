@@ -1,0 +1,21 @@
+import &StandardImport
+
+class ApplicationState extends ArtModel
+  @abstractClass()
+
+  constructor: ->
+    @state = {}
+
+  setState: (key, value) ->
+    if !propsEq @state[key], value
+      @state[key] = value
+      @load key
+
+  load: (key) ->
+    @updateModelRecord
+      key
+      modelRecord = if @state.hasOwnProperty key
+            status: success, data: @state[key]
+      else  status: missing
+
+    modelRecord

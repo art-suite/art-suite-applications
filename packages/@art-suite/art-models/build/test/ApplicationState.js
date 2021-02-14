@@ -1,0 +1,4 @@
+"use strict"
+let Caf = require('caffeine-script-runtime');
+Caf.defMod(module, () => {return Caf.importInvoke(["ArtModel", "propsEq", "success", "missing"], [global, require('./StandardImport')], (ArtModel, propsEq, success, missing) => {let ApplicationState; return ApplicationState = Caf.defClass(class ApplicationState extends ArtModel {constructor() {super(...arguments); this.state = {};};}, function(ApplicationState, classSuper, instanceSuper) {this.abstractClass(); this.prototype.setState = function(key, value) {return (!propsEq(this.state[key], value)) ? (this.state[key] = value, this.load(key)) : undefined;}; this.prototype.load = function(key) {let modelRecord; this.updateModelRecord(key, modelRecord = this.state.hasOwnProperty(key) ? {status: success, data: this.state[key]} : {status: missing}); return modelRecord;};});});});
+//# sourceMappingURL=ApplicationState.js.map

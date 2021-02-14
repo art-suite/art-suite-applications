@@ -1,0 +1,114 @@
+import &StandardImport
+
+
+getComponentTitle = (component) ->
+  upperCamelCase component.class.getName(), ' '
+
+class PageStack extends ApplicationState
+
+  @stateFields
+    currentPageStackId: null
+    stacks:             null
+    maxPageStackSize:   20
+
+  @getter
+    propsToKey: -> ({pageStackId}) -> pageStackId
+
+  init: ({pageStacks, pages}) ->
+    @_pages = pages
+    @stacks = array stackEntry in pageStacks
+      @_normalizeStackEntry stackEntry
+
+  hideStack: (id) ->
+    @stacks = array stackEntry in @stacks
+      if stackEntry.id == id
+        merge stackEntry, hidden: true
+      else stackEntry
+
+  unhideStack: (id) ->
+    @stacks = array stackEntry in @stacks
+      if stackEntry.id == id
+        merge stackEntry, hidden: false
+      else stackEntry
+
+  showStack: (id) ->
+    @validateStackId id
+    if @currentPageStackId == id
+      @resetStack id
+    else @currentPageStackId = id
+
+  validateStackId: (id) ->
+    throw new Error "showStack - `#{id}` not found" unless @state[id] is Array
+
+  @getter
+    currentPageStack: -> @state[@currentPageStackId]
+    showBackButton:   -> @currentPageStack.length > 1
+
+  @setter
+    stacks: (stacks) ->
+      @setState {} stacks
+      @currentPageStackId ?= stacks[0]?.id
+      each rootStackEntry in stacks
+        @setState rootStackEntry.id, [] @_normalizeStackEntry rootStackEntry
+
+  resetStack: (stackId) ->
+    @validateStackId stackId
+    @setState (state) ->
+      objectWith state, stackId, state[stackId].slice 0, 1
+
+  push: (a, b) ->
+    stackEntry = @_normalizeStackEntry a, b
+    @setState (state) ->
+      state extract currentPageStackId, maxPageStackSize
+
+      currentPageStack = state[currentPageStackId]
+
+      objectWith
+        state
+        currentPageStackId
+        if currentPageStack.length + 1 >= maxPageStackSize
+          compactFlattenFast []
+            currentPageStack[0]
+            currentPageStack.slice currentPageStack.length - maxPageStackSize + 1, currentPageStack.length
+            stackEntry
+
+        else
+          arrayWith currentPageStack, stackEntry
+
+  pop: ->
+    @setState (state) ->
+      state extract currentPageStackId
+      objectWith
+        state
+        currentPageStackId
+        state[currentPageStackId].slice 0, -1
+
+  ## popTo
+    IN: tester: (stackEntry) -> boolean
+      tester returns true if stackEntry is the
+      page we should stop at and keep.
+  popTo: (tester) ->
+    @setState (state) ->
+      state extract currentPageStackId
+      currentStack = array state[currentPageStackId]
+      until currentStack.length == 1 || tester peek currentStack
+        currentStack.pop()
+
+      objectWith
+        state
+        currentPageStackId
+        currentStack
+
+  #################
+    PRIVATE
+  #################
+  _normalizeStackEntry: (stackEntry, props) ->
+    if stackEntry is String
+      stackEntry = merge {} props, component: @_pages?[upperCamelCase stackEntry]
+    unless component = stackEntry.component ? @_pages?[upperCamelCase stackEntry.id]
+      throw new Error "" component not found for stackEntry: #{formattedInspect stackEntry}
+
+    merge stackEntry, {}
+      id:     lowerCamelCase component.class.name
+      component
+      title:  stackEntry.title ? getComponentTitle component

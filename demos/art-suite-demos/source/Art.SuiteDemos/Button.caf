@@ -1,0 +1,48 @@
+import &StandardImport, &DemoTextStyles
+
+class Button extends PointerActionsMixin Component
+
+  render: ->
+    {text, toggled} = @props
+
+    Element
+      on:         @buttonHandlers
+      size:       :childrenSize
+      animators:  size: toFrom: hch: 1 w: 0
+      childrenLayout: :row
+      childrenAlignment: .5
+      childrenMargins: 10
+      padding:  10
+      cursor:   :pointer
+
+      draw:
+        color:      if @hover then #999 else #555
+        radius:     5
+        "clip"
+
+      animators:  :draw
+
+      TextElement
+        mediumText
+        size:     :childrenSize
+        color:    #fffd
+        text: text
+
+      if toggled?
+        Element
+          size: y: 10 x: 20
+          padding: h: 5
+          draw:
+            # padding: h: -5
+            radius: 100
+            fill: if toggled then #2a2 else #777
+          Element
+            size: 10
+            axis: .5
+            location: yh:.5 xw: if toggled then 1 else 0
+            animators: :location
+            draw:
+              radius: 100
+              fill: #ddd
+
+

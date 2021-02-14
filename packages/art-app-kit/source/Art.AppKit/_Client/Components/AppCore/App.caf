@@ -1,0 +1,8 @@
+import &StandardImport
+
+class App extends Component
+
+  render: ->
+    &AppBodyWithToolbar
+      toolbarProps: presentationProps:
+        home: text: "" Home!

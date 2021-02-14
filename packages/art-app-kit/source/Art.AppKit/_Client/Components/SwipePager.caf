@@ -1,0 +1,82 @@
+import &StandardImport
+
+class SwipePager extends FluxComponent
+
+  @propFields
+    :currentKey
+    :component
+    :prevKey
+    :nextKey
+    :selectKey
+    :background
+
+  @stateFields
+    axisXOffset:      0
+    tracking:         false
+    absoluteXOffset:  0
+
+  gotoPrev: -> @prevKey && @selectKey? @prevKey
+  gotoNext: -> @nextKey && @selectKey? @nextKey
+
+  @getter
+    handlers: ->
+      swipeDistanceThreshold = 100
+      @_handlers ?= createGestureRecognizer
+        flick: ({props:{flickDirection}}) ->
+          switch flickDirection
+          when :right then @gotoPrev()
+          when :left  then @gotoNext()
+
+        horizontal:
+          begin: (e) ->
+          move:  (e) ->
+            @tracking = true
+            timeout 100, -> @tracking = false
+            @absoluteXOffset = e.totalParentDelta.x
+            @axisXOffset = -e.totalParentDelta.x / e.target.currentSize.x
+
+          end:   (e) ->
+            switch
+              when @absoluteXOffset < -swipeDistanceThreshold then @gotoNext()
+              when @absoluteXOffset >  swipeDistanceThreshold then @gotoPrev()
+            @axisXOffset = 0
+            @tracking = false
+
+          cancel: (e) ->
+            @axisXOffset = 0
+            @tracking = false
+
+  render: ->
+    @ extract
+      tracking, axisXOffset
+      prevKey,  nextKey
+      currentKey
+      component
+      background
+
+    if (axisXOffset < 0 && !prevKey) || (axisXOffset > 0 && !nextKey)
+      axisXOffset /= 2
+
+    background ?= :black
+
+    animators = !tracking && axis: f: :easeInCubic
+
+    Element
+      on: @handlers
+      Element
+        key:        "" wrapper #{} prevKey ? :prevKey
+        animators:  animators
+        axis:       x: axisXOffset + 1
+        if prevKey  then component key: prevKey
+        else        draw: background
+      Element
+        key:        "" wrapper #{} nextKey ? :nextKey
+        animators:  animators
+        axis:       x: axisXOffset - 1
+        if nextKey  then component key: nextKey
+        else        draw: background
+      Element
+        key:        "" wrapper #{} currentKey ? :currentKey
+        axis:       x: axisXOffset
+        animators:  animators
+        component   key: currentKey

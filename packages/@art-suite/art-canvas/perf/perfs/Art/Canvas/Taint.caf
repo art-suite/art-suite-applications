@@ -1,0 +1,35 @@
+import &StandardImport
+suite:
+
+  bitmapWithCanvasTainted: ->
+    bitmap = null
+    global.setup ->
+      bitmap = new Bitmap 1
+      EncodedImagecrossOriginUrl = "http://zoimages.imikimi.com/emiIg9qZtv252plK.png?w=100"
+      # log {bitmap.tainted, bitmap._context}
+
+    benchmark "bitmap._canvas (baseline/control)" ->
+      !!bitmap._canvas
+
+    benchmark "bitmap.tainted" ->
+      bitmap.tainted
+
+    benchmark "new Bitmap 100" ->
+      new Bitmap 100
+
+
+  bitmapWithCanvasUntainted: ->
+    bitmap = null
+    global.setup ->
+      bitmap = new Bitmap 1
+      # log {bitmap.tainted, bitmap._context}
+
+    benchmark "bitmap._canvas (baseline/control)" ->
+      !!bitmap._canvas
+
+    benchmark "bitmap.tainted" ->
+      bitmap.tainted
+
+    benchmark "new Bitmap 100" ->
+      new Bitmap 100
+

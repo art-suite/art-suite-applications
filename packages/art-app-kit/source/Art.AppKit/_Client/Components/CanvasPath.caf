@@ -1,0 +1,25 @@
+import &StandardImport, &ArtAtomic
+
+class CanvasPath extends Component
+
+  shape: (context, size) ->
+    @props.path.applyPath context, size, true
+
+  render: ->
+    @props extract path, color, fill, size, compositeMode
+    fill ?= color
+
+    Element
+      compositeMode: compositeMode
+      size: size ? :parentSize
+      draw: if path
+        shape: @shape
+        fill:
+          if fill is Object
+            merge fill, fillRule: :nonzero
+          else if fill?
+            fillRule: :nonzero
+            color: fill
+          else
+            fillRule: :nonzero
+            color: :black

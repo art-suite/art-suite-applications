@@ -1,0 +1,30 @@
+import &StandardImport
+
+(dbPipeline) -> class AuthenticationKey extends dbPipeline
+
+  @normalizeAuthenticationKey: (address) -> address?.toLocaleLowerCase()
+
+  @primaryKey         :address
+  @globalIndexes      byUserId: :userId/lastUsedAt
+  @publicRequestTypes :byUserId
+
+  @addDatabaseFilters
+    userOwned: true
+    fields:
+      address:              :present :email
+      denormalizedAddress:  :trimmedString          # if the email wasn't lower-case, store the original-case version here
+      lastUsedAt:           :secondsTimestamp
+      useCount:             :count
+
+  @filter
+    name: :normalizeAddress
+    before: all: (request) ->
+      if request.data extract? address != normalizedAddress = AuthenticationKey.normalizeAuthenticationKey address
+        request.withMergedData
+          address: normalizedAddress
+          denormalizedAddress: address
+
+      ? request
+
+  @filter name: :initLastUsedAt before: create:   (request) -> request.withMergedData lastUsedAt: toSeconds() | 0
+  @filter name: :ownerCheck     before: byUserId: (request) -> request.require request.key == request.session.userId, "" must be owner

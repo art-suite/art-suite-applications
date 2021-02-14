@@ -1,0 +1,30 @@
+import &StandardImport
+
+brightnessAndContrastCore = (imageData, brightness, contrast) ->
+  &colorMatrix imageData, {} brightness, contrast
+
+brightnessAndContrast = (bitmap, brightness, contrast) ->
+  {imageData} = bitmap
+  brightnessAndContrastCore imageData, brightness, contrast
+  bitmap.putImageData imageData
+  bitmap
+
+base: (bitmap) ->
+  bitmap.drawRectangle null, rect(bitmap.size),
+    colors: #804e0f #3b003b
+    from:   bitmap.centerCenter
+    to:     bitmap.centerRight
+    radial: true
+    compositeMode: "screen"
+
+  brightnessAndContrast bitmap, 30, -30
+
+amaro: (bitmap) ->
+
+  brightnessAndContrast bitmap, 60, 12
+
+  bitmap.drawRectangle null, rect(bitmap.size),
+    color: #f4eabd
+    compositeMode: "multiply"
+
+

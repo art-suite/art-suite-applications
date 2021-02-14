@@ -1,0 +1,10 @@
+import &ArtSuite
+
+
+initArtSuiteApp MainComponent: class MyHelloWorldComponent extends Component
+
+  render: ->
+    CanvasElement
+      draw: #eef
+
+      TextElement text: "" Hello world.

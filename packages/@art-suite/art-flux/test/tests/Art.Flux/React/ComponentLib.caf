@@ -1,0 +1,114 @@
+import &StandardImport, &source.React.ComponentLib
+
+testDeclaration = (declaration, expected) ->
+  test "'#{formattedInspect declaration}'" ->
+    assert.eq
+      parsed = parseSubscriptions [] declaration
+
+      if expected is Function
+        expected parsed
+      else
+        expected
+
+suite:
+  strings: ->
+    testDeclaration :post (parsed) ->
+      post:
+        stateField: :post
+        model:      :post
+        key:        undefined
+
+    testDeclaration :viewState.gridSize (parsed) ->
+      gridSize:
+        stateField: :gridSize
+        model:      :viewState
+        key:        :gridSize
+
+  options: ->
+    testDeclaration
+      {} post: key = ({nextPostId}) -> nextPostId
+      post: {}
+        stateField: :post
+        model:      :post
+        key
+
+    testDeclaration
+      {} post: :aPost
+      {} post:
+        stateField: :post
+        model:      :post
+        key:        :aPost
+
+    testDeclaration
+      {} aPost:
+        model: :post
+      (parsed) ->
+        {key} find parsed
+        aPost:
+          stateField: :aPost
+          model:      :post
+          key:        undefined
+
+    testDeclaration
+      {} aPost:
+        stateField: :myStateField
+        model:      :myModel
+        key:        :myKey
+      (parsed) ->
+        {key} find parsed
+        aPost:
+          stateField: :aPost
+          model:      :myModel
+          key:        :myKey
+
+    testDeclaration
+      {} post: options =
+        key:    ({nextPostId}) -> nextPostId
+        model:  ({dynamicModelName}) -> dynamicModelName
+      post: {}
+        stateField: :post
+        model:      options.model
+        key:        options.key
+
+  multiple-declarations: ->
+    testDeclaration
+      "" myModel.myField myModel.myField2
+      myField:
+        stateField: :myField
+        model:      :myModel
+        key:        :myField
+
+      myField2:
+        stateField: :myField2
+        model:      :myModel
+        key:        :myField2
+
+    testDeclaration
+      :myModel.myField :myModel.myField2
+      myField:
+        stateField: :myField
+        model:      :myModel
+        key:        :myField
+
+      myField2:
+        stateField: :myField2
+        model:      :myModel
+        key:        :myField2
+
+    testDeclaration
+      []
+        :post
+        nextPost:
+          model:  :post
+          key:    nextPostKey = ({nextPostId}) -> nextPostId
+
+      (parsed) ->
+        post:
+          stateField: :post
+          model:      :post
+          key:        parsed.post.key
+        nextPost:
+          stateField: :nextPost
+          model:      :post
+          key:        nextPostKey
+

@@ -1,0 +1,64 @@
+import &StandardImport, {} &Spinner, &Widgets/Icon
+
+class TextInputSubmitButton extends ViewStateComponent
+
+  render: ->
+    @viewState extract gridSize
+    @props extract disabled, icon, color, size, waiting, action
+
+    size ||= gridSize * 2
+
+    color = if disabled
+          TextPalette.black.disabled
+    else  color || AppPalette.primary
+
+    icon = if isString icon ||= :right
+      switch icon
+        when :up      then alreadyInverted = true; :arrowCircleUp
+        when :down    then alreadyInverted = true; :arrowCircleDown
+        when :left    then alreadyInverted = true; :arrowCircleLeft
+        when :right   then alreadyInverted = true; :arrowCircleRight
+        else icon
+
+    alreadyInverted = false if waiting
+
+    foregroundColor = AppPalette.background
+
+    AppKitButtonWrapper
+      :centerCenter
+      {}
+        size, disabled, action
+        hoverColor: #fff0
+        clip:       true
+        animators:
+          size:   toFrom: h: size, w: 0
+          scale:  toFrom: 0
+
+      unless alreadyInverted
+        Element
+          draw:
+            radius:     1000
+            padding:    gridSize / 4
+            color
+
+          animators:  :draw
+
+      if waiting
+        Spinner color: foregroundColor
+
+      else if alreadyInverted
+        Icon
+          :centerCenter
+          icon:       icon
+          padding:    gridSize / 4
+          scale:      (ps, cs) -> ps.div cs
+          color:      color
+          animators:  :color
+      else
+        Icon
+          :centerCenter
+          :childrenSize
+          icon:       icon
+          animators:  :color
+          color:      foregroundColor
+          scale:      (ps, cs) -> (ps.min() - size / 2) / cs.max()

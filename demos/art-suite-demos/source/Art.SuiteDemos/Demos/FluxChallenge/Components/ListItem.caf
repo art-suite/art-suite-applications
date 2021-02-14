@@ -1,0 +1,20 @@
+import &StandardImport
+
+class ListItem extends Component
+
+  @propFields :darkJedi :alert
+
+  render: ->
+    Element
+      :column :parentWidthChildrenHeight
+      padding:  textPadding
+      draw:     &StyleProps.slotOutlineStyle
+
+      TextElement
+        slotTextStyleForAlert = getSlotTextStyle @alert
+        text: @darkJedi?.name ? ''
+
+      TextElement
+        slotTextStyleForAlert
+        slotSmallTextStyle
+        text: @darkJedi?.homeworld.name ? ''

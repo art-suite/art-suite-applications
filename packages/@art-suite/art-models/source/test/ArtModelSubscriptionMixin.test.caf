@@ -1,0 +1,60 @@
+import &StandardImport, {} &ApplicationState
+
+describe
+  subscribeOnModelRegistered: ->
+    beforeEach _resetArtSuiteModels
+    afterEach -> artModelStore.onNextReady()
+
+    test "subscribeOnModelRegistered", ->
+      new Promise (resolve, reject) ->
+        class MyModelB extends ArtModel
+
+        class MyModelA extends ArtModelSubscriptionsMixin ArtModel
+          constructor: ->
+            super
+            @subscribeOnModelRegistered :mySubscriptionKey :myModelB :myModelKey updatesCallback: ->
+            .then resolve, reject
+
+  "subscribe and initialModelRecord": ->
+
+    chainedTest "with stateField and initialModelRecord", -> _resetArtSuiteModels().then ->
+      class MyModel extends &ApplicationState
+
+      new class MyObject extends ArtModelSubscriptionsMixin BaseObject
+
+        constructor: ->
+          @subscribe :mySubscriptionKey :myModel :myModelKey,
+            initialModelRecord: data: :myInitialData
+            stateField: :myStateField
+
+      assert.selectedEq
+        status:       pending
+        data:         :myInitialData
+        key:          :myModelKey
+        modelName:    :myModel
+        artModelStore.get :myModel :myModelKey
+
+      artModelStore.onNextReady()
+
+    # .thenTest "still pending?" ->
+    #   assert.selectedEq
+    #     status:       success
+    #     data:         :myInitialData
+    #     key:          :myModelKey
+    #     modelName:    :myModel
+    #     artModelStore.get :myModel :myModelKey
+
+    test "with stateField and no initialModelRecord", -> _resetArtSuiteModels().then ->
+      class MyModel extends &ApplicationState
+
+      new class MyObject extends ArtModelSubscriptionsMixin BaseObject
+
+        constructor: ->
+          @subscribe "mySubscriptionKey", "myModel", "myModelKey",
+            stateField: "myStateField"
+
+      assert.selectedEq
+        status:     missing
+        key:        "myModelKey"
+        modelName:  "myModel"
+        artModelStore.get "myModel", "myModelKey"

@@ -1,0 +1,92 @@
+import &StandardImport, &ArtBrowserTools
+
+keyboardTimer = new ReschedulableTimer
+
+class AppKitViewState extends ApplicationState
+
+  computeViewState: computeViewState = (viewSize, keyboardVisible) ->
+    viewSize        ?= @viewSize
+    keyboardVisible ?= @keyboardVisible
+
+    simpleBrowserInfo = getSimpleBrowserInfo()
+
+    getScreenSize() extract
+      x as screenWidth
+      y as screenHeight
+
+    simpleBrowserInfo extract
+      deviceType
+      nativeApp
+      touch as isTouchScreen
+      os
+
+    if nativeApp
+      if global.Keyboard && !!keyboardVisible != !!global.Keyboard.isVisible
+        # just in case we get events out of order
+        keyboardTimer.timeout 250 -> @updateKeyboardVisible !!global.Keyboard.isVisible
+    else
+      if os == :android
+        keyboardVisible = viewSize?.y < .5 * screenHeight
+
+    {}
+      # core info
+      viewSize
+      screenHeight
+      screenWidth
+      simpleBrowserInfo
+      notchInfo:                    getNotchInfo()
+      isTouchScreen
+      keyboardCoversScreen: isTouchScreen && simpleBrowserInfo.os == :iOS &&
+        !global.Keyboard # native keyboard plugin stops keyboard from covering screen
+
+      # grid layout
+      majorGridSize     =           min 420, viewSize.w
+      gridSize          =           majorGridSize / 27
+
+      # safePadding
+      safePadding       =           getCssSafeAreaInset()
+      suggestedPadding  =           object v    in safePadding with max v, gridSize
+      safeToSuggestedPaddingDelta:  object v, k in safePadding with suggestedPadding[k] - v
+
+      # deviceTypes
+      isPhone           =           deviceType == :phone
+      isTablet          =           deviceType == :tablet
+      isDesktop         =           deviceType == :desktop
+
+      # deviceLayoutMode
+      deviceLayoutMode =
+        if isPhone
+          if getOrientationIsPortrait viewSize
+                :phonePortraitLayout
+          else  :phoneLandscapeLayout
+        else if viewSize.x < 600
+                :narrowLayout
+        else    :wideLayout
+
+      phonePortraitLayout:  false
+      phoneLandscapeLayout: false
+      wideLayout:           false
+      narrowLayout:         false
+      [deviceLayoutMode]:   true
+
+      keyboardVisible
+
+      # button sizes
+      smallButtonSize   =           35
+      desktopButtonSize =           38
+      reducedButtonSize =           40
+      touchButtonSize   =           48
+      buttonSize        =           if isDesktop then desktopButtonSize else touchButtonSize
+      heightAdjustedButtonSize:     if deviceLayoutMode == :phoneLandscape then smallButtonSize else buttonSize
+
+  @stateFields computeViewState
+    point
+      screen.availWidth
+      screen.availHeight
+    false
+
+  updateKeyboardVisible: (keyboardVisible) ->
+    @setState @computeViewState null, keyboardVisible
+
+  # Use as "on: {} @models.viewState.ready" handler
+  ready: ({target:{currentSize}}) -> @setState @computeViewState currentSize

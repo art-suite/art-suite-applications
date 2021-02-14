@@ -1,0 +1,181 @@
+import &StandardImport, &ArtReact, &ArtCommunicationStatus
+
+resetAll = ->
+  &source._reset()
+
+myModelSetup = ->
+  resetAll()
+  .then ->
+    class MyModel extends ApplicationState
+      @stateFields myField: null myField2: null
+
+testSubscriptionDefinition = (description, subscriptionDefinition, expected = :alice) ->
+
+  stateField =
+    if subscriptionDefinition is Object
+      Object.keys(subscriptionDefinition)[0]
+    else if subscriptionDefinition is String
+      [a, b] = subscriptionDefinition.split "."
+      b ? subscriptionDefinition
+
+  statusField = "#{stateField}Status"
+
+  test "#{description}: #{formattedInspect subscriptionDefinition}", ->
+    new Promise (resolve, reject) ->
+      MyComponent = class MyComponent extends FluxComponent
+        @subscriptions subscriptionDefinition
+
+        componentWillUpdate: (newProps, newState)->
+          if newState[stateField]
+            Promise.then -> assert.eq newState[stateField], expected
+            .then resolve, reject
+
+        render: -> Element {}
+
+      myComponent = MyComponent
+        myModelId:      :myField
+        myModelId2:     :myField2
+        myCustomNameId: :myField2
+        myCustomName2:  id: :myField2
+        myModelName:    :myModel
+
+      ._instantiate()
+
+      assert.eq myComponent.state[statusField], success
+      models.myModel.myField  = :alice
+      models.myModel.myField2 = :bob
+
+suite:
+  getters: ->
+    setup myModelSetup
+    test "models getter", -> new Promise (resolve) ->
+
+      MyComponent = class MyComponent extends FluxComponent
+        @subscriptions "myModel.myField"
+
+        test: -> @models.myModel.myField = "honor"
+
+        render: ->
+          resolve() if @state.myField == "honor"
+          Element()
+
+      MyComponent()._instantiate()
+      .test()
+
+    test "subscription field getters", -> new Promise (resolve) ->
+
+      MyComponent = class MyComponent extends FluxComponent
+        @subscriptions "myModel.myField"
+
+        render: ->
+          resolve() if @myField == "bob"
+          Element {}
+
+      MyComponent()._instantiate()
+      models.myModel.myField = "bob"
+
+  initialValues: ->
+    setup resetAll
+
+    test "subscriptions - component with subscription to model with immediate result only renders once", -> new Promise (resolve)->
+      class MyModel extends FluxModel
+        load: (key) -> data: key, status: success
+
+      renderCount = 0
+      MyComponent = class MyComponent extends FluxComponent
+        @subscriptions
+          myModel: -> "hi"
+
+        render: ->
+          renderCount++
+          assert.eq renderCount, 1
+          timeout 50, => resolve()
+          Element {}
+
+      (myComponent = MyComponent())._instantiate()
+
+    test "subscription with initial value passed in as prop should not trigger load", -> new Promise (resolve)->
+      class User extends FluxModel
+        load: -> assert.fail "not expecting model.load"
+
+      MyComponent = class MyComponent extends FluxComponent
+        @subscriptions :user
+
+        render: ->
+          assert.eq @state.user, name: :george id: :124
+          timeout 50 -> resolve()
+          Element {}
+
+      MyComponent user: id: :124 name: :george
+      ._instantiate()
+
+    test "subscriptions - post - declarative subscriptions", -> new Promise (resolve) ->
+      myModelSetup()
+      .then ->
+        MyComponent = class MyComponent extends FluxComponent
+          @subscriptions "myModel.myField"
+
+          render: ->
+            resolve() if @myField == "bob"
+            Element {}
+
+
+        models.myModel.myField = "bob"
+        models.myModel.onNextReady -> MyComponent()._instantiate()
+
+  "subscriptions declaration types":
+    "stateFields == modelName": ->
+      setup myModelSetup
+      testSubscriptionDefinition "simplest"           :myModel                myField: :alice myField2: :bob
+      testSubscriptionDefinition "dot-hard-coded key" :myModel.myField2       :bob
+      testSubscriptionDefinition "hard-coded key"     {myModel: :myField2}    :bob
+      testSubscriptionDefinition "custom propsToKey"  {myModel: -> :myField2} :bob
+      testSubscriptionDefinition "custom modelToKey"  myModel: ({myModelId}) -> myModelId
+
+    "custom stateField name": ->
+      setup myModelSetup
+
+      # TODO - ApplicationState now overrides FluxModel's propsToKey
+      #   So these two tests won't work; however, I want to ALSO test FluxModel's propsToKey
+      #   FURTHER - I think we should test it with model aliases
+      # testSubscriptionDefinition "explicit model"         {myCustomName: model: :myModel} :bob
+      # testSubscriptionDefinition "explicit model"         {myCustomName2: model: :myModel} :bob
+      testSubscriptionDefinition "explicit model and key" anyName: key: :myField model: :myModel
+      testSubscriptionDefinition "custom modelToKey"      anyName: key: :myField model: ({myModelName}) -> myModelName
+
+      testSubscriptionDefinition
+        "custom propsToKey and modelToKey"
+        anyName:
+          model: ({myModelName}) -> myModelName
+          key:   ({myModelId2}) -> myModelId2
+        :bob
+
+      testSubscriptionDefinition
+        "test stateField is passed as second argument"
+        myCustomName:
+          model: (props, stateField) ->
+            assert.eq stateField, :myCustomName
+            :myModel
+          key:   (props, stateField) ->
+            assert.eq stateField, :myCustomName
+            :myField
+
+    "two fields, one model": ->
+      setup myModelSetup
+      test "two fields with the same model", ->
+        new Promise (resolve) ->
+          MyComponent = class MyComponent extends FluxComponent
+            @subscriptions "myModel.myField myModel.myField2"
+
+            preprocessState: (newState)->
+              if newState.myField && newState.myField2 && newState.myFieldStatus == success && newState.myField2Status == success
+                assert.eq newState.myField  , name: :bill
+                assert.eq newState.myField2 , name: :alice
+                resolve()
+              newState
+
+            render: -> Element {}
+
+          (myComponent = MyComponent())._instantiate()
+          models.myModel.myField  = name: :bill
+          models.myModel.myField2 = name: :alice

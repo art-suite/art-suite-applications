@@ -1,0 +1,20 @@
+import &ArtSuite, &source
+
+initArtSuiteApp MainComponent: class MyHelloWorldComponent extends Component
+
+  render: ->
+    CanvasElement
+      draw: #e
+      Element
+        :column
+        padding:          10
+        childrenMargins:  10
+        TextElement :parentWidthChildrenHeight text: "" Button demo: (with @hover and @pointerDown)
+
+        &demoFiles/DemoComponent()
+
+        TextElement :parentWidthChildrenHeight text: "" Drag demo:
+        Element
+          size: 200
+          draw: #b
+          &demoFiles/Draggable()

@@ -1,0 +1,25 @@
+{
+  "bugs": "https://github.com/art-suite/art-suite-applications/issues",
+  "dependencies": {
+    "art-atomic": "^1.28.2",
+    "art-browser-tools": "^1.2.10",
+    "art-standard-lib": "^1.70.6",
+    "neptune-namespaces-runtime": "^3.2.9"
+  },
+  "description": "A mixin for your Components (ArtReact) to make it super easy to handle high-level pointer event patterns like Hover, ButtonDown and Dragging",
+  "devDependencies": {
+    "art-build-configurator": "^1.29.3",
+    "neptune-namespaces": "^4.2.9"
+  },
+  "homepage": "https://github.com/art-suite/art-suite-applications",
+  "license": "ISC",
+  "name": "@art-suite/pointer-actions-mixin",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/art-suite/art-suite-applications.git"
+  },
+  "scripts": {
+    "start": "webpack-dev-server --hot --inline --progress --env.devServer"
+  },
+  "version": "1.0.3"
+}

@@ -1,0 +1,9 @@
+webpack:
+  common:
+    mode: "development"
+  targets:
+    index: {}
+    test: {}
+    # perf: {}
+
+package: -> &package

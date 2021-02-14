@@ -1,0 +1,18 @@
+import &ArtSuite, &@ArtSuite/PointerActionsMixin
+
+class DemoComponent extends PointerActionsMixin Component
+  @stateFields ballRight: false
+  action: -> @toggleBallRight()
+  render: ->
+    Element
+      :pointerCursor
+      on: @pointerHandlers
+      size: w: 200 h: 50
+      draw: radius: 10 fill: if @pointerIsDown then #7f7 else if @hover then #f77 else #77f
+
+      animators: :draw
+      Element
+        padding: 10
+        Element
+          if @ballRight then :centerLeft else :centerRight
+          size: 20 animators: :location draw: radius: 10 fill: :white

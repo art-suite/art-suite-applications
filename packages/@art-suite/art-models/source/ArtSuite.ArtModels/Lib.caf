@@ -1,0 +1,13 @@
+import &StandardImport
+
+{}
+  validateInputs: (valid, message, inputs) ->
+    unless valid
+      throw new Error "#{message}\n#{formattedInspect {} inputs}"
+
+  hardDeprecatedFunction = (message) ->
+    -> throw new Error "" DEPRECATED: #{} message
+
+  hardDeprecatedFunctionsAsMap: (names...) ->
+    object name in compactFlatten names
+      hardDeprecatedFunction name

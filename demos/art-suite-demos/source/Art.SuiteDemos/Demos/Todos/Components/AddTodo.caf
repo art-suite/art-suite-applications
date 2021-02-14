@@ -1,0 +1,34 @@
+import &ArtSuite
+
+class AddTodo extends FluxComponent
+
+  @stateFields
+    value: null
+
+  enter: ->
+    if @value
+      @models.todos.addTodo @value
+      @value = null
+      @refs.textInput.element.value = ''
+
+  valueChanged: ({target}) ->
+    @value = present target.value
+
+  render: ->
+    &ButtonLine
+      action: @value && @enter
+      text: "" new todo
+
+      Element
+        margin: 15
+        draw:
+          padding: -5
+          rectangle: radius: 5
+          :white
+
+        TextInputElement
+          &StyleProps.text
+          key:          :textInput
+          size:         :parentWidthChildrenHeight
+          placeholder:  "" add todo
+          on:           {} @enter, @valueChanged

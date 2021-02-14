@@ -1,0 +1,12 @@
+import &ArtStandardLib, &Config
+
+class Assets
+  @getAppVersion: -> config.appNamespace?.version ? "unknown-version--set-appNamespace"
+
+  @getCacheSafeUrl: (path) =>
+    if /#/.test path
+      [path, anchor] = path.split "#"
+    "" /#{path}?#{@getAppVersion()}#{if anchor then '#' + anchor else ''}
+
+  @getAssetUrl: (path) =>
+    @getCacheSafeUrl "assets/" + path

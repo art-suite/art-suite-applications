@@ -1,0 +1,217 @@
+import &StandardImport
+
+generateTestBitmap2 = (c = #f00)->
+  result = new Bitmap point(90, 90)
+  result.clear()
+  result.drawRectangle point(), point(60,60), color:c
+  result
+
+generateTestBitmap3 = (c = #00f)->
+  result = new Bitmap point(90, 90)
+  result.clear()
+  result.drawRectangle point(30,30), point(60,60), color:c
+  result
+
+generateBlurTestBitmap = (withAlpha)->
+  size = 240
+  result = new Bitmap point size
+  result.clear #fff1
+  each sat from 0 to 1 by if withAlpha then .3333 else .5 * .3333
+    each hue from 0 to 1 by 1/6
+      result.drawRectangle
+        point
+          hue * size
+          if withAlpha
+            20 + sat * size / 2
+          else
+            sat * size
+        point size / 6
+        color: hslColor hue, sat, 1
+  result
+
+testAndLogBitmap = (testName, setup) ->
+  test testName, ->
+    {bitmap, test} = setup()
+    log bitmap, testName
+    test? bitmap
+
+suite:
+  clear: ->
+    test "clearOutsideArea 1" ->
+      bitmap = new Bitmap point 4
+      bitmap.clear #800
+      bitmap.clearOutsideArea point 4, 2
+      assert.eq getReducedRedChannel(bitmap), compactFlatten []
+        8 8 8 8
+        8 8 8 8
+        0 0 0 0
+        0 0 0 0
+
+    test "clearOutsideArea 2" ->
+      bitmap = new Bitmap point 4
+      bitmap.clear #800
+      bitmap.clearOutsideArea point 2, 4
+      assert.eq getReducedRedChannel(bitmap), compactFlatten []
+        8 8 0 0
+        8 8 0 0
+        8 8 0 0
+        8 8 0 0
+
+    test "clearOutsideArea 3" ->
+      bitmap = new Bitmap point 4
+      bitmap.clear #800
+      bitmap.clearOutsideArea point 2, 3
+      assert.eq getReducedRedChannel(bitmap), compactFlatten []
+        8 8 0 0
+        8 8 0 0
+        8 8 0 0
+        0 0 0 0
+
+    test "clearOutsideArea 4" ->
+      bitmap = new Bitmap point 4
+      bitmap.clear #800
+      bitmap.clearOutsideArea point 3, 2
+      assert.reducedRedChannelEq
+        bitmap
+        []
+          8 8 8 0
+          8 8 8 0
+          0 0 0 0
+          0 0 0 0
+
+  fill: ->
+    test "compositing", ->
+      log {compositeModeMap}
+      a = generateTestBitmap2 "#f00"
+      log a
+      b = generateTestBitmap3 "#00f"
+      log b
+      modes = htmlCanvasCompositeModes
+      s = b.size
+      step = s.add 10
+      dest = new Bitmap step.mul point(4,(modes.length+3)/4)
+
+      each m, mi in modes
+        p = point(mi % 4, mi / 4).floor().mul step
+        temp = new Bitmap b.size
+        temp.drawBitmap point(), a
+        temp.drawBitmap point(), b, compositeMode: log m
+        dest.drawBitmap p, temp
+        # dest.drawBitmap p, a
+        # dest.drawBitmap p, b, "source-atop"
+      log dest
+
+  contentAreaDetection:
+    preciseContentArea: ->
+      bitmapSize = point 10
+      test "blank image", ->
+        assert.eq rect(), new Bitmap(10).preciseContentArea
+
+      test "full image", ->
+        assert.eq rect(bitmapSize), new Bitmap(bitmapSize).clear(:black).preciseContentArea
+
+    autoCropRectangle: ->
+
+      testContentAreaDetection = (testName, setup) ->
+        test testName, ->
+          setupResult = setup()
+          if setupResult is Rectangle
+            contentArea = setupResult
+          else
+            {bitmap, draw, contentArea, color} = setupResult
+
+          unless bitmap || draw
+            bitmap = new Bitmap bitmapSize
+            .drawRectangle null, contentArea, {color}
+
+          expectedContentArea = contentArea
+
+          bitmap ?= new Bitmap bitmapSize
+          draw? bitmap
+          try
+            {contentArea} = bitmap
+            {preciseContentArea} = bitmap
+          catch error
+
+          log {}
+            bitmap
+            testName
+            bitmap.size
+            expectedContentArea
+            contentArea
+            preciseContentArea
+            preciceShouldBeContained:  contentArea.contains preciseContentArea
+
+          if error
+            log {error}
+            throw error
+
+          assert.eq expectedContentArea, contentArea
+          assert.eq
+            true
+            contentArea.contains preciseContentArea
+            "" contentArea should contain preciseContentArea
+
+      bitmapSize = point 10
+      test "blank image", ->
+        assert.eq rect(), new Bitmap(10).autoCropRectangle
+
+      test "full image", ->
+        assert.eq rect(bitmapSize), new Bitmap(bitmapSize).clear(:black).autoCropRectangle
+
+      testContentAreaDetection "rectangle in the middle", -> rect 1, 2, 3, 4
+      testContentAreaDetection "rectangle at left",       -> rect 0, 2, 3, 4
+      testContentAreaDetection "rectangle at right",      -> rect 7, 2, 3, 4
+      testContentAreaDetection "rectangle at top",        -> rect 1, 0, 3, 4
+      testContentAreaDetection "rectangle at bottom",     -> rect 1, 6, 3, 4
+
+      testAndLogBitmap "two rectangles", ->
+        bitmap: new Bitmap(bitmapSize).drawRectangle(null, (r = rect 1, 2, 3, 4), color: "red").drawRectangle(null, (r = rect 5, 6, 7, 8), color: "blue")
+        test: (bitmap) -> assert.eq rect(1, 2, 9, 8), bitmap.autoCropRectangle
+
+      testContentAreaDetection "threshold test 10% alpha", ->
+        contentArea: rect 1, 2, 3, 4
+        color: rgbColor 1 1 1 .1
+
+      testContentAreaDetection "threshold test 50% alpha ", ->
+        contentArea: rect 1, 2, 3, 4
+        color: rgbColor 1 1 1 .5
+
+      testContentAreaDetection "threshold test 1/255 alpha", ->
+        contentArea: rect 1, 2, 3, 4
+        color: rgbColor 1 1 1 1/255
+
+      # testAndLogBitmap "threshold test 2", ->
+      #   bitmap: new Bitmap(bitmapSize).drawRectangle null, (r = rect 1, 2, 3, 4), color: rgbColor 0, 0, 0, .1
+      #   test: (bitmap) -> assert.eq rect(), bitmap.getAutoCropRectangle(128)
+
+  blur:
+    noAlpha: ->
+      each f in :blur :blurRGB :blurAlpha
+        testAndLogBitmap f, ->
+          bitmap: generateBlurTestBitmap()[f] 10
+          test: (bitmap) ->
+
+    fastBlur: global.myF = ->
+      each step from 2 to 6
+        f = (step) ->
+          myRad = 2 ** step
+          each f in :blur :fastBlur
+            testAndLogBitmap "#{f} #{myRad} basic", ->
+              bitmap: generateBlurTestBitmap()[f] myRad
+              test: (bitmap) ->
+        f(step)
+
+      testAndLogBitmap "fastBlur 64, toClone", ->
+        bitmap:
+          b1 = generateBlurTestBitmap()
+          .fastBlur 64, toClone: true
+        test: (b2) ->
+          log { b1, b2}
+
+    withAlpha: ->
+      each f in :blur :blurRGB :blurAlpha
+        testAndLogBitmap f, ->
+          bitmap: generateBlurTestBitmap(true)[f] 10
+          test: (bitmap) ->
+

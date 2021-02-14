@@ -1,0 +1,8 @@
+{}
+  &ArtModelRegistry.models
+  &ArtModelStore.artModelStore
+
+  # ONLY for testing
+  _resetArtSuiteModels: ->
+    &ArtModelStore.artModelStore._reset()
+    .then -> &ArtModelRegistry._reset()

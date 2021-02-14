@@ -1,0 +1,66 @@
+import &ArtSuite
+
+mediumText =
+  fontFamily: :sans-serif
+  fontSize:   20
+  size:       :parentWidthChildrenHeight
+  color:      #fffa
+
+class LineButton extends PointerActionsMixin Component
+  render: ->
+    {color, text} = @props
+
+    Element
+      size: :parentWidthChildrenHeight
+      draw:
+        color ? #0002
+        @hover && #fff1
+        :clip
+
+      padding: 10
+      on: @buttonHandlers
+      cursor: :pointer
+
+      TextElement
+        mediumText
+        text: text
+
+class MyComponent extends Component
+
+  @stateFields
+    lines: 1 2 3 4 5 6 7 8 9 10
+    next: 11
+
+  remove: (i) ->
+    @lines = arrayWithoutValue @lines, i
+
+  add: ->
+    @lines = arrayWithInsertedValue
+      @lines
+      @next++
+      intRand @lines.length
+
+  render: ->
+    Element
+      draw: :grey
+
+      ScrollElement
+        Element
+          size:             :parentWidthChildrenHeight
+          padding:          10
+          childrenLayout:   :column
+          childrenMargins:  10
+          animate:          :childrenLayout  # this will be where the magic happens
+
+          TextElement mediumText, "WIP! 'animate: :childrenLayout' not supported yet..."
+
+          array i in @lines
+            LineButton
+              text:   i
+              key:    i
+              action: => @remove i
+
+          LineButton
+            key:    :add
+            text:   :add
+            action: @add

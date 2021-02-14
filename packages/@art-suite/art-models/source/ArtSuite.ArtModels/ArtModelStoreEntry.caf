@@ -1,0 +1,141 @@
+import &StandardImport, &ArtModelRegistry, &Lib
+
+getModelStore = -> _modelStore ?= &ArtModelStore.artModelStore
+
+retryExponent = 2
+
+class ArtModelStoreEntry extends BaseObject
+  # assumes ArtModelStoreEntry "owns" the modelRecord - it will alter the object by adding a "key" field
+  constructor: (modelName, key, initialModelRecord = {}) ->
+    @_model       = models[modelName]
+    @_autoReload  = @_model.autoReloadEnabled
+
+    @_currentPendingReload = null
+
+    initialModelRecord.key ?= key
+    initialModelRecord.modelName ?= modelName
+    @setModelRecord initialModelRecord
+
+    @_subscribers = []
+    @_previousModelRecord = null
+
+  @getter :previousModelRecord :modelRecord :subscribers :model :autoReload
+  @getter
+    subscriberCount:    -> @_subscribers.length
+    key:                -> @_modelRecord.key
+    modelName:          -> @_modelRecord.modelName
+    status:             -> @_modelRecord.status
+    inspectedObjects:   -> merge {}
+      @modelName, @key, @status
+      @createdAt, @updatedAt, @reloadAt
+      @modelRecord.data, @modelRecord.message, @modelRecord.error
+
+    nextNetworkFailureRetryDelay: ->
+      if 0 < m = @model.getMinNetworkFailureReloadSeconds()
+        min
+          m * Math.pow @tryCount ? 1, retryExponent
+          @model.getMaxNetworkFailureReloadSeconds()
+
+    nextServerFailureRetryDelay: ->
+      if 0 < m = @model.getMinServerFailureReloadSeconds()
+        min
+          m * Math.pow @tryCount ? 1, retryExponent
+          @model.getMaxServerFailureReloadSeconds()
+
+  @getter hardDeprecatedFunctionsAsMap :dataChanged :modelRecordChanged :age :plainStructure :hasSubscribers
+
+  each modelRecordSetter in :tryCount :reloadAt :updatedAt :createdAt
+    @getter [modelRecordSetter]: -> @_modelRecord[modelRecordSetter]
+    @setter [modelRecordSetter]: (v) -> @_modelRecord[modelRecordSetter] = v
+
+  @setter
+    modelRecord: (newModelRecord)->
+      validateInputs newModelRecord is Object, "New modelRecord must be an object.", newModelRecord
+
+      (@_modelRecord ? newModelRecord) extract key, modelName, createdAt
+      @_modelRecord = newModelRecord
+      newModelRecord.key       =   key
+      newModelRecord.modelName =   modelName
+      newModelRecord.status    ?=  pending
+      newModelRecord.updatedAt =   now = toSeconds()
+      newModelRecord.createdAt =   createdAt ? now
+
+      @_updateAutoReloadFields() if @_autoReload
+
+  # IN: reloadDelta: number greater than 0 miliseconds, OR ignore this call and don't schedule reload
+  scheduleReload: (reloadDelta) -> if reloadDelta > 0
+    reloadAt = @updatedAt + reloadDelta
+    delta = max 1, reloadAt - now = toSeconds()
+    rangePerterbation = if delta < 80 then 1 else 15
+    rangeMin = delta - rangePerterbation
+    rangeMax = delta + rangePerterbation
+
+    # check if we already have a reload scheduled sooner than rangeMax
+    unless @reloadAt < now + rangeMax
+
+      # schedule reloadAt between rangeMin and range Max (random pertubation so reloads are distributed)
+      @reloadAt = now + rangeMin + (rangeMax - rangeMin) * Math.random()
+      @ extract modelName, key
+      @_currentPendingReload = thisPendingReload = timeoutAt @reloadAt, ~>
+        entry = getModelStore()._getEntry modelName, key
+        if thisPendingReload == entry?._currentPendingReload
+          entry._resetAutoReload()
+          entry.reload()
+
+  reload: -> @model.reload @key
+
+  load: ->
+    try
+      @setModelRecord modelRecord if modelRecord = @model.load @key
+
+    catch error
+      @setModelRecord {}
+        error, status: failure
+        message: @_getAndLogErrorMessage error, :loading
+
+    @
+
+  # added, removed and updated are triggered by ArtModelStore during the Epoch update
+  added:    -> @model.modelStoreEntryAdded @
+  removed:  -> @model.modelStoreEntryRemoved @
+  updated:  ->
+    @model.modelStoreEntryUpdated @
+    @_notifySubscribers()
+
+  ##########################
+    PRIVATE
+  ##########################
+  _resetAutoReload: -> @_currentPendingReload = @reloadAt = null; @tryCount = 0
+
+  _updateAutoReloadFields: ->
+    if isSuccess @status
+      @tryCount = 1
+      @scheduleReload @model.getStaleDataReloadSeconds()
+
+    else if isFailure @status
+      @tryCount += 1
+      switch @status
+        when networkFailure         then @scheduleReload @nextNetworkFailureRetryDelay
+        when serverFailure, failure then @scheduleReload @nextServerFailureRetryDelay
+
+  # OUT: message generated
+  _getAndLogErrorMessage: (error, failedAction, _log = log.error) ->
+    _log {} error, message = "" Error #{failedAction} Entry for model: #{@modelName}, key: #{formattedInspect @key}
+    message
+
+  _updateModelRecord: (updateFunction) ->
+    @_previousModelRecord ?= @_modelRecord
+    try @setModelRecord updateFunction?(@_modelRecord) || {}
+    catch error
+      @_getAndLogErrorMessage error, :updating
+
+    @_previousModelRecord = null if propsEq @_modelRecord, @_previousModelRecord
+
+  _notifySubscribers: -> if @_previousModelRecord
+    each subscriber in-array @_subscribers with subscriber @_modelRecord, @_previousModelRecord
+    @_previousModelRecord = null
+
+  # subscriber is a function with the signature: (ArtModelStoreEntry) ->
+  # to unsubscribe, you must provide the exact same subscription function
+  _subscribe:   (subscriber) -> pushIfNotPresent @_subscribers, subscriber
+  _unsubscribe: (subscriber) -> removeFirstMatch @_subscribers, subscriber

@@ -1,0 +1,4 @@
+&ArtSuite.mergeWithSelf
+  &@art-suite/pointer-actions-mixin
+  &ArtAppKit
+  &ClientLib

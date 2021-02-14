@@ -1,0 +1,222 @@
+import &StandardImport, &ArtEpochedState, &Lib, {} &ArtModelStoreEntry, &ArtModelRegistry
+
+## ArtModelStore:
+  a key-fields artModelStore
+  'fields' are plain Objects with any fields with any values you want except:
+    the 'key' field is set automatically to match the Object's key in the artModelStore
+  Updates to values result in NEW Objects. A Value object is never altered.
+  Epoched
+  Supports change-notificaiton subscriptions per key.
+class ArtModelStore extends EpochClass
+  @singletonClass()
+
+  constructor: -> @__reset()
+
+  @getter
+    :length
+    models: -> ArtModelRegistry.models
+    inspectedObjects: -> toInspectedObjects @_entriesByModelName
+    status: ->
+      entrySubscribers = 0
+      modelCount = 0
+      entryCount = 0
+      reloadsPending = 0
+      nextReload = Infinity
+      now = toSeconds()
+
+      each entries in @_entriesByModelName
+        modelCount++
+        each entry in entries
+          entryCount++
+          entrySubscribers += entry.subscriberCount
+
+          if entry.reloadAt > now
+            reloadsPending++
+            nextReload = Math.ceil min nextReload, entry.reloadAt - now
+
+      {} entryCount, entrySubscribers, modelCount, reloadsPending, nextReload
+
+  get:                (modelName, key) -> @_validateModelNameAndKey(modelName, key); @_getEntry(modelName, key)?.modelRecord
+  getSubscribers:     (modelName, key) -> @_validateModelNameAndKey(modelName, key); @_getEntry(modelName, key)?.subscribers
+  getEntriesForModel: (modelName)      -> @_validateModelNameAndKey(modelName); @_entriesByModelName[modelName]
+
+  @getter hardDeprecatedFunctionsAsMap :hasSubscribers
+
+  ## subscribe
+    subscribe to all changes to the artModelStore ArtModelStoreEntry identified by modelName and Key.
+
+    subscribers:
+      are notified on all changes to the entry's:
+        @modelRecord object
+        @subscribers list
+      are NOT explicitly notified of when the entry is first added or removed
+        However, when an entry is added, subscribers will be notified that a change happened.
+        When an entry is removed, subscribers will be again notified, and the "subscribers" param will be [].
+      See subscribeToModelStore for notifications about entries being added or removed
+
+    IN:
+      modelName: string
+      key: string
+
+      subscriber: (modelRecord, previousModelRecord) -> null
+        IN:
+          modelRecord: plain object; the current value for the modelRecord
+          previousModelRecord: plain object; the last value for the modelRecord
+        GUARANTEES:
+          1. !propsEq modelRecord, previousModelRecord
+          2. only called once per change
+
+      initialModelRecord: if set, and the key is not in the artModelStore, this is used
+        as the initial value instead of calling "load" on the model.
+
+    OUT:
+      entry's current modelRecord
+      It is possible modelRecord will be already populated with viable data (e.g. if initialModelRecord was provided or if the model can load the data synchronously).
+      If not, it'll have status: pending.
+
+    side effects:
+      vivifies a new entry with modelRecord = {status: pending} if one isn't present
+      calls ArtModelRegistry[modelName].load key if vivification occured
+      Notifies all subscribers.
+
+    returns: current modelRecord for the entry
+  subscribe: (modelName, key, subscriber, initialModelRecord) ->
+    @_queueChange {} modelName, key, addSubscriber: subscriber
+    @_vivifyAndLoadEntry modelName, key, initialModelRecord
+    .modelRecord
+
+  ## unsubscribe
+    inputs:
+      modelName: string
+      key: string
+      subscriber: the exact same function (including closure) used to subscribe
+
+    side effects:
+      Notifies all subscribers.
+
+    returns: null
+  unsubscribe: (modelName, key, subscriber) ->
+    @_queueChange {} modelName, key, removeSubscriber: subscriber
+
+  ## update
+    put updates or creates the record
+    updateFunctionOrNewModelRecord: can be:
+      1) an arbitrary function: (oldModelRecord) -> newModelRecord
+        oldModelRecord will be null/undefined only if the record has not been created.
+        do not alter oldModelRecord
+        must return a new Object or null/undefined (in which case an empty Object is created)
+      2) a new Object to replace the existing object
+
+    Notifies all subscribers.
+    returns: updateFunctionOrNewModelRecord
+  update: (modelName, key, updateFunctionOrNewModelRecord) ->
+    @_queueChange {} modelName, key, updateFunction:
+      if isFunction updateFunctionOrNewModelRecord
+            updateFunctionOrNewModelRecord
+      else  -> updateFunctionOrNewModelRecord
+
+    updateFunctionOrNewModelRecord
+
+  ########################
+  # PRIVATE
+  ########################
+
+  # broken out for testing
+  _reset: ->
+    @onNextReady -> @__reset()
+
+  __reset: ->
+    @_length = 0
+    @_entriesByModelName = {}
+    @_addedEntries = []
+
+  _getEntriesForModelName: (modelName) -> @_entriesByModelName[modelName] ?= {}
+
+  ## _validateModelNameAndKey
+    THROWS: error unless model is regiestered and key is either undefined/null or a string
+    OUT: true if valid
+  _validateModelNameAndKey: (modelName, key) ->
+    !!@models[modelName]
+    || throw new Error
+        """
+          Expected valid modelName. Inputs: #{formattedInspect {modelName, key}}
+          Valid models: #{Object.keys(@models).join('\n') || "(no models registered)"}
+
+    && !key? || key is String
+    || throw new Error "" Expected 'key' to be a String. Inputs: #{formattedInspect {modelName, key}}
+
+  _getEntry: (modelName, key) ->
+    @_getEntriesForModelName(modelName)[key]
+
+  _addEntry: (modelName, key, initialModelRecord) ->
+    @_length++
+    @_addedEntries.push entry = @_getEntriesForModelName(modelName)[key] = new ArtModelStoreEntry modelName, key, initialModelRecord
+    entry
+
+  _removeEntry: (entry) ->
+    @_length--
+    delete @_getEntriesForModelName(entry.modelRecord.modelName)[entry.modelRecord.key]
+    entry
+
+  ## _vivifyEntry
+    EFFECT: ensures the entry exists
+    OUT: existing or new entry the provided for modelName & key
+  _vivifyEntry: (modelName, key) ->
+    @_getEntry modelName, key
+    ? @_addEntry modelName, key
+
+  ## _vivifyAndLoadEntry
+    Returns existing entry if there is one, otherwise it vivifies a "defaultModelRecord" and starts the model.load.
+
+    _vivifyAndLoadEntry solves the problem of two or more subscriptions starting in the same epoch
+    on a new entry. Without this, we'd try to call "load" on the same model+key more than once.
+    Ex: if we are loading remote images, loading the same remote image multiple times is a huge waste.
+
+    OUT: entry
+  _vivifyAndLoadEntry: (modelName, key, initialModelRecord) ->
+    @_getEntry modelName, key
+    ? @_createAndInitEntry modelName, key, initialModelRecord
+
+  _getGlobalInitialModelRecordForEntry: (modelName, key) ->
+    if data = global.artSuiteModelsInit?[modelName]?[key]
+      initialModelRecord = {} data, status: success
+
+  _createAndInitEntry: (modelName, key, initialModelRecord) ->
+    entry = @_addEntry modelName, key, initialModelRecord ?= @_getGlobalInitialModelRecordForEntry modelName, key
+
+    entry.load() unless initialModelRecord
+
+    entry
+
+  # this ensures we don't return the "change" Object which should not be exposed to clients
+  _queueChange: (change) ->
+    change extract modelName, key
+
+    @_validateModelNameAndKey modelName, key
+
+    @queueItem change
+    null
+
+  ###########################
+    EpochClass Overrides
+  ###########################
+  processEpochItems: (changes) ->
+    updatedEntries = []
+    removedEntries = []
+
+    each {modelName, key, addSubscriber, removeSubscriber, updateFunction} in-array changes
+      @_validateModelNameAndKey modelName, key
+      pushIfNotPresent updatedEntries, entry = @_vivifyEntry modelName, key
+      if updateFunction        then entry._updateModelRecord updateFunction
+      else if addSubscriber    then entry._subscribe addSubscriber
+      else if removeSubscriber then entry._unsubscribe removeSubscriber
+
+    each entry in-array updatedEntries
+      entry.updated()
+      pushIfNotPresent removedEntries, @_removeEntry entry if entry.subscribers.length == 0
+
+    each entry in-array @_addedEntries with entry.added()
+    each entry in-array removedEntries with entry.removed()
+
+    @_addedEntries = []
+    null

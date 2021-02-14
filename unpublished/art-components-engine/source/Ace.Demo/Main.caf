@@ -1,0 +1,4 @@
+&ArtComponentsEngine
+.init
+  title:  :Ace.Demo
+  render: &RootComponent

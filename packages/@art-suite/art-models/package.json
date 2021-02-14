@@ -1,0 +1,48 @@
+{
+  "bugs": "https://github.com/art-suite/art-suite-applications/issues",
+  "dependencies": {
+    "@art-suite/instance-function-binding-mixin": "^1.0.0",
+    "art-class-system": "^1.11.13",
+    "art-communication-status": "^1.5.13",
+    "art-epoched-state": "^1.2.12",
+    "art-standard-lib": "^1.70.6",
+    "neptune-namespaces-runtime": "^3.2.9"
+  },
+  "homepage": "https://github.com/art-suite/art-suite-applications",
+  "jest": {
+    "collectCoverageFrom": [
+      "build/**/*.js",
+      "!build/test/**/*.js"
+    ],
+    "testEnvironment": "node"
+  },
+  "license": "ISC",
+  "name": "@art-suite/art-models",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/art-suite/art-suite-applications.git"
+  },
+  "scripts": {
+    "build": "coffee -m --output build --compile source &\nCOFFEE_PID=$!\ncaf -m -c source -o build &\nCAF_PID=$!\nwait $COFFEE_PID || exit 1\nwait $CAF_PID || exit 1\nnpm run nn",
+    "build-clean": "npm run clean; npm run build",
+    "clean": "rm -rf build/*",
+    "nn": "nn build/* ",
+    "test": "npm run nn\njest",
+    "watch": "npm-watch"
+  },
+  "version": "0.1.0",
+  "sourceDir": "source",
+  "targetDir": "build",
+  "watch": {
+    "build": {
+      "extensions": [
+        "caf",
+        "coffee"
+      ],
+      "patterns": [
+        "source"
+      ],
+      "quiet": false
+    }
+  }
+}

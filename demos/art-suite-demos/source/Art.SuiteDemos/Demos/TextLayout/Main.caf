@@ -1,0 +1,32 @@
+import &ArtSuite
+
+demoText =
+  :childrenSize
+  fontFamily: :Times
+  fontSize:   200
+  text:       :Query
+
+container =
+  :childrenSize
+  draw: #49f
+
+class MyComponent extends PointerActionsMixin Component
+
+  render: ->
+    Element
+      :flow
+      draw:             :white
+      childrenMargins:  80
+      padding:          40
+
+      Element
+        container
+        TextElement demoText
+
+      Element
+        container
+        TextElement demoText, layoutMode: :textual
+
+      Element
+        container
+        TextElement demoText, layoutMode: :tight

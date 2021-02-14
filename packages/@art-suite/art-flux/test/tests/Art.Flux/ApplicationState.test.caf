@@ -1,0 +1,8 @@
+import &StandardImport
+
+suite: ->
+  setup _resetArtSuiteModels
+  test "basic" ->
+    class MyState extends ApplicationState
+      @stateFields
+        foo: :bar

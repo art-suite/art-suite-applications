@@ -1,0 +1,48 @@
+import &ArtStandardLib, &ArtClassSystem
+
+class ArtModelRegistry extends BaseObject
+  @models: global.artModels ?= {}
+  @_modelRegistrationPromiseResolvers: {}
+  @_modelRegistrationPromises: {}
+
+  ## register
+    IN: model (instance / singleton)
+    OUT: model
+  @register: (model) =>
+    @_registerAliases model
+    @_registerModel model.modelName, model
+    @_modelRegistered model
+
+  ## onModelReigstered
+    IN: modelName (lower-camel-case string)
+    OUT: promise.then (model) -> model has been registered
+    GUARANTEE: Will fire exactly once, unless the model is never registered.
+    NOTE: This means it will fire, once, even if the model was already registered.
+  @onModelRegistered: (modelName) =>
+    @_modelRegistrationPromises[modelName] ?= Promise.then ->
+      @models[modelName]
+      ? new Promise (resolve) -> @_modelRegistrationPromiseResolvers[modelName] = resolve
+
+  ##########################
+    PRIVATE
+  ##########################
+  @_registerModel: (name, model) =>
+    if @models[name]
+      throw new Error
+        """
+          #{ArtModelRegistry.namespacePath}: model already registered with same name
+          #{} formattedInspect {} name, model, previouslyRegisteredModel: @models[name]
+
+    @models[name] = model
+    model.modelRegistered()
+    model
+
+  @_registerAliases: (model) =>
+    each alias in model.class._aliases with @_registerModel alias, model
+
+  @_modelRegistered: (model) =>
+    @_modelRegistrationPromiseResolvers[model.modelName]? model
+    model
+
+  # used for testing
+  @_reset: -> each k in Object.keys @models with delete @models[k]

@@ -1,0 +1,6 @@
+requireCurrentUser: (request) ->
+  request.require
+    present
+      currentUserId = request.session.userId
+      "" must have a valid session.userId
+  .then -> currentUserId

@@ -1,0 +1,34 @@
+import &StandardImport
+
+class DrumRow extends FluxComponent
+  @subscriptions
+    drumState: ({drum}) -> drum.name
+    :drumMachine.currentTimeslot
+
+  @propFields :drum
+
+  render: ->
+    Element
+      size:
+        h: DrumStyle.drumHeight
+        wcw: 1
+
+      draw: #7
+      :row
+      childrenMargins: 10
+
+      TextElement
+        TextStyles.largeBoldText
+        size:
+          hh:1
+          w: 150
+        text: @drum.name
+        color: TextPalette.white.secondary
+        :textCenterCenter
+
+      if @drumState
+        array timeslot til DrumStyle.timeslots
+          &DrumTimeslot
+            playing: @currentTimeslot == timeslot
+            on: @drumState[timeslot]
+            action: -> @models.drumState.toggle @drum.name, timeslot

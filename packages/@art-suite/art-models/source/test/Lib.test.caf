@@ -1,0 +1,9 @@
+import &StandardImport
+
+test "validateInputs" ->
+  Lib.validateInputs true
+  assert.rejects -> Lib.validateInputs false
+
+test "hardDeprecatedFunction" ->
+  f = Lib.hardDeprecatedFunction "my message"
+  assert.rejects -> f()

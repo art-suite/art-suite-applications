@@ -1,0 +1,14 @@
+import &StandardImport, &source.Stack
+
+suite: ->
+  test "cleanStackTrace" ->
+    assert.eq
+      cleanStackTrace
+        """
+          first-line
+            at #{process.cwd()}/source/index.js:1:5
+            at Object.array (#{process.cwd()}/source/index.js:1:5)
+      """
+        \_ at source/index.js:1:5
+          at Object.array (source/index.js:1:5)
+        NOTE: cleanStackTrace applied. Disable with: getEnv().ARYERY_CLEAN_STACK_TRACE=false

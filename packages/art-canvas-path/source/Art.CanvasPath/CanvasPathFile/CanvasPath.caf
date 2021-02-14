@@ -1,0 +1,278 @@
+import &StandardImport
+
+class CanvasPath extends BaseClass
+
+  constructor: (a)->
+    if a instanceof XbdTag
+      @_initFromXbd a
+    else
+      @_initFromProps a
+
+  @property :styleProps :points :radii :commands :x :y :aspectRatio :scale :name
+
+  @getter
+    size: ->
+      if @aspectRatio > 1
+            point 1, 1/@aspectRatio
+      else  point 1 * @aspectRatio, 1
+
+    aspectRatioMatrix: ->
+      switch
+      when floatEq @aspectRatio, 1 then Matrix.identifyMatrix
+      when @aspectRatio > 1        then Matrix.scaleXY 1, 1/@aspectRatio
+      else                              Matrix.scaleXY 1 * @aspectRatio, 1
+
+    normalized: ->
+      float32Eq @aspectRatio, 1
+      && float32Eq @scale, 1
+      && float32Eq0 @x
+      && float32Eq0 @y
+
+    props: ->
+      merge
+        @styleProps
+        {}
+          @name
+          @commands
+          @points
+          @radii
+          x:            unless float32Eq0 @x then @x
+          y:            unless float32Eq0 @y then @y
+          scale:        unless float32Eq 1, @scale then @scale
+          aspectRatio:  unless float32Eq 1, @aspectRatio then @aspectRatio
+
+    inspectedObjects: -> CanvasPath: @props
+
+    xbd: ->
+      CanvasPathTag @props
+
+    drawArea: ->
+      @_reset()
+      {x, y} = @nextPoint
+      maxX = minX = x
+      maxY = minY = y
+
+      p = null # caffeine-script-bug-hack, p isn't currenlty let-correctly in the while-test
+      while p = @nextPoint
+        {x, y} = p
+        maxX = max maxX, x
+        maxY = max maxY, y
+        minX = min minX, x
+        minY = min minY, y
+
+      rect
+        minX
+        minY
+        maxX - minX
+        maxY - minY
+
+    nextPoint: ->
+      {points, _scaleY, _scaleX, _addX, _addY} = @
+      if @_pointIndex < points.length
+        x = points[@_pointIndex++]
+        y = points[@_pointIndex++]
+        x: x * _scaleX + _addX
+        y: y * _scaleY + _addY
+
+    nextRadii: -> @radii[@_radiiIndex++]
+
+  fixedPointScaler = 1 / maxFixedPointValue
+
+  getNextX: -> @points[@_pointIndex++] * fixedPointScaler
+  getNextY: -> @points[@_pointIndex++] * fixedPointScaler
+
+  removeStyles: ->
+    @styleProps = null
+
+  normalize: (drawArea = @drawArea)->
+    if @x != 0 || @y != 0 || @scale != 1 || @aspectRatio != 1 || drawArea.area != 1
+      @_reset()
+      @ extract points
+      writeIndex = 0
+
+      writeXScaler = maxFixedPointValue / drawArea.w
+      subX = drawArea.x
+      writeYScaler = maxFixedPointValue / drawArea.h
+      subY = drawArea.y
+      p = null # caffeine-script-bug-hack, p isn't currenlty let-correctly in the while-test
+      while p = @nextPoint
+        {x, y} = p
+        points[writeIndex++] = wx = (x - subX) * writeXScaler + .5 | 0
+        points[writeIndex++] = wy = (y - subY) * writeYScaler + .5 | 0
+
+      @x = @y = 0
+      @scale = 1
+      @aspectRatio = 1 # Normalized aspectRatio is the same for all CanvasPaths in a CanvasPathSet. Therefor CanvasPathSet will store the aspectRatio once.
+
+    @
+
+  ## applyPathFit
+    IN:
+      context: html-context-2d
+      area: Point or Rectangle
+      options:
+        scale:  pre-scale the path by this
+
+    EFFECT:
+      path is apply to contest
+      AND aspectRatio is maintained
+      AND path is centered within area
+  applyPathFit: (context, area, options) ->
+    area extract top, left, w, h, aspectRatio as areaAspectRatio
+    @ extract aspectRatio
+    options extract? scale
+    scale ?= 1
+
+    w2 = w; h2 = h
+    if 1 <= ratioRatio = aspectRatio / areaAspectRatio
+      top +=
+        h - h2 = h / ratioRatio
+        / 2
+
+    else
+      left +=
+        w - w2 = w * ratioRatio
+        / 2
+
+    if scale?
+      left  += w2 * (1 - scale) / 2
+      top   += h2 * (1 - scale) / 2
+      w2    *= scale
+      h2    *= scale
+
+    @applyRawPath
+      context
+      Matrix.scaleXY  w2,   h2
+      .translateXY    left, top
+
+  ## applyRawPath
+    IN:
+      context: html-context-2d
+      where: Matrix, Rectangle or Point-like
+        matrix:     apply matrix to raw path points
+        rectangle:  stretch path-points to the rectangles size
+                    and translate the points to the rectangles location
+        point-like:
+          If not matrix or rectangle, 'where' is converted to a point.
+          Path-points are scaled to the size of point
+
+    EFFECT
+      path is apply to contest, transformed as specified by 'where'
+
+    NOTE:
+      raw path-points are all within the range [0, 1]
+      @aspectRatio is NOT automatically applied.
+  applyRawPath: (context, where)->
+    matrix = switch
+      when where is Matrix then where
+      when where is Rectangle
+        Matrix
+        .scaleXY      where.w, where.h
+        .translateXY  where.x, where.y
+
+      else
+        Matrix.scale point where
+
+    @_reset()
+    each i til @commands.length
+      commandPair = @commands[i]
+      @_applyCommand commandPair >> 4, context, matrix
+      @_applyCommand commandPair & 0xf, context, matrix
+
+  applyPath: (context, where)->
+    log.warn "" DEPRICATED: Art.CanvasPath.applyPath - use applyRawPath
+    @applyRawPath context, where
+
+  ################
+      PRIVATE
+  ################
+
+  getNextTransformedPoint: (matrix) ->
+    x0 = @getNextX()
+    y0 = @getNextY()
+    x: matrix.transformX x0, y0
+    y: matrix.transformY x0, y0
+
+  _applyCommand: (command, context, matrix) ->
+
+    # log commandIdsToNames[command]
+
+    switch command
+      when noopCommand             then null
+      when beginPathCommand        then null;# context.beginPath()
+      when closePathCommand        then null;# context.closePath()
+      when moveToCommand
+        {x, y} = @getNextTransformedPoint matrix
+        context.moveTo x, y
+
+      when lineToCommand
+        {x, y} = @getNextTransformedPoint matrix
+        context.lineTo x, y
+      when quadraticCurveToCommand
+        {x:x1, y:y1} = @getNextTransformedPoint matrix
+        {x:x2, y:y2} = @getNextTransformedPoint matrix
+        context.quadraticCurveTo x1, y1, x2, y2
+
+      when bezierCurveToCommand
+        {x:x1, y:y1} = @getNextTransformedPoint matrix
+        {x:x2, y:y2} = @getNextTransformedPoint matrix
+        {x:x3, y:y3} = @getNextTransformedPoint matrix
+        context.bezierCurveTo x1, y1, x2, y2, x3, y3
+
+      when arcCommand
+        {x, y} = @getNextTransformedPoint matrix
+        context.arcCommand x, y, @nextRadii, @nextRadii, @nextRadii
+
+      when antiArcCommand
+        {x, y} = @getNextTransformedPoint matrix
+        context.arcCommand x, y, @nextRadii, @nextRadii, @nextRadii, true
+
+  _reset: ->
+    @_pointIndex =
+    @_radiiIndex =
+    @_commandIndex = 0
+
+    @ extract x, y, aspectRatio, scale
+
+    @_scaleX =
+    @_scaleY = scale
+
+    if aspectRatio > 1
+      @_scaleY /= aspectRatio
+    else
+      @_scaleX *= aspectRatio
+
+    @_addX = x ? 0
+    @_addY = y ? 0
+
+    @_scaleX /= maxFixedPointValue
+    @_scaleY /= maxFixedPointValue
+
+  _initFromProps: (props) ->
+    @styleProps = extractStyleProps props
+
+    @points   = props.points
+    @radii    = props.radii
+    @commands = props.commands
+    @x            = parseFloat props.x ? 0
+    @y            = parseFloat props.y ? 0
+    @aspectRatio  = parseFloat props.aspectRatio ? 1
+    @scale        = parseFloat props.scale ? 1
+    @name         = props.name
+
+    @_reset()
+
+  _initFromXbd: (xbdTag) ->
+    xbdTag.attrs extract commands, radii, points, x, y, scale, aspectRatio, name
+    @commands     = new commandArrayType commands.binaryString.buffer if commands?
+    @points       = new valueArrayType points.binaryString.buffer if points?
+    @radii        = new valueArrayType radii.binaryString.buffer if radii?
+    @x            = parseFloat x?.toString()           ? 0
+    @y            = parseFloat y?.toString()           ? 0
+    @scale        = parseFloat scale?.toString()       ? 1
+    @aspectRatio  = parseFloat aspectRatio?.toString() ? 1
+    @name         = name?.toString()
+    @styleProps   = object v, k from extractStyleProps xbdTag.attrs with v.toString()
+
+  extractStyleProps = (props) ->
+    merge {fillStyle, strokeStyle, lineWidth, miterLimit, lineCap, lineJoin} = props

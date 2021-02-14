@@ -1,0 +1,81 @@
+import &StandardImport, &InternalComponents
+
+class AppBodyWithToolbar extends ViewStateComponent
+  @subscriptions
+    :appKitPresentationState.*
+
+  @propFields
+    :toolbar
+    :children
+
+  @getter
+    haveToolbar: -> true
+    safePaddingToolbarHeight: ->
+      if @toolbarHorizontal
+        if @toolbarLocation == :bottom
+              @safePadding.bottom  + @touchButtonSize
+        else  @safePadding.top     + @touchButtonSize
+      else @toolbarHeight
+
+    toolbarWidth: ->
+      @buttonSize
+      + max @safePadding.right, @safePadding.left
+      + @gridSize / 2
+
+
+    childrenSafePadding: ->
+      @ extract safePadding, gridSize, touchButtonSize, toolbarLocation
+
+      unless @toolbarHorizontal
+        safePadding
+      else
+        merge
+          safePadding
+          if toolbarLocation == :bottom
+                bottom: safePadding.bottom  + touchButtonSize
+          else  top:    safePadding.top     + touchButtonSize
+
+    childrenDrawPadding: ->
+      @ extract safePadding, gridSize, touchButtonSize, toolbarLocation
+
+      unless @toolbarHorizontal
+        {}
+      else
+        merge
+          safePadding
+          if toolbarLocation == :bottom
+                top: 0    bottom: safePadding.bottom  + touchButtonSize
+          else  bottom: 0 top:    safePadding.top     + touchButtonSize
+
+  render: ->
+    @ extract
+      toolbarLocation
+      children
+      toolbar = &Toolbar
+
+    Element
+      draw:       AppPalette.background
+
+      Element
+        padding:  @childrenSafePadding
+        draw:
+          padding: @childrenDrawPadding
+          :clip
+        @props.children
+        MainPageStacks()
+
+      if @toolbarHorizontal
+        Element
+          switch toolbarLocation
+          when :left  :top    then :topLeft
+          when :right :bottom then :bottomRight
+          size:
+            if @toolbarHorizontal
+                  h: @safePaddingToolbarHeight
+            else  w: @toolbarWidth
+
+          padding: [toolbarLocation]: @safePadding[toolbarLocation]
+
+          if toolbar is Function
+            toolbar @props.toolbarProps
+          else toolbar

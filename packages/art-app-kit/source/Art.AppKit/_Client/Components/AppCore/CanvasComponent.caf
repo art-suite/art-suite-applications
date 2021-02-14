@@ -1,0 +1,12 @@
+import &StandardImport
+
+class CanvasComponent extends FluxComponent
+  @subscriptions
+    :appKitViewState.simpleBrowserInfo
+
+  render: ->
+    CanvasElement
+      :clip # TODO -this should be standard! Without it we do way too much draw-work
+      on: {} models.appKitViewState.ready
+      @props.App()
+      &PhonePreview() if @simpleBrowserInfo.fakeNativeApp

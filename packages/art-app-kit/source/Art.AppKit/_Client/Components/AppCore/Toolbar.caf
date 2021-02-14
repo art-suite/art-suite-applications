@@ -1,0 +1,86 @@
+import &StandardImport, &Widgets, &PrivateWidgets
+
+class Toolbar extends ViewStateComponent
+  @subscriptions
+    :appKitPresentationState.*
+    :pageStack.*
+
+  @propFields :hiddenStacks presentationProps: {}
+  @getter currentPageStack: -> models.pageStack.currentPageStack
+
+  render: ->
+    if AppPalette extract toolbarColor
+      unless @wideLayout
+        toolbarColor = AppPalette.offWhite
+      else if .9 > toolbarColor.perceptualLightness
+        lightColor = true
+
+    commonProps = {}
+      tight:        @wideLayout
+      labelBottom:  @isTouchScreen || !@wideLayout
+      lightColor:   lightColor
+
+    Element
+      draw:
+        fill:
+          color:  toolbarColor
+          shadow: unless @wideLayout
+            color:  #0004
+            blur:   4
+            offset: 0
+        padding: [@toolbarLocation]: -@safePadding[@toolbarLocation]
+
+      size: @props.size
+
+      if @toolbarHorizontal                 then :row else :column
+      if @wideLayout && @toolbarHorizontal  then :childrenCenterLeft
+
+      padding:
+        if @toolbarHorizontal
+              h: @gridSize / 2
+        else  v: @gridSize / 2
+
+      if @wideLayout
+        showTitle = if @currentPageStack?.length > 1
+          peek @currentPageStack
+          .title
+
+        Element
+          :row :parentWidthChildrenHeight :childrenCenterLeft
+          if @models.pageStack.showBackButton
+            Element
+              :childrenSize
+              key: :backButton
+              padding: right: @gridSize / 2
+              animators:
+                size: toFrom: hch:1 w:0
+                clip: toFrom: true
+
+              IconButton {}
+                lightColor
+                icon:   :chevronLeft
+                action: @models.pageStack.pop
+
+          if !showTitle && &Config.config extract titleComponent
+            titleComponent()
+
+          else
+            TextElement
+              TextStyles.mediumText
+              :childrenWidthParentHeight :textCenterCenter
+              text:   showTitle ? &Config.config.title
+              color:  AppPalette.primary
+
+      array {id, icon, title, hidden} in @stacks
+        if @viewSize.x < 768 && !commonProps.labelBottom
+          title = null
+        ToolbarButton
+          commonProps
+          {}
+            hidden:       @hiddenStacks && id in @hiddenStacks
+            icon
+            text:         title
+            selected:     @currentPageStackId == id
+            action:       -> @models.pageStack.showStack id
+
+          @presentationProps[id]

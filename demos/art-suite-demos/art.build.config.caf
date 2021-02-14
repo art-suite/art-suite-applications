@@ -1,0 +1,11 @@
+import &ArtStandardLib
+
+webpack:
+  common:
+    mode: "development"
+  targets:
+    Demos: {}
+    HelloWorld: {}
+    HelloWorldForIE11: {}
+
+package: -> &package

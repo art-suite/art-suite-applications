@@ -1,0 +1,17 @@
+import &ArtSuite, &@ArtSuite/PointerActionsMixin
+
+class Draggable extends PointerActionsMixin Component
+  @stateFields location: point0
+
+  dragMove: (event) ->
+    @location =
+      event.parentLocation.sub @pointerDownAt
+      .bound point0, event.target.parent.currentSize.sub event.target.currentSize
+
+  render: ->
+    Element
+      :pointerCursor
+      location: @location
+      on:       @dragHandlers
+      size:     w: 100, h: 44
+      draw:     radius: 3 fill: color: :red, shadow: @pointerDown

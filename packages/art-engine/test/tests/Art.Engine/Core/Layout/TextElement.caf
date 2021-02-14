@@ -1,0 +1,166 @@
+import &StandardImport
+
+suite:
+  misc: ->
+    renderTest
+      "elementSpaceDrawArea should include descender"
+      render: -> TextElement size: "childrenSize", text: "Descending", layoutMode: "textualBaseline", size: cs: 1
+      test: (root) ->
+        assert.within root.currentSize, point(75, 12), point(76, 12)
+        assert.within
+          root.elementSpaceDrawArea
+          rect -8, -8, 91, 32
+          rect -8, -8, 92, 32
+
+    renderTest
+      "empty-string layout textualBaseline size"
+      render: -> TextElement size: "childrenSize", text: "", layoutMode: "textualBaseline", size: cs: 1
+      test: (root) ->
+        assert.within root.currentSize, point(0, 12), point(0, 12)
+
+    renderTest
+      "'|'-string layout textualBaseline size"
+      render: -> TextElement size: "childrenSize", text: "|", layoutMode: "textualBaseline", size: cs: 1
+      test: (root) ->
+        assert.within root.currentSize, point(3, 12), point(4, 12)
+
+
+    renderTest
+      "change in text size should affect children layout"
+      render: -> TextElement
+        text: "D"
+        fontSize: 60
+        size: :childrenSize
+        RectangleElement color: "red"
+        FillElement()
+
+      test: (element, testName) ->
+        [__, child] = element.children
+        assert.eq
+          firstPassSize = element.currentSize
+          child.currentSize
+          "test 1"
+        element.text = "!"
+        element.toBitmapBasic()
+        .then (bitmap) ->
+          log bitmap, testName, {firstPassSize, currentSize: element.currentSize}
+          assert.neq element.currentSize, firstPassSize
+          assert.eq element.currentSize, child.currentSize, "test 2"
+
+    renderTest
+      "tight layoutMode 1"
+      stagingBitmapsCreatedShouldBe: 0
+      render: ->
+        Element
+          size: cs:1
+          RectangleElement color:"#ff7"
+          TextElement size: "childrenSize", text:"test", layoutMode:"tight", fontSize:50
+
+      test: (element) ->
+        assert.within
+          element.currentSize
+          point 68, 29
+          point 72, 33
+
+    renderTest
+      "tight layoutMode 2"
+      stagingBitmapsCreatedShouldBe: 0
+      render: ->
+        Element
+          size: cs:1
+          RectangleElement color:"#ff7"
+          TextElement
+            scale: 10
+            size: :childrenSize
+            text: :well?
+            layoutMode: :tight
+            fontFamily: "AvenirNext-DemiBold,sans-serif"
+            fontSize: 5.5
+            fontStyle: "normal"
+            fontVariant: "normal"
+            fontWeight: "bold"
+
+      test: (element, name, bitmap) ->
+        assert.within
+          element.currentSize
+          point 131, 40.5
+          point 133.5, 43
+
+        {autoCropRectangle} = bitmap
+        area = rect element.currentSize
+        areaAccuracy = log((area.size.sub autoCropRectangle.size).abs).max()
+        element extract drawArea
+        log {area, drawArea, autoCropRectangle, areaAccuracy}
+        assert.lt areaAccuracy, 3, :areaAccuracy # how many pixels between actual area and autoCropRectangle?
+        assert.neq drawArea, area
+        assert.true drawArea.contains area.expand .5
+        assert.true area.expand(15).contains drawArea
+
+  drawArea: ->
+    renderTest
+      "phasor"
+      stagingBitmapsCreatedShouldBe: 0
+      render: ->
+        Element
+          size: w: 300, hch:1
+          # clip: true
+          drawOrder: #aaa
+          TextElement
+            fontSize: 17.5
+            size: ww:1, hch:1
+            text: "The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog"
+            maxLines: 2
+
+          TextElement
+            fontSize: 17.5
+            size: ww:1, hch:1
+            text: "The quick brown fox jumps over the lazy dog. The quick brown fox jumps"
+            maxLines: 2
+
+      test: (element) ->
+        log element.currentSize
+        assert.eq
+          element.children[0].drawArea.h
+          element.children[1].drawArea.h
+
+  regressions: ->
+    renderTest
+      "FillElement and internal ShadowElement"
+      render: ->
+        TextElement
+          fontSize: 100
+          text: :Yummy
+          size: :childrenSize
+          FillElement color: :red :orange :yellow
+
+          ShadowElement
+            inverted:       true
+            compositeMode:  :sourceTopInTarget
+            location:       point 0, -5
+
+
+    renderTest
+      "empty-string regression"
+      render: ->
+        Element
+          size: w: 100, hch:1
+          draw: "#777"
+          TextElement
+            fontSize: 20
+            size: "parentWidthChildrenHeight"
+            text: ''
+
+      test: (root) -> assert.eq root.currentSize, point 100, 15
+
+    renderTest
+      "empty-string regression - baseline"
+      render: ->
+        Element
+          size: w: 100, hch:1
+          draw: "#777"
+          TextElement
+            fontSize: 20
+            size: "parentWidthChildrenHeight"
+            text: '-'
+
+      test: (root) -> assert.eq root.currentSize, point 100, 15

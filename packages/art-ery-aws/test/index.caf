@@ -1,0 +1,20 @@
+&StandardImport
+&art-aws/Server
+&source
+
+&ArtTestbench/Testing
+.init
+  artConfig:
+    Art:
+      Aws:
+        credentials:
+          accessKeyId:      :blah
+          secretAccessKey:  :blahblah
+
+        region:             :us-east-1
+
+        dynamoDb: endpoint: :http://localhost:8081
+
+      Ery: tableNamePrefix: "art-ery-aws-test."
+
+  defineTests: -> &tests

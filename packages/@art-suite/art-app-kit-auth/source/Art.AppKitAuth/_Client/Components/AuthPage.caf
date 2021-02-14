@@ -1,0 +1,264 @@
+import &StandardImport
+
+
+networkFailureMessage = "" We're sorry, but we couldn't reach our servers. Please check your internet connection and try again.
+unknownFailureMessage = "" Oops! Something went wrong on our end. We'll get right on fixing it. Thank you for your patience.
+
+authStatusMessages =
+  networkFailure:             networkFailureMessage
+  clientFailureNotAuthorized: "" Invalid password.
+  missing:                    "" Email not found.
+
+class AuthPage extends ViewStateComponent
+
+  @subscriptions
+    :currentSession.currentUser
+
+  @stateFields
+    email:                  null
+    validEmail:             false
+    password:               null
+    confirmPassword:        null
+    errorMessage:           null
+    passwordStrength:       null
+    currentPassword:        null
+    userExists:             null
+    changePasswordSuccess:  false
+
+  @getter
+    signUp: -> @userExists? && !@userExists && @validEmail
+    login:  -> @userExists? &&  @userExists && @validEmail
+
+  @setter
+    email: (email) -> @setState email: email.trim(), validEmail: emailRegexp.test email
+    errorMessage: (errorMessage) ->
+      @setState :errorMessage errorMessage
+      timeout 30000 @clearErrorMessage
+
+    password: (password) ->
+      @setState {} password
+      @clearErrorMessage()
+      @updatePasswordStrength password
+
+  updatePasswordStrength: (password) ->
+    @passwordStrength = if present password
+      pipelines.password.getPasswordStrength password
+
+  validateForm: ->
+    if errorMessage = switch
+        when !@currentUser && !@validEmail      then "" Please enter a valid email address.
+        when @currentUser && !present @password then "" Please enter your current password.
+        when !present @password                 then "" Please enter a #{if @currentUser then "new "}password.
+        when @signUp && 0 == @passwordStrength
+          """
+            Your password is too weak.
+
+            Try adding:
+
+            * Mixed-case letters: eXAMple
+            * Numbers: 0123456789
+            * Symbols: . , ! ? : ; _ @ # $ % ^ & * + - = / ` ' " < > { } ( ) [ ] \\ |
+
+        when @signUp && @confirmPassword != @password then "" Password's don't match.
+
+      Promise.reject @errorMessage = errorMessage
+
+    else Promise.resolve()
+
+  submitSignup: ->
+    pipelines.session.createUser props: {} @password, address: @email
+    .tapCatch (error) ->
+      @errorMessage = switch error.status
+      when clientFailure, clientFailureNotAuthorized then error.info?.response?.message ? error.message.split(/\n/)[0]
+      when networkFailure then networkFailureMessage
+      else                     unknownFailureMessage
+
+  processRemoteRequest: (requestPromise) ->
+    requestPromise
+    .tapCatch (error) ->
+      @errorMessage =
+        error.request?.responseData?.message ||
+        error.info?.responseData?.message ||
+        authStatusMessages[error.status] || unknownFailureMessage
+
+  submitForm: (actionFunction) ->
+    @clearErrorMessage()
+    @validateForm()
+    .then actionFunction
+    .tap ->
+      @setState
+        email:            ""
+        password:         ""
+        confirmPassword:  ""
+        passwordStrength: null
+        errorMessage:     null
+        userExists:       null
+
+  changePasswordNow: ->
+    @submitForm ->
+      @processRemoteRequest
+        pipelines.session.changePassword props: password: @currentPassword, newPassword: @password
+        .then @setChangePasswordSuccess
+
+  authenticateNow: ->
+    @submitForm -> @processRemoteRequest pipelines.session.authenticate props: {} @password, address: @email
+    .then -> @models.pageStack.showStack :home
+
+  signUpNow: ->
+    @submitForm @submitSignup, true
+    .then -> @models.pageStack.showStack :home
+
+  renderPasswordInput: ->
+    Element
+      :column :parentWidthChildrenHeight
+      childrenMargins: @gridSize
+      ValidatedTextInput
+        key:          :passwordInput1
+        type:         :password
+        placeholder:  "" #{if @currentUser then "new "}password
+        value:        @password
+        onEnter: -> @onNextReady().then @authenticateNow unless @signUp
+
+        onValueChanged: (value) ->
+          @setPassword value
+          @updatePasswordStrength value
+
+        maxLength: 50
+        enforceMatch: /^[^ ]*$/
+
+      if @signUp && @passwordStrength?
+        Element
+          :parentWidthChildrenHeight
+          animators:
+            size: toFrom: h: 0
+            opacity: toFrom: 0
+          padding: @gridSize / 2
+          draw:
+            radius: 100
+            switch @passwordStrength
+            when 0 then AppPalette.red
+            when 1 then AppPalette.red.withHue 30/360
+            else        AppPalette.red.withHue 120/360
+            :clip
+
+          TextElement
+            TextStyles.tinyText
+            :textCenterCenter
+            text: switch @passwordStrength
+              when 0 then "" weak password
+              when 1 then "" medium strength password
+              else        "" strong password
+
+      if @signUp
+        MenuSectionGroup :clip {key: :validatePassword}, ValidatedTextInput
+          key:              :passwordInput2
+          type:             :password
+          placeholder:      "" confirm #{if @currentUser then "new "}password
+          value:            @confirmPassword
+          onValueChanged:   @setConfirmPassword
+          onEnter: -> @onNextReadu().then @signUpNow
+          maxLength: 50
+
+  checkEmail: (email) -> if @validEmail
+    pipelines.session.userExists email
+    .then @setUserExists
+
+  renderForm: ->
+    MenuSection
+      key: :forms
+      Element
+        :column :topCenter
+        padding: top: @gridSize * 2
+        size: w: @gridSize * 25, hch: 1
+        childrenMargins: @gridSize
+
+        ValidatedTextInput
+          placeholder:    "" email
+          value:          @email
+          onValueChanged: @setEmail
+          onSave:         @checkEmail
+
+          maxLength:      50
+          type:           :email
+          autoComplete:   :email
+
+        @renderPasswordInput @userExists == false
+
+        if @signUp || @login
+          MenuSectionGroup {key: :authButton}, PrimaryMenuButton
+            icon:           :logIn
+            if @signUp then action: @signUpNow,       text: "" sign up
+            else            action: @authenticateNow, text: "" log in
+
+      @renderErrors()
+
+      TextElement
+        TextStyles.mediumText
+        :textCenterCenter
+        padding: top: @gridSize * 2
+        color: TextPalette.black.secondary
+        text:
+          switch
+          when @login  then """ Welcome back. Please enter your password to log in.
+          when @signUp then """ Welcome! Please create a password to complete your sign-up.
+          else """ Please enter your email to sign-up or log in.
+
+  renderErrors: ->
+    if @errorMessage
+      MenuSectionGroup
+        key: :errors
+        padding: top: @gridSize * 2
+        Element
+          :column :parentWidthChildrenHeight
+          draw: radius: @gridSize, AppPalette.lightWarning
+          padding: @gridSize / 2
+          MenuMarkdown text: @errorMessage
+
+  renderChangePassword: ->
+    MenuSectionGroup
+      MenuSection
+        MenuMarkdown
+          padding: pwMarkdownPadding = h: @gridSize / 2 v: @gridSize * 2
+          text: "" # Change Password
+
+        if @changePasswordSuccess
+          MenuSectionGroup
+            key: :changedPasswordSuccess
+            MenuMarkdown
+              padding: pwMarkdownPadding
+              text: "" Password changed.
+
+            PrimaryMenuButton {}
+              text:   "" okay
+              action: @models.pageStack.pop
+
+        else
+          MenuSectionGroup
+            key: :changePasswordForm
+            childrenMargins: @gridSize
+            ValidatedTextInput
+              key:            :currentPasswordInput
+              type:           :password
+              placeholder:    "" current password
+              value:          @currentPassword
+              onValueChanged: @setCurrentPassword
+              maxLength:      50
+              enforceMatch:   /^[^ ]*$/
+
+            @renderPasswordInput true
+
+            PrimaryMenuButton {}
+              text:   "" change password
+              action: @changePasswordNow
+
+            @renderErrors()
+
+  render: ->
+    Page
+      @props
+      title: if @currentUser then "Change Password" else @props.title
+      if @currentUser
+        @renderChangePassword()
+      else
+        # element-wrapper forces no animations
+        Element :parentWidthChildrenHeight @renderForm()

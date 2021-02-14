@@ -1,0 +1,18 @@
+import &StandardImport
+
+(superClass) -> class AllFieldSubscriptionsMixin extends superClass
+  @subscribeAllFields: (modelName) ->
+    unless model = models[modelName]
+      throw new Error "FluxModel '#{modelName}' not found"
+
+    @getter object v, k in model.stateFields with     -> model[k]
+    @setter object v, k in model.stateFields with (v) -> model[k] = v
+    [modelName]: key: modelName
+
+  @subscriptions: (args...) ->
+    super array arg in args
+      if arg is String && match = arg.match /^([a-z]+)\.\*$/i
+        @subscribeAllFields match[1]
+      else arg
+
+  @abstractClass()

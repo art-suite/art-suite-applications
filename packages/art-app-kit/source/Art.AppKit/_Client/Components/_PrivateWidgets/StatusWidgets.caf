@@ -1,0 +1,67 @@
+import &StandardImport
+
+class StatusMessage extends ViewStateComponent
+
+  render: ->
+    @viewState extract gridSize
+
+    @props extract isErrorMessage, action, message, clearMessage
+
+    Element
+      key:  :errorMessageWrapper
+      size: :parentWidthChildrenHeight
+      cursor: if action then :pointer
+      on: pointerClick: action
+
+      padding:
+        v:    gridSize / 2
+        top:  gridSize / 2
+
+      draw:
+        radius:   gridSize
+        padding:
+          h:    -gridSize / 2 + 2
+          top:  gridSize  / 2 + 2
+
+        outline:  TextPalette.black.barely
+        color:    messageColor = if isErrorMessage then #ff7 else :white
+        :clip
+
+      animators:
+        size:     toFrom: h: 0
+        opacity:  toFrom: 0
+
+      Element
+        size:               :parentWidthChildrenHeight
+        childrenLayout:     :row
+        childrenAlignment:  :topLeft
+        childrenMargins:    gridSize / 2
+
+        Element
+          size: gridSize * 2
+          draw:
+            radius: gridSize
+            color:  TextPalette.black.tertiary
+
+          TextElement
+            TextStyles.largeBoldText
+            size:   :parentSize
+            align:  .5
+            text:   if isErrorMessage then "!" else "?"
+            color:  messageColor
+
+        TextElement
+          TextStyles.smallText
+          padding:          v: gridSize * 2 / 3
+          size:             :parentWidthChildrenHeight
+          text:             message
+          paragraphLeading: 1.75
+          color:            TextPalette.black.secondary
+
+        !isErrorMessage && &TabButton
+          size:               gridSize * 2
+          radius:             100
+          backgroundPadding:  0
+          iconScale:          .5
+          icon:               :close
+          action:             clearMessage

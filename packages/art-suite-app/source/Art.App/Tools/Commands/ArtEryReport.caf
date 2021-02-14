@@ -1,0 +1,7 @@
+&ToolLib.createPipelineCommand
+  action: (pipeline) ->
+    pipelines:
+      object pipeline from unless pipeline then &ArtEry.pipelines else [pipeline.pipelineName]: pipeline
+        pipeline.getPipelineReport()
+
+    afterEventsFilter: &ArtEry.Filters.AfterEventsFilter.handlers

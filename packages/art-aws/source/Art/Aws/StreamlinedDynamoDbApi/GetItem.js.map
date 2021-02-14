@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "GetItem.js",
+  "sourceRoot": "../../../..",
+  "sources": [
+    "source-source/Art/Aws/StreamlinedDynamoDbApi/GetItem.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;sDAEA,oDAAsB,mHAIpB,QAAkB,CAAC,SACjB,mBAAe,SACf,8BAA0B,gBAC1B,0DAEF,QAA0B,CAAC,SACzB,8BAA0B,SAC1B,gCAA4B,gBAC5B,sBAAkB"
+}

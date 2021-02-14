@@ -1,0 +1,59 @@
+import &StandardImport
+
+class ValidatedTextInput extends ViewStateComponent
+
+  @propFields :enforceMatch :onEnter :onValueChanged :onSave :label
+
+  constructor: -> @lastLegalValue = @lastLegalSelectionStart = @lastLegalSelectionEnd = null
+
+  focus:                -> @refs.mainInput.element.focus()
+  blur:         (event) -> @enforceValue event, @onSave
+  valueChanged: (event) -> @enforceValue event, @onValueChanged
+  enter:        (event) -> @enforceValue event, @onSave, @onEnter
+
+  keyDown: ({target}) ->
+    @lastLegalSelectionStart = target.selectionEnd - 1
+    @lastLegalSelectionEnd   = target.selectionStart - 1
+
+  enforceValue: ({target}, eventF1, eventF2) ->
+    target extract value
+    @ extract enforceMatch = /^/
+
+    if enforceMatch.test value
+      @lastLegalValue = value
+
+    else if @lastLegalValue
+      target.value = @lastLegalValue
+      target.setSelectionStart @lastLegalSelectionStart
+      target.setSelectionEnd @lastLegalSelectionEnd
+      @lastLegalValue
+
+    else target.value =
+      while value.length > 0 && !enforceMatch.test value
+        value = value.slice 0, value.length - 1
+
+    eventF1? value
+    eventF2? value
+    value
+
+  render: ->
+    Element
+      :column :parentWidthChildrenHeight
+      @label && TextElement
+        TextStyles.smallText
+        padding: v: @gridSize / 2, left: @gridSize
+        color: TextPalette.black.secondary
+        text: @label
+      Element
+        :row :childrenCenterCenter
+        size: ww: 1 h: @buttonSize
+        padding: h: max @gridSize, @buttonSize * .33
+        draw:
+          radius: 100
+          AppPalette.lightGrey
+
+        TextInputElement
+          TextStyles.mediumText
+          @props
+          key: :mainInput
+          on: {} @blur, @enter, @valueChanged, @keyDown
