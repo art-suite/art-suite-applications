@@ -32,7 +32,7 @@
     "art-express-server": "file:packages/art-express-server",
     "art-foundation": "git://github.com/imikimi/art-foundation.git",
     "art-frame-stats": "file:packages/art-frame-stats",
-    "art-markdown": "*",
+    "art-markdown": "file:packages/art-markdown",
     "art-react": "file:packages/art-react",
     "art-rest-client": "^1.8.11",
     "art-standard-lib": "^1.70.6",
