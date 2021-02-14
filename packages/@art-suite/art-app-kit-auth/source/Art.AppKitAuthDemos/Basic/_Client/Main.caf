@@ -1,7 +1,8 @@
 (global.process?={}).browser = true # used by pbkdf2
 &Pipelines
-require :@art-suite/art-app-kit-auth/client
-&ArtAppKit/Client.init {}
+import require :@art-suite/art-app-kit-auth/client
+
+&ArtAppKit/Client.init
   title:      :Art.AppKitAuthDemo
-  pages:      {} &Home
+  pages:      {} &Home, AuthPage
   pageStacks: [] id: :home

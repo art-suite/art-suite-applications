@@ -1,4 +1,4 @@
 []
   &StandardImport
   &ArtEry
-  &ArtAppKit
+  &ArtAppKit/Client
