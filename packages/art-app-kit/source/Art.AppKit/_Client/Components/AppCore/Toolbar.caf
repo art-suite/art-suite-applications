@@ -55,7 +55,6 @@ class Toolbar extends ViewStateComponent
             Element
               :childrenSize
               key: :backButton
-              padding: right: @gridSize / 2
               animators:
                 size: toFrom: hch:1 w:0
                 clip: toFrom: true
@@ -72,6 +71,7 @@ class Toolbar extends ViewStateComponent
             TextElement
               TextStyles.mediumText
               :childrenWidthParentHeight :textCenterCenter
+              padding: left: @gridSize / 2
               text:   showTitle ? &Config.config.title
               color:  getButtonTextColor lightColor
 
