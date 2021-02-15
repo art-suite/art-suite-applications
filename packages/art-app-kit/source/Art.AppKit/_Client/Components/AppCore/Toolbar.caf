@@ -8,6 +8,37 @@ class Toolbar extends ViewStateComponent
   @propFields :hiddenStacks presentationProps: {}
   @getter currentPageStack: -> models.pageStack.currentPageStack
 
+  renderTitle: (lightColor) ->
+    showTitle = if @wideLayout && @currentPageStack?.length > 1
+      peek @currentPageStack
+      .title
+
+    Element
+      :row :parentWidthChildrenHeight :childrenCenterLeft
+      if @wideLayout && @models.pageStack.showBackButton
+        Element
+          :childrenSize
+          key: :backButton
+          animators:
+            size: toFrom: hch:1 w:0
+            clip: toFrom: true
+
+          IconButton {}
+            lightColor
+            icon:   :chevronLeft
+            action: @models.pageStack.pop
+
+      if !showTitle && &Config.config extract titleComponent
+        titleComponent()
+
+      else
+        TextElement
+          TextStyles.mediumBoldText
+          :childrenWidthParentHeight :textCenterCenter
+          padding: left: @gridSize / 2
+          text:   showTitle ? &Config.config.title
+          color:  getButtonTextColor lightColor
+
   render: ->
     phoneToolbar = @isPhone
     desktopOrTabletToolbar = !phoneToolbar
@@ -36,46 +67,15 @@ class Toolbar extends ViewStateComponent
 
       size: @props.size
 
-      if @toolbarHorizontal                 then :row else :column
-      if desktopOrTabletToolbar && @toolbarHorizontal  then :childrenCenterLeft
-
       padding:
         if @toolbarHorizontal
               h: @gridSize / 2
         else  v: @gridSize / 2
 
-      if desktopOrTabletToolbar
-        showTitle = if @wideLayout && @currentPageStack?.length > 1
-          peek @currentPageStack
-          .title
+      if @toolbarHorizontal then :row else :column
+      if desktopOrTabletToolbar && @toolbarHorizontal then :childrenCenterLeft
 
-        Element
-          :row :parentWidthChildrenHeight :childrenCenterLeft
-          if @wideLayout && @models.pageStack.showBackButton
-            Element
-              :childrenSize
-              key: :backButton
-              animators:
-                size: toFrom: hch:1 w:0
-                clip: toFrom: true
-
-              IconButton {}
-                lightColor
-                icon:   :chevronLeft
-                action: @models.pageStack.pop
-
-          if !showTitle && &Config.config extract titleComponent
-            titleComponent()
-
-          else
-            TextElement
-              TextStyles.mediumText
-              :childrenWidthParentHeight :textCenterCenter
-              padding: left: @gridSize / 2
-              text:   showTitle ? &Config.config.title
-              color:  getButtonTextColor lightColor
-
-      else if desktopOrTabletToolbar then Element()
+      @renderTitle lightColor if desktopOrTabletToolbar
 
       array {id, icon, title, hidden} in @stacks
         ToolbarButton

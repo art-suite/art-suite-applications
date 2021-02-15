@@ -36,7 +36,7 @@ class AppBodyWithToolbar extends ViewStateComponent
           else  top:    safePadding.top     + touchButtonSize
 
     childrenDrawPadding: ->
-      @ extract safePadding, gridSize, touchButtonSize, toolbarLocation
+      @ extract safePadding, touchButtonSize, toolbarLocation
 
       unless @toolbarHorizontal
         {}
@@ -44,7 +44,7 @@ class AppBodyWithToolbar extends ViewStateComponent
         merge
           safePadding
           if toolbarLocation == :bottom
-                top: 0    bottom: safePadding.bottom  + touchButtonSize
+                top:    0 bottom: safePadding.bottom  + touchButtonSize
           else  bottom: 0 top:    safePadding.top     + touchButtonSize
 
   render: ->
@@ -57,10 +57,11 @@ class AppBodyWithToolbar extends ViewStateComponent
       draw:       AppPalette.background
 
       Element
-        padding:  @childrenSafePadding
+        padding: @childrenSafePadding
         draw:
           padding: @childrenDrawPadding
           :clip
+
         @props.children
         MainPageStacks()
 

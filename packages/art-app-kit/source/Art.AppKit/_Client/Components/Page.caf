@@ -30,7 +30,6 @@ class Page extends ViewStateComponent
           left:   -@safePadding.left
           right:  -@safePadding.right
         :white
-        # :green
 
       animators:
         visible:  duration: .125
