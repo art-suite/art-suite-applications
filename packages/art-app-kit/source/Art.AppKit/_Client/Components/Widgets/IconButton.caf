@@ -3,8 +3,8 @@ import &StandardImport, &WidgetLib, {} &Icon
 class IconButton extends ViewStateComponent
   render: ->
     AppKitButtonWrapper
-      size:   @buttonSize
-      action: @props.action
-      draw:   drawButton
+      size:       @buttonSize
+      action:     @props.action
+      draw:       drawButton
       lightColor: @props.lightColor
-      Icon    @props
+      Icon        @props

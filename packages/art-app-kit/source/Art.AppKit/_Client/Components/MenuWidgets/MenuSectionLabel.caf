@@ -21,15 +21,8 @@ class MenuSectionLabel extends ViewStateComponent
       padding: h: gridSize / 2
 
       draw:
-        padding:  h: -@gridSize / 2
-        radius:   @gridSize / 4
-        color:    if warning then AppPalette.lightWarning else AppPalette.veryLightGrey
-        {}
-          padding:
-            h: -@gridSize / 2 + .5
-            v: .5
-          radius:   @gridSize / 4
-          outline:  color: #0002
+        rectangle:  (size) -> rect 0, size.y, size.x, 1
+        outline:    color: #0002
 
       TextElement
         TextStyles.smallText

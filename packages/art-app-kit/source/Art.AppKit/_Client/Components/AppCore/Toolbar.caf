@@ -9,22 +9,26 @@ class Toolbar extends ViewStateComponent
   @getter currentPageStack: -> models.pageStack.currentPageStack
 
   render: ->
-    if AppPalette extract toolbarColor
-      unless @wideLayout
-        toolbarColor = AppPalette.offWhite
-      else if .9 > toolbarColor.perceptualLightness
-        lightColor = true
+    phoneToolbar = @isPhone
+    desktopOrTabletToolbar = !phoneToolbar
+
+    if desktopOrTabletToolbar
+      if AppPalette extract toolbarColor
+        if .9 > toolbarColor.perceptualLightness
+          lightColor = true
+    else
+      toolbarColor = AppPalette.offWhite
 
     commonProps = {}
-      tight:        @wideLayout
-      labelBottom:  @isTouchScreen || !@wideLayout
+      tight:        desktopOrTabletToolbar
+      labelBottom:  @isTouchScreen || phoneToolbar
       lightColor:   lightColor
 
     Element
       draw:
         fill:
           color:  toolbarColor
-          shadow: unless @wideLayout
+          shadow: unless desktopOrTabletToolbar
             color:  #0004
             blur:   4
             offset: 0
@@ -33,21 +37,21 @@ class Toolbar extends ViewStateComponent
       size: @props.size
 
       if @toolbarHorizontal                 then :row else :column
-      if @wideLayout && @toolbarHorizontal  then :childrenCenterLeft
+      if desktopOrTabletToolbar && @toolbarHorizontal  then :childrenCenterLeft
 
       padding:
         if @toolbarHorizontal
               h: @gridSize / 2
         else  v: @gridSize / 2
 
-      if @wideLayout
-        showTitle = if @currentPageStack?.length > 1
+      if desktopOrTabletToolbar
+        showTitle = if @wideLayout && @currentPageStack?.length > 1
           peek @currentPageStack
           .title
 
         Element
           :row :parentWidthChildrenHeight :childrenCenterLeft
-          if @models.pageStack.showBackButton
+          if @wideLayout && @models.pageStack.showBackButton
             Element
               :childrenSize
               key: :backButton
@@ -69,11 +73,11 @@ class Toolbar extends ViewStateComponent
               TextStyles.mediumText
               :childrenWidthParentHeight :textCenterCenter
               text:   showTitle ? &Config.config.title
-              color:  AppPalette.primary
+              color:  getButtonTextColor lightColor
+
+      else if desktopOrTabletToolbar then Element()
 
       array {id, icon, title, hidden} in @stacks
-        if @viewSize.x < 768 && !commonProps.labelBottom
-          title = null
         ToolbarButton
           commonProps
           {}
@@ -84,3 +88,5 @@ class Toolbar extends ViewStateComponent
             action:       -> @models.pageStack.showStack id
 
           @presentationProps[id]
+          if desktopOrTabletToolbar && @viewSize.x < 768
+            text: null

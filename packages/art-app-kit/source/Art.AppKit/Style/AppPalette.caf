@@ -38,7 +38,7 @@ class AppPalette extends HotStyleProps
 
         white:              :white
         background:         :white
-        toolbarColor:       :white
+        toolbarColor:       primary
         offWhite:           #f9
 
         warning:            warning = red.withHue 55/360

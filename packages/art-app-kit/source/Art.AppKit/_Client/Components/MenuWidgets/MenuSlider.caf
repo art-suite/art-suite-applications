@@ -38,7 +38,7 @@ class MenuSlider extends PointerActionsMixin ViewStateComponent
 
     props
 
-  dragMove: (event) -> unless @editable
+  dragMove: (event) -> if @editable
     @value = value = @applyIncrement @proportionalToValue @eventToProportional event
     @onChange? value
 
@@ -47,7 +47,7 @@ class MenuSlider extends PointerActionsMixin ViewStateComponent
   render: ->
     Element
       @props
-      :pointerCursor unless @editable
+      :pointerCursor if @editable
       size:     h: @buttonSize
       margin:   10
       padding:  @buttonSize / 2
