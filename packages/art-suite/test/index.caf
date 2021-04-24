@@ -1,0 +1,4 @@
+&source
+
+&art-testbench/testing
+.init defineTests: -> &tests

@@ -3,6 +3,5 @@
 
 module.exports = require('../namespace').addNamespace(
   'Art.Suite',
-  (class Suite extends Neptune.PackageNamespace {})
-  ._configureNamespace(require('../../../package.json'))
+  class Suite extends Neptune.PackageNamespace {}
 );

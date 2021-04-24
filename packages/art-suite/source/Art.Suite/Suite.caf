@@ -1,0 +1,31 @@
+import &ArtStandardLib
+if isNode
+  throw new Error "For Node, use: art-suite/Node"
+
+global.artSuite = suite =
+  # using merge because we are OK with
+  # ignoring values from multiple same-named props
+  merge
+    &Core
+
+    &ArtEngine
+    &@ArtSuite/ArtCanvas
+    &@ArtSuite/ArtFlux
+    &ArtEry/Flux
+    &ArtReact
+    &ArtReact/mixins
+
+    initArtSuiteApp: &ArtReact.initArtReactApp
+
+    # DEPRICATED:
+    Canvas:   &@ArtSuite/ArtCanvas
+    Engine:   &ArtEngine
+    React:    &ArtReact
+    Flux:     &@ArtSuite/ArtFlux
+    EryFlux:  &ArtEry/Flux
+
+if suite.getEnv().dev
+  global.log = suite.log
+  global.formattedInspect = suite.formattedInspect
+
+suite

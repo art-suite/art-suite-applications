@@ -1,0 +1,26 @@
+import &StandardImport, &NeptuneNamespacesRuntime
+ArtSuite = &source
+
+suite "ArtSuite Core", ->
+  each example, _package in
+      ArtStandardLib: :log
+      ArtClassSystem: :BaseClass
+      ArtConfig:      :Configuration
+      ArtBinary:      :BinaryString
+      ArtCommunicationStatus: :success
+      ArtRestClient:  :getJson
+      ArtEry:         :Pipeline
+      ArtAtommic:     :Point
+
+    test "#{_package} example #{example} is included in ArtSuite" ->
+      assert.exists ArtSuite[example], "" #{example} shouild be in ArtSuite
+
+suite "ArtSuite Full", ->
+  each example, _package in
+      ArtCanvas:      :Bitmap
+      ArtEngine:      :Element
+      ArtReact:       :Component
+      ArtFlux:        :FluxModel
+
+    test "#{_package} example #{example} is included in ArtSuite" ->
+      assert.exists ArtSuite[example], "" #{example} shouild be in ArtSuite

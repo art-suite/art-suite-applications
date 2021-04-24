@@ -1,0 +1,21 @@
+import &ArtStandardLib
+
+merge
+  &ArtStandardLib
+  &ArtClassSystem
+  &ArtConfig
+  &ArtBinary
+  &ArtFoundation
+  &ArtAtomic
+  &ArtCommunicationStatus
+  &ArtRestClient
+  &ArtEry
+
+  # DEPRICATED:
+  StandardLib:          &ArtStandardLib
+  Foundation:           &ArtFoundation
+  CommunicationStatus:  &ArtCommunicationStatus
+  Atomic:               &ArtAtomic
+  RestClient:           &ArtRestClient
+  Ery:                  &ArtEry
+  Binary:               &ArtBinary

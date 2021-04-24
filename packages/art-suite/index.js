@@ -1,3 +1,3 @@
 // for node.js
-require('coffee-script/register');
+require('./register');
 module.exports = require('./Node');
