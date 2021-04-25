@@ -1,0 +1,111 @@
+import &StandardImport
+
+PP2 = PointerActionsMixin ViewStateComponent
+
+class PriorityCellStar extends PP2
+  @propFields :index :setHoverIndex
+  render: ->
+    @setHoverIndex @index if @hover
+
+    Element
+      on: @pointerHandlers
+      size: base = @buttonSize * .5
+      Icon
+        icon: :star
+        size: base * 1.35
+        animators: {}
+
+        color: if @props.value < @index then :lightGrey else :orange
+
+        :centerCenter
+
+class PriorityCell extends PP2
+
+  @stateField
+    hoverIndex: null
+
+  render: ->
+    Element
+      on: @pointerHandlers
+      size:
+        h: base = @buttonSize * .5
+        w: base * 5
+      :row
+
+      array index from 1 to 5
+        PriorityCellStar {} @setHoverIndex, index, value: if @hover then @hoverIndex else index
+
+class TableRow extends ViewStateComponent
+
+  @propFields :fields :record :padding :updateRecord
+
+  render: ->
+    @ extract record, padding
+    Element
+      :row :pointerCursor
+      size: hch: 1 w: (ps, cs) -> max ps.x, cs.x
+      draw:
+        rectangle: ({x, y}) -> rect 0, y, x, 1
+        TextPalette.black.barely
+
+      array {width, name, component} in @fields
+        Element
+          padding: padding
+          size: w: width, hch: 1
+          :clip
+          component? {} @updateRecord, value: record[name]
+          || TextElement
+            :parentWidthChildrenHeight
+            TextStyles.smallText
+            text: record[name]
+
+class TableDemo extends ViewStateComponent
+
+  @stateFields
+    records: []
+      id: :1 name: :Shane priority: 3 phone: :123-1234 address: "" 123 Somewhareville, Idaho USA
+      id: :2 name: :Alice priority: 5 phone: :456-4567 address: "" 999 FoofVille, CramppyHouse GJ USA
+
+    fields: []
+      {} width: 200 name: :name
+      {} width: 100 name: :phone
+      {} width: 150 name: :address
+      {} width: 150 name: :priority component: PriorityCell
+
+
+  updateRecord: (id, fields) ->
+    @records = array record in @records
+      if record.id == id
+        merge record, fields
+      else record
+
+  render: ->
+
+    padding =
+      h: @gridSize / 2
+      v: @gridSize * .75
+
+    Page
+      @props
+
+      Element
+        :column :parentWidthChildrenHeight
+        Element
+          :row
+          size: hch: 1 w: (ps, cs) -> max ps.x, cs.x
+          draw: TextPalette.black.barely
+          array {width, name} in @fields
+            Element
+              padding: padding
+              size: w: width, hch: 1
+              draw:
+                rectangle: ({x, y}) -> rect x, 0, 1, y
+                #0002
+
+              TextElement
+                :parentWidthChildrenHeight
+                TextStyles.smallText
+                text: name
+
+        array record in @records
+          TableRow {} @fields, @updateKeyboardVisible, padding, record

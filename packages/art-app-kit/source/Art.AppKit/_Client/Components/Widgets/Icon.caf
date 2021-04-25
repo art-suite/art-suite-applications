@@ -35,7 +35,6 @@ class Icon extends &ViewStateComponent
     size ?= @buttonSize
 
     Element
-      {} location, size, align, animators, angle, axis
       :cacheDraw
       animators:
         :draw
@@ -51,6 +50,7 @@ class Icon extends &ViewStateComponent
         fill: {}
           color
           shadow
+      {} location, size, align, animators, angle, axis
 
       unless iconPath
         TextElement

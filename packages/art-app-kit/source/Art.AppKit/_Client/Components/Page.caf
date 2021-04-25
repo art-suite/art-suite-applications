@@ -64,9 +64,7 @@ class Page extends ViewStateComponent
               action: @back
 
       Element
-        padding:
-          top:    if @isPhone then 0 else @gridSize / 4
-          bottom: -@safePadding.bottom
+        padding: bottom: -@safePadding.bottom
         draw:
           unless @hideTitle then []
             padding:

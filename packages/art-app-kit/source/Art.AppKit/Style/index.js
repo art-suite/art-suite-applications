@@ -2,7 +2,7 @@
 // file: Art.AppKit/Style/index.js
 
 (module.exports = require('./namespace'))
-
+.includeInNamespace(require('./Style'))
 .addModules({
   AppPalette:  require('./AppPalette'),
   TextPalette: require('./TextPalette'),
