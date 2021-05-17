@@ -6,11 +6,13 @@ suite:
 
     test "fields are set correctly", ->
       {myPipeline} = class MyPipeline extends SimplePipelineWithKeys
-        @filter createDatabaseFilters fields:
-          user:   "required link"
-          foo:    link: true, required: true
-          bar:    link: "user"
-          message: "present trimmedString"
+        @filter createDatabaseFilters
+          linkFilterVersion: 2
+          fields:
+            user:   "required link"
+            foo:    link: true, required: true
+            bar:    link: "user"
+            message: "present trimmedString"
 
       assert.eq Object.keys(myPipeline.fields).sort(), []
         :bar
@@ -25,7 +27,8 @@ suite:
         :userId
 
       assert.eq (array {name} in myPipeline.filters with name), []
-        :LinkFieldsFilter
+        :LinkFieldsFilter2
+        :PrefetchedRecordsFilter
         :ValidationFilter
         :AfterEventsFilter
         :DataUpdatesFilter
@@ -34,9 +37,11 @@ suite:
 
     test "create", ->
       class MyPipeline extends SimplePipelineWithKeys
-        @filter createDatabaseFilters fields:
-          user: required: link: "user"
-          message: "present trimmedString"
+        @filter createDatabaseFilters
+          linkFilterVersion: 2
+          fields:
+            user: required: link: "user"
+            message: "present trimmedString"
 
       MyPipeline.singleton.create
         data:
@@ -52,6 +57,7 @@ suite:
     test "userOwned only field", ->
       {myPipeline} = class MyPipeline extends SimplePipelineWithKeys
         @filter createDatabaseFilters
+          linkFilterVersion: 2
           fields:     {}
           userOwned:  true
 
@@ -62,7 +68,8 @@ suite:
         :userId
 
       assert.eq (array {name} in myPipeline.filters with name), []
-        :LinkFieldsFilter
+        :LinkFieldsFilter2
+        :PrefetchedRecordsFilter
         :AfterEventsFilter
         :DataUpdatesFilter
         :UniqueIdFilter
@@ -71,12 +78,13 @@ suite:
 
     test "userOwned and another field", ->
       {myPipeline} = class MyPipeline extends SimplePipelineWithKeys
-        @addDatabaseFilters
+        @addDatabaseFiltersV2
           userOwned: true
           fields: myField: "strings"
 
       assert.eq (array {name} in myPipeline.filters with name), []
-        :LinkFieldsFilter
+        :LinkFieldsFilter2
+        :PrefetchedRecordsFilter
         :ValidationFilter
         :AfterEventsFilter
         :DataUpdatesFilter
@@ -95,7 +103,7 @@ suite:
   regressions: ->
     test "updatedAt preprocessor", ->
       {myPipeline} = class MyPipeline extends SimplePipelineWithKeys
-        @addDatabaseFilters
+        @addDatabaseFiltersV2
           fields: myField: "strings"
 
       myPipeline.create data: myField: "foo"

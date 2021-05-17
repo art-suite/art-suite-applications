@@ -156,7 +156,7 @@ defineModule module, class ArtEryFluxModel extends ArtEry.KeyFieldsMixin FluxMod
     recordsModel = @
     pipeline = @_pipeline
 
-    new class ArtEryQueryFluxModelChild extends @class.applyMixins @_pipeline, ArtEryQueryFluxModel
+    (createWithPostCreate class ArtEryQueryFluxModelChild extends @class.applyMixins @_pipeline, ArtEryQueryFluxModel
       @_name: upperCamelCase(
         if /^by/.test queryName
           "#{pluralize pipeline.name} #{queryName}"
@@ -172,6 +172,7 @@ defineModule module, class ArtEryFluxModel extends ArtEry.KeyFieldsMixin FluxMod
 
       # Overrides
       @::[k] = v for k, v of merge {localMerge, localSort, dataToKeyString}
+    ).singleton
 
   ########################
   # FluxModel Overrides
@@ -206,10 +207,10 @@ defineModule module, class ArtEryFluxModel extends ArtEry.KeyFieldsMixin FluxMod
     TODO: DataUpdatesFilter needs to pass in: response.props.oldData[key]
   ###
   dataUpdated: (key, data) ->
-    oldData = @fluxStoreGet(key)?.data
+    oldData = @getModelRecord(key)?.data
     mergedData = merge oldData, data
 
-    @updateFluxStore key, (oldFluxRecord) -> merge oldFluxRecord, data: merge oldFluxRecord.data, data
+    @updateModelRecord key, (oldFluxRecord) -> merge oldFluxRecord, data: merge oldFluxRecord.data, data
 
     each @_queryModels, (queryModel) =>
       oldQueryKey = oldData && queryModel.dataToKeyString oldData
@@ -219,7 +220,7 @@ defineModule module, class ArtEryFluxModel extends ArtEry.KeyFieldsMixin FluxMod
       queryModel.dataUpdated queryKey, mergedData if queryKey
 
   dataDeleted: (key, dataOrKey) ->
-    @updateFluxStore key, status: missing
+    @updateModelRecord key, status: missing
 
     dataOrKey && each @_queryModels, (queryModel) =>
       queryKey = queryModel.toKeyString dataOrKey

@@ -51,7 +51,7 @@ suite: ->
     class MyRt3 extends Pipeline
 
       @publicRequestTypes :create
-      @addDatabaseFilters
+      @addDatabaseFiltersV2
         linkFilterVersion: 2
         fields:
           myRtUser2: :required :link
@@ -65,7 +65,7 @@ suite: ->
     class MyPipeline extends Pipeline
 
       @publicRequestTypes :create
-      @addDatabaseFilters
+      @addDatabaseFiltersV2
         linkFilterVersion: 2
         fields:
           text: :string

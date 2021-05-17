@@ -19,7 +19,12 @@ suite:
               merge record, message: "#{record.message} :)"
 
     test "query model defined", ->
-      assert.instanceOf models.postsByUserId, ArtEryQueryFluxModel
+      assert.instanceOf
+        models.postsByUserId
+        ArtEryQueryFluxModel
+        formattedInspect
+          definedModels: Object.keys models
+          lookingForModel: :postsByUserId
 
     test "query loadData goes through pipeline", ->
       models.postsByUserId.loadData "abc123"

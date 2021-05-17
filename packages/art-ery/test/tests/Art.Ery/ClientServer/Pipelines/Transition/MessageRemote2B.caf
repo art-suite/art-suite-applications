@@ -5,7 +5,7 @@ class MessageRemote2B extends &SimpleStore
 
   @remoteServer :http://localhost:8085
 
-  @addDatabaseFilters
+  @addDatabaseFiltersV2
     linkFilterVersion: :transition2B
     fields:
       userRemote2B: :autoCreate :link :prefetch

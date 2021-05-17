@@ -61,10 +61,10 @@ suite:
       assert.rejects (new MyPipeline).create data: merge userIdObject, bar: "hi"
       .then (rejectedWith) -> assert.eq rejectedWith.info.response.status, clientFailureNotAuthorized
 
-    test "addDatabaseFilters", ->
+    test "addDatabaseFiltersV2", ->
       session.data = userIdObject
       class MyPipeline extends SimplePipeline
-        @addDatabaseFilters
+        @addDatabaseFiltersV2
           fields:
             foo: "string"
             bar: "string"
@@ -124,10 +124,10 @@ suite:
           key: id
           data: bar: "hi"
 
-    test "addDatabaseFilters", ->
+    test "addDatabaseFiltersV2", ->
       session.data = userIdObject
       class MyPipeline extends SimplePipeline
-        @addDatabaseFilters
+        @addDatabaseFiltersV2
           fields:
             foo: "string"
             bar: "string"

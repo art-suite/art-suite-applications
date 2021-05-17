@@ -101,6 +101,14 @@ defineModule module, class Pipeline extends require './RequestHandler'
   @addDatabaseFilters: (options) ->
     @filter DatabaseFilters.createDatabaseFilters options, @
 
+  @addDatabaseFiltersV2: (options) ->
+    @filter DatabaseFilters.createDatabaseFilters(
+      merge
+        linkFilterVersion: 2
+        options
+      @
+    )
+
   getPrefetchedRecord: (key) ->
     prefetchedRecordsCache.get @pipelineName, key
 

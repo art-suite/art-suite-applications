@@ -28,13 +28,6 @@ ArtEry = require 'art-ery'
 
 defineModule module, class ArtEryQueryFluxModel extends ArtEry.KeyFieldsMixin FluxModel
   @abstractClass()
-  ###
-  This class is designed to be extended with overrides:
-
-  ###
-  constructor: ->
-    super null
-    @register()
 
   loadData: (key) ->
     Promise.resolve @query key, @pipeline
@@ -122,8 +115,8 @@ defineModule module, class ArtEryQueryFluxModel extends ArtEry.KeyFieldsMixin Fl
   # Private
   ###############################
   _updateFluxStoreIfExists: (queryKey, singleRecordData, wasDeleted) ->
-    if @fluxStoreGet queryKey
-      @updateFluxStore queryKey, (oldFluxRecord) =>
+    if @getModelRecord queryKey
+      @updateModelRecord queryKey, (oldFluxRecord) =>
         if merged = @localMerge oldFluxRecord.data, singleRecordData, wasDeleted
           merge oldFluxRecord, data: @localSort merged
 

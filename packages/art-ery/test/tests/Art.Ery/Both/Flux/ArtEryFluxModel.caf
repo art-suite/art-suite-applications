@@ -26,10 +26,10 @@ suite: ->
     assert.instanceOf Flux.models.user, Flux.FluxModel
 
   test "myModel.create", ->
-    user.create username: "Shane", message: "Hi"
+    user.create data: username: "Shane", message: "Hi"
 
   test "create with missing required field", ->
-    user.create username: "Shane", message: ""
+    user.create data: username: "Shane", message: ""
 
   class MySubscriber extends FluxSubscriptionsMixin BaseObject
     ;

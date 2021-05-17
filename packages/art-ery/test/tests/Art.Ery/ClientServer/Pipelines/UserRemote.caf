@@ -5,7 +5,7 @@ class UserRemote extends &SimpleStore
 
   @remoteServer :http://localhost:8085
 
-  @addDatabaseFilters
+  @addDatabaseFiltersV2
     linkFilterVersion: 2
     fields:
       name: :trimmedString
