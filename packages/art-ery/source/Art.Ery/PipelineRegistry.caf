@@ -4,19 +4,17 @@ class PipelineRegistry extends &ArtEvents/ExtendableEventedMixin BaseObject
   @pipelines: global.artEryPipelines = pipelines = {}
 
   # returns the singleton
-  @register: (PipelineClass) ->
-    {singleton, _aliases} = PipelineClass
+  @register: ({singleton, _aliases}) ->
 
-    _aliases && each alias in _aliases
+    each alias in _aliases
       pipelines[alias] = singleton
 
-    pipeline = pipelines[name = singleton.name] = singleton
+    pipeline = pipelines[singleton extract name] = singleton
 
-    @handleEvent "register", {name, pipeline}
+    @handleEvent :register {} name, pipeline
     singleton
 
   # used for testing
   @_reset: (testFunction = -> true) ->
-    each key in Object.keys pipelines
-      if testFunction pipelines[key]
-        delete pipelines[key]
+    each key in Object.keys pipelines when testFunction pipelines[key]
+      delete pipelines[key]

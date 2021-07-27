@@ -67,23 +67,23 @@ class DataUpdatesFilter extends &Filter
   applyFluxUpdates: (response) ->
     response.responseProps extract dataUpdates, dataDeletes
 
-    @applyFluxDataUpdates dataUpdates
-    @applyFluxDataDeletes dataDeletes
+    @applyModelDataUpdates dataUpdates
+    @applyModelDataDeletes dataDeletes
 
     if updateRequestTypeRegExp.test response.type
-      @applyFluxDataUpdates updateDataUpdatesContext(response, {}).dataUpdates
+      @applyModelDataUpdates updateDataUpdatesContext(response, {}).dataUpdates
     if deleteRequestTypeRegExp.test response.type
-      @applyFluxDataDeletes updateDataUpdatesContext(response, {}).dataDeletes
+      @applyModelDataDeletes updateDataUpdatesContext(response, {}).dataDeletes
 
   @getter
     models: -> Neptune.Art.Flux?.models
 
-  applyFluxDataUpdates: (dataUpdates) ->
+  applyModelDataUpdates: (dataUpdates) ->
     each dataUpdatesByKey, pipelineName in dataUpdates when @models[pipelineName]?.dataUpdated is Function
       each data, key in dataUpdatesByKey
         @models[pipelineName].dataUpdated key, data
 
-  applyFluxDataDeletes: (dataDeletes) ->
+  applyModelDataDeletes: (dataDeletes) ->
     each dataDeletesByKey, pipelineName in dataDeletes when @models[pipelineName]?.dataDeleted is Function
       each data, key in dataDeletesByKey
         @models[pipelineName].dataDeleted key, data
