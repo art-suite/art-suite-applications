@@ -19,7 +19,7 @@
 {Pipeline, KeyFieldsMixin, pipelines, UpdateAfterMixin} = require 'art-ery'
 {DynamoDb} = ArtAws = require 'art-aws'
 
-defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMixin Pipeline
+defineModule module, class DynamoDbPipelineOldCoffee extends KeyFieldsMixin UpdateAfterMixin Pipeline
   @abstractClass()
 
   ###########################################
@@ -443,7 +443,7 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
           object TableNames, -> true
 
   @getter
-    tablesByNameForVivification: -> DynamoDbPipeline.getTablesByNameForVivification()
+    tablesByNameForVivification: -> DynamoDbPipelineOldCoffee.getTablesByNameForVivification()
 
     dynamoDbCreationAttributes: ->
       out = {}
@@ -463,13 +463,6 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
 
     createTableParams: ->
       ArtAws.StreamlinedDynamoDbApi.CreateTable.translateParams @streamlinedCreateTableParams
-
-  _createTable: ->
-
-    @dynamoDb.createTable @streamlinedCreateTableParams
-    .catch (e) =>
-      log.error "DynamoDbPipeline#_createTable #{@tableName} FAILED", e
-      throw e
 
 
   ###
@@ -556,23 +549,3 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
         options.then
         ({message}) -> request.clientFailure message
       )
-
-  isServiceUnavailableError = (error) -> error.message.match /Service *Unavailable/i
-
-  _retryIfServiceUnavailable: retryIfServiceUnavailable = (request, action, retriesRemaining = 2) ->
-    Promise.then -> action()
-    .catch (error) ->
-      if isServiceUnavailableError error
-        if retriesRemaining > 0
-          timeout 10 + intRand 20
-          .then => retryIfServiceUnavailable request, action, retriesRemaining - 1
-
-        else if request
-          request.toResponse networkFailure
-          .then (response) -> response.toPromise()
-
-        else
-          throw error
-
-      else
-        throw error

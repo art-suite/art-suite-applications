@@ -1,0 +1,30 @@
+import &StandardImport
+
+class DynamoDbPipeline extends &DynamoDbPipelineOldCoffee
+
+  _createTable: ->
+    @dynamoDb.createTable @streamlinedCreateTableParams
+    .catch (e) ->
+      log.error "DynamoDbPipelineOldCoffee#_createTable #{@tableName} FAILED", e
+      throw e
+
+
+  isServiceUnavailableError = (error) -> error.message.match /Service *Unavailable/i
+
+  _retryIfServiceUnavailable: retryIfServiceUnavailable = (request, action, retriesRemaining = 2) ->
+    Promise.then -> action()
+    .catch (error) ->
+      if isServiceUnavailableError error
+        if retriesRemaining > 0
+          timeout 10 + intRand 20
+          .then -> retryIfServiceUnavailable request, action, retriesRemaining - 1
+
+        else if request
+          request.toResponse networkFailure
+          .then (response) -> response.toPromise()
+
+        else
+          throw error
+
+      else
+        throw error
