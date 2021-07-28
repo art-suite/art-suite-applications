@@ -5,7 +5,7 @@ import &ArtStandardLib
   &ArtCommunicationStatus
   &ArtEry
   &ArtEry.Filters
-  &source
+  &ArtEryAws
   deleteTestTables: ->
     dynamoDb = new &ArtAws.DynamoDb
     .listTables()

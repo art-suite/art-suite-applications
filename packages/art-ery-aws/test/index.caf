@@ -1,6 +1,5 @@
 &StandardImport
 &art-aws/Server
-&source
 
 &ArtTestbench/Testing
 .init
