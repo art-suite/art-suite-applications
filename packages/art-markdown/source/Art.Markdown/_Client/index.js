@@ -5,6 +5,8 @@
 
 .addModules({
   CodePalette:    require('./CodePalette'),
+  MarkdownImage:  require('./MarkdownImage'),
+  MarkdownLink:   require('./MarkdownLink'),
   MarkdownView:   require('./MarkdownView'),
   MenuMarkdown:   require('./MenuMarkdown'),
   StandardImport: require('./StandardImport')
