@@ -1,16 +1,9 @@
-throw new Error "Neptune.Art.Flux not loaded. Please pre-require Flux or Flux/web_worker." unless Neptune.Art.Flux
-{FluxModel, models} = Neptune.Art.Flux
-
-ArtEry = require '../'
-ArtEryQueryFluxModel = require './ArtEryQueryFluxModel'
-
 {
   lowerCamelCase
   pluralize
   each
   log
   array
-  CommunicationStatus
   select
   isString
   isFunction
@@ -24,19 +17,22 @@ ArtEryQueryFluxModel = require './ArtEryQueryFluxModel'
   arrayWithElementReplaced
   formattedInspect
   defineModule
-  createWithPostCreate
   inspect
   compactFlatten
   object
   isPlainObject
-} = Neptune.Art.Foundation
+} = require 'art-standard-lib'
+{createWithPostCreate} = require 'art-class-system'
+{missing, success, pending} = require "art-communication-status"
+{KeyFieldsMixin, PipelineRegistry, pipelines} = require 'art-ery'
 
-PipelineRegistry = require '../PipelineRegistry'
+{FluxModel, models} = require '@art-suite/art-flux'
 
 {prefetchedRecordsCache} = require '../PrefetchedRecordsCache'
-{missing, success, pending} = CommunicationStatus
 
-defineModule module, class ArtEryFluxModel extends ArtEry.KeyFieldsMixin FluxModel
+ArtEryQueryFluxModel = require './ArtEryQueryFluxModel'
+
+defineModule module, class ArtEryFluxModel extends KeyFieldsMixin FluxModel
   @abstractClass()
 
   ###
@@ -70,7 +66,7 @@ defineModule module, class ArtEryFluxModel extends ArtEry.KeyFieldsMixin FluxMod
     BaseClass
 
   @defineModelsForAllPipelines: =>
-    for name, pipeline of ArtEry.pipelines when name == pipeline.getName()
+    for name, pipeline of pipelines when name == pipeline.getName()
       @createModel pipeline
 
   @bindWithArtEry: =>

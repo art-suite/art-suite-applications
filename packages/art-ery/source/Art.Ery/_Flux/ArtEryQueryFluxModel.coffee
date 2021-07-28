@@ -1,10 +1,5 @@
-Foundation = require 'art-foundation'
-{Flux} = Neptune.Art
-ArtEry = require 'art-ery'
-
 {
   log
-  CommunicationStatus
   select
   isString
   isArray
@@ -18,15 +13,14 @@ ArtEry = require 'art-ery'
   arrayWithElementReplaced
   formattedInspect
   propsEq
-  defineModule
   arrayWithout
-} = Foundation
+  defineModule
+} = require 'art-standard-lib'
+{missing, success, pending} = require "art-communication-status"
+{KeyFieldsMixin} = require "art-ery"
+{FluxModel} = require '@art-suite/art-flux'
 
-{missing, success, pending} = CommunicationStatus
-
-{FluxModel} = Flux
-
-defineModule module, class ArtEryQueryFluxModel extends ArtEry.KeyFieldsMixin FluxModel
+defineModule module, class ArtEryQueryFluxModel extends KeyFieldsMixin FluxModel
   @abstractClass()
 
   loadData: (key) ->
