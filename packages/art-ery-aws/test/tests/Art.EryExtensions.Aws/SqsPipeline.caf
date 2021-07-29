@@ -1,4 +1,0 @@
-import &StandardImport
-
-suite: ->
-  test "foo", ->
