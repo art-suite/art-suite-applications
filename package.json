@@ -6,6 +6,7 @@
     "@art-suite/art-flux": "file:packages/@art-suite/art-flux",
     "@art-suite/art-models": "file:packages/@art-suite/art-models",
     "@art-suite/instance-function-binding-mixin": "^1.0.0",
+    "@art-suite/local-storage": "^1.0.0",
     "@art-suite/monorepo": "^1.6.1",
     "@art-suite/pipelines": "file:unpublished/@art-suite/pipelines",
     "@art-suite/pointer-actions-mixin": "file:packages/@art-suite/pointer-actions-mixin",

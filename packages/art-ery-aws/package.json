@@ -3,8 +3,9 @@
   "bugs": "https://github.com/art-suite/art-suite-applications/issues",
   "dependencies": {
     "art-aws": "^1.29.7",
+    "art-communication-status": "^1.5.13",
     "art-ery": "^1.118.7",
-    "uuid": "^8.3.2"
+    "art-standard-lib": "^1.70.6"
   },
   "description": "ArtEry for AWS Lambda + DynamoDB",
   "devDependencies": {
