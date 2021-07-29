@@ -1,0 +1,255 @@
+import &StandardImport
+
+myTable = MyTable = null
+setupPromise = null
+setupWithMyTable = ->
+  &ArtConfig.configure
+    artConfigName: :test
+    artConfig:
+      Art:
+        Aws:
+          credentials:
+            accessKeyId:      :test-accessKeyId
+            secretAccessKey:  :test-secretAccessKey
+
+          region:             :us-east-1
+
+          dynamoDb: endpoint: :http://localhost:8081
+
+        Ery: tableNamePrefix: "art-ery-aws-test."
+
+  setupPromise ||=
+    deleteTestTables()
+    .then ->
+      Neptune.Art.Ery.PipelineRegistry._reset()
+      {myTable} = class MyTable extends DynamoDbPipeline
+        @publicRequestTypes :get :create :update :delete :getAll :batchGet
+        @addDatabaseFilters
+          linkFilterVersion: 2
+          fields:
+            name:       "required string"
+            email:      "required email"
+            rank:       :number
+            attributes: :array
+
+        @publicHandlers
+          throwServiceUnavailable: (request)->
+            {numFailures} = request.props
+            attemptCount = 0
+            @_artEryToDynamoDbRequest
+              request
+              then: (params) =>
+                attemptCount++
+                if numFailures >= attemptCount
+                  # 4 means it'll fail all retries on the first call, but
+                  # will succeed in the second
+                  throw new Error "Service Unavailable"
+                successfulOnAttempt: attemptCount
+
+      {myCompoundKeyTable} = class MyCompoundKeyTable extends DynamoDbPipeline
+        @keyFields "userId/postId"
+        @addDatabaseFilters
+          linkFilterVersion: 2
+          fields:
+            user:   "link"
+            post:   "link"
+
+      Promise.all []
+        myCompoundKeyTable._vivifyTable()
+        myTable._vivifyTable()
+
+setupWithMyTableEmptied = ->
+  setupWithMyTable()
+  .then ->
+    myTable.getAll()
+    .then (users) ->
+      each user in users
+        myTable.delete user.id
+
+
+describe
+
+  basic: ->
+    chainedTest setupWithMyTable
+    .softTapTest
+      "create then get", ->
+        myTable.create
+          data:
+            name: "John"
+            email: "foo@bar.com"
+
+        .then (data) ->
+          assert.isString data.id
+          assert.isNumber data.createdAt
+          assert.isNumber data.updatedAt
+          myTable.get key: data
+          .then (getData) ->
+            assert.eq getData, data
+
+      "number type can create and update factional valuyes" ->
+        myTable.create
+          data:
+            name: "John"
+            email: "foo@bar.com"
+            rank: .25
+        .then (record) ->
+          assert.eq record.rank, .25  "" create
+          myTable.get record.id
+
+        .then (record) ->
+          assert.eq record.rank, .25  "" create-get
+          myTable.update key: record.id, data: rank: .75
+
+        .then (record) ->
+          assert.eq record.rank, .75  "" update
+          myTable.get record.id
+
+        .then (record) ->
+          assert.eq record.rank, .75  "" update-get
+
+      "delete", ->
+        createData = null
+
+        myTable.create
+          data:
+            name: "John"
+            email: "foo@bar.com"
+            rank: 123
+            attributes: ["adventurous", "charming"]
+
+        .then (_createData) ->
+          createData = _createData
+          myTable.delete key: createData.id
+
+        .then ->
+          assert.rejects myTable.get key: createData.id
+
+        .then (expectedError)->
+          {response} = expectedError.info
+          assert.eq response.status, missing
+          "triggered catch"
+
+      "describeTable", ->
+        myTable.dynamoDb.describeTable TableName: myTable.tableName
+        .then ({Table}) ->
+          assert.eq Table.AttributeDefinitions, []
+            AttributeName: "id"
+            AttributeType: "S"
+
+  batchedEach: ->
+    chainedTest ->
+      setupWithMyTable()
+    .thenTest "batchedEach" ->
+      myTable.batchedEach (records) ->
+        assert.isArray records
+
+  scanAndBatchGet: ->
+    chainedTest setupWithMyTableEmptied
+    .thenTest "createX2 then scan" ->
+      Promise.all []
+        myTable.create data: name: :Alice email: :alice@gmail.com
+        myTable.create data: name: :Bill  email: :bill@gmail.com
+      .then -> myTable.getAll()
+      .tap (users)->
+        assert.eq 2 users.length
+        assert.eq
+          :Alice :Bill
+          array user from users with user.name
+          .sort()
+
+    .thenTest "batchGet 2 records" (users) ->
+      myTable.batchGet props: keys: array {id} in users with id
+      .then (users2) ->
+        assert.eq
+          users.sort  (a, b) -> a.id.localeCompare b.id
+          users2.sort (a, b) -> a.id.localeCompare b.id
+
+  scan: ->
+    chainedTest setupWithMyTableEmptied
+    .thenTest "multiple pages" ->
+      Promise.all []
+        myTable.create data: name: :Alice email: :alice@gmail.com
+        myTable.create data: name: :Bill  email: :bill@gmail.com
+      .then -> myTable.getAll returnResponse: true props: limit: 1
+      .then ({props:{lastEvaluatedKey},data: users})->
+        assert.eq 1 users.length
+        # log {lastEvaluatedKey, users}
+        assert.isObject lastEvaluatedKey
+        myTable.getAll returnResponse: true props: {} lastEvaluatedKey, limit: 1
+        .then ({props:{lastEvaluatedKey2},data: users2})->
+          # log {lastEvaluatedKey2, users2}
+          assert.doesNotExist lastEvaluatedKey2
+          assert.eq
+            :Alice :Bill
+            array user from compactFlatten [users, users2] with user.name
+            .sort()
+
+  #   # test "createX3 then scan all pages" ->
+  #   #   Promise.all []
+  #   #     myTable.create data: name: :Alice email: :alice@gmail.com
+  #   #     myTable.create data: name: :Bill  email: :bill@gmail.com
+  #   #     myTable.create data: name: :Craig email: :craig@gmail.com
+  #   #   .then -> myTable.getAll returnResponse: true props: limit: 1
+  #   #   .then (users)->
+  #   #     assert.eq 1 users.length
+
+  update: ->
+    chainedTest setupWithMyTable
+    .softTapTest
+      "using keys", ->
+
+        createData = null
+
+        myTable.create
+          data:
+            name: "John"
+            email: "foo@bar.com"
+            rank: 123
+            attributes: ["adventurous", "charming"]
+
+        .then (createData) ->
+          myTable.update
+            key: createData.id
+            data: rank: 456
+
+          .then (updatedData)->
+            myTable.get key: createData.id
+            .then (data)->
+              assert.eq data, merge createData, updatedData
+
+      "non-existant record fails with status: missing", ->
+        assert.rejects myTable.update
+          key: randomString()
+          data: rank: 123
+
+        .then (rejectsWith) ->
+          assert.eq rejectsWith.info.response.status, missing
+
+      "with createOk rejected without originatedOnServer", ->
+        assert.clientFailureNotAuthorized myTable.update
+          props:
+            createOk: true
+            key: randomString()
+            data: rank: 123
+
+      "non-existant record works with createOk and originatedOnServer", ->
+        pipelines.myCompoundKeyTable.update
+          returnResponseObject: true
+          originatedOnServer: true
+          props:
+            createOk: true
+            key: userId: :123 postId: :abc
+
+        .then (response) ->
+          assert.eq response.status, success
+
+  errors: ->
+    chainedTest setupWithMyTable
+    .softTapTest
+      "Service Unavailable errors return valid response with status networkFailure" ->
+        assert.rejects myTable.throwServiceUnavailable props: numFailures: 3
+        .then ({status}) -> assert.eq status, networkFailure
+
+      "Service Unavailable errors are retried a limited number of times" ->
+        myTable.throwServiceUnavailable props: numFailures: 2
+        .then (rest) -> assert.eq rest, successfulOnAttempt: 3

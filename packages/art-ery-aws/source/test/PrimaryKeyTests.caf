@@ -1,0 +1,85 @@
+import &StandardImport
+
+describe
+  primaryKey: ->
+    test "no primaryKey defines no queries" ->
+      {thing} = class Thing extends DynamoDbPipeline
+      assert.eq {}, thing.queries
+
+    test "primaryKey :userId defines no queries" ->
+      {thing} = class Thing extends DynamoDbPipeline
+        @primaryKey :userId
+      assert.eq {}, thing.queries
+
+    test "primaryKey :userId/postId defines correct queries" ->
+      {thing} = class Thing extends DynamoDbPipeline
+        @primaryKey :userId/postId
+      assert.eq
+        :byUserId, :byUserIdDesc
+        Object.keys thing.queries
+        .sort()
+
+  "compound primaryKey": ->
+    myManyToManyTable = null
+    chainedTest ->
+      setupTestConfiguration()
+      {myManyToManyTable} = class MyManyToManyTable extends DynamoDbPipeline
+        @primaryKey :userId/postId
+        @publicRequestTypes :create :get :update :getAll :byUserId
+        @addDatabaseFilters
+          linkFilterVersion: 2
+          fields:
+            user: "required link"
+            post: "required link"
+            rank: :number
+
+      myManyToManyTable._vivifyTable()
+
+    .softTapTest
+      "primaryKey defines the correct queries" ->
+        assert.eq
+          Object.keys myManyToManyTable.queries
+          .sort()
+          :byUserId :byUserIdDesc
+
+      "primaryKey queries have correct keyFields" ->
+        each query, queryName in myManyToManyTable.queries
+          assert.eq
+            query.options.keyFields
+            [] :userId
+            conext: {} queryName, query
+
+    .thenTest
+      "create", ->
+        myManyToManyTable.create
+          data:
+            rank: 123
+            userId: randomString()
+            postId: randomString()
+
+    .tapTest
+      :get (data) ->
+        assert.doesNotExist data.id
+        myManyToManyTable.get key: data
+        .then ({rank}) -> assert.eq rank, 123
+
+      :update (data) ->
+        myManyToManyTable.update key: data, data: merge data, rank: 456
+
+      :getAfterUpdate (data) ->
+        myManyToManyTable.get key: data
+        .then ({rank}) -> assert.eq rank, 456
+
+      :byUserId (data) ->
+        myManyToManyTable.byUserId key: data.userId
+        .then ([{rank}]) -> assert.eq rank, 456
+
+    .thenTest "create fails with missing required field", ->
+
+      assert.rejects myManyToManyTable.create
+        data:
+          rank:   123
+          userId: randomString()
+
+      .then (expectedError) ->
+        assert.eq expectedError.info.response.status, clientFailure

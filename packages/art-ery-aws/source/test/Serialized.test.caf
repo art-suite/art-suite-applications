@@ -1,0 +1,3 @@
+&BasicsTests
+&PrimaryKeyTests
+&CrossPipelineEventsTests

@@ -113,6 +113,13 @@ suite:
           AttributeType: "S"
         ]
 
+  batchedEach: ->
+    chainedTest ->
+      setupWithMyTable()
+    .thenTest "batchedEach" ->
+      myTable.batchedEach (records) ->
+        assert.isArray records
+
   scanAndBatchGet: ->
     chainedTest ->
       setupWithMyTable()

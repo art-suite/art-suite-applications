@@ -36,6 +36,7 @@
     "clean": "rm -rf build/*",
     "nn": "nn build/* test/tests",
     "test": "npm run nn\nmocha -u tdd",
+    "test-server": "../art-aws/start_dynamo_db_local_server",
     "watch": "npm-watch"
   },
   "version": "2.1.2",

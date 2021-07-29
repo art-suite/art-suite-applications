@@ -25,7 +25,6 @@ defineModule module, class DynamoDbPipelineOldCoffee extends KeyFieldsMixin Upda
   ###########################################
   # Class API
   ###########################################
-
   @createTablesForAllRegisteredPipelines: ->
     promises = for name, pipeline of pipelines when isFunction pipeline.createTable
       pipeline.createTable()
@@ -66,218 +65,20 @@ defineModule module, class DynamoDbPipelineOldCoffee extends KeyFieldsMixin Upda
       .catch -> "ERROR: could not connect to the table"
     dynamoDb: -> DynamoDb.singleton
 
-
-  ###########################################
-  # Helpers - not sure these should be public at all
-  ###########################################
-  queryDynamoDb:  (params) ->
-    log.warn "DEPRICATED: queryDynamoDb; use queryDynamoDbWithRequest"
-    @_retryIfServiceUnavailable null, => @dynamoDb.query merge params, table: @tableName
-
-  queryDynamoDbWithRequest:  (request, params) ->
-    @_retryIfServiceUnavailable request, => @dynamoDb.query merge params, table: @tableName
-
-  scanDynamoDb:   (params)         -> @dynamoDb.scan       merge params, table: @tableName
-  withDynamoDb:   (action, params) -> @dynamoDb[action]    merge params, table: @tableName
-
-  ###
-  iterate over entire table
-  IN:
-    f: (listOfRecords) -> # out ignored; throw to abort
-    options:
-      limit: stop after this many entries found
-      batchLimit: limit the number of entries returned per batch
-  OUT: count
-  ###
-  batchedEach: (f, options = {}) ->
-    {lastEvaluatedKey, limit, batchLimit} = options
-    batchLimit = limit if limit? && !batchLimit?
-
-    inLastEvaluatedKey = lastEvaluatedKey
-    @getAll returnResponse: true, props: merge options.props, {lastEvaluatedKey, limit: batchLimit}
-    .then ({props:{lastEvaluatedKey}, data}) =>
-      getMore = (!limit || limit > data.length) && !!lastEvaluatedKey
-      log "got #{data.length} records. #{formattedInspect {getMore, limit, lastEvaluatedKey}}"
-      if lastEvaluatedKey?
-        throw new Error "same last-key #{inLastEvaluatedKey}" if inLastEvaluatedKey == lastEvaluatedKey
-      Promise.then -> f data
-      .then =>
-        if getMore
-          @batchedEach f, merge options, {lastEvaluatedKey, limit: limit? && limit - data.length}
-          .then (count) -> count + data.length
-        else data.length
-
   ###########################################
   # Handlers
   ###########################################
   @handlers
 
-    # to-depricate??? use initialize
-    createTable: ->
-      @_vivifyTable()
-      .then -> message: "success"
-
-    initialize: (request)->
-      @_vivifyTable()
-      .then -> message: "success"
-
-    getInitializeParams: -> @createTableParams
-
-    ################################
-    # Direct DynamoDb requests
-    ################################
-    get: (request) ->
-      @_artEryToDynamoDbRequest request,
-        requiresKey: true
-        then: (params) =>
-          @dynamoDb.getItem params
-          .then (result) -> result.item || request.missing()
-
-    ###
-    limit: number (optional)
-    lastEvaluatedKey:
-      use the lastEvaluatedKey that was returned from the previous call, if it was set
-    ###
-    scan: (request) ->
-      {limit, lastEvaluatedKey} = request.props
-      @scanDynamoDb {limit, lastEvaluatedKey}
-      .then ({lastEvaluatedKey, items}) ->
-        request.success
-          data:   items
-          props:  {lastEvaluatedKey}
-
-    getAll: (request) ->
-      request.subrequest request.pipeline, "scan", returnResponse: true, props: request.props
-
-    batchGet: (request) ->
-      {keys, select} = request.props
-      request.require isArray request.props.keys
-      .then -> if select then request.require isString request.props.select
-      .then => @_artEryToDynamoDbRequest request,
-        then: (params) =>
-          @dynamoDb.batchGetItem params
-          .then ({items}) -> items
-
-    ###
-    TODO: make create fail if the item already exists
-      WHY? we have after-triggers that need to only trigger on a real create - not a replace
-      AND filters like ValidationFilter assume create is a real create and update is a real update...
-      NOTE: replace should be considered an update...
-      NOTE: We have createOrUpdate if you really want both.
-
-      ADD "replaceOk" prop
-        Only replace existing items if explicitly requested:
-        {replaceOk} = request.props
-        This will mostly be used internally. Use createOrUpdate for
-        that behavior externally.
-
-    HOW to do 'replaceOk':
-
-      http://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_PutItem.html
-      To prevent a new item from replacing an existing item, use a conditional
-      expression that contains the attribute_not_exists function with the name of
-      the attribute being used as the partition key for the table. Since every
-      record must contain that attribute, the attribute_not_exists function will
-      only succeed if no matching item exists.
-
-    ###
-    create: (request) ->
-      @_artEryToDynamoDbRequest request, then: (params) =>
-        @dynamoDb.putItem params
-        .then -> request.data
-
-    ###
-    IN: response.props:
-      createOk: true/falsish
-        NOTE:
-          A) can only use on tables which don't auto-generate-ids
-
-    OUT:
-      if record didn't exist:
-        if createOk
-          record was created
-        response.status == missing
-      else
-        data: all fields with their current values (returnValues: 'allNew')
-
-    TODO:
-      support request.props.add and request.props.setDefault
-        for both: requireOriginatedOnServer
-    ###
-    update: (request) ->
-      {createOk} = request.props
-      request.requireServerOriginIf createOk, "to use createOk"
-      .then =>
-        request.rejectIf createOk && @getKeyFieldsString() == 'id', "createOk not available on tables with auto-generated-ids"
-      .then =>
-        _dynamoDbParams = null
-        @_artEryToDynamoDbRequest request,
-          mustExist: !createOk
-          requiresKey: true
-          then: (dynamoDbParams)=>
-            _dynamoDbParams = dynamoDbParams
-            @dynamoDb.updateItem dynamoDbParams
-            .then ({item}) =>
-              if dynamoDbParams.returnValues?.match /old/i
-                request.success
-                  props:
-                    oldData: item
-                    data: request.requestDataWithKey
-              else
-                modifiedFields = @getFieldsRequestWillModify request
-                request.success
-                  props:
-                    data: data = mergeInto request.requestDataWithKey, item
-                    updatedData: object data,
-                      when: (v, k) -> modifiedFields[k]?
-
-            .catch (error) ->
-              if error.message.match /ConditionalCheckFailedException/
-                request.missing "Attempted to update a non-existant record."
-              else
-                log DynamoDbPipeline_update: {error, request}
-                throw error
-        .tapCatch (error) ->
-          log ArtEryDynamoDb: {
-            request
-            _dynamoDbParams
-          }
-
-
-    ### updateBulk - TODO
-      IN: data: array of objects compatible with a single 'update'
-      Make sure to also update getFieldsRequestWillModify to correctly merge down all fields in the builk-update.
-        This'll ensure UserOwnedFilter properly handles authorization
-    ###
-
-    ###
-      OUT:
-        if record didn't exist:
-          response.status == missing
-        else
-          data: keyFields & values
-    ###
-    delete: (request) ->
-      @_artEryToDynamoDbRequest request,
-        mustExist: true
-        returnValues: "allOld"
-        then: (deleteItemParams) =>
-          @dynamoDb.deleteItem deleteItemParams
-          .then ({item}) -> item
-          .catch (error) ->
-            if error.message.match /ConditionalCheckFailedException/
-              request.missing "Attempted to delete a non-existant record."
-            else throw error
-
     ################################
     # Compound Requests
     ################################
 
-    ###
-    This calls 'get' first, then calls 'delete' if it exists. Therefor 'delete' hooks
-    will only fire if the record actually exists.
+    ### deleteIfExists
+      This calls 'get' first, then calls 'delete' if it exists. Therefor 'delete' hooks
+      will only fire if the record actually exists.
 
-    OUT: promise.then (response) -> response.data == key(s)
+      OUT: promise.then (response) -> response.data == key(s)
     ###
     deleteIfExists: (request) ->
       {key, data} = request
@@ -322,9 +123,6 @@ defineModule module, class DynamoDbPipelineOldCoffee extends KeyFieldsMixin Upda
         .then (result) =>
           keyFields = if isPlainObject(key) then key else if isString(key) && @toKeyObject then @toKeyObject key
           result ? request.subrequest @pipelineName, "create", {key, data: merge keyFields, setDefault, data, add}
-
-  getFieldsRequestWillModify: (request) ->
-    merge request.props.setDefault, request.props.add, request.data
 
   #########################
   # PRIVATE
@@ -425,7 +223,6 @@ defineModule module, class DynamoDbPipelineOldCoffee extends KeyFieldsMixin Upda
               else
                 ret
 
-
     queries
 
   _vivifyTable: ->
@@ -433,7 +230,7 @@ defineModule module, class DynamoDbPipelineOldCoffee extends KeyFieldsMixin Upda
       @tablesByNameForVivification
       .then (tablesByName) =>
         unless tablesByName[@tableName]
-          log.warn "#{@getClassName()}#_vivifyTable() dynamoDb table does not exist: #{@tableName}, creating..."
+          # log.warn "#{@getClassName()}#_vivifyTable() dynamoDb table does not exist: #{@tableName}, creating..."
           @_createTable()
 
   @classGetter
@@ -527,7 +324,6 @@ defineModule module, class DynamoDbPipelineOldCoffee extends KeyFieldsMixin Upda
         conditionExpression ||= mustExist && key
 
         consistentRead = true if consistentRead
-
 
         objectWithExistingValues {
           @tableName

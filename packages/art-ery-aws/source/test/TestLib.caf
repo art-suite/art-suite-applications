@@ -1,0 +1,85 @@
+import
+  &ArtStandardLib
+  &ArtEryAws
+
+myTable = MyTable = null
+setupPromise = null
+{}
+  getMyTablePipeline = -> myTable
+  getMyTableClass = -> MyTable
+  setupTestConfiguration = ->
+    &ArtConfig.configure
+      artConfigName: :test
+      artConfig:
+        Art:
+          Aws:
+            credentials:
+              accessKeyId:      :test-accessKeyId
+              secretAccessKey:  :test-secretAccessKey
+
+            region:             :us-east-1
+
+            dynamoDb: endpoint: :http://localhost:8081
+
+          Ery: tableNamePrefix: "art-ery-aws-test."
+
+  setupWithMyTable = ->
+    setupTestConfiguration()
+
+    setupPromise ||=
+      deleteTestTables()
+      .then ->
+        Neptune.Art.Ery.PipelineRegistry._reset()
+        {myTable} = class MyTable extends DynamoDbPipeline
+          @publicRequestTypes :get :create :update :delete :getAll :batchGet
+          @addDatabaseFilters
+            linkFilterVersion: 2
+            fields:
+              name:       "required string"
+              email:      "required email"
+              rank:       :number
+              attributes: :array
+
+          @publicHandlers
+            throwServiceUnavailable: (request)->
+              {numFailures} = request.props
+              attemptCount = 0
+              @_artEryToDynamoDbRequest
+                request
+                then: (params) =>
+                  attemptCount++
+                  if numFailures >= attemptCount
+                    # 4 means it'll fail all retries on the first call, but
+                    # will succeed in the second
+                    throw new Error "Service Unavailable"
+                  successfulOnAttempt: attemptCount
+
+        {myCompoundKeyTable} = class MyCompoundKeyTable extends DynamoDbPipeline
+          @keyFields "userId/postId"
+          @addDatabaseFilters
+            linkFilterVersion: 2
+            fields:
+              user:   "link"
+              post:   "link"
+
+        Promise.all []
+          myCompoundKeyTable._vivifyTable()
+          myTable._vivifyTable()
+
+  setupWithMyTableEmptied = ->
+    setupWithMyTable()
+    .then ->
+      myTable.getAll()
+      .then (users) ->
+        each user in users
+          myTable.delete user.id
+
+  deleteTestTables = ->
+    dynamoDb = new &ArtAws.DynamoDb
+    .listTables()
+    .then ({TableNames}) ->
+      Promise.all array table in TableNames
+
+        if /art-ery-aws-test/.test table
+          # log.warn deleteTable: table
+          dynamoDb.deleteTable TableName: table

@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "Serialized.test.js",
+  "sourceRoot": "../..",
+  "sources": [
+    "source/test/Serialized.test.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;oDACA,qCACA"
+}
