@@ -1,17 +1,19 @@
 {
   currentSecond
   each
-  present, Promise, BaseObject, RestClient, merge,
-  inspect, isString, isObject, log, Validator,
+  present, Promise, merge,
+  inspect, isString, isObject, log,
   CommunicationStatus, arrayWith, w
   objectKeyCount, isString, isPlainObject
   objectWithout
   isFunction
   object
   objectHasKeys
-} = Foundation = require 'art-foundation'
+} = Foundation = require 'art-standard-lib'
+RestClient = require 'art-rest-client'
 ArtEry = require './namespace'
-{success, missing, validStatus, clientFailure, failure} = CommunicationStatus
+{Validator} = require 'art-validation'
+{success, missing, validStatus, clientFailure, failure} = require 'art-communication-status'
 
 # validator must be initialized after Request and Pipeline have bene defined
 _validator = null

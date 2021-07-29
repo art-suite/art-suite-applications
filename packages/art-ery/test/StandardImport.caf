@@ -3,5 +3,4 @@
   &ArtClassSystem
   &ArtCommunicationStatus
   &ArtTestbench
-  &ArtEry
-  &source
+  require :art-ery

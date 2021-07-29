@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "ArtEryInfoHandler.js",
+  "sourceRoot": "../../..",
+  "sources": [
+    "source/Art.Ery/_Server/ArtEryInfoHandler.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,sGAAO,6FAEP,wEAAgC,yGAE9B,YAAO,CACL,4BAAmB,yCAA0B,kCAAK,2BAAW,iEAE/D,QAAkB,CAAC,SAAS,2BAC1B,qBAA+B,yBAAe,uBAAsB,YAAY,iBAChF,0BACqB,2BAAa,IAAI,eAAe"
+}

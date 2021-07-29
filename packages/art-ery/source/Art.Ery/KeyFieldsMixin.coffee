@@ -1,4 +1,5 @@
-{defineModule, log, present, isPlainArray, isString, isPlainObject, formattedInspect, array, object, each} = require 'art-foundation'
+{defineModule, log, present, isPlainArray, isString, isPlainObject, formattedInspect, array, object, each
+} = require 'art-standard-lib'
 {Validator} = require 'art-validation'
 
 ###

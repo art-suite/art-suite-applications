@@ -1,9 +1,9 @@
-import &StandardImport, &source.Stack
+import &StandardImport
 
 suite: ->
   test "cleanStackTrace" ->
     assert.eq
-      cleanStackTrace
+      Stack.cleanStackTrace
         """
           first-line
             at #{process.cwd()}/source/index.js:1:5

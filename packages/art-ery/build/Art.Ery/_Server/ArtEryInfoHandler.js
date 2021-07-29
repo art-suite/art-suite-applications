@@ -1,0 +1,4 @@
+"use strict"
+let Caf = require('caffeine-script-runtime');
+Caf.defMod(module, () => {return Caf.importInvoke(["config", "pipelines", "objectKeyCount"], [global, require('./StandardImport')], (config, pipelines, objectKeyCount) => {let ArtEryInfoHandler; return ArtEryInfoHandler = Caf.defClass(class ArtEryInfoHandler extends require('art-express-server').PromiseHandler {}, function(ArtEryInfoHandler, classSuper, instanceSuper) {this.getter({handleUrlRegex: function() {return this._exactDefaultHandlerRegex || (this._exactDefaultHandlerRegex = RegExp(`^\\/${Caf.toString(config.apiRoot)}\\/?\$`));}}); this.prototype.handleApiRequest = function(request, requestData) {let reports; reports = Caf.object(pipelines, (pipeline) => pipeline.getApiReport({publicOnly: true})); return {"Art.Ery.Api": Caf.object(reports, null, (report) => 0 < objectKeyCount(report))};};});});});
+//# sourceMappingURL=ArtEryInfoHandler.js.map

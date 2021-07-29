@@ -9,7 +9,7 @@
   toMilliseconds
 } = require 'art-standard-lib'
 {Validator} = require 'art-validation'
-{JsonStore} = require 'art-foundation'
+{JsonStore} = require '@art-suite/local-storage'
 {jsonStore} = JsonStore
 ###
 TODO:

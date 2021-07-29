@@ -1,4 +1,4 @@
-{defineModule, log, Promise, isFunction, isString, pushIfNotPresent, formattedInspect} = require 'art-foundation'
+{defineModule, log, Promise, isFunction, isString, pushIfNotPresent, formattedInspect} = require 'art-standard-lib'
 Filter = require '../Filter'
 
 defineModule module, class AfterEventsFilter extends Filter

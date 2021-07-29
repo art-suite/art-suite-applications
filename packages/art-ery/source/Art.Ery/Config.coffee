@@ -1,4 +1,6 @@
-{w, Validator, defineModule, mergeInto, BaseObject, Configurable} = require 'art-foundation'
+{w, defineModule, mergeInto} = require 'art-standard-lib'
+{Validator} = require 'art-validation'
+{Configurable} = require 'art-config'
 
 defineModule module, class Config extends Configurable
   @defaults
