@@ -9,8 +9,7 @@
   FilterBase:         require('./FilterBase'),
   SimplePipeline:     require('./SimplePipeline'),
   SimplePipelineTest: require('./SimplePipeline.test'),
-  SimplePipelineCaf:  require('./SimplePipelineCaf'),
   UpdateAfterMixin:   require('./UpdateAfterMixin')
 });
+require('./ArtEryFlux');
 require('./Filters');
-require('./Flux');

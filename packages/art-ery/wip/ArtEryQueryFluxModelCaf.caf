@@ -1,28 +1,8 @@
-{
-  log
-  select
-  isString
-  isArray
-  isFunction
-  decapitalize
-  merge
-  Promise
-  eq
-  upperCamelCase
-  arrayWith
-  arrayWithElementReplaced
-  formattedInspect
-  propsEq
-  arrayWithout
-  defineModule
-} = require 'art-standard-lib'
-{missing, success, pending} = require "art-communication-status"
-{KeyFieldsMixin} = require "art-ery"
-{ArtModel} = require '@art-suite/art-models'
+import &StandardImport, &ArtEry, &@ArtSuite/ArtFlux
 
-defineModule module, class ArtEryQueryFluxModel extends KeyFieldsMixin ArtModel
+class ArtEryQueryFluxModel extends KeyFieldsMixin FluxModel
   @abstractClass()
-
+##
   loadData: (key) ->
     Promise.resolve @query key, @pipeline
     .then (data) => @localSort data
@@ -33,7 +13,7 @@ defineModule module, class ArtEryQueryFluxModel extends KeyFieldsMixin ArtModel
   # OVERRIDEABLES
   #########################
   ###
-    IN: will be the key (returned from fromArtModelKey)
+    IN: will be the key (returned from fromFluxKey)
     OUT: array of singleModel records
       OR promise.then (arrayOfRecords) ->
     TODO:
@@ -44,14 +24,12 @@ defineModule module, class ArtEryQueryFluxModel extends KeyFieldsMixin ArtModel
 
       If an array is returned, it will always be records. However, if an object is
       returned, then one of the fields will be records - and will go through the return
-      pipeline, but the rest will be left untouched and placed in the ModelRecord's data field.
+      pipeline, but the rest will be left untouched and placed in the FluxRecord's data field.
       Or should they be put in an auxiliary field???
-  ###
   query: (key) -> @_pipeline[@_queryName] key: key, props: include: "auto"
 
   ###
     override for to sort records when updating local query data in response to local record changes
-  ###
   localSort: (queryData) -> queryData
 
   ###
@@ -62,7 +40,6 @@ defineModule module, class ArtEryQueryFluxModel extends KeyFieldsMixin ArtModel
       previousQueryData: array of records or null
       updatedRecordData: single record or null
     OUT: return null if nothing changed, else return a new array
-  ###
   localMerge: (previousQueryData, updatedRecordData, wasDeleted) ->
     previousQueryData ?= []
     return previousQueryData unless updatedRecordData || wasDeleted
@@ -73,46 +50,45 @@ defineModule module, class ArtEryQueryFluxModel extends KeyFieldsMixin ArtModel
 
     updatedRecordDataKey = @recordsModel.toKeyString updatedRecordData
 
-    for currentRecordData, i in previousQueryData
-      if updatedRecordDataKey == @recordsModel.toKeyString currentRecordData
-        return if wasDeleted
-          # deleted >> remove from query
-          arrayWithout previousQueryData, i
-        else if propsEq currentRecordData, updatedRecordData
-          # no change >> no update
-          log "saved 1 ArtModelStore update due to no-change check! (model: #{@name}, record-key: #{updatedRecordDataKey})"
-          null
-        else
-          # change >> replace with newest version
-          arrayWithElementReplaced previousQueryData, updatedRecordData, i
+    found = find currentRecordData, i in-array previousQueryData when updatedRecordDataKey == @recordsModel.toKeyString currentRecordData
+      {} currentRecordData, i
+
+    switch
+    when found extract? i, currentRecordData
+      if wasDeleted
+        # deleted >> remove from query
+        arrayWithout previousQueryData, i
+
+      else if propsEq currentRecordData, updatedRecordData
+        # no change >> no update
+        log "saved 1 fluxStore update due to no-change check! (model: #{@name}, record-key: #{updatedRecordDataKey})"
+        null
+
+      else
+        # change >> replace with newest version
+        arrayWithElementReplaced previousQueryData, updatedRecordData, i
 
     # updatedRecordData wasn't in previousQueryData
-    if wasDeleted
-      previousQueryData
-    else
-      arrayWith previousQueryData, updatedRecordData
+    when wasDeleted then previousQueryData
+    else arrayWith previousQueryData, updatedRecordData
 
   ###############################
-  # ArtModel overrides
+  # FluxModel overrides
   ###############################
   ###
-    ArtEryArtModel calls dataUpdated and dataDeleted from its
+    ArtEryFluxModel calls dataUpdated and dataDeleted from its
     dataUpdated and dataDeleted functions, respectively.
-  ###
-  dataUpdated: (queryKey, singleRecordData) ->
-    @_updateArtModelStoreIfExists queryKey, singleRecordData
-
-  dataDeleted: (queryKey, singleRecordData) ->
-    @_updateArtModelStoreIfExists queryKey, singleRecordData, true
+  dataUpdated: (queryKey, singleRecordData) -> @_updateFluxStoreIfExists queryKey, singleRecordData
+  dataDeleted: (queryKey, singleRecordData) -> @_updateFluxStoreIfExists queryKey, singleRecordData, true
 
   ###############################
   # Private
   ###############################
-  _updateArtModelStoreIfExists: (queryKey, singleRecordData, wasDeleted) ->
+  _updateFluxStoreIfExists: (queryKey, singleRecordData, wasDeleted) ->
     if @getModelRecord queryKey
-      @updateModelRecord queryKey, (oldArtModelRecord) =>
-        if merged = @localMerge oldArtModelRecord.data, singleRecordData, wasDeleted
-          merge oldArtModelRecord, data: @localSort merged
+      @updateModelRecord queryKey, (oldFluxRecord) =>
+        if merged = @localMerge oldFluxRecord.data, singleRecordData, wasDeleted
+          merge oldFluxRecord, data: @localSort merged
 
         else
-          oldArtModelRecord
+          oldFluxRecord

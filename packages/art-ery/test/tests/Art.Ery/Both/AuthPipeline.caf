@@ -1,0 +1,25 @@
+import &StandardImport
+isPresentString = (s) -> isString(s) && present s
+
+suite: ->
+  setup -> session.reset()
+
+  validAuthProps    = data: username: :bar password: :bar
+  invalidAuthProps  = data: username: :bar password: :baz
+
+  test "auth success", ->
+    pipelines.auth.authenticate validAuthProps
+    .then -> assert.eq pipelines.auth.session.data.username, :bar
+
+  test "auth failure", ->
+    assert.rejects pipelines.auth.authenticate invalidAuthProps
+    .then ({info: {response}}) ->
+      assert.eq response.status, clientFailure
+      assert.isString response.data.message
+
+  test "auth then get", ->
+    pipelines.auth.get()
+    .then (v) -> assert.eq v, ""
+    .then     -> pipelines.auth.authenticate validAuthProps
+    .then     -> pipelines.auth.get()
+    .then (v) -> assert.eq v, :bar

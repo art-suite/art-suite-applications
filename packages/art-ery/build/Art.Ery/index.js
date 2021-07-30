@@ -10,6 +10,7 @@
   Env:                    require('./Env'),
   Filter:                 require('./Filter'),
   KeyFieldsMixin:         require('./KeyFieldsMixin'),
+  KeyFieldsMixinCaf:      require('./KeyFieldsMixinCaf'),
   Pipeline:               require('./Pipeline'),
   PipelineRegistry:       require('./PipelineRegistry'),
   PrefetchedRecordsCache: require('./PrefetchedRecordsCache'),
@@ -20,6 +21,7 @@
   Session:                require('./Session'),
   Stack:                  require('./Stack'),
   StandardImport:         require('./StandardImport'),
-  UpdateAfterMixin:       require('./UpdateAfterMixin')
+  UpdateAfterMixin:       require('./UpdateAfterMixin'),
+  UpdateAfterMixinCaf:    require('./UpdateAfterMixinCaf')
 });
 require('./Filters');

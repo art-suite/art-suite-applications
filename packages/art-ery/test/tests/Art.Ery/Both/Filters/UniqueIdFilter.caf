@@ -1,0 +1,15 @@
+import &StandardImport
+suite: ->
+  test "fields are set correctly", ->
+    class MyPipeline extends SimplePipeline
+      @filter UniqueIdFilter
+
+    assert.eq MyPipeline.getFields().id.dataType, :string
+
+  test "create", ->
+    class MyPipeline extends SimplePipeline
+      @filter UniqueIdFilter
+
+    new MyPipeline
+    .create {}
+    .then ({id}) -> assert.match id, /// ^[-_a-zA-Z0-9\/\:]{12}$

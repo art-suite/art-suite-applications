@@ -1,4 +1,4 @@
-import &StandardImport, {} &SimplePipeline
+import &StandardImport
 
 suite: ->
   test "does not define fields", ->

@@ -1,0 +1,7 @@
+[]
+  &StandardImport
+  &build/ArtEry/Flux
+  &@ArtSuite/ArtModels
+  {}
+    &@ArtSuite/ArtModels
+    SimplePipeline: &SimplePipeline

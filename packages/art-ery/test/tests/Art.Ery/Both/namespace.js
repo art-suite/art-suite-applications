@@ -5,5 +5,5 @@ module.exports = require('../namespace').addNamespace(
   'Both',
   class Both extends Neptune.PackageNamespace {}
 );
+require('./ArtEryFlux/namespace');
 require('./Filters/namespace');
-require('./Flux/namespace');

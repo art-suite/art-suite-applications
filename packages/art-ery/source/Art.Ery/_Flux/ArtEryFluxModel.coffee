@@ -26,13 +26,13 @@
 {missing, success, pending} = require "art-communication-status"
 {KeyFieldsMixin, PipelineRegistry, pipelines} = require 'art-ery'
 
-{FluxModel, models} = require '@art-suite/art-flux'
+{ArtModel, models} = require '@art-suite/art-models'
 
 {prefetchedRecordsCache} = require '../PrefetchedRecordsCache'
 
 ArtEryQueryFluxModel = require './ArtEryQueryFluxModel'
 
-defineModule module, class ArtEryFluxModel extends KeyFieldsMixin FluxModel
+defineModule module, class ArtEryFluxModel extends KeyFieldsMixin ArtModel
   @abstractClass()
 
   ###
@@ -42,15 +42,15 @@ defineModule module, class ArtEryFluxModel extends KeyFieldsMixin FluxModel
     which will in turn create all the model aliases.
     It's important that all the model aliases are the same model-instance object.
 
-  OUT: singleton for new AnonymousArtErtFluxModel class
+  OUT: singleton for new AnonymousArtEryArtModel class
   ###
   @createModel: (pipeline) ->
     {aliases} = pipeline
     name = pipeline.getName()
     return if models[name]
-    # log "create FluxModel for pipeline: #{name}"
-    hotReloadKey = "ArtEryFluxModel:#{name}"
-    createWithPostCreate class AnonymousArtErtFluxModel extends @applyMixins pipeline, ArtEryFluxModel
+    # log "create ArtModel for pipeline: #{name}"
+    hotReloadKey = "ArtEryArtModel:#{name}"
+    createWithPostCreate class AnonymousArtEryArtModel extends @applyMixins pipeline, ArtEryFluxModel
       @_name: ucName = upperCamelCase name
       @keyFields pipeline.keyFields if pipeline.keyFields
       @pipeline pipeline
@@ -110,7 +110,7 @@ defineModule module, class ArtEryFluxModel extends KeyFieldsMixin FluxModel
         format: by - fields
         e.g. byUserId
 
-      Either way, the flux-model will be named:
+      Either way, the ArtModel will be named:
         format: pluralized pipeline name - by - fields
         e.g. postsByUserId
 
@@ -171,7 +171,7 @@ defineModule module, class ArtEryFluxModel extends KeyFieldsMixin FluxModel
     ).singleton
 
   ########################
-  # FluxModel Overrides
+  # ArtModel Overrides
   ########################
   loadData: (key) ->
     (prefetchedRecordsCache.get @pipelineName, key) ?                       # LinkFieldsFilterV2
@@ -185,7 +185,7 @@ defineModule module, class ArtEryFluxModel extends KeyFieldsMixin FluxModel
     Basically, then TWO query results for one query-model need updated - the old version gets a "delete"
     The new version gets the normal update.
 
-    We -could- do a fluxStore.get and see if we have a local copy of the single record before we
+    We -could- do a ArtModelStore.get and see if we have a local copy of the single record before we
     replace it. However, we often won't. However again, we may not NEED this often.
 
     Basically, the question becomes how do we get the old data - if we need it and it actually matters.
@@ -195,7 +195,7 @@ defineModule module, class ArtEryFluxModel extends KeyFieldsMixin FluxModel
     record, and then set responseProps.oldData: oldData. Then, DataUpdatesFilter could pass
     oldData into dataUpdated. DONE.
 
-    OK - I added the oldData input, and I attempt to get it from the fluxStore if it isn't set.
+    OK - I added the oldData input, and I attempt to get it from the ArtModelStore if it isn't set.
     I think the code is right for handling the case where we need to update to queries.
 
     TODO: We need to do the Server-Side "fetch the old data if queries-keys will change" outline above.
@@ -206,7 +206,7 @@ defineModule module, class ArtEryFluxModel extends KeyFieldsMixin FluxModel
     oldData = @getModelRecord(key)?.data
     mergedData = merge oldData, data
 
-    @updateModelRecord key, (oldFluxRecord) -> merge oldFluxRecord, data: merge oldFluxRecord.data, data
+    @updateModelRecord key, (oldModelRecord) -> merge oldModelRecord, data: merge oldModelRecord.data, data
 
     each @_queryModels, (queryModel) =>
       oldQueryKey = oldData && queryModel.dataToKeyString oldData
@@ -232,7 +232,7 @@ defineModule module, class ArtEryFluxModel extends KeyFieldsMixin FluxModel
   as long as there isn't already a model-prototype method with that name.
 
   Specifically: create & update are already defined above
-    since they need to do extra work to ensure the FluxStore is
+    since they need to do extra work to ensure the ArtModelStore is
     updated properly.
   ###
   _bindPipelineMethods: ->

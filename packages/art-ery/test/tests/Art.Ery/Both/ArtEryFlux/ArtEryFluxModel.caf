@@ -5,7 +5,7 @@ suite: ->
   User = null
   user = null
   setup ->
-    Flux._reset()
+    _resetArtSuiteModels()
     class User extends SimplePipeline
       @filter new UniqueIdFilter
       @filter new TimestampFilter
@@ -22,8 +22,8 @@ suite: ->
     assert.eq undefined user.propsToKey {}
 
   test "user instanceof FluxModel", ->
-    assert.eq Flux.models.user, user
-    assert.instanceOf Flux.models.user, Flux.FluxModel
+    assert.eq models.user, user
+    assert.instanceOf models.user, ArtModel
 
   test "myModel.create", ->
     user.create data: username: "Shane", message: "Hi"
@@ -31,7 +31,7 @@ suite: ->
   test "create with missing required field", ->
     user.create data: username: "Shane", message: ""
 
-  class MySubscriber extends FluxSubscriptionsMixin BaseObject
+  class MySubscriber extends ArtModelSubscriptionsMixin BaseObject
     ;
 
   test "subscribe when state is success", ->

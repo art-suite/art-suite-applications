@@ -3,7 +3,7 @@ import &StandardImport
 suite:
   pre2020Style: ->
     setup ->
-      Flux._reset()
+      _resetArtSuiteModels()
 
       class Post extends Pipeline
         @query postsByUserId: (request) ->
@@ -37,7 +37,7 @@ suite:
     basic: ->
       messagesByUserId = null
       setup ->
-        Flux._reset()
+        _resetArtSuiteModels()
 
         class Message extends Pipeline
           @query
@@ -75,7 +75,7 @@ suite:
 
     codeReuse: ->
       setup ->
-        Flux._reset()
+        _resetArtSuiteModels()
 
         class UserOwned extends Pipeline
           @query byUserId: (request) ->

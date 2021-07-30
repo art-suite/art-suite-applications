@@ -7,15 +7,8 @@ newRequest = (options) ->
     session: {}
     options
 
-class MyCompoundKeyPipe extends KeyFieldsMixin Pipeline
-  @keyFields "userId/postId"
-
-newCompoundKeyRequest = (options) ->
-  new Request merge
-    type:   "get"
-    pipeline: new MyCompoundKeyPipe
-    session: {}
-    options
+class MyCompoundKeyPipe extends KeyFieldsMixinCaf Pipeline
+  @keyFields :userId/postId
 
 suite:
   props: ->
@@ -315,15 +308,22 @@ suite:
             merge props, {} key, isSubrequest: false
 
   compoundKeys: ->
-    request = null
-    setup ->
-      request = newCompoundKeyRequest
-        key: userId: "userAbc", postId: "postXyz"
-        data: followerCount: 123
+    test "getKeyFields" -> assert.eq MyCompoundKeyPipe.getKeyFields(), [] :userId, :postId
+    test "getKeyFieldsString" -> assert.eq MyCompoundKeyPipe.getKeyFieldsString(), :userId/postId
 
-    test "key", -> assert.eq request.key, "userAbc/postXyz"
-    test "keyObject", -> assert.eq request.keyObject, userId: "userAbc", postId: "postXyz"
-    test "requestDataWithKey", -> assert.eq request.requestDataWithKey, userId: "userAbc", postId: "postXyz", followerCount: 123
+    chainedTest "create request" ->
+      new Request
+        type:     :get
+        pipeline: new MyCompoundKeyPipe
+        session:  {}
+        key:      userId: :userAbc postId: :postXyz
+        data:     followerCount: 123
+
+    .softTapTest
+      "request props"       ({props}) -> assert.eq props,                       key: :userAbc/postXyz data: followerCount: 123
+      :key                  (request) -> assert.eq request.key,                 :userAbc/postXyz
+      :keyObject            (request) -> assert.eq request.keyObject,           userId: :userAbc postId: :postXyz
+      :requestDataWithKey   (request) -> assert.eq request.requestDataWithKey,  userId: :userAbc postId: :postXyz followerCount: 123
 
 
   "key and data alias priorities": ->
