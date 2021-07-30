@@ -123,28 +123,6 @@ defineModule module, class DynamoDbPipelineOldCoffee extends KeyFieldsMixin Upda
 
     queries
 
-  @getter
-    tablesByNameForVivification: -> @class.getTablesByNameForVivification()
-
-    dynamoDbCreationAttributes: ->
-      out = {}
-      for k, v of @normalizedFields
-        if v.dataType == "string" || v.dataType == "number"
-          out[k] = v.dataType
-      out
-
-    streamlinedCreateTableParams: ->
-      merge
-        table: @tableName
-        globalIndexes: @globalIndexes
-        localIndexes: @localIndexes
-        attributes: @dynamoDbCreationAttributes
-        key: @keyFieldsString
-        @_options
-
-    createTableParams: ->
-      ArtAws.StreamlinedDynamoDbApi.CreateTable.translateParams @streamlinedCreateTableParams
-
 
   ###
   IN:

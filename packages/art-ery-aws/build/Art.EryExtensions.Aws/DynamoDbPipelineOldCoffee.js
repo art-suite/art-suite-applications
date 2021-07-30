@@ -177,36 +177,6 @@
       return queries;
     };
 
-    DynamoDbPipelineOldCoffee.getter({
-      tablesByNameForVivification: function() {
-        return this["class"].getTablesByNameForVivification();
-      },
-      dynamoDbCreationAttributes: function() {
-        var k, out, ref2, v;
-        out = {};
-        ref2 = this.normalizedFields;
-        for (k in ref2) {
-          v = ref2[k];
-          if (v.dataType === "string" || v.dataType === "number") {
-            out[k] = v.dataType;
-          }
-        }
-        return out;
-      },
-      streamlinedCreateTableParams: function() {
-        return merge({
-          table: this.tableName,
-          globalIndexes: this.globalIndexes,
-          localIndexes: this.localIndexes,
-          attributes: this.dynamoDbCreationAttributes,
-          key: this.keyFieldsString
-        }, this._options);
-      },
-      createTableParams: function() {
-        return ArtAws.StreamlinedDynamoDbApi.CreateTable.translateParams(this.streamlinedCreateTableParams);
-      }
-    });
-
 
     /*
     IN:

@@ -42,11 +42,30 @@ class DynamoDbPipeline extends &DynamoDbPipelineOldCoffee
   ###########################################
 
   @getter
+    dynamoDb: -> DynamoDb.singleton
+
     status: ->
       @_vivifyTable()
-      .then -> "OK: table exists and is reachable"
-      .catch -> "ERROR: could not connect to the table"
-    dynamoDb: -> DynamoDb.singleton
+      .then   -> "OK: table exists and is reachable"
+      .catch  -> "ERROR: could not connect to the table"
+
+    tablesByNameForVivification: -> @class.getTablesByNameForVivification()
+
+    dynamoDbCreationAttributes: ->
+      object v, k in @normalizedFields when v.dataType == "string" || v.dataType == "number"
+        v.dataType
+
+    streamlinedCreateTableParams: ->
+      merge {}
+        table:      @tableName
+        attributes: @dynamoDbCreationAttributes
+        key:        @keyFieldsString
+        @globalIndexes
+        @localIndexes
+        @_options
+
+    createTableParams: ->
+      StreamlinedDynamoDbApi.CreateTable.translateParams @streamlinedCreateTableParams
 
   ###########################################
     Initialization Handlers
