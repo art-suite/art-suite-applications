@@ -4,12 +4,7 @@
 (module.exports = require('./namespace'))
 
 .addModules({
-  ClientFailures: require('./ClientFailures'),
-  CompoundKeys:   require('./CompoundKeys'),
   FilterLocation: require('./FilterLocation'),
-  MessageRemote:  require('./MessageRemote'),
-  MyRemote:       require('./MyRemote'),
-  SimpleStore:    require('./SimpleStore'),
-  UserRemote:     require('./UserRemote')
+  MyRemote:       require('./MyRemote')
 });
 require('./Transition');
