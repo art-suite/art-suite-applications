@@ -1,0 +1,68 @@
+import &StandardImport
+&ArtEry.Server extract? signSession
+
+class MyRemote extends Pipeline
+
+  @remoteServer "http://localhost:8085"
+
+  @publicRequestTypes
+    :get
+    :getSessionData
+    :handledByFilterRequest
+    :handlerClientFailure
+    :hello
+    :manuallySignSession
+    :preAlterSession
+    :privateRequestOkAsSubRequest
+    :requestHost
+    :returnFalse
+    :setSessionA
+    :setSessionB
+    :setSessionData
+    :simulateClientFailure
+    :simulateMissing
+    :simulatePropsInput
+    :simulatePropsOutput
+    :simulateServerFailure
+    :slowSetSessionA
+
+  @filter
+    name: :handleByFilter
+    before: handledByFilterRequest: (request) -> request.success()
+
+  @filter
+    name: :FakeTimestampFilter
+    after: all: (response) ->
+      response extract type
+      if type == :create || type == :update
+        response.withMergedData
+          updatedAt: 123456789
+          createdAt: if type == :create then 123456789
+
+      else
+        response
+
+  @filter before: filterClientFailure:  (request) -> request.require false "" filter allways fails
+  @filter before: preAlterSession:      (request) -> request.withMergedSession sessionWasPreAltered: true
+
+  @handlers
+    get:                          ({key, data}) -> "" #{data?.greeting || 'Hello'} #{key || 'World'}!
+    getSessionData:               ({session})   -> session
+    handledByFilterRequest:       ->
+    handlerClientFailure:         (request)     -> request.require false, "handler allways fails"
+    hello:                        ({session})   -> "Hello, #{session.username}!"
+    manuallySignSession:          (request)     -> signSession(request.session).then (signature) -> {} signature
+    myPrivateRequestType:         (request)     -> request.requireServerOrigin().then -> "" myPrivateRequestType success
+    preAlterSession:              -> true
+    privateRequestOkAsSubRequest: (request)     -> request.subrequest request.pipeline, :myPrivateRequestType
+    requestHost:                  (request)     -> request.remoteRequest.hostname
+    returnFalse:                  -> false
+    setSessionA:                  (request)     -> request.respondWithMergedSession sessionA: true
+    setSessionB:                  (request)     -> request.respondWithMergedSession sessionB: true
+    setSessionData:               (request)     -> request.respondWithSession request.data
+    simulateClientFailure:        (request)     -> request.clientFailure()
+    simulateMissing:              (request)     -> request.missing()
+    simulatePropsInput:           (request)     -> request.props
+    simulatePropsOutput:          (request)     -> request.success props: myExtras: true
+    simulateServerFailure:        -> throw new Error "Boom!"
+    slowSetSessionA:              (request)     -> timeout(250).then -> request.respondWithMergedSession sessionA: true

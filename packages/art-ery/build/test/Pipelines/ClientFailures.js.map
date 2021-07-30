@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "ClientFailures.js",
+  "sourceRoot": "../../..",
+  "sources": [
+    "source/test/Pipelines/ClientFailures.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,yEAAO,iEAEP,kEAA6B,kEAE3B,kBAAc,0BAEd,YAAO,CACL,SAAQ,mCAA2B,CAAC,UAAY,uBAAgB,OAAQ,+CACxE,QAAQ,kCAA2B,CAAC,UAAY,uBAAgB,OAAQ,gDAE1E,wBAAoB,wBAAsB,4BAA0B,8BAEpE,cAAS,CACP,8BAA4B,CAAC,UAAY,uBAAgB,OAAQ,yCACjE,sCAA+B,eAC/B,uCAA+B"
+}

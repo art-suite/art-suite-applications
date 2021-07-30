@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "UserRemote2B.js",
+  "sourceRoot": "../../../..",
+  "sources": [
+    "source/test/Pipelines/Transition/UserRemote2B.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;2DAEA,8DAA2B,iFACzB,wBAAoB,UAAQ,OAAK,WAEjC,kBAAc,0BAEd,2BACE,mBAAmB,gBACnB,SACE,MAAM"
+}

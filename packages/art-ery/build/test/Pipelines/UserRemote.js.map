@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "UserRemote.js",
+  "sourceRoot": "../../..",
+  "sources": [
+    "source/test/Pipelines/UserRemote.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;yDAEA,0DAAyB,8EACvB,wBAAoB,UAAQ,OAAK,WAEjC,kBAAc,0BAEd,2BACE,mBAAmB,GACnB,SACE,MAAM"
+}

@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "CompoundKeys.js",
+  "sourceRoot": "../../..",
+  "sources": [
+    "source/test/Pipelines/CompoundKeys.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;2DAEA,8DAA2B,QAAQ,wEACjC,kBAAc,0BAEd,eAAW"
+}

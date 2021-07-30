@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "MessageRemote.js",
+  "sourceRoot": "../../..",
+  "sources": [
+    "source/test/Pipelines/MessageRemote.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;4DAEA,gEAA4B,iFAC1B,wBAAoB,UAAQ,OAAK,WAEjC,kBAAc,0BAEd,2BACE,mBAAmB,GACnB,SACE,aAAY,cAAY,QAAM,aAC9B,SAAY"
+}

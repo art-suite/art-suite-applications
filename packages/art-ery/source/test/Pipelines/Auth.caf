@@ -1,0 +1,44 @@
+import &StandardImport
+
+isPresentString = (s) -> isString(s) && present s
+
+class Auth extends Pipeline
+
+  @remoteServer :http://localhost:8085
+
+  # a stupid authentication test
+  authenticationFailed = (data) ->
+    data extract? username, password
+    switch
+    when !isPresentString username then "" username not present
+    when !isPresentString password then "" password not present
+    when username != password      then "" username and password don't match
+
+  @publicRequestTypes :get :authenticate :loggedInAs :hello :setFooSession :getRestrictedResource
+
+  @handlers
+    get: ({session}) -> session.username
+
+    authenticate: (request) ->
+      request extract data
+      if message = authenticationFailed data
+        request.clientFailure data: {} message
+      else
+        request.respondWithMergedSession username: data.username
+
+    loggedInAs: (request) ->
+      if username = isPresentString request.session.username
+        {} username
+      else
+        request.success()
+
+    hello: (request) ->
+      request.subrequest :myRemote :hello # request.session.username
+
+    setFooSession: (request) -> request.respondWithMergedSession foo: request.data.foo
+
+    getRestrictedResource: (request) ->
+      if request.session.username
+        secretSauce: "" thousand island dressing
+      else
+        request.clientFailureNotAuthorized()
