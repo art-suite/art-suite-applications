@@ -21,28 +21,6 @@
 
     DynamoDbPipelineOldCoffee.abstractClass();
 
-    DynamoDbPipelineOldCoffee.createTablesForAllRegisteredPipelines = function() {
-      var name, pipeline, promises;
-      promises = (function() {
-        var results;
-        results = [];
-        for (name in pipelines) {
-          pipeline = pipelines[name];
-          if (isFunction(pipeline.createTable)) {
-            results.push(pipeline.createTable());
-          }
-        }
-        return results;
-      })();
-      return Promise.all(promises);
-    };
-
-    DynamoDbPipelineOldCoffee.classGetter({
-      dynamoDb: function() {
-        return DynamoDb.singleton;
-      }
-    });
-
     DynamoDbPipelineOldCoffee.globalIndexes = function(globalIndexes) {
       this._globalIndexes = globalIndexes;
       return this.query(this._getAutoDefinedQueries(globalIndexes));
@@ -322,35 +300,9 @@
       return queries;
     };
 
-    DynamoDbPipelineOldCoffee.prototype._vivifyTable = function() {
-      return this._vivifyTablePromise || (this._vivifyTablePromise = Promise.resolve().then((function(_this) {
-        return function() {
-          return _this.tablesByNameForVivification.then(function(tablesByName) {
-            if (!tablesByName[_this.tableName]) {
-              return _this._createTable();
-            }
-          });
-        };
-      })(this)));
-    };
-
-    DynamoDbPipelineOldCoffee.classGetter({
-      tablesByNameForVivification: function() {
-        return this._tablesByNameForVivificationPromise || (this._tablesByNameForVivificationPromise = this.getDynamoDb().listTables().then((function(_this) {
-          return function(arg) {
-            var TableNames;
-            TableNames = arg.TableNames;
-            return object(TableNames, function() {
-              return true;
-            });
-          };
-        })(this)));
-      }
-    });
-
     DynamoDbPipelineOldCoffee.getter({
       tablesByNameForVivification: function() {
-        return DynamoDbPipelineOldCoffee.getTablesByNameForVivification();
+        return this["class"].getTablesByNameForVivification();
       },
       dynamoDbCreationAttributes: function() {
         var k, out, ref2, v;

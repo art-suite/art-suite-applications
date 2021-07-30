@@ -23,17 +23,6 @@ defineModule module, class DynamoDbPipelineOldCoffee extends KeyFieldsMixin Upda
   @abstractClass()
 
   ###########################################
-  # Class API
-  ###########################################
-  @createTablesForAllRegisteredPipelines: ->
-    promises = for name, pipeline of pipelines when isFunction pipeline.createTable
-      pipeline.createTable()
-    Promise.all promises
-
-  @classGetter
-    dynamoDb: -> DynamoDb.singleton
-
-  ###########################################
   # Indexes
   ###########################################
   @globalIndexes: (globalIndexes) ->
@@ -225,22 +214,8 @@ defineModule module, class DynamoDbPipelineOldCoffee extends KeyFieldsMixin Upda
 
     queries
 
-  _vivifyTable: ->
-    @_vivifyTablePromise ||= Promise.resolve().then =>
-      @tablesByNameForVivification
-      .then (tablesByName) =>
-        unless tablesByName[@tableName]
-          # log.warn "#{@getClassName()}#_vivifyTable() dynamoDb table does not exist: #{@tableName}, creating..."
-          @_createTable()
-
-  @classGetter
-    tablesByNameForVivification: ->
-      @_tablesByNameForVivificationPromise ||=
-        @getDynamoDb().listTables().then ({TableNames}) =>
-          object TableNames, -> true
-
   @getter
-    tablesByNameForVivification: -> DynamoDbPipelineOldCoffee.getTablesByNameForVivification()
+    tablesByNameForVivification: -> @class.getTablesByNameForVivification()
 
     dynamoDbCreationAttributes: ->
       out = {}
