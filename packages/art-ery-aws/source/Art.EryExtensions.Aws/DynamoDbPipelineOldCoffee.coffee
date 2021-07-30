@@ -22,65 +22,6 @@
 defineModule module, class DynamoDbPipelineOldCoffee extends KeyFieldsMixin UpdateAfterMixin Pipeline
   @abstractClass()
 
-  ###########################################
-  # Handlers
-  ###########################################
-  @handlers
-
-    ################################
-    # Compound Requests
-    ################################
-
-    ### deleteIfExists
-      This calls 'get' first, then calls 'delete' if it exists. Therefor 'delete' hooks
-      will only fire if the record actually exists.
-
-      OUT: promise.then (response) -> response.data == key(s)
-    ###
-    deleteIfExists: (request) ->
-      {key, data} = request
-      request.subrequest @pipelineName, "delete", {key, data, returnNullIfMissing: true}
-      .then (result) ->
-        result ? request.success data: request.requestDataWithKey
-
-    ###
-    This calls 'update' and possibly 'create', so hooks on update OR create will be correctly triggered.
-    NOTE: Only after-update OR after-create filters/events will be processed - NOT BOTH!
-      Which is the whole reason this exists, really - so the correct after-filters-events fire.
-
-    TODO:
-      The new version should do this:
-      get {key, returnNullIfMissing: true}
-      .then (exists) ->
-        if exists
-          update {key, data}
-          .catch (doesntExists???) ->
-            Promise.reject raceConditionOccured: true if doesntExists
-          # NOTE - ignoring the race-condition with 'delete'
-        else
-          create {key, data}
-          .catch (exists???) ->
-            Promise.reject raceConditionOccured: true if exists
-      .catch ({raceConditionOccured}) ->
-        if raceConditionOccured && 3 > retryCount = 1 + props.retryCount ? 0
-          createOrUpdate {
-            key
-            props: merge props, {retryCount}
-          }
-        else
-          throw original-error
-    ###
-    createOrUpdate: (request) ->
-      request.requireServerOrigin()
-      .then =>
-        request.rejectIf @getKeyFieldsString() == 'id', "createOk not available on tables with auto-generated-ids"
-      .then =>
-        {key, data, add, setDefault} = request.props
-        request.subrequest @pipelineName, "update", returnNullIfMissing: true, props: {key, data, add, setDefault}
-        .then (result) =>
-          keyFields = if isPlainObject(key) then key else if isString(key) && @toKeyObject then @toKeyObject key
-          result ? request.subrequest @pipelineName, "create", {key, data: merge keyFields, setDefault, data, add}
-
   #########################
   # PRIVATE
   #########################
