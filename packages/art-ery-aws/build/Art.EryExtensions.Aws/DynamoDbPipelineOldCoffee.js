@@ -21,19 +21,6 @@
 
     DynamoDbPipelineOldCoffee.abstractClass();
 
-    DynamoDbPipelineOldCoffee.getter({
-      status: function() {
-        return this._vivifyTable().then(function() {
-          return "OK: table exists and is reachable";
-        })["catch"](function() {
-          return "ERROR: could not connect to the table";
-        });
-      },
-      dynamoDb: function() {
-        return DynamoDb.singleton;
-      }
-    });
-
     DynamoDbPipelineOldCoffee.handlers({
 
       /* deleteIfExists

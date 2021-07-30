@@ -23,17 +23,6 @@ defineModule module, class DynamoDbPipelineOldCoffee extends KeyFieldsMixin Upda
   @abstractClass()
 
   ###########################################
-  # Instance Getters
-  ###########################################
-
-  @getter
-    status: ->
-      @_vivifyTable()
-      .then -> "OK: table exists and is reachable"
-      .catch -> "ERROR: could not connect to the table"
-    dynamoDb: -> DynamoDb.singleton
-
-  ###########################################
   # Handlers
   ###########################################
   @handlers

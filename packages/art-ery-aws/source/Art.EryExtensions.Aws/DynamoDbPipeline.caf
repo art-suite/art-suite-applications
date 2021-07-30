@@ -3,7 +3,7 @@ import &StandardImport
 class DynamoDbPipeline extends &DynamoDbPipelineOldCoffee
   @abstractClass()
   ###########################################
-  # Class API
+    Class API
   ###########################################
   @createTablesForAllRegisteredPipelines: ->
     Promise.all array pipeline, name from pipelines when isFunction pipeline.createTable
@@ -17,7 +17,7 @@ class DynamoDbPipeline extends &DynamoDbPipelineOldCoffee
           object from TableNames with true
 
   ###########################################
-  # Indexes
+    Indexes
   ###########################################
   @globalIndexes: (globalIndexes) ->
     @_globalIndexes = globalIndexes
@@ -37,9 +37,20 @@ class DynamoDbPipeline extends &DynamoDbPipelineOldCoffee
       @query @_getAutoDefinedQueries
         "by#{upperCamelCase hashKey}": @getKeyFieldsString()
 
-  #####################
+  ###########################################
+    Instance Getters
+  ###########################################
+
+  @getter
+    status: ->
+      @_vivifyTable()
+      .then -> "OK: table exists and is reachable"
+      .catch -> "ERROR: could not connect to the table"
+    dynamoDb: -> DynamoDb.singleton
+
+  ###########################################
     Direct DynamoDB Handlers
-  #####################
+  ###########################################
   @handlers
     # TOD: createTable -- depricate??? use initialize instead?
     createTable:          -> @_vivifyTable().then -> message: "success"
