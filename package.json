@@ -75,6 +75,7 @@
     "quantize": "^1.0.2",
     "script-loader": "^0.7.2",
     "source-map-loader": "^3.0.0",
+    "start-server-and-test": "^1.13.1",
     "stream-browserify": "^3.0.0",
     "style-loader": "^3.2.1",
     "throng": "^5.0.0",

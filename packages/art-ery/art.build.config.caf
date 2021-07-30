@@ -1,5 +1,8 @@
 package: &@ArtSuite/StandardPackageBuilder.configure {}
+  &package
   coffeeScript: true
   mocha: true
   scripts:
     test-server: "" caf ./TestServer.caf
+    test: "" mocha -u tdd
+    ci: "" start-server-and-test test-server http://localhost:8085 test
