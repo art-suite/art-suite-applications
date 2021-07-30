@@ -23,27 +23,6 @@ defineModule module, class DynamoDbPipelineOldCoffee extends KeyFieldsMixin Upda
   @abstractClass()
 
   ###########################################
-  # Indexes
-  ###########################################
-  @globalIndexes: (globalIndexes) ->
-    @_globalIndexes = globalIndexes
-    @query @_getAutoDefinedQueries globalIndexes
-
-  @localIndexes: (localIndexes) ->
-    @_localIndexes = localIndexes
-    @query @_getAutoDefinedQueries localIndexes
-
-  @getter
-    globalIndexes: -> @_options.globalIndexes || @class._globalIndexes
-    localIndexes:  -> @_options.localIndexes  || @class._localIndexes
-
-  @primaryKey: ->
-    super
-    if ([hashKey] = keyFields = @getKeyFields()) && keyFields?.length == 2
-      @query @_getAutoDefinedQueries
-        "by#{upperCamelCase hashKey}": @getKeyFieldsString()
-
-  ###########################################
   # Instance Getters
   ###########################################
 

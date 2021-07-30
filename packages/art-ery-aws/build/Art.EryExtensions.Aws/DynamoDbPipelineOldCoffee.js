@@ -21,37 +21,6 @@
 
     DynamoDbPipelineOldCoffee.abstractClass();
 
-    DynamoDbPipelineOldCoffee.globalIndexes = function(globalIndexes) {
-      this._globalIndexes = globalIndexes;
-      return this.query(this._getAutoDefinedQueries(globalIndexes));
-    };
-
-    DynamoDbPipelineOldCoffee.localIndexes = function(localIndexes) {
-      this._localIndexes = localIndexes;
-      return this.query(this._getAutoDefinedQueries(localIndexes));
-    };
-
-    DynamoDbPipelineOldCoffee.getter({
-      globalIndexes: function() {
-        return this._options.globalIndexes || this["class"]._globalIndexes;
-      },
-      localIndexes: function() {
-        return this._options.localIndexes || this["class"]._localIndexes;
-      }
-    });
-
-    DynamoDbPipelineOldCoffee.primaryKey = function() {
-      var hashKey, keyFields, obj, ref2;
-      DynamoDbPipelineOldCoffee.__super__.constructor.primaryKey.apply(this, arguments);
-      if ((ref2 = keyFields = this.getKeyFields(), hashKey = ref2[0], ref2) && (keyFields != null ? keyFields.length : void 0) === 2) {
-        return this.query(this._getAutoDefinedQueries((
-          obj = {},
-          obj["by" + (upperCamelCase(hashKey))] = this.getKeyFieldsString(),
-          obj
-        )));
-      }
-    };
-
     DynamoDbPipelineOldCoffee.getter({
       status: function() {
         return this._vivifyTable().then(function() {
