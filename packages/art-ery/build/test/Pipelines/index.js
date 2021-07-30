@@ -14,4 +14,5 @@
   StandardImport: require('./StandardImport'),
   UserRemote:     require('./UserRemote')
 });
+require('./Flux');
 require('./Transition');

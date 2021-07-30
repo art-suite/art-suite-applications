@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "FluxLog.js",
+  "sourceRoot": "../../../..",
+  "sources": [
+    "source/test/Pipelines/Flux/FluxLog.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;uCACA,sBACA,wBAAiB,kBACjB,0BAAiB"
+}

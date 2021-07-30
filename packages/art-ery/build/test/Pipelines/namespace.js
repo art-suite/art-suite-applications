@@ -6,4 +6,5 @@ module.exports = require('../namespace').addNamespace(
   (class Pipelines extends Neptune.PackageNamespace {})
   ._configureNamespace(require('../../../package.json'))
 );
+require('./Flux/namespace');
 require('./Transition/namespace');

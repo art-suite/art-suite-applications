@@ -6,4 +6,3 @@
 .addModules({
   DataUpdatesFilter: require('./DataUpdatesFilter')
 });
-require('./Pipelines');

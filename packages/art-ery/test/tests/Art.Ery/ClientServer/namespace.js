@@ -5,4 +5,3 @@ module.exports = require('../namespace').addNamespace(
   'ClientServer',
   class ClientServer extends Neptune.PackageNamespace {}
 );
-require('./Pipelines/namespace');

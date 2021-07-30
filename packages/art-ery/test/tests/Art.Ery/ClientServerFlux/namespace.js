@@ -5,4 +5,3 @@ module.exports = require('../namespace').addNamespace(
   'ClientServerFlux',
   class ClientServerFlux extends Neptune.PackageNamespace {}
 );
-require('./Pipelines/namespace');

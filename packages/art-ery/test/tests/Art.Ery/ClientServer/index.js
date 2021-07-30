@@ -14,4 +14,3 @@
   StandardImport:          require('./StandardImport'),
   StaticAssets:            require('./StaticAssets')
 });
-require('./Pipelines');
