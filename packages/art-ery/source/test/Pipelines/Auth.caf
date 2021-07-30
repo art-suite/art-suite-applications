@@ -17,7 +17,7 @@ class Auth extends Pipeline
   @publicRequestTypes :get :authenticate :loggedInAs :hello :setFooSession :getRestrictedResource
 
   @handlers
-    get: ({session}) -> session.username
+    get: ({session}) -> session.username ? ""
 
     authenticate: (request) ->
       request extract data
