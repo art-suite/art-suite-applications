@@ -11,8 +11,8 @@
   "devDependencies": {
     "art-build-configurator": "^1.29.3",
     "art-testbench": "^3.2.2",
-    "start-server-and-test": "^1.13.1",
-    "mocha": "^7.2.0"
+    "mocha": "^7.2.0",
+    "start-server-and-test": "^1.13.1"
   },
   "homepage": "https://github.com/art-suite/art-suite-applications",
   "jest": {
@@ -36,10 +36,10 @@
   "scripts": {
     "build": "coffee -m --output build --compile source &\nCOFFEE_PID=$!\ncaf -m -c source -o build &\nCAF_PID=$!\nwait $COFFEE_PID || exit 1\nwait $CAF_PID || exit 1\nnpm run nn",
     "build-clean": "# BUILD CLEAN START\n#   - building into: build-temp\n#\nrm -rf ./__build-old__\ncoffee -m --output build-temp --compile source &\nCOFFEE_PID=$!\ncaf -m -c source -o build-temp &\nCAF_PID=$!\nwait $COFFEE_PID || exit 1\nwait $CAF_PID || exit 1\nnpm run nn\n\nnn build-temp/*\n\n# BUILD CLEAN FINIALIZING\n#  - replace old build in:   build\n#  - with new build from:    build-temp\n#\nmv build __build-old__\nmv build-temp build\nrm -rf ./__build-old__",
-    "ci": "start-server-and-test test-server http://localhost:8085 test",
     "clean": "rm -rf build/*",
+    "just-test": "mocha -u tdd",
     "nn": "nn build/* test/tests",
-    "test": "mocha -u tdd",
+    "test": "start-server-and-test test-server http://localhost:8085 just-test",
     "test-server": "caf ./TestServer.caf",
     "watch": "npm-watch"
   },

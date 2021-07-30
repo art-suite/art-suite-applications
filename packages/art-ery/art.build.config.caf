@@ -4,5 +4,5 @@ package: &@ArtSuite/StandardPackageBuilder.configure {}
   mocha: true
   scripts:
     test-server: "" caf ./TestServer.caf
-    test: "" mocha -u tdd
-    ci: "" start-server-and-test test-server http://localhost:8085 test
+    just-test: "" mocha -u tdd
+    test: "" start-server-and-test test-server http://localhost:8085 just-test
