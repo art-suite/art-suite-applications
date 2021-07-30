@@ -316,9 +316,9 @@ class DynamoDbPipeline extends &DynamoDbPipelineOldCoffee
 
   isServiceUnavailableError = (error) -> error.message.match /Service *Unavailable/i
 
-  ############################3
-    PRIVATE
-  ############################3
+  ############################
+    PRIVATE Instance methods
+  ############################
   _retryIfServiceUnavailable: retryIfServiceUnavailable = (request, action, retriesRemaining = 2) ->
     Promise.then -> action()
     .catch (error) ->
@@ -350,4 +350,102 @@ class DynamoDbPipeline extends &DynamoDbPipelineOldCoffee
         unless tablesByName[@tableName]
           # log.warn "#{@getClassName()}#_vivifyTable() dynamoDb table does not exist: #{@tableName}, creating..."
           @_createTable()
+
+  ############################
+    PRIVATE Class methods
+  ############################
+  ### @_getAutoDefinedQueries
+    IN:
+      indexes: <Object> # a map:
+        myIndexName: indexKeyOrProps
+
+    indexKeyOrProps:
+      <String> indexKey string
+      <Object>
+        key: <String> indexKey string
+        ... other props passed to DynamoDb for index creation; ignored here
+
+    OUT: params for Art.Ery.Pipeline's @query method
+      Example:
+        myQueryName:
+          query: generatedQueryHandler = (request) ->
+        ...
+
+    EFFECT - after passed to @query:
+      @handlers
+        myQueryName:      generatedQueryHandler
+        myQueryNameDesc:  generatedQueryHandlerDesc
+
+    generatedQueryHandler Handler API:
+      IN:
+        REQUIRED: key: hashKeyValue <string>
+        OPTIONAL:
+          props: where: [sortKey]: # with exactly one of the following:
+            eq:           sortValue
+            lt:           sortValue
+            lte:          sortValue
+            gt:           sortValue
+            gte:          sortValue
+            between:      [sortValueA, sortValueB]  # returns values >= sortValueA and <= sortValueB
+            beginsWith:   string-prefix
+  @_getAutoDefinedQueries: (indexes) ->
+    return {} unless indexes
+    queries = {}
+
+    each indexKey, queryModelName in indexes
+      if indexKey?.key
+        indexKey = indexKey.key
+
+      if isString indexKey
+        [hashKey, sortKey] = indexKey.split :/
+
+        indexName = if indexKey != @getKeyFieldsString()
+          queryModelName
+
+        doDynamoQuery = (request, descending) ->
+          params            = where: "#{hashKey}": request.key
+          params.index      = indexName   if indexName?
+          params.descending = true        if descending
+
+          if sortKeyWhere = request.props.where?[sortKey]
+            if isPlainObject sortKeyWhere
+              sortKeyWhere extract eq, lt, lte, gt, gte, between, beginsWith
+              params.where[sortKey] = merge {eq, lt, lte, gt, gte, between, beginsWith}
+            else
+              params.where[sortKey] = eq: sortKeyWhere
+
+          if select = request.props.select
+            if isArray select
+              select = compactFlatten(select).join ' '
+            unless isString select
+              return request.clientFailure "" select must be a string or array of strings
+
+            params.select = select
+
+          request.pipeline.queryDynamoDbWithRequest request, params
+          .then ({items}) -> items
+          .tapCatch (error) ->
+            log DynamoDbPipeline_query: {error, params, request}
+
+        queries[queryModelName] =
+          query:            (request) -> doDynamoQuery request
+          dataToKeyString:  (data)    -> data[hashKey]
+          keyFields:        [hashKey]
+          localSort:        (queryData) -> withSort queryData, (a, b) ->
+            if 0 == ret = compare a[sortKey], b[sortKey]
+              compare a.id, b.id
+            else
+              ret
+
+        queries[queryModelName + :Desc] =
+          query:            (request) -> doDynamoQuery request, true
+          dataToKeyString:  (data)    -> data[hashKey]
+          keyFields:        [hashKey]
+          localSort:        (queryData) -> withSort queryData, (b, a) ->
+            if 0 == ret = compare a[sortKey], b[sortKey]
+              compare a.id, b.id
+            else
+              ret
+
+    queries
 
