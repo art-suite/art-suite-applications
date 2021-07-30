@@ -179,15 +179,15 @@
 
 
     /*
-    @fluxModelMixin adds a mixin to fluxModelMixins
+    @artModelMixen adds a mixin to fluxModelMixins
     
     When createing FluxModels for this pipeline (via ArtEryFluxModel.createModel for example),
     both the records model and each query-model will get these mixins.
     
     Example:
       class MyPipeline extends Pipeline
-        @fluxModelMixin FluxModelMixinA
-        @fluxModelMixin FluxModelMixinB
+        @artModelMixen FluxModelMixinA
+        @artModelMixen FluxModelMixinB
     
        * this action
       ArtEryFluxModel.defineModelsForAllPipelines()
@@ -196,7 +196,7 @@
       class MyPipeline extends FluxModelMixinB FluxModelMixinA ArtEryFluxModel
      */
 
-    Pipeline.fluxModelMixin = function(mixin) {
+    Pipeline.artModelMixen = function(mixin) {
       return this.extendFluxModelMixins(mixin);
     };
 
