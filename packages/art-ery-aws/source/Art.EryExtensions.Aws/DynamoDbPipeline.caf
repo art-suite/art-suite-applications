@@ -389,14 +389,8 @@ class DynamoDbPipeline extends &DynamoDbPipelineOldCoffee
             between:      [sortValueA, sortValueB]  # returns values >= sortValueA and <= sortValueB
             beginsWith:   string-prefix
   @_getAutoDefinedQueries: (indexes) ->
-    return {} unless indexes
-    queries = {}
-
-    each indexKey, queryModelName in indexes
-      if indexKey?.key
-        indexKey = indexKey.key
-
-      if isString indexKey
+    each indexKey, queryModelName in indexes into queries = {}
+      if isString indexKey = indexKey?.key ? indexKey
         [hashKey, sortKey] = indexKey.split :/
 
         indexName = if indexKey != @getKeyFieldsString()
@@ -446,6 +440,3 @@ class DynamoDbPipeline extends &DynamoDbPipelineOldCoffee
               compare a.id, b.id
             else
               ret
-
-    queries
-
