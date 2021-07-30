@@ -4,7 +4,6 @@
 (module.exports = require('./namespace'))
 
 .addModules({
-  Auth:           require('./Auth'),
   ClientFailures: require('./ClientFailures'),
   CompoundKeys:   require('./CompoundKeys'),
   FilterLocation: require('./FilterLocation'),
