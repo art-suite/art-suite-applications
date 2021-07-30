@@ -1,20 +1,16 @@
-{log, createWithPostCreate, isString, Validator} = require 'art-foundation'
-{TimestampFilter} = require('art-ery').Filters
-SimplePipeline = require '../SimplePipeline'
-{FieldTypes} = require 'art-validation'
-{assert} = require('art-testbench');
+import &StandardImport
 
-module.exports = suite: ->
+suite: ->
 
   test "fields are set correctly", ->
-    createWithPostCreate class MyPipeline extends SimplePipeline
+    class MyPipeline extends SimplePipeline
       @filter TimestampFilter
 
     assert.eq MyPipeline.singleton.fields.createdAt, FieldTypes.secondsTimestamp
     assert.eq MyPipeline.singleton.fields.updatedAt, FieldTypes.secondsTimestamp
 
   test "create", ->
-    createWithPostCreate class MyPipeline extends SimplePipeline
+    class MyPipeline extends SimplePipeline
       @filter TimestampFilter
 
     MyPipeline.singleton.create data: {}

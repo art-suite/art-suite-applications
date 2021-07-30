@@ -1,0 +1,4 @@
+[]
+  &StandardImport
+  &ArtValidation
+  SimplePipeline: &SimplePipelineCaf

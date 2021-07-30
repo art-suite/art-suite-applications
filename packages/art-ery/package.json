@@ -6,8 +6,8 @@
     "art-class-system": "^1.11.13",
     "art-communication-status": "^1.5.13",
     "art-standard-lib": "^1.70.6",
-    "uuid": "^8.3.2",
-    "art-validation": "^1.9.6"
+    "art-validation": "^1.9.6",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "art-build-configurator": "^1.29.3",
@@ -38,7 +38,7 @@
     "build": "coffee -m --output build --compile source &\nCOFFEE_PID=$!\ncaf -m -c source -o build &\nCAF_PID=$!\nwait $COFFEE_PID || exit 1\nwait $CAF_PID || exit 1\nnpm run nn",
     "build-clean": "# BUILD CLEAN START\n#   - building into: build-temp\n#\nrm -rf ./__build-old__\ncoffee -m --output build-temp --compile source &\nCOFFEE_PID=$!\ncaf -m -c source -o build-temp &\nCAF_PID=$!\nwait $COFFEE_PID || exit 1\nwait $CAF_PID || exit 1\nnpm run nn\n\nnn build-temp/*\n\n# BUILD CLEAN FINIALIZING\n#  - replace old build in:   build\n#  - with new build from:    build-temp\n#\nmv build __build-old__\nmv build-temp build\nrm -rf ./__build-old__",
     "clean": "rm -rf build/*",
-    "just-test": "mocha -u tdd",
+    "just-test": "npm run nn; mocha -u tdd",
     "nn": "nn build/* test/tests",
     "test": "start-server-and-test test-server http://localhost:8085 just-test",
     "test-server": "caf ./TestServer.caf",

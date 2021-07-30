@@ -1,7 +1,49 @@
 import &StandardImport
-SimplePipeline = &SimplePipeline
 
 suite: ->
+
+  trimFields = (fields) ->
+    object props from fields
+      object v from props when !isFunction v
+
+  test "fields are set correctly", ->
+    class MyPipeline extends SimplePipeline
+      @filter new LinkFieldsFilter fields: fields =
+        user: "required link"
+        post: link: "post"
+
+    assert.eq trimFields(MyPipeline.getFields()),
+      userId:  dataType: 'string', fieldType: "trimmedString", pipelineName: "user", required: true, maxLength: 1024
+      postId:  dataType: 'string', fieldType: "trimmedString", pipelineName: "post", maxLength: 1024
+
+  test "linked objects get converted to ids for writing", ->
+    class MyPipeline extends SimplePipeline
+      @filter new LinkFieldsFilter fields: fields =
+        user: link: "user", required: true
+
+    pipelines.myPipeline.create
+      data: user: id: "abc123", name: "George"
+    .then (data) ->
+      assert.eq data, userId: "abc123", id: "0"
+
+  test "autoCreate linked object triggers on writing", ->
+    class Media extends SimplePipeline
+
+    class Post extends SimplePipeline
+      @filter new LinkFieldsFilter fields: fields =
+        media: link: autoCreate: required: true
+
+    pipelines.post.create
+      data: media: url: url = "bar.com/foo"
+
+    .then (data) ->
+      assert.eq data, mediaId: "0", id: "0"
+      pipelines.media.get key: "0"
+
+    .then (media) ->
+      assert.eq media.url, url
+
+
 
   chainedTest ->
     class User extends SimplePipeline

@@ -7,5 +7,6 @@
   DataUpdatesFilterFluxModelMixin: require('./DataUpdatesFilterFluxModelMixin'),
   DataUpdatesFilterPipeline:       require('./DataUpdatesFilterPipeline'),
   FluxLog:                         require('./FluxLog'),
-  SimpleStore:                     require('./SimpleStore')
+  SimpleStore:                     require('./SimpleStore'),
+  StandardImport:                  require('./StandardImport')
 });
