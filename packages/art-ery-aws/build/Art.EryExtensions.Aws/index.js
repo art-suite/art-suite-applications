@@ -4,8 +4,7 @@
 (module.exports = require('./namespace'))
 
 .addModules({
-  DynamoDbPipeline:          require('./DynamoDbPipeline'),
-  DynamoDbPipelineOldCoffee: require('./DynamoDbPipelineOldCoffee'),
-  SqsPipeline:               require('./SqsPipeline'),
-  StandardImport:            require('./StandardImport')
+  DynamoDbPipeline: require('./DynamoDbPipeline'),
+  SqsPipeline:      require('./SqsPipeline'),
+  StandardImport:   require('./StandardImport')
 });

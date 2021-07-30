@@ -1,6 +1,6 @@
 import &StandardImport
 
-class DynamoDbPipeline extends &DynamoDbPipelineOldCoffee
+class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMixin Pipeline
   @abstractClass()
   ###########################################
     Class API
@@ -350,6 +350,87 @@ class DynamoDbPipeline extends &DynamoDbPipelineOldCoffee
         unless tablesByName[@tableName]
           # log.warn "#{@getClassName()}#_vivifyTable() dynamoDb table does not exist: #{@tableName}, creating..."
           @_createTable()
+
+
+  ### _artEryToDynamoDbRequest
+    IN:
+      request:
+        requestProps:
+          key
+          data: {key: value}
+            NOTE: null values are moved for CREATE and converted to REMOVE (attribute)
+              actions for UPDATE.
+
+          add: {key: value to add} -> dynamodb ADD action
+          setDefault: {key: value} -> set attribute if not present
+          conditionExpresssion: dynamodb update-of condition expressiong
+          returnValues:         art.aws.dynamodb return value selector type
+
+      requiresKey: true/false
+        true:  key and data will be normalized using the primaryKey fields
+        false: there willbe no key
+
+      action: (streamlinedDynamoDbParams) -> out
+
+    OUT:
+      promise.catch (error) ->                # only internalErrors are thrown
+      promise.then (clientFailureResponse) -> # if input is invalid, return clientFailure without invoking action
+      promise.then (out) ->                   # otherwise, returns action's return value
+  ###
+  _artEryToDynamoDbRequest: (request, options = {}) ->
+    options extract requiresKey, mustExist
+    requiresKey = true if mustExist
+
+    request extract
+      requestType
+      props extract
+        key, data, add, setDefault, conditionExpression, returnValues, consistentRead
+        keys
+        select
+
+    @_retryIfServiceUnavailable request, ->
+      Promise
+      .then -> request.requireServerOriginOr !(add || setDefault || conditionExpression || returnValues), "" to use add, setDefault, returnValues, or conditionExpression props
+      .then -> request.require !(add || setDefault) || requestType == :update, "" add and setDefault only valid for update requests
+      .then ->
+        if requiresKey
+          data = @dataWithoutKeyFields data
+          key  = @toKeyObject request.key
+
+        # TODO: keys needs @toKeyObject to work with multi-part keys
+
+        if requestType == :update
+          remove = array v, k from data when v == null with k
+
+        data = objectWithExistingValues data
+
+        # higher priority
+        returnValues = options.returnValues if options.returnValues
+
+        # DEFAULTS
+        # NOTE: Art-Ery-Elasicsearch often needs additional fields beyond the ID and updated fields
+        # in order to do its update. That means 'allNew' is often the most efficient option for updates.
+        returnValues ?= :allNew if requestType == :update
+        conditionExpression ?= mustExist && key
+
+        consistentRead = true if consistentRead
+
+        objectWithExistingValues {}
+          @tableName
+          data
+          key
+          keys
+          select
+          remove
+          add
+          setDefault
+          returnValues
+          conditionExpression
+          consistentRead
+
+      .then
+        options.then
+        ({message}) -> request.clientFailure message
 
   ############################
     PRIVATE Class methods

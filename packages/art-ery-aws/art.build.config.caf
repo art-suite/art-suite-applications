@@ -1,5 +1,4 @@
 package: &@ArtSuite/StandardPackageBuilder.configure {}
   &package
-  coffeeScript: true
   scripts:
     test-server: "" ../art-aws/start_dynamo_db_local_server

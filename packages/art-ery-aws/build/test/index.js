@@ -6,7 +6,6 @@
 .addModules({
   BasicsTests:              require('./BasicsTests'),
   CrossPipelineEventsTests: require('./CrossPipelineEventsTests'),
-  Indexes:                  require('./Indexes'),
   IndexTests:               require('./IndexTests'),
   PrimaryKeyTests:          require('./PrimaryKeyTests'),
   SerializedTest:           require('./Serialized.test'),
