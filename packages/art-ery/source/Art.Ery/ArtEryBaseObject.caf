@@ -1,0 +1,6 @@
+import &StandardImport
+ArtEry = require :./namespace
+
+class ArtEryBaseObject extends BaseClass
+  @abstractClass()
+  @getter pipelines: -> ArtEry.pipelines
