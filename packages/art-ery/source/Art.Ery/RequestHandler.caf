@@ -1,0 +1,85 @@
+import &StandardImport, {} &RequestResponseBase
+
+class RequestHandler extends &ArtEryBaseObject
+  @abstractClass()
+
+  ### applyHandler
+    IN:
+      request:          ArtEry.Request
+      handlerFunction:  (request) -> request/response
+      context:          descriptive string for human readability
+
+    OUT:
+      promise.then (request or response) ->
+        NOTE: response may be failing
+      .catch -> internal errors only
+  applyHandler: (request, handlerFunction, context) ->
+    unless handlerFunction # pass-through if no filter
+      Promise.resolve request
+
+    else
+      @_applyHandler request, handlerFunction, context
+      .then (response) ->
+        if response?.isFailure && !response.errorProps?.failedIn
+          response.withMergedErrorProps failedIn: {}
+            context
+            handler: @
+            response
+
+        else response
+
+      .tap (result) -> if request.verbose
+        prefix = "ArtEryApplyHandlerVerbose #{request.requestString} - #{dashCase context} #{@getLogName @type}"
+        if result != request && neq request.summary, result.summary
+          logger = if result.failed && !request.failed then log.error else log
+          logger [prefix]:
+            before: request.summary
+            after:  result.summary
+
+        else
+          log [prefix]: "no-change"
+
+  _applyHandler: (request, handlerFunction, context) ->
+
+    Promise.then ->
+      request.addFilterLog @, context
+      handlerFunction.call @, request
+
+    .then
+      (data) ->
+        switch
+        when !data?                              then request.missing()
+        when data instanceof RequestResponseBase then data
+        when isJsonType data                     then request.success {data}
+        else throw new ErrorWithInfo "invalid response data passed to RequestResponseBaseNext", {data}
+
+      # send response-errors back through the 'resolved' promise path
+      # We allow them to be thrown in order to skip parts of code, but they should be returned normally
+      (error) ->
+        if error.props?.response?.isResponse
+          error.props.response
+
+        else if isFailure status = error.info?.status
+          request.toResponse status, error: error.info
+
+        else
+          request.failure errorProps:
+            exception: error
+            source:
+              this: @
+              function: handlerFunction
+
+    ###
+      IN:
+        request OR response
+
+        if response, it is immediately returned
+      OUT:
+        promise.then -> response
+          response may or maynot be successful, but it is always returned via the promise-success path
+
+        promise.catch -> always means an internal failure
+
+      OVERRIDE THIS
+    ###
+    # handleRequest: (request) ->
