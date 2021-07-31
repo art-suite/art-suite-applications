@@ -1,0 +1,48 @@
+import &StandardImport
+
+###
+  TODO!!!
+  BUG: ValidationFilter doesn't validated the TimestampFilter's fields! (when using createDatabaseFilters)
+    PROBLEM: ValidationFilter only validates the fields it is passed.
+    SOLUTION: we need it to always validate all fields declared for the pipeline.
+    createDatabaseFilters needs to change order: it needs to run ValidationFilter last.
+
+class ValidationFilter extends Filter
+  @location :both
+
+  ## constructor
+    NOTE - not using Validator's 'exclusive' feature because we need to test
+      unexpected fields against pipeline.fields, not the options.fields that were passed in.
+  constructor: (options) ->
+    @_exclusive = options?.exclusive
+    @_validator = new Validator @fields
+
+  @before
+    create: (request) -> @_validate :validateCreate request
+    update: (request) -> @_validate :validateUpdate request
+
+  _validate: (method, request) ->
+    Promise.then ->
+      context = request.requestString
+      validatedData = @_validator[method] request.data, {} context
+      data = validatedData if request.location != :client
+
+      if @_exclusive
+        request.pipeline extract fields
+        unexpectedFields = null
+        each v, k in data when !fields[k]
+          unexpectedFields ?= []
+          .push k
+
+        if unexpectedFields
+          throw new ErrorWithInfo
+            "" #{context} failed. #{pluralize unexpectedFields.length, "Unexpected field"}: #{unexpectedFields.join ', '}
+            unexpected: unexpectedFields
+
+      ? request.withData data
+
+    .catch (exception) ->
+      exception extract message, info
+      request.clientFailure
+        data: merge info, message: "" ValidationFilter: #{message}
+        errorProps: {} exception
