@@ -6,7 +6,7 @@ class DataUpdatesFilterPipeline extends &SimpleStore
 
   @remoteServer :http://localhost:8085
 
-  @artModelMixen &DataUpdatesFilterFluxModelMixin
+  @artModelMixin &DataUpdatesFilterFluxModelMixin
 
   @filter DataUpdatesFilter
 

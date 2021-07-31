@@ -5,10 +5,10 @@ defineModule module, class RequestHandler extends require './ArtEryBaseObject'
   @abstractClass()
 
   ###
-  OUT:
-    promise.then (request or response) ->
-      NOTE: response may be failing
-    .catch -> internal errors only
+    OUT:
+      promise.then (request or response) ->
+        NOTE: response may be failing
+      .catch -> internal errors only
   ###
   applyHandler: (request, handlerFunction, context) ->
     # pass-through if no filter

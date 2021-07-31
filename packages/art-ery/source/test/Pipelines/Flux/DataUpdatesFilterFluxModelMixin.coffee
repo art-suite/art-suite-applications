@@ -1,7 +1,7 @@
 {log, defineModule} = require 'art-standard-lib'
 {getFluxLog} = require './FluxLog'
 
-# CAN'T CONVERT TO CAFFEINE-SCRIPT YET - @artModelMixen must generate a CoffeeScript class
+# CAN'T CONVERT TO CAFFEINE-SCRIPT YET - @artModelMixin must generate a CoffeeScript class
 defineModule module, -> (superClass) ->
   class DataUpdatesFilterFluxModelMixin extends superClass
     dataUpdated: (key, data) -> getFluxLog().push(dataUpdated: {model: @name, key, data});super

@@ -17,10 +17,10 @@
   defineModule
 } = require 'art-standard-lib'
 {missing, success, pending} = require "art-communication-status"
-{KeyFieldsMixin} = require "art-ery"
+{KeyFieldsMixinCoffee} = require "art-ery"
 {ArtModel} = require '@art-suite/art-models'
 
-defineModule module, class ArtEryQueryFluxModel extends KeyFieldsMixin ArtModel
+defineModule module, class ArtEryQueryFluxModel extends KeyFieldsMixinCoffee ArtModel
   @abstractClass()
 
   loadData: (key) ->

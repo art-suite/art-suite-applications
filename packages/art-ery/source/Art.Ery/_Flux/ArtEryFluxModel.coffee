@@ -24,7 +24,7 @@
 } = require 'art-standard-lib'
 {createWithPostCreate} = require 'art-class-system'
 {missing, success, pending} = require "art-communication-status"
-{KeyFieldsMixin, PipelineRegistry, pipelines} = require 'art-ery'
+{KeyFieldsMixinCoffee, PipelineRegistry, pipelines} = require 'art-ery'
 
 {ArtModel, models} = require '@art-suite/art-models'
 
@@ -32,7 +32,7 @@
 
 ArtEryQueryFluxModel = require './ArtEryQueryFluxModel'
 
-defineModule module, class ArtEryFluxModel extends KeyFieldsMixin ArtModel
+defineModule module, class ArtEryFluxModel extends KeyFieldsMixinCoffee ArtModel
   @abstractClass()
 
   ###

@@ -19,10 +19,10 @@
 
 
     /*
-    OUT:
-      promise.then (request or response) ->
-        NOTE: response may be failing
-      .catch -> internal errors only
+      OUT:
+        promise.then (request or response) ->
+          NOTE: response may be failing
+        .catch -> internal errors only
      */
 
     RequestHandler.prototype.applyHandler = function(request, handlerFunction, context) {

@@ -1,6 +1,6 @@
 import &StandardImport
 
-class MemStorePipeline extends KeyFieldsMixinCaf Pipeline
+class MemStorePipeline extends KeyFieldsMixin Pipeline
   @abstractClass()
 
   constructor: -> @_store = {}

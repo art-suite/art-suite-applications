@@ -2,7 +2,7 @@ import &StandardImport
 suite:
   regression: ->
     test :preprocess ->
-      class MyPipeline extends KeyFieldsMixinCaf Pipeline
+      class MyPipeline extends KeyFieldsMixin Pipeline
         @primaryKey :myKey/myDate
         @fields
           myKey:  :trimmedString
@@ -21,7 +21,7 @@ suite:
 
   primaryKey: ->
     test :simpleString ->
-      class MyPipeline extends KeyFieldsMixinCaf Pipeline
+      class MyPipeline extends KeyFieldsMixin Pipeline
         @publicRequestTypes :testToKeyObject :get
 
         @primaryKey :myKey
@@ -41,19 +41,19 @@ suite:
 
   propsToKey: ->
     test "defaultKey (id)" ->
-      {user} = class User extends KeyFieldsMixinCaf Pipeline
+      {user} = class User extends KeyFieldsMixin Pipeline
       assert.eq :user1    user.propsToKey user: id: :user1
       assert.eq :user2    user.propsToKey userId: :user2
       assert.eq :user3    user.propsToKey(user: {id: :user3}, userId: :user4), "" whole object has precidence
       assert.eq undefined user.propsToKey {}
 
     test "defaultKey (id) obeys stateField override" ->
-      {user} = class User extends KeyFieldsMixinCaf Pipeline
+      {user} = class User extends KeyFieldsMixin Pipeline
       assert.eq :user2    user.propsToKey {userId: :user2, friendId: :user3}
       assert.eq :user3    user.propsToKey {userId: :user2, friendId: :user3}, :friend
 
     test "custom single primaryKey" ->
-      {email} = class Email extends KeyFieldsMixinCaf Pipeline
+      {email} = class Email extends KeyFieldsMixin Pipeline
         @primaryKey :email
 
       assert.eq :def        email.propsToKey {} email: :def
@@ -62,7 +62,7 @@ suite:
       assert.eq undefined   email.propsToKey {}
 
     test "custom primaryKey pair" ->
-      {userToPost} = class UserToPost extends KeyFieldsMixinCaf Pipeline
+      {userToPost} = class UserToPost extends KeyFieldsMixin Pipeline
         @primaryKey :userId/postId
 
       assert.eq {userId: undefined, postId: undefined}  userToPost.propsToKey {}

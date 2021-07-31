@@ -1,5 +1,5 @@
 import &StandardImport
-SimplePipelineWithKeys = KeyFieldsMixinCaf &SimplePipeline
+SimplePipelineWithKeys = KeyFieldsMixin &SimplePipeline
 
 suite:
   basics: ->
