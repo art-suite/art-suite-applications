@@ -1,4 +1,4 @@
-import &StandardImport
+import &ArtStandardLib
 
 class Config extends &ArtConfig.Configurable
   @defaults

@@ -1,4 +1,4 @@
-import &StandardImport, &Config, {} &Request
+import &StandardImport, {} &Request
 
 responseValidator = new Validator
   request:  w "required", instanceof: Request

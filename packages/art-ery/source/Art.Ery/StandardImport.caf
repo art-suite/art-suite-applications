@@ -4,3 +4,4 @@
   &ArtValidation
   &Stack
   &env
+  &Config
