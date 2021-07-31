@@ -17,6 +17,7 @@
   Request:                require('./Request'),
   RequestHandler:         require('./RequestHandler'),
   RequestResponseBase:    require('./RequestResponseBase'),
+  RequestResponseBaseOld: require('./RequestResponseBaseOld'),
   Response:               require('./Response'),
   Session:                require('./Session'),
   Stack:                  require('./Stack'),
