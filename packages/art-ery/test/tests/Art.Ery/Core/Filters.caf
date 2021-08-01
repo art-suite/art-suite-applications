@@ -100,7 +100,6 @@ suite:
           after: all: (response) ->
             response.withData array a from response.data with "#{a} #{a}"
 
-      assert.eq Post.post.clientApiMethodList, [] "postByUserId"
       Post.post.postByUserId key: :foo
       .then (results) ->
         assert.eq results, [] "foo foo" "1 1" "2 2" "3 3"

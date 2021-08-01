@@ -3,9 +3,6 @@ import &StandardImport
 SimplePipeline = &SimplePipeline
 
 suite: ->
-  test "clientApiMethodList", ->
-    simplePipeline = new SimplePipeline
-    assert.eq simplePipeline.clientApiMethodList, wordsArray "reset get getAll create update delete"
 
   test "get -> missing", ->
     simplePipeline = new SimplePipeline

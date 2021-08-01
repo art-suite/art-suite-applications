@@ -1,0 +1,233 @@
+import &StandardImport, {} &RequestResponseBase, &Request, &Filter
+
+class PipelineCore extends &RequestHandler
+  @abstractClass()
+
+  @register: ->
+    @singletonClass()
+    &PipelineRegistry.register @
+
+  @postCreateConcreteClass: ({hotReloaded}) ->
+    @_defineRequestMethods()
+    @register() unless hotReloaded
+    super
+
+  ######################################
+    Declarative Intreface
+  ######################################
+  @extendableProperty
+    filters:  []
+    handlers: {}
+
+  ###################
+    HANDLERS
+  ###################
+  ###
+    add one or more handlers
+
+    IN map:
+      requestType: (request) ->
+        IN: ArtEry.Request instance
+        OUT:
+          ArtEry.Response instance
+        OR
+          plain data which will be wrapped up in an ArtEry.Response instance
+
+    @handler and @handlers are aliases.
+  @handler:  @extendHandlers
+  @handlers: @extendHandlers
+
+  ###################
+    FILTERS
+  ###################
+  @instantiateFilter: instantiateFilter = (filter) ->
+    if isClass filter                 then new filter
+    else if isFunction filter         then filter @
+    else if filter instanceof Filter  then filter
+    else if isPlainObject filter      then new Filter filter
+    else throw "invalid filter: #{inspect filter} #{filter instanceof Filter}"
+
+  ### @filter
+    add a single filter OR an array of filters
+
+    NOTE: the order of filter definitions matter:
+      last-defined filters FIRST in the before-filter sequence
+      last-defined filters LAST in the after-filter sequence
+
+      Example request processing sequence:
+
+        filterDefinedLast.beforeFilter
+          filterDefinedSecond.beforeFilter
+            filterDefinedFirst.beforeFilter
+              handler
+            filterDefinedFirst.afterFilter
+          filterDefinedSecond.afterFilter
+        filterDefinedLast.afterFilter
+
+    IN:
+      name: "myFilter"                    # only used for debug purposes
+      location: "server"/"client"/"both"  # where the filter will be applied
+      before: map:
+        requestType: (request) ->
+          OUT one of these (or a promise returning one of these):
+            request
+            - the same request if nothing was filtered
+            - a new request with the new, filtered values
+
+            response in the form of:
+            - new Response
+            - null        >> request.missing()
+            - string      >> request.success data: message: string
+            - plainObject >> request.success data: plainObject
+            - plainArray  >> request.success data: plainArray
+            NOTE, if a response is returned, it shortcircuits the handler and all other
+              filters. The response is returned directly to the caller.
+
+      after: map:
+        requestType: (response) ->
+          OUT: same or new response
+            NOTE: all after-filters are applied if the handler generated the first response object
+            UNLESS there is an error, in which case the error is returned directly.
+  @filter: (filter...) -> @extendFilters
+    array f in compactFlatten filter with instantiateFilter f
+
+  ################################
+    Requests
+  ################################
+  ### request
+    IN:
+      LEGAL SIGNATURES:
+        type, options?
+        type, key?, options?
+        type, parentRequest?, options?
+        type, parentRequest?, key?, options?
+
+      type:           request type string
+      parentRequest:  if present, this becomes a subreqest
+      key:            merged with options: merge {key}, options
+      options:
+        Passed directly to:
+          Request constructor
+          AND response.toPromise
+
+    OUT: SEE: response.toPromise
+  noOptions = {}
+  request: (type, a, b, c) ->
+    if !a?
+      a = b
+      b = c
+
+    if a? && a instanceof RequestResponseBase
+      parentRequest = a
+      a = b
+      b = c
+
+    options = if isString a
+      merge
+        key: a
+        b
+    else
+      a ? noOptions
+
+    if parentRequest
+      parentRequest.subrequest @, type,
+        if options != noOptions then options
+        else props: parentRequest.props
+
+    else
+      requestStartTime = currentSecond()
+
+      @createRequest type, options
+      .then (request)  -> @_processRequest request
+      .then (response) -> @_processResponseSession response, requestStartTime
+      .then (response) -> response.toPromise options
+
+  createRequest: (type, options) ->
+    log.warn "DEPRICATED - options must be an object now" unless isPlainObject options
+    options = key: options if isString options
+
+    if getDetailedRequestTracingEnabled()
+      {stack} = new Error
+
+    Promise
+    .then -> options.session || @session.loadedDataPromise
+    .tapCatch (error) ->
+      log.error Pipeline_createRequest:
+        message:  "" Error getting session
+        info:     {} @pipelineName, type, options
+        error:    error
+
+    .then (sessionData) ->
+      new Request merge options,
+        type:     type
+        pipeline: @
+        session:  sessionData
+        creationStack: stack
+
+    .catch (error) ->
+      if stack?
+        error.stack = cleanStackTrace stack
+      error.message += "\n\ninside #{@name}." + formattedInspect createRequest: {} type, options
+      throw error
+
+  ################################
+    PRIVATE
+  ################################
+
+  _normalizeRequest: (request) ->
+    if isPlainObject request
+          new Request merge request, pipeline: @
+    else  request
+
+  _processRequest: (request) ->
+    haveHandler = !!@handlers[request.type]
+    isPublicRequestType = !!@getPublicRequestTypes()[request.type]
+
+    unless haveHandler || isPublicRequestType
+      Promise.then -> request.clientFailure data:
+        message:            "" '#{request.type}' is an invalid request type
+        validRequestTypes:  Object.keys @handlers
+    else
+      request.requireServerOriginOr isPublicRequestType, "to issue non-public requests"
+      .then -> @filterChain[0].handleRequest request, @filterChain, 0
+      .then (response) ->
+        unless response.isResponse
+          log.error "not response!":response
+
+        response
+
+  ### _processResponseSession
+    mostRecentSessionUpdatedAt ensures we don't update the session out of order
+    RULE: the current session reflects the response from the most recently INITIATED request.
+    In other words, if a request stalls, takes a long time to update, and comes back with
+    a session update AFTER some other session updates from more recently-initiated requests,
+    that session-update is ignored.
+    keywords: update session
+
+    ALTERNATIVES CONSIDERED
+    - could use a server-side timestamp to ensure no out-of-order session updates
+      SUBOPTION A: order by time server RECEIVED the request
+      SUBOPTION B: order by time server COMPLETED the request
+      I decided this made less sense. It's really the order the user initiated
+      events that matters. If a user initiates a log-in or log-out request AFTER
+      some other slow request, the log-in/log-out should take precidence.
+      Extreme example: user logs in, which takes forever, then initiates a log-out,
+        if the log-in returns AFTER the log-out, it should be ignored.
+  mostRecentSessionUpdatedAt = 0
+  _processResponseSession: (response, requestStartTime) ->
+    {responseSession} = response
+    if responseSession
+      currentSession = @session.data
+      if requestStartTime > mostRecentSessionUpdatedAt
+        mostRecentSessionUpdatedAt = requestStartTime
+        @session.data = responseSession
+
+    response
+
+  @_defineRequestMethod: (requestType) ->
+    @prototype[requestType] ?= (a, b, c) ~> @request requestType, a, b, c
+
+  @_defineRequestMethods: ->
+    each __, name in @getHandlers()           with @_defineRequestMethod name
+    each __, name in @getPublicRequestTypes() with @_defineRequestMethod name
+    null

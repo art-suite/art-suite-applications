@@ -7,6 +7,7 @@ class RequestHandler extends &ArtEryBaseObject
     IN:
       request:          ArtEry.Request
       handlerFunction:  (request) -> request/response
+                        NOTE: handlerFunction's 'this' is set to this RequestHandler instance
       context:          descriptive string for human readability
 
     OUT:
@@ -39,6 +40,26 @@ class RequestHandler extends &ArtEryBaseObject
         else
           log [prefix]: "no-change"
 
+  #############################
+    OVERRIDES
+  #############################
+  ###
+    IN:
+      request OR response
+
+      if response, it is immediately returned
+    OUT:
+      promise.then -> response
+        response may or maynot be successful, but it is always returned via the promise-success path
+
+      promise.catch -> always means an internal failure
+
+    OVERRIDE THIS
+  handleRequest: (request) -> throw new Error "must override handleRequest"
+
+  #############################
+    PRIVATE
+  #############################
   _applyHandler: (request, handlerFunction, context) ->
 
     Promise.then ->
@@ -68,18 +89,3 @@ class RequestHandler extends &ArtEryBaseObject
             source:
               this: @
               function: handlerFunction
-
-    ###
-      IN:
-        request OR response
-
-        if response, it is immediately returned
-      OUT:
-        promise.then -> response
-          response may or maynot be successful, but it is always returned via the promise-success path
-
-        promise.catch -> always means an internal failure
-
-      OVERRIDE THIS
-    ###
-    # handleRequest: (request) ->

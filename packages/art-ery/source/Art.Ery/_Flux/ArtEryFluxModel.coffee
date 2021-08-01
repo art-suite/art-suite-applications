@@ -60,7 +60,7 @@ defineModule module, class ArtEryFluxModel extends KeyFieldsMixinCoffee ArtModel
   @applyMixins: (pipeline, BaseClass) ->
 
     # apply mixins
-    for customMixin in compactFlatten pipeline.getFluxModelMixins()
+    for customMixin in compactFlatten pipeline.getArtModelMixins()
       BaseClass = customMixin BaseClass
 
     BaseClass

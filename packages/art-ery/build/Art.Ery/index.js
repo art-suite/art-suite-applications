@@ -12,6 +12,7 @@
   KeyFieldsMixin:         require('./KeyFieldsMixin'),
   KeyFieldsMixinCoffee:   require('./KeyFieldsMixinCoffee'),
   Pipeline:               require('./Pipeline'),
+  PipelineCore:           require('./PipelineCore'),
   PipelineRegistry:       require('./PipelineRegistry'),
   PrefetchedRecordsCache: require('./PrefetchedRecordsCache'),
   Request:                require('./Request'),

@@ -74,7 +74,7 @@
 
     ArtEryFluxModel.applyMixins = function(pipeline, BaseClass) {
       var customMixin, i, len, ref4;
-      ref4 = compactFlatten(pipeline.getFluxModelMixins());
+      ref4 = compactFlatten(pipeline.getArtModelMixins());
       for (i = 0, len = ref4.length; i < len; i++) {
         customMixin = ref4[i];
         BaseClass = customMixin(BaseClass);
