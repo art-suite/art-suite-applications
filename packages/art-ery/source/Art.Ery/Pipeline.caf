@@ -37,7 +37,6 @@ import &StandardImport, &PrefetchedRecordsCache, {}
     and ArtEry (ArtPipelines?) to have namespaced registries so you can merge as many
     packages as you want based on ArtSuite without name-conflicts in their registries.
 
-###
 class Pipeline extends &RequestHandler
   # copy-paste this line to any sub-class that shouldn't auto-register
   @abstractClass()
@@ -212,7 +211,7 @@ class Pipeline extends &RequestHandler
   @apiRoot:         (@_apiRoot)         -> # override default (see config.apiRoot)
   @tableNamePrefix: (@_tableNamePrefix) -> # override default (see config.tableNamePrefix)
 
-  ###
+  ### query
     declare a query - used by ArtEryFlux
 
     IN: map:
@@ -227,12 +226,10 @@ class Pipeline extends &RequestHandler
         # subscribe to Model in FluxComponent
         @subscriptions
           myQueryName: queryKey
-  ###
   @query: (map) ->
     @extendQueries object options, queryName from map with @_normalizeQuery queryName, options
 
-  ###
-    aliases
+  ### aliases
 
     INPUT: zero or more strings or arrays of strings
       - arbitrary nesting of arrays is OK
@@ -248,7 +245,6 @@ class Pipeline extends &RequestHandler
     purpose:
       - used by ArtEryFluxComponent to make model aliases
         (see FluxModel.aliases)
-  ###
   @aliases: (args...)->
     @_aliases = object v, k from args with-key lowerCamelCase v with true
     @
@@ -303,26 +299,22 @@ class Pipeline extends &RequestHandler
         mergeInto _into, filter.beforeFilters
       _into
 
-    requestTypesMap: (_into = {})->
-      @getHandlerRequestTypesMap @getFilterRequestTypesMap _into
+    requestTypesMap: (_into = {})-> @getHandlerRequestTypesMap @getFilterRequestTypesMap _into
 
-    requestTypes: -> Object.keys @requestTypesMap
-
-    aliases: -> Object.keys @class.getAliases()
+    requestTypes:     -> Object.keys @requestTypesMap
+    aliases:          -> Object.keys @class.getAliases()
     inspectedObjects: -> inspectedObjectLiteral @name
-    isRemoteClient: -> !!@remoteServer
-    apiRoot: -> @class._apiRoot || config._apiRoot
-
-    remoteServer: -> @class._remoteServer || config.remoteServer
+    isRemoteClient:   -> !!@remoteServer
+    apiRoot:          -> @class._apiRoot || config._apiRoot
+    remoteServer:     -> @class._remoteServer || config.remoteServer
 
     location: ->
-      if @remoteServer && config.location != "server"
-        "client"
-      else
-        config.location
+      if @remoteServer && config.location != :server
+            :client
+      else  config.location
 
-    restPath: -> @_restPath ||= "/#{config.apiRoot}/#{@name}"
-    restPathRegex: -> @_restPathRegex ?=
+    restPath:       -> @_restPath ?= "" /#{config.apiRoot}/#{@name}
+    restPathRegex:  -> @_restPathRegex ?=
       ///i
         ^
         #{escapeRegExp @restPath}
@@ -340,9 +332,10 @@ class Pipeline extends &RequestHandler
       if request then array filter in @afterFilters  when filter.getAfterFilter  request
       else @groupedFilters
 
-    status: -> "OK"
+    status: -> :OK
 
-    filterChain: -> @_filterChain ||= compactFlatten([@, @groupedFilters]).reverse()
+    filterChain: -> @_filterChain ?= compactFlatten([@, @groupedFilters]).reverse()
+
   # use a stable sort
   @groupFilters: (filters) ->
     priorityLevels = []
@@ -364,19 +357,19 @@ class Pipeline extends &RequestHandler
       stack = (new Error).stack
 
     Promise
-    .then => options.session || @session.loadedDataPromise
-    .tapCatch (error) =>
+    .then -> options.session || @session.loadedDataPromise
+    .tapCatch (error) ->
       log.error Pipeline_createRequest:
         message: "Error getting session"
         info: {@pipelineName, type, options}
         error: error
-    .then (sessionData) =>
+    .then (sessionData) ->
       new Request merge options,
         type:     type
         pipeline: @
         session:  sessionData
         creationStack: stack
-    .catch (error) =>
+    .catch (error) ->
       if stack?
         error.stack = cleanStackTrace stack
       error.message += "\n\ninside #{@name}." + formattedInspect createRequest: {type, options}
@@ -433,7 +426,7 @@ class Pipeline extends &RequestHandler
 
     else if handler = @handlers[request.type]
       @applyHandler request, handler, "handler"
-      .then (response) =>
+      .then (response) ->
         unless response.isResponse
           request.failure "#{@pipelineName}.#{request.type} request was not handled"
         else
@@ -446,7 +439,7 @@ class Pipeline extends &RequestHandler
   ###################
 
   @getter
-    propsToKey: -> @_propsToKey ?= do =>
+    propsToKey: -> @_propsToKey ?= do ->
       recordType = @pipelineName
       (props, stateField) ->
         propsField = stateField ? recordType
@@ -456,10 +449,8 @@ class Pipeline extends &RequestHandler
   # PRIVATE
   ###################
 
-
-  ###
+  ### _defineQueryHandlers
     query handler-functions: (request) -> response or any other value allowed for handlers
-  ###
   @_defineQueryHandlers: ->
     handlers = @getHandlers()
     array pipelineQuery, k in @getQueries() when !handlers[k]
@@ -468,30 +459,30 @@ class Pipeline extends &RequestHandler
   @_normalizeQuery: (queryName, options) ->
     options = query: options if isFunction options
     unless isFunction(options.query) && options.query.length > 0
-      throw new Error """
-        query function must have at least one argument:
+      throw new Error
+        """
+          query function must have at least one argument:
 
-        #{formattedInspect {queryName, options}}"
-      """
+          #{formattedInspect {queryName, options}}"
+
     {queryName, options}
 
   _normalizeRequest: (request) ->
     if isPlainObject request
-      new Request merge request, pipeline: @
-    else
-      request
+          new Request merge request, pipeline: @
+    else  request
 
   _processRequest: (request) ->
     haveHandler = !!@handlers[request.type]
     isPublicRequestType = !!@getPublicRequestTypes()[request.type]
 
     unless haveHandler || isPublicRequestType
-      Promise.then => request.clientFailure data:
-        message: "'#{request.type}' is an invalid request type"
-        validRequestTypes: Object.keys @handlers
+      Promise.then -> request.clientFailure data:
+        message:            "" '#{request.type}' is an invalid request type
+        validRequestTypes:  Object.keys @handlers
     else
       request.requireServerOriginOr isPublicRequestType, "to issue non-public requests"
-      .then => @filterChain[0].handleRequest request, @filterChain, 0
+      .then -> @filterChain[0].handleRequest request, @filterChain, 0
       .then (response) ->
         unless response.isResponse
           log.error "not response!":response
@@ -515,7 +506,6 @@ class Pipeline extends &RequestHandler
           AND response.toPromise
 
     OUT: SEE: response.toPromise
-  ###
   noOptions = {}
   _processClientRequest: (type, a, b, c) ->
     if !a?
@@ -564,7 +554,6 @@ class Pipeline extends &RequestHandler
       some other slow request, the log-in/log-out should take precidence.
       Extreme example: user logs in, which takes forever, then initiates a log-out,
         if the log-in returns AFTER the log-out, it should be ignored.
-  ###
   mostRecentSessionUpdatedAt = 0
   _processResponseSession: (response, requestStartTime) ->
     {responseSession} = response
@@ -581,10 +570,8 @@ class Pipeline extends &RequestHandler
     @prototype[requestType] ?= (a, b, c) ~> @_processClientRequest requestType, a, b, c
 
   @_defineClientHandlerMethods: ->
-    each handler, name in @getHandlers()
-      @_defineClientRequestMethod name
-    each __, name in @getPublicRequestTypes()
-      @_defineClientRequestMethod name
+    each __, name in @getHandlers()           with @_defineClientRequestMethod name
+    each __, name in @getPublicRequestTypes() with @_defineClientRequestMethod name
     null
 
   @_initFields: ->
