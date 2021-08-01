@@ -1,0 +1,4 @@
+import &StandardImport, {} &Request
+
+(superClass) -> class PipelineDbCoreMixin extends superClass
+  @abstractClass()

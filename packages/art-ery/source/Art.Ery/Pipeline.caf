@@ -28,7 +28,7 @@ import &StandardImport, &PrefetchedRecordsCache, {} &DatabaseFilters
     and ArtEry (ArtPipelines?) to have namespaced registries so you can merge as many
     packages as you want based on ArtSuite without name-conflicts in their registries.
 
-class Pipeline extends &PipelineRemoteCoreMixin &PipelinePublicRequestsMixin &PipelineCore
+class Pipeline extends &PipelineDbCoreMixin &PipelineRemoteCoreMixin &PipelinePublicRequestsMixin &PipelineCore
   # copy-paste this line to any sub-class that shouldn't auto-register
   @abstractClass()
 
@@ -169,14 +169,7 @@ class Pipeline extends &PipelineRemoteCoreMixin &PipelinePublicRequestsMixin &Pi
 
     tableNamePrefix: -> @class._tableNamePrefix || config.tableNamePrefix
     tableName: -> @getPrefixedTableName @name
-    isRemoteClient:   -> !!@remoteServer
-    apiRoot:          -> @class._apiRoot || config._apiRoot
-    remoteServer:     -> @class._remoteServer || config.remoteServer
 
-    location: ->
-      if @remoteServer && config.location != :server
-            :client
-      else  config.location
 
     # RestCore
     restPath:       -> @_restPath ?= "" /#{config.apiRoot}/#{@name}
@@ -199,28 +192,21 @@ class Pipeline extends &PipelineRemoteCoreMixin &PipelinePublicRequestsMixin &Pi
       compactFlatten []
         array filter in @getBeforeFilters {requestType, location} with inspectedObjectLiteral filter.getName()
         inspectedObjectLiteral if location == "client" then "[remote request]" else "[local handler]"
-        array filter in @getAfterFilters {requestType, location} with inspectedObjectLiteral filter.getName()
+        array filter in @getAfterFilters  {requestType, location} with inspectedObjectLiteral filter.getName()
 
   # this depends on DbCore, RemoteCore
-  @getter
-    pipelineReport: (processingLocation)->
-      out =
-        tableName: @tableName
-        fields: object fieldProps from @fields
-          each k in Object.keys(fieldProps).sort() into out = {}
-            v = fieldProps[k]
-            unless isFunction v
-              out[k] = v
 
-      if processingLocation
-        out["#{processingLocation}Processing"] = @getRequestProcessingReport "client"
-      else
-        out.clientSideRequestProcessing = @getRequestProcessingReport "client"
-        out.serverSideRequestProcessing = @getRequestProcessingReport "server"
-        out.serverlessDevelopmentRequestProcessing = @getRequestProcessingReport "both"
+  getPipelineReport: (processingLocation)->
+    merge
+      super
+      fields: object fieldProps from @fields
+        each k in Object.keys(fieldProps).sort() into out = {}
+          v = fieldProps[k]
+          unless isFunction v
+            out[k] = v
 
-      out
-
+      clientSideRequestProcessing: @getRequestProcessingReport :client
+      serverSideRequestProcessing: @getRequestProcessingReport :server
 
   ###################
   # RequestHandler API

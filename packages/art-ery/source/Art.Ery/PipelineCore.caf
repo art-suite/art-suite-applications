@@ -150,9 +150,19 @@ class PipelineCore extends &RequestHandler
 
     requestTypes:     -> Object.keys @requestTypesMap
     inspectedObjects: -> inspectedObjectLiteral @name
+    pipelineReport:   -> @getPipelineReport()
 
   toString: -> @pipelineName
   getLogName: (requestType) -> "#{requestType}-handler"
+
+  getPipelineReport: (processingLocation)->
+    tableName: @tableName
+    requests:
+      object requestType from @requestTypes
+        compactFlatten []
+          array filter in @getBeforeFilters {requestType} with inspectedObjectLiteral filter.getName()
+          "[handler]"
+          array filter in @getAfterFilters  {requestType} with inspectedObjectLiteral filter.getName()
 
   ################################
     Requests

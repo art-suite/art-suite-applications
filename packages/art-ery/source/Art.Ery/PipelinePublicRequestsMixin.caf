@@ -41,3 +41,6 @@ import &StandardImport
   @_defineRequestMethods: ->
     each __, name in @getPublicRequestTypes() with @_defineRequestMethod name
     super
+
+  getPipelineReport: (processingLocation)->
+    merge super, {} @publicRequestTypes()

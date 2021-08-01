@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "PipelineDbCoreMixin.js",
+  "sourceRoot": "../..",
+  "sources": [
+    "source/Art.Ery/PipelineDbCoreMixin.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;yCAEA,gBAAC,sCAAe,4EAAkC,yEAChD"
+}

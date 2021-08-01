@@ -12,3 +12,12 @@ import &StandardImport, {} &Request
           type:     type
           restPath: @restPath
         "#{method.toLocaleUpperCase()}": url
+
+    isRemoteClient:   -> !!@remoteServer
+    apiRoot:          -> @class._apiRoot || config._apiRoot
+    remoteServer:     -> @class._remoteServer || config.remoteServer
+
+    location: ->
+      if @remoteServer && config.location != :server
+            :client
+      else  config.location
