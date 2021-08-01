@@ -1,32 +1,63 @@
 import &StandardImport, &PrefetchedRecordsCache, {} &DatabaseFilters
 
 ###
-  TODO: (July2019)
-  Factor out all ArtFlux-related stuff
-    ArtEry should be independent of ArtFlux or any other client-side state-management-system.
+  TODO: July, 2021
+    Elliminated "both" location for filters. If filter should run in both, add it to both.
+      - Then client/server filter locations just become two top-level filter groups.
+      - Currently Validate is the only filter running in both that I've ever designed. It's also
+        potentially a tad different for client vs server.
+      - Server vs Client vs "both" modes could then just be a matter of slicing
+        up the filter list
+      - "Both" mode would not have exactly the same filter execution order as Client + Server
 
-    Remaining:
+    Namespaced Registry - here's how to do it, I think
+      Make it based on inheritance.
+      The root Pipeline will have a registry, which will therefor be backward compatibile.
+      However, any inherited, abstractClass, "MyRegistry", can declare itself its own registry:
+      - all pipelines that inherit from MyRegistry are in the same namespace and can cross-reference each other as normal.
+      - Can get a global list of all pipeline registries.
+      - The name of MyRegistry could provide namespace, to be used as MyRegistry.myPipeline
+      - We elliminate the current PipelineRegistry all together.
+      - The "pipelines" object must always be accessed via a pipeline - it will be a getter that returns that pipeline's peers within their shared
+        regostry.
+      Q: What about, say, the REST path for namespaced pipelines?
 
-      artModelMixins -
-        This lets you customize what time of Object is created
-        for your models. ArtEry shouldn't know anything about creating models, though...
+    Add a puggable system for network transport: GraphQL, REST, REST+JasonAPI, etc...
+      - clientside:
+        - drop all Server filters
+        - add Handlers for all Public request types which initiate
+          the appropriate network transport protocols
+      - serverside:
+        - drop all Client filters
+        - custom "webserver" or whatever
+        - decode "web-requests" and intiate AtEry requests against the appropriate pipeline
 
-        However, I DO want a way to declare this info in the Pipeline declaration
-        to reduce redundency.
+  TODO: July, 2019
+    Factor out all ArtFlux-related stuff
+      ArtEry should be independent of ArtFlux or any other client-side state-management-system.
 
-      query:
-        Another declaration passed directly to ArtFlux
+      Remaining:
 
-      aliases:
-        Another declaration passed directly to ArtFlux
+        artModelMixins -
+          This lets you customize what time of Object is created
+          for your models. ArtEry shouldn't know anything about creating models, though...
 
-    Perhaps we need a subclass: PipelineWithFluxModel?
+          However, I DO want a way to declare this info in the Pipeline declaration
+          to reduce redundency.
 
-  Namespaced-Registry
+        query:
+          Another declaration passed directly to ArtFlux
 
-    I still don't quite know how I want to do this, but I want BOTH ArtFlux (ArtModels?)
-    and ArtEry (ArtPipelines?) to have namespaced registries so you can merge as many
-    packages as you want based on ArtSuite without name-conflicts in their registries.
+        aliases:
+          Another declaration passed directly to ArtFlux
+
+      Perhaps we need a subclass: PipelineWithFluxModel?
+
+    Namespaced-Registry
+
+      I still don't quite know how I want to do this, but I want BOTH ArtFlux (ArtModels?)
+      and ArtEry (ArtPipelines?) to have namespaced registries so you can merge as many
+      packages as you want based on ArtSuite without name-conflicts in their registries.
 
 class Pipeline extends &PipelineArtModelsMixin &PipelineDbCoreMixin &PipelineRemoteCoreMixin &PipelinePublicRequestsMixin &PipelineCore
   # copy-paste this line to any sub-class that shouldn't auto-register
