@@ -1,0 +1,43 @@
+import &StandardImport
+
+(superClass) -> class PipelinePublicRequestsMixin extends superClass
+  @abstractClass()
+
+  ##########################
+    DECLARATIVE API
+  ##########################
+  @extendableProperty
+    publicRequestTypes: {}
+
+  ## @publicRequestTypes
+    IN: one or more string with arbitrary array nesting
+      NOTE: strings are split out into words and each word is used to declare a publicRequestType.
+    OUT: ignored
+  @publicRequestTypes: (values...) ->
+    publicRequestTypes = {}
+    each v in compactFlatten values
+      each k in w v
+        publicRequestTypes[k] = true
+
+    @extendPublicRequestTypes publicRequestTypes
+
+  ## @publicHandlers: Syntactic sugar to delcare handlers and publicRequestTypes as one
+  @publicHandlers: (maps...) ->
+    each map in maps
+      @handlers map
+      @publicRequestTypes Object.keys map
+
+  ##########################
+    OVERRIDES
+  ##########################
+  isPublicRequestType: (type) -> !!@getPublicRequestTypes()[type]
+  canHandleRequestType: (request) ->
+    super || @isPublicRequestType request.type
+
+  _processRequest: (request) ->
+    request.requireServerOriginOr @isPublicRequestType(request.type), "" to issue non-public requests
+    .then (request) -> super request
+
+  @_defineRequestMethods: ->
+    each __, name in @getPublicRequestTypes() with @_defineRequestMethod name
+    super

@@ -1,4 +1,4 @@
-import &StandardImport, {} &RequestResponseBase, &Request, &Filter
+import &StandardImport, {} &RequestResponseBase, &Request, &Filter, &Session
 
 class PipelineCore extends &RequestHandler
   @abstractClass()
@@ -19,10 +19,18 @@ class PipelineCore extends &RequestHandler
     filters:  []
     handlers: {}
 
+  @classGetter
+    pipelineName: -> @_pipelineName || decapitalize @getName()
+    pluralPipelineName: ->
+      return @_pluralPipelineName if @_pluralPipelineName
+      parts = getCodeWords @getPipelineName()
+      parts.push pluralize parts.pop()
+      @_pluralPipelineName = lowerCamelCase parts
+
   ###################
     HANDLERS
   ###################
-  ###
+  ### @handler {}
     add one or more handlers
 
     IN map:
@@ -88,8 +96,63 @@ class PipelineCore extends &RequestHandler
           OUT: same or new response
             NOTE: all after-filters are applied if the handler generated the first response object
             UNLESS there is an error, in which case the error is returned directly.
-  @filter: (filter...) -> @extendFilters
-    array f in compactFlatten filter with instantiateFilter f
+  @filter:  filters = (filter...) -> @extendFilters array f in compactFlatten filter with instantiateFilter f
+  @filters: filters
+
+  @getter
+    groupedFilters: -> @_groupedFilters ?= groupFilters @filters
+
+    beforeFilters: (request) ->
+      if request then array filter in @beforeFilters when filter.getBeforeFilter request
+      else @_beforeFilters ?= @groupedFilters.slice().reverse()
+
+    afterFilters: (request) ->
+      if request then array filter in @afterFilters  when filter.getAfterFilter  request
+      else @groupedFilters
+
+    filterChain: -> @_filterChain ?= compactFlatten([@, @groupedFilters]).reverse()
+
+  # use a stable sort
+  @groupFilters: groupFilters = (filters) ->
+    priorityLevels = []
+    each {priority} in filters
+      pushIfNotPresent priorityLevels, priority
+
+    sortedFilters = []
+    each priorityLevels in priorityLevels.sort (a, b) -> a - b
+      each filter in filters when priorityLevels == filter.priority
+        sortedFilters.push filter
+
+    sortedFilters
+
+  ######################
+  # constructor
+  ######################
+  constructor: (@_options = {}) ->
+
+  ######################################
+    Getters
+  ######################################
+  @getter
+    :options
+    pipelineName: -> @class.getPipelineName()
+    name:         -> @_name     ||= @_options.name    || decapitalize @class.getName()
+    session:      -> @_session  ||= @_options.session || Session.singleton
+
+    handlerRequestTypesMap: (_into = {}) -> mergeInto _into, @handlers
+
+    filterRequestTypesMap: (_into = {}) ->
+      each filter in @filters
+        mergeInto _into, filter.beforeFilters
+      _into
+
+    requestTypesMap: (_into = {})-> @getHandlerRequestTypesMap @getFilterRequestTypesMap _into
+
+    requestTypes:     -> Object.keys @requestTypesMap
+    inspectedObjects: -> inspectedObjectLiteral @name
+
+  toString: -> @pipelineName
+  getLogName: (requestType) -> "#{requestType}-handler"
 
   ################################
     Requests
@@ -130,7 +193,9 @@ class PipelineCore extends &RequestHandler
       a ? noOptions
 
     if parentRequest
-      parentRequest.subrequest @, type,
+      parentRequest.subrequest
+        @
+        type
         if options != noOptions then options
         else props: parentRequest.props
 
@@ -142,6 +207,17 @@ class PipelineCore extends &RequestHandler
       .then (response) -> @_processResponseSession response, requestStartTime
       .then (response) -> response.toPromise options
 
+  ### cachedGet - a special way to fire off a "get" request with request-localized caching
+    This is convenient alias altenative to request.cachedGet that matches the new subrequest patterns.
+    IN:
+      request: - the request this will be a subrequest-of
+      key: <String> (default: request.key)
+
+    EFFECT:
+      calls request.cachedGet. Note, cachedGet's cache is stored in request's context
+  cachedGet: (request, key) -> request.cachedGet @pipelineName, key ? request.key
+
+  ## Note: this should probably be a class-method of Request
   createRequest: (type, options) ->
     log.warn "DEPRICATED - options must be an object now" unless isPlainObject options
     options = key: options if isString options
@@ -159,20 +235,33 @@ class PipelineCore extends &RequestHandler
 
     .then (sessionData) ->
       new Request merge options,
-        type:     type
-        pipeline: @
-        session:  sessionData
-        creationStack: stack
+        type:           type
+        pipeline:       @
+        session:        sessionData
+        creationStack:  stack
 
     .catch (error) ->
-      if stack?
-        error.stack = cleanStackTrace stack
+      error.stack = cleanStackTrace stack if stack?
       error.message += "\n\ninside #{@name}." + formattedInspect createRequest: {} type, options
       throw error
+
+  canHandleRequestType: (request) ->
+    !!@handlers[request.type]
 
   ################################
     PRIVATE
   ################################
+  handleRequest: (request) ->
+    if handler = @handlers[request.type]
+      @applyHandler request, handler, :handler
+      .then (response) ->
+        unless response.isResponse
+          request.failure "" #{@pipelineName}.#{request.type} request was not handled
+
+        else response
+
+    else
+      request.failure "" #{@pipelineName}: No handler for request type: #{formattedInspect request.type}
 
   _normalizeRequest: (request) ->
     if isPlainObject request
@@ -180,19 +269,17 @@ class PipelineCore extends &RequestHandler
     else  request
 
   _processRequest: (request) ->
-    haveHandler = !!@handlers[request.type]
-    isPublicRequestType = !!@getPublicRequestTypes()[request.type]
-
-    unless haveHandler || isPublicRequestType
+    unless @canHandleRequestType request
       Promise.then -> request.clientFailure data:
         message:            "" '#{request.type}' is an invalid request type
         validRequestTypes:  Object.keys @handlers
+
     else
-      request.requireServerOriginOr isPublicRequestType, "to issue non-public requests"
+      Promise
       .then -> @filterChain[0].handleRequest request, @filterChain, 0
       .then (response) ->
         unless response.isResponse
-          log.error "not response!":response
+          log.error "not response!": response
 
         response
 
@@ -224,10 +311,5 @@ class PipelineCore extends &RequestHandler
 
     response
 
-  @_defineRequestMethod: (requestType) ->
-    @prototype[requestType] ?= (a, b, c) ~> @request requestType, a, b, c
-
-  @_defineRequestMethods: ->
-    each __, name in @getHandlers()           with @_defineRequestMethod name
-    each __, name in @getPublicRequestTypes() with @_defineRequestMethod name
-    null
+  @_defineRequestMethod: (requestType) -> @prototype[requestType] ?= (a, b, c) ~> @request requestType, a, b, c
+  @_defineRequestMethods: -> each __, name in @getHandlers() with @_defineRequestMethod name

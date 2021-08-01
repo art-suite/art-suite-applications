@@ -1,13 +1,4 @@
-import &StandardImport, &PrefetchedRecordsCache, {}
-  &Response
-  &Request
-  &Filter
-  &DatabaseFilters
-  &Session
-  &Config
-  &Filters
-  &PipelineRegistry
-  &RequestResponseBase
+import &StandardImport, &PrefetchedRecordsCache, {} &DatabaseFilters
 
 ###
   TODO: (July2019)
@@ -37,7 +28,7 @@ import &StandardImport, &PrefetchedRecordsCache, {}
     and ArtEry (ArtPipelines?) to have namespaced registries so you can merge as many
     packages as you want based on ArtSuite without name-conflicts in their registries.
 
-class Pipeline extends &PipelineCore
+class Pipeline extends &PipelineRemoteCoreMixin &PipelinePublicRequestsMixin &PipelineCore
   # copy-paste this line to any sub-class that shouldn't auto-register
   @abstractClass()
 
@@ -46,6 +37,7 @@ class Pipeline extends &PipelineCore
     @_initFields()
     super
 
+  ## Aliases are for ArtModels
   @getAliases: -> @_aliases ? {}
 
   @addDatabaseFilters: (options) ->
@@ -58,9 +50,16 @@ class Pipeline extends &PipelineCore
         options
       @
 
+  ## getPrefetchedRecord
+    This allows susequent requests to get temporarilly-cached 'prefetched' records from previous requests
+    This requires the PrefetchedRecordsFilter.
+    Not even sure anyone uses this particular method...
   getPrefetchedRecord: (key) ->
     prefetchedRecordsCache.get @pipelineName, key
 
+  ## toKeyString
+    Note, this requires @dataToKeyString be implemented. Typically that will be by using KeyFilesMixin.
+    If this requires KeyFieldsMixin, maybe it should be IN KeyFieldsMixin...
   toKeyString: (key) ->
     return key unless key?
     if isString key
@@ -69,7 +68,6 @@ class Pipeline extends &PipelineCore
       @dataToKeyString key
     else
       throw new Error "override toKeyString or dataToKeyString for non-string-keys like: #{formattedInspect key}"
-
 
   ###########################
   # Overrides
@@ -90,25 +88,11 @@ class Pipeline extends &PipelineCore
 
   @extendableProperty
     artModelMixins: []
-    publicRequestTypes: {}
 
   # Database declarables
   @extendableProperty
     queries: {}
     fields: {}
-
-  @publicRequestTypes: (values...) ->
-    publicRequestTypes = {}
-    each v in compactFlatten values
-      each k in w v
-        publicRequestTypes[k] = true
-    @extendPublicRequestTypes publicRequestTypes
-
-  # delcare handlers and publicRequestTypes as one
-  @publicHandlers: (maps...) ->
-    each map in maps
-      @handlers map
-      @publicRequestTypes Object.keys map
 
   ###
     @artModelMixin adds a mixin to artModelMixins
@@ -170,61 +154,21 @@ class Pipeline extends &PipelineCore
     @_aliases = object v, k from args with-key lowerCamelCase v with true
     @
 
-  ######################
-  # constructor
-  ######################
-  constructor: (@_options = {}) ->
-
   getPrefixedTableName: (tableName) -> "#{@tableNamePrefix}#{tableName}"
 
-  ### cachedGet - convenient alias altenative to request.cachedGet that matches the new subrequest patterns
-    IN:
-      request: - the request this will be a subrequest-of
-      key: <String> (default: request.key)
-
-    EFFECT:
-      calls request.cachedGet. Note, cachedGet's cache is stored in request's context
-  cachedGet: (request, key) ->
-    request.cachedGet @pipelineName, key ? request.key
-
-  @classGetter
-    pipelineName: -> @_pipelineName || decapitalize @getName()
-    pluralPipelineName: ->
-      return @_pluralPipelineName if @_pluralPipelineName
-      parts = getCodeWords @getPipelineName()
-      parts.push pluralize parts.pop()
-      @_pluralPipelineName = lowerCamelCase parts
-
-  toString: -> @pipelineName
-  getLogName: (requestType) -> "#{requestType}-handler"
-
   @getter
-    :options
-    pipelineName: -> @class.getPipelineName()
-    tableNamePrefix: -> @class._tableNamePrefix || config.tableNamePrefix
-    tableName: -> @getPrefixedTableName @name
+    # ArtModels
+    aliases:          -> Object.keys @class.getAliases()
+
+    # DbCore
     normalizedFields: ->
       nf = {}
       each v, k in @fields
         nf[k] = normalizeFieldProps v
       nf
 
-    name:     -> @_name     ||= @_options.name    || decapitalize @class.getName()
-    session:  -> @_session  ||= @_options.session || Session.singleton
-    handlerRequestTypesMap: (_into = {}) ->
-      mergeInto _into, @handlers
-      _into
-
-    filterRequestTypesMap: (_into = {}) ->
-      each filter in @filters
-        mergeInto _into, filter.beforeFilters
-      _into
-
-    requestTypesMap: (_into = {})-> @getHandlerRequestTypesMap @getFilterRequestTypesMap _into
-
-    requestTypes:     -> Object.keys @requestTypesMap
-    aliases:          -> Object.keys @class.getAliases()
-    inspectedObjects: -> inspectedObjectLiteral @name
+    tableNamePrefix: -> @class._tableNamePrefix || config.tableNamePrefix
+    tableName: -> @getPrefixedTableName @name
     isRemoteClient:   -> !!@remoteServer
     apiRoot:          -> @class._apiRoot || config._apiRoot
     remoteServer:     -> @class._remoteServer || config.remoteServer
@@ -234,6 +178,7 @@ class Pipeline extends &PipelineCore
             :client
       else  config.location
 
+    # RestCore
     restPath:       -> @_restPath ?= "" /#{config.apiRoot}/#{@name}
     restPathRegex:  -> @_restPathRegex ?=
       ///i
@@ -243,32 +188,8 @@ class Pipeline extends &PipelineCore
         (?:\/([^?]+))?       # optional key
         (?=\?|$)
 
-    groupedFilters: -> @_groupedFilters ?= Pipeline.groupFilters @filters
-
-    beforeFilters: (request) ->
-      if request then array filter in @beforeFilters when filter.getBeforeFilter request
-      else @_beforeFilters ?= @groupedFilters.slice().reverse()
-
-    afterFilters: (request) ->
-      if request then array filter in @afterFilters  when filter.getAfterFilter  request
-      else @groupedFilters
-
+    # WAT??? Not sure how or if this is used.
     status: -> :OK
-
-    filterChain: -> @_filterChain ?= compactFlatten([@, @groupedFilters]).reverse()
-
-  # use a stable sort
-  @groupFilters: (filters) ->
-    priorityLevels = []
-    each {priority} in filters
-      pushIfNotPresent priorityLevels, priority
-
-    sortedFilters = []
-    each priorityLevels in (priorityLevels.sort (a, b) -> a - b)
-      each filter in filters when priorityLevels == filter.priority
-        sortedFilters.push filter
-
-    sortedFilters
 
   ###############################
   # Development Reports
@@ -280,6 +201,7 @@ class Pipeline extends &PipelineCore
         inspectedObjectLiteral if location == "client" then "[remote request]" else "[local handler]"
         array filter in @getAfterFilters {requestType, location} with inspectedObjectLiteral filter.getName()
 
+  # this depends on DbCore, RemoteCore
   @getter
     pipelineReport: (processingLocation)->
       out =
@@ -299,35 +221,16 @@ class Pipeline extends &PipelineCore
 
       out
 
-    apiReport: (options = {}) ->
-      {server, publicOnly} = options
-      object type from @requestTypes when !publicOnly || @getPublicRequestTypes()[type]
-        {method, url} = Request.getRestClientParamsForArtEryRequest
-          server: @remoteServer || server
-          type: type
-          restPath: @restPath
-        "#{method.toLocaleUpperCase()}": url
 
   ###################
   # RequestHandler API
   ###################
   # SEE RequestHandler
   handleRequest: (request) ->
-    if request.isResponse
-      throw new Error "HARD DEPRICATED"
-
-    if @location == "client" && @remoteServer
+    if @location == :client && @remoteServer
       request.sendRemoteRequest @remoteServer
 
-    else if handler = @handlers[request.type]
-      @applyHandler request, handler, "handler"
-      .then (response) ->
-        unless response.isResponse
-          request.failure "#{@pipelineName}.#{request.type} request was not handled"
-        else
-          response
-    else
-      request.failure "#{@pipelineName}: No handler for request type: #{formattedInspect request.type}"
+    else super
 
   ###################
   # propsToKey (primarilly used by ArtEryFluxModel)

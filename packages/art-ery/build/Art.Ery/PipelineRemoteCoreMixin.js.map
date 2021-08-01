@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "PipelineRemoteCoreMixin.js",
+  "sourceRoot": "../..",
+  "sources": [
+    "source/Art.Ery/PipelineRemoteCoreMixin.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,wEAAO,8BAAoB,+CAE3B,gBAAC,0CAAe,oFAAsC,6EACpD,sBAEA,YAAO,CACL,mBAAW,CAAC,kCAAW,eACrB,yFACiB,+CACf,EAAC,QAAQ,OAAO,6CACd,QAAU,qBAAiB,QACjB,MACV,UAAU,0BACZ,iBAAG,gCAA8B"
+}

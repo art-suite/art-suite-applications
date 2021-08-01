@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "PipelinePublicRequestsMixin.js",
+  "sourceRoot": "../..",
+  "sources": [
+    "source/Art.Ery/PipelinePublicRequestsMixin.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,8FAAO,8DAEP,gBAAC,8CAAe,4FAA0C,iFACxD,sBAKA,yBACE,oDAMF,QAAqB,CAAC,oCACpB,mCACU,eAAe,0BACb,EAAE,WACQ,mBAAC,KAAK,eAE5B,8BAA0B,6CAG5B,QAAiB,CAAC,UAAW,iBACf,gBACV,cAAU,aACV,wBAAoB,YAAY,iDAKpC,QAAqB,CAAC,OAAS,SAAE,6BAAyB,+CAC1D,QAAsB,CAAC,UAAW,OAChC,6DAAS,yBAAqB,kDAEhC,QAAiB,CAAC,UAAW,OAC3B,8BAA8B,yBAAqB,eAAiB,qCAC9D,CAAC,qDAAkB,0CAE3B,YAA0B,UACP,4CAA8B,0BAAsB"
+}

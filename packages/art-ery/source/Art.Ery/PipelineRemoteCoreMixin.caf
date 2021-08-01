@@ -1,0 +1,14 @@
+import &StandardImport, {} &Request
+
+(superClass) -> class PipelineRemoteCoreMixin extends superClass
+  @abstractClass()
+
+  @getter
+    apiReport: (options) ->
+      options extract? server, publicOnly
+      object type from @requestTypes when !publicOnly || @getPublicRequestTypes()[type]
+        {method, url} = Request.getRestClientParamsForArtEryRequest
+          server:   @remoteServer || server
+          type:     type
+          restPath: @restPath
+        "#{method.toLocaleUpperCase()}": url
