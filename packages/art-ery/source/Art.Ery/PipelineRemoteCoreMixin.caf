@@ -3,6 +3,16 @@ import &StandardImport, {} &Request
 (superClass) -> class PipelineRemoteCoreMixin extends superClass
   @abstractClass()
 
+
+  ################################
+    Declarative Interface
+  ################################
+  @remoteServer:    (@_remoteServer)    -> # override default (see config.remoteServer)
+  @apiRoot:         (@_apiRoot)         -> # override default (see config.apiRoot)
+
+  ################################
+    GETTERS
+  ################################
   @getter
     apiReport: (options) ->
       options extract? server, publicOnly
@@ -21,3 +31,28 @@ import &StandardImport, {} &Request
       if @remoteServer && config.location != :server
             :client
       else  config.location
+
+  ################################
+    Requests
+  ################################
+  handleRequest: (request) ->
+    if @location == :client && @remoteServer
+      request.sendRemoteRequest @remoteServer
+
+    else super
+
+  ##########################
+    OVERRIDES
+  ##########################
+  getRequestProcessingReport: (location = @location) ->
+    object requestType from @requestTypes
+      compactFlatten []
+        array filter in @getBeforeFilters {requestType, location} with inspectedObjectLiteral filter.getName()
+        inspectedObjectLiteral if location == "client" then "[remote request]" else "[local handler]"
+        array filter in @getAfterFilters  {requestType, location} with inspectedObjectLiteral filter.getName()
+
+  getPipelineReport: ->
+    merge
+      super
+      clientSideRequestProcessing: @getRequestProcessingReport :client
+      serverSideRequestProcessing: @getRequestProcessingReport :server

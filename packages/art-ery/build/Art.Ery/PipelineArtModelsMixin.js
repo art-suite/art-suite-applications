@@ -1,0 +1,4 @@
+"use strict"
+let Caf = require('caffeine-script-runtime');
+Caf.defMod(module, () => {return Caf.importInvoke(["lowerCamelCase", "Object"], [global, require('./StandardImport')], (lowerCamelCase, Object) => {return function(superClass) {let PipelineArtModelsMixin; return PipelineArtModelsMixin = Caf.defClass(class PipelineArtModelsMixin extends superClass {}, function(PipelineArtModelsMixin, classSuper, instanceSuper) {this.abstractClass(); this.getAliases = function() {let temp; return ((temp = this._aliases) != null ? temp : {});}; this.extendableProperty({artModelMixins: []}); this.artModelMixin = function(_mixin) {return this.extendArtModelMixins(_mixin);}; this.aliases = function(...args) {this._aliases = Caf.object(args, (v, k) => true, null, null, (v, k) => lowerCamelCase(v)); return this;}; this.getter({aliases: function() {return Object.keys(this.class.getAliases());}});});};});});
+//# sourceMappingURL=PipelineArtModelsMixin.js.map

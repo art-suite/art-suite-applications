@@ -28,27 +28,10 @@ import &StandardImport, &PrefetchedRecordsCache, {} &DatabaseFilters
     and ArtEry (ArtPipelines?) to have namespaced registries so you can merge as many
     packages as you want based on ArtSuite without name-conflicts in their registries.
 
-class Pipeline extends &PipelineDbCoreMixin &PipelineRemoteCoreMixin &PipelinePublicRequestsMixin &PipelineCore
+class Pipeline extends &PipelineArtModelsMixin &PipelineDbCoreMixin &PipelineRemoteCoreMixin &PipelinePublicRequestsMixin &PipelineCore
   # copy-paste this line to any sub-class that shouldn't auto-register
   @abstractClass()
 
-  @postCreateConcreteClass: ({hotReloaded}) ->
-    @_defineQueryHandlers()
-    @_initFields()
-    super
-
-  ## Aliases are for ArtModels
-  @getAliases: -> @_aliases ? {}
-
-  @addDatabaseFilters: (options) ->
-    @filter DatabaseFilters.createDatabaseFilters options, @
-
-  @addDatabaseFiltersV2: (options) ->
-    @filter DatabaseFilters.createDatabaseFilters
-      merge
-        linkFilterVersion: 2
-        options
-      @
 
   ## getPrefetchedRecord
     This allows susequent requests to get temporarilly-cached 'prefetched' records from previous requests
@@ -73,103 +56,12 @@ class Pipeline extends &PipelineDbCoreMixin &PipelineRemoteCoreMixin &PipelinePu
   # Overrides
   ###########################
 
-  ## isRecord (override as needed)
-    # used by Request/Response.withTransformedRecords
-  isRecord: (data) -> isPlainObject(data) && present data?.id
-
   ## getFieldsRequestWillModify (override as needed)
     # called by UserOwnedFilter.before.update for correct authorization validation
     # overriden by Art.Ery.Aws.DynamoDb to support "add" and "setDefault" for a correct modifications-list
   getFieldsRequestWillModify: (request) -> request.data ? {}
 
-  ###########################
-  # Declarative API
-  ###########################
-
-  @extendableProperty
-    artModelMixins: []
-
-  # Database declarables
-  @extendableProperty
-    queries: {}
-    fields: {}
-
-  ###
-    @artModelMixin adds a mixin to artModelMixins
-
-    When createing FluxModels for this pipeline (via ArtEryFluxModel.createModel for example),
-    both the records model and each query-model will get these mixins.
-
-    Example:
-      class MyPipeline extends Pipeline
-        @artModelMixin FluxModelMixinA
-        @artModelMixin FluxModelMixinB
-
-      # this action
-      ArtEryFluxModel.defineModelsForAllPipelines()
-
-      # defines this model:
-      class MyPipeline extends FluxModelMixinB FluxModelMixinA ArtEryFluxModel
-  @artModelMixin: (_mixin) -> @extendArtModelMixins _mixin
-
-  @remoteServer:    (@_remoteServer)    -> # override default (see config.remoteServer)
-  @apiRoot:         (@_apiRoot)         -> # override default (see config.apiRoot)
-  @tableNamePrefix: (@_tableNamePrefix) -> # override default (see config.tableNamePrefix)
-
-  ### query
-    declare a query - used by ArtEryFlux
-
-    IN: map:
-      queryName: map:
-        class properties for anonymous subclass of ArtEryQueryFluxModel
-
-    queryName is used as both the ArtFlux model-name AND the ArtEry request-type:
-      Example:
-        # invoke query
-        myPipeline.myQueryName key: queryKey
-
-        # subscribe to Model in FluxComponent
-        @subscriptions
-          myQueryName: queryKey
-  @query: (map) ->
-    @extendQueries object options, queryName from map with @_normalizeQuery queryName, options
-
-  ### aliases
-
-    INPUT: zero or more strings or arrays of strings
-      - arbitrary nesting of arrays is OK
-      - nulls are OK, they are ignored
-    OUTPUT: null
-
-    NOTE: @aliases can only be called once
-
-    example:
-      class Post extends Pipeline
-        @aliases "chapterPost"
-
-    purpose:
-      - used by ArtEryFluxComponent to make model aliases
-        (see FluxModel.aliases)
-  @aliases: (args...)->
-    @_aliases = object v, k from args with-key lowerCamelCase v with true
-    @
-
-  getPrefixedTableName: (tableName) -> "#{@tableNamePrefix}#{tableName}"
-
   @getter
-    # ArtModels
-    aliases:          -> Object.keys @class.getAliases()
-
-    # DbCore
-    normalizedFields: ->
-      nf = {}
-      each v, k in @fields
-        nf[k] = normalizeFieldProps v
-      nf
-
-    tableNamePrefix: -> @class._tableNamePrefix || config.tableNamePrefix
-    tableName: -> @getPrefixedTableName @name
-
 
     # RestCore
     restPath:       -> @_restPath ?= "" /#{config.apiRoot}/#{@name}
@@ -183,73 +75,3 @@ class Pipeline extends &PipelineDbCoreMixin &PipelineRemoteCoreMixin &PipelinePu
 
     # WAT??? Not sure how or if this is used.
     status: -> :OK
-
-  ###############################
-  # Development Reports
-  ###############################
-  getRequestProcessingReport: (location = @location) ->
-    object requestType from @requestTypes
-      compactFlatten []
-        array filter in @getBeforeFilters {requestType, location} with inspectedObjectLiteral filter.getName()
-        inspectedObjectLiteral if location == "client" then "[remote request]" else "[local handler]"
-        array filter in @getAfterFilters  {requestType, location} with inspectedObjectLiteral filter.getName()
-
-  # this depends on DbCore, RemoteCore
-
-  getPipelineReport: (processingLocation)->
-    merge
-      super
-      fields: object fieldProps from @fields
-        each k in Object.keys(fieldProps).sort() into out = {}
-          v = fieldProps[k]
-          unless isFunction v
-            out[k] = v
-
-      clientSideRequestProcessing: @getRequestProcessingReport :client
-      serverSideRequestProcessing: @getRequestProcessingReport :server
-
-  ###################
-  # RequestHandler API
-  ###################
-  # SEE RequestHandler
-  handleRequest: (request) ->
-    if @location == :client && @remoteServer
-      request.sendRemoteRequest @remoteServer
-
-    else super
-
-  ###################
-  # propsToKey (primarilly used by ArtEryFluxModel)
-  ###################
-
-  @getter
-    propsToKey: -> @_propsToKey ?= do ->
-      recordType = @pipelineName
-      (props, stateField) ->
-        propsField = stateField ? recordType
-        props[propsField]?.id ? props[propsField + "Id"]
-
-  ###################
-  # PRIVATE
-  ###################
-
-  ### _defineQueryHandlers
-    query handler-functions: (request) -> response or any other value allowed for handlers
-  @_defineQueryHandlers: ->
-    handlers = @getHandlers()
-    array pipelineQuery, k in @getQueries() when !handlers[k]
-      handlers = @extendHandlers k, pipelineQuery.options.query
-
-  @_normalizeQuery: (queryName, options) ->
-    options = query: options if isFunction options
-    unless isFunction(options.query) && options.query.length > 0
-      throw new Error
-        """
-          query function must have at least one argument:
-
-          #{formattedInspect {queryName, options}}"
-
-    {queryName, options}
-
-  @_initFields: ->
-    each filter in @getFilters() with @extendFields filter.fields

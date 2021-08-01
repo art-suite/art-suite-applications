@@ -13,7 +13,7 @@ class PipelineCore extends &RequestHandler
     super
 
   ######################################
-    Declarative Intreface
+    Declarative Interface
   ######################################
   @extendableProperty
     filters:  []
@@ -157,7 +157,7 @@ class PipelineCore extends &RequestHandler
 
   getPipelineReport: (processingLocation)->
     tableName: @tableName
-    requests:
+    requestProcessing:
       object requestType from @requestTypes
         compactFlatten []
           array filter in @getBeforeFilters {requestType} with inspectedObjectLiteral filter.getName()

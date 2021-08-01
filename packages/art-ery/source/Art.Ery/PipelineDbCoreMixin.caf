@@ -2,3 +2,113 @@ import &StandardImport, {} &Request
 
 (superClass) -> class PipelineDbCoreMixin extends superClass
   @abstractClass()
+
+  @postCreateConcreteClass: ({hotReloaded}) ->
+    @_defineQueryHandlers()
+    @_initFields()
+    super
+
+  ######################################
+    Declarative Interface
+  ######################################
+  @extendableProperty
+    queries: {}
+    fields: {}
+
+  ##########################
+    QUERIES
+  ##########################
+  ### query
+    declare a query - used by ArtEryFlux
+
+    IN: map:
+      queryName: map:
+        class properties for anonymous subclass of ArtEryQueryFluxModel
+
+    queryName is used as both the ArtFlux model-name AND the ArtEry request-type:
+      Example:
+        # invoke query
+        myPipeline.myQueryName key: queryKey
+
+        # subscribe to Model in FluxComponent
+        @subscriptions
+          myQueryName: queryKey
+  @query: (map) ->
+    @extendQueries object options, queryName from map with @_normalizeQuery queryName, options
+
+
+  ##########################
+    FILTERS
+  ##########################
+  @addDatabaseFilters: (options) ->
+    @filter &DatabaseFilters.createDatabaseFilters options, @
+
+  @addDatabaseFiltersV2: (options) ->
+    @filter &DatabaseFilters.createDatabaseFilters
+      merge
+        linkFilterVersion: 2
+        options
+      @
+
+  ##########################
+    GETTERS
+  ##########################
+  @getter
+    # DbCore
+    normalizedFields: ->
+      nf = {}
+      each v, k in @fields
+        nf[k] = normalizeFieldProps v
+      nf
+
+    tableNamePrefix: -> @class._tableNamePrefix || config.tableNamePrefix
+    tableName: -> @getPrefixedTableName @name
+
+    propsToKey: -> @_propsToKey ?= do ->
+      recordType = @pipelineName
+      (props, stateField) ->
+        propsField = stateField ? recordType
+        props[propsField]?.id ? props[propsField + "Id"]
+
+  getPrefixedTableName: (tableName) -> "#{@tableNamePrefix}#{tableName}"
+
+  ## isRecord (override as needed)
+    # used by Request/Response.withTransformedRecords
+  isRecord: (data) -> isPlainObject(data) && present data?.id
+
+  ##########################
+    OVERRIDES
+  ##########################
+  getPipelineReport: ->
+    merge
+      super
+      fields: object fieldProps from @fields
+        each k in Object.keys(fieldProps).sort() into out = {}
+          v = fieldProps[k]
+          unless isFunction v
+            out[k] = v
+
+  ###################
+  # PRIVATE
+  ###################
+
+  ### _defineQueryHandlers
+    query handler-functions: (request) -> response or any other value allowed for handlers
+  @_defineQueryHandlers: ->
+    handlers = @getHandlers()
+    array pipelineQuery, k in @getQueries() when !handlers[k]
+      handlers = @extendHandlers k, pipelineQuery.options.query
+
+  @_normalizeQuery: (queryName, options) ->
+    options = query: options if isFunction options
+    unless isFunction(options.query) && options.query.length > 0
+      throw new Error
+        """
+          query function must have at least one argument:
+
+          #{formattedInspect {queryName, options}}"
+
+    {queryName, options}
+
+  @_initFields: ->
+    each filter in @getFilters() with @extendFields filter.fields

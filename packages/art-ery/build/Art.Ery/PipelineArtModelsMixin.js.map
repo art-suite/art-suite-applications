@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "PipelineArtModelsMixin.js",
+  "sourceRoot": "../..",
+  "sources": [
+    "source/Art.Ery/PipelineArtModelsMixin.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,yFAAO,2DAEP,gBAAC,yCAAe,kFAAqC,4EACnD,8DAGgB,uDAMhB,yBACE,2CAkBF,QAAgB,CAAC,SAAW,iCAAsB,0BAmBlD,QAAU,CAAC,UACT,2BAA6B,gBAAoC,uDACjE,QAEF,YAAO,CAEL,qBAAY,mBAAY"
+}

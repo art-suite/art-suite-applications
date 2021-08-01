@@ -1,0 +1,57 @@
+import &StandardImport
+
+(superClass) -> class PipelineArtModelsMixin extends superClass
+  @abstractClass()
+
+  ## Aliases are for ArtModels
+  @getAliases: -> @_aliases ? {}
+
+  ###########################
+  # Declarative API
+  ###########################
+
+  @extendableProperty
+    artModelMixins: []
+
+  ###
+    @artModelMixin adds a mixin to artModelMixins
+
+    When createing FluxModels for this pipeline (via ArtEryFluxModel.createModel for example),
+    both the records model and each query-model will get these mixins.
+
+    Example:
+      class MyPipeline extends Pipeline
+        @artModelMixin FluxModelMixinA
+        @artModelMixin FluxModelMixinB
+
+      # this action
+      ArtEryFluxModel.defineModelsForAllPipelines()
+
+      # defines this model:
+      class MyPipeline extends FluxModelMixinB FluxModelMixinA ArtEryFluxModel
+  @artModelMixin: (_mixin) -> @extendArtModelMixins _mixin
+
+
+  ### aliases
+
+    INPUT: zero or more strings or arrays of strings
+      - arbitrary nesting of arrays is OK
+      - nulls are OK, they are ignored
+    OUTPUT: null
+
+    NOTE: @aliases can only be called once
+
+    example:
+      class Post extends Pipeline
+        @aliases "chapterPost"
+
+    purpose:
+      - used by ArtEryFluxComponent to make model aliases
+        (see FluxModel.aliases)
+  @aliases: (args...)->
+    @_aliases = object v, k from args with-key lowerCamelCase v with true
+    @
+
+  @getter
+    # ArtModels
+    aliases: -> Object.keys @class.getAliases()

@@ -12,6 +12,7 @@
   KeyFieldsMixin:              require('./KeyFieldsMixin'),
   KeyFieldsMixinCoffee:        require('./KeyFieldsMixinCoffee'),
   Pipeline:                    require('./Pipeline'),
+  PipelineArtModelsMixin:      require('./PipelineArtModelsMixin'),
   PipelineCore:                require('./PipelineCore'),
   PipelineDbCoreMixin:         require('./PipelineDbCoreMixin'),
   PipelinePublicRequestsMixin: require('./PipelinePublicRequestsMixin'),
