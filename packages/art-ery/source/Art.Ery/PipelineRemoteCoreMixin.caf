@@ -3,7 +3,6 @@ import &StandardImport, {} &Request
 (superClass) -> class PipelineRemoteCoreMixin extends superClass
   @abstractClass()
 
-
   ################################
     Declarative Interface
   ################################
@@ -31,6 +30,16 @@ import &StandardImport, {} &Request
       if @remoteServer && config.location != :server
             :client
       else  config.location
+
+    # RestCore - eventually we should have a way to plug in different transport layers
+    restPath:       -> @_restPath ?= "" /#{config.apiRoot}/#{@name}
+    restPathRegex:  -> @_restPathRegex ?=
+      ///i
+        ^
+        #{escapeRegExp @restPath}
+        (?:-([a-z0-9_]+))?          # optional request-type (if missing, it is derived from the HTTP method)
+        (?:\/([^?]+))?       # optional key
+        (?=\?|$)
 
   ################################
     Requests

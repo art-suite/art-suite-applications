@@ -164,6 +164,21 @@ class PipelineCore extends &RequestHandler
           "[handler]"
           array filter in @getAfterFilters  {requestType} with inspectedObjectLiteral filter.getName()
 
+  ## toKeyString
+    Note, this requires @dataToKeyString be implemented. Typically that will be by using KeyFilesMixin.
+    If this requires KeyFieldsMixin, maybe it should be IN KeyFieldsMixin...
+  toKeyString: (key) ->
+    switch
+    when !key? then key
+    when isString key then key
+    when @dataToKeyString && isPlainObject key then @dataToKeyString key
+    else throw new Error "" override toKeyString or dataToKeyString for non-string-keys like: #{formattedInspect key}
+
+  ## getFieldsRequestWillModify (override as needed)
+    # called by UserOwnedFilter.before.update for correct authorization validation
+    # overriden by Art.Ery.Aws.DynamoDb to support "add" and "setDefault" for a correct modifications-list
+  getFieldsRequestWillModify: (request) -> request.data ? {}
+
   ################################
     Requests
   ################################

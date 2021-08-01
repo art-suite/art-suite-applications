@@ -88,6 +88,11 @@ import &StandardImport, {} &Request
           unless isFunction v
             out[k] = v
 
+  ## getFieldsRequestWillModify (override as needed)
+    # called by UserOwnedFilter.before.update for correct authorization validation
+    # overriden by Art.Ery.Aws.DynamoDb to support "add" and "setDefault" for a correct modifications-list
+  getFieldsRequestWillModify: (request) -> request.data ? {}
+
   ###################
   # PRIVATE
   ###################
