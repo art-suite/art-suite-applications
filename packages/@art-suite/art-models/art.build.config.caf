@@ -1,6 +1,5 @@
 import &ArtStandardLib
 package:
-  require(:../standard-package-builder) &package,
-    sourceDir: :source
-    targetDir: :build
+  &@ArtSuite/StandardPackageBuilder.configure {}
+    &package
     coffeeScript: true

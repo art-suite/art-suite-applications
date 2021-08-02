@@ -11,7 +11,6 @@ describe
 
         class MyModelA extends ArtModelSubscriptionsMixin ArtModel
           constructor: ->
-            super
             @subscribeOnModelRegistered :mySubscriptionKey :myModelB :myModelKey updatesCallback: ->
             .then resolve, reject
 
@@ -35,14 +34,6 @@ describe
         artModelStore.get :myModel :myModelKey
 
       artModelStore.onNextReady()
-
-    # .thenTest "still pending?" ->
-    #   assert.selectedEq
-    #     status:       success
-    #     data:         :myInitialData
-    #     key:          :myModelKey
-    #     modelName:    :myModel
-    #     artModelStore.get :myModel :myModelKey
 
     test "with stateField and no initialModelRecord", -> _resetArtSuiteModels().then ->
       class MyModel extends &ApplicationState
