@@ -1,0 +1,3 @@
+import &StandardImport
+suite: ->
+  test 'Server' -> assert.eq 1, 1

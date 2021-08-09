@@ -1,0 +1,8 @@
+import &ArtStandardLib, &Config
+
+cacheSafeUrl: (path) ->
+  if /#/.test path
+    [path, anchor] = path.split "#"
+    anchor = "#" + anchor
+
+  "" /#{path}?#{config.app.version}#{anchor}

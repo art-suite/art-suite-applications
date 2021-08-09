@@ -11,7 +11,7 @@
     "case-sensitive-paths-webpack-plugin": "^2.2.0",
     "chai": "^4.2.0",
     "mocha": "^7.2.0",
-    "mock-fs": "^4.10.0",
+    "mock-fs": "^5.0.0",
     "webpack": "^5.35.1",
     "webpack-cli": "^4",
     "webpack-dev-server": "^3.11.0",

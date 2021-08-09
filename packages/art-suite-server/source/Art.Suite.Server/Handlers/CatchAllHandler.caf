@@ -1,0 +1,18 @@
+import &StandardImport
+
+class CatchAllHandler extends PromiseHandler
+  @handleUrlRegex /.*/
+
+  handleHtmlRequest: (request, requestData) ->
+    statusCode: 404
+    headers:    cache-control: 3600
+    data:
+      "" <!DOCTYPE html>
+      + Html
+        title: "#{config.app} Page Not Found"
+        Body
+          P
+            style: text-align: :center
+            "" We're sorry, but we couldn't find the page you requested.
+            Br()
+            A "return home" href: "/"

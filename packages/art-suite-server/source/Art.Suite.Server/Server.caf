@@ -1,0 +1,78 @@
+import &StandardImport, &Handlers
+
+getEnv() extract
+  ## noServer:
+    so we can use:
+      ~ $ heroku ps:exec
+      ~ $ noServer=true node
+      > require('build/Server.js') // no server loads!
+      > Neptune.Art.*
+  noServer
+
+  ## artConfigName == :Test
+    if true, will vivify pipelines
+  artConfigName
+
+  ## number of daemons to spin up
+  WEB_CONCURRENCY
+
+  ## port to listen to
+  PORT
+
+isTest = artConfigName == :Test
+
+class Server
+  ## start
+    IN: options:
+      app: <NeptuneNamespace>
+        Link to your app's root namespace.
+        sets: &Config.config.app
+      appUrlRegexp: regexp
+        if present, used to detect urls that should be handled by the clientside app
+
+      # options is passed to: &ArtConfig.configure first
+      loadPipelines:  -> # invoked after configure
+      # artConfigName == :test then ArtEry.sendInitializeRequestToAllPipelines
+      postConfigInit: -> # invoked after loadPipelines
+      # options is passed to &ArtEry/Server.start
+
+    Used for buidling the minimal node.js code to deploy for production.
+    Right now, this is tested with HEROKU, but it should work in other cases.
+
+    Example user:
+
+      require 'art-suite-app/Server'
+      .start
+        loadPipelines: -> require '...'
+
+      # NOTE: loadPipelines is a function so it can get called AFTER: require "art-aws/Server"
+  @start: (options) ->
+    options extract loadPipelines, postConfigInit, app, metadata, appUrlRegexp, head
+
+    if app?.prototype instanceof Neptune.Namespace
+      log art-suite-server.start:
+        app:      options.app.namespacePath
+        version:  options.app.version
+    else
+      log art-suite-server.start: options
+      throw new Error "options.app required"
+
+    unless noServer then logPromiseErrors
+      :Art.Suite.Server
+      Promise
+      .then -> &ArtConfig.configure deepMerge options,
+        artConfig: Art.Suite.Server: {} app, metadata, appUrlRegexp, head
+
+      .then loadPipelines
+      .then -> &ArtEry.sendInitializeRequestToAllPipelines() if isTest
+      .then postConfigInit
+      .then ->
+        &ArtEry/Server.start merge
+          static:       root: :./public
+          handlers:     MainAppHandler
+          posthandlers: CatchAllHandler
+          numWorkers:   WEB_CONCURRENCY || 1
+          port:         PORT
+          options
+      .tapCatch (e) ->
+        log "Error starting Art.Suite.Server server", e

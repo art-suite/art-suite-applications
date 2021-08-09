@@ -1,0 +1,31 @@
+import &ArtStandardLib, &ArtConfig
+
+class Config extends Configurable
+  @defaults
+    app: null # REQUIRED - link to the root namespace for your app
+
+    ##
+      image:
+      description:
+      title:
+    metadata: {}
+    appUrlRegexp: ///i ^/ (\?.*)? $
+    head: null # append to the head tag
+
+    clientArtConfig:
+      if getEnv() extract clientArtConfig
+        try
+          JSON.parse clientArtConfig
+        catch e
+          log.error
+            "Error parsing process.env.clientArtConfig JSON: #{formattedInspect clientArtConfig}"
+            e
+          throw e
+      else
+        Art.Ery.remoteServer: true
+
+  @on configured: ({props:{config}})->
+    if config?.metadata extract? image
+      {width, height} = &ImageSize &path.join :./public image
+      config.metadata.imageWidth ?= width
+      config.metadata.imageHeight ?= height
