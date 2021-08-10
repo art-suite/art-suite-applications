@@ -1,4 +1,0 @@
-##
-  NOTE: webpack PREFERS index.caf OVER index.js
-  I.E. node will ignore this file if index.js is present.
-&source

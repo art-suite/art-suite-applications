@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "Config.js",
+  "sourceRoot": "../..",
+  "sources": [
+    "source/Art.Suite.Server/Config.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,0HAAO,6BAAiB,4FAExB,kDAAqB,sFACnB,cAAS,CACP,KAAc,MAMd,cACA,cAAc,gBACd,MAAc,MAEd,iBACE,mBAAG,4BACD,aAAG,OACD,WAAW,mBAAe,0BAG1B,UAAS,gEACgD,iBAAiB,qBACxE,WAEF,cAAM,gBAEN,CACF,wBAAsB,SAE5B,QAAG,CAAC,oBAAY,CAAC,QAAO,CAAC,sEAAW,OAClC,8BAAG,gEAA+B,CAChC,EAAC,OAAO,UAAU,sBAAW,qBAAW,YAAU,4BAClD,+CAA0B,kBAAI,2BAC9B,gDAA2B,oBAAI"
+}

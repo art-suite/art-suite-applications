@@ -53,6 +53,7 @@ class Server
       log art-suite-server.start:
         app:      options.app.namespacePath
         version:  options.app.version
+
     else
       log art-suite-server.start: options
       throw new Error "options.app required"
@@ -74,5 +75,6 @@ class Server
           numWorkers:   WEB_CONCURRENCY || 1
           port:         PORT
           options
+
       .tapCatch (e) ->
         log "Error starting Art.Suite.Server server", e

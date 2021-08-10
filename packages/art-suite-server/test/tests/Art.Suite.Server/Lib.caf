@@ -1,0 +1,11 @@
+import &StandardImport
+suite: ->
+  test 'cacheSafeUrl without anchor' ->
+    assert.eq
+      cacheSafeUrl "http://foo.bar/abc"
+      :/http://foo.bar/abc?11.22.33
+
+  test 'cacheSafeUrl with anchor' ->
+    assert.eq
+      cacheSafeUrl "http://foo.bar/abc#foo"
+      :/http://foo.bar/abc?11.22.33#foo

@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "CatchAllHandler.js",
+  "sourceRoot": "../../..",
+  "sources": [
+    "source/Art.Suite.Server/Handlers/CatchAllHandler.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,yHAAO,uGAEP,oEAA8B,yEAC5B,oBAAgB,0CAEhB,QAAmB,CAAC,SAAS,cAAe,QAC1C,YAAY,KACZ,UAAY,iBAAe,OAC3B,MACI,oBACA,KAAI,CACJ,uBAAU,+BACV,KACE,GACE,QAAO,cAAY,YACjB,6DACF,MACA,EAAE,gBAAc,MAAM"
+}

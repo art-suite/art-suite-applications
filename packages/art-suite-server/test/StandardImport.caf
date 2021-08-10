@@ -2,3 +2,4 @@
   &ArtClassSystem
   &ArtTestbench
   &ArtSuiteServer
+  &ArtSuiteServer.Lib

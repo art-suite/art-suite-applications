@@ -2,4 +2,6 @@
 &art-testbench/testing
 .init
   synchronous: true
+  artConfig:
+    Art: Suite: Server: app: version: :11.22.33
   defineTests: -> &tests

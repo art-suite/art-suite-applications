@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "Lib.js",
+  "sourceRoot": "../..",
+  "sources": [
+    "source/Art.Suite.Server/Lib.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,uEAAO,6BAAiB,mCAExB,8BAAc,CAAC,mBACb,IAAG,SAAS,QACV,EAAC,MAAM,UAAU,WAAW,OAC5B,SAAS,MAAM,kCAEX,sBAAQ,mCAAqB"
+}

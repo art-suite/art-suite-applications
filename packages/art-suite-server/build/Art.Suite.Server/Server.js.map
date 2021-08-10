@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "Server.js",
+  "sourceRoot": "../..",
+  "sources": [
+    "source/Art.Suite.Server/Server.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,4LAAO,6BAAiB,kNAExB,yIAmBA,SAAS,kBAAiB,+HA2BxB,QAAQ,CAAC,gFAAW,gBAClB,0KAEA,IAAG,8CAA0B,oBAC3B,IAAG,CAAC,2BACF,KAAU,2BACV,SAAU,+BAGZ,KAAI,0BAAwB,WAC5B,MAAM,IAAI,MAAM,kCAElB,CAAO,WAAc,iBACnB,oBACA,aACK,MAAI,gCAAqB,UAAU,UACtC,YAAW,qBAAqB,KAAK,UAAU,cAAc,gBAEzD,oBACD,MAAqD,oFACpD,qBACD,MACH,gCAAqB,OACnB,SAAc,MAAM,aACpB,UAAc,gBACd,cAAc,iBACd,YAAc,mBAAmB,GACjC,MAAc,OACd,oBAEM,CAAC,MACT,IAAI,0CAA0C"
+}
