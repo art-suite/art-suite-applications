@@ -1,2 +1,1 @@
-require("./register")
-module.exports = require("./source/Art.ExpressServer")
+module.exports = require("./build")

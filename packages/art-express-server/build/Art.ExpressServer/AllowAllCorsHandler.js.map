@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "AllowAllCorsHandler.js",
+  "sourceRoot": "../..",
+  "sources": [
+    "source/Art.ExpressServer/AllowAllCorsHandler.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;0EAUA,SAAS,kFAEyB,wHAE9B,+BAA6B,gDAEb,CAAC,CAAC,UAAY,kBAAU,4CAE1C,QAAe,CAAC,UAAU,QACxB,QAAQ,WACR,UACE,+BAAgC,KAChC,gCAA8B,gBAAgB,oCAAuC,kCACrF,gCAA8B,gBAAgB,qCAAqC,IACnF,gBAAgC"
+}

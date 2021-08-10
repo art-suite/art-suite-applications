@@ -1,0 +1,4 @@
+"use strict"
+let Caf = require('caffeine-script-runtime');
+Caf.defMod(module, () => {return (() => {let method, AllowAllCorsHandler; method = null; return AllowAllCorsHandler = Caf.defClass(class AllowAllCorsHandler extends require('./PromiseHandler') {}, function(AllowAllCorsHandler, classSuper, instanceSuper) {this.commonResponseHeaders = {"Access-Control-Allow-Origin": "*"}; this.prototype.canHandleRequest = function({method}) {return method === "OPTIONS";}; this.prototype.handleRequest = function(request) {return {status: "success", headers: {"Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": request.headers["access-control-request-method"] || "GET, POST, PUT, UPDATE, DELETE", "Access-Control-Allow-Headers": request.headers["access-control-request-headers"] || "", "Content-Type": "text/html; charset=utf-8"}};};});})();});
+//# sourceMappingURL=AllowAllCorsHandler.js.map

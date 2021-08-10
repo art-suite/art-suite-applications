@@ -1,19 +1,14 @@
-import &ArtExpressServer
+import &ArtExpressServer, &ArtStandardLib
 
 start
-  # verbose: true
   handlers:
-    class OzHtmlHandler extends PromiseHandler
+    class HelloWorldHandler extends PromiseHandler
+      @handleUrlRegex /// ^/?$
+
       handleHtmlRequest: (request, requestData) -> "Hello world."
 
-  initWorker: (server) ->
-    if process.env.ART_EXPRESS_SERVER_MAX_SIZE_MB
-      import &ArtStandardLib
-      makeItBig = []
-      timeout 1000, alloc = ->
-        makeItBig.push new Array (1024*1024 * Math.random()) | 0
-        server.log "simulating memory leak... (#{(process.memoryUsage().rss / (1024 * 1024)) | 0}MB allocated)".blue
-        timeout 1000, alloc
+    class FakeApiHandler extends PromiseHandler
+      @handleUrlRegex /// ^/api/echo
 
-      # allowAllCors: true
-      # middleware:   &ExpressSharp baseHost: :https://zofiles.imikimi.com
+      handleApiRequest: (request, requestData) -> Promise.then -> echo: requestData
+

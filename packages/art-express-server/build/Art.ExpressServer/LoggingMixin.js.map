@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "LoggingMixin.js",
+  "sourceRoot": "../..",
+  "sources": [
+    "source/Art.ExpressServer/LoggingMixin.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,qHAAO,iFAEP,gBAAC,+BAAe,8DAA2B,uFAEzC,QAAK,CAAC,QAAS,OACV,eAAS,WACV,oBAAO,iCAAe,YAEtB,iBAAiB,OAAO,OAAO,mBAAe,qCAElD,QAAY,CAAC,QAAU,iBAAU,mBAAe,uCAChD,QAAY,CAAC,QAAU,OAAc,qFAEtB,CAAC,QAAU,yBAAG,oBAAc,UAE3C,YAAQ,YAER,YAAO,CACL,qBAAe,kBAAW,8BAC1B,+BAAe,0CAAa,iCAC5B,uBAAc,OACZ,gBACE,cACA,iBAAS,sBAAa,IAAI,eAAW,GAAG,KAAK,UAC7C,4BACI"
+}

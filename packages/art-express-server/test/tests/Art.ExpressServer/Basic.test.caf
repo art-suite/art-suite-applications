@@ -1,0 +1,11 @@
+import &StandardImport
+
+suite: ->
+  test "HTTP get from TestServer.caf" ->
+    &ArtRestClient.get :http://localhost:8085
+    .then (v) -> assert.eq v, "Hello world."
+
+  test "HTTP get API TestServer.caf" ->
+    &ArtRestClient.getJson :http://localhost:8085/api/echo, data: numbers: 1 2 3
+    .then (v) -> assert.eq v, echo: numbers: 1 2 3
+

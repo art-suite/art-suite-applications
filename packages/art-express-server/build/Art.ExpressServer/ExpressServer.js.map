@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "ExpressServer.js",
+  "sourceRoot": "../..",
+  "sources": [
+    "source/Art.ExpressServer/ExpressServer.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;"
+}
