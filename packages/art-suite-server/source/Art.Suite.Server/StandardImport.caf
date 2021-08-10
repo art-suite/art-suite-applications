@@ -1,4 +1,5 @@
-&ArtSuite/Node.mergeWithSelf
+[]
+  &ArtStandardLib
   &ArtHtmlFactory
   &ArtExpressServer
   &ArtConfig
