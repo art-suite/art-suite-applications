@@ -1,7 +1,8 @@
 []
   &ArtStandardLib
   &ArtHtmlFactory
-  &ArtExpressServer
   &ArtConfig
+  &ArtExpressServer
+
   &Lib
   &Config
