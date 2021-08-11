@@ -1,3 +1,2 @@
-&coffee-script/register # some included packages still need coffeescript, and don't manage their own dependenceis :(
 &source/ArtSuite/namespace
 .includeInNamespace &source/ArtSuite/Core

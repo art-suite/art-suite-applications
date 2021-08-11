@@ -55,7 +55,7 @@ class MyComponent extends PointerActionsMixin Component
       log {error}
 
   loadCpfFile: ->
-    &ArtFoundation.Browser.File.request accept: "*"
+    &@ArtSuite/ArtFoundation.Browser.File.request accept: "*"
     .then (files) ->
       readFileAsArrayBuffer files[0]
       .then (ab) ->
