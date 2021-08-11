@@ -1,4 +1,4 @@
-{log, isString, createWithPostCreate} = require 'art-foundation'
+{log, isString, createWithPostCreate} = require '@art-suite/art-foundation'
 {ValidationFilter} = require('art-ery').Filters
 SimplePipeline = require '../SimplePipeline'
 

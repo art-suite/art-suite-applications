@@ -9,7 +9,7 @@
   isFunction
   object
   objectHasKeys
-} = Foundation = require 'art-foundation'
+} = Foundation = require '@art-suite/art-foundation'
 ArtEry = require './namespace'
 {success, missing, validStatus, clientFailure, failure} = CommunicationStatus
 

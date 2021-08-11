@@ -1,5 +1,5 @@
 Atomic = require 'art-atomic'
-Foundation = require 'art-foundation'
+Foundation = require '@art-suite/art-foundation'
 {Canvas} = Neptune.Art
 CommonBitmapTests = require './CommonBitmapTests'
 {each, w, Binary, log, eq, defineModule, merge} = Foundation

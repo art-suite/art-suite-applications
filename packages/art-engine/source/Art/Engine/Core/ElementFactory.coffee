@@ -1,5 +1,5 @@
 'use strict';
-Foundation = require 'art-foundation'
+Foundation = require '@art-suite/art-foundation'
 {BaseClass, timeout, inspect} = Foundation
 
 module.exports = class ElementFactory extends BaseClass

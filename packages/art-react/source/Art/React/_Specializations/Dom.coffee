@@ -1,4 +1,4 @@
-Foundation = require 'art-foundation'
+Foundation = require '@art-suite/art-foundation'
 module.exports = React = require "../index"
 {setDomElementProps, setDomElementProp, allDomElementNames} =  Foundation
 {createObjectTreeFactories} = require 'art-object-tree-factory'

@@ -1,4 +1,4 @@
-{timeout, defineModule, log, merge} = require 'art-foundation'
+{timeout, defineModule, log, merge} = require '@art-suite/art-foundation'
 {Pipeline, TimestampFilter, DataUpdatesFilter, Server} = require 'art-ery'
 {signSession} = Server if Server?
 

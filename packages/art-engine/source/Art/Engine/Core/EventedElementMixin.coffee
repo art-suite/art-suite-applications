@@ -1,5 +1,5 @@
 'use strict';
-Foundation = require 'art-foundation'
+Foundation = require '@art-suite/art-foundation'
 Events = require 'art-events'
 StateEpoch = require "./StateEpoch"
 {EventedBaseMixin} = Events

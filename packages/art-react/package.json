@@ -1,39 +1,38 @@
 {
   "author": "Shane Brinkman-Davis Delamore, Imikimi LLC",
-  "bugs": "https://github.com/art-suite/art-suite-applications/issues",
+  "bugs": "https:/github.com/art-suite/art-suite-applications/issues",
   "dependencies": {
-    "art-build-configurator": "^1.29.3",
-    "art-engine": "^4.4.9"
+    "art-build-configurator": "^1.0.0",
+    "art-engine": "*"
   },
   "description": "Art.React is inspired by Facebook's React. In fact, it is much the same. However, ArtReact is designed from the ground up to run with the Art.Engine.",
   "devDependencies": {
-    "art-testbench": "^3.2.2",
+    "art-testbench": "^1.0.0",
     "case-sensitive-paths-webpack-plugin": "^2.2.0",
     "chai": "^4.2.0",
     "coffee-loader": "^0.7.3",
-    "css-loader": "^6.2.0",
+    "css-loader": "^3.0.0",
     "json-loader": "^0.5.7",
-    "mocha": "^7.2.0",
-    "mock-fs": "^5.0.0",
+    "mocha": "^7.0.0",
+    "mock-fs": "^4.10.0",
     "script-loader": "^0.7.2",
-    "style-loader": "^3.2.1",
-    "webpack": "^5.35.1",
-    "webpack-cli": "^4",
-    "webpack-dev-server": "^3.11.0",
-    "webpack-merge": "^5.7.3",
-    "webpack-node-externals": "^3.0.0"
+    "style-loader": "^1.0.0",
+    "webpack": "^4.39.1",
+    "webpack-cli": "*",
+    "webpack-dev-server": "^3.7.2",
+    "webpack-merge": "^4.2.1",
+    "webpack-node-externals": "^1.7.2"
   },
   "homepage": "https://github.com/art-suite/art-suite-applications",
   "license": "ISC",
   "name": "art-react",
   "repository": {
-    "type": "git",
-    "url": "https://github.com/art-suite/art-suite-applications.git"
+    "url": "https://github.com/art-suite/art-suite-applications."
   },
   "scripts": {
     "build": "webpack --progress",
-    "start": "webpack-dev-server --hot --inline --progress --env.devServer",
-    "test": "webpack-dev-server  --progress --env.devServer"
+    "start": "webpack serve --hot --inline --progress --env.devServer",
+    "test": "webpack serve  --progress --env.devServer"
   },
   "version": "1.35.5"
 }

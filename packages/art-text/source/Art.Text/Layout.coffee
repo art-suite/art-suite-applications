@@ -1,4 +1,4 @@
-Foundation = require "art-foundation"
+Foundation = require "@art-suite/art-foundation"
 {Bitmap} = require '@art-suite/art-canvas'
 Atomic = require 'art-atomic'
 Metrics = require './Metrics'

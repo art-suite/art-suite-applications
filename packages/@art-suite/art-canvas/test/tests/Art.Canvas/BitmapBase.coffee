@@ -1,5 +1,5 @@
 Atomic = require 'art-atomic'
-Foundation = require 'art-foundation'
+Foundation = require '@art-suite/art-foundation'
 {Canvas} = Neptune.Art
 {merge, each, w, Binary, log, eq, defineModule, formattedInspect} = Foundation
 {point, point0, point1, rect, rgbColor, matrix, Matrix} = Atomic

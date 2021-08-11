@@ -1,6 +1,6 @@
 # https://developer.mozilla.org/en-US/docs/Web/HTML/Element/Input
 
-Foundation = require 'art-foundation'
+Foundation = require '@art-suite/art-foundation'
 Atomic = require 'art-atomic'
 Element = require '../Core/Element'
 {timeout, log, merge, inspect, float32Eq} = Foundation

@@ -1,4 +1,4 @@
-{log, createWithPostCreate, isString, Validator} = require 'art-foundation'
+{log, createWithPostCreate, isString, Validator} = require '@art-suite/art-foundation'
 {UuidFilter} = require('art-ery').Filters
 SimplePipeline = require '../SimplePipeline'
 {assert} = require('art-testbench');

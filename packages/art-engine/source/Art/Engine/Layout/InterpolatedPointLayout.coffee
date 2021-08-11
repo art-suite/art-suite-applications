@@ -1,4 +1,4 @@
-Foundation = require 'art-foundation'
+Foundation = require '@art-suite/art-foundation'
 PointLayoutBase = require './PointLayoutBase'
 
 {log} = Foundation

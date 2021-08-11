@@ -17,7 +17,7 @@
 {pending, success, failure, missing} = require "art-communication-status"
 StateFieldsMixin = require 'art-react/StateFieldsMixin'
 
-{JsonStore} = require 'art-foundation'
+{JsonStore} = require '@art-suite/art-foundation'
 {jsonStore} = JsonStore
 
 ### ApplicationState

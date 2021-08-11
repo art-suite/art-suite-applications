@@ -9,7 +9,7 @@ module.exports =
         isPlainArray
         Promise
         array
-      } = require 'art-foundation'
+      } = require '@art-suite/art-foundation'
       {pipelines} = require 'art-ery'
 
       requestedPipelineName = null unless isString(requestedPipelineName) && present requestedPipelineName

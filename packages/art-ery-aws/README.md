@@ -1,7 +1,7 @@
 ### Simple Table Example
 
 ```coffeescript
-{defineModule} = require 'art-foundation'
+{defineModule} = require '@art-suite/art-foundation'
 {DynamoDbPipeline} = require 'art-ery-aws'
 {createDatabaseFilters} = require 'art-ery/Filters'
 
@@ -16,7 +16,7 @@ defineModule module, class Channel extends DynamoDbPipeline
 This uses all of the declaration features of DynamoDbPipeline. This is also a good example for how to do a many-to-many DynamoDb model.
 
 ```coffeescript
-{defineModule} = require 'art-foundation'
+{defineModule} = require '@art-suite/art-foundation'
 {DynamoDbPipeline} = require 'art-ery-aws'
 {createDatabaseFilters} = require 'art-ery/Filters'
 

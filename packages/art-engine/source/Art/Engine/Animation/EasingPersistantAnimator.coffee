@@ -1,5 +1,5 @@
 
-Foundation = require 'art-foundation'
+Foundation = require '@art-suite/art-foundation'
 Events = require 'art-events'
 EasingFunctions = require './EasingFunctions'
 PersistantAnimator = require './PersistantAnimator'

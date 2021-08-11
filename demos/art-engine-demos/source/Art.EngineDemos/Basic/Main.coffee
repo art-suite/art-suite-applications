@@ -1,4 +1,4 @@
-{inspect, log} = require "art-foundation"
+{inspect, log} = require "@art-suite/art-foundation"
 {point, rect, color} = require "art-atomic"
 Engine = require "art-engine"
 {CanvasElement, RectangleElement} = Engine

@@ -1,5 +1,5 @@
 import &ArtStandardLib, &source/Art/Engine
-HtmlCanvas = &ArtFoundation.Browser.DomElementFactories.Canvas
+HtmlCanvas = &@ArtSuite/ArtFoundation.Browser.DomElementFactories.Canvas
 
 {testDownsampledRedChannelEq} = &CoreHelper
 

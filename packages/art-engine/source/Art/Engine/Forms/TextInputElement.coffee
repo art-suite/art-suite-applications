@@ -8,7 +8,7 @@
 {Layout:ArtTextLayout} = require 'art-text'
 defaultLeading = ArtTextLayout.defaultLayoutOptions.leading
 
-Foundation = require 'art-foundation'
+Foundation = require '@art-suite/art-foundation'
 {iOSDetect} = Foundation.Browser
 {createElementFromHtml} = Foundation.Browser.Dom
 {TextArea, Input} = Foundation.Browser.DomElementFactories

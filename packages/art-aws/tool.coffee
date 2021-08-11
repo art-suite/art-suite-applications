@@ -2,7 +2,7 @@ Foundation = null
 ArtAws = null
 
 beforeActions = ->
-  Foundation = require 'art-foundation'
+  Foundation = require '@art-suite/art-foundation'
   ArtAws = require 'art-aws/Server'
 
   AWS.config.region = 'us-west-2'
@@ -25,7 +25,7 @@ actions =
     action: (table) ->
       ArtAws.DynamoDb.singleton.scan table: table
 
-(require 'art-foundation/buildCommander')
+(require '@art-suite/art-foundation/buildCommander')
   actions: actions
   package: require './package.json'
   beforeActions: beforeActions

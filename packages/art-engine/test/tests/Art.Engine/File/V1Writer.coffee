@@ -1,4 +1,4 @@
-Foundation = require 'art-foundation'
+Foundation = require '@art-suite/art-foundation'
 Canvas = require '@art-suite/art-canvas'
 Atomic = require 'art-atomic'
 Engine = require 'art-engine'

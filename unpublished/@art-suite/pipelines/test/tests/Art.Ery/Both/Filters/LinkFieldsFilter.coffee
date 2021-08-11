@@ -1,4 +1,4 @@
-{log, createWithPostCreate, isString, Validator, Promise, object, isFunction} = require 'art-foundation'
+{log, createWithPostCreate, isString, Validator, Promise, object, isFunction} = require '@art-suite/art-foundation'
 {Pipeline, Filters, pipelines, config} = require('art-ery')
 {LinkFieldsFilter} = Filters
 SimplePipeline = require '../SimplePipeline'

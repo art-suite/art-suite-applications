@@ -1,4 +1,4 @@
-{log, CommunicationStatus, isString, createWithPostCreate, BaseObject} = require 'art-foundation'
+{log, CommunicationStatus, isString, createWithPostCreate, BaseObject} = require '@art-suite/art-foundation'
 {UuidFilter, TimestampFilter, ValidationFilter} = require('art-ery').Filters
 {pipelines} = require('art-ery')
 {ArtEryFluxModel} = require('art-ery').Flux

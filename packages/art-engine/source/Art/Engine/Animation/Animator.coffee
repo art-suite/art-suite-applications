@@ -11,7 +11,7 @@ If there are no to-values specified, then you must manually, later, call "start"
 are set to the current values.
 ###
 
-{currentSecond, min, max, Transaction, inspect, inspectLean, log, BaseClass} = require 'art-foundation'
+{currentSecond, min, max, Transaction, inspect, inspectLean, log, BaseClass} = require '@art-suite/art-foundation'
 {rgbColor, Color, point, Point, rect, Rectangle, matrix, Matrix} = require 'art-atomic'
 {EventEpoch, EventedMixin} = require 'art-events'
 EasingFunctions = require './EasingFunctions'

@@ -13,7 +13,7 @@
 
 ###
 
-{compact, array, object, defineModule, BaseObject, log, max, min} = require 'art-foundation'
+{compact, array, object, defineModule, BaseObject, log, max, min} = require '@art-suite/art-foundation'
 {rgb256Color, rgbColor, hslColor} = require 'art-atomic'
 
 quantize = require 'quantize'

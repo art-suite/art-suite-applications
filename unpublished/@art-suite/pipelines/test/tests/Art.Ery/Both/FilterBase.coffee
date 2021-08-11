@@ -1,4 +1,4 @@
-{log, formattedInspect, createWithPostCreate} = require 'art-foundation'
+{log, formattedInspect, createWithPostCreate} = require '@art-suite/art-foundation'
 {Request, Filter} = require('art-ery')
 SimplePipeline = require './SimplePipeline'
 

@@ -1,5 +1,5 @@
-{defineModule, log} = require 'art-foundation'
-{defineModule, log, isString, present, CommunicationStatus, wordsArray} = require 'art-foundation'
+{defineModule, log} = require '@art-suite/art-foundation'
+{defineModule, log, isString, present, CommunicationStatus, wordsArray} = require '@art-suite/art-foundation'
 {Response, Request, Pipeline, Session} = require 'art-ery'
 {success, missing} = CommunicationStatus
 

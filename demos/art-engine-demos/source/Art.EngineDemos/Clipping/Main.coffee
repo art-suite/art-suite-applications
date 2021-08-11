@@ -1,7 +1,7 @@
 
 module.exports = ->
   {point, rect, color} = require 'art-atomic'
-  {inspect, log, merge} = require 'art-foundation'
+  {inspect, log, merge} = require '@art-suite/art-foundation'
   {RectangleElement, Element, TextElement, CanvasElement} = require 'art-engine'
 
   color1 = "#d44"

@@ -1,4 +1,4 @@
-Foundation = require 'art-foundation'
+Foundation = require '@art-suite/art-foundation'
 Engine = require 'art-engine'
 Namespace = require './namespace'
 

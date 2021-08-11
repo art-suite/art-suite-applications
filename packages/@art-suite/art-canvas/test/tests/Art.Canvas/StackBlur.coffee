@@ -1,5 +1,5 @@
 {point, rect, color} = require 'art-atomic'
-{inspect, log} = require 'art-foundation'
+{inspect, log} = require '@art-suite/art-foundation'
 {Canvas} = Neptune.Art
 
 exactFill = (bitmap, r, g, b, a) ->

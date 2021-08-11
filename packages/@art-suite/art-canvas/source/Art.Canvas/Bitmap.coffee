@@ -38,7 +38,7 @@ isSimpleRectangle = (pathFunction, pathOptions) ->
 
 {ceil} = Math
 
-{Binary, Browser} = require "art-foundation"
+{Binary, Browser} = require "@art-suite/art-foundation"
 {EncodedImage} = Binary
 
 {isPoint, isMatrix, point, Point, rect, Rectangle, matrix, Matrix, rgbColor, Color, IdentityMatrix, point0} = Atomic

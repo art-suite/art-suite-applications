@@ -11,7 +11,7 @@
   defineModule
 } = require 'art-standard-lib'
 {round, floor, ceil, max, min} = Math
-{BinaryString, EncodedImage} = (require 'art-foundation').Binary
+{BinaryString, EncodedImage} = (require '@art-suite/art-foundation').Binary
 {BaseClass} = require 'art-class-system'
 
 {getMaxCanvasPixels} = require 'art-browser-tools'

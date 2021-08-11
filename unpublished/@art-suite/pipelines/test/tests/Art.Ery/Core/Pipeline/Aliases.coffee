@@ -1,4 +1,4 @@
-{log, createWithPostCreate} = require 'art-foundation'
+{log, createWithPostCreate} = require '@art-suite/art-foundation'
 {missing, Pipeline, pipelines} = require('art-ery')
 
 module.exports = suite: ->

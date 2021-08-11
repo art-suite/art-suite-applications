@@ -1,4 +1,4 @@
-{log} = require 'art-foundation'
+{log} = require '@art-suite/art-foundation'
 {createComponentFactory, VirtualNode, VirtualElement, Component, ReactArtEngineEpoch, Element} = require 'art-react'
 
 {reactArtEngineEpoch} = ReactArtEngineEpoch

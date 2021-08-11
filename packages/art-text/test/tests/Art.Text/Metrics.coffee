@@ -1,5 +1,5 @@
 Text = require 'art-text'
-Foundation = require 'art-foundation'
+Foundation = require '@art-suite/art-foundation'
 Atomic = require 'art-atomic'
 # GoogleFontLoader = require 'art-canvas/google_font_loader'
 

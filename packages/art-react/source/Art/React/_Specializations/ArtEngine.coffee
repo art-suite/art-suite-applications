@@ -1,4 +1,4 @@
-{isFunction, objectWithout, log, isPlainObject, Promise} = require 'art-foundation'
+{isFunction, objectWithout, log, isPlainObject, Promise} = require '@art-suite/art-foundation'
 Engine = require 'art-engine'
 React = require "../index"
 {ElementFactory, Element, CanvasElement, FullScreenApp} = Engine

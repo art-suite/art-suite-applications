@@ -1,4 +1,4 @@
-{timeout, array, log, createWithPostCreate, w, isString, Validator, w} = require 'art-foundation'
+{timeout, array, log, createWithPostCreate, w, isString, Validator, w} = require '@art-suite/art-foundation'
 {createDatabaseFilters, KeyFieldsMixin} = require('art-ery')
 SimplePipeline = require '../SimplePipeline'
 

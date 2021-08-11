@@ -3,10 +3,10 @@
   "bugs": "https://github.com/art-suite/art-suite-applications/issues",
   "dependencies": {
     "@art-suite/art-canvas": "^1.28.5",
+    "@art-suite/art-foundation": "^2.0.0",
     "art-atomic": "^1.28.2",
     "art-build-configurator": "^1.29.3",
     "art-events": "^1.3.10",
-    "art-foundation": "git://github.com/imikimi/art-foundation.git",
     "art-frame-stats": "^1.2.4",
     "art-text": "^1.2.11",
     "art-xbd": "^1.1.6",
@@ -39,8 +39,8 @@
   },
   "scripts": {
     "build": "webpack --progress",
-    "start": "webpack-dev-server --hot --inline --progress --env.devServer",
-    "test": "webpack-dev-server  --progress --env.devServer"
+    "start": "webpack serve --hot --inline --progress",
+    "test": "webpack serve --progress"
   },
   "version": "4.4.9"
 }

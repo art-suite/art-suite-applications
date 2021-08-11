@@ -1,4 +1,4 @@
-Foundation = require 'art-foundation'
+Foundation = require '@art-suite/art-foundation'
 {Flux} = Neptune.Art
 ArtEry = require 'art-ery'
 

@@ -24,7 +24,7 @@
   "scripts": {
     "build": "coffee --output source --compile --map source-source &\ncaf -p -c source-source -o source &\nwait\nnn -sq",
     "build-clean": "rm -rf source/*; npm run build",
-    "start": "webpack-dev-server --hot --inline --progress --env.devServer",
+    "start": "webpack serve --hot --inline --progress",
     "test": "jest",
     "testInBrowser": "webpack-dev-server --progress --env.devServer",
     "watch": "npm-watch"

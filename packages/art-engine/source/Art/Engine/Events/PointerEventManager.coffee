@@ -9,7 +9,7 @@
 {EventEpoch} = require 'art-events'
 {eventEpoch} = EventEpoch
 
-{simpleBrowserInfo} = require('art-foundation').Browser
+{simpleBrowserInfo} = require('@art-suite/art-foundation').Browser
 {logFrameEvent} = require 'art-frame-stats'
 
 MultitouchManager = require './MultitouchManager'

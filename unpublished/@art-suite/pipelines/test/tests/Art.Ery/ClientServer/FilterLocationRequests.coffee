@@ -1,4 +1,4 @@
-{log, objectWithout, createWithPostCreate, RestClient} = require 'art-foundation'
+{log, objectWithout, createWithPostCreate, RestClient} = require '@art-suite/art-foundation'
 {config, missing, Pipeline, pipelines, session} = require('art-ery')
 
 module.exports = suite: ->

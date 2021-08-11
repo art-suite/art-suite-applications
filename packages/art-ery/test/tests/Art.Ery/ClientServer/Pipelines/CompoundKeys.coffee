@@ -1,4 +1,4 @@
-{isString, defineModule, array, randomString, merge, log, formattedInspect} = require 'art-foundation'
+{isString, defineModule, array, randomString, merge, log, formattedInspect} = require '@art-suite/art-foundation'
 {Pipeline, KeyFieldsMixin, DataUpdatesFilter} = require 'art-ery'
 
 defineModule module, class CompoundKeys extends require './SimpleStore'

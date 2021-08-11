@@ -1,4 +1,4 @@
-{log, isPlainObject, currentSecond} = require 'art-foundation'
+{log, isPlainObject, currentSecond} = require '@art-suite/art-foundation'
 {point} = require 'art-atomic'
 {Element, RectangleElement, PersistantAnimator} = require 'art-engine'
 

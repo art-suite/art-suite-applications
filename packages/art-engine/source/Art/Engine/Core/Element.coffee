@@ -1,6 +1,6 @@
 'use strict';
 Atomic = require 'art-atomic'
-Foundation = require 'art-foundation'
+Foundation = require '@art-suite/art-foundation'
 Canvas = require '@art-suite/art-canvas'
 Animator = require "../Animation/Animator"
 Layout = require "../Layout"

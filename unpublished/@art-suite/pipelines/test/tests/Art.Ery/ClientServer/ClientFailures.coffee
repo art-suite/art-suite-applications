@@ -1,4 +1,4 @@
-{log, createWithPostCreate, RestClient, CommunicationStatus} = require 'art-foundation'
+{log, createWithPostCreate, RestClient, CommunicationStatus} = require '@art-suite/art-foundation'
 {Pipeline, pipelines, session} = require('art-ery')
 {clientFailure, missing, serverFailure} = CommunicationStatus
 

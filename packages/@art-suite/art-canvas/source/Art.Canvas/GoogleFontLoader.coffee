@@ -1,6 +1,6 @@
 # http://www.google.com/fonts/
 # https://github.com/typekit/webfontloader
-Foundation = require 'art-foundation'
+Foundation = require '@art-suite/art-foundation'
 WebFont = require 'webfontloader' unless Neptune.isNode
 {array, isArray, inspect, log, BatchLoader} = Foundation
 

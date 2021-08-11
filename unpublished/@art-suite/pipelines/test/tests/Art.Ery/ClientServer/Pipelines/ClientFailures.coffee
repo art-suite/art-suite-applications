@@ -1,4 +1,4 @@
-{defineModule, log} = require 'art-foundation'
+{defineModule, log} = require '@art-suite/art-foundation'
 {Pipeline, TimestampFilter, DataUpdatesFilter} = require 'art-ery'
 
 defineModule module, class ClientFailures extends Pipeline

@@ -1,6 +1,6 @@
 {merge, Promise, getEnv, log, isPlainObject} = require 'art-standard-lib'
 {configure} = require 'art-config'
-{Browser} = require 'art-foundation'
+{Browser} = require '@art-suite/art-foundation'
 {Meta, Link} = Browser.DomElementFactories
 {getDomReadyPromise} = Browser
 {FontLoader} = require '@art-suite/art-canvas'
@@ -31,7 +31,7 @@ module.exports = class FullScreenApp
           1. make DomConsole its own NPM
           2. let webpack rewrite the following require into a noop for production.
       ###
-      require 'art-foundation/dev_tools/dom_console'
+      require '@art-suite/art-foundation/dev_tools/dom_console'
       {DomConsole} = Neptune.Art.Foundation.DevTools
 
       DomConsole.enable()

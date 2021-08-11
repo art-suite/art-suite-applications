@@ -19,7 +19,7 @@
     "url": "https://github.com/art-suite/art-suite-applications.git"
   },
   "scripts": {
-    "start": "webpack-dev-server --hot --inline --progress --env.devServer"
+    "start": "webpack serve --hot --inline --progress"
   },
   "version": "1.0.3"
 }

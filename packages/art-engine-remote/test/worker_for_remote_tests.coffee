@@ -1,4 +1,4 @@
-{log, WorkerRpc: {workerRpc}} = require "art-foundation"
+{log, WorkerRpc: {workerRpc}} = require "@art-suite/art-foundation"
 {remote} = require "art-engine-remote/remote"
 
 self.log = log

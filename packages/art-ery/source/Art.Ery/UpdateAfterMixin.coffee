@@ -11,7 +11,7 @@ KeyFieldsMixin = require './KeyFieldsMixin'
 {missing} = require 'art-communication-status'
 
 # Note, with CafScript, all the above becomes:
-# include &ArtFoundation, &ArtEry
+# include &@ArtSuite/ArtFoundation, &ArtEry
 
 # Note, with CafScript, this line becomes just:
 # mixin UpdateAfterMixin

@@ -1,4 +1,4 @@
-{defineModule, pluralize, log, Validator, merge, Promise} = require 'art-foundation'
+{defineModule, pluralize, log, Validator, merge, Promise} = require '@art-suite/art-foundation'
 Filter = require '../Filter'
 
 ###

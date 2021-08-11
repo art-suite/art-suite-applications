@@ -1,4 +1,4 @@
-{log, BaseObject} = require "art-foundation"
+{log, BaseObject} = require "@art-suite/art-foundation"
 {point, Matrix} = require "art-atomic"
 {StateEpoch, Element} = require("art-engine").Core
 {Bitmap} = require "@art-suite/art-canvas"

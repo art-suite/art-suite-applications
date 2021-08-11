@@ -1,6 +1,6 @@
 import &StandardImport
 
-HtmlCanvas = &ArtFoundation.Browser.DomElementFactories.Canvas
+HtmlCanvas = &@ArtSuite/ArtFoundation.Browser.DomElementFactories.Canvas
 
 eventKey = (e)->
   key = "" #{e.target.name}_#{e.type}_#{e.pointer.id}

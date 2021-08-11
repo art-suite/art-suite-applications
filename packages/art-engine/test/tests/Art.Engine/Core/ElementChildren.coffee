@@ -1,5 +1,5 @@
 define [
-  'art-foundation'
+  '@art-suite/art-foundation'
   'art-atomic'
   'art-engine'
   './StateEpochTestHelper'

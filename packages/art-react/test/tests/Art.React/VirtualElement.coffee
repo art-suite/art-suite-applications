@@ -1,4 +1,4 @@
-{log} = require 'art-foundation'
+{log} = require '@art-suite/art-foundation'
 {point} = require 'art-atomic'
 Engine = require('art-engine')
 {StateEpoch} = Engine.Core

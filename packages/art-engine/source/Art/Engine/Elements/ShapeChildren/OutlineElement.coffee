@@ -1,4 +1,4 @@
-Foundation = require 'art-foundation'
+Foundation = require '@art-suite/art-foundation'
 Atomic = require 'art-atomic'
 ShadowableElement = require '../ShadowableElement'
 {merge, createWithPostCreate, log, isPlainArray} = Foundation

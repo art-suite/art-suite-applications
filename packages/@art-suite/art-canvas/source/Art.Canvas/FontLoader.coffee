@@ -7,7 +7,7 @@
 {point} = require 'art-atomic'
 Bitmap = require './Bitmap'
 
-{Div, Link, Style} = require("art-foundation").Browser.DomElementFactories
+{Div, Link, Style} = require("@art-suite/art-foundation").Browser.DomElementFactories
 
 defaultTimeout = 30000
 defaultLoadedTestText = "aA"

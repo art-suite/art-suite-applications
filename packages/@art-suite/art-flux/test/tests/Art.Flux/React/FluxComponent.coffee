@@ -1,4 +1,4 @@
-Foundation = require 'art-foundation'
+Foundation = require '@art-suite/art-foundation'
 Flux = require '@art-suite/art-flux'
 React = require 'art-react'
 {eq, log, Promise, timeout, createWithPostCreate, defineModule, formattedInspect, isString} = Foundation

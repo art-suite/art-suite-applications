@@ -1,4 +1,4 @@
-Foundation = require 'art-foundation'
+Foundation = require '@art-suite/art-foundation'
 VirtualNode = require './VirtualNode'
 ReactArtEngineEpoch = require './ReactArtEngineEpoch'
 {
@@ -31,10 +31,6 @@ ReactArtEngineEpoch = require './ReactArtEngineEpoch'
 
 React = require './namespace'
 {artReactDebug} = getEnv()
-
-
-{HotLoader} = require 'art-foundation/dev_tools/webpack'
-{runHot} = HotLoader
 
 StateFieldsMixin = require './StateFieldsMixin'
 PropFieldsMixin = require './PropFieldsMixin'

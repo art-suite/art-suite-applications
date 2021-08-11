@@ -1,5 +1,5 @@
 {inspect, defineModule, clone, peek, first, log} = require 'art-standard-lib'
-{simpleBrowserInfo} = require('art-foundation').Browser
+{simpleBrowserInfo} = require('@art-suite/art-foundation').Browser
 {BaseClass} = require 'art-class-system'
 {point, rect, matrix} = require 'art-atomic'
 

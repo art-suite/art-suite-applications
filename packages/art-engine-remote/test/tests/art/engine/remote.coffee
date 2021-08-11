@@ -1,4 +1,4 @@
-{inspect, nextTick, eq, log, Browser, startWorkerFromFunction} = require 'art-foundation'
+{inspect, nextTick, eq, log, Browser, startWorkerFromFunction} = require '@art-suite/art-foundation'
 {point} = require 'art-atomic'
 {Core:{Element}} = require 'art-engine'
 {receiver} = require 'art-engine-remote/receiver'

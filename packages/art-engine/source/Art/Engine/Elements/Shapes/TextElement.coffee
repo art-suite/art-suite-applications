@@ -1,4 +1,4 @@
-Foundation = require 'art-foundation'
+Foundation = require '@art-suite/art-foundation'
 Atomic = require 'art-atomic'
 Text = require 'art-text'
 ShadowableElement = require '../ShadowableElement'

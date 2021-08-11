@@ -1,6 +1,6 @@
 Component = require './Component'
 {reactArtEngineEpoch} = require './ReactArtEngineEpoch'
-{isPlainArray, isString, arrayWith, log, isFunction, isArray} = require 'art-foundation'
+{isPlainArray, isString, arrayWith, log, isFunction, isArray} = require '@art-suite/art-foundation'
 VirtualNode = require './VirtualNode'
 VirtualElement = require './VirtualElement'
 

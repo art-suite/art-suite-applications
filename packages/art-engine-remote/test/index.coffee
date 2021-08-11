@@ -1,2 +1,2 @@
-require "art-foundation/testing"
+require "@art-suite/art-foundation/testing"
 .init defineTests: -> require './tests'

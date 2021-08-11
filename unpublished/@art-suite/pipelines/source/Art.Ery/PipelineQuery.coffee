@@ -1,4 +1,4 @@
-{defineModule, isPlainObject, log, BaseObject, formattedInspect, isString, isFunction} = require 'art-foundation'
+{defineModule, isPlainObject, log, BaseObject, formattedInspect, isString, isFunction} = require '@art-suite/art-foundation'
 # KeyFieldsMixin = require './KeyFieldsMixin'
 # TODO - add KeyFieldsMixin
 # PURPOSE: allow multi-key queries to be defined using KeyFieldsMixin's

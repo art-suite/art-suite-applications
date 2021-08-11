@@ -1,4 +1,4 @@
-Foundation = require 'art-foundation'
+Foundation = require '@art-suite/art-foundation'
 Ery = require('art-ery')
 {assert} = require('art-testbench');
 

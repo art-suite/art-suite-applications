@@ -1,4 +1,4 @@
-Foundation = require 'art-foundation'
+Foundation = require '@art-suite/art-foundation'
 Component = require './Component'
 
 module.exports = class HotStyleProps extends Foundation.BaseObject

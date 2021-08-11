@@ -1,5 +1,5 @@
 'use strict';
-Foundation = require 'art-foundation'
+Foundation = require '@art-suite/art-foundation'
 {log, Epoch} = Foundation
 
 module.exports = class IdleEpoch extends Epoch

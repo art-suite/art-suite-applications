@@ -1,4 +1,4 @@
-Foundation = require 'art-foundation'
+Foundation = require '@art-suite/art-foundation'
 {point} = require 'art-atomic'
 {Core:{CanvasElement, Element}} = require 'art-engine'
 {receiver} = require 'art-engine-remote/receiver'

@@ -1,5 +1,5 @@
 'use strict';
-Foundation = require 'art-foundation'
+Foundation = require '@art-suite/art-foundation'
 Atomic = require 'art-atomic'
 
 {point, Point, perimeter, perimeter0} = Atomic
