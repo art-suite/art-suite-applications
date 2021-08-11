@@ -1,10 +1,11 @@
 import &ArtSuite
 
 class CurrentTime extends ApplicationState
+  d = new Date
   @stateFields
-    second: 0
-    minute: 0
-    hour: 0
+    second: d.getSeconds() | 0
+    minute: d.getMinutes() | 0
+    hour:   d.getHours() | 0
     totalSeconds: 0
 
   @getter
@@ -21,13 +22,7 @@ class CurrentTime extends ApplicationState
 
     @second = second
 
-    timeout 1000, => @_update()
+    timeout 1000, -> @_update()
 
   constructor: ->
-    super
-    d = new Date
-    @second = d.getSeconds() | 0
-    @minute = d.getMinutes() | 0
-    @hour = d.getHours() | 0
-
-    @_update()
+    timeout 0 -> @_update()

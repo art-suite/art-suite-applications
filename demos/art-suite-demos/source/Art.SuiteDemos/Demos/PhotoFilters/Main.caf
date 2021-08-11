@@ -44,7 +44,7 @@ class MyComponent extends Component
       childrenMargins: 10
       &Button
         action: @requestImage
-        "pick photo"
+        text: "pick photo"
 
       if @bitmap
         BitmapElement

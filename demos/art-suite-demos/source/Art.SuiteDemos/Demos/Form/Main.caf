@@ -31,7 +31,7 @@ class Button extends PointerActionsMixin Component
         size:     :parentWidthChildrenHeight
         padding:  StyleProps.standardSpacing
         align:    :center
-        text
+        text:     text
 
 class Main extends Component
 
@@ -93,7 +93,7 @@ class Main extends Component
               size:     :parentWidthChildrenHeight
               padding:  StyleProps.standardSpacing
               align:    :centerCenter
-              "" Color Preview Form Demo
+              text:     "" Color Preview Form Demo
 
           Element
             padding: StyleProps.standardSpacing
@@ -165,10 +165,10 @@ class Main extends Component
                 size: :parentWidthChildrenHeight
                 disabled: @currentValue.length == 0 || rgbColor(@currentValue).eq @backgroundColor
                 action: -> @setColorFromString @currentValue
-                :submit
+                text: :submit
 
               Button
                 size: :parentWidthChildrenHeight
                 disabled: rgbColor(:orange).eq @backgroundColor
                 action: @resetColor
-                :reset
+                text: :reset

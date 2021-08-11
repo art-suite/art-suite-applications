@@ -30,7 +30,7 @@ class Paginator extends FluxSubscriptionsMixin ApplicationState
 
   _getLoadedSlots: (slotIds) ->
     array key, index in slotIds
-      @models.darkJedi.fluxStoreGet(key)?.data if key?
+      @models.darkJedi.getModelRecord(key)?.data if key?
 
   _updateSubscriptions: (slotIds) ->
     @unsubscribeAll()

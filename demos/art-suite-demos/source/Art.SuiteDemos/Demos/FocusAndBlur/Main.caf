@@ -33,8 +33,8 @@ class FocusAndBlur extends Component
           cursor: :pointer
           on:
             focus: -> @focused = name
-          TextElement mediumText, "no, focus me, #{name}!", size: :childrenSize
+          TextElement mediumText, text: "no, focus me, #{name}!", size: :childrenSize
 
       TextElement
         mediumText
-        "" focused: #{@focused}
+        text: "" focused: #{@focused}

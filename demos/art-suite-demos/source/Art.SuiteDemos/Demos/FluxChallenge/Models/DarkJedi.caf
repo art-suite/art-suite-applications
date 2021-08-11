@@ -7,7 +7,7 @@ class DarkJedi extends FluxModel
 
     # simulate remote request pending
     log ""DarkJedi: pending: #{} key
-    @updateFluxStore
+    @updateModelRecord
       key
       status: pending
       abort:  ->
@@ -25,5 +25,5 @@ class DarkJedi extends FluxModel
 
   toKeyString: (a) -> '' + a
 
-  fluxStoreEntryRemoved: (entry) ->
-    entry.fluxRecord.abort?()
+  modelStoreEntryRemoved: (entry) ->
+    entry.modelRecord.abort?()

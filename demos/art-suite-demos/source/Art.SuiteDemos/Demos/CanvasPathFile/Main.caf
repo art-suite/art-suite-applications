@@ -33,8 +33,17 @@ class MyComponent extends PointerActionsMixin Component
 
   @stateFields
     encoded:
-      svgToCanvasPath &ExampleSvg
-      .normalize()
+      null
+      ##
+        SBD NOTE 2021-8-11:
+          svgToCanvasPath is currently broken because
+          canvg v3 has a fairly different signature than v2
+          but I think v2 is pretty broken now, too.
+          Anyway, ArtCanvasPath needs to be updated to work
+          with the latest version of its dependencies
+
+      # svgToCanvasPath &ExampleSvg
+      # .normalize()
     error: null
     svg: &ExampleSvg
     pathSetName: null
