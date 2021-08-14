@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "StandardImport.js",
+  "sourceRoot": "../..",
+  "sources": [
+    "source/Art.Components/StandardImport.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,qQAGE,6BACA,8BACA,iBAAkB,wDAAqB,YACvC,eAAkB,oDAAqB"
+}

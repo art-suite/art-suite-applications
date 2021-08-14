@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "TestSpecializationElement.js",
+  "sourceRoot": "../../..",
+  "sources": [
+    "source/test/Mocks/TestSpecializationElement.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,0HAAO,wHAEP,wFAAwC,sBACzB,CAAC,aAAc,OAAQ,UAAW,sPAE/C,YAAO,CACL,wCAAqB,SAAC,aAAa,mBAAe,MAAK,CACrD,OAAU,cAAc,cAAY,wBACpC,UAAa,qDAAoB,KAAO,mBAAmB,mCAE/D,cAAU,0CAEV,QAAgB,CAAC,GAAG,IAAM,OAAM,WAAC,KAAK,oCACtC,QAAgB,CAAC,IAAS,cAAO,WAAO"
+}

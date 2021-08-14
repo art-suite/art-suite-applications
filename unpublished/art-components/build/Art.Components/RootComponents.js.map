@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "RootComponents.js",
+  "sourceRoot": "../..",
+  "sources": [
+    "source/Art.Components/RootComponents.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,sFAAO,4EAEP,sLAIuB,CAAC,eACpB,yBAAqB,mBACrB,wDAEqB,CAAC,eACtB,KAAO,mBAAa,wBAClB,MAAM,IAAI,MAAM,4BAElB,sBAAkB,aAAa,qBAAiB,mBAChD,qDAEF,oCAA0B,eACA,yIACtB"
+}

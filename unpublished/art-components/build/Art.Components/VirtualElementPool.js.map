@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "VirtualElementPool.js",
+  "sourceRoot": "../..",
+  "sources": [
+    "source/Art.Components/VirtualElementPool.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,0EAAO,sEAIP,0EAAiC,sBAElB,CAAC,2FACZ,wGAEF,QAAU,CAAC,kBAAkB,OAAO,WAAY,OAC3C,qBAAgB,KACjB,sBAA0B,kBAAkB,OAAO,YAGnD,IAAI,yBAAqB,kBAAkB,OAAO,sCAEtD,QAAS,CAAC,iBAAkB,OAC1B,gBAAY"
+}

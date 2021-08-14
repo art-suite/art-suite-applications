@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "PerfRegressions.test.js",
+  "sourceRoot": "../../..",
+  "sources": [
+    "source/test/Art.Components/PerfRegressions.test.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,gGAAO,8FAEP,2BAAwB,QAAG,CAAC,QAAQ,IAAK,OACpC,WAAS,KACV,gBAEA,YACE,yBAAyB,QAAQ,IACjC,yBAAyB,QAAQ,cAEvC,SAAQ,CACN,4BACE,KACE,oCAEE,gBAEJ,KACE,+CAEE,oCAEJ,KACE,gDAEE,yBAAyB,OAE/B,yBACE,KACE,oCAEE,0BAGJ,KACE,+CAEE,8CAGJ,KACE,iDAEE,yBAAyB,qBAEzB,yBAAyB"
+}

@@ -1,0 +1,4 @@
+"use strict"
+let Caf = require('caffeine-script-runtime');
+Caf.defMod(module, () => {return Caf.importInvoke(["Epoch"], [global, require('./StandardImport'), require('art-epoched-state')], (Epoch) => {let ComponentEpoch; return ComponentEpoch = Caf.defClass(class ComponentEpoch extends Epoch {}, function(ComponentEpoch, classSuper, instanceSuper) {let compareComponentDepth; this.singletonClass(); compareComponentDepth = function(a, b) {return a._componentDepth - b._componentDepth;}; this.prototype.processEpochItems = function(changingComponents) {let from, into, to, i, temp; return (from = changingComponents.sort(compareComponentDepth), into = from, (from != null) ? (to = from.length, i = 0, (() => {while (i < to) {let component; component = from[i]; component.processEpoch(); temp = i++;}; return temp;})()) : undefined, into);};});});});
+//# sourceMappingURL=ComponentEpoch.js.map

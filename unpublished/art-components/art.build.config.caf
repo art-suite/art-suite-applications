@@ -4,7 +4,12 @@ target:
     true: use true and 'webpack' to generate stand-alone build
   node: false
 
-package: -> &package
+package: &@ArtSuite/StandardPackageBuilder.configure {}
+  &package
+  scripts:
+    perf:           "" nn -s;mocha -u tdd perf
+    start:          "" webpack serve --hot --inline --progress
+    testInBrowser:  "" webpack serve --progress
 
 webpack:
   # common properties are merged into each target's properties

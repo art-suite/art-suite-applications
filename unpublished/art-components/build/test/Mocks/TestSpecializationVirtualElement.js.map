@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "TestSpecializationVirtualElement.js",
+  "sourceRoot": "../../..",
+  "sources": [
+    "source/test/Mocks/TestSpecializationVirtualElement.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,+EAAO,0FAMP,sGAA+C,uHAE7C,QAAa,CAAC,aAAa,OAAO,WAAW,OAC3C,IAAI,yCAA2B,aAAa,OAAO,UAAU"
+}

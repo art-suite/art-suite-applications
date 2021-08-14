@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "Mocks.js",
+  "sourceRoot": "../../..",
+  "sources": [
+    "source/test/Mocks/Mocks.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,sEAAO,2CACP,aACE,6EACkC,eAAc,oBAAmB,qBAEnE,uFACkC,gBAAe,qBAAoB"
+}

@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "Clone.test.js",
+  "sourceRoot": "../../../..",
+  "sources": [
+    "source/test/Art.Components/Components/Clone.test.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,2GAAO,0EAEP,YAAK,yEAAoB,qDACG,wFACxB,YAAU,OACR,aACE,KAAK,wBAEX,WAAW,aAAY,KAAK,OAC5B,gBAAe,kBACf,UACE,gBACA,6BAEF,UACE,gBACA"
+}

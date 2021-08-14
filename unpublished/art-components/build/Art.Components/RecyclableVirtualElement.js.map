@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "RecyclableVirtualElement.js",
+  "sourceRoot": "../..",
+  "sources": [
+    "source/Art.Components/RecyclableVirtualElement.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;uEAEA,sFAAuC,+FACrC,qDAEA,YACE,0BAAsB,IAAI,kCAAoB,qGAIhD,QAAqB,CAAC,kBAAkB,OAAO,WAAY,OACzD,iCAA6B,kBAAkB,OAAO,sCAKxD,YAAW,OACT,sCAAkC,sCAEpC,QAAa,CAAC,qBAAsB,kDAOhB,+BAAa,MAC/B,qCAEA,kCAEF,YAAY,+CAIV,iBAAa,aACb"
+}

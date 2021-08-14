@@ -1,6 +1,6 @@
 import &StandardImport
 
-ArtComponents = &namespace
+ArtComponents = require :./namespace
 
 emptyObject = {}
 class VirtualNode extends BaseClass

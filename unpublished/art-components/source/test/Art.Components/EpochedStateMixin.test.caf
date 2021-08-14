@@ -1,0 +1,37 @@
+import &StandardImport
+
+describe EpochedState: ->
+  test :setState ->
+    class MyEpochedState extends EpochedStateMixin BaseClass
+
+      constructor: ->
+        @_instantiateState()
+
+    myEpochedState = new MyEpochedState
+
+    assert.doesNotExist myEpochedState.state.foo
+    myEpochedState.setState foo: 123
+    assert.doesNotExist myEpochedState.state.foo
+    myEpochedState.onNextReady ->
+      assert.selectedEq
+        foo: 123
+        myEpochedState.state
+
+  test "setState before instantiate" ->
+    class MyEpochedState extends EpochedStateMixin BaseClass
+
+    myEpochedState = new MyEpochedState
+
+    assert.doesNotExist myEpochedState.state.foo
+    myEpochedState.setState foo: 123
+
+    assert.selectedEq
+      foo: 123
+      myEpochedState.state
+
+    myEpochedState._instantiateState()
+
+    myEpochedState.onNextReady ->
+      assert.selectedEq
+        foo: 123
+        myEpochedState.state

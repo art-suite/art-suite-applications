@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "Counters.test.js",
+  "sourceRoot": "../../..",
+  "sources": [
+    "source/test/Art.Components/Counters.test.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,uGAAO,qEAEP,gBAAQ,CAAC,sBACP,KAAK,gBACH,yBACA,UAAU,GAAE,4CAGd,KAAK,gCACH,kBACA,kCACA,UAAU,GAAE,kCACZ,yBACA,UAAU,GAAE"
+}

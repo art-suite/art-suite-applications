@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "Counters.js",
+  "sourceRoot": "../..",
+  "sources": [
+    "source/Art.Components/Counters.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,4FAAO,4EAEP,sDAAuB,oHACrB,eAAY,CACV,WAAgB,eAAc,WAAS,YAAU,WAAS,gBAAc,YAAU,WAClF,gBAAgB,cAElB,kBACA,0BAE2B,gDACT,wBACd,eAAkB,+BAAoB,2BAAa,qBACnD,iBAAkB,+BAAoB,2BAAa,kBAEvD,iBAAY,CACV,8BAAoB,kBACH,qBACb,KAAE,iDAIU,wBAChB,wCAEW,uEAGb,YAAU,iBACK,qBACV,KAAC,QAAQ,MAEd"
+}

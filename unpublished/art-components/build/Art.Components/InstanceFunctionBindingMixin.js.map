@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "InstanceFunctionBindingMixin.js",
+  "sourceRoot": "../..",
+  "sources": [
+    "source/Art.Components/InstanceFunctionBindingMixin.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,uFAAO,yDAEP,gBAAC,+CAAe,8FAA2C,YAazD,eAAe,qBAEb,0BAAsB,sSAExB,iBAAa,+DAEb,QAAyB,CAAC,qCACxB,6BAA0B,sBAAsB,kCAA8B,aAC9E,oBAA0B,6BAC1B,0BAA0B,sDAK5B,kCAA4B,eACL,iHAAgB,CAAC,MAAI,iBACtC,YAAW,MACR,yBAAoB,QACpB,6BAA0B,WAAK,2CACpC,yFAEJ,QAAgB,CAAC,8DAAuB,YACtC,qCACgB,0IACb,KAAC,KAAQ,mBAAkB,UAAU,MACpC,SAAS,iBAAiB,kHAEhC,QAAyB,CAAC,mDAAuB,eAC/B,iIAAyB,CAAE,WAAK,wBAAoB,OAC3D,KAAE"
+}

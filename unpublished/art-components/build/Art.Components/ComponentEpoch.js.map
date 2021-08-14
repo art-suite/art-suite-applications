@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "ComponentEpoch.js",
+  "sourceRoot": "../..",
+  "sources": [
+    "source/Art.Components/ComponentEpoch.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,sEAAO,6BAAiB,+DAExB,kEAA6B,0FAC3B,uBAEA,wBAAqB,QAAG,CAAC,GAAG,IAAK,OAC/B,oBAAoB,wDAEtB,QAAmB,CAAC,kDAAqB,eACf,wBAAwB,4IAC9C"
+}

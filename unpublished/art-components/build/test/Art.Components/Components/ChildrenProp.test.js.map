@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "ChildrenProp.test.js",
+  "sourceRoot": "../../../..",
+  "sources": [
+    "source/test/Art.Components/Components/ChildrenProp.test.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,uHAAO,oFAEP,gBAAQ,CAAC,2BACP,KAAK,gGAAiE,6CAC9C,oFACpB,YAAU,OACR,aACE,MAAM,YAEN,aAAY,MAAM,SAClB,aAAY,MAAM,qEAEE,wFACxB,YAAU,OACR,QACE,aAAY,MAAM,SAClB,aAAY,MAAM,uBAExB,yCAEa,CAAC,CAAC,cACb,UAAU,oBAAoB,mBAE9B,WACE,OAAK,mBACU,6BACb,iCAER,KAAK,oCAAc,qDAES,wFACxB,YAAU,OACR,YACE,aAAY,MAAM,SAClB,aAAY,MAAM,uBAExB,yCAEa,CAAC,CAAC,aACb,UACE,GACA"
+}

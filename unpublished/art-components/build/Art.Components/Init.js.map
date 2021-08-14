@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "Init.js",
+  "sourceRoot": "../..",
+  "sources": [
+    "source/Art.Components/Init.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,qGAAO,6BAAiB,+EAExB,gHAOE,QAAO,CAAC,UAAW,OACjB,aACK,MAAI,mBAAmB,4BAClB,CAAC,UAAU,UAAU,+BAA+B"
+}

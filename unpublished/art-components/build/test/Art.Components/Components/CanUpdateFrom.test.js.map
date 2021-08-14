@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "CanUpdateFrom.test.js",
+  "sourceRoot": "../../../..",
+  "sources": [
+    "source/test/Art.Components/Components/CanUpdateFrom.test.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,uHAAO,oFAEP,gBAAQ,CAAC,+BACP,KAAK,oFAAuD,uDAC/B,yFACzB,YAAW,mBAAW,CAAC,MAAM,wBAE/B,IAAI,cAAa,MAAM,SACvB,IAAI,cAAa,MAAM,gBACvB,UAAU,MAAM,iBAAiB,QAGnC,KAAK,sGAA2D,uDACnC,yFACzB,YAAW,mBAAW,CAAC,MAAM,+EACJ,yFACzB,YAAW,mBAAW,CAAC,MAAM,wBAE/B,IAAI,cAAa,MAAM,SACvB,IAAI,cAAa,MAAM,gBACvB,UAAU,OAAO,iBAAiB,QAEpC,KAAK,qFAAwD,uDAChC,yFACzB,YAAW,oBAAY,MAAM,cAE/B,IAAI,cAAa,KAAK,SACtB,IAAI,cAAa,KAAK,gBACtB,UAAU,OAAO,iBAAiB,eAEpC,KAAK,+FAAkE,uDAC1C,yFACzB,YAAW,oBAAY,MAAM,cAE/B,IAAI,cAAa,KAAK,SACtB,IAAI,iBACJ,UAAU,OAAO,iBAAiB,YAClC,UAAU,OAAO,iBAAiB"
+}

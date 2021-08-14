@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "TestSpecializationRecyclableVirtualElement.js",
+  "sourceRoot": "../../..",
+  "sources": [
+    "source/test/Mocks/TestSpecializationRecyclableVirtualElement.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,yFAAO,8GAMP,0HAAyD,2IAEvD,QAAa,CAAC,aAAa,OAAO,WAAW,OAC3C,IAAI,yCAA2B,aAAa,OAAO,UAAU"
+}

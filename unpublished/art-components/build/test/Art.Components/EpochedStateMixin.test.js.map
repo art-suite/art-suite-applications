@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "EpochedStateMixin.test.js",
+  "sourceRoot": "../../..",
+  "sources": [
+    "source/test/Art.Components/EpochedStateMixin.test.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,6HAAO,yFAEP,gBAAQ,CAAC,0BACP,KAAK,uDAAY,2DACc,kBAAkB,gDAG3C,+BAEJ,iBAAiB,IAAI,gBAErB,oBAAoB,2BACpB,yBAAwB,KAAK,OAC7B,oBAAoB,kCACpB,2BAA0B,MACxB,mBACE,KAAK,MACL,kCAEN,KAAK,0EAAgC,2DACN,kBAAkB,gBAE/C,iBAAiB,IAAI,gBAErB,oBAAoB,2BACpB,yBAAwB,KAAK,OAE7B,mBACE,KAAK,MACL,uBAEF,2CAEA,2BAA0B,MACxB,mBACE,KAAK,MACL"
+}
