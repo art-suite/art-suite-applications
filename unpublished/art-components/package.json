@@ -2,11 +2,13 @@
   "author": "Shane Brinkman-Davis Delamore, Imikimi LLC",
   "bugs": "https://github.com/art-suite/art-suite-applications/issues",
   "dependencies": {
-    "art-build-configurator": "^1.29.3",
-    "art-epoched-state": "^1.2.12"
+    "art-class-system": "^1.11.13",
+    "art-epoched-state": "^1.2.12",
+    "art-standard-lib": "^1.70.6"
   },
   "description": "Art.Components",
   "devDependencies": {
+    "art-build-configurator": "^1.29.3",
     "art-testbench": "^3.2.2",
     "case-sensitive-paths-webpack-plugin": "^2.2.0",
     "chai": "^4.2.0",
@@ -32,9 +34,9 @@
   "scripts": {
     "build": "webpack --progress",
     "perf": "nn -s;mocha -u tdd perf/",
-    "start": "webpack-dev-server --hot --inline --progress --env.devServer",
+    "start": "webpack serve --hot --inline --progress",
     "test": "nn -s;mocha -u tdd",
-    "testInBrowser": "webpack-dev-server --progress --env.devServer"
+    "testInBrowser": "webpack serve --progress"
   },
   "version": "0.3.3"
 }

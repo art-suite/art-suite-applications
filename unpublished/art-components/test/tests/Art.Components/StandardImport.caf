@@ -1,1 +1,3 @@
-&StandardImport.mergeWithSelf &Mocks
+[]
+  &StandardImport
+  &Mocks

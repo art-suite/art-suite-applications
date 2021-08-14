@@ -1,6 +1,7 @@
 Neptune.Art?.FrameStats extract? startFrameTimer, endFrameTimer
 
-&ArtStandardLib.mergeWithSelf
+[]
+  &ArtStandardLib
   &ArtClassSystem
   startFrameTimer:  startFrameTimer ? -> 0
   endFrameTimer:    endFrameTimer   ? -> 0
