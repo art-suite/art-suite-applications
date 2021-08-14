@@ -41,7 +41,7 @@
     "url": "https://github.com/art-suite/art-suite-applications.git"
   },
   "script": {
-    "testInBrowser": "webpack-dev-server --progress"
+    "testInBrowser": "webpack server --progress"
   },
   "scripts": {
     "build": "webpack --progress",

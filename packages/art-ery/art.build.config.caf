@@ -5,4 +5,4 @@ package: ->
     scripts:
       test-server:    "" caf ./TestServer.caf
       test:           "" nn -s;mocha -u tdd
-      testInBrowser:  "" webpack-dev-server --progress --env.devServer
+      testInBrowser:  "" webpack server --progress

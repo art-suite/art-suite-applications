@@ -26,7 +26,7 @@
     "build-clean": "rm -rf source/*; npm run build",
     "start": "webpack serve --hot --inline --progress",
     "test": "jest",
-    "testInBrowser": "webpack-dev-server --progress --env.devServer",
+    "testInBrowser": "webpack server --progress ",
     "watch": "npm-watch"
   },
   "version": "1.28.2",
