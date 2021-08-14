@@ -43,8 +43,8 @@ suite:
       "reset the session, validate not set" ->
         session.reset()
         pipelines.myRemote.getSessionData()
-          .then (body) ->
-            assert.notPresent body.id
+        .then (body) ->
+          assert.notPresent body.id
 
       "replace the session via signature, validate we restored it" ({signature, id}) ->
         session.data = {signature}
