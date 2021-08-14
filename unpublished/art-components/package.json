@@ -38,7 +38,7 @@
     "verbose": true
   },
   "license": "ISC",
-  "name": "art-components",
+  "name": "@art-suite/art-components",
   "repository": {
     "type": "git",
     "url": "https://github.com/art-suite/art-suite-applications.git"

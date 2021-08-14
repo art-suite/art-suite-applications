@@ -17,5 +17,4 @@ webpack:
 
   # each target's individual properties
   targets:
-    test: {}
     perf: {}
