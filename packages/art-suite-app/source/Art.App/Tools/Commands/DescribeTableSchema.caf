@@ -1,4 +1,4 @@
 &ToolLib.createPipelineCommand
   description: "ask DynamoDb to describe the table's schema"
-  action: ({pipeline}) ->
+  action: (pipeline) ->
     &ArtAws.DynamoDb.singleton.describeTable {} pipeline.tableName
