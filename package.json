@@ -3,6 +3,7 @@
   "dependencies": {
     "@art-suite/art-app-kit-auth": "file:packages/@art-suite/art-app-kit-auth",
     "@art-suite/art-canvas": "file:packages/@art-suite/art-canvas",
+    "@art-suite/art-components": "file:unpublished/art-components",
     "@art-suite/art-flux": "file:packages/@art-suite/art-flux",
     "@art-suite/art-foundation": "^2.0.0",
     "@art-suite/art-models": "file:packages/@art-suite/art-models",
@@ -21,7 +22,6 @@
     "art-class-system": "^1.11.13",
     "art-color-extractor": "file:packages/art-color-extractor",
     "art-communication-status": "^1.5.13",
-    "art-components": "file:unpublished/art-components",
     "art-components-dom": "file:unpublished/art-components-dom",
     "art-components-engine": "file:unpublished/art-components-engine",
     "art-config": "^2.0.3",
