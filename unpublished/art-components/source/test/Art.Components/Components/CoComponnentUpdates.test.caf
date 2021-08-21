@@ -106,4 +106,4 @@ chainedTest ->
         :parentValue4
         :parentValue4
         :childValue4
-      assert.eq 2, Counters.componentsUpdated, "" should only take 2 updates to updated 2 components, even if their updates were triggered out-of-order
+      assert.eq 2, Counters.componentsUpdated, "" should only take 2 updates to update 2 components, even if their updates were triggered out-of-order

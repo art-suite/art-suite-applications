@@ -93,7 +93,7 @@ describe
         RootComponent()
         ._instantiate()
         .onNextReady()
-        .then (rootComponent) -> {rootComponent}
+        .then (rootComponent) -> {} rootComponent
 
       .tapTest
         "initial render" ({rootComponent}) ->
