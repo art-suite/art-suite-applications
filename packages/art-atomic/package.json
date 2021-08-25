@@ -29,7 +29,7 @@
     "testInBrowser": "webpack server --progress ",
     "watch": "npm-watch"
   },
-  "version": "1.28.2",
+  "version": "1.28.4",
   "watch": {
     "build": {
       "extensions": "caf,coffee",

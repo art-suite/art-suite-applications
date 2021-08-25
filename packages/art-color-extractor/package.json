@@ -34,5 +34,5 @@
     "start": "webpack serve --hot --inline --progress",
     "test": "webpack server --progress "
   },
-  "version": "1.6.1"
+  "version": "1.6.3"
 }

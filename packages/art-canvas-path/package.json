@@ -1,7 +1,7 @@
 {
   "author": "Shane Brinkman-Davis Delamore, Imikimi LLC",
   "bin": {
-    "cpf-tool": "./cpf-tool"
+    "cpf-tool": "cpf-tool"
   },
   "bugs": "https://github.com/art-suite/art-suite-applications/issues",
   "dependencies": {
@@ -30,5 +30,5 @@
     "test": "nn -s;mocha -u tdd",
     "testInBrowser": "webpack server --progress "
   },
-  "version": "0.5.5"
+  "version": "0.5.7"
 }
