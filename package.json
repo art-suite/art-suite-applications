@@ -17,7 +17,6 @@
     "art-aws": "file:packages/art-aws",
     "art-browser-tools": "^1.2.10",
     "art-build-configurator": "^1.29.3",
-    "art-canvas": "git://github.com/imikimi/art-canvas.git",
     "art-canvas-path": "file:packages/art-canvas-path",
     "art-class-system": "^1.11.13",
     "art-color-extractor": "file:packages/art-color-extractor",
