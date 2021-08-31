@@ -22,7 +22,7 @@ class PointerEvent extends Event
   emptyObject = {}
   newEvent: (options)->
     if options
-      log.warn "DEPRICATED: PointerEvent.newEvent(options); Use: mergeInto event.clone(), options"
+      log.warn "DEPRICATED: PointerEvent.newEvent(options); Use: mergeInto event.clone(), options. For props only, use event.clone().mergeInProps additionalProps (though this mutates the event, it doesn't mutate the previously passed in props object)"
     else
       options = emptyObject
 
