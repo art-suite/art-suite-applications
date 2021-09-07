@@ -12,6 +12,7 @@
     "@art-suite/pipelines": "file:unpublished/@art-suite/pipelines",
     "@art-suite/pointer-actions-mixin": "file:packages/@art-suite/pointer-actions-mixin",
     "@art-suite/standard-package-builder": "^1.0.0",
+    "@xmldom/xmldom": "*",
     "art-app-kit": "file:packages/art-app-kit",
     "art-atomic": "file:packages/art-atomic",
     "art-aws": "file:packages/art-aws",
@@ -87,8 +88,7 @@
     "webpack-cli": "^4",
     "webpack-dev-server": "^3.11.0",
     "webpack-merge": "^5.7.3",
-    "webpack-node-externals": "^3.0.0",
-    "xmldom": "^0.6.0"
+    "webpack-node-externals": "^3.0.0"
   },
   "homepage": "https://github.com/art-suite/art-suite-applications",
   "license": "ISC",

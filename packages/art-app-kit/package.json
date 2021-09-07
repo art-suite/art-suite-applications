@@ -3,8 +3,8 @@
   "bugs": "https://github.com/art-suite/art-suite-applications/issues",
   "dependencies": {
     "@art-suite/pointer-actions-mixin": "^1.0.3",
-    "art-canvas-path": "^0.6.2",
-    "art-markdown": "^1.2.5",
+    "art-canvas-path": "^0.6.3",
+    "art-markdown": "^1.2.6",
     "copy-to-clipboard": "*"
   },
   "description": "Art.App.Kit",
@@ -26,5 +26,5 @@
     "start": "webpack serve --hot --inline --progress",
     "test": "webpack serve --progress"
   },
-  "version": "1.4.3"
+  "version": "1.4.4"
 }
