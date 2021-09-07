@@ -1,4 +1,4 @@
-import &StandardImport, &CanvasPathBuilder, &xmldom
+import &StandardImport, &CanvasPathBuilder, &@xmldom/xmldom
 
 class SvgPathExtractor extends BaseClass
 

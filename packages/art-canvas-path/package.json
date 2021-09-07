@@ -8,7 +8,7 @@
     "canvas": "^2.0.0",
     "canvg": "^3.0.0",
     "jsdom": "^17.0.0",
-    "xmldom": "^0.6.0"
+    "@xmldom/xmldom": "*"
   },
   "description": "Art.Canvas.Path",
   "devDependencies": {
@@ -44,7 +44,7 @@
     "test": "npm run nn\njest",
     "watch": "npm-watch"
   },
-  "version": "0.6.2",
+  "version": "0.6.3",
   "watch": {
     "build": {
       "extensions": [

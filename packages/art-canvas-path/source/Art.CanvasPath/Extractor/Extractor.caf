@@ -1,4 +1,4 @@
-import &StandardImport, &xmldom
+import &StandardImport, &@xmldom/xmldom
 
 extractNamedChildren = (element, _into = {}) ->
   each child in element.childNodes
