@@ -3,7 +3,7 @@
   "bugs": "https://github.com/art-suite/art-suite-applications/issues",
   "dependencies": {
     "@art-suite/pointer-actions-mixin": "^1.0.3",
-    "art-canvas-path": "^0.5.7",
+    "art-canvas-path": "^0.6.0",
     "art-markdown": "^1.2.5",
     "copy-to-clipboard": "*"
   },
