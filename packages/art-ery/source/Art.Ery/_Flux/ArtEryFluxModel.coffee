@@ -167,6 +167,7 @@ defineModule module, class ArtEryFluxModel extends KeyFieldsMixin FluxModel
       @keyFields keyFields if keyFields
 
       # Overrides
+      # TODO: add propsToKey
       @::[k] = v for k, v of merge {localMerge, localSort, dataToKeyString}
     ).singleton
 

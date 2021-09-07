@@ -31,7 +31,13 @@ defineModule module, class ValidationFilter extends Filter
     Promise.then =>
       context = request.requestString
       validatedData = @_validator[method] request.data, {context}
-      data = validatedData if request.location != "client"
+      data =
+        if request.location == "client"
+          # preprocess, but don't apply defaults
+          # TODO: add tests for this!!!! (SBD 9/6/2021)
+          @_validator.preprocess request.data
+
+        else validatedData
 
       rejection = if @_exclusive
         {fields} = request.pipeline
