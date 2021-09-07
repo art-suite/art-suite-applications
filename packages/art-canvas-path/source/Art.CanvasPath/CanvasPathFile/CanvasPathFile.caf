@@ -4,4 +4,4 @@ decodeCpf: (cpf) ->
     fromXbd cpf
   else
     cpf
-  new &namespace[rootTag.name] rootTag
+  new require("./namespace")[rootTag.name] rootTag

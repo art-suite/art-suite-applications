@@ -1,5 +1,5 @@
 
-import &StandardImport, &Extractor, &CanvasPathFile, {} &fs
+import &ArtStandardLib, &ArtCanvasPath, {} &fs
 
 {}
   addFilesToCanvasPathLibrary = (cpl, files, options = {}, stats = {}) ->
@@ -87,7 +87,7 @@ import &StandardImport, &Extractor, &CanvasPathFile, {} &fs
         output += ".cpf" unless /\.cpf$/.test output
         log {} stats, size, output: output ? "" use -o to specify the output filename
         if output
-          &fs.writeFileSync output, cpfFile.nodeBuffer
+          fs.writeFileSync output, cpfFile.nodeBuffer
 
     else
       commander.outputHelp()

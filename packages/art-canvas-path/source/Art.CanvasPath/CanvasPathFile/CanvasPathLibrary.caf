@@ -37,6 +37,6 @@ class CanvasPathLibrary extends BaseClass
 
   _initFromXbd: (xbdTag) ->
     each pathTag in xbdTag.tags
-      if TagType = &namespace[pathTag.name]
+      if TagType = require("./namespace")[pathTag.name]
         tag = new TagType pathTag
         @_canvasPathSets[tag.name] = tag
