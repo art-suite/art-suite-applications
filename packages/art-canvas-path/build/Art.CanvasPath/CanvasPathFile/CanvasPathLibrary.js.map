@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "CanvasPathLibrary.js",
+  "sourceRoot": "../../..",
+  "sources": [
+    "source/Art.CanvasPath/CanvasPathFile/CanvasPathLibrary.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,0IAAO,6HAEP,wEAAgC,sBAEjB,CAAC,yBACZ,2BACA,IAAG,aAAa,SACd,kBAAc,kEAElB,cAAU,mBAEV,YAAO,CACL,sBAAY,kBACQ,kCAChB,qBAAqB,wBAEzB,iBAAO,OACL,+BACmB,kCAAqB,WAE1C,8BAAoB,QAClB,mBAAmB,mBAAmB,0BAExC,qBAAY,sDAEd,QAAK,CAAC,MAAM,UAAW,OAErB,6CAAQ,mCAEV,YAAa,iBACD,4BACR,2CAEJ,YAAW,OACT,kCAA+B,4BAC7B,8CAEJ,QAAc,CAAC,SAAU,iBACP,6CAAW,OACtB,WAAU,uBAAW,iBAAa,CACnC,MAAM,IAAI,QAAQ,UACF,qBAAC,YAAY"
+}

@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "CanvasPathFile.js",
+  "sourceRoot": "../../..",
+  "sources": [
+    "source/Art.CanvasPath/CanvasPathFile/CanvasPathFile.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,oFAAO,6BAAiB,gDACxB,2BAAW,CAAC,mBACV,UAAa,SAAS,OACpB,QAAQ,OAER,YACF,IAAI,wBAAW,eAAc"
+}

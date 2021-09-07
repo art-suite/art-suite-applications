@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "ConvertAllExamples.test.js",
+  "sourceRoot": "../..",
+  "sources": [
+    "source/test/ConvertAllExamples.test.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,6GAAO,8CACP,gGAAO,6EAEP,aAAU,QAAG,CAAC,MAAM,MAAO,OACzB,KAAK,YACH,aACK,MAAI,eAAe,WAClB,CAAC,QACL,qBACM,CAAC,mFAAO,aACZ,yCACA,qBAAqB,qBAErB,YACE,8BAA6B,wBAAwB,gCAAgC,gBAC3E,YAER,SAAS,wDACT,oBACA,UACA,8BAEJ,wBACA,kCACA,iCAEG,CAAC,WACN,WAAa,MAAM,KAAK,gBACxB,cAAM,mCAEM,kCAChB,WAAW,MAAM"
+}

@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "IntermediateCanvasPathSet.js",
+  "sourceRoot": "../../..",
+  "sources": [
+    "source/Art.CanvasPath/CanvasPathBuilder/IntermediateCanvasPathSet.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,wFAAO,uFAEP,wFAAwC,sBAEzB,CAAC,0HAEd,cAAU,qCAEV,mDACE,OAAO,OAAO,OAAO,OAAO,GAC5B,YAAY,uBAEC,mFACX,sBAEA,EAAC,cAAc,cAAc,cAAc,gBAAgB,OAE3D,IAAG,YACD,OAAO,cACP,OAAO,cACP,OAAO,cACP,OAAO,gBAET,OAAO,IAAI,MAAM,eACjB,OAAO,IAAI,MAAM,eACjB,OAAO,IAAI,MAAM,sBACjB,OAAO,IAAI,MAAM"
+}

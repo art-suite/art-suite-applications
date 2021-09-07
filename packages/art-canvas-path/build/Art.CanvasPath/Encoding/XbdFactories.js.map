@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "XbdFactories.js",
+  "sourceRoot": "../../..",
+  "sources": [
+    "source/Art.CanvasPath/Encoding/XbdFactories.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,mFAAO,8CACP,0BAAmB"
+}

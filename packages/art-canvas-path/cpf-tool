@@ -1,4 +1,3 @@
 #!/usr/bin/env node
 
-require('./register');
-require('./cpfTool');
+require('./build').CliLib.cliMain()

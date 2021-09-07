@@ -1,0 +1,5 @@
+import &StandardImport
+import Extractor
+
+test "nonzero fill - flourishBracket" ->
+  svgToCanvasPath &Data.flourishBracket

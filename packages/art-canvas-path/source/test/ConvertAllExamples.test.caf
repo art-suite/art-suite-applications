@@ -1,0 +1,32 @@
+import &StandardImport
+import Extractor
+
+pathTester = (name, svg) ->
+  test name, ->
+    Promise
+    .then -> extractSvgPath svg
+    .then (out) ->
+      out.xbd.toXbd()
+      .then (xbd) ->
+        out extract canvasPath, drawArea
+        canvasPathDrawArea = canvasPath.drawArea
+
+        assert.true
+          expandedCanvasPathDrawArea = canvasPathDrawArea.grow canvasPathDrawArea.size.max() * .001
+          .contains drawArea
+          {}
+            message: "expanded encodedDrawArea should contain out.drawArea"
+            canvasPathDrawArea
+            drawArea
+            expandedCanvasPathDrawArea
+
+        canvasPath.normalize()
+        canvasPath.removeStyles()
+        canvasPath.xbd.toXbd()
+
+    .catch (error) ->
+      log.error {} name, svg, error
+      throw error
+
+each svg, name in &Data
+  pathTester name, svg

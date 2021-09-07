@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "Data.js",
+  "sourceRoot": "../..",
+  "sources": [
+    "source/test/Data.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,yCACK,oFAKL,OACK,0uCAsBL,MACK,+pjCAmCL,SACK,+tqCAkBL,gBACK,slCAOL,uBACK,sYAML,iBACK"
+}

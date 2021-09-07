@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "ConvertOutputTests.test.js",
+  "sourceRoot": "../..",
+  "sources": [
+    "source/test/ConvertOutputTests.test.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,6GAAO,8CACP,qEAAO,wCAEP,YAAK,8CAAmC,OACtC,gBAAgB"
+}

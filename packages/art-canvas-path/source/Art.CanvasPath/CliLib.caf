@@ -1,41 +1,93 @@
 
-import &StandardImport, &Extractor, {} &fs
+import &StandardImport, &Extractor, &CanvasPathFile, {} &fs
 
-addFilesToCanvasPathLibrary: (cpl, files, options = {}, stats = {}) ->
-  options extract camelCase, extract as extractNamedPaths, ignoreErrors
-  Promise.all compactFlatten array file in files
-    svg =
-      fs.readFileSync file
-      .toString()
+{}
+  addFilesToCanvasPathLibrary = (cpl, files, options = {}, stats = {}) ->
+    options extract camelCase, extract as extractNamedPaths, ignoreErrors
+    Promise.all compactFlatten array file in files
+      svg =
+        fs.readFileSync file
+        .toString()
 
-    stats.totalBytesRead += svg.length
-    stats.svgSourceLength += svg.length
+      stats.totalBytesRead += svg.length
+      stats.svgSourceLength += svg.length
 
-    name = &path.parse(file).name
+      name = &path.parse(file).name
 
-    namedSvgs =
-      if extractNamedPaths
-        object path, name in extractNamedSvgPaths svg
-          """
-            <svg>
-            #{path}
-            </svg>
-      else
-        [name]: svg
+      namedSvgs =
+        if extractNamedPaths
+          object path, name in extractNamedSvgPaths svg
+            """
+              <svg>
+              #{path}
+              </svg>
+        else
+          [name]: svg
 
-    array svg, name in namedSvgs
-      name = lowerCamelCase name if camelCase
-      log encoding: name
-      svgToCanvasPath svg
-      .then (canvasPath) ->
-        cpl.add name, canvasPath
-        stats.totalPathsEncoded++
-      .catch (error) ->
-        stats.totalErrors++
-        log.error error-parsing-vg: {}
-          error.message
-          name
-          file
-        throw error unless ignoreErrors
+      array svg, name in namedSvgs
+        name = lowerCamelCase name if camelCase
+        log encoding: name
+        svgToCanvasPath svg
+        .then (canvasPath) ->
+          cpl.add name, canvasPath
+          stats.totalPathsEncoded++
+        .catch (error) ->
+          stats.totalErrors++
+          log.error error-parsing-vg: {}
+            error.message
+            name
+            file
+          throw error unless ignoreErrors
 
-  .then -> stats
+    .then -> stats
+
+  cliMain: ->
+    &colors
+
+    {output} = options = commander =
+      &commander
+      .version &package.version
+      .option '-o, --output [file]',  "" output file name (extension: .cpf)
+      .option '-e, --extract',        "" extract named paths from source SVG files
+      .option '-c, --camelCase',      "" convert names to lowerCamelCase for output
+      .option '-i, --ignoreErrors',   "" skip over errors
+      .usage  "" [options] <files...>
+      .description """ Scan and convert one or more .svg files into a .cpf file.
+      .parse process.argv
+
+    files = commander.args
+    if files.length > 0
+      log inputs: files
+
+      addFilesToCanvasPathLibrary
+        cpl = new CanvasPathLibrary
+        files
+        options
+        stats =
+          svgSourceLength:    0
+          totalBytesRead:     0
+          totalPathsEncoded:  0
+          totalErrors:        0
+
+      .then ->
+        cpl.normalize()
+        cpl.flatten()
+        cpl.xbd.toXbd()
+      .then (cpfFile) ->
+        size =
+          input: stats.totalBytesRead
+          output: cpfFile.length
+          reduced:
+            stats.totalBytesRead / cpfFile.length
+            * 100
+            | 0
+            / 100
+            + :x
+
+        output += ".cpf" unless /\.cpf$/.test output
+        log {} stats, size, output: output ? "" use -o to specify the output filename
+        if output
+          &fs.writeFileSync output, cpfFile.nodeBuffer
+
+    else
+      commander.outputHelp()
