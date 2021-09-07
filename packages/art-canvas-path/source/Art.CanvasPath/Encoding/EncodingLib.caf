@@ -28,8 +28,8 @@ out =
       out[id] = name
 
   maxFixedPointValue: 65535
-  valueArrayType: Uint16Array
-  commandArrayType:  Uint8Array
+  valueArrayType:     Uint16Array
+  commandArrayType:   Uint8Array
 
 object id, name in commandMap into out with-key name + :Command
   id

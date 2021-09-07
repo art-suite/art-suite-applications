@@ -1,7 +1,9 @@
 import &StandardImport, &ArtBinary
+
 decodeCpf: (cpf) ->
   rootTag = if isBinary cpf
     fromXbd cpf
   else
     cpf
-  new require("./namespace")[rootTag.name] rootTag
+
+  new (require("./namespace")[rootTag.name]) rootTag

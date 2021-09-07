@@ -51,6 +51,7 @@ import &ArtStandardLib, &ArtCanvasPath, {} &fs
       .option '-e, --extract',        "" extract named paths from source SVG files
       .option '-c, --camelCase',      "" convert names to lowerCamelCase for output
       .option '-i, --ignoreErrors',   "" skip over errors
+      .option '--verify',   "" verify the created CPF file
       .usage  "" [options] <files...>
       .description """ Scan and convert one or more .svg files into a .cpf file.
       .parse process.argv
@@ -73,6 +74,12 @@ import &ArtStandardLib, &ArtCanvasPath, {} &fs
         cpl.normalize()
         cpl.flatten()
         cpl.xbd.toXbd()
+      .tap (cpfFile) ->
+        if options.verify
+          log verifying-cpf: cpfFile
+          decodeCpf cpfFile
+          log verified-cpf: cpfFile
+
       .then (cpfFile) ->
         size =
           input: stats.totalBytesRead

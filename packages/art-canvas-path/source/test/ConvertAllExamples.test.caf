@@ -23,9 +23,11 @@ pathTester = (name, svg) ->
         canvasPath.normalize()
         canvasPath.removeStyles()
         canvasPath.xbd.toXbd()
+      # .then (encoded) ->
+      #   decodeCpf encoded
 
     .catch (error) ->
-      log.error {} name, svg, error
+      log.error {} name, error
       throw error
 
 each svg, name in &Data

@@ -6,5 +6,5 @@
     "source/Art.CanvasPath/CanvasPathFile/CanvasPathFile.caf"
   ],
   "names": [],
-  "mappings": "AAAA;;AAAA,oFAAO,6BAAiB,gDACxB,2BAAW,CAAC,mBACV,UAAa,SAAS,OACpB,QAAQ,OAER,YACF,KAAI,QAAQ,gBAAe,cAAc"
+  "mappings": "AAAA;;AAAA,oFAAO,6BAAiB,gDAExB,2BAAW,CAAC,mBACV,UAAa,SAAS,OACpB,QAAQ,OAER,YAEF,IAAK,SAAQ,eAAe,eAAe"
 }
