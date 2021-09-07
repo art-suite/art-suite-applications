@@ -1,4 +1,4 @@
-import &StandardImport, &CanvasPathBuilder
+import &StandardImport, &CanvasPathBuilder, &xmldom
 
 class SvgPathExtractor extends BaseClass
 
@@ -34,14 +34,20 @@ class SvgPathExtractor extends BaseClass
       @canvasPath.xbd
 
   extract: (svg) ->
-    &canvg
+    &canvg.default.fromString
       new Builder @
+      .getContext()
       svg
-      ignoreMouse: true       # ignore mouse events
-      ignoreAnimation: true   # ignore animations
-      ignoreDimensions: true  # does not try to resize canvas
-      ignoreClear: true       # does not clear canvas
+      {}
+        window: null
+        ignoreMouse: true       # ignore mouse events
+        ignoreAnimation: true   # ignore animations
+        ignoreDimensions: true  # does not try to resize canvas
+        ignoreClear: true       # does not clear canvas
+        DOMParser
 
-    each path in @paths
-      path.resolveMatrix()
-    @
+    .render()
+    .then ->
+      each path in @paths
+        path.resolveMatrix()
+      @

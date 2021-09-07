@@ -4,6 +4,7 @@
 (module.exports = require('./namespace'))
 .includeInNamespace(require('./CanvasPath'))
 .addModules({
+  CliLib:         require('./CliLib'),
   StandardImport: require('./StandardImport')
 });
 require('./CanvasPathBuilder');

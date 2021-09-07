@@ -100,7 +100,6 @@ class CanvgCanvasContext2dMock extends BaseObject
   bezierCurveTo:     (a, b, c, d, e, f) ->  @svgPathExtractor.advancePathIfPainted().bezierCurveTo    a, b, c, d, e, f
   arc:               (a, b, c, d, e, f) ->  @svgPathExtractor.advancePathIfPainted().arc              a, b, c, d, e, f
 
-
 class Builder
 
   constructor: (@svgPathExtractor) ->

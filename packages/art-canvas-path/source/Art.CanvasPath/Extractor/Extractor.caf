@@ -15,10 +15,9 @@ extractSvgPath: extractSvgPath = (svg) ->
   new &SvgPathExtractor
   .extract svg
 
-
 svgToCanvasPath: svgToCanvasPath = (svg) ->
   extractSvgPath svg
-  .canvasPath
+  .then ({canvasPath}) -> canvasPath
 
 encodeSvg: svgToCanvasPath
 

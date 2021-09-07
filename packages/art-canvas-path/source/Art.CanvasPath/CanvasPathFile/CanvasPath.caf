@@ -194,9 +194,6 @@ class CanvasPath extends BaseClass
     y: matrix.transformY x0, y0
 
   _applyCommand: (command, context, matrix) ->
-
-    # log commandIdsToNames[command]
-
     switch command
       when noopCommand             then null
       when beginPathCommand        then null;# context.beginPath()

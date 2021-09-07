@@ -1,0 +1,41 @@
+
+import &StandardImport, &Extractor, {} &fs
+
+addFilesToCanvasPathLibrary: (cpl, files, options = {}, stats = {}) ->
+  options extract camelCase, extract as extractNamedPaths, ignoreErrors
+  Promise.all compactFlatten array file in files
+    svg =
+      fs.readFileSync file
+      .toString()
+
+    stats.totalBytesRead += svg.length
+    stats.svgSourceLength += svg.length
+
+    name = &path.parse(file).name
+
+    namedSvgs =
+      if extractNamedPaths
+        object path, name in extractNamedSvgPaths svg
+          """
+            <svg>
+            #{path}
+            </svg>
+      else
+        [name]: svg
+
+    array svg, name in namedSvgs
+      name = lowerCamelCase name if camelCase
+      log encoding: name
+      svgToCanvasPath svg
+      .then (canvasPath) ->
+        cpl.add name, canvasPath
+        stats.totalPathsEncoded++
+      .catch (error) ->
+        stats.totalErrors++
+        log.error error-parsing-vg: {}
+          error.message
+          name
+          file
+        throw error unless ignoreErrors
+
+  .then -> stats
