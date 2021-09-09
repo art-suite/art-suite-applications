@@ -1,0 +1,108 @@
+import &StandardImport, {} &ArtEry
+
+###
+  Pusher provieds a testing stub:
+  https://blog.pusher.com/testing-your-integration-with-the-pusher-javascript-library/
+    "pusher-test-sub.js"
+
+  Could be useful for testing.
+
+  I'm having problems testing since connections can take a bit to fire up...
+
+class Config extends Configurable
+  ###
+    /Client.coffee and /Server.coffee set this appropriatly:
+    Should be a function: () -> pusher instance
+      IN: nothing
+      OUT: pusher instance
+
+    NOTE: Pusher has a different library for server-side and client-side.
+      They are rather inconsistent. Their constructors take different argument structures.
+    Their API's aren't even very similar.
+
+  @defaults
+    appId:            :...
+    key:              :...
+    secret:           :...
+    cluster:          null  # specify the pusher cluster
+    encrypted:        true
+    verbose:          false # increase logging level with interesting stuff
+    verifyConnection: false # if true, will do a test call to pusher after configured. Logs results.
+    pusherEventName:  :changed
+
+    # NOTE: If you specify a host then the 'cluster' parameter is ignored.
+    # host: "api.pusherapp.com"
+
+  ## encodeKeyString
+    SEE Pusher legal channel names: https://pusher.com/docs/client_api_guide/client_channels
+    I think this matches legal channel names: /^[-a-zA-Z0-9_=@,.;]+$/
+    OUT: any character that is illegal OR "." is replaced with ";"
+  encodeKeyString = (key) ->
+    key.replace /[^-a-zA-Z0-9_=@,;]/g, ";"
+
+  ## getPusherChannel
+    IN:
+      pipeline: string or pipeline
+      key: string or plain object
+        if plain object, must provide a pipeline that implements toKeyString
+  @getPusherChannel: (pipeline, key) ->
+    key = pipeline.toKeyString key  unless isString key
+    pipeline = pipeline.getName()   unless isString pipeline
+
+    []
+      ArtEry.config.tableNamePrefix
+      pipeline
+      encodeKeyString key
+
+    .join '.'
+
+  @configured: ->
+    super
+    @config extract verbose, verifyConnection, key, encrypted, cluster
+    if @PusherClient
+      pusher = @pusherClient = new @PusherClient key, {} encrypted, cluster
+
+      @verboseLog "" ArtEryPusher: PusherClient initialized
+
+      if verifyConnection
+        @verboseLog "" PusherClient - subscribing to connection state_change
+        @pusherClient.connection.bind :state_change (data) ->
+          @verboseLog "" PusherClient state_change: #{} data
+
+    else if @PusherServer
+      @pusherServer = new @PusherServer @config
+
+      @verboseLog "" PusherServer initialized
+      verifyConnection && @pusherServer.trigger
+        :ArtEryPusherConfig
+        :server
+        message: "" ArtEryPusher: verifyConnection: pusher was initialized correctly
+        (error, request, response) ->
+          if error
+            @verboseLog "" PusherServer not initialized correctly! trigger-attempt error: #{error}
+            console.log error
+          else
+            @verboseLog "" PusherServer initialized correctly.
+
+    else
+      @verboseLog "" disabled. Require: art-ery-pusher/Client or art-ery-pusher/Server
+
+  @verboseLog: (a) ->
+    @config.verbose && log "" ArtEryPusher: #{a}
+
+  ## onConnected
+    Client-side only
+    promise.then -> # pusher is connected
+    promise.catch -> @pusherClient not created - connection is impossible
+  @onConnected: ->
+    new Promise (_resolve, reject) =>
+      if @pusherClient
+        log "" onConnected current state: #{@pusherClient.connection.state}
+        if @pusherClient.connection.state == :connected
+          _resolve()
+        else
+          @pusherClient.connection.bind :state_change ({current}) ->
+            log "" onConnected updated state: #{current}
+            _resolve() if current == :connected
+      else
+        reject "" no pusherClient

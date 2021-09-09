@@ -1,0 +1,52 @@
+import &StandardImport, {} &Config
+
+sendChanged = (pipeline, key, payload) ->
+  Config extract config extract pusherEventName
+
+  channel = Config.getPusherChannel pipeline, key
+
+  log sendChanged: {channel, pusherEventName, payload} if config.verbose
+
+  Config.pusherServer?.trigger channel, pusherEventName, payload || {}
+
+class PusherFilter extends Filter
+  initArtEryPusherSession: (response) ->
+    if isString response.session.artEryPusherSession
+      Promise.resolve response
+    else
+      response.withMergedSession
+        artEryPusherSession: cryptoRandomString 12 # should produce > 10^21 unique values
+
+  notifyAllQueriesWhichMayNeedUpdating: (pipeline, payload, data)->
+    each key, queryName in pipeline.getChannelsAndKeysToUpdateOnRecordChange data
+      sendChanged queryName, key, payload if key?
+
+  notifySingleRecordWhichNeedsUpdating: (pipeline, payload, data) ->
+    sendChanged pipeline, data, payload
+
+  @after
+    create: afterFilter = (response) ->
+      @initArtEryPusherSession response
+      .tap (response) ->
+        Promise.then ->
+          response extract type, key, data, request, pipeline, session.artEryPusherSession
+          data = merge
+            request.data
+            data
+            key && pipeline.toKeyObject key
+
+          payload = {}
+            type
+            sender:   artEryPusherSession
+            key:      key || pipeline.toKeyString data
+
+          payload.updatedAt = data.updatedAt if data.updatedAt
+
+          @notifyAllQueriesWhichMayNeedUpdating pipeline, payload, data
+
+          # record updated notification - no need to send on 'create' because no-one will be listening.
+          unless type == :create
+            @notifySingleRecordWhichNeedsUpdating pipeline, payload, data
+
+    update: afterFilter
+    delete: afterFilter

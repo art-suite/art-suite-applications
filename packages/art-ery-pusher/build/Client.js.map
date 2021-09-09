@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "Client.js",
+  "sourceRoot": "..",
+  "sources": [
+    "source/Client.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,0BAAoB,qCAAgB,6BAEpC"
+}

@@ -1,0 +1,3 @@
+&ArtEryPusher.Config.PusherClient = &pusher-js
+
+&ArtEryPusher

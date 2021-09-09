@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "index.js",
+  "sourceRoot": "../..",
+  "sources": [
+    "source/Art.EryExtensions.Pusher/index.coffee"
+  ],
+  "names": [],
+  "mappings": ";AAGA;EAAA,MAAM,CAAC,OAAP,GAAiB,OAAA,CAAQ,aAAR;;EACjB,MAAM,CAAC,OACP,CAAC,UADD,CAEE;IAAA,MAAA,EAAsB,OAAA,CAAQ,UAAR,CAAtB;IACA,YAAA,EAAsB,OAAA,CAAQ,gBAAR,CADtB;IAEA,oBAAA,EAAsB,OAAA,CAAQ,wBAAR,CAFtB;IAGA,mBAAA,EAAsB,OAAA,CAAQ,uBAAR,CAHtB;IAIA,cAAA,EAAsB,OAAA,CAAQ,kBAAR,CAJtB;GAFF;AADA"
+}

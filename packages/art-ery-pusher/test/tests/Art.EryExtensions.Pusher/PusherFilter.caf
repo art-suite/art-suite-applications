@@ -1,0 +1,70 @@
+import &StandardImport
+
+{Config, config} = require 'art-ery-pusher'
+
+subscriptionEstablishmentTimeout = 250
+
+subscribeTest = ({data, requestType, subscriptionPipeline, subscriptionKey}) ->
+  subscriptionPipeline ||= "simpleStore"
+  test "#{subscriptionPipeline}.#{requestType} should trigger event", ->
+    listener = channelSubscription = null
+
+    pipelines.simpleStore.create()
+    .then ({id}) ->
+      subscriptionKey ||= id
+      channel = Config.getPusherChannel subscriptionPipeline, subscriptionKey
+
+      new Promise (_resolve) ->
+        channelSubscription = Config.pusherClient.subscribe channel
+        .bind config.pusherEventName, listener = _resolve
+
+        timeout subscriptionEstablishmentTimeout
+        .then -> pipelines.simpleStore[requestType] {} data, key: id
+
+      .then (result) ->
+        channelSubscription.unbind listener
+        Config.pusherClient.unsubscribe channel
+
+suite:
+  "basic requests": ->
+    setup ->
+      Config.onConnected()
+
+    test "create should only notifiy related queries", ->
+      pipelines.simpleStore.create data: noodleId: :noodle1
+
+    test "update should notifiy related queries and the updated record", ->
+      pipelines.simpleStore.create                  data: noodleId: :noodle1
+      .then ({id}) -> pipelines.simpleStore.update  data: noodleId: :noodle2 id: id
+
+    test "delete should notifiy related queries and the deleted record", ->
+      pipelines.simpleStore.create data: noodleId: :noodle1
+      .then ({id}) -> pipelines.simpleStore.delete key: id
+
+  "artEryPusherSession": ->
+    setup -> session.reset()
+
+    test "request generates session", ->
+      assert.doesNotExist session.data.artEryPusherSession
+      pipelines.simpleStore.create data: noodleId: "noodle1"
+      .then -> assert.isString session.data.artEryPusherSession
+
+    test "persists across requests", ->
+      assert.doesNotExist session.data.artEryPusherSession
+      pipelines.simpleStore.create data: noodleId: :noodle1
+      .then ->
+        assert.isString session.data extract artEryPusherSession
+        pipelines.simpleStore.create data: noodleId: :noodle2
+        .then -> assert.eq artEryPusherSession, session.data.artEryPusherSession
+
+  "round trip tests": ->
+    setup -> Config.onConnected()
+
+    subscribeTest requestType: :update data: foo: :bar
+    subscribeTest requestType: :delete
+
+    subscribeTest
+      requestType:          :update
+      data: noodleId:       :123
+      subscriptionKey:      :123
+      subscriptionPipeline: :pusherTestsByNoodleId

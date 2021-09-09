@@ -1,0 +1,178 @@
+import &StandardImport
+
+subscriptionEstablishmentTimeout = 250
+
+commonSetup = ->
+  pipelines.simpleStore.reset()
+  Config.onConnected()
+
+class MySubscriber extends FluxSubscriptionsMixin BaseObject
+
+queryKeyNoodleId = "123"
+
+suite:
+  "single record subscriber2": ->
+    @timeout 5000
+    setup commonSetup
+
+    test :update ->
+      mySubscriber = new MySubscriber
+
+      new Promise (_resolve) ->
+        pipelines.simpleStore.create data: foo: :initialValue
+        .then ({id}) ->
+          mySubscriber.subscribe
+            modelName:  :simpleStore
+            key:        id
+            callback:   ({data}) ->
+              log {} data
+              _resolve() if data?.foo == :secondValue
+
+          timeout subscriptionEstablishmentTimeout
+          .then ->
+            log :update
+            pipelines.simpleStore.update data: {} id, foo: :secondValue
+
+        ##
+          Normally, the sender of an update will IGNORE the "changed" event from pusher
+          So, we must reset the session so we don't know we were the sender.
+        .then -> session.reset()
+
+      .then -> mySubscriber.unsubscribeAll()
+
+    test :delete ->
+      mySubscriber = new MySubscriber
+
+      new Promise (_resolve) ->
+        pipelines.simpleStore.create data: foo: :initialValue
+        .then ({id}) ->
+
+          mySubscriber.subscribe
+            modelName:  :simpleStore
+            key:        id
+            callback:   ({status}) ->
+              _resolve() if status == missing
+
+          timeout subscriptionEstablishmentTimeout
+          .then ->
+            pipelines.simpleStore.delete key: id
+
+        ##
+          Normally, the sender of an update will IGNORE the "changed" event from pusher
+          So, we must reset the session so we don't know we were the sender.
+        .then -> session.reset()
+
+      .then -> mySubscriber.unsubscribeAll()
+
+  "query record subscriber": ->
+    @timeout 5000
+    setup commonSetup
+
+    test :create ->
+      mySubscriber = new MySubscriber
+
+      pipelines.simpleStore.reset
+        data: 1: foo: :initialValue noodleId: queryKeyNoodleId
+
+      .then ->
+        new Promise (_resolve) ->
+
+          mySubscriber.subscribe
+            modelName:  :pusherTestsByNoodleId
+            key:        queryKeyNoodleId
+            callback:   ({data}) ->
+              if data && eq
+                  :initialValue :secondValue
+                  array r in data with r.foo
+                _resolve()
+
+          timeout subscriptionEstablishmentTimeout
+          .then ->
+            pipelines.simpleStore.create data: foo: :unrelatedValue noodleId: queryKeyNoodleId + "different"
+
+          .then ->
+            pipelines.simpleStore.create data: foo: :secondValue noodleId: queryKeyNoodleId
+
+          # normally, the sender of an update will IGNORE the "changed" event from pusher
+          # So, we must reset the session so we don't know we were the sender.
+          .then -> session.reset()
+
+      .then -> mySubscriber.unsubscribeAll()
+
+    test "delete", ->
+      mySubscriber = new MySubscriber
+      pipelines.simpleStore.reset
+        data:
+          1: name: :alice  noodleId: queryKeyNoodleId
+          2: name: :bill   noodleId: queryKeyNoodleId
+          3: name: :cody   noodleId: queryKeyNoodleId
+          4: name: :dave   noodleId: queryKeyNoodleId + :different
+      .then ->
+        new Promise (_resolve) ->
+          mySubscriber.subscribe
+            modelName:  :pusherTestsByNoodleId
+            key:        queryKeyNoodleId
+            callback:   ({data}) ->
+              if data && eq [:alice :cody], array r in data with r.name
+                _resolve()
+
+          timeout subscriptionEstablishmentTimeout
+          .then -> pipelines.simpleStore.delete key: "2"
+
+          # normally, the sender of an update will IGNORE the "changed" event from pusher
+          # So, we must reset the session so we don't know we were the sender.
+          .then -> session.reset()
+
+      .then -> mySubscriber.unsubscribeAll()
+
+    test "update", ->
+      mySubscriber = new MySubscriber
+      pipelines.simpleStore.reset
+        data:
+          1: name: :alice  noodleId: queryKeyNoodleId
+          2: name: :bill   noodleId: queryKeyNoodleId
+      .then ->
+        new Promise (_resolve) ->
+          mySubscriber.subscribe
+            modelName:  :pusherTestsByNoodleId
+            key:        queryKeyNoodleId
+            callback:   ({data}) ->
+              if data && eq [:alice :bob], array r in data with r.name
+                _resolve()
+
+          timeout subscriptionEstablishmentTimeout
+          .then -> pipelines.simpleStore.update key: :2 data: name: :bob
+
+          # normally, the sender of an update will IGNORE the "changed" event from pusher
+          # So, we must reset the session so we don't know we were the sender.
+          .then -> session.reset()
+
+      .then -> mySubscriber.unsubscribeAll()
+
+  misc: ->
+    @timeout 5000
+    setup commonSetup
+
+    test "sender ignores updates they caused", ->
+      mySubscriber = new MySubscriber
+      id = null
+
+      new Promise (_resolve) ->
+        pipelines.simpleStore.create data: foo: :initialValue
+        .then (response) ->
+          {id} = response
+
+          mySubscriber.subscribe
+            modelName:  :simpleStore
+            key:        id
+            callback:   ({data}) ->
+              throw new Error "sender shouldn't get updated" if data.foo == :secondValue
+
+        .then ->
+          pipelines.simpleStore.update data: {} id, foo: :secondValue
+
+        # give the loop time to complete and fail, if it's going to
+        .then ->
+          timeout 500, _resolve
+
+      .then -> mySubscriber.unsubscribeAll()

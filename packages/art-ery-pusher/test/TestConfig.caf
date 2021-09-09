@@ -1,0 +1,15 @@
+import &ArtStandardLib
+
+class Test extends &ArtConfig.Config
+  verbose: true
+  Art:
+    Ery: verbose: true
+    EryExtensions:
+      Pusher: merge
+        verifyConnection: true
+        verbose:          true
+        &TestPusherAppCredentials
+        ## TestPusherAppCredentials should look like:
+          appId:  'xxxxxx'
+          key:    'xxxxxxxxxxxxxxxxxxxx'
+          secret: 'xxxxxxxxxxxxxxxxxxxx'
