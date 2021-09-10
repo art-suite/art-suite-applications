@@ -78,7 +78,7 @@
     "mock-fs": "^5.0.0",
     "neptune-namespaces": "^4.2.9",
     "neptune-namespaces-runtime": "^3.2.9",
-    "pusher": "^1.5.1",
+    "pusher": "^5.0.0",
     "pusher-js": "^7.0.3",
     "quantize": "^1.0.2",
     "script-loader": "^0.7.2",
