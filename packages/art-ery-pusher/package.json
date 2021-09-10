@@ -3,8 +3,8 @@
   "bugs": "https://github.com/art-suite/art-suite-applications/issues",
   "dependencies": {
     "art-build-configurator": "^1.29.3",
-    "pusher": "^1.5.1",
-    "pusher-js": "^4.2.2"
+    "pusher": "^5.0.0",
+    "pusher-js": "^4.4.0"
   },
   "description": "Art.Ery.Pusher",
   "homepage": "https://github.com/art-suite/art-suite-applications",

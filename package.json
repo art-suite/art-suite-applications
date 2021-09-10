@@ -79,7 +79,7 @@
     "neptune-namespaces": "^4.2.9",
     "neptune-namespaces-runtime": "^3.2.9",
     "pusher": "^5.0.0",
-    "pusher-js": "^7.0.3",
+    "pusher-js": "^4.4.0",
     "quantize": "^1.0.2",
     "script-loader": "^0.7.2",
     "source-map-loader": "^3.0.0",
