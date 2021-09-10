@@ -3,8 +3,8 @@
   "file": "PusherPipelineMixin.js",
   "sourceRoot": "../..",
   "sources": [
-    "source/Art.EryExtensions.Pusher/PusherPipelineMixin.coffee"
+    "source/Art.EryExtensions.Pusher/PusherPipelineMixin.caf"
   ],
   "names": [],
-  "mappings": ";AAAA;AAAA,MAAA,yBAAA;IAAA;;;EAAA,MAAyB,OAAA,CAAQ,kBAAR,CAAzB,EAAC,+BAAD,EAAe;;EAEf,YAAA,CAAa,MAAb,EAAqB,SAAA;WAAG,SAAC,UAAD;AAAgB,UAAA;aAAM;;;;;;;;UAC5C,mBAAC,CAAA;;;QACD,mBAAC,CAAA,cAAD,CAAkB,OAAA,CAAQ,wBAAR,CAAlB;;;AAEA;;;;;sCAIA,wCAAA,GAA0C,SAAC,aAAD;iBACxC,MAAA,CAAO,IAAC,CAAA,OAAR,EAAiB,SAAC,aAAD;mBACf,aAAa,CAAC,WAAd,CAA0B,aAA1B;UADe,CAAjB;QADwC;;sCAI1C,gBAAA,GAAkB,SAAC,SAAD,EAAY,OAAZ,GAAA;;;AAElB;;;;;;;;;QAQA,mBAAC,CAAA,MAAD,CAAkB,OAAA,CAAQ,gBAAR,CAAlB;;;;SAtBwE;IAAlD;EAAH,CAArB;AAFA"
+  "mappings": "AAAA;;yCAEA,gBAAC,sCAAe,4EAAkC,iFAChD,uGAKA,QAA0C,CAAC,gBAAiB,kBAChC,iCACxB,0BAA0B,mBAE9B,YAAQ,4BACR,oBAAgB"
 }

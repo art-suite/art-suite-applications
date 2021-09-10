@@ -67,7 +67,7 @@ class Config extends Configurable
       if verifyConnection
         @verboseLog "" PusherClient - subscribing to connection state_change
         @pusherClient.connection.bind :state_change (data) ->
-          @verboseLog "" PusherClient state_change: #{} data
+          @verboseLog "" PusherClient state_change: #{} formattedInspect data
 
     else if @PusherServer
       @pusherServer = new @PusherServer @config

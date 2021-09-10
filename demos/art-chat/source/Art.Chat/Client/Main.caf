@@ -1,0 +1,13 @@
+import &ArtSuite
+&ArtEryPusher/Client
+&Configurations
+&Pipelines
+
+&ArtSuiteApp.initArtSuiteClient
+  MainComponent:
+    class Main extends Component
+      render: ->
+        CanvasElement
+          draw: &StyleProps.lobbyBackground
+          &Components/Lobby()
+  title:  "" ArtSuite Chat

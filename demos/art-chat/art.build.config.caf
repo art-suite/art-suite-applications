@@ -1,0 +1,28 @@
+package: -> &package
+
+webpack:
+
+  # common properties are merged into each target's properties
+  common:
+    # devtool: :source-map
+    module: rules: []
+      {}
+        test: /\.js$/
+        enforce: :pre
+        use: [] :source-map-loader
+
+    # together with running caffeine-mc with
+    # the env var: cafSourceMaps=true set
+    # you get accurate caffeine-script sourcemaps!
+    # (webpack-dev-server v4 2021/9/9)
+    devtool: 'inline-source-map'
+
+    resolve:
+      fallback:
+        crypto: require.resolve :crypto-browserify
+        stream: require.resolve :stream-browserify
+
+  # each target's individual properties
+  targets:
+    Client: {}
+    Server: target: :node

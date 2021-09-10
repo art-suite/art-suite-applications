@@ -1,0 +1,20 @@
+import &ArtSuite
+
+class Palette extends HotStyleProps
+  @veryLightPrimary:  hslColor .6   .5    1
+  @lightPrimary:      hslColor .6   .75   1
+  @primary:           hslColor .6   .75   .75
+  @darkPrimary:       hslColor .6   .75   .5
+
+  @gray:        #eee
+
+  @white:
+    primary:    #fffe
+    secondary:  #fffc
+
+  @black:
+    primary:    #000e
+    secondary:  #0007
+    tertiary:   #0004
+    quandary:   #0002
+

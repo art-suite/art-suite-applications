@@ -1,0 +1,20 @@
+import &ArtStandardLib
+
+class Production extends &ArtConfig.Config
+  Art:
+    Aws:
+      credentials:
+        accessKeyId:      :blah
+        secretAccessKey:  :blahblah
+
+      region:             :us-east-1
+
+    EryExtensions: Pusher:
+      appId:    :1264953
+      key:      :0ebfb9347ec2b3230ae5
+      cluster:  :us3
+      verifyConnection:   true
+
+    Ery: tableNamePrefix: :art-chat-prod.
+
+  @deepMergeInConfig &artConfigsPrivate[@name]

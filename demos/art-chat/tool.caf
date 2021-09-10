@@ -1,0 +1,8 @@
+&configurations
+
+&ArtSuiteApp/tool {}
+  &package
+  title: :art-chat
+  load:  ->
+    &pipelines
+    &configure

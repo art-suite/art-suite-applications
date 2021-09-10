@@ -1,0 +1,3 @@
+import &StandardImport
+suite: ->
+  test 'Chat' -> assert.eq 1, 1

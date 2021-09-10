@@ -1,0 +1,2 @@
+&Configurations
+&ArtConfig.configure configName: process.env.artConfigName ? :Development
