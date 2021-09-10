@@ -515,7 +515,12 @@ defineModule module, class Pipeline extends require './RequestHandler'
 
         #{formattedInspect {queryName, options}}"
       """
-    {queryName, options}
+    {dataToKeyString} = options
+    toKeyString = if dataToKeyString
+      (dataOrKey) -> if isPlainObject dataOrKey then dataToKeyString dataOrKey else dataOrKey
+    else (key) -> if key? then key.toString() else key
+
+    {queryName, options, toKeyString}
 
   _normalizeRequest: (request) ->
     if isPlainObject request
