@@ -51,7 +51,6 @@ defineModule module, -> (superClass) -> class PusherArtModelMixin extends superC
     unless @_listeners[key]
       activeSubscriptions["#{@name} #{key}"] = true
       @_channels[key].bind pusherEventName, @_listeners[key] = (pusherData) =>
-        log {key, pusherData}
         @_processPusherChangedEvent pusherData, key
 
   # If config.pusher isn't defined: noop
@@ -81,8 +80,6 @@ defineModule module, -> (superClass) -> class PusherArtModelMixin extends superC
 
     model = @recordsModel || @
 
-    log _processPusherChangedEvent: {key, sender, updatedAt, type, model}
-
     try
       switch type
         when "create", "update"
@@ -107,5 +104,5 @@ defineModule module, -> (superClass) -> class PusherArtModelMixin extends superC
 
         else log.error "PusherFluxModelMixin: _processPusherChangedEvent: unsupported type: #{type}", {event}
     catch error
-      log {error}
+      log _processPusherChangedEvent: {error}
       throw error

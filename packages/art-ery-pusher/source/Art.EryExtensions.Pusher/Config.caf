@@ -55,36 +55,42 @@ class Config extends Configurable
 
     .join '.'
 
+  @disconnect: ->
+    @pusherClient?.disconnect()
+
   @configured: ->
     super
     @config extract verbose, verifyConnection, key, cluster
+    @verboseLog "" ArtEryPusher configuring: #{} formattedInspect PusherClient: !!@PusherClient, PusherServer: !!@PusherServer
     if @PusherClient
       pusher = @pusherClient = new @PusherClient key, {} cluster
 
-      @verboseLog "" ArtEryPusher: PusherClient initialized
+      @verboseLog "" ArtEryPusher PusherClient: initialized
 
       if verifyConnection
-        @verboseLog "" PusherClient - subscribing to connection state_change
+        @verboseLog "" ArtEryPusher PusherClient: subscribing to state changes...
         @pusherClient.connection.bind :state_change (data) ->
-          @verboseLog "" PusherClient state_change: #{} formattedInspect data
+          @verboseLog "" ArtEryPusher PusherClient: state_change: #{} formattedInspect data
 
     else if @PusherServer
       @pusherServer = new @PusherServer @config
 
-      @verboseLog "" PusherServer initialized
+      @verboseLog "" ArtEryPusher PusherServer: initialized
       verifyConnection && @pusherServer.trigger
         :ArtEryPusherConfig
         :server
-        message: "" ArtEryPusher: verifyConnection: pusher was initialized correctly
+        message: "" ArtEryPusher PusherServer: verifyConnection: pusher was initialized correctly
         (error, request, response) ->
           if error
-            @verboseLog "" PusherServer not initialized correctly! trigger-attempt error: #{error}
+            @verboseLog "" ArtEryPusher PusherServer: not initialized correctly! trigger-attempt error: #{error}
             console.log error
           else
-            @verboseLog "" PusherServer initialized correctly.
+            @verboseLog "" ArtEryPusher PusherServer: initialized correctly.
 
     else
       @verboseLog "" disabled. Require: art-ery-pusher/Client or art-ery-pusher/Server
+
+    @verboseLog "" ArtEryPusher configured.
 
   @verboseLog: (a) ->
     @config.verbose && log "" ArtEryPusher: #{a}
