@@ -38,7 +38,6 @@ class PusherFilter extends Filter
 
   @after
     create: afterFilter = (response) ->
-      log :afterFilter
       @initArtEryPusherSession response
       .tap (response) ->
         Promise.then ->
