@@ -2,7 +2,7 @@ import &StandardImport
 
 class SimpleStore extends PusherPipelineMixin KeyFieldsMixin Pipeline
 
-  @remoteServer :http://localhost:8085
+  # @remoteServer :http://localhost:8085
   @publicRequestTypes :get :create :update :reset :delete :pusherTestsByNoodleId
 
   @filter
@@ -19,11 +19,11 @@ class SimpleStore extends PusherPipelineMixin KeyFieldsMixin Pipeline
 
   @query
     pusherTestsByNoodleId:
-      query: ({key}) -> array @db, when: (v, k) -> v.noodleId == key
+      query: ({key}) -> array v, k from @db when v.noodleId == key
       dataToKeyString: ({noodleId}) -> noodleId
 
   @handlers
-    reset: ({data}) -> @db = object data, (v, k) -> merge v, id: k
+    reset: ({data}) -> @db = object v, k from data with merge v, id: k
 
     get: ({key}) -> @db[key]
 
@@ -36,7 +36,7 @@ class SimpleStore extends PusherPipelineMixin KeyFieldsMixin Pipeline
         @db[key] = merge @db[key], data
       ? null
 
-    delete: ({key, pipeline}}) ->
+    delete: ({key, data, pipeline}) ->
       if out = @db[key ?= pipeline.toKeyString data]
         delete @db[key]
         out

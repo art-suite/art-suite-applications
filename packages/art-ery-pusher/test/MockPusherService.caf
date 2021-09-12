@@ -1,0 +1,31 @@
+import &StandardImport
+
+class MockPusherService extends BaseObject
+  @singletonClass()
+  constructor: ->
+    @_subscriptionsByChannel = {}
+
+  subscribe: (channel) ->
+    @_subscriptionsByChannel[channel] ?=
+      eventHandlers: {}
+      bind: (event, handler) ->
+        @_subscriptionsByChannel[channel].eventHandlers[event] ?= []
+        .push handler
+
+      unbind: (event, handler) ->
+        @_subscriptionsByChannel[channel].eventHandlers[event] = arrayWithoutValue
+          @_subscriptionsByChannel[channel].eventHandlers[event]
+          handler
+
+  unsubscribe: (channel) ->
+    if find eventHandlerForRequestType in @_subscriptionsByChannel[channel].eventHandlers when eventHandlerForRequestType.length > 0
+      throw new Error "" Expecting existing subscription with no eventHandlers.\n#{} formattedInspect {} channel, @_subscriptionsByChannel[channel].eventHandlers
+
+    delete @_subscriptionsByChannel[channel]
+
+  trigger: (channel, event, payload) ->
+    timeout 50 ->
+      each handler in @_subscriptionsByChannel[channel]?.eventHandlers?[event]
+        handler payload
+
+.singleton

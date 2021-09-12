@@ -3,10 +3,10 @@ import &StandardImport
 (superClass) -> class PusherPipelineMixin extends superClass
   @abstractClass?()
 
-  ### getChannelsAndKeysToUpdateOnRecordChange
+  ### getModelNamesAndKeysToUpdateOnRecordChange
     IN: updated record's data
-    OUT: channelName: keyValue
-  getChannelsAndKeysToUpdateOnRecordChange: (updatedRecord) ->
+    OUT: object mapping: modelName: keyValue
+  getModelNamesAndKeysToUpdateOnRecordChange: (updatedRecord) ->
     object pipelineQuery from @queries
       pipelineQuery.toKeyString updatedRecord
 

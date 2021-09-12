@@ -32,31 +32,9 @@ class Config extends Configurable
     # NOTE: If you specify a host then the 'cluster' parameter is ignored.
     # host: "api.pusherapp.com"
 
-  ## encodeKeyString
-    SEE Pusher legal channel names: https://pusher.com/docs/client_api_guide/client_channels
-    I think this matches legal channel names: /^[-a-zA-Z0-9_=@,.;]+$/
-    OUT: any character that is illegal OR "." is replaced with ";"
-  encodeKeyString = (key) ->
-    key.replace /[^-a-zA-Z0-9_=@,;]/g, ";"
-
-  ## getPusherChannel
-    IN:
-      pipeline: string or pipeline
-      key: string or plain object
-        if plain object, must provide a pipeline that implements toKeyString
-  @getPusherChannel: (pipeline, key) ->
-    key = pipeline.toKeyString key  unless isString key
-    pipeline = pipeline.getName()   unless isString pipeline
-
-    []
-      ArtEry.config.tableNamePrefix
-      pipeline
-      encodeKeyString key
-
-    .join '.'
-
-  @disconnect: ->
-    @pusherClient?.disconnect()
+  @verboseLog: (args...) =>
+    @config.verbose &&
+      log Art.Ery.Pusher: if args.length <= 1 then args[0] else args
 
   @configured: ->
     super
@@ -72,7 +50,7 @@ class Config extends Configurable
         @pusherClient.connection.bind :state_change (data) ->
           @verboseLog "" ArtEryPusher PusherClient: state_change: #{} formattedInspect data
 
-    else if @PusherServer
+    if @PusherServer
       @pusherServer = new @PusherServer @config
 
       @verboseLog "" ArtEryPusher PusherServer: initialized
@@ -87,13 +65,10 @@ class Config extends Configurable
           else
             @verboseLog "" ArtEryPusher PusherServer: initialized correctly.
 
-    else
+    if !@PusherClient || !@PusherServer
       @verboseLog "" disabled. Require: art-ery-pusher/Client or art-ery-pusher/Server
 
     @verboseLog "" ArtEryPusher configured.
-
-  @verboseLog: (a) ->
-    @config.verbose && log "" ArtEryPusher: #{a}
 
   ## onConnected
     Client-side only
@@ -102,12 +77,15 @@ class Config extends Configurable
   @onConnected: ->
     new Promise (_resolve, reject) =>
       if @pusherClient
-        log "" onConnected current state: #{@pusherClient.connection.state}
+        @verboseLog "" onConnected current state: #{@pusherClient.connection.state}
         if @pusherClient.connection.state == :connected
           _resolve()
         else
           @pusherClient.connection.bind :state_change ({current}) ->
-            log "" onConnected updated state: #{current}
+            @verboseLog "" onConnected updated state: #{current}
             _resolve() if current == :connected
       else
         reject "" no pusherClient
+
+  @disconnect: ->
+    @pusherClient?.disconnect()

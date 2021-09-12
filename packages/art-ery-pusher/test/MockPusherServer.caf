@@ -1,0 +1,7 @@
+import &ArtStandardLib
+
+class MockPusherServer
+  constructor: (config) ->
+
+  trigger: (channelName, eventName, payload) ->
+    &MockPusherService.trigger channelName, eventName, payload

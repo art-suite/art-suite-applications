@@ -1,6 +1,11 @@
-&source
+&ArtEryPusher.Config.PusherClient = &MockPusherClient
+&ArtEryPusher.Config.PusherServer = &MockPusherServer
+
+&TestConfig
+&@ArtSuite/ArtModels
+&ArtEry/Flux
+&tests/ArtEryExtensionsPusher/Pipelines
 
 &art-testbench/testing
 .init
-  synchronous: true
   defineTests: -> &tests

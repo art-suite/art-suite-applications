@@ -1,29 +1,6 @@
 import &StandardImport
 
-{Config, config} = require 'art-ery-pusher'
-
-subscriptionEstablishmentTimeout = 250
-
-subscribeTest = ({data, requestType, subscriptionPipeline, subscriptionKey}) ->
-  subscriptionPipeline ||= "simpleStore"
-  test "#{subscriptionPipeline}.#{requestType} should trigger event", ->
-    listener = channelSubscription = null
-
-    pipelines.simpleStore.create()
-    .then ({id}) ->
-      subscriptionKey ||= id
-      channel = Config.getPusherChannel subscriptionPipeline, subscriptionKey
-
-      new Promise (_resolve) ->
-        channelSubscription = Config.pusherClient.subscribe channel
-        .bind config.pusherEventName, listener = _resolve
-
-        timeout subscriptionEstablishmentTimeout
-        .then -> pipelines.simpleStore[requestType] {} data, key: id
-
-      .then (result) ->
-        channelSubscription.unbind listener
-        Config.pusherClient.unsubscribe channel
+subscriptionEstablishmentTimeout = 25
 
 suite:
   "basic requests": ->
@@ -58,6 +35,23 @@ suite:
         .then -> assert.eq artEryPusherSession, session.data.artEryPusherSession
 
   "round trip tests": ->
+
+    subscribeTest = ({data, requestType, subscriptionPipeline, subscriptionKey}) ->
+      subscriptionPipeline ?= :simpleStore
+      test "#{subscriptionPipeline}.#{requestType} should trigger event" ->
+        pipelines.simpleStore.create()
+        .then ({id}) ->
+          subscriptionKey ?= id
+          subscription = null
+
+          new Promise (_resolve) ->
+            subscription = subscribeToChanges subscriptionPipeline, subscriptionKey, _resolve
+
+            timeout subscriptionEstablishmentTimeout
+            .then -> pipelines.simpleStore[requestType] {} data, key: id
+
+          .then subscription.unsubscribe
+
     setup -> Config.onConnected()
 
     subscribeTest requestType: :update data: foo: :bar

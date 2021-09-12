@@ -1,29 +1,9 @@
-import &ArtFoundation
+import &ArtStandardLib, &ArtConfig
 
 &ArtEryPusher/Server
-Server  = &ArtEry/Server
-&test/tests/ArtEryExtensionsPusher/Pipelines
+&TestConfig
+&tests/ArtEryExtensionsPusher/Pipelines
 
-&test/TestConfig
+configure artConfigName: :Test verbose: true
 
-ConfigRegistry.configure
-  artConfigName: :Test
-  # artConfig:
-  #   verbose: true
-  #   Art:
-  #     Ery:
-  #       verbose: true
-  #       Pusher: merge
-  #         verifyConnection: true
-  #         verbose: true
-  #         require "./.TestPusherAppCredentials"
-
-###
-  NOTE: .TestPusherAppCredentials.coffee should look like this:
-  module.exports =
-    appId:  '...'
-    key:    '...'
-    secret: '...'
-
-Server.start
-  static: root: "./test/public/"
+&ArtEry/Server.start artConfigName: :Test verbose: true

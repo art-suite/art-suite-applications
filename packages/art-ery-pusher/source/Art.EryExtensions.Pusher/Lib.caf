@@ -1,0 +1,55 @@
+import &StandardImport, {} &Config, &ArtEry
+Config extract config, verboseLog
+
+## encodePusherChannelName
+  SEE Pusher legal channel names: https://pusher.com/docs/client_api_guide/client_channels
+  I think this matches legal channel names: /^[-a-zA-Z0-9_=@,.;]+$/
+  OUT: any character that is illegal OR "." is replaced with ";"
+encodePusherChannelName = (key) ->
+  key.replace /[^-a-zA-Z0-9_=@,;]/g, ";"
+
+{}
+  verboseLog
+
+  ## getPusherChannel
+    IN:
+      modelName: pipeline or pipelineName string
+      key: string or plain object
+        if plain object, must provide a pipeline that implements toKeyString
+  getPusherChannel = (modelName, key) ->
+    encodePusherChannelName
+      ArtEry.config.tableNamePrefix, modelName, key
+      .join '.'
+
+  subscribeToChanges: (modelName, key, handler) ->
+    if Config extract pusherClient
+
+      channelName = getPusherChannel modelName, key
+      eventName = config.pusherEventName
+
+      verboseLog subscribe: {} channelName
+
+      channel = pusherClient.subscribe channelName
+      channel.bind eventName, handler
+
+      unsubscribe: ->
+        verboseLog unsubscribe: {} channelName
+        channel.unbind eventName, handler
+        pusherClient.unsubscribe channelName
+
+  ## sendChanged
+    IN:
+      modelName: pipeline-name string or pipeline
+    OUT:
+      true if pusher event was actually sent
+      else false-ish
+  sendChanged: (modelName, key, payload) ->
+    config extract pusherEventName
+
+    channel = getPusherChannel modelName, key
+
+    verboseLog sendChanged: {} channel, pusherEventName, modelName, key, payload, Config.pusherServer
+
+    if Config.pusherServer?
+      Config.pusherServer.trigger channel, pusherEventName, payload || {}
+      true

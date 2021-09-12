@@ -4,7 +4,7 @@
 (module.exports = require('./namespace'))
 
 .addModules({
-  PusherFilter:         require('./PusherFilter'),
-  PusherFluxModelMixin: require('./PusherFluxModelMixin')
+  PusherArtModelMixin: require('./PusherArtModelMixin'),
+  PusherFilter:        require('./PusherFilter')
 });
 require('./Pipelines');

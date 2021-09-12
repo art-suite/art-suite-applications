@@ -1,17 +1,17 @@
 import &StandardImport
 
-subscriptionEstablishmentTimeout = 250
+&ArtEryPusher extract Config extract config
+
+subscriptionEstablishmentTimeout = 25
 
 commonSetup = ->
   pipelines.simpleStore.reset()
   Config.onConnected()
 
-class MySubscriber extends FluxSubscriptionsMixin BaseObject
-
-queryKeyNoodleId = "123"
+class MySubscriber extends ArtModelSubscriptionsMixin BaseObject
 
 suite:
-  "single record subscriber2": ->
+  "single record subscriber": ->
     @timeout 5000
     setup commonSetup
 
@@ -25,12 +25,10 @@ suite:
             modelName:  :simpleStore
             key:        id
             callback:   ({data}) ->
-              log {} data
               _resolve() if data?.foo == :secondValue
 
           timeout subscriptionEstablishmentTimeout
           .then ->
-            log :update
             pipelines.simpleStore.update data: {} id, foo: :secondValue
 
         ##
@@ -67,6 +65,7 @@ suite:
   "query record subscriber": ->
     @timeout 5000
     setup commonSetup
+    queryKeyNoodleId = "123"
 
     test :create ->
       mySubscriber = new MySubscriber
@@ -87,11 +86,8 @@ suite:
                 _resolve()
 
           timeout subscriptionEstablishmentTimeout
-          .then ->
-            pipelines.simpleStore.create data: foo: :unrelatedValue noodleId: queryKeyNoodleId + "different"
-
-          .then ->
-            pipelines.simpleStore.create data: foo: :secondValue noodleId: queryKeyNoodleId
+          .then -> pipelines.simpleStore.create data: foo: :unrelatedValue  noodleId: queryKeyNoodleId + "different"
+          .then -> pipelines.simpleStore.create data: foo: :secondValue     noodleId: queryKeyNoodleId
 
           # normally, the sender of an update will IGNORE the "changed" event from pusher
           # So, we must reset the session so we don't know we were the sender.
@@ -107,6 +103,8 @@ suite:
           2: name: :bill   noodleId: queryKeyNoodleId
           3: name: :cody   noodleId: queryKeyNoodleId
           4: name: :dave   noodleId: queryKeyNoodleId + :different
+
+      .then -> models.pusherTestsByNoodleId.reload queryKeyNoodleId
       .then ->
         new Promise (_resolve) ->
           mySubscriber.subscribe
@@ -131,6 +129,7 @@ suite:
         data:
           1: name: :alice  noodleId: queryKeyNoodleId
           2: name: :bill   noodleId: queryKeyNoodleId
+      .then -> models.pusherTestsByNoodleId.reload queryKeyNoodleId
       .then ->
         new Promise (_resolve) ->
           mySubscriber.subscribe
@@ -165,7 +164,8 @@ suite:
           mySubscriber.subscribe
             modelName:  :simpleStore
             key:        id
-            callback:   ({data}) ->
+            callback:   (stuff) ->
+              stuff extract data
               throw new Error "sender shouldn't get updated" if data.foo == :secondValue
 
         .then ->
@@ -173,6 +173,6 @@ suite:
 
         # give the loop time to complete and fail, if it's going to
         .then ->
-          timeout 500, _resolve
+          timeout 50, _resolve
 
       .then -> mySubscriber.unsubscribeAll()

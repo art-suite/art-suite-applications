@@ -1,22 +1,4 @@
-import &StandardImport, {} &Config
-
-## sendChanged
-  IN:
-    pipeline: pipeline-name string or pipeline
-  OUT:
-    true if pusher event was actually sent
-    else false-ish
-sendChanged = (pipeline, key, payload) ->
-  Config extract config extract pusherEventName
-
-  channel = Config.getPusherChannel pipeline, key
-
-  if config.verbose
-    log sendChanged: {} channel, pusherEventName, pipeline, key, payload, Config.pusherServer
-
-  if Config.pusherServer?
-    Config.pusherServer.trigger channel, pusherEventName, payload || {}
-    true
+import &StandardImport, &Lib, {} &Config
 
 class PusherFilter extends Filter
 
@@ -28,11 +10,14 @@ class PusherFilter extends Filter
         artEryPusherSession: cryptoRandomString 12 # should produce > 10^21 unique values
 
   notifyAllQueriesWhichMayNeedUpdating: (pipeline, payload, data)->
-    each key, queryName in pipeline.getChannelsAndKeysToUpdateOnRecordChange data
+    each key, queryName in pipeline.getModelNamesAndKeysToUpdateOnRecordChange data
       sendChanged queryName, key, payload if key?
 
   notifySingleRecordWhichNeedsUpdating: (pipeline, payload, data) ->
-    sendChanged pipeline, data, payload
+    sendChanged
+      pipeline.name
+      pipeline.toKeyString data
+      payload
 
   @group "outer"
 
@@ -45,7 +30,8 @@ class PusherFilter extends Filter
           data = merge
             request.data
             data
-            key && pipeline.toKeyObject key
+            if key
+              pipeline.toKeyObject key
 
           payload = {}
             type

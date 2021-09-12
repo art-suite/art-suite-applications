@@ -1,8 +1,9 @@
-&ArtStandardLib.mergeWithSelf
+[]
+  &ArtStandardLib
   &ArtClassSystem
-  &ArtFlux
+  &@ArtSuite/ArtModels
   &ArtEry
   &ArtCommunicationStatus
-  test: (a...) -> global.test a...
-  setup: (a...) -> global.setup a...
+  &ArtTestbench
   &ArtEryPusher
+  &ArtEryPusher.Lib
