@@ -65,7 +65,7 @@ class Config extends Configurable
           else
             @verboseLog "" ArtEryPusher PusherServer: initialized correctly.
 
-    if !@PusherClient || !@PusherServer
+    if !@PusherClient && !@PusherServer
       @verboseLog "" disabled. Require: art-ery-pusher/Client or art-ery-pusher/Server
 
     @verboseLog "" ArtEryPusher configured.
