@@ -18,7 +18,8 @@ encodePusherChannelName = (key) ->
         if plain object, must provide a pipeline that implements toKeyString
   getPusherChannel = (modelName, key) ->
     encodePusherChannelName
-      ArtEry.config.tableNamePrefix, modelName, key
+      each item in modelName, key
+        encodePusherChannelName item
       .join '.'
 
   subscribeToChanges: (modelName, key, handler) ->
