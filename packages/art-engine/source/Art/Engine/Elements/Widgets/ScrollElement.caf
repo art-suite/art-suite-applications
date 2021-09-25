@@ -1,4 +1,4 @@
-import &StandardImport, &Core, &Events.GestureRecognizer, {} &ScrollElementAnimator
+import &StandardImport, &Core, &ArtBrowserTools, &Events.GestureRecognizer, {} &ScrollElementAnimator
 
 ###
   ScrollElement
@@ -194,7 +194,8 @@ class ScrollElement extends Element
     PRIVATE: Gestures & Event Handlers
   ######################################
   preprocessEventHandlers: (handlerMap) ->
-    merge @_externalHandlerMap = handlerMap,
+    merge
+      @_externalHandlerMap = handlerMap
 
       mouseWheel: (event) ->
         @_mostRecentMouseWheelEvent = event
@@ -215,49 +216,50 @@ class ScrollElement extends Element
           return unless @_mostRecentMouseWheelEvent == event
           @animateToValidScrollPositionDelta()
 
-      createGestureRecognizer
-        didNotImmediatelyFlick: (e) ->
-          @_flickAcceleratorMultiplier = defaultFlickAcceleratorMultiplier
-          @_scrollAnimator.freeze() unless @_scrollAnimator.animatingTo
+      if getSimpleBrowserInfo().touch
+        createGestureRecognizer
+          didNotImmediatelyFlick: (e) ->
+            @_flickAcceleratorMultiplier = defaultFlickAcceleratorMultiplier
+            @_scrollAnimator.freeze() unless @_scrollAnimator.animatingTo
 
-        prepare: -> @_gesturePending = true
-        finally: ->
-          @animateToValidScrollPositionDelta()
-          @_gesturePending = false
+          prepare: -> @_gesturePending = true
+          finally: ->
+            @animateToValidScrollPositionDelta()
+            @_gesturePending = false
 
-        custom:
+          custom:
 
-          flick: ({props:{flickDirection, flickSpeed, secondsSinceLastFlick}}) ->
-            flickSpeed *= flickMultiplier = if secondsSinceLastFlick? && secondsSinceLastFlick <= flickAcceleratorWindowSeconds
-              @_flickAcceleratorMultiplier *= 1.25
-            else
-              @_flickAcceleratorMultiplier = defaultFlickAcceleratorMultiplier
+            flick: ({props:{flickDirection, flickSpeed, secondsSinceLastFlick}}) ->
+              flickSpeed *= flickMultiplier = if secondsSinceLastFlick? && secondsSinceLastFlick <= flickAcceleratorWindowSeconds
+                @_flickAcceleratorMultiplier *= 1.25
+              else
+                @_flickAcceleratorMultiplier = defaultFlickAcceleratorMultiplier
 
-            switch flickDirection
-              when :up    then @isVertical    && @_scrollAnimator.addVelocity -flickSpeed
-              when :down  then @isVertical    && @_scrollAnimator.addVelocity flickSpeed
-              when :left  then @isHorizontal  && @_scrollAnimator.addVelocity -flickSpeed
-              when :right then @isHorizontal  && @_scrollAnimator.addVelocity flickSpeed
+              switch flickDirection
+                when :up    then @isVertical    && @_scrollAnimator.addVelocity -flickSpeed
+                when :down  then @isVertical    && @_scrollAnimator.addVelocity flickSpeed
+                when :left  then @isHorizontal  && @_scrollAnimator.addVelocity -flickSpeed
+                when :right then @isHorizontal  && @_scrollAnimator.addVelocity flickSpeed
 
-          recognize: ({delta}) ->
-            if @isVertical
-                  1 > delta.absoluteAspectRatio
-            else  1 < delta.absoluteAspectRatio
+            recognize: ({delta}) ->
+              if @isVertical
+                    1 > delta.absoluteAspectRatio
+              else  1 < delta.absoluteAspectRatio
 
-          begin: -> @_beginGestureAt @getPendingScrollPosition()
+            begin: -> @_beginGestureAt @getPendingScrollPosition()
 
-          move:    (e) ->
-            scrollPosition = @_gestureScrollPosition += @_getMainCoordinate e.delta
-            @scrollPosition =
-              if scrollPosition != boundedSp = @boundSp scrollPosition
-                boundedSp + @_overScrollTransformation scrollPosition - boundedSp
-              else scrollPosition
+            move:    (e) ->
+              scrollPosition = @_gestureScrollPosition += @_getMainCoordinate e.delta
+              @scrollPosition =
+                if scrollPosition != boundedSp = @boundSp scrollPosition
+                  boundedSp + @_overScrollTransformation scrollPosition - boundedSp
+                else scrollPosition
 
-          resume: (e) ->
-            @_scrollAnimator.active
+            resume: (e) ->
+              @_scrollAnimator.active
 
-          cancel:  ->
-            @scrollPosition = @_gestureScrollStartPosition
+            cancel:  ->
+              @scrollPosition = @_gestureScrollStartPosition
 
   _beginGestureAt: (scrollPosition) ->
     @_gestureScrollStartPosition = @_gestureScrollPosition =
