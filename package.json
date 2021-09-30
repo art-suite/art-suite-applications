@@ -2,6 +2,7 @@
   "bugs": "https://github.com/art-suite/art-suite-applications/issues",
   "dependencies": {
     "@art-suite/art-app-kit-auth": "file:packages/@art-suite/art-app-kit-auth",
+    "@art-suite/art-app-kit-boilerplate": "file:demos/art-app-kit-boilerplate",
     "@art-suite/art-canvas": "file:packages/@art-suite/art-canvas",
     "@art-suite/art-components": "file:unpublished/art-components",
     "@art-suite/art-flux": "file:packages/@art-suite/art-flux",
@@ -53,8 +54,9 @@
     "aws-sdk": "^2.809.0",
     "aws4": "^1.6.0",
     "caffeine-script": "^0.74.0",
+    "caffeine-script-runtime": "^1.14.0",
     "canvas": "^2.0.0",
-    "canvg": "^3.0.0",
+    "canvg": "3.0.7",
     "case-sensitive-paths-webpack-plugin": "^2.2.0",
     "chai": "^4.2.0",
     "coffee-loader": "^0.7.3",

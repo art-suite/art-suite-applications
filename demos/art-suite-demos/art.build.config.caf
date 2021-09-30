@@ -8,4 +8,11 @@ webpack:
     HelloWorld: {}
     HelloWorldForIE11: {}
 
-package: -> &package
+package: -> merge
+  &package
+  scripts:
+    start:
+      """
+        nn -s --watch&
+        cafSourceMaps=true webpack serve --hot --progress --open&
+        wait

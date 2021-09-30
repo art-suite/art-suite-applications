@@ -1,0 +1,11 @@
+import &StandardImport
+
+class Home extends ViewStateComponent
+
+  render: ->
+    Element
+      TextElement
+        TextStyles.largeText
+        :parentSize
+        :textCenterCenter
+        text: "" Hello world.

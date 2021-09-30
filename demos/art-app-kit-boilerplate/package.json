@@ -1,0 +1,24 @@
+{
+  "bugs": "https://github.com/art-suite/art-suite-applications/issues",
+  "dependencies": {
+    "art-app-kit": "^1.4.4",
+    "caffeine-script-runtime": "^1.14.0",
+    "neptune-namespaces-runtime": "^3.2.9"
+  },
+  "devDependencies": {
+    "art-build-configurator": "^1.29.3"
+  },
+  "homepage": "https://github.com/art-suite/art-suite-applications",
+  "license": "ISC",
+  "name": "@art-suite/art-app-kit-boilerplate",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/art-suite/art-suite-applications.git"
+  },
+  "scripts": {
+    "build": "webpack --progress",
+    "build-assets": "cpf-tool asset-source/icons/*.svg -o assets/icons.cpf --camelCase",
+    "start": "nn -s --watch&\ncafSourceMaps=true webpack serve --hot --progress --open --static public&\nwait",
+    "test": "nn -s; mocha -u tdd"
+  }
+}

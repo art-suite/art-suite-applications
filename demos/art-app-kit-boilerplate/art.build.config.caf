@@ -1,0 +1,39 @@
+import &ArtStandardLib
+
+package: -> merge
+  &package
+  scripts:
+    build:            "" webpack --progress
+    test:             "" nn -s; mocha -u tdd
+
+    start:
+      """
+        nn -s --watch&
+        cafSourceMaps=true webpack serve --hot --progress --open --static public&
+        wait
+
+    build-assets:
+      ""
+        cpf-tool
+        asset-source/icons/*.svg
+        -o assets/icons.cpf
+        --camelCase
+
+webpack:
+  # common properties are merged into each target's properties
+  common:
+    module: rules: []
+      {}
+        test: /\.js$/
+        enforce: :pre
+        use: [] :source-map-loader
+
+    devtool: 'inline-source-map'
+
+    resolve:
+      fallback:
+        crypto: require.resolve :crypto-browserify
+        stream: require.resolve :stream-browserify
+
+  # each target's individual properties
+  targets: Client: {}

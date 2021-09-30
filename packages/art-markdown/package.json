@@ -4,7 +4,7 @@
   "dependencies": {
     "art-app-kit": "^1.4.4",
     "art-class-system": "^1.11.13",
-    "art-engine": "^4.4.11",
+    "art-engine": "^4.5.0",
     "art-standard-lib": "^1.70.6"
   },
   "description": "Art.Markdown",

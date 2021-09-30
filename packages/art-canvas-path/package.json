@@ -5,10 +5,10 @@
   },
   "bugs": "https://github.com/art-suite/art-suite-applications/issues",
   "dependencies": {
+    "@xmldom/xmldom": "*",
     "canvas": "^2.0.0",
-    "canvg": "^3.0.0",
-    "jsdom": "^17.0.0",
-    "@xmldom/xmldom": "*"
+    "canvg": "3.0.7",
+    "jsdom": "^17.0.0"
   },
   "description": "Art.Canvas.Path",
   "devDependencies": {
