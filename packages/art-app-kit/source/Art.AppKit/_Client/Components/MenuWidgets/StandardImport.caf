@@ -1,1 +1,1 @@
-&StandardImport.mergeWithSelf &Lib, &Widgets, &PrivateWidgets
+[] &StandardImport, &Lib, &Widgets, &PrivateWidgets
