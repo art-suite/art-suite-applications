@@ -11,11 +11,11 @@ class AppKitButtonWrapper extends PointerActionsMixin FluxComponent
     draw:       null
     disabled:   false
 
-  action: (args...) ->
+  action: (event, props) ->
     if @props extract disabledAction, action
-      action args...
+      action event, props
     else if disabledAction
-      disabledAction args...
+      disabledAction event, props
 
   preprocessProps: (props) ->
     props extract disabled, action, size

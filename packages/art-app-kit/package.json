@@ -5,6 +5,8 @@
     "@art-suite/pointer-actions-mixin": "^1.0.3",
     "art-canvas-path": "^0.6.3",
     "art-markdown": "^1.2.6",
+    "art-suite": "*",
+    "art-suite-app": "*",
     "copy-to-clipboard": "*"
   },
   "description": "Art.App.Kit",

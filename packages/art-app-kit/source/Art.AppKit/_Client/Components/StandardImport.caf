@@ -1,2 +1,3 @@
-&StandardImport.mergeWithSelf
+[]
+  &StandardImport
   {} &ViewStateComponent, &Icons
