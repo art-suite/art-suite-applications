@@ -3,10 +3,10 @@
   "bugs": "https://github.com/art-suite/art-suite-applications/issues",
   "dependencies": {
     "@art-suite/pointer-actions-mixin": "^1.0.3",
-    "art-canvas-path": "^0.6.3",
+    "art-canvas-path": "^0.6.4",
     "art-markdown": "^1.2.6",
-    "art-suite": "*",
-    "art-suite-app": "*",
+    "art-suite": "^2.0.7",
+    "art-suite-app": "^1.0.4",
     "copy-to-clipboard": "*"
   },
   "description": "Art.App.Kit",
@@ -28,5 +28,5 @@
     "start": "nn -s --watch&\ncafSourceMaps=true webpack serve --hot --progress --open --static public-dev&\nwait",
     "test": "webpack serve --progress"
   },
-  "version": "1.4.5"
+  "version": "1.4.6"
 }

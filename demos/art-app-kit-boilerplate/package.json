@@ -1,7 +1,7 @@
 {
   "bugs": "https://github.com/art-suite/art-suite-applications/issues",
   "dependencies": {
-    "art-app-kit": "^1.4.4",
+    "art-app-kit": "^1.4.6",
     "caffeine-script-runtime": "^1.14.0",
     "neptune-namespaces-runtime": "^3.2.9"
   },

@@ -2,7 +2,7 @@
   "author": "Shane Brinkman-Davis Delamore, Imikimi LLC\"",
   "bugs": "https://github.com/art-suite/art-suite-applications/issues",
   "dependencies": {
-    "art-app-kit": "^1.4.4",
+    "art-app-kit": "^1.4.6",
     "art-class-system": "^1.11.13",
     "art-engine": "^4.5.0",
     "art-standard-lib": "^1.70.6"
