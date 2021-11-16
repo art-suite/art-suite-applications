@@ -15,6 +15,7 @@ require('./Clock/namespace');
 require('./ColorExtractor/namespace');
 require('./ColorPicker/namespace');
 require('./ColorPicker2/namespace');
+require('./DrawAnimations/namespace');
 require('./DrumMachine/namespace');
 require('./FaceDetector/namespace');
 require('./FluxChallenge/namespace');

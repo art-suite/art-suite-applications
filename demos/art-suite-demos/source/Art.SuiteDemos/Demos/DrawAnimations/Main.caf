@@ -1,0 +1,34 @@
+import &ArtSuite
+
+class MyComponent extends PointerActionsMixin Component
+
+  render: ->
+    Element
+      cursor:     :pointer
+      animators:  draw: duration: 1
+
+      Element
+        on:         @buttonHandlers
+        size: 100
+        location: 100
+        animators: :draw
+        draw:
+          array i til num = 3
+            color: rgbColor
+              i + 1
+              / num
+              0
+              if @hover then 1 else 0
+            rectangle: (ps) ->
+              rect
+                i * w = ps.x / 3
+                0
+                w
+                if @hover
+                  i + 1
+                else
+                  3 - i
+                / 3
+                * ps.y
+
+

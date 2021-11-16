@@ -17,7 +17,7 @@
     "art-app-kit": "file:packages/art-app-kit",
     "art-atomic": "file:packages/art-atomic",
     "art-aws": "file:packages/art-aws",
-    "art-browser-tools": "^1.2.10",
+    "art-browser-tools": "^1.2.14",
     "art-build-configurator": "^1.29.3",
     "art-canvas-path": "file:packages/art-canvas-path",
     "art-chat": "file:demos/art-chat",

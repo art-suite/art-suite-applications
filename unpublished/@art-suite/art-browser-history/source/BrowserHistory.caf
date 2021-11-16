@@ -1,0 +1,29 @@
+import &StandardImport, &ArtEvents
+
+class BrowserHistory extends EventedBaseMixin BaseClass
+
+  constructor: ->
+    # disable this when hot-reload is enabled; this blocks hot-reloading
+    @_browserHistoryAvailable = !global.cordova && !module.hot
+
+    @_stateCounter = 0
+
+    global.onpopstate = (event) -> @queueEvent :popState {} event.state
+
+  @getter
+    :browserHistoryAvailable
+    location: -> global.location
+    history:  -> @browserHistoryAvailable && global.history
+
+  back:         -> @history?.back()
+  forward:      -> @history?.forward()
+  go:           (delta) -> @history?.go delta
+  pushState:    (state) ->
+    {path, title} = state
+
+    state.count = @_stateCounter++
+
+    if !eq @currentUrlState, state
+      @history?.pushState state, state.title, state.path
+
+  replaceState: (state, title, url) -> @history?.replaceState state, title, url

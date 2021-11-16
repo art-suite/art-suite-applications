@@ -12,6 +12,7 @@ require('./Clock');
 require('./ColorExtractor');
 require('./ColorPicker');
 require('./ColorPicker2');
+require('./DrawAnimations');
 require('./DrumMachine');
 require('./FaceDetector');
 require('./FluxChallenge');

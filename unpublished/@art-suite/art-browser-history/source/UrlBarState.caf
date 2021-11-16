@@ -1,0 +1,38 @@
+import &StandardImport
+
+class UrlBarState extends ApplicationState
+
+  @stateFields
+    currentUrlState: null
+
+  constructor: ->
+    @_bindOnPopState()
+    @onNextReady @_initFromLocation
+    @_stateCounter = 0
+    @_browserHistory = new &BrowserHistory
+
+  back: -> @_browserHistory.back()
+
+  push: (state) ->
+    {path, title} = state
+    if present params = @_browserHistory.location?.search
+      path += params
+
+    state.count = @_stateCounter++
+
+    if !eq @currentUrlState, state
+      @_browserHistory.pushState state, state.title, state.path
+
+  ##################
+  # PRIVATE
+  ##################
+  _bindOnPopState: ->
+    @_browserHistory.on :popState ({state}) ->
+      state ?= {}
+      if state.count?
+        back = @_stateCounter > state.count
+        @_stateCounter = state.count
+      else
+        back = false
+
+      @currentUrlState = state
