@@ -1,0 +1,67 @@
+import &ArtSuite
+
+class MyComponent extends Component
+
+  @stateField
+    stars:        []
+    nextUniqueId: 0
+
+  addElement: ({location})->
+    @stars = arrayWith
+      @stars
+      key:      "" #{@nextUniqueId}
+      location: location
+
+    @nextUniqueId += 1
+
+  removeElement: (event) ->
+    event.target extract key
+    @stars = array star in @stars when star.key != key
+
+  render: ->
+    Element
+
+      RectangleElement color: :black
+
+      Element
+        childrenLayout: :column
+        cacheDraw:      true
+        padding:        10
+        TextElement
+          margin:       10
+          size:         ww: 1 hch: 1
+          fontFamily:   :arial
+          color:        #777
+          text:
+            """
+              Elements can be automatically animated when added "from the void" or removed "to the void."
+
+                ❧ Click background to add an element.
+                ❧ Click element to remove it.
+
+              Example code:
+
+        TextElement
+          fontFamily: :courier
+          color:      #557
+          padding:    10
+          text:
+            """
+              RectangleElement
+                animators: size: toFrom: 0
+
+      Element on: pointerClick: @addElement
+
+      array props in @stars
+        RectangleElement
+          props
+          size:               100
+          axis:               .5
+          radius:             100
+          colors:             #ff0 #fa0
+          on: pointerClick:   @removeElement
+          animators:
+            size:
+              toFrom:         0
+              easingFunction: :easeInElastic
+              duration:       1

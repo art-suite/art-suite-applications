@@ -1,0 +1,18 @@
+import &ArtSuite
+
+class ColorPicker extends FluxComponent
+
+  render: ->
+    Element
+      RectangleElement color: :white
+
+      Element
+        padding:        10
+        childrenLayout: :column
+        &ColorPreview()
+
+        array channel in :red :green :blue :hue :saturation :lightness
+          &ColorPicker1D
+            channel:  channel.slice 0 1
+            label:    channel
+            key:      channel

@@ -1,0 +1,37 @@
+import &ArtSuite
+
+class CurrentColor extends ApplicationState
+
+  ##
+    We maintain both the color and the individual channels
+    so we don't lose information in degenerate cases (like saturation or lightness == 0 or 1)
+  getInitialState: ->
+    color: rgbColor #f00
+    r: 1
+    g: 0
+    b: 0
+    h: 1
+    s: 1
+    l: 1
+
+  setChannel: (channel, v)->
+    color = @state.color.withChannel channel, v = bound 0, v, 1
+
+    toSet = switch channel
+      when :r :g :b then {} color.h, color.s, color.l, color
+      else {} color.r, color.g, color.b, color
+
+    toSet[channel] = v
+
+    @setState toSet
+
+  setColor: (color) ->
+    @setState {}
+      color
+      color.r
+      color.g
+      color.b
+      color.h
+      color.s
+      color.l
+

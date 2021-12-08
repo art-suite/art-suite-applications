@@ -1,0 +1,79 @@
+import &ArtSuite
+
+class ColorPicker1D extends FluxComponent
+
+  @subscriptions
+    :currentColor.color
+    currentColor: ({channel}) -> channel
+
+  @propFields :channel :label
+
+  constructor: ->
+    @handlers =
+      preprocess:
+        pointerDown:  (e) -> e.location.x
+        pointerMove:  (e) -> e.location.x
+        ready:        (e) -> e.target.currentSize.x
+
+      pointerDown:    (x) -> @setPosFromPixels x
+      pointerMove:    (x) -> @setPosFromPixels x
+      ready:          (w) -> @setState currentWidth: w
+
+  @getter
+    colors: ->
+      if @channel == :h
+        array h to 1 by 1/6 with @color.withHue h
+
+      else
+        []
+          @color.withChannel @channel, 0
+          @color.withChannel @channel, 1
+
+  setPosFromPixels: (pixels) ->
+    @models.currentColor.setChannel @props.channel, pixels / @state.currentWidth
+
+  render: ->
+    Element
+      on:     @handlers
+      size:   wpw: 1 h: 46
+      margin: 10
+      :column
+      RectangleElement {}
+        size:   ww: 1 h: 23
+        key:    :background
+        to:     :topRight
+        @colors
+
+      Element
+        size: ww: 1 h: 23
+        RectangleElement color: #eee
+        clip: true
+
+        TextElement
+          :childrenSize
+          text:       :▲
+          color:      #999
+          fontSize:   20
+          layoutMode: :tight
+          key:        :handle
+          location:   xw: @currentColor, yh:.5
+          animators:  location: duration: .1
+          axis:       .5
+
+        TextElement
+          :childrenWidthParentHeight
+          fontFamily: :sans-serif
+          text:       @label
+          padding:    h: 4
+          align:      :centerLeft
+          color:      #777
+
+        TextElement
+          axis:       :topRight
+          location:   xw: 1
+          fontFamily: :sans-serif
+          text:       "" #{@currentColor * 100 | 0}%
+          size:       hh: 1 wcw: 1
+          padding:    h: 4
+          align:      :centerLeft
+          color:      #777

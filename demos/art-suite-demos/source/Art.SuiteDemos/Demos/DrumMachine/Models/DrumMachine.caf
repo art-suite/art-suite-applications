@@ -3,10 +3,10 @@ import &StandardImport
 class DrumMachine extends ApplicationState
 
   @stateFields
-    bpm: 120
-    playing: false
-    currentTimeslot: null
-    playStartedAt: null
+    bpm:              120
+    playing:          false
+    currentTimeslot:  null
+    playStartedAt:    null
 
   togglePlaying: ->
     unless @playing
