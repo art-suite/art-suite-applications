@@ -6,7 +6,37 @@
     "indexeddb-promised": "^1.3.1"
   },
   "description": "Art.Ery.IndexedDb",
+  "devDependencies": {
+    "art-testbench": "^3.2.2",
+    "case-sensitive-paths-webpack-plugin": "^2.2.0",
+    "chai": "^4.2.0",
+    "coffee-loader": "^0.7.3",
+    "css-loader": "^6.2.0",
+    "fake-indexeddb": "*",
+    "json-loader": "^0.5.7",
+    "mocha": "^7.2.0",
+    "mock-fs": "^5.0.0",
+    "script-loader": "^0.7.2",
+    "style-loader": "^3.2.1",
+    "webpack": "^5.35.1",
+    "webpack-cli": "^4",
+    "webpack-dev-server": "^4.1.1",
+    "webpack-merge": "^5.7.3",
+    "webpack-node-externals": "^3.0.0"
+  },
   "homepage": "https://github.com/art-suite/art-suite-applications",
+  "jest": {
+    "collectCoverageFrom": [
+      "build/**/*.js",
+      "!build/test/**/*.js"
+    ],
+    "testEnvironment": "node",
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "<rootDir>/test"
+    ],
+    "verbose": true
+  },
   "license": "ISC",
   "name": "art-ery-indexed-db",
   "repository": {
@@ -14,10 +44,23 @@
     "url": "https://github.com/art-suite/art-suite-applications.git"
   },
   "scripts": {
-    "build": "webpack --progress",
-    "start": "webpack server --hot --inline --progress",
-    "test": "webpack server  --progress",
-    "testInBrowser": "webpack server --progress"
+    "build": "cd source\nfind . -name '*.js' -o -name '*.css' | cpio -vpdm ../build\ncd ..\ncaf -m -c source -o build\nnpm run nn",
+    "build-clean": "# BUILD CLEAN START\n#   - building into: build-temp\n#\nrm -rf ./__build-old__\ncd source\nfind . -name '*.js' -o -name '*.css' | cpio -vpdm ../build-temp\ncd ..\ncaf -m -c source -o build-temp\nnpm run nn\n\nnn build-temp/*\n\n# BUILD CLEAN FINIALIZING\n#  - replace old build in:   build\n#  - with new build from:    build-temp\n#\nmv build __build-old__\nmv build-temp build\nrm -rf ./__build-old__",
+    "clean": "rm -rf build/*",
+    "nn": "nn build/* test/tests",
+    "test": "npm run nn\nmocha -u tdd",
+    "watch": "npm-watch"
   },
-  "version": "0.1.7"
+  "version": "0.1.7",
+  "watch": {
+    "build": {
+      "extensions": [
+        "caf"
+      ],
+      "patterns": [
+        "source"
+      ],
+      "quiet": false
+    }
+  }
 }

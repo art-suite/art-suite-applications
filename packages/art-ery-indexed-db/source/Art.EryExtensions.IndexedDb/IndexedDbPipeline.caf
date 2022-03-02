@@ -24,7 +24,7 @@ getGlobalIndexDb = ->
           keyPath: [selectBy, orderBy]
           options: unique: false
 
-      log addObjectStore: {dbVersion, dbName, name, keyType, indexes}
+      # log addObjectStore: {dbVersion, dbName, name, keyType, indexes}
       globalIndexDb.addObjectStore {dbVersion, dbName, name, keyType, indexes}
     globalIndexDb = globalIndexDb.build()
   globalIndexDb

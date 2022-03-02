@@ -1,4 +1,6 @@
 require '../index.caf'
+&fake-indexeddb/auto
+global.window = global
 &art-testbench/testing
 .init
   synchronous: true
