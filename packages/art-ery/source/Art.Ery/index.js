@@ -14,6 +14,7 @@
   PipelineRegistry:       require('./PipelineRegistry'),
   PrefetchedRecordsCache: require('./PrefetchedRecordsCache'),
   Request:                require('./Request'),
+  RequestB:               require('./RequestB'),
   RequestHandler:         require('./RequestHandler'),
   RequestResponseBase:    require('./RequestResponseBase'),
   Response:               require('./Response'),

@@ -1,11 +1,8 @@
-{defineModule, log, isString, present, CommunicationStatus, wordsArray} = require '@art-suite/art-foundation'
-{Response, Request, Pipeline, session, Session} = require('art-ery')
-{assert} = require('art-testbench');
-{clientFailure, success, failure, missing} = CommunicationStatus
+import &StandardImport
 
 isPresentString = (s) -> isString(s) && present s
 
-defineModule module, class AuthPipeline extends Pipeline
+class AuthPipeline extends Pipeline
 
   @suite: ->
     setup -> session.reset()
@@ -42,13 +39,11 @@ defineModule module, class AuthPipeline extends Pipeline
       .then (v) -> assert.eq v, username: "bar"
 
   ###
-  a stupid authentication test
-  ###
-  authenticationFailed = (data) ->
-    {username, password} = data
-    return "username not present" unless isPresentString username
-    return "password not present" unless isPresentString password
-    return "username and password don't match" unless username == password
+    a stupid authentication test
+  authenticationFailed = ({username, password}) ->
+    unless isPresentString username       then "username not present"
+    else unless isPresentString password  then "password not present"
+    else unless username == password      then "username and password don't match"
 
   @publicHandlers
     authenticate: (request) ->
