@@ -5,7 +5,7 @@
     "@art-suite/art-canvas": "^1.28.7",
     "@art-suite/art-flux": "^2.1.5",
     "art-atomic": "^1.28.4",
-    "art-browser-tools": "^1.2.10",
+    "art-browser-tools": "^1.2.14",
     "art-build-configurator": "^1.29.3",
     "art-engine": "^4.5.0",
     "art-ery": "^1.119.0",

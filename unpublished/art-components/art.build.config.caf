@@ -8,8 +8,12 @@ package: &@ArtSuite/StandardPackageBuilder.configure {}
   &package
   scripts:
     perf:           "" nn -s;mocha -u tdd perf
-    start:          "" webpack serve --hot --inline --progress
-    testInBrowser:  "" webpack serve --progress
+    perfInBrowser:
+      ""
+        nn -s --watch&
+        cafSourceMaps=true webpack serve --hot --progress --open --static perf&
+        wait
+
 
 webpack:
   # common properties are merged into each target's properties

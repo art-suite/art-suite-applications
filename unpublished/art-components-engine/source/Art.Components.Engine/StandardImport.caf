@@ -1,4 +1,5 @@
-&ArtStandardLib.mergeWithSelf
+[]
+  &ArtStandardLib
   &ArtClassSystem
   &ArtEngine
   &ArtComponents

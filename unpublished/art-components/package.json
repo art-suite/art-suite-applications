@@ -49,9 +49,8 @@
     "clean": "rm -rf build/*",
     "nn": "nn build/* ",
     "perf": "nn -s;mocha -u tdd perf",
-    "start": "webpack serve --hot --inline --progress",
+    "perfInBrowser": "nn -s --watch& cafSourceMaps=true webpack serve --hot --progress --open --static perf& wait",
     "test": "npm run nn\njest",
-    "testInBrowser": "webpack serve --progress",
     "watch": "npm-watch"
   },
   "version": "0.3.4",

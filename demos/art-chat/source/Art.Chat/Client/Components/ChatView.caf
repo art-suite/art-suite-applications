@@ -83,7 +83,7 @@ class ChatView extends FluxComponent
             key:          :messageInput
             on:           enter: @postMessage, valueChanged: @valueChanged
             type:         :textarea
-            size:         ww:1 hch:1 max: h: 160
+            size:         ww: 1 hch: 1 max: h: 160
             padding:      h: 10 v: gridSize
             placeholder:  "" new message
         &Button text: :send color: true action: @messagePostable && @postMessage

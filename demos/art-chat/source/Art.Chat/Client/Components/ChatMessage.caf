@@ -49,5 +49,5 @@ class ChatMessage extends Component
         TextElement
           &StyleProps.smallText
           :childrenSize
-          text:   if isAction then "#{user} #{message.slice 1, message.length}" else user
+          text:   if isAction then "#{user} #{message.slice 1 message.length}" else user
           color:  &Palette.black.secondary
