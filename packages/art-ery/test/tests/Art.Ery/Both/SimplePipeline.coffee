@@ -8,7 +8,7 @@
   log
 } = merge compactFlatten require '../../../StandardImport'
 
-log {Pipeline}
+# can't convert to Caf until KeyFieldsMixin (i think) is caf
 module.exports = createWithPostCreate class SimplePipeline extends Pipeline
 
   constructor: ->

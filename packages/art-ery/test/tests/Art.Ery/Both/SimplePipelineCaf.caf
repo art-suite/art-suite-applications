@@ -3,28 +3,24 @@ import &StandardImport
 class SimplePipeline extends Pipeline
 
   constructor: ->
-    super
     @_store = {}
     @_nextUniqueKey = 0
 
-  @getter "store",
+  @getter
+    :store
     nextUniqueKey: ->
       @_nextUniqueKey++ while @_store[@_nextUniqueKey]
       (@_nextUniqueKey++).toString()
 
-  @publicRequestTypes "reset get getAll create update delete"
+  @publicRequestTypes :reset :get :getAll :create :update :delete
 
   @handlers
     reset: ({data}) ->
       @_store = data || {}
       {}
 
-    get: ({key}) ->
-      @_store[key]
-
-    getAll: ->
-      array k in (Object.keys(@_store).sort())
-        @store[k]
+    get: ({key}) -> @_store[key]
+    getAll: -> array k in (Object.keys(@_store).sort()) with @store[k]
 
     create: (request) ->
       {data} = request
@@ -34,7 +30,8 @@ class SimplePipeline extends Pipeline
         merge data, id: @nextUniqueKey
 
       if @_store[data.id]
-        request.clientFailure "Record already exists with id: #{data.id}"
+        request.clientFailure "" Record already exists with id: #{data.id}
+
       else
         @_store[data.id] = data
 

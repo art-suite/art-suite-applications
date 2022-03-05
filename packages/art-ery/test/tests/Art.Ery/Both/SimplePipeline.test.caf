@@ -1,14 +1,6 @@
-Foundation = require '@art-suite/art-foundation'
-Ery = require('art-ery')
-{assert} = require('art-testbench');
+import &StandardImport, {} &SimplePipeline
 
-{merge, log, createWithPostCreate, CommunicationStatus, wordsArray} = Foundation
-{missing} = CommunicationStatus
-{Pipeline, Filter} = Ery
-
-SimplePipeline = require './SimplePipeline'
-
-module.exports = suite: ->
+suite: ->
   test "clientApiMethodList", ->
     simplePipeline = new SimplePipeline
     assert.eq simplePipeline.clientApiMethodList, wordsArray "reset get getAll create update delete"
@@ -53,8 +45,10 @@ module.exports = suite: ->
 
   test "create -> delete", ->
     simplePipeline = new SimplePipeline
-    p = simplePipeline.create data: foo: "bar"
-    .then ({id}) -> simplePipeline.delete key: id
-    .then ({id}) -> simplePipeline.get key: id
-    assert.rejects p
+
+    assert.rejects
+      simplePipeline.create data: foo: "bar"
+      .then ({id}) -> simplePipeline.delete key: id
+      .then ({id}) -> simplePipeline.get key: id
+
     .then ({info:{response}}) -> assert.eq response.status, missing
