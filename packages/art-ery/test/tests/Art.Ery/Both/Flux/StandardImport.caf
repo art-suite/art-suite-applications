@@ -4,4 +4,4 @@
   Flux = require "@art-suite/art-flux"
   {}
     Flux
-    SimplePipeline: &SimplePipelineCaf
+    SimplePipeline: &SimplePipeline

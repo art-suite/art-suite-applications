@@ -1,6 +1,7 @@
 []
   &ArtStandardLib
   &ArtClassSystem
+  &ArtValidation
   &ArtCommunicationStatus
   &ArtTestbench
   &ArtEry

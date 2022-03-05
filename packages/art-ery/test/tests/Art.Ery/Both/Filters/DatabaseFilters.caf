@@ -1,5 +1,5 @@
 import &StandardImport
-SimplePipelineWithKeys = KeyFieldsMixin &SimplePipeline
+SimplePipelineWithKeys = KeyFieldsMixin &SimplePipelineCoffee
 
 suite:
   basics: ->

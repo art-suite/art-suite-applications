@@ -9,7 +9,7 @@
 } = merge compactFlatten require '../../../StandardImport'
 
 # can't convert to Caf until KeyFieldsMixin (i think) is caf
-module.exports = createWithPostCreate class SimplePipeline extends Pipeline
+module.exports = createWithPostCreate class SimplePipelineCoffee extends Pipeline
 
   constructor: ->
     super
