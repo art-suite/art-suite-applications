@@ -39,7 +39,7 @@ responseValidator = new Validator
         Available for inspecting what exactly went over-the-wire.
         Otherwise ignored by Response
 
-class Response extends &ResponseCoffee
+class Response extends &RequestResponseBase
 
   constructor: (options) ->
     super merge options, creationStack: options.request.creationStack
@@ -191,7 +191,7 @@ class Response extends &ResponseCoffee
 
     else Promise.reject @_getRejectionError()
 
-##
+
   _getRejectionError: ->
     @_preparedRejectionError ?= new RequestError {}
       message:
@@ -212,19 +212,20 @@ class Response extends &ResponseCoffee
       @responseData
       sourceLib:  :ArtEry
       response:   @
-      stack: compactFlatten []
-        if exception = @errorProps?.exception
-            "Exception stack:\n#{cleanStackTrace exception.stack, false, true}\n"
+      stack:
+        compactFlatten []
+          if exception = @errorProps?.exception
+              "Exception stack:\n#{cleanStackTrace exception.stack, false, true}\n"
 
-        array {time, request, context, name, stack, filterLog}, i in @requestTrace by -1
-          ""
-            #{request}: #{if filterLog? then (array {name} in filterLog with name when name != :created).join " -> " else "#{context} #{name}"}
-            (request-depth: #{i + 1}, start-time: #{time*1000|0}ms)
-            #{if stack then "\n#{cleanStackTrace stack, null, true}\n" else ''}
+          array {time, request, context, name, stack, filterLog}, i in @requestTrace by -1
+            ""
+              #{request}: #{if filterLog? then (array {name} in filterLog with name when name != :created).join " -> " else "#{context} #{name}"}
+              (request-depth: #{i + 1}, start-time: #{time*1000|0}ms)
+              #{if stack then "\n#{cleanStackTrace stack, null, true}\n" else ''}
+
+          .join "\n"
+
+          getDetailedRequestTracingExplanation()
+          getCleanStackTraceWarning()
 
         .join "\n"
-
-        getDetailedRequestTracingExplanation()
-        getCleanStackTraceWarning()
-
-      .join "\n"
