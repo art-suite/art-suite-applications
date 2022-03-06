@@ -1,17 +1,17 @@
-# import &StandardImport, &ArtRestClient
-# ArtEry = &namespace
+import &StandardImport, &ArtRestClient
+ArtEry = &namespace
 
 # validator must be initialized after Request and Pipeline have bene defined
-# _validator = null
-# requestConstructorValidator = ->
-#   _validator ?= new Validator
-#     pipeline:           required: instanceof: ArtEry.Pipeline
-#     type:               required: fieldType: :string
-#     session:            required: fieldType: :object
-#     parentRequest:      instanceof: ArtEry.Request
-#     originatedOnServer: :boolean
-#     props:              :object
-#     key:                :string
+_validator = null
+requestConstructorValidator = ->
+  _validator ?= new Validator
+    pipeline:           required: instanceof: ArtEry.Pipeline
+    type:               required: fieldType: :string
+    session:            required: fieldType: :object
+    parentRequest:      instanceof: ArtEry.Request
+    originatedOnServer: :boolean
+    props:              :object
+    key:                :string
 
 ###
   new Request(options)
@@ -59,9 +59,17 @@
       BUT - there is only one context if location == "both" - if we are running without
       a remote server.
 
-class Request extends &RequestB # &RequestResponseBase
-&RequestB
-###
+class Request extends &RequestResponseBase
+  @createFromRemoteRequestProps: ({session, pipeline, type, key, requestData: {data, props}, remoteRequest}) ->
+    new Request {}
+      remoteRequest
+      pipeline
+      type
+      session
+      key
+      data
+      props
+      originatedOnClient: true
 
   constructor: (options = {}) ->
     @_filterLog ?= []
@@ -73,8 +81,10 @@ class Request extends &RequestB # &RequestResponseBase
     @pipeline = options.pipeline
     @session = options.session
     @originatedOnServer = options.originatedOnServer
-    @originalRequest = options.originalRequest
+
+    @_originalRequest ?= options.originalRequest ? @
     @parentRequest = options.parentRequest
+
     @props = options.props ? {}
     @remoteRequest = options.remoteRequest
 
@@ -82,11 +92,9 @@ class Request extends &RequestB # &RequestResponseBase
     @_context   = options.context
     @_startTime = null
 
-
     key = options.key ? @_props.key
     options.key = @_props.key = @pipeline.toKeyString key if key?
     @_props.data = options.data if options.data?
-    @_originalRequest ?= @
 
     requestConstructorValidator().validate options, context: "create Art.Ery.Request options", logErrors: true
 
@@ -103,6 +111,7 @@ class Request extends &RequestB # &RequestResponseBase
     requestOptions: -> throw new Error "" DEPRICATED: use props
     description:    -> "" #{@requestString} request
     summary:        -> request: {} @props
+
 
   ##############################
   # MISC
@@ -165,16 +174,16 @@ class Request extends &RequestB # &RequestResponseBase
 
   @getter
     remoteRequestProps: ->
-      {session, data, props, pipeline, type, key} = @
+      @ extract session, data, props, pipeline, type, key
 
       propsCount = 0
-      props = object props, when: (v, k) -> v != undefined && k != :key && k != :data
-      data  = object data,  when: (v) -> v != undefined
+      props = object v,k from props when v != undefined && k != :key && k != :data
+      data  = object v   from data  when v != undefined
 
       remoteRequestData = null
-      (remoteRequestData||={}).session = session.signature if session.signature
-      (remoteRequestData||={}).props   = props if 0 < objectHasKeys props
-      (remoteRequestData||={}).data    = data  if 0 < objectHasKeys data
+      (remoteRequestData ?= {}).session = session.signature if session.signature
+      (remoteRequestData ?= {}).props   = props if 0 < objectHasKeys props
+      (remoteRequestData ?= {}).data    = data  if 0 < objectHasKeys data
 
       getRestClientParamsForArtEryRequest {}
         restPath: pipeline.restPath
@@ -187,31 +196,13 @@ class Request extends &RequestB # &RequestResponseBase
         session
         data:           remoteRequestData
 
-  @createFromRemoteRequestProps: (options) ->
-    {session, pipeline, type, key, requestData, remoteRequest} = options
-    {data, props} = requestData
-    new Request {}
-      remoteRequest
-      pipeline
-      type
-      session
-      key
-      data
-      props
-      originatedOnClient: true
-
   sendRemoteRequest: ->
     restJsonRequest remoteRequest = @remoteRequestProps
-    .catch (error) =>
-      if error.info
-        {status, response} = error.info
-      else
-        {status, message} = error
-
-      status ?= failure
+    .catch (error) ->
+      {status = failure, response, message} = error.info ? error
 
       merge response, {status, message}
 
-    .then (remoteResponse) =>
-      @addFilterLog "" #{remoteRequest.method.toLocaleUpperCase()} #{remoteRequest.url}", "remoteRequest
+    .then (remoteResponse) ->
+      @addFilterLog "#{remoteRequest.method.toLocaleUpperCase()} #{remoteRequest.url}", :remoteRequest
       .toResponse remoteResponse.status, merge remoteResponse, {remoteRequest, remoteResponse}
