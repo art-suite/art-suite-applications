@@ -17,7 +17,6 @@
   RequestHandler:         require('./RequestHandler'),
   RequestResponseBase:    require('./RequestResponseBase'),
   Response:               require('./Response'),
-  ResponseCoffee:         require('./ResponseCoffee'),
   Session:                require('./Session'),
   Stack:                  require('./Stack'),
   StandardImport:         require('./StandardImport'),
