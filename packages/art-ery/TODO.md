@@ -15,11 +15,21 @@ Supporting
   - SQL in addition to DynamoDB
     - time to start building a Postgres Pipeline
   - "DB filters" are each their own modules
-- non-global registration
-  - main idea is that the registry lives in the Pipeline Class
-  - AND - any sub-class can declare itself a registry and any of its sub-classes register within it
-  - that way you can have multiple different sets of registered pipelines either within one project
-  - or imported in many NPMs
+- non-global
+
+  - in able to support multiple different remote APIs all accessible via ArtEry, we need a non-global solution for registries and sessions
+
+    - Mainstream JS libs just create objects with shared state and pass them around (like Redux). I find this too manual when it's not needed.
+    - I think the inheritance system will probably work nicer. You can still make a custom "local-global" object to hook into (e.g. inherit from Pipeline and make your own base-class)
+
+  - pipeline registration
+    - main idea is that the registry lives in the Pipeline Class
+    - AND - any sub-class can declare itself a registry and any of its sub-classes register within it
+    - that way you can have multiple different sets of registered pipelines either within one project
+    - or imported in many NPMs
+  - sessions
+    - like pipeline registration, we need sessions to be bound to a base Pipeline Class
+
 - better solution to "building" the client-only version of the pipelines without exposing server-side business logic
 - ReactJS Hooks support (alternative to ArtModels)
   - I generally like how Apollo thinks about it

@@ -35,7 +35,7 @@
     "art-ery-aws": "file:packages/art-ery-aws",
     "art-ery-indexed-db": "file:packages/art-ery-indexed-db",
     "art-ery-pusher": "file:packages/art-ery-pusher",
-    "art-events": "^1.3.10",
+    "art-events": "^2.0.0",
     "art-express-server": "file:packages/art-express-server",
     "art-frame-stats": "file:packages/art-frame-stats",
     "art-html-factory": "^2.1.11",
