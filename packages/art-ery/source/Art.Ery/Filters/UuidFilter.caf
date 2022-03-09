@@ -1,19 +1,16 @@
-{defineModule, log} = require 'art-standard-lib'
-Filter = require '../Filter'
-Uuid = require 'uuid'
-{FieldTypes} = require 'art-validation'
+import &StandardImport, {} &Uuid
 
-defineModule module, class UuidFilter extends Filter
+class UuidFilter extends Filter
 
   constructor: ->
-    super
     log.warn "DEPRICATED: UuidFilter. USE: UniqueIdFilter"
 
   @alwaysForceNewIds: true
   @before
     create: (request) ->
       request.withMergedData
-        id: if UuidFilter.alwaysForceNewIds
+        id:
+          if UuidFilter.alwaysForceNewIds
             Uuid.v4()
           else
             request.data.id || Uuid.v4()

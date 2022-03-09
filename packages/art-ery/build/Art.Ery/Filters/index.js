@@ -12,6 +12,7 @@
   LinkFieldsFilter2LegacyApiEncode:    require('./LinkFieldsFilter2LegacyApiEncode'),
   LinkFieldsFilter2Transition2BFilter: require('./LinkFieldsFilter2Transition2BFilter'),
   PrefetchedRecordsFilter:             require('./PrefetchedRecordsFilter'),
+  StandardImport:                      require('./StandardImport'),
   TimestampFilter:                     require('./TimestampFilter'),
   UniqueIdFilter:                      require('./UniqueIdFilter'),
   UserOwnedFilter:                     require('./UserOwnedFilter'),
