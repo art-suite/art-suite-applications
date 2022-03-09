@@ -1,6 +1,3 @@
-#!/usr/bin/env node
+#!/usr/bin/env bash
 
-let dynamoLocalPort = 8081;
-
-console.log(`Starting dynamodb on port ${dynamoLocalPort}`)
-require('dynamodb-local').launch(dynamoLocalPort, null, ["-sharedDb", "-cors", '"*"'])
+docker run -p 8081:8000 amazon/dynamodb-local
