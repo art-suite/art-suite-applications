@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "PrefetchedRecordsFilter.js",
+  "sourceRoot": "../../..",
+  "sources": [
+    "source/Art.Ery/Filters/PrefetchedRecordsFilter.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,uFAAO,8BAAiB,iGAExB,oFAAsC,iCAGvB,CAAC,yCACZ,yBAAqB,4EAA6B,+FAEpD,WAAM,CACJ,aAAK,CAAC,4BACJ,kBAAG,6BACD,4CAA4C,aAAa,kCAC3D"
+}

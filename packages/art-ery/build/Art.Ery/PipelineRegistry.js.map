@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "PipelineRegistry.js",
+  "sourceRoot": "../..",
+  "sources": [
+    "source/Art.Ery/PipelineRegistry.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,qFAAO,6EAEP,sEAA+B,6CAAkC,uGAC7C,yBAAmB,gCAGrC,QAAW,CAAC,CAAC,WAAW,gCAAa,UAErB,qBACH,UAAC,SAAS,YAErB,WAAoB,iBAAC,kBAA0B,WAE/C,iBAAa,aAAa,MAAM,mBAChC,2BAGF,QAAS,CAAC,qBAAkB,OAAQ,iBACtB,YAAY,qBAA0C,OACzD,UAAU"
+}

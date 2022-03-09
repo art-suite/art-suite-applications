@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "Server.js",
+  "sourceRoot": "../../..",
+  "sources": [
+    "source/Art.Ery/_Server/Server.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,yFAAO,2DAEP,QACE,4DACA,OAAO,CAAC,kBAYA,kBAAY,iBAElB,oCAAuB,CACrB,SAAc,gBACd,cAAc,OACd,UAEA,UAAU,gBACR,4BACA,gCACA"
+}

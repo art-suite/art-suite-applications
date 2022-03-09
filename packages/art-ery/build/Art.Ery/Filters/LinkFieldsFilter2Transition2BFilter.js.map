@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "LinkFieldsFilter2Transition2BFilter.js",
+  "sourceRoot": "../../..",
+  "sources": [
+    "source/Art.Ery/Filters/LinkFieldsFilter2Transition2BFilter.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;kFAEA,4GAAkD,mGAChD,cAAU,WAEV,YAAO,CACL,aAAK,CAAC,WAAa,iCAAyB,iCAAiC"
+}

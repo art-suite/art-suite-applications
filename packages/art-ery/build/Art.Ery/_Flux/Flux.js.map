@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "Flux.js",
+  "sourceRoot": "../../..",
+  "sources": [
+    "source/Art.Ery/_Flux/Flux.coffee"
+  ],
+  "names": [],
+  "mappings": ";AAAA;AAAA,MAAA;;EAAA,eAAA,GAAkB,OAAA,CAAQ,mBAAR;;EAElB,eAAe,CAAC,cAAhB,CAAA;;EAEA,MAAM,CAAC,OAAP,GACE;IAAA,8BAAA,EAAgC,eAAe,CAAC,2BAAhD;;AALF"
+}

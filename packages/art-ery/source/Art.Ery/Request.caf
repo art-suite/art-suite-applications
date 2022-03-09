@@ -1,5 +1,5 @@
 import &StandardImport, &ArtRestClient
-ArtEry = &namespace
+ArtEry = require :./namespace
 
 # validator must be initialized after Request and Pipeline have bene defined
 _validator = null

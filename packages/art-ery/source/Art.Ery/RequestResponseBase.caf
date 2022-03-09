@@ -1,6 +1,6 @@
 import &StandardImport, &Config
 
-ArtEry = &namespace
+ArtEry = require :./namespace
 
 class RequestResponseBase extends &ArtEryBaseObject
 
