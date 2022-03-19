@@ -61,8 +61,12 @@ class Server
     unless noServer then logPromiseErrors
       :Art.Suite.Server
       Promise
-      .then -> &ArtConfig.configure deepMerge options,
-        artConfig: Art.Suite.Server: {} app, metadata, appUrlRegexp, head
+      .then ->
+        &ArtConfig.configure deepMerge
+          options
+          artConfig: Art.Suite.Server: {} app, metadata, appUrlRegexp, head
+
+      .then -> log art-ery-server.start: configured-for: getArtConfigName()
 
       .then loadPipelines
       .then -> &ArtEry.sendInitializeRequestToAllPipelines() if isTest

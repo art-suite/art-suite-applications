@@ -65,6 +65,7 @@
     "copy-to-clipboard": "*",
     "crypto-browserify": "^3.12.0",
     "css-loader": "^6.2.0",
+    "dotenv": "^16.0.0",
     "dynamodb-local": "0.0.31",
     "express": "^4.17.1",
     "fake-indexeddb": "*",

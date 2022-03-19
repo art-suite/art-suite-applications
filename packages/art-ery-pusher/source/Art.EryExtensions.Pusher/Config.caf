@@ -54,16 +54,21 @@ class Config extends Configurable
       @pusherServer = new @PusherServer @config
 
       @verboseLog "" ArtEryPusher PusherServer: initialized
-      verifyConnection && @pusherServer.trigger
-        :ArtEryPusherConfig
-        :server
-        message: "" ArtEryPusher PusherServer: verifyConnection: pusher was initialized correctly
-        (error, request, response) ->
-          if error
-            @verboseLog "" ArtEryPusher PusherServer: not initialized correctly! trigger-attempt error: #{error}
-            console.log error
-          else
-            @verboseLog "" ArtEryPusher PusherServer: initialized correctly.
+      if verifyConnection
+        Promise.then ->
+          @pusherServer.trigger
+            :ArtEryPusherConfig
+            :server
+            message: "" ArtEryPusher PusherServer: verifyConnection: pusher was initialized correctly
+            (error, request, response) ->
+              if error
+                @verboseLog "" ArtEryPusher PusherServer: not initialized correctly! trigger-attempt error: #{error}
+                console.log error
+              else
+                @verboseLog "" ArtEryPusher PusherServer: initialized correctly.
+        .then
+          (success) -> log ArtEryPusher: verifyConnection: {} success
+          (error) -> log ArtEryPusher: verifyConnection: error: {message, url, error, status, body} = error
 
     if !@PusherClient && !@PusherServer
       @verboseLog "" disabled. Require: art-ery-pusher/Client or art-ery-pusher/Server
