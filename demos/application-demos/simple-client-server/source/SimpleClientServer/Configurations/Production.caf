@@ -1,3 +1,4 @@
 import &ArtStandardLib
 
 class Production extends &ArtConfig.Config
+  @deepMergeInConfig &artConfigsPrivate[@name]

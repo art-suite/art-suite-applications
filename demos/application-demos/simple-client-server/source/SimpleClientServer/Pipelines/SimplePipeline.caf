@@ -5,4 +5,4 @@ class SimplePipeline extends Pipeline
   @publicRequestTypes :get
 
   @handler
-    get: ({key})-> {key, isBrowser, isNode}
+    get: ({key})-> "" The #{if isBrowser then :client else :server} received your request for: #{key}.

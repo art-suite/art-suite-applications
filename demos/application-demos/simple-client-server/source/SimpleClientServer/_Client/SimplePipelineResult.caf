@@ -1,0 +1,17 @@
+import &ArtSuite, &Style
+
+class SimplePipelineResult extends FluxComponent
+  @subscriptions :simplePipeline
+
+  render: ->
+    Element
+      :row :parentWidthChildrenHeight
+      TextElement
+        :parentWidthChildrenHeight
+        mediumText
+        text: "" SimplePipelineResult:
+
+      TextElement
+        :parentWidthChildrenHeight
+        mediumText
+        text: @simplePipeline

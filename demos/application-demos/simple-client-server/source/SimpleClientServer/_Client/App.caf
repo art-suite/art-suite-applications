@@ -1,13 +1,4 @@
-import &StandardImport
-
-class Result extends FluxComponent
-  @subscriptions :simplePipeline
-
-  render: ->
-    TextElement
-      :parentWidthChildrenHeight
-      fontFamily: "courier"
-      text: "#{formattedInspect Result: {@simplePipeline}}"
+import &ArtSuite, &Style
 
 class App extends FluxComponent
 
@@ -21,12 +12,15 @@ class App extends FluxComponent
       Element
         :row :parentWidthChildrenHeight
         TextElement
-          text: "Type in your key:"
+          :parentWidthChildrenHeight
+          mediumText
+          text: "" Type in any key and press enter:
 
         TextInputElement
           :parentWidthChildrenHeight
+          mediumText
           draw: padding: -5 color: #eee
           value: @simplePipelineId
           on: enter: (event) -> @simplePipelineId = event.target.value
 
-      Result simplePipelineId: @simplePipelineId
+      &SimplePipelineResult simplePipelineId: @simplePipelineId

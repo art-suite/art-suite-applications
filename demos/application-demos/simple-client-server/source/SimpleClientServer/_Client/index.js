@@ -4,7 +4,8 @@
 (module.exports = require('./namespace'))
 
 .addModules({
-  App:            require('./App'),
-  Main:           require('./Main'),
-  StandardImport: require('./StandardImport')
+  App:                  require('./App'),
+  Main:                 require('./Main'),
+  SimplePipelineResult: require('./SimplePipelineResult'),
+  Style:                require('./Style')
 });

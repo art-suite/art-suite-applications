@@ -1,5 +1,6 @@
 &ArtEryPusher/Server
 &ArtSuiteServer
 .start
+  verbose: true
   app:    &source
   static: root: :./public
