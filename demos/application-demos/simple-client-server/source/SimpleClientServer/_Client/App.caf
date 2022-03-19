@@ -1,0 +1,32 @@
+import &StandardImport
+
+class Result extends FluxComponent
+  @subscriptions :simplePipeline
+
+  render: ->
+    TextElement
+      :parentWidthChildrenHeight
+      fontFamily: "courier"
+      text: "#{formattedInspect Result: {@simplePipeline}}"
+
+class App extends FluxComponent
+
+  @stateFields simplePipelineId: :abc123
+
+  render: ->
+    Element
+      padding: 10
+      :column
+      childrenMargins: 10
+      Element
+        :row :parentWidthChildrenHeight
+        TextElement
+          text: "Type in your key:"
+
+        TextInputElement
+          :parentWidthChildrenHeight
+          draw: padding: -5 color: #eee
+          value: @simplePipelineId
+          on: enter: (event) -> @simplePipelineId = event.target.value
+
+      Result simplePipelineId: @simplePipelineId

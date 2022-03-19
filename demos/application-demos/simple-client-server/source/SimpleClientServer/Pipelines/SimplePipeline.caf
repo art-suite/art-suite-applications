@@ -1,0 +1,8 @@
+import &ArtStandardLib, &ArtEry
+
+class SimplePipeline extends Pipeline
+
+  @publicRequestTypes :get
+
+  @handler
+    get: ({key})-> {key, isBrowser, isNode}

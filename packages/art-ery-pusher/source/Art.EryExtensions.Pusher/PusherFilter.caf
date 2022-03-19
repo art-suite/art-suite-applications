@@ -1,4 +1,4 @@
-import &StandardImport, &Lib, {} &Config
+import &StandardImport, &Lib
 
 class PusherFilter extends Filter
 
@@ -19,7 +19,7 @@ class PusherFilter extends Filter
       pipeline.toKeyString data
       payload
 
-  @group "outer"
+  @group :outer
 
   @after
     create: afterFilter = (response) ->
