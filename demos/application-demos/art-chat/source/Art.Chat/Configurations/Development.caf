@@ -13,10 +13,6 @@ class Development extends &ArtConfig.Config
         endpoint:         :http://localhost:8011/proxy
 
     EryExtensions: Pusher:
-      appId:    :1264953
-      key:      :0ebfb9347ec2b3230ae5
-      cluster:  :us3
-
       verbose:            true
       verifyConnection:   true
 

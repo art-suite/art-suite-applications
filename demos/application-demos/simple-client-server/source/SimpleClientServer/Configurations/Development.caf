@@ -1,13 +1,3 @@
 import &ArtStandardLib
 
 class Development extends &ArtConfig.Config
-  Art:
-    EryExtensions: Pusher:
-      verbose:            true
-      verifyConnection:   true
-
-  log configureDevelopment: {}
-    @name
-    private: &artConfigsPrivate[@name]
-
-  @deepMergeInConfig &artConfigsPrivate[@name]

@@ -1,4 +1,3 @@
-&ArtEryPusher/Server
 &ArtSuiteServer
 .start
   verbose: true
