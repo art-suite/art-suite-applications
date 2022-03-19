@@ -4,8 +4,8 @@ class Development extends &ArtConfig.Config
   Art:
     Aws:
       credentials:
-        accessKeyId:      :blah
-        secretAccessKey:  :blahblah
+        accessKeyId:      :blah-dev
+        secretAccessKey:  :blahblah-dev
 
       region:             :us-west-2
 
@@ -15,7 +15,8 @@ class Development extends &ArtConfig.Config
     EryExtensions: Pusher:
       verbose:            true
       verifyConnection:   true
+      appId:              :1364309
+      key:                :406318e193ef46ced105
+      cluster:            :us3
 
     Ery: tableNamePrefix: :art-chat-dev.
-
-  @deepMergeInConfig &artConfigsPrivate[@name]

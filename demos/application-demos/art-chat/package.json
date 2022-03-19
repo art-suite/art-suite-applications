@@ -3,7 +3,8 @@
   "bugs": "https://github.com/art-suite/art-suite-applications/issues",
   "dependencies": {
     "art-ery-pusher": "^0.12.0",
-    "art-suite": "^2.0.7"
+    "art-suite": "^2.0.7",
+    "dotenv": "^16.0.0"
   },
   "description": "Art.Chat",
   "devDependencies": {
@@ -30,7 +31,7 @@
     "start": "npm run start-dev-web-server",
     "start-db": "npm run dynamodb& npm run lcp",
     "start-dev": "npm run start-db& sleep 2; npm run init-dev; npm run start-dev-web-server; wait",
-    "start-dev-web-server": "cafSourceMaps=true webpack serve --hot --progress --static .",
+    "start-dev-web-server": "cafSourceMaps=true webpack serve --hot --progress --static ./public-dev",
     "start-server": "caf ./Server.caf",
     "test": "cafSourceMaps=true webpack serve --progress"
   },
