@@ -2,4 +2,4 @@
 // file: tests/index.js
 
 module.exports = require('./namespace');
-require('./Art.Chat');
+require('./SimpleClientServer');
