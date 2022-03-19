@@ -5,5 +5,6 @@
 
 .addModules({
   DynamoDbPipeline: require('./DynamoDbPipeline'),
-  SqsPipeline:      require('./SqsPipeline')
+  SqsPipeline:      require('./SqsPipeline'),
+  StandardImport:   require('./StandardImport')
 });

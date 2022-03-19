@@ -1,0 +1,43 @@
+import &StandardImport
+
+class SqsPipeline extends Pipeline
+  @abstractClass()
+
+  @getter sqs: -> Sqs.singleton
+
+  @handlers
+    sendMessage: ({body}) ->
+      @sqs.sendMessage
+        queue: @tableName
+        body: JSON.stringify body
+
+    ## receiveMessage
+      IN: request.data:
+        visibilityTypeout: time in seconds before the job is requeued
+        wait: time in seconds to wait for an available job before returning
+      OUT: one message
+    receiveMessage: ({data}) ->
+      data extract visibilityTimeout, wait
+      @sqs.receiveMessage
+        queue: @tableName
+        {} visibilityTimeout, wait, limit: 1
+      .then (messages) -> messages[0]
+
+    ## receiveMessages
+      IN: request.data:
+        visibilityTypeout: time in seconds before the job is requeued
+        wait: time in seconds to wait for an available job before returning
+        limit: max number of messages to return. Default = 10 (also the max possible)
+      OUT: [messages...]
+    receiveMessages: ({data}) ->
+      data extract limit = 10, visibilityTimeout, wait
+      @sqs.receiveMessage
+        queue: @tableName
+        {limit, visibilityTimeout, wait}
+
+    ## deleteMessage
+      IN: request.key is the receiptHandle
+    deleteMessage: ({key}) ->
+      @sqs.deleteMessage
+        queue: @tableName
+        receiptHandle: key
