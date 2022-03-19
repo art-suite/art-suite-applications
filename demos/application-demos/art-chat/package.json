@@ -24,10 +24,15 @@
   },
   "scripts": {
     "build": "nn -s; webpack --progress",
-    "dynamodb": "./start-dynamo-db-local-server.sh",
+    "dynamodb": "docker run -p 8081:8000 amazon/dynamodb-local",
     "init-dev": "nn -s\n./tool initialize-pipelines",
     "lcp": "lcp --proxyUrl http://localhost:8081 --port 8011",
-    "start": "cafSourceMaps=true webpack serve --hot --progress --static .",
+    "start": "npm run start-dev-web-server",
+    "start-db": "npm run dynamodb& npm run lcp",
+    "start-dev": "npm run start-db& sleep 2; npm run init-dev; npm run start-dev-web-server; wait",
+    "start-dev-web-server": "cafSourceMaps=true webpack serve --hot --progress --static .",
+    "start-server": "caf ./Server.caf",
     "test": "cafSourceMaps=true webpack serve --progress"
-  }
+  },
+  "version": "0.0.1"
 }

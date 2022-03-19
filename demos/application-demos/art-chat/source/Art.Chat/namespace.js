@@ -6,6 +6,5 @@ module.exports = require('neptune-namespaces-runtime').addNamespace(
   (class Chat extends Neptune.PackageNamespace {})
   ._configureNamespace(require('../../package.json'))
 );
-require('./Client/namespace');
 require('./Configurations/namespace');
 require('./Pipelines/namespace');

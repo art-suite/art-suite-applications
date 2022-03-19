@@ -1,6 +1,5 @@
-&Configurations
-&Pipelines
 &ArtEryPusher/Server
-&ArtSuiteApp/Server
+&ArtSuiteServer
 .start
+  app:    &source
   static: root: :./public

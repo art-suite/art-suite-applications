@@ -2,6 +2,5 @@
 // file: Art.Chat/index.js
 
 module.exports = require('./namespace');
-require('./Client');
 require('./Configurations');
 require('./Pipelines');
