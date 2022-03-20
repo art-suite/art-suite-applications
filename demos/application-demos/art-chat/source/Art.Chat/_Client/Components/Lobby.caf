@@ -48,9 +48,9 @@ class Lobby extends FluxComponent
       :cacheDraw
 
       animators:
-        location: duration: .5 toFrom: ps: .5, y: -70
-        opacity:  duration: .5 toFrom: 0
-        scale:    duration: .5 toFrom: .975
+        location: toFrom: ps: .5, y: -70
+        opacity:  toFrom: 0
+        scale:    toFrom: .975
       Element
         size: hch: 1
         TextElement
@@ -101,7 +101,8 @@ class Lobby extends FluxComponent
       else
         Element
           :topCenter
+          padding: 20
           key: :chatView
-          animators: axis: duration: .5 toFrom: y: -1, x: .5
-          size: ww: 1 max: x: 400
+          animators: axis: toFrom: y: -1, x: .5
+          size: ww: 1 max: x: 440
           &ChatView {} @currentUser, @chatRoom, @exit

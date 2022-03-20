@@ -29,12 +29,11 @@ class ChatMessage extends Component
 
           draw: unless isAction then []
             rectangle: radius: 10
-            if currentUsersMessage
-              colors:
-                &Palette.veryLightPrimary
+            color:
+              if currentUsersMessage
                 &Palette.lightPrimary
-            else
-              &Palette.gray
+              else
+                &Palette.gray
 
           !isAction && TextElement
             &StyleProps.mediumText

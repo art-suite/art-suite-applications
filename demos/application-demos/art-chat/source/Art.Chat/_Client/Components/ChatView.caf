@@ -33,7 +33,10 @@ class ChatView extends FluxComponent
 
     Element
       :column
-      draw: &StyleProps.chatViewBackground
+      draw:
+        radius: 5
+        :clip
+        &StyleProps.chatViewBackground
 
       Element
         :row :childrenCenterLeft
