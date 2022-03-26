@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "Pipeline.js",
+  "sourceRoot": "../..",
+  "sources": [
+    "source/test/Pipeline.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;"
+}

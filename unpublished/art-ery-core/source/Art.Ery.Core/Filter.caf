@@ -1,0 +1,30 @@
+import &StandardImport
+
+class Filter extends BaseClass
+
+  @extendableProperty
+    before: {}
+    after: {}
+
+  constructor: (options) ->
+    @before = options.before
+    @after = options.after
+
+  applyHandler: (request, handler) -> Promise.resolve if handler then handler request else request
+
+  filterBefore: (request) -> @applyHandler request, @getBeforeFilter request
+  filterAfter:  (request) -> @applyHandler request, @getAfterFilter request
+
+  getBeforeFilter: ({type, location}) -> @before[type] ? @before.all
+  getAfterFilter:  ({type, location}) -> @after[type]  ? @after.all
+
+  handleRequest: (request, filterChain, filterChainIndex) ->
+    @filterBefore request
+    .then (beforeFilteredRequest) ->
+      nextIndex = filterChainIndex + 1
+      filterChain[nextIndex].handleRequest
+        beforeFilteredRequest
+        filterChain
+        nextIndex
+
+    .then (handledRequest) -> @filterAfter handledRequest

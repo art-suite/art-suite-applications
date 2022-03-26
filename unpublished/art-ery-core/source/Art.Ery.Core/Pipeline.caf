@@ -1,0 +1,84 @@
+import &StandardImport, {} &Filter
+
+
+normalizeRequestArgs = (a, b) ->
+  if isString a       then key   = a; a = b; b = null # shift <<
+  if isPlainObject a  then props = a; a = b; b = null # shift <<
+
+  if a? # any args remaining are unexpected
+    throw new Error "Invalid argument: #{formattedInspect a}"
+
+  props:
+    if key?
+      keyProp = {} key
+      if props? then merge keyProp, props
+      else keyProp
+
+    else props ? {}
+
+instantiateFilter = (filter) ->
+    if isClass filter                 then new filter
+    else if filter is Filter          then filter
+    else if isPlainObject filter      then new Filter filter
+    else throw "invalid filter: #{inspect filter} #{filter instanceof Filter}"
+
+preprocessFilters = (filters) ->
+  if isPlainArray filters
+    array f in compactFlatten filters when f with instantiateFilter f
+
+  else
+    instantiateFilter filters
+
+class Pipeline extends BaseClass
+  @abstractClass()
+
+  @extendableProperty
+    handlers: {}
+    filters:  []
+
+  @register: ->
+    @singletonClass()
+
+  @postCreateConcreteClass: ({hotReloaded}) ->
+    @_defineClientHandlerMethods()
+    @register() unless hotReloaded
+    super
+
+  @getter
+    filterChain: -> @_filterChain ?=
+      compactFlatten [] @, @filters
+      .reverse()
+
+  @filters: (filters)   -> @extendFilters preprocessFilters filters
+  @filter:  (filters)   -> @filters filters
+  @handler: (handlers)  -> @handlers handlers
+
+  handleRequest: (request) -> Promise.then -> @handlers[request.type] request
+
+  ##########################################
+    PRIVATE
+  ##########################################
+
+  ### _processClientRequest
+    IN:
+      type:   request type string
+      key?:   string
+      props?: plain-object
+
+      key and/or props can be omitted, but they must be passed in the correct order of using both
+
+    OUT: Promise.then ->
+      request response payload
+  _processClientRequest: (type, a, b) ->
+    {props} = normalizeRequestArgs a, b
+    @_processRequest {} type, props, props.data, props.key
+
+  _processRequest: (request) ->
+    @filterChain[0].handleRequest request, @filterChain, 0
+
+  @_defineClientRequestMethod: (requestType) ->
+    @prototype[requestType] ?= (a, b) ~> @_processClientRequest requestType, a, b
+
+  @_defineClientHandlerMethods: ->
+    each handler, name from @getHandlers()
+      @_defineClientRequestMethod name

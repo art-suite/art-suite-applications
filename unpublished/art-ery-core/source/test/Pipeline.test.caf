@@ -1,0 +1,72 @@
+import &StandardImport
+
+test "pipeline automatically has a singlton" ->
+  class MyPipeline extends Pipeline
+
+  assert.present MyPipeline.myPipeline
+
+describe "handlers" ->
+
+  test "basic handler" ->
+    class MyPipeline extends Pipeline
+      @handlers hello: -> "Hello world."
+
+    .myPipeline.hello()
+    .then (result) -> assert.eq result, "Hello world."
+
+  test "handler and that responds to a key" ->
+    class MyPipeline extends Pipeline
+      @handlers hello: ({key}) -> "" Hello, #{key}.
+
+    .myPipeline.hello :Shane
+    .then (result) -> assert.eq result, "Hello, Shane."
+
+  test "handler error on invalid argument" ->
+    class MyPipeline extends Pipeline
+      @handlers hello: -> "" Hi
+
+    assert.throws -> MyPipeline.myPipeline.hello new Date
+
+  test "handler with data payload" ->
+    class MyPipeline extends Pipeline
+      @handlers hello: ({data}) -> "Hello, #{data.name}."
+
+    .myPipeline.hello data: name: :Alice
+    .then (result) -> assert.eq result, "Hello, Alice."
+
+  test "handler with custom props" ->
+    class MyPipeline extends Pipeline
+      @handlers hello: ({props}) -> "Hello, #{props.customProp}."
+
+    .myPipeline.hello customProp: :John
+    .then (result) -> assert.eq result, "Hello, John."
+
+  test "handler with key and data" ->
+    class MyPipeline extends Pipeline
+      @handlers hello: ({key, data}) -> {} key, data
+
+    .myPipeline.hello :John data: :Frank
+    .then (result) -> assert.eq result, key: :John, data: :Frank
+
+describe "filters" ->
+
+  test "basic before filter" ->
+    class MyPipeline extends Pipeline
+      @handlers         hello: ({key}) -> "Hello, #{key}."
+      @filters  before: hello: (request) -> merge request, key: "" before-#{request.key}
+
+    .myPipeline.hello :George
+    .then (result) -> assert.eq result, "Hello, before-George."
+
+  ##
+    TODO - to get this to work, we need to actually ensure the output of each handler/filter is a Request object
+
+  test "basic after filter" ->
+    class MyPipeline extends Pipeline
+      @handlers         hello: ({key}) -> "Hello, #{key}."
+      @filter   after:  hello: (request) ->
+        log afterFilter: request
+        merge request, responseProps: data: "" #{request.responseProps.data}-after
+
+    .myPipeline.hello :George
+    .then (result) -> assert.eq result, "Hello, George.-after"
