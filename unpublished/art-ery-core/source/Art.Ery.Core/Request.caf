@@ -1,23 +1,8 @@
 import &StandardImport, &Lib.Env, {} &Request
 
 normalizeResponseOptions = (status, responseOptions = {}) ->
-
   switch
-  when isPlainObject responseOptions
-    responseOptions extract key, data, props
-    if key || data
-      keyDataProps =
-        if key && data then {} key, data
-        else if key then {} key else {} data
-
-      responseOptions = objectWithout responseOptions, :key :data :props
-      responseOptions.props = if props then merge props, keyDataProps else keyDataProps
-      responseOptions.status = status
-      responseOptions
-
-    else
-      merge responseOptions, {} status
-
+  when isPlainObject responseOptions  then merge responseOptions, {} status
   when isString responseOptions       then {} status, data: message: responseOptions
 
   # unsupported responseOptions type is an internal failure
@@ -48,9 +33,9 @@ class Request extends BaseClass
     @validate options
 
   validate: (options) ->
-    throw new Error "Props must nullish or a plain object: #{formattedInspect @props}" if @props? && !isPlainObject @props
-    throw new Error "Data must nullish or a json value: #{formattedInspect {@data, options}}" if @data? && !isJsonType @data
-    throw new Error "Key must nullish or a json value: #{formattedInspect {@key, options}}" if @key? && !isJsonType @key
+    throw new Error "Props must be nullish or a plain object: #{formattedInspect @props}" if @props? && !isPlainObject @props
+    throw new Error "Data must be nullish or a json value: #{formattedInspect {@data, options}}" if @data? && !isJsonType @data
+    throw new Error "Key must be nullish or a json value: #{formattedInspect {@key, options}}" if @key? && !isJsonType @key
 
     throw new Error "invalid status: #{formattedInspect @status}" if @status && !validStatus @status
     throw new Error "missing type" unless isString(@type) && @type.length > 0
@@ -101,10 +86,6 @@ class Request extends BaseClass
       else @pipelineAndType
 
     simpleInspectedObjects: ->
-      # TODO: instead of @propsForClone, let's just clone the stuff we want
-      # Also, let's compact things a bit with: "pipelineName.requestType"
-      # break out key and data from props... etc...
-
       props = objectWithout @props, :key :data
       props = null unless 0 < objectKeyCount props
 
@@ -150,10 +131,6 @@ class Request extends BaseClass
   # This is because you may be running on the client or the server. If running on the client, it isn't a serverFailure.
   # If status == "failure", the ArtEry HTTP server will convert that status to serverFailure automatically.
 
-  ##########################
-    PRIVATE
-  ##########################
-
   ## toResponse
     IN:
       status: legal CommunicationStatus
@@ -182,6 +159,9 @@ class Request extends BaseClass
     else if @isMissing then Promise.reject @
     else Promise.reject @_getRejectionError()
 
+  ##########################
+    PRIVATE
+  ##########################
   _getRejectionError: ->
     @_preparedRejectionError ?= new RequestError {}
       message:
