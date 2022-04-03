@@ -29,7 +29,7 @@ class Filter extends BaseObject
 
         .then (handledRequest) -> @applyFilter handledRequest
 
-      else request.error "" Internal error: no remaining handlers.
+      else request.failure "" Internal error: no remaining handlers.
 
   applyFilter: (request, before) ->
     request extract type
@@ -41,16 +41,17 @@ class Filter extends BaseObject
       promisedRequest
       .then filterFunction
       .then (result) ->
-        request = request.success data: result if isJsonType result
-
         switch
         when result == undefined then request
-        when result is Request
-          if result != request
-            result.filter = [if before then :before else :after]: [if usedAll then :all else type]: @
+        when result == null then request.missing()
+        when isJsonType result then request.success data: result
+        when result is Request then result
+        else request.failure "invalid filter result: #{formattedInspect result}"
 
-          result
+      .then (result) ->
+        if result != request
+          result.filter = [if before then :before else :after]: [if usedAll then :all else type]: @
 
-        else throw new Error "invalid filter result: #{formattedInspect result}"
+        result
 
     else promisedRequest

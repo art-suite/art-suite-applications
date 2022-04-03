@@ -2,3 +2,4 @@
   &ArtStandardLib
   &ArtTestbench
   &ArtEryCore
+  &ArtCommunicationStatus

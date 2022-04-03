@@ -40,11 +40,7 @@ instantiateFilter = (filter) ->
     else throw "invalid filter: #{inspect filter} #{filter instanceof Filter}"
 
 preprocessFilters = (filters) ->
-  if isPlainArray filters
-    array f in compactFlatten filters when f with instantiateFilter f
-
-  else
-    instantiateFilter filters
+  array f in compactFlatten filters when f with instantiateFilter f
 
 class Pipeline extends BaseClass
   @abstractClass()
@@ -74,8 +70,10 @@ class Pipeline extends BaseClass
 
     name: -> @_name ?= lowerCamelCase @class.name
 
-  @filters: (filters)   -> @extendFilters preprocessFilters filters
-  @filter:  (filters)   -> @filters filters
+  toString: -> @name
+
+  @filters: (filters...)   -> @extendFilters preprocessFilters compactFlatten filters
+  @filter:  (filters...)   -> @filters filters
   @handler: (handlers)  -> @handlers handlers
 
   handleRequest: (request) ->
@@ -88,9 +86,9 @@ class Pipeline extends BaseClass
           when result == null     then request.missing()
           when isJsonType result  then request.success data: result
           when result is Request && result.isResponse then result
-          else throw new Error "invalid handler result for '#{request.type}': #{formattedInspect result}"
+          else request.failure "invalid handler result for '#{request.type}': #{formattedInspect result}"
 
-      else throw new Error "no handler for request: #{formattedInspect {} request}"
+      else request.failure "no handler for request: #{formattedInspect {} request}"
 
   ##########################################
     PRIVATE
