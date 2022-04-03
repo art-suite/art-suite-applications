@@ -1,30 +1,56 @@
-import &StandardImport
+import &StandardImport, {} &Request
 
-class Filter extends BaseClass
+class Filter extends BaseObject
 
   @extendableProperty
     before: {}
     after: {}
 
+  @getter
+    name: -> @_name ? @constructor.name
+    inspectedObjects: -> @name
+
   constructor: (options) ->
     @before = options.before
     @after = options.after
+    @_name = options.name
 
-  applyHandler: (request, handler) -> Promise.resolve if handler then handler request else request
-
-  filterBefore: (request) -> @applyHandler request, @getBeforeFilter request
-  filterAfter:  (request) -> @applyHandler request, @getAfterFilter request
-
-  getBeforeFilter: ({type, location}) -> @before[type] ? @before.all
-  getAfterFilter:  ({type, location}) -> @after[type]  ? @after.all
-
-  handleRequest: (request, filterChain, filterChainIndex) ->
-    @filterBefore request
+  handleRequest: (request, remainingHandlers) ->
+    @applyFilter request, true
     .then (beforeFilteredRequest) ->
-      nextIndex = filterChainIndex + 1
-      filterChain[nextIndex].handleRequest
+      if beforeFilteredRequest.isResponse
         beforeFilteredRequest
-        filterChain
-        nextIndex
 
-    .then (handledRequest) -> @filterAfter handledRequest
+      else if remainingHandlers?
+        [nextHandler, remainingHandlers] = remainingHandlers
+        nextHandler.handleRequest
+          beforeFilteredRequest
+          remainingHandlers
+
+        .then (handledRequest) -> @applyFilter handledRequest
+
+      else request.error "" Internal error: no remaining handlers.
+
+  applyFilter: (request, before) ->
+    request extract type
+    filterSet = if before then @before else @after
+
+    promisedRequest = Promise.resolve request
+
+    if filterFunction = filterSet[type] ? usedAll = filterSet.all
+      promisedRequest
+      .then filterFunction
+      .then (result) ->
+        request = request.success data: result if isJsonType result
+
+        switch
+        when result == undefined then request
+        when result is Request
+          if result != request
+            result.filter = [if before then :before else :after]: [if usedAll then :all else type]: @
+
+          result
+
+        else throw new Error "invalid filter result: #{formattedInspect result}"
+
+    else promisedRequest

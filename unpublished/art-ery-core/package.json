@@ -4,6 +4,10 @@
       "build/**/*.js",
       "!build/test/**/*.js"
     ],
+    "coveragePathIgnorePatterns": [
+      "/index.js$",
+      "/namespace.js$"
+    ],
     "testEnvironment": "node",
     "testPathIgnorePatterns": [
       "/node_modules/",

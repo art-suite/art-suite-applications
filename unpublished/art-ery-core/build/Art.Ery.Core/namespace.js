@@ -6,3 +6,4 @@ module.exports = require('neptune-namespaces-runtime').addNamespace(
   (class Core extends Neptune.PackageNamespace {})
   ._configureNamespace(require('../../package.json'))
 );
+require('./Lib/namespace');

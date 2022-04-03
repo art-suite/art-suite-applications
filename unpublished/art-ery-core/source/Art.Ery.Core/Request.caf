@@ -1,0 +1,220 @@
+import &StandardImport, &Lib.Env, {} &Request
+
+normalizeResponseOptions = (status, responseOptions = {}) ->
+
+  switch
+  when isPlainObject responseOptions
+    responseOptions extract key, data, props
+    if key || data
+      keyDataProps =
+        if key && data then {} key, data
+        else if key then {} key else {} data
+
+      responseOptions = objectWithout responseOptions, :key :data :props
+      responseOptions.props = if props then merge props, keyDataProps else keyDataProps
+      responseOptions.status = status
+      responseOptions
+
+    else
+      merge responseOptions, {} status
+
+  when isString responseOptions       then {} status, data: message: responseOptions
+
+  # unsupported responseOptions type is an internal failure
+  else
+    status: failure
+    data: message:
+      if responseOptions instanceof Error
+            "" Internal Error: ArtEry.Request#toResponse received Error instance: #{formattedInspect responseOptions}
+      else  "" Internal Error: ArtEry.Request#toResponse received unsupported type
+
+class Request extends BaseClass
+
+  constructor: (options) ->
+    @_pipeline = options.pipeline
+    @_type = options.type
+    @_status = options.status
+    @_previousRequest = options.previousRequest
+
+    @_props =
+      if options.key || options.data
+        if options.props
+          merge options.props, {} options.key, options.data
+        else if options.key && options.data
+          {} options.key, options.data
+        else if options.key then {} options.key else {} options.data
+      else options.props ? {}
+
+    @validate options
+
+  validate: (options) ->
+    throw new Error "Props must nullish or a plain object: #{formattedInspect @props}" if @props? && !isPlainObject @props
+    throw new Error "Data must nullish or a json value: #{formattedInspect {@data, options}}" if @data? && !isJsonType @data
+    throw new Error "Key must nullish or a json value: #{formattedInspect {@key, options}}" if @key? && !isJsonType @key
+
+    throw new Error "invalid status: #{formattedInspect @status}" if @status && !validStatus @status
+    throw new Error "missing type" unless isString(@type) && @type.length > 0
+    throw new Error "missing pipeline" unless @pipeline?
+
+  @getter
+    :previousRequest
+    :pipeline
+    :type
+    :props
+    :status
+    key:  -> @props.key
+    data: -> @props.data
+
+    originalRequest: -> @previousRequest?.originalRequest ? @
+    request: -> if @isResponse then @previousRequest.request else @
+
+    optionsForClone: -> {}
+      @pipeline
+      @type
+      @props
+      @status
+
+    isResponse:         -> @status?
+    isSuccessful:       -> @status == success
+    isMissing:          -> @status == missing
+    notSuccessful:      -> @isResponse? && !@isSuccessful
+
+    responseProps:  -> if @isResponse then @props
+    responseData:   -> if @isResponse then @data
+    responseKey:    -> if @isResponse then @key
+
+    requestProps:  -> @request.props
+    requestData:   -> @request.data
+    requestKey:    -> @request.key
+
+  @property
+    :filter
+
+  ########################################
+    Introspection
+  ########################################
+  @getter
+    pipelineName:       -> @pipeline.getName()
+    pipelineAndType:    -> "" #{@pipelineName}.#{@type}
+    requestString: ->
+      if @key? then @pipelineAndType + " #{formattedInspect @key}"
+      else @pipelineAndType
+
+    simpleInspectedObjects: ->
+      # TODO: instead of @propsForClone, let's just clone the stuff we want
+      # Also, let's compact things a bit with: "pipelineName.requestType"
+      # break out key and data from props... etc...
+
+      props = objectWithout @props, :key :data
+      props = null unless 0 < objectKeyCount props
+
+      raw = {}
+        "#{if @isResponse then :Response else :Request}": @requestString
+        @filter
+        @originatedOnServer
+        @status
+        @data
+        props
+        @errorProps
+
+      toInspectedObjects object v from raw when v?
+
+    requestChain: (appendTo = []) ->
+      push
+        if @previousRequest
+          @previousRequest?.getRequestChain appendTo
+        else []
+        @
+
+    inspectedObjects: ->
+      ["Art.Ery.#{@constructor?.name}"]: array request in @requestChain
+        request.simpleInspectedObjects
+
+  ########################################
+    Clone with mutations
+  ########################################
+  withKey:    (key)   -> @withMergedOptions {} key
+  withData:   (data)  -> @withMergedOptions {} data
+  withProps:  (props) -> @withMergedOptions {} props
+  withMergedOptions: (options) -> new Request merge @optionsForClone, options, previousRequest: @
+
+  ########################################
+    Create Response
+  ########################################
+  success:                    (responseOptions) -> @toResponse success,                     responseOptions
+  missing:                    (responseOptions) -> @toResponse missing,                     responseOptions
+  clientFailure:              (responseOptions) -> @toResponse clientFailure,               responseOptions
+  clientFailureNotAuthorized: (responseOptions) -> @toResponse clientFailureNotAuthorized,  responseOptions
+  failure:                    (responseOptions) -> @toResponse failure,                     responseOptions
+  # NOTE: there is no serverFailure method because you should always use just 'failure'.
+  # This is because you may be running on the client or the server. If running on the client, it isn't a serverFailure.
+  # If status == "failure", the ArtEry HTTP server will convert that status to serverFailure automatically.
+
+  ##########################
+    PRIVATE
+  ##########################
+
+  ## toResponse
+    IN:
+      status: legal CommunicationStatus
+      responseOptions: (optionally Promise returning:)
+        PlainObject:
+          key:            string
+          data:           non-null jsonValue
+          props:          non-null jsonValue
+
+        String:               becomes data: message: string
+        RequestResponseBase:  returned directly
+        else:                 considered internal error, but it will create a valid, failing Response object
+    OUT:
+      promise.then (response) ->
+      .catch -> # should never happen
+  toResponse: (status, responseOptions) ->
+    throw new Error "missing status" unless isString status
+
+    Promise.resolve responseOptions
+    .then (responseOptions) -> @withMergedOptions normalizeResponseOptions status, responseOptions
+
+  ## toPromise
+    return a promise returning self OR a rejected promise of not successful
+  toPromise: ->
+    if @isSuccessful then Promise.resolve @
+    else Promise.reject @_getRejectionError()
+
+  _getRejectionError: ->
+    @_preparedRejectionError ?= new RequestError {}
+      message:
+        compactFlatten []
+          @responseData?.message ? @responseProps?.message ? @errorProps?.exception?.message
+          ""
+          "" request: #{@pipeline}.#{@type}
+          formattedInspect {}
+            @status
+            @session
+            props: @requestProps
+
+        .join "\n"
+
+      @type
+      @status
+      @requestData
+      @responseData
+      sourceLib:  :ArtEry
+      response:   @
+      stack:
+        compactFlatten []
+          if exception = @errorProps?.exception
+              "Exception stack:\n#{cleanStackTrace exception.stack, false, true}\n"
+
+          array {time, request, context, name, stack, filterLog}, i in @requestTrace by -1
+            ""
+              #{request}: #{if filterLog? then (array {name} in filterLog with name when name != :created).join " -> " else "#{context} #{name}"}
+              (request-depth: #{i + 1}, start-time: #{time*1000|0}ms)
+              #{if stack then "\n#{cleanStackTrace stack, null, true}\n" else ''}
+
+          .join "\n"
+
+          getDetailedRequestTracingExplanation()
+          getCleanStackTraceWarning()
+
+        .join "\n"

@@ -6,5 +6,7 @@
 .addModules({
   Filter:         require('./Filter'),
   Pipeline:       require('./Pipeline'),
+  Request:        require('./Request'),
   StandardImport: require('./StandardImport')
 });
+require('./Lib');

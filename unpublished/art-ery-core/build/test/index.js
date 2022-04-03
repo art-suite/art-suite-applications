@@ -4,7 +4,8 @@
 (module.exports = require('./namespace'))
 
 .addModules({
-  Pipeline:       require('./Pipeline'),
+  FilterTest:     require('./Filter.test'),
   PipelineTest:   require('./Pipeline.test'),
+  RequestTest:    require('./Request.test'),
   StandardImport: require('./StandardImport')
 });

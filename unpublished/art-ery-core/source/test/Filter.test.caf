@@ -1,0 +1,22 @@
+import &StandardImport
+
+describe "filters" ->
+
+  test "basic before filter" ->
+    class MyPipeline extends Pipeline
+      @handlers         hello: ({key}) -> "Hello, #{key}."
+      @filters
+        name: :myPrefixKeyFilter
+        before: hello: (request) -> request.withKey "" before-#{request.key}
+
+    .myPipeline.hello :George
+    .then (result) ->
+      assert.eq result, "Hello, before-George."
+
+  test "basic after filter" ->
+    class MyPipeline extends Pipeline
+      @handlers         hello: ({key}) -> "Hello, #{key}."
+      @filter   after:  hello: (response) -> response.withData "" #{response.data}-after
+
+    .myPipeline.hello :George
+    .then (result) -> assert.eq result, "Hello, George.-after"

@@ -1,20 +1,37 @@
-import &StandardImport, {} &Filter
+import &StandardImport, {} &Filter, &Request
 
+## normalizeRequestArgs
+  IN: []
+    key?:      string
+    options?: {}
+      key:            string
+      data:           non-null jsonValue
+      props:          requestProps
+      returnResponse: boolan
+        if true
+          the request will return a response object
+          (e.g. instanceof Request and .isResponse == true)
+        else
+          the request will return the contents of
+          response.data, a non-null jsonValue
 
+    The either 'key' or 'options' parameters can be omitted, but
+    they must be passed in the correct order if passing both.
+
+  OUT: normalized options object
 normalizeRequestArgs = (a, b) ->
   if isString a       then key   = a; a = b; b = null # shift <<
-  if isPlainObject a  then props = a; a = b; b = null # shift <<
+  if isPlainObject a  then options = a; a = b; b = null # shift <<
 
   if a? # any args remaining are unexpected
     throw new Error "Invalid argument: #{formattedInspect a}"
 
-  props:
-    if key?
-      keyProp = {} key
-      if props? then merge keyProp, props
-      else keyProp
+  if key?
+    optionsWithKey = {} key
+    if options? then merge optionsWithKey, options
+    else optionsWithKey
 
-    else props ? {}
+  else options ? {}
 
 instantiateFilter = (filter) ->
     if isClass filter                 then new filter
@@ -45,36 +62,64 @@ class Pipeline extends BaseClass
     super
 
   @getter
-    filterChain: -> @_filterChain ?=
-      compactFlatten [] @, @filters
-      .reverse()
+    ## filterChain is a linked-list:
+      [filter1, [fitler2, [handler]]]
+    filterChain: ->
+      if @_filterChain then @_filterChain
+      else
+        chain = [] @
+        each filter in-array @filters by -1
+          chain = [] filter, chain
+        chain
+
+    name: -> @_name ?= lowerCamelCase @class.name
 
   @filters: (filters)   -> @extendFilters preprocessFilters filters
   @filter:  (filters)   -> @filters filters
   @handler: (handlers)  -> @handlers handlers
 
-  handleRequest: (request) -> Promise.then -> @handlers[request.type] request
+  handleRequest: (request) ->
+    Promise.then ->
+      if handler = @handlers[request.type]
+        Promise.resolve request
+        .then handler
+        .then (result) ->
+          switch
+          when result == null     then request.missing()
+          when isJsonType result  then request.success data: result
+          when result is Request && result.isResponse then result
+          else throw new Error "invalid handler result for '#{request.type}': #{formattedInspect result}"
+
+      else throw new Error "no handler for request: #{formattedInspect {} request}"
 
   ##########################################
     PRIVATE
   ##########################################
 
+  createRequest: (type, options) ->
+    new Request merge options, {} type, pipeline: @
+
   ### _processClientRequest
     IN:
-      type:   request type string
-      key?:   string
-      props?: plain-object
-
-      key and/or props can be omitted, but they must be passed in the correct order of using both
+      type:                 request type string
+      0, 1, or 2 more args:
+        Interpreted as 'key' and 'options'
+        SEE normalizeRequestArgs for details
 
     OUT: Promise.then ->
-      request response payload
+      if options.returnResponse
+        response object (i.e. instanceof Request && .isResponse == true)
+      else
+        response.data, a non-null jsonValue
   _processClientRequest: (type, a, b) ->
-    {props} = normalizeRequestArgs a, b
-    @_processRequest {} type, props, props.data, props.key
+    options = normalizeRequestArgs a, b
+    @_processRequest @createRequest type, options
+    .then (response) -> response.toPromise options
+    .then (successfulResponse) -> if options.returnResponse then successfulResponse else successfulResponse.data
 
   _processRequest: (request) ->
-    @filterChain[0].handleRequest request, @filterChain, 0
+    [firstHandler, remainingHandlers] = @filterChain
+    firstHandler.handleRequest request, remainingHandlers
 
   @_defineClientRequestMethod: (requestType) ->
     @prototype[requestType] ?= (a, b) ~> @_processClientRequest requestType, a, b

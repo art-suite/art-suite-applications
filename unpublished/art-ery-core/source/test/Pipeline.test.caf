@@ -38,7 +38,7 @@ describe "handlers" ->
     class MyPipeline extends Pipeline
       @handlers hello: ({props}) -> "Hello, #{props.customProp}."
 
-    .myPipeline.hello customProp: :John
+    .myPipeline.hello props: customProp: :John
     .then (result) -> assert.eq result, "Hello, John."
 
   test "handler with key and data" ->
@@ -48,25 +48,13 @@ describe "handlers" ->
     .myPipeline.hello :John data: :Frank
     .then (result) -> assert.eq result, key: :John, data: :Frank
 
-describe "filters" ->
+describe "requests" ->
 
-  test "basic before filter" ->
+  test "returnResponse returns a repsonse object" ->
     class MyPipeline extends Pipeline
-      @handlers         hello: ({key}) -> "Hello, #{key}."
-      @filters  before: hello: (request) -> merge request, key: "" before-#{request.key}
+      @handlers hello: -> "Hello world."
 
-    .myPipeline.hello :George
-    .then (result) -> assert.eq result, "Hello, before-George."
-
-  ##
-    TODO - to get this to work, we need to actually ensure the output of each handler/filter is a Request object
-
-  test "basic after filter" ->
-    class MyPipeline extends Pipeline
-      @handlers         hello: ({key}) -> "Hello, #{key}."
-      @filter   after:  hello: (request) ->
-        log afterFilter: request
-        merge request, responseProps: data: "" #{request.responseProps.data}-after
-
-    .myPipeline.hello :George
-    .then (result) -> assert.eq result, "Hello, George.-after"
+    .myPipeline.hello returnResponse: true
+    .then (result) ->
+      assert.instanceof Request, result
+      assert.eq result.data, "Hello world."
