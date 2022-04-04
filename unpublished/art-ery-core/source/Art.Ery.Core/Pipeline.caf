@@ -33,14 +33,14 @@ normalizeRequestArgs = (a, b) ->
 
   else options ? {}
 
-instantiateFilter = (filter) ->
-    if isClass filter                 then new filter
-    else if filter is Filter          then filter
-    else if isPlainObject filter      then new Filter filter
-    else throw "invalid filter: #{inspect filter} #{filter instanceof Filter}"
+preprocessFilter = (filter) ->
+  if isClass filter                 then new filter
+  else if filter is Filter          then filter
+  else if isPlainObject filter      then new Filter filter
+  else throw "invalid filter: #{inspect filter} #{filter instanceof Filter}"
 
 preprocessFilters = (filters) ->
-  array f in compactFlatten filters when f with instantiateFilter f
+  array f in compactFlatten filters when f with preprocessFilter f
 
 class Pipeline extends BaseClass
   @abstractClass()
@@ -53,7 +53,7 @@ class Pipeline extends BaseClass
     @singletonClass()
 
   @postCreateConcreteClass: ({hotReloaded}) ->
-    @_defineClientHandlerMethods()
+    @_defineRequestMethods()
     @register() unless hotReloaded
     super
 
@@ -72,9 +72,9 @@ class Pipeline extends BaseClass
 
   toString: -> @name
 
-  @filters: (filters...)   -> @extendFilters preprocessFilters compactFlatten filters
-  @filter:  (filters...)   -> @filters filters
-  @handler: (handlers)  -> @handlers handlers
+  @filters: (filters...)  -> @extendFilters preprocessFilters compactFlatten filters
+  @filter:  (filters...)  -> @filters filters
+  @handler: (handlers)    -> @handlers handlers
 
   handleRequest: (request) ->
     Promise.then ->
@@ -97,7 +97,7 @@ class Pipeline extends BaseClass
   createRequest: (type, options) ->
     new Request merge options, {} type, pipeline: @
 
-  ### _processClientRequest
+  ### _processRequest
     IN:
       type:                 request type string
       0, 1, or 2 more args:
@@ -109,19 +109,18 @@ class Pipeline extends BaseClass
         response object (i.e. instanceof Request && .isResponse == true)
       else
         response.data, a non-null jsonValue
-  _processClientRequest: (type, a, b) ->
-    options = normalizeRequestArgs a, b
-    @_processRequest @createRequest type, options
+  _processRequest: (type, a, b) ->
+    @_filterAndHandleRequest @createRequest type, options = normalizeRequestArgs a, b
     .then (response) -> response.toPromise options
     .then (successfulResponse) -> if options.returnResponse then successfulResponse else successfulResponse.data
 
-  _processRequest: (request) ->
+  _filterAndHandleRequest: (request) ->
     [firstHandler, remainingHandlers] = @filterChain
     firstHandler.handleRequest request, remainingHandlers
 
-  @_defineClientRequestMethod: (requestType) ->
-    @prototype[requestType] ?= (a, b) ~> @_processClientRequest requestType, a, b
+  @_defineRequestMethod: (requestType) ->
+    @prototype[requestType] ?= (a, b) ~> @_processRequest requestType, a, b
 
-  @_defineClientHandlerMethods: ->
+  @_defineRequestMethods: ->
     each handler, name from @getHandlers()
-      @_defineClientRequestMethod name
+      @_defineRequestMethod name

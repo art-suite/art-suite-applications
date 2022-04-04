@@ -90,7 +90,7 @@ class Request extends BaseClass
       props = null unless 0 < objectKeyCount props
 
       raw = {}
-        "#{if @isResponse then :Response else :Request}": @requestString
+        [if @isResponse then :Response else :Request]: @requestString
         @filter
         @originatedOnServer
         @status
