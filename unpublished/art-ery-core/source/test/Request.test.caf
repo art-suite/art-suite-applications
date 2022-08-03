@@ -39,8 +39,6 @@ test "create success response" ->
 test "withKey" ->
   {myPipeline} = class MyPipeline extends Pipeline
 
-  assert.eq
-    myPipeline.createRequest :foo, key: :baz
-    .withKey :bar
-    .key
-    :bar
+  myPipeline.createRequest :foo, key: :baz
+  .withKey :bar
+  .then (request) -> assert.eq request.key, :bar

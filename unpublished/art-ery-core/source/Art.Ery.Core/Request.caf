@@ -20,6 +20,7 @@ class Request extends BaseClass
     @_type = options.type
     @_status = options.status
     @_previousRequest = options.previousRequest
+    @_errorProps = options.errorProps
 
     @_props =
       if options.key || options.data
@@ -59,18 +60,27 @@ class Request extends BaseClass
       @props
       @status
 
-    isResponse:         -> @status?
-    isSuccessful:       -> @status == success
-    isMissing:          -> @status == missing
-    notSuccessful:      -> @isResponse? && !@isSuccessful
+    failedIn: ->
+
+    isResponse:     -> @status?
+    isSuccessful:   -> @status == success
+    isMissing:      -> @status == missing
+    isFailure:      -> @isResponse? && !@isSuccessful
 
     responseProps:  -> if @isResponse then @props
     responseData:   -> if @isResponse then @data
     responseKey:    -> if @isResponse then @key
 
-    requestProps:  -> @request.props
-    requestData:   -> @request.data
-    requestKey:    -> @request.key
+    requestProps:   -> @request.props
+    requestData:    -> @request.data
+    requestKey:     -> @request.key
+
+    failedRequest:  ->
+      if @isFailure
+        if @previousRequest?.isFailure
+          @previousRequest.failedRequest
+        else
+          @
 
   @property
     :filter
@@ -117,7 +127,11 @@ class Request extends BaseClass
   withKey:    (key)   -> @withMergedOptions {} key
   withData:   (data)  -> @withMergedOptions {} data
   withProps:  (props) -> @withMergedOptions {} props
-  withMergedOptions: (options) -> new Request merge @optionsForClone, options, previousRequest: @
+  withMergedErrorProps: (errorProps) -> @withMergedOptions {} errorProps: merge @errorProps, errorProps
+
+  withMergedOptions: (options) ->
+    Promise.deepAll options
+    .then (options) -> new Request merge @optionsForClone, options, previousRequest: @
 
   ########################################
     Create Response
