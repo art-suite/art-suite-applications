@@ -195,49 +195,49 @@ defineModule module, class Filter extends require './RequestHandler'
 
   @property "name"
 
-  @setter
-    nextHandler: (v)->
-      throw new Error "depricated"
+  # @setter
+  #   nextHandler: (v)->
+  #     throw new Error "depricated"
 
-  shouldFilter: (processingLocation) ->
-    switch @location
-      when "server" then processingLocation != "client"
-      when "client" then processingLocation != "server"
-      when "both"   then true
-      else throw new Error "Filter #{@getName()}: invalid filter location: #{location}"
+  # shouldFilter: (processingLocation) ->
+  #   switch @location
+  #     when "server" then processingLocation != "client"
+  #     when "client" then processingLocation != "server"
+  #     when "both"   then true
+  #     else throw new Error "Filter #{@getName()}: invalid filter location: #{location}"
 
-  toString: -> @getName()
+  # toString: -> @getName()
 
-  getBeforeFilter: ({requestType, location}) -> @shouldFilter(location) && (@before[requestType] || @before.all)
-  getAfterFilter:  ({requestType, location}) -> @shouldFilter(location) && (@after[requestType]  || @after.all)
+  # getBeforeFilter: ({requestType, location}) -> @shouldFilter(location) && (@before[requestType] || @before.all)
+  # getAfterFilter:  ({requestType, location}) -> @shouldFilter(location) && (@after[requestType]  || @after.all)
 
-  processBefore:  (request) -> @applyHandler request, @getBeforeFilter(request), "beforeFilter"
-  processAfter:   (request) -> @applyHandler request, @getAfterFilter(request),  "afterFilter"
+  # processBefore:  (request) -> @applyHandler request, @getBeforeFilter(request), "beforeFilter"
+  # processAfter:   (request) -> @applyHandler request, @getAfterFilter(request),  "afterFilter"
 
-  handleRequest: (request, filterChain, currentFilterChainIndex) ->
-    @processBefore request
-    .then (request) =>
-      if request.isResponse
-        request
-      else
-        (if nextHandler = filterChain[nextIndex = currentFilterChainIndex + 1]
-          nextHandler.handleRequest request, filterChain, nextIndex
-        else
-          request.failure "INTERNAL-ERROR: no nextHandler in for request type: #{request.type}"
-        ).then (response) =>
-          if response.isSuccessful || @filterFailures
-            @processAfter response
-          else
-            response
+  # handleRequest: (request, filterChain, currentFilterChainIndex) ->
+  #   @processBefore request
+  #   .then (request) =>
+  #     if request.isResponse
+  #       request
+  #     else
+  #       (if nextHandler = filterChain[nextIndex = currentFilterChainIndex + 1]
+  #         nextHandler.handleRequest request, filterChain, nextIndex
+  #       else
+  #         request.failure "INTERNAL-ERROR: no nextHandler in for request type: #{request.type}"
+  #       ).then (response) =>
+  #         if response.isSuccessful || @filterFailures
+  #           @processAfter response
+  #         else
+  #           response
 
-  @getter
-    logName:  -> @getName()
-    inspectedObjects: ->
-      path = @getNamespacePath()
-      name = @name
-      if path.match name
-        path
-      else
-        name
+  # @getter
+  #   logName:  -> @getName()
+  #   inspectedObjects: ->
+  #     path = @getNamespacePath()
+  #     name = @name
+  #     if path.match name
+  #       path
+  #     else
+  #       name
 
-    props: -> {@location}
+  #   props: -> {@location}

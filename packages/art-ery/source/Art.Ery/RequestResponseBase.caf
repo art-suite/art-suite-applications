@@ -2,7 +2,7 @@ import &StandardImport, &Config
 
 ArtEry = require :./namespace
 
-class RequestResponseBase extends &ArtEryBaseObject
+class RequestResponseBase extends &ArtEryBaseObjectCaf
 
   constructor: (options) ->
     @_creationTime = currentSecond()

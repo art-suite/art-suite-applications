@@ -1,6 +1,6 @@
 import &StandardImport
 
-class ValidationFilter extends Filter
+class ValidationFilter extends &Filter
   @location :both
 
   constructor: (options) ->

@@ -5,10 +5,14 @@
 .includeInNamespace(require('./Ery'))
 .addModules({
   ArtEryBaseObject:       require('./ArtEryBaseObject'),
+  ArtEryBaseObjectCaf:    require('./ArtEryBaseObjectCaf'),
   Config:                 require('./Config'),
   DatabaseFilters:        require('./DatabaseFilters'),
   Env:                    require('./Env'),
   Filter:                 require('./Filter'),
+  FilterCaf:              require('./FilterCaf'),
+  FilterCafTemp:          require('./FilterCafTemp'),
+  FilterCoffee:           require('./FilterCoffee'),
   KeyFieldsMixin:         require('./KeyFieldsMixin'),
   Pipeline:               require('./Pipeline'),
   PipelineRegistry:       require('./PipelineRegistry'),

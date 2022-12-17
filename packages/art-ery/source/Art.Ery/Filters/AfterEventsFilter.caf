@@ -1,6 +1,6 @@
 import &StandardImport
 
-class AfterEventsFilter extends Filter
+class AfterEventsFilter extends &Filter
   @handlers: {}
   @_registeredPipelineHandlers: {}
 

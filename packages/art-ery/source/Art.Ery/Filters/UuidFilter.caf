@@ -1,6 +1,6 @@
 import &StandardImport, {} &Uuid
 
-class UuidFilter extends Filter
+class UuidFilter extends &Filter
 
   constructor: ->
     log.warn "DEPRICATED: UuidFilter. USE: UniqueIdFilter"
