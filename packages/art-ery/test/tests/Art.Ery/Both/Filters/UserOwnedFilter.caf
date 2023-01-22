@@ -1,5 +1,4 @@
-import &StandardImport, {} &SimplePipeline
-SimplePipeline = require '../SimplePipeline'
+import &StandardImport, SimplePipeline: &SimplePipeline
 
 userIdObject = userId: "abc123"
 wrongUserSession = userId: "wrongUserId123"

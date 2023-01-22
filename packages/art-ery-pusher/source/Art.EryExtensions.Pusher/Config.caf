@@ -54,16 +54,21 @@ class Config extends Configurable
       @pusherServer = new @PusherServer @config
 
       @verboseLog "" ArtEryPusher PusherServer: initialized
-      verifyConnection && @pusherServer.trigger
-        :ArtEryPusherConfig
-        :server
-        message: "" ArtEryPusher PusherServer: verifyConnection: pusher was initialized correctly
-        (error, request, response) ->
-          if error
-            @verboseLog "" ArtEryPusher PusherServer: not initialized correctly! trigger-attempt error: #{error}
-            console.log error
-          else
-            @verboseLog "" ArtEryPusher PusherServer: initialized correctly.
+      if verifyConnection
+        Promise.then ->
+          @pusherServer.trigger
+            :ArtEryPusherConfig
+            :server
+            message: "" ArtEryPusher PusherServer: verifyConnection: pusher was initialized correctly
+            (error, request, response) ->
+              if error
+                @verboseLog "" ArtEryPusher PusherServer: not initialized correctly! trigger-attempt error: #{error}
+                console.log error
+              else
+                @verboseLog "" ArtEryPusher PusherServer: initialized correctly.
+        .then
+          (success) -> log ArtEryPusher: verifyConnection: {} success
+          (error) -> log ArtEryPusher: verifyConnection: error: {message, url, error, status, body} = error
 
     if !@PusherClient && !@PusherServer
       @verboseLog "" disabled. Require: art-ery-pusher/Client or art-ery-pusher/Server
@@ -75,7 +80,7 @@ class Config extends Configurable
     promise.then -> # pusher is connected
     promise.catch -> @pusherClient not created - connection is impossible
   @onConnected: ->
-    new Promise (_resolve, reject) =>
+    new Promise (_resolve, reject) ->
       if @pusherClient
         @verboseLog "" onConnected current state: #{@pusherClient.connection.state}
         if @pusherClient.connection.state == :connected

@@ -41,16 +41,36 @@ encodePusherChannelName = (key) ->
   ## sendChanged
     IN:
       modelName: pipeline-name string or pipeline
+
     OUT:
-      true if pusher event was actually sent
-      else false-ish
+      true if pusher event send was actually attempted
+      else false
   sendChanged: (modelName, key, payload) ->
     config extract pusherEventName
 
     channel = getPusherChannel modelName, key
 
-    verboseLog sendChanged: {} channel, pusherEventName, modelName, key, payload, Config.pusherServer
-
     if Config.pusherServer?
+      verboseLog sendChanged-sending: {} request = {} channel, pusherEventName, modelName, key, payload
       Config.pusherServer.trigger channel, pusherEventName, payload || {}
+      .then (response) ->
+        if response.status != 200
+          verboseLog sendChanged-unspectedResponse: {} request, response
+
+      .catch (error) ->
+        log aert-ery-pusher-sendChanged-error: {} request, error
+
       true
+
+    else
+      verboseLog sendChanged-pretend-sending: {}
+        info: "" PusherServer not set. #{}
+          if isBrowser then "" Cannot send events FROM the browser. ArtEryServer required.
+          else "" Cannot send event.
+        channel
+        pusherEventName
+        modelName
+        key
+        payload
+
+      false

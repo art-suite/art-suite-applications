@@ -1,0 +1,21 @@
+import &ArtSuite
+
+class StyleProps extends HotStyleProps
+  @gridSize:    15
+  @color:       &Palette.black.primary
+  @fontFamily:  :sans-serif
+
+  @mediumText:  {} @color, @fontFamily, fontSize: 14
+  @smallText:   {} @color, @fontFamily, fontSize: 12
+
+  @titleText: merge
+    @mediumText
+    color: &Palette.white.primary
+
+  @chatViewBackground:
+    color:      :white
+
+  @lobbyBackground:
+    colors:
+      &Palette.lightPrimary
+      &Palette.darkPrimary

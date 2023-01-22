@@ -1,0 +1,4 @@
+"use strict"
+let Caf = require('caffeine-script-runtime');
+Caf.defMod(module, () => {return Caf.importInvoke(["BaseObject", "Object"], [global, require('./StandardImport')], (BaseObject, Object) => {let PipelineRegistry; return PipelineRegistry = Caf.defClass(class PipelineRegistry extends require('art-events/ExtendableEventedMixin')(BaseObject) {}, function(PipelineRegistry, classSuper, instanceSuper) {let pipelines; this.pipelines = global.artEryPipelines = pipelines = {}; this.register = function({singleton, _aliases}) {let pipeline, name; Caf.each2(_aliases, (alias) => pipelines[alias] = singleton); pipeline = pipelines[name = singleton.name] = singleton; this.handleEvent("register", {name, pipeline}); return singleton;}; this._reset = function(testFunction = () => true) {return Caf.each2(Object.keys(pipelines), (key) => delete pipelines[key], (key) => testFunction(pipelines[key]));};});});});
+//# sourceMappingURL=PipelineRegistry.js.map

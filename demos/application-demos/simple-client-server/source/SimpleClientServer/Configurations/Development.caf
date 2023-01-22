@@ -1,0 +1,3 @@
+import &ArtStandardLib
+
+class Development extends &ArtConfig.Config

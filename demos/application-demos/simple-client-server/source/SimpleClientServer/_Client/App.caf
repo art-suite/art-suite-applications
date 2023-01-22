@@ -1,0 +1,26 @@
+import &ArtSuite, &Style
+
+class App extends FluxComponent
+
+  @stateFields simplePipelineId: :abc123
+
+  render: ->
+    Element
+      padding: 10
+      :column
+      childrenMargins: 10
+      Element
+        :row :parentWidthChildrenHeight
+        TextElement
+          :parentWidthChildrenHeight
+          mediumText
+          text: "" Type in any key and press enter:
+
+        TextInputElement
+          :parentWidthChildrenHeight
+          mediumText
+          draw: padding: -5 color: #eee
+          value: @simplePipelineId
+          on: enter: (event) -> @simplePipelineId = event.target.value
+
+      &SimplePipelineResult simplePipelineId: @simplePipelineId

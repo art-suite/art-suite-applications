@@ -1,6 +1,7 @@
 {defineModule, log, merge} = require 'art-standard-lib'
 {Pipeline, KeyFieldsMixin, AfterEventsFilter, UniqueIdFilter} = require 'art-ery'
 
+# can't convert to Caf until UpdateAfterMixin is Caf
 defineModule module, class MemStorePipeline extends KeyFieldsMixin Pipeline
   @abstractClass()
 

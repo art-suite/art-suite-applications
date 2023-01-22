@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "ArtEryBaseObject.js",
+  "sourceRoot": "../..",
+  "sources": [
+    "source/Art.Ery/ArtEryBaseObject.coffee"
+  ],
+  "names": [],
+  "mappings": ";AAAA;AAAA,MAAA,yDAAA;IAAA;;;EAAC,eAAgB,OAAA,CAAQ,kBAAR;;EAChB,YAAa,OAAA,CAAQ,kBAAR;;EACd,MAAA,GAAS,OAAA,CAAQ,aAAR;;EACR,SAAU,OAAA,CAAQ,UAAR;;EAEX,YAAA,CAAa,MAAb,EAA2B;;;;;;;IACzB,gBAAC,CAAA,aAAD,CAAA;;IACA,gBAAC,CAAA,MAAD,CACE;MAAA,SAAA,EAAW,SAAA;eAAG,MAAM,CAAC;MAAV,CAAX;KADF;;;;KAFkD,UAApD;AALA"
+}

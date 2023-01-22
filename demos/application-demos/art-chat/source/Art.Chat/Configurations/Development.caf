@@ -1,0 +1,22 @@
+import &ArtStandardLib
+
+class Development extends &ArtConfig.Config
+  Art:
+    Aws:
+      credentials:
+        accessKeyId:      :blah-dev
+        secretAccessKey:  :blahblah-dev
+
+      region:             :us-west-2
+
+      dynamoDb:
+        endpoint:         :http://localhost:8011/proxy
+
+    EryExtensions: Pusher:
+      verbose:            true
+      verifyConnection:   true
+      appId:              :1364309
+      key:                :406318e193ef46ced105
+      cluster:            :us3
+
+    Ery: tableNamePrefix: :art-chat-dev.

@@ -1,0 +1,13 @@
+import &ArtSuite
+&Configurations
+&Pipelines
+
+&ArtSuiteApp.initArtSuiteClient
+  MainComponent:
+    class Main extends Component
+      render: ->
+        CanvasElement
+          draw: :white
+          &App()
+
+  title:  "" ArtSuite Simple Client Server Demo

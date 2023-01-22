@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "PromiseJsonWebToken.js",
+  "sourceRoot": "../../..",
+  "sources": [
+    "source/Art.Ery/_Server/PromiseJsonWebToken.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,wEAAO,mFACP,eAAe,sLAGb,QAAO,CAAC,SAAS,oBAAoB,UAAW,OAC9C,qBAAqB,CAAC,aACpB,kBAAkB,SAAS,oBAAoB,SAAS,4BAE5D,QAAS,CAAC,OAAO,oBAAoB,UAAW,OAC9C,qBAAqB,CAAC,aACpB,oBAAoB,OAAO,oBAAoB,SAAS"
+}

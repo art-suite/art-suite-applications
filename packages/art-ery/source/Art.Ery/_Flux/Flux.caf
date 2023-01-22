@@ -1,0 +1,3 @@
+&ArtEryFluxModel.bindWithArtEry()
+
+defineArtEryPipelineFluxModels: &ArtEryFluxModel.defineModelsForAllPipelines

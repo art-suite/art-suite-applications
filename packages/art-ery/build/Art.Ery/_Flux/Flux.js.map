@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "Flux.js",
+  "sourceRoot": "../../..",
+  "sources": [
+    "source/Art.Ery/_Flux/Flux.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;iFAEA,gCAAgC"
+}

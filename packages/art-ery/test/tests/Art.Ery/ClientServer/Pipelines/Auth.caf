@@ -1,0 +1,47 @@
+import &StandardImport
+
+isPresentString = (s) -> isString(s) && present s
+
+class Auth extends Pipeline
+
+  @remoteServer "http://localhost:8085"
+
+  # a stupid authentication test
+  authenticationFailed = (data) ->
+    data extract? username, password
+    unless isPresentString username       then "username not present"
+    else unless isPresentString password  then "password not present"
+    else unless username == password      then "username and password don't match"
+
+  @publicRequestTypes "get authenticate loggedInAs hello setFooSession getRestrictedResource"
+
+  @handlers
+    get: ({session}) -> session.username
+
+    authenticate: (request) ->
+      {data} = request
+      if message = authenticationFailed data
+        request.clientFailure data: message: message
+      else
+        request.respondWithMergedSession username: data.username
+
+    # in order for this to work in production,
+    # it has to be handled client-side
+    # and that means it has to be a filter with higher priority than the highest server-side filter.
+    loggedInAs: (request) ->
+      if username = isPresentString request.session.username
+        {} username
+      else
+        # not logged in
+        request.success()
+
+    hello: (request) ->
+      request.subrequest :myRemote :hello # request.session.username
+
+    setFooSession: (request) -> request.respondWithMergedSession foo: request.data.foo
+
+    getRestrictedResource: (request) ->
+      if request.session.username
+        secretSauce: "" thousand island dressing
+      else
+        request.clientFailureNotAuthorized()

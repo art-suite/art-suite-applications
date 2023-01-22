@@ -1,2 +1,1 @@
-require("./register");
-module.exports = require("./source");
+module.exports = require("./build");

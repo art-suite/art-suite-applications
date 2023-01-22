@@ -2,10 +2,10 @@ import &StandardImport
 
 suite: ->
   savedRemoteServer = null
-  setup ->
+  global.setup ->
     savedRemoteServer = pipelines.filterLocation.remoteServer
 
-  teardown ->
+  global.teardown ->
     pipelines.filterLocation.class.remoteServer savedRemoteServer
 
   test "client location", ->

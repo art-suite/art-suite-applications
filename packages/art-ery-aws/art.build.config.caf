@@ -1,4 +1,5 @@
 package: &@ArtSuite/StandardPackageBuilder.configure {}
   &package
-  coffeeScript: true
   mocha: true
+  scripts:
+    dynamodb: "" docker run -p 8081:8000 amazon/dynamodb-local

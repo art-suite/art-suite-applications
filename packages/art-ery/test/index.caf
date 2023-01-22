@@ -1,7 +1,7 @@
 import &ArtStandardLib
 
 require("@art-suite/art-flux/Core")
-&Source
+&build
 {ArtEryFluxModel} = &Flux
 
 &ArtTestbench/Testing
@@ -9,7 +9,7 @@ require("@art-suite/art-flux/Core")
   defineTests: ->
     suiteSetup ->
       Promise.all []
-        &ArtEry.initForTesting()
+        &build.initForTesting()
         ArtEryFluxModel.defineModelsForAllPipelines()
 
     &Tests

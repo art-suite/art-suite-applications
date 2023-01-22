@@ -1,0 +1,126 @@
+import &StandardImport, {} &Filter, &Request
+
+## normalizeRequestArgs
+  IN: []
+    key?:      string
+    options?: {}
+      key:            string
+      data:           non-null jsonValue
+      props:          requestProps
+      returnResponse: boolan
+        if true
+          the request will return a response object
+          (e.g. instanceof Request and .isResponse == true)
+        else
+          the request will return the contents of
+          response.data, a non-null jsonValue
+
+    The either 'key' or 'options' parameters can be omitted, but
+    they must be passed in the correct order if passing both.
+
+  OUT: normalized options object
+normalizeRequestArgs = (a, b) ->
+  if isString a       then key   = a; a = b; b = null # shift <<
+  if isPlainObject a  then options = a; a = b; b = null # shift <<
+
+  if a? # any args remaining are unexpected
+    throw new Error "Invalid argument: #{formattedInspect a}"
+
+  if key?
+    optionsWithKey = {} key
+    if options? then merge optionsWithKey, options
+    else optionsWithKey
+
+  else options ? {}
+
+preprocessFilter = (filter) ->
+  if isClass filter                 then new filter
+  else if filter is Filter          then filter
+  else if isPlainObject filter      then new Filter filter
+  else throw "invalid filter: #{inspect filter} #{filter instanceof Filter}"
+
+preprocessFilters = (filters) ->
+  array f in compactFlatten filters when f with preprocessFilter f
+
+class Pipeline extends BaseClass
+  @abstractClass()
+
+  @extendableProperty
+    handlers: {}
+    filters:  []
+
+  @register: ->
+    @singletonClass()
+
+  @postCreateConcreteClass: ({hotReloaded}) ->
+    @_defineRequestMethods()
+    @register() unless hotReloaded
+    super
+
+  @getter
+    ## filterChain is a linked-list:
+      [filter1, [fitler2, [handler]]]
+    filterChain: ->
+      if @_filterChain then @_filterChain
+      else
+        chain = [] @
+        each filter in-array @filters by -1
+          chain = [] filter, chain
+        chain
+
+    name: -> @_name ?= lowerCamelCase @class.name
+
+  toString: -> @name
+
+  @filters: (filters...)  -> @extendFilters preprocessFilters compactFlatten filters
+  @filter:  (filters...)  -> @filters filters
+  @handler: (handlers)    -> @handlers handlers
+
+  handleRequest: (request) ->
+    Promise.then ->
+      if handler = @handlers[request.type]
+        Promise.resolve request
+        .then handler
+        .then (result) ->
+          switch
+          when result == null     then request.missing()
+          when isJsonType result  then request.success data: result
+          when result is Request && result.isResponse then result
+          else request.failure "invalid handler result for '#{request.type}': #{formattedInspect result}"
+
+      else request.failure "no handler for request: #{formattedInspect {} request}"
+
+  ##########################################
+    PRIVATE
+  ##########################################
+
+  createRequest: (type, options) ->
+    new Request merge options, {} type, pipeline: @
+
+  ### _processRequest
+    IN:
+      type:                 request type string
+      0, 1, or 2 more args:
+        Interpreted as 'key' and 'options'
+        SEE normalizeRequestArgs for details
+
+    OUT: Promise.then ->
+      if options.returnResponse
+        response object (i.e. instanceof Request && .isResponse == true)
+      else
+        response.data, a non-null jsonValue
+  _processRequest: (type, a, b) ->
+    @_filterAndHandleRequest @createRequest type, options = normalizeRequestArgs a, b
+    .then (response) -> response.toPromise options
+    .then (successfulResponse) -> if options.returnResponse then successfulResponse else successfulResponse.data
+
+  _filterAndHandleRequest: (request) ->
+    [firstHandler, remainingHandlers] = @filterChain
+    firstHandler.handleRequest request, remainingHandlers
+
+  @_defineRequestMethod: (requestType) ->
+    @prototype[requestType] ?= (a, b) ~> @_processRequest requestType, a, b
+
+  @_defineRequestMethods: ->
+    each handler, name from @getHandlers()
+      @_defineRequestMethod name

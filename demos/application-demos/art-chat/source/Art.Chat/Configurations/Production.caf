@@ -1,0 +1,19 @@
+import &ArtStandardLib
+
+class Production extends &ArtConfig.Config
+  Art:
+    Aws:
+      credentials:
+        accessKeyId:      :blah-prod
+        secretAccessKey:  :blahblah-prod
+
+      region:             :us-east-1
+
+    EryExtensions: Pusher:
+      verbose:            true
+      verifyConnection:   true
+      appId:              :1364309
+      key:                :406318e193ef46ced105
+      cluster:            :us3
+
+    Ery: tableNamePrefix: :art-chat-prod.

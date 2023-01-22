@@ -1,0 +1,87 @@
+import &StandardImport
+
+ArtConfig.configure()
+
+test "pipeline automatically has a singlton" ->
+  class MyPipeline extends Pipeline
+
+  assert.present MyPipeline.myPipeline
+
+describe "handlers" ->
+
+  test "basic handler" ->
+    class MyPipeline extends Pipeline
+      @handlers hello: -> "Hello world."
+
+    .myPipeline.hello()
+    .then (result) -> assert.eq result, "Hello world."
+
+  test "handler and that responds to a key" ->
+    class MyPipeline extends Pipeline
+      @handlers hello: ({key}) -> "" Hello, #{key}.
+
+    .myPipeline.hello :Shane
+    .then (result) -> assert.eq result, "Hello, Shane."
+
+  test "handler error on invalid argument" ->
+    class MyPipeline extends Pipeline
+      @handlers hello: -> "" Hi
+
+    assert.throws -> MyPipeline.myPipeline.hello new Date
+
+  test "handler with data payload" ->
+    class MyPipeline extends Pipeline
+      @handlers hello: ({data}) -> "Hello, #{data.name}."
+
+    .myPipeline.hello data: name: :Alice
+    .then (result) -> assert.eq result, "Hello, Alice."
+
+  test "handler with custom props" ->
+    class MyPipeline extends Pipeline
+      @handlers hello: ({props}) -> "Hello, #{props.customProp}."
+
+    .myPipeline.hello props: customProp: :John
+    .then (result) -> assert.eq result, "Hello, John."
+
+  test "handler with key and data" ->
+    class MyPipeline extends Pipeline
+      @handlers hello: ({key, data}) -> {} key, data
+
+    .myPipeline.hello :John data: :Frank
+    .then (result) -> assert.eq result, key: :John, data: :Frank
+
+describe "handler return types" ->
+  test "string" ->
+    class MyPipeline extends Pipeline
+      @handlers hello: -> "Hello world."
+    .myPipeline.hello().then (result) -> assert.eq result, "Hello world."
+
+  test "null" ->
+    class MyPipeline extends Pipeline
+      @handlers hello: -> null
+    assert.missing MyPipeline.myPipeline.hello()
+
+  test "undefined" ->
+    class MyPipeline extends Pipeline
+      @handlers hello: -> undefined
+    assert.rejects MyPipeline.myPipeline.hello()
+    .then (error) -> assert.eq {error.status}, {status: failure}, {} error
+
+  test "response" ->
+    class MyPipeline extends Pipeline
+      @handlers hello: (request) -> request.success data: :Yippee
+    MyPipeline.myPipeline.hello()
+    .then (result) -> assert.eq result, :Yippee
+
+
+
+describe "requests" ->
+
+  test "returnResponse returns a repsonse object" ->
+    class MyPipeline extends Pipeline
+      @handlers hello: -> "Hello world."
+
+    .myPipeline.hello returnResponse: true
+    .then (result) ->
+      assert.instanceof Request, result
+      assert.eq result.data, "Hello world."

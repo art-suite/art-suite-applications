@@ -1,5 +1,4 @@
-import &StandardImport
-SimplePipeline = &SimplePipeline
+import &StandardImport, SimplePipeline: &SimplePipeline
 
 suite: ->
 

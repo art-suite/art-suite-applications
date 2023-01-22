@@ -1,0 +1,8 @@
+&dotenv.config()
+&ArtEryPusher/Server
+&ArtStandardLib.log process.env: process.env
+&ArtSuiteServer
+.start
+  verbose: true
+  app:    &source
+  static: root: :./public

@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "Config.js",
+  "sourceRoot": "../..",
+  "sources": [
+    "source/Art.Ery/Config.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,6EAAO,6BAAiB,uDAExB,kDAAqB,8DACnB,eACE,iBAAiB,IAIjB,UAAU,QAMV,cAAc,MAEd,SAAS,OAgBT,cAAc,MAGd,SAAS,OAIT,8BAA8B,OAkB9B,SACE,mBAAmB,oEAEA,CAAC,cAAc,gBAAK,4CAA0B"
+}

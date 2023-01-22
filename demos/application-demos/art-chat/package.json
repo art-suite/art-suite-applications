@@ -1,0 +1,39 @@
+{
+  "author": "Shane Brinkman-Davis Delamore, Imikimi LLC\"",
+  "bugs": "https://github.com/art-suite/art-suite-applications/issues",
+  "dependencies": {
+    "art-ery-pusher": "^0.12.0",
+    "art-suite": "^2.0.7",
+    "dotenv": "^16.0.0"
+  },
+  "description": "Art.Chat",
+  "devDependencies": {
+    "art-build-configurator": "^1.29.3",
+    "crypto-browserify": "^3.12.0",
+    "local-cors-proxy": "^1.1.0",
+    "stream-browserify": "^3.0.0"
+  },
+  "engines": {
+    "node": "8.x"
+  },
+  "homepage": "https://github.com/art-suite/art-suite-applications",
+  "license": "ISC",
+  "name": "art-chat",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/art-suite/art-suite-applications.git"
+  },
+  "scripts": {
+    "build": "nn -s; webpack --progress",
+    "dynamodb": "docker run -p 8081:8000 amazon/dynamodb-local",
+    "init-dev": "nn -s\n./tool initialize-pipelines",
+    "lcp": "lcp --proxyUrl http://localhost:8081 --port 8011",
+    "start": "npm run start-dev-web-server",
+    "start-db": "npm run dynamodb& npm run lcp",
+    "start-dev": "npm run start-db& sleep 2; npm run init-dev; npm run start-dev-web-server; wait",
+    "start-dev-web-server": "cafSourceMaps=true webpack serve --hot --progress --static ./public-dev",
+    "start-server": "caf ./Server.caf",
+    "test": "cafSourceMaps=true webpack serve --progress"
+  },
+  "version": "0.0.1"
+}

@@ -1,0 +1,4 @@
+&ArtSuiteServer
+.start
+  app:    &source
+  static: root: :./public

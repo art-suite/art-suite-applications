@@ -1,0 +1,5 @@
+import &StandardImport
+
+class CompoundKeys extends &SimpleStore
+  @remoteServer :http://localhost:8085
+  @keyFields    :postId/userId

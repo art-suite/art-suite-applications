@@ -1,13 +1,15 @@
+# ArtEryAws - DynamoDb support for ArtEry
+
+# Examples
+
 ### Simple Table Example
 
 ```coffeescript
-{defineModule} = require '@art-suite/art-foundation'
-{DynamoDbPipeline} = require 'art-ery-aws'
-{createDatabaseFilters} = require 'art-ery/Filters'
+import &ArtEryAws
 
-defineModule module, class Channel extends DynamoDbPipeline
+class Channel extends DynamoDbPipeline
 
-  @filter createDatabaseFilters
+  @addDatabaseFilters
     title: "trimmedString"
 ```
 
@@ -16,16 +18,26 @@ defineModule module, class Channel extends DynamoDbPipeline
 This uses all of the declaration features of DynamoDbPipeline. This is also a good example for how to do a many-to-many DynamoDb model.
 
 ```coffeescript
-{defineModule} = require '@art-suite/art-foundation'
-{DynamoDbPipeline} = require 'art-ery-aws'
-{createDatabaseFilters} = require 'art-ery/Filters'
+import &ArtEryAws
 
-defineModule module, class Participant extends DynamoDbPipeline
+class Participant extends DynamoDbPipeline
   @primaryKey "postId/userId"
   @globalIndexes participantsByUserId: "userId/createdAt"
   @localIndexes  participantsByPostId: "postId/createdAt"
 
-  @filter createDatabaseFilters
+  @addDatabaseFilters
     user: "link"
     post: "link"
+```
+
+# Test
+
+- Install [Docker](https://docs.docker.com/get-docker/)
+
+```bash
+# in one shell
+npm run dynamodb
+
+# in another shell
+npm test
 ```

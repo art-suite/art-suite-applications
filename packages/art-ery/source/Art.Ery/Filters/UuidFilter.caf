@@ -1,0 +1,19 @@
+import &StandardImport, {} &Uuid
+
+class UuidFilter extends &Filter
+
+  constructor: ->
+    log.warn "DEPRICATED: UuidFilter. USE: UniqueIdFilter"
+
+  @alwaysForceNewIds: true
+  @before
+    create: (request) ->
+      request.withMergedData
+        id:
+          if UuidFilter.alwaysForceNewIds
+            Uuid.v4()
+          else
+            request.data.id || Uuid.v4()
+
+  @fields
+    id: FieldTypes.id
