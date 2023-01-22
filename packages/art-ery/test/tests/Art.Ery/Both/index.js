@@ -10,7 +10,8 @@
   SimplePipeline:       require('./SimplePipeline'),
   SimplePipelineTest:   require('./SimplePipeline.test'),
   SimplePipelineCoffee: require('./SimplePipelineCoffee'),
-  UpdateAfterMixin:     require('./UpdateAfterMixin')
+  UpdateAfterMixin:     require('./UpdateAfterMixin'),
+  UpdateAfterMixinCaf:  require('./UpdateAfterMixinCaf')
 });
 require('./Filters');
 require('./Flux');
