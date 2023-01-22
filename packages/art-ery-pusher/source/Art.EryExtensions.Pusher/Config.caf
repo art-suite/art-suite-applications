@@ -80,7 +80,7 @@ class Config extends Configurable
     promise.then -> # pusher is connected
     promise.catch -> @pusherClient not created - connection is impossible
   @onConnected: ->
-    new Promise (_resolve, reject) =>
+    new Promise (_resolve, reject) ->
       if @pusherClient
         @verboseLog "" onConnected current state: #{@pusherClient.connection.state}
         if @pusherClient.connection.state == :connected

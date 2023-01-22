@@ -27,5 +27,6 @@ class MockPusherService extends BaseObject
     timeout 50 ->
       each handler in @_subscriptionsByChannel[channel]?.eventHandlers?[event]
         handler payload
+    .then -> status: 200
 
 .singleton
