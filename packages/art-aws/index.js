@@ -1,1 +1,1 @@
-module.exports = require("./source/Art/Aws")
+module.exports = require("./build");

@@ -3,7 +3,7 @@
   "file": "StreamlinedDynamoDbApi.js",
   "sourceRoot": "../../../..",
   "sources": [
-    "source-source/Art/Aws/StreamlinedDynamoDbApi/StreamlinedDynamoDbApi.caf"
+    "source/Art/Aws/StreamlinedDynamoDbApi/StreamlinedDynamoDbApi.caf"
   ],
   "names": [],
   "mappings": "AAAA;;"

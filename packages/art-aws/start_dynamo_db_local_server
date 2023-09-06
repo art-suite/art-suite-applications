@@ -1,7 +1,3 @@
-#!/usr/bin/env node
+#!/bin/bash
 
-let dynamoLocalPort = 8081;
-
-console.log(`Starting dynamodb on port ${dynamoLocalPort}`)
-require('dynamodb-local').launch(dynamoLocalPort, null, ["-sharedDb", "-cors", '"*"'])
-// require('dynamodb-local').stop(dynamoLocalPort);
+npm run dynamodb

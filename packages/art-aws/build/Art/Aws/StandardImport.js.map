@@ -3,7 +3,7 @@
   "file": "StandardImport.js",
   "sourceRoot": "../../..",
   "sources": [
-    "source-source/Art/Aws/StandardImport.caf"
+    "source/Art/Aws/StandardImport.caf"
   ],
   "names": [],
   "mappings": "AAAA;;"
