@@ -7,13 +7,14 @@ import &StandardImport, {} &Filter, &Request
       key:            string
       data:           non-null jsonValue
       props:          requestProps
-      returnResponse: boolan
+      returnResponse: boolean
         if true
           the request will return a response object
           (e.g. instanceof Request and .isResponse == true)
         else
           the request will return the contents of
           response.data, a non-null jsonValue
+          (can't return NULL for data because ArtEry conventions say that is the same as a 404)
 
     The either 'key' or 'options' parameters can be omitted, but
     they must be passed in the correct order if passing both.

@@ -15,6 +15,11 @@ normalizeResponseOptions = (status, responseOptions = {}) ->
 
 class Request extends BaseClass
 
+  # TODO: Subrequests
+    # @property :parentRequest
+    # @getter
+    #   isRootRequest:    -> !@parentRequest
+
   constructor: (options) ->
     @_pipeline = options.pipeline
     @_type = options.type
