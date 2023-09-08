@@ -58,6 +58,12 @@ TODO: (July2019)
         However, I DO want a way to declare this info in the Pipeline declaration
         to reduce redundency.
 
+        2023 ANSWER: actually, the only reason we really need this is to know when to
+        subscribe or unsubscribe from changes... I think we just make that support built-in
+        for ArtEryFlux models - they automatically call back to the Pipeline with those events.
+        Then, we don't need a custom mix-in to hook them. We can just hook them at the Pipeline
+        itself - not injecting the hooks into the Flux-model.
+
       query:
         Another declaration passed directly to ArtFlux
 

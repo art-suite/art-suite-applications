@@ -11,6 +11,10 @@ import &StandardImport
         the current user can't see. TODO: create privacy filters
       - if data is empty, then don't add it to updates. Nothing to add anyway. DONE
 
+
+# 2023 Question/Note: Do we properly handle updates where a field of a record was set to NULL?
+#   If we strip NULLs in return objects, then the client-side update, if it's a merge and not a replace,
+#   wouldn't get the NULL-out signal.
 class DataUpdatesFilter extends &Filter
 
   updateRequestTypeRegExp = /^(create|update)/
@@ -54,10 +58,13 @@ class DataUpdatesFilter extends &Filter
   @after all: (response) ->
     if response.isRootRequest
 
-      if response.location != :client
-            response.withMergedPropsWithoutNulls {dataUpdates, dataDeletes} = response.context
-      else  response
-      .tap (response) -> @applyFluxUpdates response if response.location != :server && @models
+      switch response.location
+      when :client
+        response
+        .tap (response) -> @applyFluxUpdates response if @models
+
+      when :server :both
+        response.withMergedPropsWithoutNulls {dataUpdates, dataDeletes} = response.context
 
     else
       # log DataUpdatesFilter3: {} response
