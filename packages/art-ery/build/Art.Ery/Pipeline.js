@@ -151,7 +151,6 @@
       handlers: {},
       clientApiMethodList: [],
       fields: {},
-      fluxModelMixins: [],
       publicRequestTypes: {}
     });
 

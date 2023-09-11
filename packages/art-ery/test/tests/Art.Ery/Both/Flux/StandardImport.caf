@@ -1,7 +1,6 @@
 []
   &StandardImport
   require :art-ery/Flux
-  Flux = &@ArtSuite/ArtFlux
+  &@ArtSuite/ArtModels
   {}
-    Flux
     SimplePipeline: &SimplePipeline

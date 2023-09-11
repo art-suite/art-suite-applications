@@ -26,6 +26,7 @@ import &StandardImport, &ArtValidation
   each key field name should match: /[-._a-zA-Z0-9]+/
 
 (superClass) -> class KeyFieldsMixinCaf extends superClass
+  @abstractClass()
 
   ###########################################
   # Class API

@@ -152,7 +152,6 @@ defineModule module, class Pipeline extends require './RequestHandler'
     handlers: {}
     clientApiMethodList: []
     fields: {}
-    fluxModelMixins: []
     publicRequestTypes: {}
 
   @publicRequestTypes: (values...) ->

@@ -4,7 +4,7 @@ suite: ->
   setup ->
     # TODO - this is only really necessary here because the CompoundKeys pipelins has residual subscriptions
     # for models which no longer exist.
-    &Flux.ArtEryFluxModel.defineModelsForAllPipelines()
+    &Flux.defineModelsForAllPipelines()
 
   test "get", ->
     pipelines.compoundKeys.reset data: "postAbc/user123": recordData = followerCount: 2

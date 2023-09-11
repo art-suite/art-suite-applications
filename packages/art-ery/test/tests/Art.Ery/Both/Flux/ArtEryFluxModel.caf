@@ -7,8 +7,8 @@ suite: ->
   MySubscriber = null
 
   setup ->
-    Flux._reset()
-    class MySubscriber extends FluxSubscriptionsMixin BaseObject
+    _resetArtSuiteModels()
+    class MySubscriber extends ArtModelSubscriptionsMixin BaseObject
 
     class User extends SimplePipeline
       @filter new UniqueIdFilter
@@ -27,9 +27,9 @@ suite: ->
     assert.eq :user3    user.propsToKey(user: {id: :user3}, userId: :user4), "" whole object has precidence
     assert.eq undefined user.propsToKey {}
 
-  test "user instanceof FluxModel", ->
-    assert.eq Flux.models.user, user
-    assert.instanceOf Flux.models.user, Flux.FluxModel
+  test "user instanceof ArtModel", ->
+    assert.eq models.user, user
+    assert.instanceOf models.user, ArtModel
 
   test "myModel.create", ->
     user.create data: username: "Shane", message: "Hi"
@@ -45,8 +45,8 @@ suite: ->
         mySubscriber.subscribe
           modelName:  "user"
           key:        "123"
-          callback:   (fluxRecord) ->
-            resolve() if fluxRecord.status == success
+          callback:   (artModelRecord) ->
+            resolve() if artModelRecord.status == success
 
   test "subscribe when state is missing", ->
     user.pipeline.reset data: 123: name: "alice"
@@ -56,6 +56,6 @@ suite: ->
         mySubscriber.subscribe
           modelName:  "user"
           key:        "456"
-          callback:   (fluxRecord) ->
-            resolve() if fluxRecord.status == missing
+          callback:   (artModelRecord) ->
+            resolve() if artModelRecord.status == missing
 

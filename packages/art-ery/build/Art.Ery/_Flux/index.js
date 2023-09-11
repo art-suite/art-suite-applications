@@ -4,6 +4,7 @@
 (module.exports = require('./namespace'))
 .includeInNamespace(require('./Flux'))
 .addModules({
-  ArtEryFluxModel:      require('./ArtEryFluxModel'),
-  ArtEryQueryFluxModel: require('./ArtEryQueryFluxModel')
+  ArtEryModel:      require('./ArtEryModel'),
+  ArtEryQueryModel: require('./ArtEryQueryModel'),
+  StandardImport:   require('./StandardImport')
 });

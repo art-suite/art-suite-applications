@@ -1,8 +1,6 @@
 import &ArtStandardLib
 
-# require("@art-suite/art-flux/Core")
 &build
-# {ArtEryFluxModel} = &Flux
 
 &ArtTestbench/Testing
 .init

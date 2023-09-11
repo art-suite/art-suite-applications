@@ -2,7 +2,7 @@ import &StandardImport
 
 preexistingKey = "abc123"
 testSetup = (initialRecords) ->
-  &Flux.ArtEryFluxModel.defineModelsForAllPipelines()
+  &Flux.defineModelsForAllPipelines()
   pipelines.dataUpdatesFilterPipeline.reset
     data: initialRecords || "#{preexistingKey}": name: "initialAlice"
   .then ->

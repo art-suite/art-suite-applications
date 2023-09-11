@@ -24,7 +24,7 @@ suite:
     test "query model defined", ->
       assert.instanceOf
         models.postsByUserId
-        ArtEryQueryFluxModel
+        ArtEryQueryModel
         formattedInspect
           definedModels: Object.keys models
           lookingForModel: :postsByUserId
@@ -58,10 +58,10 @@ suite:
 
         {messagesByUserId} = defineModelsForAllPipelines()
 
-      teardown: -> Flux._reset()
+      teardown: -> _resetArtSuiteModels()
 
       test "query model defined", ->
-        assert.instanceOf messagesByUserId, ArtEryQueryFluxModel
+        assert.instanceOf messagesByUserId, ArtEryQueryModel
 
       test "query loadData goes through pipeline", ->
         messagesByUserId.loadData "abc123"
@@ -78,7 +78,7 @@ suite:
 
     codeReuse: ->
       setup ->
-        Flux._reset()
+        _resetArtSuiteModels()
 
         class UserOwned extends Pipeline
           @query byUserId: (request) ->
@@ -96,11 +96,11 @@ suite:
         class Email extends UserOwned
         class Photo extends UserOwned
 
-        ArtEryFluxModel.defineModelsForAllPipelines()
+        defineModelsForAllPipelines()
 
       test "query model defined", ->
-        assert.instanceOf models.emailsByUserId, ArtEryQueryFluxModel
-        assert.instanceOf models.photosByUserId, ArtEryQueryFluxModel
+        assert.instanceOf models.emailsByUserId, ArtEryQueryModel
+        assert.instanceOf models.photosByUserId, ArtEryQueryModel
 
       test "query loadData goes through pipeline", ->
         models.emailsByUserId.loadData "abc123"
