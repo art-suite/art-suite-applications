@@ -11,6 +11,7 @@
   Env:                    require('./Env'),
   Filter:                 require('./Filter'),
   KeyFieldsMixin:         require('./KeyFieldsMixin'),
+  KeyFieldsMixinCaf:      require('./KeyFieldsMixinCaf'),
   Pipeline:               require('./Pipeline'),
   PipelineRegistry:       require('./PipelineRegistry'),
   PrefetchedRecordsCache: require('./PrefetchedRecordsCache'),

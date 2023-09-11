@@ -1,6 +1,6 @@
 import &StandardImport
 
-class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMixin Pipeline
+class DynamoDbPipeline extends KeyFieldsMixinCaf UpdateAfterMixin Pipeline
   @abstractClass()
 
   ###########################################

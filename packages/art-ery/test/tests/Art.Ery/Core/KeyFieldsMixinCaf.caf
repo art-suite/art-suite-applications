@@ -1,0 +1,83 @@
+import &StandardImport
+suite:
+  regression: ->
+    test :preprocess ->
+      class MyPipeline extends KeyFieldsMixinCaf Pipeline
+        @primaryKey :myKey/myDate
+        @fields
+          myKey:  :trimmedString
+          myDate:
+            preprocess: (v) -> v | 0
+
+        @publicRequestTypes :testToKeyObject
+
+        @handlers
+          testToKeyObject: ({key}) ->
+            @toKeyObject key
+
+      pipelines.myPipeline.testToKeyObject key: "  mom  /123"
+      .then (result) ->
+        assert.eq result, myKey: "mom", myDate: 123
+
+  primaryKey: ->
+    test :simpleString ->
+      class MyPipeline extends KeyFieldsMixinCaf Pipeline
+        @publicRequestTypes :testToKeyObject :get
+
+        @primaryKey :myKey
+        @fields myKey: :trimmedString
+
+        @handlers
+          testToKeyObject: ({key}) ->
+            @toKeyObject key
+
+          get: ({key}) ->
+            {} key
+
+      .myPipeline.testToKeyObject key: "  mom  /123"
+      .then (result) -> assert.eq result, myKey: "mom  /123"
+      .then -> pipelines.myPipeline.get "test-key"
+      .then (result) -> assert.eq result, key: "test-key"
+
+  propsToKey: ->
+    test "defaultKey (id)" ->
+      {user} = class User extends KeyFieldsMixinCaf Pipeline
+      assert.eq :user1    user.propsToKey user: id: :user1
+      assert.eq :user2    user.propsToKey userId: :user2
+      assert.eq :user3    user.propsToKey(user: {id: :user3}, userId: :user4), "" whole object has precidence
+      assert.eq undefined user.propsToKey {}
+
+    test "defaultKey (id) obeys stateField override" ->
+      {user} = class User extends KeyFieldsMixinCaf Pipeline
+      assert.eq :user2    user.propsToKey {userId: :user2, friendId: :user3}
+      assert.eq :user3    user.propsToKey {userId: :user2, friendId: :user3}, :friend
+
+    test "custom single primaryKey" ->
+      {email} = class Email extends KeyFieldsMixinCaf Pipeline
+        @primaryKey :email
+
+      assert.eq :def        email.propsToKey {} email: :def
+      assert.eq undefined   email.propsToKey {} emailId: :def
+      assert.eq {id: :def}  email.propsToKey {} email: id: :def
+      assert.eq undefined   email.propsToKey {}
+
+    test "custom primaryKey pair" ->
+      {userToPost} = class UserToPost extends KeyFieldsMixinCaf Pipeline
+        @primaryKey :userId/postId
+
+      assert.eq {userId: undefined, postId: undefined}  userToPost.propsToKey {}
+      assert.eq {userId: :user1 postId: :post1}         userToPost.propsToKey userId: :user1 postId: :post1
+      assert.eq
+        userId: :user2 postId: :post2
+        userToPost.propsToKey
+          user: id: :user2
+          post: id: :post2
+
+      assert.eq
+        userId: :user3 postId: :post3
+        userToPost.propsToKey
+          user: id: :user3
+          post: id: :post3
+          userId: :user4
+          postId: :post4
+        "" whole objects have precidence

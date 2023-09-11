@@ -6,6 +6,7 @@
 .addModules({
   Filters:             require('./Filters'),
   KeyFieldsMixin:      require('./KeyFieldsMixin'),
+  KeyFieldsMixinCaf:   require('./KeyFieldsMixinCaf'),
   NiceStackTraces:     require('./NiceStackTraces'),
   PrefetchedRecords:   require('./PrefetchedRecords'),
   Request:             require('./Request'),

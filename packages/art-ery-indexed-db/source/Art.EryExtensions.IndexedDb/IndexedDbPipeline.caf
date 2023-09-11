@@ -29,7 +29,7 @@ getGlobalIndexDb = ->
     globalIndexDb = globalIndexDb.build()
   globalIndexDb
 
-class IndexedDbPipeline extends KeyFieldsMixin UpdateAfterMixin Pipeline
+class IndexedDbPipeline extends KeyFieldsMixinCaf UpdateAfterMixin Pipeline
   @abstractClass()
 
   @getter

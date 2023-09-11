@@ -1,4 +1,4 @@
-import &ArtStandardLib, &ArtCommunicationStatus, {} &Pipeline, &KeyFieldsMixin, &Filters.AfterEventsFilter
+import &ArtStandardLib, &ArtCommunicationStatus, {} &Pipeline, &Filters.AfterEventsFilter
 
 ArtEry = require :./namespace
 
