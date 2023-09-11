@@ -17,43 +17,10 @@ import &StandardImport
 #   wouldn't get the NULL-out signal.
 class DataUpdatesFilter extends &Filter
 
-  updateRequestTypeRegExp = /^(create|update)/
-  deleteRequestTypeRegExp = /^delete/
-
   # for subrequests, this will still be on the server
   # for root requests, there is work to do on both the client and server
   @location :both
   @group :outer
-
-  updateDataUpdatesContext = (response, context)->
-    response extract key, type, responseData, pipelineName
-
-    context ?= response.context
-
-    if groupName = switch
-        when updateRequestTypeRegExp.test type then :dataUpdates
-        when deleteRequestTypeRegExp.test type then :dataDeletes
-
-      # if groupName == :dataUpdates
-      #   log updateDataUpdatesContext: {} pipelineName, type, key, responseData
-
-      switch
-      when responseData is Array
-        each record in responseData
-          key = response.pipeline.toKeyString record
-          # log "" vivifyObjectPathAndSet(A) #{groupName}, #{pipelineName}, #{key} (#{type})
-          vivifyObjectPathAndSet context, groupName, pipelineName, key, record
-
-      when key, response.pipeline.isRecord responseData
-        responseData ?=
-          response.pipeline.toKeyObject? key || responseData
-          || {}
-
-        key ?= response.pipeline.toKeyString responseData
-        # log "" vivifyObjectPathAndSet(B) #{groupName}, #{pipelineName}, #{key} (#{type})
-        vivifyObjectPathAndSet context, groupName, pipelineName, key, responseData
-
-    context
 
   @after all: (response) ->
     if response.isRootRequest
@@ -61,36 +28,45 @@ class DataUpdatesFilter extends &Filter
       switch response.location
       when :client
         response
-        .tap (response) -> @applyFluxUpdates response if @models
+        .tap (response) -> @sendDataEvents response
 
       when :server :both
         response.withMergedPropsWithoutNulls {dataUpdates, dataDeletes} = response.context
 
     else
-      # log DataUpdatesFilter3: {} response
-      updateDataUpdatesContext response
+      response extract key, type, responseData, pipelineName, context
+
+      groupName =
+        if response.isUpdateRequest() then :dataUpdates
+        else if response.isDeleteRequest() then :dataDeletes
+
+      if groupName
+        switch
+        when responseData is Array
+          each record in responseData
+            key = response.pipeline.toKeyString record
+            vivifyObjectPathAndSet context, groupName, pipelineName, key, record
+
+        when key, response.pipeline.isRecord responseData
+          responseData ?=
+            response.pipeline.toKeyObject? key || responseData
+            || {}
+
+          key ?= response.pipeline.toKeyString responseData
+          vivifyObjectPathAndSet context, groupName, pipelineName, key, responseData
+
       response
 
-  applyFluxUpdates: (response) ->
-    response.responseProps extract dataUpdates, dataDeletes
+  sendDataEvents: (response) ->
+    @sendDataUpdateEvents response.pipelines, response.responseProps.dataUpdates
+    @sendDataDeleteEvents response.pipelines, response.responseProps.dataDeletes
 
-    @applyModelDataUpdates dataUpdates
-    @applyModelDataDeletes dataDeletes
-
-    if updateRequestTypeRegExp.test response.type
-      @applyModelDataUpdates updateDataUpdatesContext(response, {}).dataUpdates
-    if deleteRequestTypeRegExp.test response.type
-      @applyModelDataDeletes updateDataUpdatesContext(response, {}).dataDeletes
-
-  @getter
-    models: -> Neptune.Art.Flux?.models
-
-  applyModelDataUpdates: (dataUpdates) ->
-    each dataUpdatesByKey, pipelineName in dataUpdates when @models[pipelineName]?.dataUpdated is Function
+  sendDataUpdateEvents: (pipelines, dataUpdates) ->
+    each dataUpdatesByKey, pipelineName in dataUpdates || []
       each data, key in dataUpdatesByKey
-        @models[pipelineName].dataUpdated key, data
+        pipelines[pipelineName].dataUpdated key, data
 
-  applyModelDataDeletes: (dataDeletes) ->
-    each dataDeletesByKey, pipelineName in dataDeletes when @models[pipelineName]?.dataDeleted is Function
+  sendDataDeleteEvents: (pipelines, dataDeletes) ->
+    each dataDeletesByKey, pipelineName in dataDeletes || []
       each data, key in dataDeletesByKey
-        @models[pipelineName].dataDeleted key, data
+        pipelines[pipelineName].dataDeleted key, data

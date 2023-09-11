@@ -28,6 +28,9 @@ class RequestResponseBase extends &ArtEryBaseObjectCaf
 
     @
 
+  isUpdateRequest: -> @pipeline.isUpdateRequestType @type
+  isDeleteRequest: -> @pipeline.isDeleteRequestType @type
+
   @getter
     lastFilterLogEntry: ->
       peek(@filterLog) ? @request?.lastFilterLogEntry
@@ -97,7 +100,7 @@ class RequestResponseBase extends &ArtEryBaseObjectCaf
     requestData:        -> @request.requestData
 
     isRootRequest:      -> @request.isRootRequest
-    key:                -> @request.key ? @responseData?.id
+    key:                -> @request.key ? @responseData?.id # TODO 2023 - this should really not be hard-coded use responseData.id; response should be able to specific a new key separate from the Data
     pipeline:           -> @request.pipeline
     parentRequest:      -> @request.parentRequest
     isSubrequest:       -> !!@request.parentRequest

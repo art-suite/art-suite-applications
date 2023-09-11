@@ -1,3 +1,7 @@
-&ArtEryFluxModel.bindWithArtEry()
+import &StandardImport
 
-defineArtEryPipelineFluxModels: &ArtEryFluxModel.defineModelsForAllPipelines
+{}
+  &ArtEryFluxModel.defineModelsForAllPipelines
+  defineArtEryPipelineFluxModels: () ->
+    log.warn "" DEPRECATED: defineArtEryPipelineFluxModels(). Use: defineModelsForAllPipelines().
+    &ArtEryFluxModel.defineModelsForAllPipelines

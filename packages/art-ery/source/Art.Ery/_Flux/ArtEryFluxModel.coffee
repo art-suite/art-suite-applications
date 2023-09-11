@@ -69,6 +69,8 @@ defineModule module, class ArtEryFluxModel extends KeyFieldsMixin FluxModel
     for name, pipeline of pipelines when name == pipeline.getName()
       @createModel pipeline
 
+    models
+
   @bindWithArtEry: =>
     PipelineRegistry.on
       register: ({name, pipeline}) =>
@@ -92,6 +94,10 @@ defineModule module, class ArtEryFluxModel extends KeyFieldsMixin FluxModel
     @_pipeline = @class._pipeline
     @_defineQueryModels()
     @_bindPipelineMethods()
+    @_pipeline.subscribe (type, key, data) =>
+      switch type
+        when "update" then @dataUpdated key, data
+        when "delete" then @dataDeleted key, data
 
   ########################
   # Queries

@@ -1,7 +1,7 @@
 []
   &StandardImport
   require :art-ery/Flux
-  Flux = require "@art-suite/art-flux"
+  Flux = &@ArtSuite/ArtFlux
   {}
     Flux
     SimplePipeline: &SimplePipeline

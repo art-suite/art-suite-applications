@@ -83,15 +83,14 @@
     };
 
     ArtEryFluxModel.defineModelsForAllPipelines = function() {
-      var name, pipeline, results;
-      results = [];
+      var name, pipeline;
       for (name in pipelines) {
         pipeline = pipelines[name];
         if (name === pipeline.getName()) {
-          results.push(ArtEryFluxModel.createModel(pipeline));
+          ArtEryFluxModel.createModel(pipeline);
         }
       }
-      return results;
+      return models;
     };
 
     ArtEryFluxModel.bindWithArtEry = function() {
@@ -126,6 +125,16 @@
       this._pipeline = this["class"]._pipeline;
       this._defineQueryModels();
       this._bindPipelineMethods();
+      this._pipeline.subscribe((function(_this) {
+        return function(type, key, data) {
+          switch (type) {
+            case "update":
+              return _this.dataUpdated(key, data);
+            case "delete":
+              return _this.dataDeleted(key, data);
+          }
+        };
+      })(this));
     }
 
     ArtEryFluxModel.prototype._defineQueryModels = function() {

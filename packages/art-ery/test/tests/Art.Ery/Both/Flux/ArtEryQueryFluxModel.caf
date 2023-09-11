@@ -1,9 +1,8 @@
-import &StandardImport, &Flux
+import &StandardImport
 
 suite:
   pre2020Style: ->
     setup ->
-      Flux._reset()
 
       class Post extends Pipeline
         @query postsByUserId: (request) ->
@@ -17,6 +16,10 @@ suite:
           response.withData
             array record in response.data
               merge record, message: "#{record.message} :)"
+
+      defineModelsForAllPipelines() # TODO - change to using a non-global registry so we don't have to call Flux._reset()
+
+    teardown: -> Flux._reset()
 
     test "query model defined", ->
       assert.instanceOf
@@ -37,8 +40,6 @@ suite:
     basic: ->
       messagesByUserId = null
       setup ->
-        Flux._reset()
-
         class Message extends Pipeline
           @query
             byUserId:
@@ -55,7 +56,9 @@ suite:
               array record in response.data
                 merge record, message: "#{record.message} :)"
 
-        {messagesByUserId} = models
+        {messagesByUserId} = defineModelsForAllPipelines()
+
+      teardown: -> Flux._reset()
 
       test "query model defined", ->
         assert.instanceOf messagesByUserId, ArtEryQueryFluxModel

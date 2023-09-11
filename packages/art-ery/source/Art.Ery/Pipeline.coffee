@@ -28,6 +28,7 @@
   success, missing
   getDetailedRequestTracingEnabled
   cleanStackTrace
+  isArray
 } = require './StandardImport'
 {normalizeFieldProps} = require 'art-validation'
 
@@ -168,26 +169,6 @@ defineModule module, class Pipeline extends require './RequestHandler'
       @publicRequestTypes Object.keys map
 
   ###
-  @fluxModelMixin adds a mixin to fluxModelMixins
-
-  When createing FluxModels for this pipeline (via ArtEryFluxModel.createModel for example),
-  both the records model and each query-model will get these mixins.
-
-  Example:
-    class MyPipeline extends Pipeline
-      @fluxModelMixin FluxModelMixinA
-      @fluxModelMixin FluxModelMixinB
-
-    # this action
-    ArtEryFluxModel.defineModelsForAllPipelines()
-
-    # defines this model:
-    class MyPipeline extends FluxModelMixinB FluxModelMixinA ArtEryFluxModel
-  ###
-  @fluxModelMixin: (mixin) -> @extendFluxModelMixins mixin
-
-
-  ###
   define a single filter OR an array of filters to define.
 
   NOTE: the order of filter definitions matter:
@@ -298,6 +279,7 @@ defineModule module, class Pipeline extends require './RequestHandler'
   ######################
   constructor: (@_options = {}) ->
     super
+    @_subscribers = []
 
   getPrefixedTableName: (tableName) => "#{@tableNamePrefix}#{tableName}"
 
@@ -420,6 +402,28 @@ defineModule module, class Pipeline extends require './RequestHandler'
         error.stack = cleanStackTrace stack
       error.message += "\n\ninside #{@name}." + formattedInspect createRequest: {type, options}
       throw error
+
+  ###############################
+  # Subscriptions
+  ###############################
+  subscribe:   (subscriber) -> pushIfNotPresent @_subscribers, subscriber
+  unsubscribe: (subscriber) -> removeFirstMatch @_subscribers, subscriber
+
+  dataUpdated: (key, data) -> @_sendDataSubscriptionEvent "update", key, data
+  dataDeleted: (key, data) -> @_sendDataSubscriptionEvent "delete", key, data
+
+  _sendDataSubscriptionEvent: (eventType, key, data) ->
+    if isArray dataArray = data
+      for subscriber in @_subscribers
+        for data in dataArray
+          subscriber eventType, key, data
+
+    else
+      for subscriber in @_subscribers
+        subscriber eventType, key, data
+
+  isUpdateRequestType: (actionType) -> /^(create|update)/.test actionType
+  isDeleteRequestType: (actionType) -> /^delete/.test actionType
 
   ###############################
   # Development Reports
@@ -545,11 +549,12 @@ defineModule module, class Pipeline extends require './RequestHandler'
     else
       request.requireServerOriginOr isPublicRequestType, "to issue non-public requests"
       .then => @filterChain[0].handleRequest request, @filterChain, 0
-      .then (response) ->
-        unless response.isResponse
-          log.error "not response!":response
-
-        response
+      .tap (response) =>
+        log.error "not response!": response unless response.isResponse
+        if response.isSuccessful
+          {key, data} = response
+          @dataUpdated key ? @toKeyString(data), data if response.isUpdateRequest()
+          @dataDeleted key ? @toKeyString(data), data if response.isDeleteRequest()
 
   ###
   IN:
@@ -562,6 +567,7 @@ defineModule module, class Pipeline extends require './RequestHandler'
     type:           request type string
     parentRequest:  if present, this becomes a subreqest
     key:            merged with options: merge {key}, options
+                    [this is the stringified key]
     options:
       Passed directly to:
         Request constructor
