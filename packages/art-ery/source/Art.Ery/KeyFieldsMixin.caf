@@ -25,7 +25,7 @@ import &StandardImport, &ArtValidation
   used as a delimiter, so it shouldn't be in the names of your key-fields. Ideally
   each key field name should match: /[-._a-zA-Z0-9]+/
 
-(superClass) -> class KeyFieldsMixinCaf extends superClass
+(superClass) -> class KeyFieldsMixin extends superClass
   @abstractClass()
 
   ###########################################

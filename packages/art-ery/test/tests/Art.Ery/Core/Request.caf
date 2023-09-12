@@ -7,7 +7,7 @@ newRequest = (options) ->
     session: {}
     options
 
-class MyCompoundKeyPipe extends KeyFieldsMixinCaf Pipeline
+class MyCompoundKeyPipe extends KeyFieldsMixin Pipeline
   @keyFields "userId/postId"
 
 newCompoundKeyRequest = (options) ->

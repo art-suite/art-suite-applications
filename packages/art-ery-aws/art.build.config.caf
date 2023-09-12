@@ -3,3 +3,4 @@ package: &@ArtSuite/StandardPackageBuilder.configure {}
   mocha: true
   scripts:
     dynamodb: "" docker run -p 8081:8000 amazon/dynamodb-local
+    test-server: "" npm run dynamodb

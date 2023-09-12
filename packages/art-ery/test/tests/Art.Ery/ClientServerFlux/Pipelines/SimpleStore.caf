@@ -1,6 +1,6 @@
 import &StandardImport
 
-class SimpleStore extends KeyFieldsMixinCaf Pipeline
+class SimpleStore extends KeyFieldsMixin Pipeline
   @abstractClass()
 
   constructor: -> @db = {}

@@ -37,6 +37,7 @@
     "dynamodb": "docker run -p 8081:8000 amazon/dynamodb-local",
     "nn": "nn build/* test/tests",
     "test": "npm run nn\nmocha -u tdd",
+    "test-server": "npm run dynamodb",
     "watch": "npm-watch"
   },
   "version": "2.1.4",

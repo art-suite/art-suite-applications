@@ -1,6 +1,6 @@
 import &StandardImport
 
-class ArtEryQueryModel extends KeyFieldsMixinCaf ArtModel
+class ArtEryQueryModel extends KeyFieldsMixin ArtModel
   @abstractClass()
 
   loadData: (key) ->

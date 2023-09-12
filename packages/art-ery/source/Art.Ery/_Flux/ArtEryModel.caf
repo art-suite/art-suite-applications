@@ -1,6 +1,6 @@
 import &StandardImport, &PrefetchedRecordsCache
 
-class ArtEryModel extends KeyFieldsMixinCaf ArtModel
+class ArtEryModel extends KeyFieldsMixin ArtModel
   @abstractClass()
 
   ##
