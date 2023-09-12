@@ -5,7 +5,6 @@
 .includeInNamespace(require('./Ery'))
 .addModules({
   ArtEryBaseObject:       require('./ArtEryBaseObject'),
-  ArtEryBaseObjectCaf:    require('./ArtEryBaseObjectCaf'),
   Config:                 require('./Config'),
   DatabaseFilters:        require('./DatabaseFilters'),
   Env:                    require('./Env'),

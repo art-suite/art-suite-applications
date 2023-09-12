@@ -20,7 +20,7 @@ import &StandardImport, &Config, &ArtEvents
       If you need custom sessions on a per-pipline basis, use
       inheritance... I like! it's simpler!
 
-class Session extends EventedMixinCaf &ArtEryBaseObjectCaf
+class Session extends EventedMixinCaf &ArtEryBaseObject
   ###
     A global singleton Session is provided and used by default.
     Or multiple instances can be created and passed to the

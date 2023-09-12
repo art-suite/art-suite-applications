@@ -3,7 +3,7 @@ import &StandardImport, &PrefetchedRecordsCache
 class ArtEryModel extends KeyFieldsMixin ArtModel
   @abstractClass()
 
-  ##
+  ## createModel
     ALIASES
       both pipelines and models will have the same set of aliases
       This skips the aliases in pipelines and calls createModel only once
@@ -46,7 +46,6 @@ class ArtEryModel extends KeyFieldsMixin ArtModel
   # Constructor
   ########################
   constructor: ->
-    super
     @_updateSerializers = {}
     @_pipeline = @class._pipeline
     @_defineQueryModels()
@@ -62,7 +61,7 @@ class ArtEryModel extends KeyFieldsMixin ArtModel
   _defineQueryModels: ->
     @_queryModels = array pipelineQuery in @_pipeline.queries with @_createQueryModel pipelineQuery
 
-  ### _createQueryModel
+  ## _createQueryModel
     IN: {options, queryName}
     queryName can either be
       pre2020-style:
@@ -144,7 +143,7 @@ class ArtEryModel extends KeyFieldsMixin ArtModel
   ################################################
   # DataUpdatesFilter callbacks
   ################################################
-  ###
+  ## dataUpdated
     TODO: What if the field that changes effects @dataToKeyString???
       Basically, then TWO query results for one query-model need updated - the old version gets a "delete"
       The new version gets the normal update.
@@ -189,7 +188,7 @@ class ArtEryModel extends KeyFieldsMixin ArtModel
   # PRIVATE
   ##########################
 
-  ###
+  ## _bindPipelineMethods
     Bind all concrete methods defined on @_pipeline
     and set them on the model prototype
     as long as there isn't already a model-prototype method with that name.
