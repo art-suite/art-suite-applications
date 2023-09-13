@@ -425,7 +425,8 @@ class Pipeline extends &RequestHandler
     each subscriber in @_subscribers[key]
       subscriber eventType, key, data
 
-    each querySubscribers, queryName in @_querySubscribers
+    # if data isn't proveded, we can't update queries
+    data && each querySubscribers, queryName in @_querySubscribers
       queryKey = @queries[queryName].toKeyString data # assumes data contains all fields needed to generate the keyString
 
       each subscriber in querySubscribers[queryKey]
