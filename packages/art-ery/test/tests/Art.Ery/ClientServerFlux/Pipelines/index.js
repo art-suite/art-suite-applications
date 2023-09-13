@@ -5,7 +5,6 @@
 
 .addModules({
   DataUpdatesFilterPipeline: require('./DataUpdatesFilterPipeline'),
-  FluxLog:                   require('./FluxLog'),
   SimpleStore:               require('./SimpleStore'),
   StandardImport:            require('./StandardImport')
 });

@@ -50,10 +50,24 @@ class ArtEryModel extends KeyFieldsMixin ArtModel
     @_pipeline = @class._pipeline
     @_defineQueryModels()
     @_bindPipelineMethods()
-    @_pipeline.subscribe (type, key, data) ->
-      switch type
-      when :update then @dataUpdated key, data
-      when :delete then @dataDeleted key, data
+
+  ####################
+  # ArtModel Overrides
+  ####################
+  modelStoreEntryUpdated: ({key, subscribers}) ->
+    if subscribers.length > 0  # have local subscribers
+      @_pipeline.subscribe
+        key
+        @_sharedSubscriptionFunction ?= (eventType, key, data) ->
+          switch eventType
+          when :update then @dataUpdated key, data
+          when :delete then @dataDeleted key, data
+
+    super
+
+  modelStoreEntryRemoved: ({key}) ->
+    @_pipeline.unsubscribe key, @_sharedSubscriptionFunction
+    super
 
   ########################
   # Queries
@@ -124,6 +138,7 @@ class ArtEryModel extends KeyFieldsMixin ArtModel
       _recordsModel:  recordsModel
       _queryName:     queryName
 
+      @getter :queryName, :pipeline, :recordsModel
       @keyFields keyFields if keyFields
 
       # Overrides
@@ -144,45 +159,8 @@ class ArtEryModel extends KeyFieldsMixin ArtModel
   # DataUpdatesFilter callbacks
   ################################################
   ## dataUpdated
-    TODO: What if the field that changes effects @dataToKeyString???
-      Basically, then TWO query results for one query-model need updated - the old version gets a "delete"
-      The new version gets the normal update.
-
-      We -could- do a modelStore.get and see if we have a local copy of the single record before we
-      replace it. However, we often won't. However again, we may not NEED this often.
-
-      Basically, the question becomes how do we get the old data - if we need it and it actually matters.
-
-      The ArtEry Pipeline knows its queries - and in theory could know the fields which effect queries.
-      DataUpdatesFilter could detect all this before: update. If it detects it, it could GET the old
-      record, and then set responseProps.oldData: oldData. Then, DataUpdatesFilter could pass
-      oldData into dataUpdated. DONE.
-
-      OK - I added the oldData input, and I attempt to get it from the modelStore if it isn't set.
-      I think the code is right for handling the case where we need to update to queries.
-
-      TODO: We need to do the Server-Side "fetch the old data if queries-keys will change" outline above.
-      TODO: DataUpdatesFilter needs change the protocol to return oldData, too, if needed - there may be more than one oldData per request.
-      TODO: DataUpdatesFilter needs to pass in: response.props.oldData[key]
-  dataUpdated: (key, data) ->
-    oldData = @getModelRecord(key)?.data
-    mergedData = merge oldData, data
-
-    @updateModelRecord key, (oldRecord) -> merge oldRecord, data: merge oldRecord.data, data
-
-    each queryModel in @_queryModels
-      oldQueryKey = oldData && queryModel.dataToKeyString oldData
-      queryKey    = queryModel.dataToKeyString mergedData
-
-      queryModel.dataDeleted oldQueryKey, oldData if oldQueryKey && oldQueryKey != queryKey
-      queryModel.dataUpdated queryKey, mergedData if queryKey
-
-  dataDeleted: (key, dataOrKey) ->
-    @updateModelRecord key, status: missing
-
-    dataOrKey && each queryModel in @_queryModels
-      queryKey = queryModel.toKeyString dataOrKey
-      queryKey && queryModel.dataDeleted queryKey, dataOrKey
+  dataUpdated: (key, data) -> @updateModelRecord key, (oldRecord) -> merge oldRecord, data: merge oldRecord.data, data
+  dataDeleted: (key, dataOrKey) -> @updateModelRecord key, status: missing
 
   ##########################
   # PRIVATE

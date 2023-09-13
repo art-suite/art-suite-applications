@@ -1,21 +1,10 @@
 import &StandardImport
 
-fluxLog = []
-
 class DataUpdatesFilterPipeline extends &SimpleStore
 
-  @publicRequestTypes :subrequestTest :update :delete
+  @publicRequestTypes :subrequestTest :update :delete :userByEmail
 
   @remoteServer :http://localhost:8085
-
-  constructor: ->
-    super
-    @resetFluxLog()
-    @subscribe (type, key, data) =>
-      if type == "update" then @fluxLog.push  dataUpdated: {key, data, model: @name}
-      else  @fluxLog.push                     dataDeleted: {key, data, model: @name}
-
-  resetFluxLog: -> fluxLog = []
 
   @filter DataUpdatesFilter
 
@@ -23,12 +12,6 @@ class DataUpdatesFilterPipeline extends &SimpleStore
     before:
       create: (request) -> request.withMergedData createdAt: 123, updatedAt: 123
       update: (request) -> request.withMergedData updatedAt: 321
-
-  @filter
-    location: :client
-    before: reset: (request) -> request.pipeline.resetFluxLog(); request
-
-  @getter fluxLog: -> fluxLog
 
   @query
     userByEmail:

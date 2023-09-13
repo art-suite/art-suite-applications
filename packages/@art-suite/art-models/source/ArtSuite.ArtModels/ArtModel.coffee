@@ -91,7 +91,7 @@ defineModule module, class ArtModel extends InstanceFunctionBindingMixin BaseObj
 
   # DEPRICATED
   subscribe: (modelKey, subscriptionFunction) ->
-    log.error "DEPRICATED - use ArtModelSubscriptionsMixin and it's subscribe"
+    log.error "DEPRICATED - mix ArtModelSubscriptionsMixin into your class, and use it's methods to subscribe to models"
     artModelStore.subscribe @_name, modelKey, subscriptionFunction
 
   @getter "name",

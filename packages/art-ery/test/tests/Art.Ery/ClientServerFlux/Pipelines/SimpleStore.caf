@@ -15,7 +15,7 @@ class SimpleStore extends KeyFieldsMixin Pipeline
     get: ({key}) -> @db[key]
 
     create: (request) ->
-      key =
+      key = request.key ?
         if request.pipeline.keyFields.length > 1
               request.pipeline.toKeyString request.requestData
         else  randomString 8

@@ -1,12 +1,28 @@
 import &StandardImport
 
 preexistingKey = "abc123"
+preexistingName = :initialAlice
+
+stateField = :user
+newUserName = :bill
+createNewUserName = :craig
+cleanupInstance = null
+
+class MyComponent extends ArtModelSubscriptionsMixin BaseObject
+  constructor: (key = preexistingKey)->
+    @subscribe :mySubscriptionKey :dataUpdatesFilterPipeline key, {} stateField
+
+class MyQueryComponent extends ArtModelSubscriptionsMixin BaseObject
+  constructor: (key = preexistingKey)->
+    log MyQueryComponent: subscribe: {}
+      modelName: :userByEmail
+      key
+    @subscribe :mySubscriptionKey :userByEmail key, {} stateField
+
 testSetup = (initialRecords) ->
-  &Flux.defineModelsForAllPipelines()
+  defineModelsForAllPipelines()
   pipelines.dataUpdatesFilterPipeline.reset
-    data: initialRecords || "#{preexistingKey}": name: "initialAlice"
-  .then ->
-    assert.eq pipelines.dataUpdatesFilterPipeline.fluxLog, []
+    data: initialRecords || [preexistingKey]: name: preexistingName
 
 suite:
   simpleRequests: ->
@@ -51,16 +67,16 @@ suite:
         returnResponseObject: true
         data:
           type: "create"
-          data: name: "bill"
+          data: name: newUserName
 
       .then ({props}) ->
         [id] = Object.keys props.dataUpdates.dataUpdatesFilterPipeline
         assert.eq
           dataUpdates:
             dataUpdatesFilterPipeline:
-              "#{id}": name: "bill", createdAt: 123, updatedAt: 123, id: id
+              "#{id}": name: newUserName, createdAt: 123, updatedAt: 123, id: id
 
-          data: name: "bill", createdAt: 123, updatedAt: 123, id: id
+          data: name: newUserName, createdAt: 123, updatedAt: 123, id: id
 
           props
 
@@ -70,13 +86,13 @@ suite:
         data:
           type: "update"
           key:  preexistingKey
-          data: name: "bill"
+          data: name: newUserName
 
       .then ({props}) ->
         id = preexistingKey
         assert.eq
-          dataUpdates: dataUpdatesFilterPipeline: "#{id}": name:      "bill", updatedAt: 321
-          data:        name:        "bill", updatedAt: 321
+          dataUpdates: dataUpdatesFilterPipeline: "#{id}": name:      newUserName, updatedAt: 321
+          data:        name:        newUserName, updatedAt: 321
 
           props
 
@@ -90,8 +106,8 @@ suite:
       .then ({props}) ->
         id = preexistingKey
         assert.eq
-          dataDeletes: dataUpdatesFilterPipeline: "#{id}": name:      "initialAlice"
-          data:        name:        "initialAlice"
+          dataDeletes: dataUpdatesFilterPipeline: "#{id}": name:      preexistingName
+          data:        name:        preexistingName
 
           props
 
@@ -105,151 +121,167 @@ suite:
       .then ({props}) ->
         id = preexistingKey
         assert.eq
-          data:        name:        "initialAlice"
+          data:        name:        preexistingName
 
           props
 
-  "flux updates":
-    "basic requests": ->
+  ArtModelUpdates:
+    basicRequests: ->
       setup -> testSetup()
-
-      test "get", ->
-        pipelines.dataUpdatesFilterPipeline.get
-          key: preexistingKey
-
-        .then ->
-          assert.eq pipelines.dataUpdatesFilterPipeline.fluxLog, []
+      teardown -> cleanupInstance?.unsubscribeAll()
 
       test "update", ->
-        pipelines.dataUpdatesFilterPipeline.update
-          key: preexistingKey
-          data: name: "bill"
+        new Promise (resolve) ->
+          cleanupInstance = new class MyComponentForUpdateTesting extends MyComponent
+            setState: (_stateField, data) -> if _stateField == stateField
+              resolve() if data?.name == newUserName
 
-        .then ->
-          assert.eq pipelines.dataUpdatesFilterPipeline.fluxLog, []
-            dataUpdated:
-              model: "dataUpdatesFilterPipeline"
-              key:   "abc123"
-              data:  name: "bill", updatedAt: 321
+          artModelStore.onNextReady ->
+            pipelines.dataUpdatesFilterPipeline.update
+              key: preexistingKey
+              data: name: newUserName
 
       test "delete", ->
-        pipelines.dataUpdatesFilterPipeline.delete
-          key: preexistingKey
+        new Promise (resolve) ->
+          cleanupInstance = new class MyComponentForDeleteTesting extends MyComponent
+            setState: (_stateField, data) -> if _stateField == stateField
+              log delete: setState: {} data
+              @_receivedRealData = true if data?.name?
+              resolve() if !data? && @_receivedRealData
 
-        .then ->
-          assert.eq pipelines.dataUpdatesFilterPipeline.fluxLog, []
-            dataDeleted:
-              model: "dataUpdatesFilterPipeline"
-              key:   "abc123"
-              data:  name: "initialAlice"
+          artModelStore.onNextReady ->
+            pipelines.dataUpdatesFilterPipeline.delete key: preexistingKey
 
       test "create", ->
-        pipelines.dataUpdatesFilterPipeline.create
-          data: name: "bill"
+        newKey = randomString 8
+        new Promise (resolve) ->
+          class MyComponentForCreateTesting extends MyComponent
+            setState: (_stateField, data) -> if _stateField == stateField
+              resolve() if data?.name == createNewUserName
 
-        .then ({id}) ->
-          assert.eq pipelines.dataUpdatesFilterPipeline.fluxLog, []
-            dataUpdated:
-              model: "dataUpdatesFilterPipeline"
-              key:   id
-              data:  name: "bill", createdAt: 123, updatedAt: 123, id: id
+          cleanupInstance = new MyComponentForCreateTesting newKey
+
+          artModelStore.onNextReady ->
+            pipelines.dataUpdatesFilterPipeline.create
+              key: newKey
+              data: name: createNewUserName
 
     subrequests: ->
+      cleanupInstance = null
       setup -> testSetup()
-
-      test "get", ->
-        pipelines.dataUpdatesFilterPipeline.subrequestTest
-          data:
-            type: "get"
-            key: preexistingKey
-
-        .then ->
-          assert.eq pipelines.dataUpdatesFilterPipeline.fluxLog, []
+      teardown -> cleanupInstance?.unsubscribeAll()
 
       test "update", ->
-        pipelines.dataUpdatesFilterPipeline.subrequestTest
-          data:
-            type: "update"
-            key: preexistingKey
-            data: name: "bill"
+        new Promise (resolve) ->
+          cleanupInstance = new class MyComponentForUpdateTesting extends MyComponent
+            setState: (_stateField, data) -> if _stateField == stateField
+              resolve() if data?.name == newUserName
 
-        .then ->
-          assert.eq pipelines.dataUpdatesFilterPipeline.fluxLog, []
-            dataUpdated:
-              model: "dataUpdatesFilterPipeline"
-              key:   "abc123"
-              data:  name: "bill", updatedAt: 321
+          artModelStore.onNextReady ->
+            pipelines.dataUpdatesFilterPipeline.subrequestTest
+              data:
+                type: :update
+                key: preexistingKey
+                data: name: newUserName
+
 
       test "delete", ->
-        pipelines.dataUpdatesFilterPipeline.subrequestTest
-          data:
-            type: "delete"
-            key: preexistingKey
+        new Promise (resolve) ->
+          cleanupInstance = new class MyComponentForDeleteTesting extends MyComponent
+            setState: (_stateField, data) -> if _stateField == stateField
+              log delete: setState: {} data
+              @_receivedRealData = true if data?.name?
+              resolve() if !data? && @_receivedRealData
 
-        .then ->
-          assert.eq pipelines.dataUpdatesFilterPipeline.fluxLog, []
-            dataDeleted:
-              model: "dataUpdatesFilterPipeline"
-              key:   "abc123"
-              data:  name: "initialAlice"
+          artModelStore.onNextReady ->
+            pipelines.dataUpdatesFilterPipeline.subrequestTest
+              data:
+                type: :delete
+                key: preexistingKey
 
       test "create", ->
-        pipelines.dataUpdatesFilterPipeline.subrequestTest
-          data:
-            type: "create"
-            data: name: "bill"
+        newKey = randomString 8
+        createNewUserName = :craig
+        new Promise (resolve) ->
+          class MyComponentForCreateTesting extends MyComponent
+            setState: (_stateField, data) -> if _stateField == stateField
+              log MyComponentForCreateTesting: setState: {} data
+              resolve() if data?.name == createNewUserName
 
-        .then ({id}) ->
-          assert.eq pipelines.dataUpdatesFilterPipeline.fluxLog, []
-            dataUpdated:
-              model: "dataUpdatesFilterPipeline"
-              key:   id
-              data:  name: "bill", createdAt: 123, updatedAt: 123, id: id
+          cleanupInstance = new MyComponentForCreateTesting newKey
 
+          artModelStore.onNextReady ->
+            log :ready
+            pipelines.dataUpdatesFilterPipeline.subrequestTest log
+              data:
+                type: :create
+                key: newKey
+                data: name: createNewUserName
 
     # TODO: 2023 - query-updates are 100% handled in ArtEryFluxModel - they have nothing to do with ArtPipelines/ArtEry per se
     #  SO, we need to test these scenarios directly on ArtEryFluxModles - i.e. do dataUpdates on a single record update the query-models?
-    # "query updates": ->
+    queryUpdates: ->
+      setup -> testSetup()
+      teardown -> cleanupInstance?.unsubscribeAll()
 
-    #   test "create", ->
-    #     testSetup()
-    #     .then ->
-    #       pipelines.dataUpdatesFilterPipeline.create
-    #         data: name: "bill", email: "bill@imikimi.com"
+      test "create", ->
+        newUserEmail = :bill@imikimi.com
+        new Promise (resolve) ->
+          class MyComponentForQueryCreateTesting extends MyQueryComponent
+            setState: (_stateField, data) ->
+              if _stateField == stateField
+                log MyComponentForQueryCreateTesting: setState: {} stateField, data
+                @_wasInitiallyEmpty = true if isArray(data) && data.length == 0
 
-    #     .then ({id}) ->
-    #       assert.eq pipelines.dataUpdatesFilterPipeline.fluxLog, []
-    #         {} dataUpdated:
-    #           model: "dataUpdatesFilterPipeline"
-    #           key:   id
-    #           data:
-    #             name:      "bill"
-    #             email:     "bill@imikimi.com"
-    #             createdAt: 123
-    #             updatedAt: 123
-    #             id:        id
+                resolve() if @_wasInitiallyEmpty && data?.length == 1
 
-    #         {} dataUpdated:
-    #           model: "userByEmail"
-    #           key:   "bill@imikimi.com"
-    #           data:
-    #             name:      "bill"
-    #             email:     "bill@imikimi.com"
-    #             createdAt: 123
-    #             updatedAt: 123
-    #             id:        id
+          cleanupInstance = new MyComponentForQueryCreateTesting newUserEmail
+
+          artModelStore.onNextReady ->
+            log :sendCreate
+            pipelines.dataUpdatesFilterPipeline.create
+              data: name: newUserName, email: newUserEmail
+
+      # test "create", ->
+      #   testSetup()
+      #   .then ->
+
+      #     pipelines.dataUpdatesFilterPipeline.create
+      #       data: name: newUserName, email: "bill@imikimi.com"
+
+      #   .then ({id}) ->
+      #     assert.eq pipelines.dataUpdatesFilterPipeline.artModelLog, []
+      #       {} dataUpdated:
+      #         model: "dataUpdatesFilterPipeline"
+      #         key:   id
+      #         data:
+      #           name:      newUserName
+      #           email:     "bill@imikimi.com"
+      #           createdAt: 123
+      #           updatedAt: 123
+      #           id:        id
+
+      #       {} dataUpdated:
+      #         model: "userByEmail"
+      #         key:   "bill@imikimi.com"
+      #         data:
+      #           name:      newUserName
+      #           email:     "bill@imikimi.com"
+      #           createdAt: 123
+      #           updatedAt: 123
+      #           id:        id
 
     #   test "get", ->
     #     testSetup "#{preexistingKey}": name: "alice", email: email = "alice@imikimi.com"
     #     .then -> pipelines.dataUpdatesFilterPipeline.get key: preexistingKey
-    #     .then ({id}) -> assert.eq pipelines.dataUpdatesFilterPipeline.fluxLog, []
+    #     .then ({id}) -> assert.eq pipelines.dataUpdatesFilterPipeline.artModelLog, []
 
     #   test "delete", ->
     #     testSetup "#{preexistingKey}": name: "alice", email: email = "alice@imikimi.com"
     #     .then -> pipelines.dataUpdatesFilterPipeline.delete key: preexistingKey
 
     #     .then ({id}) ->
-    #       assert.eq pipelines.dataUpdatesFilterPipeline.fluxLog, []
+    #       assert.eq pipelines.dataUpdatesFilterPipeline.artModelLog, []
     #         {} dataDeleted:
     #           model: "dataUpdatesFilterPipeline"
     #           key:   "abc123"
@@ -266,7 +298,7 @@ suite:
     #       pipelines.dataUpdatesFilterPipeline.update key: preexistingKey, data: email: "alicesNewEmail@imikimi.com"
 
     #     .then ({id}) ->
-    #       assert.eq pipelines.dataUpdatesFilterPipeline.fluxLog, []
+    #       assert.eq pipelines.dataUpdatesFilterPipeline.artModelLog, []
     #         {} dataUpdated:
     #           model: "dataUpdatesFilterPipeline"
     #           key:   "abc123"

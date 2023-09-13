@@ -9,6 +9,26 @@ class ArtEryQueryModel extends KeyFieldsMixin ArtModel
 
   @getter "recordsModel pipeline queryName"
 
+  ####################
+  # ArtModel Overrides
+  ####################
+  modelStoreEntryUpdated: ({key, subscribers}) ->
+    if subscribers.length > 0  # have local subscribers
+      @_pipeline.subscribe
+        key
+        @_sharedSubscriptionFunction ?= (eventType, key, data, queryKey) ->
+          switch eventType
+          when :update then @dataUpdated queryKey, data
+          when :delete then @dataDeleted queryKey, data
+
+        @queryName
+
+    super
+
+  modelStoreEntryRemoved: ({key}) ->
+    @_pipeline.unsubscribe key, @_sharedSubscriptionFunction, @queryName
+    super
+
   #########################
   # OVERRIDEABLES
   #########################
@@ -26,7 +46,7 @@ class ArtEryQueryModel extends KeyFieldsMixin ArtModel
       returned, then one of the fields will be records - and will go through the return
       pipeline, but the rest will be left untouched and placed in the artModelRecord's data field.
       Or should they be put in an auxiliary field???
-  query: (key) -> @_pipeline[@_queryName] key: key, props: include: "auto"
+  query: (key) -> @_pipeline[@queryName] key: key, props: include: "auto"
 
   ##
     override for to sort records when updating local query data in response to local record changes

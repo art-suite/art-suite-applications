@@ -219,7 +219,8 @@ class Pipeline extends &RequestHandler
   ######################
     constructor
   constructor: (@_options = {}) ->
-    @_subscribers = []
+    @_subscribers = {}
+    @_querySubscribers = {}
 
   getPrefixedTableName: (tableName) -> "#{@tableNamePrefix}#{tableName}"
 
@@ -350,21 +351,116 @@ class Pipeline extends &RequestHandler
   ###############################
   # Subscriptions
   ###############################
-  subscribe:   (subscriber) -> pushIfNotPresent @_subscribers, subscriber
-  unsubscribe: (subscriber) -> removeFirstMatch @_subscribers, subscriber
+  ## subscriber
+    IN:
+      key: string
+      subcriber: (subscriptionEventType, key, data) ->
+      queryName: (optional) string matching existing query
+
+    OUT:
+      if added then subscriber else undefined
+
+    EFFECT:
+      if it didn't already exist
+        subscription created
+        @subscriberAdded called
+  subscribe:   (key, subscriber, queryName) ->
+    unless subscriber in subscribersForKey = @_getSubscribers(queryName)[key] ?= []
+      push subscribersForKey, subscriber
+      @subscriberAdded key, subscriber, queryName
+      subscriber
+
+  ## unsubscribe
+    IN:
+      key: string
+      subcriber: (subscriptionEventType, key, data) ->
+      queryName: (optional) string matching existing query
+
+    OUT:
+      if existed then subscriber else undefined
+
+    EFFECT:
+      if it existed
+        subscription removed
+        @subscriberRemoved called
+  unsubscribe: (key, subscriber, queryName) ->
+    subscribers = @_getSubscribers queryName
+    if subscribersForKey = subscribers[key]
+      removeFirstMatch subscribersForKey, subscriber
+      if subscribersForKey.length == 0
+        delete subscribers[key]
+        @subscriberRemoved key, subscriber
+        subscriber
+
+
+  ## _getSubscribers
+    IN:
+      queryName: (optional) string matching existing query
+  _getSubscribers: (queryName) ->
+    if queryName
+      unless @queries[queryName]
+        throw new Error "Query does not exist. Model: #{@name}. Query: #{queryName}. Existing queries: #{Object.keys(@queries).join ', '}"
+      @_querySubscribers[queryName] ?= {}
+
+    else @_subscribers
+
+  ## subscriberAdded - override to get notified
+  subscriberAdded: (key, subscriber, queryName) ->
+
+  ## subscriberRemoved - override to get notified
+  subscriberRemoved: (key, subscriber, queryName) ->
 
   dataUpdated: (key, data) -> @_sendDataSubscriptionEvent :update key, data
   dataDeleted: (key, data) -> @_sendDataSubscriptionEvent :delete key, data
 
   _sendDataSubscriptionEvent: (eventType, key, data) ->
     if isArray dataArray = data
-      each subscriber in @_subscribers
-        each data in dataArray
-          subscriber eventType, key, data
+      each data in dataArray
+        @_sendDataSubscriptionEventSingle eventType, key, data
 
     else
-      each subscriber in @_subscribers
-        subscriber eventType, key, data
+      @_sendDataSubscriptionEventSingle eventType, key, data
+
+  _sendDataSubscriptionEventSingle: (eventType, key, data) ->
+    each subscriber in @_subscribers[key]
+      subscriber eventType, key, data
+
+    each querySubscribers, queryName in @_querySubscribers
+      queryKey = @queries[queryName].toKeyString data # assumes data contains all fields needed to generate the keyString
+
+      each subscriber in querySubscribers[queryKey]
+        subscriber eventType, key, data, queryKey
+
+      ## TODO - notify ArtQueryModels with result-sets previously containing the record, but now they shouldn't
+        We don't have efficient access to the old record data currently.
+
+        Previously, we relied on the old record in stored in the singleton ArtModel. The problem with this
+        is even if we have the old record in some query results in  ArtQueryModel, it might NOT be in the singleton
+        ArtModel.
+
+        NOTE: we didn't even solve this problem in ArtEryPusher - there is no event sent to query-subscriptions
+        which should remove the changed record.
+
+        1. So, either we need a full list of all records we have locally,
+          regardless if they are in queries or the singleton model
+          CON: this breaks the ArtPipelines-doesn't-know-about-ArtModles isolation
+          CON: this doesn't solve the server-side ArtEryPusher problem
+        2. OR we need the ArtPipeline request to return some info about the
+          old record that changed (enough to create the oldQueryString).
+          Ex: response.props.oldData = partialRecord with just the replaced values
+          PRO: this is a general solution with wider uses
+          PRO: this keeps ArtPipelines agnostic to ArtModels
+          PRO: this does solve the server-side ArtEryPusher
+          CON: each data-update DB action also needs to read the old values back.
+            I think this is freeish in DynamoDB, but other DBs don't do this.
+
+        Conclusion: Option #2 is the only real answer.
+
+        potential code, assuming we can compute oldQueryKey:
+          oldQueryKey = oldData && @queries[queryName].toKeyString oldData
+          if oldQueryKey && oldQueryKey != queryKey
+            each subscriber in querySubscribers[key]
+              subscriber "delete", key, data
 
   isUpdateRequestType: (actionType) -> /^(create|update)/.test actionType
   isDeleteRequestType: (actionType) -> /^delete/.test actionType

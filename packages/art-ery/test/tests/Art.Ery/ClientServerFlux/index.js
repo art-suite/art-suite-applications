@@ -4,6 +4,7 @@
 (module.exports = require('./namespace'))
 
 .addModules({
-  DataUpdatesFilter: require('./DataUpdatesFilter')
+  DataUpdatesFilter: require('./DataUpdatesFilter'),
+  StandardImport:    require('./StandardImport')
 });
 require('./Pipelines');
