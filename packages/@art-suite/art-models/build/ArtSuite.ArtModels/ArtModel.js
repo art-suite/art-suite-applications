@@ -122,7 +122,7 @@
     });
 
     ArtModel.prototype.subscribe = function(modelKey, subscriptionFunction) {
-      log.error("DEPRICATED - use ArtModelSubscriptionsMixin and it's subscribe");
+      log.error("DEPRICATED - mix ArtModelSubscriptionsMixin into your class, and use it's methods to subscribe to models");
       return artModelStore.subscribe(this._name, modelKey, subscriptionFunction);
     };
 

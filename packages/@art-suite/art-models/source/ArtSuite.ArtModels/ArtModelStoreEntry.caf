@@ -28,7 +28,8 @@ class ArtModelStoreEntry extends BaseObject
     inspectedObjects:   -> merge {}
       @modelName, @key, @status
       @createdAt, @updatedAt, @reloadAt
-      @modelRecord.data, @modelRecord.message, @modelRecord.error
+      @modelRecord.data, @modelRecord.message, @modelRecord.error,
+      @subscriberCount
 
     nextNetworkFailureRetryDelay: ->
       if 0 < m = @model.getMinNetworkFailureReloadSeconds()
