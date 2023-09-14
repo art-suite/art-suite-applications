@@ -2,11 +2,9 @@ import &ArtStandardLib
 
 class MockPusherClient
   constructor: (@key, @options) ->
-    log MockPusherClient: _constructor: {} @key, @options
     @connection =
       state: :connected
       bind: (args...) ->
-        log MockPusherClient: connection: bind: args
 
   subscribe: (channelName) ->
     &MockPusherService.subscribe channelName

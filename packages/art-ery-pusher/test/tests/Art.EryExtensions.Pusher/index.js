@@ -5,6 +5,7 @@
 
 .addModules({
   PusherArtModelMixin: require('./PusherArtModelMixin'),
-  PusherFilter:        require('./PusherFilter')
+  PusherFilter:        require('./PusherFilter'),
+  PusherServiceCalls:  require('./PusherServiceCalls')
 });
 require('./Pipelines');

@@ -6,7 +6,6 @@
 .addModules({
   Config:              require('./Config'),
   Lib:                 require('./Lib'),
-  PusherArtModelMixin: require('./PusherArtModelMixin'),
   PusherFilter:        require('./PusherFilter'),
   PusherPipelineMixin: require('./PusherPipelineMixin'),
   StandardImport:      require('./StandardImport')

@@ -1,0 +1,26 @@
+import &StandardImport
+
+subscriptionEstablishmentTimeout = 25
+
+&ArtEryPusher extract Config extract config
+
+subscriptionEstablishmentTimeout = 25
+
+commonSetup = ->
+  pipelines.simpleStore.reset()
+  Config.onConnected()
+
+suite:
+  "unsubscribe clears out subscribe's pusher event handlers": ->
+    setup commonSetup
+
+    test "just pipeline subs" ->
+      queryKeyNoodleId = "123"
+      queryName = :pusherTestsByNoodleId
+      subscriber = ->
+
+      pipelines.simpleStore.subscribe   queryKeyNoodleId, subscriber, queryName
+      assert.eq &MockPusherService.eventHandlerCount, 1
+
+      pipelines.simpleStore.unsubscribe queryKeyNoodleId, subscriber, queryName
+      assert.eq &MockPusherService.eventHandlerCount, 0

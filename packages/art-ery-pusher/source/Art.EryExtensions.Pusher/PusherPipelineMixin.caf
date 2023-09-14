@@ -1,9 +1,13 @@
-import &StandardImport
+import &StandardImport, &Lib, &ArtCommunicationStatus
 
 (superClass) -> class PusherPipelineMixin extends superClass
   @abstractClass?()
 
-  ### getModelNamesAndKeysToUpdateOnRecordChange
+  constructor: ->
+    @_pusherQuerySubscriptions = {}
+    @_pusherSubscriptions = {}
+
+  ## getModelNamesAndKeysToUpdateOnRecordChange
     IN: updated record's data
     OUT: object mapping: modelName: keyValue
   getModelNamesAndKeysToUpdateOnRecordChange: (updatedRecord) ->
@@ -11,4 +15,58 @@ import &StandardImport
       pipelineQuery.toKeyString updatedRecord
 
   @filter &PusherFilter
-  @fluxModelMixin &PusherArtModelMixin
+
+  ## subscriberAdded - override to get notified
+  subscriberAdded: (key, subscriber, queryName) ->
+    @_getQueryNamePusherSubscriptions(queryName)[key] ?= subscribeToChanges
+      queryName ? @name
+      key
+      (pusherData) -> @_processPusherChangedEvent pusherData, key, queryName
+
+    super
+
+  ## subscriberRemoved - override to get notified
+  subscriberRemoved: (key, subscriber, queryName) ->
+    subscriptions = @_getQueryNamePusherSubscriptions(queryName)
+    subscriptions[key]?.unsubscribe()
+    delete subscriptions[key]
+    super
+
+  ####################
+  # PRIVATE
+  ####################
+  _getQueryNamePusherSubscriptions: (queryName) ->
+    if queryName then @_pusherQuerySubscriptions[queryName] ?= {}
+    else              @_pusherSubscriptions
+
+  _processPusherChangedEvent: (event, channelKey, queryName) ->
+    event extract key, sender, updatedAt, type
+
+    try
+      switch type
+      when :create :update
+        if sender == session.data.artEryPusherSession
+          verboseLog _processPusherChangedEvent: "" saved 1 reload due to sender check! We are the ones who caused the event. (pipeline: #{@name}, key: #{key})
+
+        else
+          # Get updated data
+          # FUTURE: wouldn't it be nice if the pusher event contained "data" so we didn't have to fetch it?
+          @get key
+          .then
+            (data) -> @_sendDataSubscriptionEventSingle :update key, data, queryName
+            (errorResponse) ->
+              if errorResponse.status == missing
+                @_sendDataSubscriptionEventSingle :delete key, null, queryName
+              else log {} key, errorResponse
+
+      when :delete
+        verboseLog _processPusherChangedEvent: sendingDataDeletedEventToLocalSubscribers: {} @name, key, queryName
+
+        # NOTE: queries get their own update messages, so we don't need the data
+        @_sendDataSubscriptionEventSingle :delete key, null, queryName
+
+      else log.error "PusherFluxModelMixin: _processPusherChangedEvent: unsupported type: #{type}", {event}
+
+    catch error
+      log _processPusherChangedEvent: {error}
+      throw error

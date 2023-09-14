@@ -5,6 +5,14 @@ class MockPusherService extends BaseObject
   constructor: ->
     @_subscriptionsByChannel = {}
 
+  @getter
+    eventHandlerCount: ->
+      count = 0
+      each {eventHandlers}, channel in @_subscriptionsByChannel
+        each handlers in eventHandlers
+          count += handlers.length
+      count
+
   subscribe: (channel) ->
     @_subscriptionsByChannel[channel] ?=
       eventHandlers: {}
@@ -19,7 +27,7 @@ class MockPusherService extends BaseObject
 
   unsubscribe: (channel) ->
     if find eventHandlerForRequestType in @_subscriptionsByChannel[channel].eventHandlers when eventHandlerForRequestType.length > 0
-      throw new Error "" Expecting existing subscription with no eventHandlers.\n#{} formattedInspect {} channel, @_subscriptionsByChannel[channel].eventHandlers
+      throw new Error "" Existing subscription has >0 eventHandlers. Should call `unbind` first.\n#{} formattedInspect {} channel, @_subscriptionsByChannel[channel].eventHandlers
 
     delete @_subscriptionsByChannel[channel]
 

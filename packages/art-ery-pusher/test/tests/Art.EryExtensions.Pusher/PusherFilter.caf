@@ -7,14 +7,14 @@ suite:
     setup ->
       Config.onConnected()
 
-    test "create should only notifiy related queries", ->
+    test "create should only notify related queries", ->
       pipelines.simpleStore.create data: noodleId: :noodle1
 
-    test "update should notifiy related queries and the updated record", ->
+    test "update should notify related queries and the updated record", ->
       pipelines.simpleStore.create                  data: noodleId: :noodle1
       .then ({id}) -> pipelines.simpleStore.update  data: noodleId: :noodle2 id: id
 
-    test "delete should notifiy related queries and the deleted record", ->
+    test "delete should notify related queries and the deleted record", ->
       pipelines.simpleStore.create data: noodleId: :noodle1
       .then ({id}) -> pipelines.simpleStore.delete key: id
 
@@ -35,7 +35,6 @@ suite:
         .then -> assert.eq artEryPusherSession, session.data.artEryPusherSession
 
   "round trip tests": ->
-
     subscribeTest = ({data, requestType, subscriptionPipeline, subscriptionKey}) ->
       subscriptionPipeline ?= :simpleStore
       test "#{subscriptionPipeline}.#{requestType} should trigger event" ->
@@ -47,8 +46,7 @@ suite:
           new Promise (_resolve) ->
             subscription = subscribeToChanges subscriptionPipeline, subscriptionKey, _resolve
 
-            timeout subscriptionEstablishmentTimeout
-            .then -> pipelines.simpleStore[requestType] {} data, key: id
+            pipelines.simpleStore[requestType] {} data, key: id
 
           .then subscription.unsubscribe
 

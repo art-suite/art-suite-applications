@@ -5,14 +5,18 @@ class SimpleStore extends PusherPipelineMixin KeyFieldsMixin Pipeline
   # @remoteServer :http://localhost:8085
   @publicRequestTypes :get :create :update :reset :delete :pusherTestsByNoodleId
 
-  @filter
-    location: :client
-    name: :fakeDataUpdatesFilter
-    after: get: (response) ->
-      {key, responseData, pipeline, pipelineName} = response
-      key ||= pipeline.toKeyString responseData
-      Neptune.Art.Flux.models[pipelineName].dataUpdated key, responseData
-      response
+  # @filter
+  #   location: :client
+  #   name: :fakeDataUpdatesFilter
+  #   after: get: (response) ->
+  #     log :afterGet1
+  #     response extract key, responseData, pipeline, pipelineName
+  #     log :afterGet2
+  #     key ?= pipeline.toKeyString responseData
+  #     log :afterGet3
+  #     Neptune.Art.Flux.models[pipelineName].dataUpdated key, responseData
+  #     log :afterGet4
+  #     response
 
   constructor: ->
     @db = {}
