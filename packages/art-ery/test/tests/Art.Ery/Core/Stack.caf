@@ -11,4 +11,4 @@ suite: ->
       """
         \_ at source/index.js:1:5
           at Object.array (source/index.js:1:5)
-        NOTE: cleanStackTrace applied. Disable with: getEnv().ARYERY_CLEAN_STACK_TRACE=false
+        NOTE: cleanStackTrace applied. Disable with: getEnv().ARTERY_CLEAN_STACK_TRACE=false

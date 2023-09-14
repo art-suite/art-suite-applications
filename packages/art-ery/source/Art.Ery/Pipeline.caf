@@ -301,6 +301,14 @@ class Pipeline extends &RequestHandler
     status: -> :OK
 
     filterChain: -> @_filterChain ||= compactFlatten([@, @groupedFilters]).reverse()
+    inspectedObjects: -> {}
+      @name
+      publicRequestTypes: Object.keys(@publicRequestTypes).sort()
+      requestTypes: (array @requestTypes).sort()
+      subscriberCounts: object subscribers in @_subscribers with subscribers.length
+      querySubscriberCounts:
+        object querySubs in @_querySubscribers
+          object subscribers in querySubs with subscribers.length
 
   # use a stable sort
   @groupFilters: (filters) ->
@@ -389,7 +397,7 @@ class Pipeline extends &RequestHandler
       removeFirstMatch subscribersForKey, subscriber
       if subscribersForKey.length == 0
         delete subscribers[key]
-        @subscriberRemoved key, subscriber
+        @subscriberRemoved key, subscriber, queryName
         subscriber
 
 
