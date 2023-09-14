@@ -53,6 +53,7 @@ describe basic: ->
             status:    :pending
             createdAt
             updatedAt
+            subscriberCount: 1
 
   test "artModelStore.update with no subscriber is noop", -> reset().then ->
     artModelStore.update "myModel", "myKey", bar:1
