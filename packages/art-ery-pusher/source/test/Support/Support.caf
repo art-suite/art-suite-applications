@@ -1,0 +1,9 @@
+
+&ArtEryPusher.Config.PusherClient = &MockPusherClient
+&ArtEryPusher.Config.PusherServer = &MockPusherServer
+
+&ArtConfig.configure artConfig: Art:
+    EryExtensions:
+      Pusher: verbose: false verifyConnection: :silent
+
+{} &SimpleStore.simpleStore

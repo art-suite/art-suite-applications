@@ -1,0 +1,4 @@
+import &StandardImport, &Support
+
+test "onConnected" ->
+  Config.onConnected()

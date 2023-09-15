@@ -1,9 +1,8 @@
 []
   &ArtStandardLib
   &ArtClassSystem
-  &@ArtSuite/ArtModels
   &ArtEry
   &ArtCommunicationStatus
+  &build
+
   &ArtTestbench
-  &ArtEryPusher
-  &ArtEryPusher.Lib

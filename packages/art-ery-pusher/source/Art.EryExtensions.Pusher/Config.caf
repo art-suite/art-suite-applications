@@ -67,7 +67,7 @@ class Config extends Configurable
               else
                 @verboseLog "" ArtEryPusher PusherServer: initialized correctly.
         .then
-          (success) -> log ArtEryPusher: verifyConnection: {} success
+          (success) -> log ArtEryPusher: verifyConnection: {} success unless verifyConnection == :silent
           (error) -> log ArtEryPusher: verifyConnection: error: {message, url, error, status, body} = error
 
     if !@PusherClient && !@PusherServer

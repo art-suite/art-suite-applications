@@ -1,0 +1,123 @@
+import &StandardImport, &Support
+
+fakeWeAreNotTheOneWhoTriggeredTheUpdate = -> session.data.artEryPusherSession = null
+
+class PromiseSubScriber extends BaseObject
+
+  @getter
+    :subscriber
+    waitForEventPromise: ->
+      @_waitingPromise = new Promise (resolve, reject) ->
+        timeout 250 ->
+          error = new Error "Expected a subscriber event within 250ms"
+          error.isTimeout = true
+          reject error
+
+        timeout 0 -> @_waitingPromise.resolve = resolve
+
+    expectNoEventPromise: ->
+      @_waitingPromise = new Promise (resolve, reject) ->
+        timeout 250 resolve
+        timeout 0 ->
+          @_waitingPromise.resolve = (resolved) ->
+            log.error unexpected: resolved
+            reject new Error "" Not expecting an event.
+
+  constructor: ->
+    @_subscriber = (args...)-> @_waitingPromise?.resolve args
+
+describe
+  pipelineSingletonSubscriptions: ->
+    queryKeyNoodleId = "123"
+    queryName = :byNoodleId
+    recordId = randomString 8
+    otherData = :stuff
+    promiseSubscriber = new PromiseSubScriber
+    promiseSubscriber extract subscriber
+
+    chainedTest "subscribe creates pusher subscriptions", ->
+      simpleStore.subscribe recordId, subscriber
+      assert.eq
+        Object.keys MockPusherService._subscriptionsByChannel
+        [] "" simpleStore;#{recordId}
+      assert.eq MockPusherService.eventHandlerCount, 1
+
+    .thenTest "create" -> simpleStore.create data: id: recordId
+
+    .tapTest "create event triggered" (record) ->
+      fakeWeAreNotTheOneWhoTriggeredTheUpdate()
+      promiseSubscriber.expectNoEventPromise
+
+    .thenTest "update" (record) -> simpleStore.update record.id, data: {} otherData
+
+    .tapTest "update event triggered" (record) ->
+      fakeWeAreNotTheOneWhoTriggeredTheUpdate()
+      promiseSubscriber.waitForEventPromise
+      .then (event) ->
+        assert.eq event, []
+          :update
+          record.id
+          {} otherData, record.id, updatedAt: 2
+
+
+    .thenTest "delete" (record) -> simpleStore.delete record.id
+
+    .tapTest "delete event NOT triggered" (record) ->
+      promiseSubscriber.waitForEventPromise
+      .then (event) ->
+        assert.eq event, []
+          :delete
+          record.id
+          null
+
+    .thenTest "unsubscribe removes pusher subscription" ->
+      simpleStore.unsubscribe recordId, subscriber
+      assert.eq MockPusherService.eventHandlerCount, 0
+
+  pipelineQuerySubscriptions: ->
+    queryKeyNoodleId = "123"
+    queryName = :byNoodleId
+    noodleId = :123
+    otherData = :stuff
+    promiseSubscriber = new PromiseSubScriber
+    promiseSubscriber extract subscriber
+
+    chainedTest "subscribe creates pusher subscriptions", ->
+      simpleStore.subscribe queryKeyNoodleId, subscriber, queryName
+      assert.eq
+        Object.keys MockPusherService._subscriptionsByChannel
+        [] "" simpleStore;#{queryName};#{noodleId}
+      assert.eq MockPusherService.eventHandlerCount, 1
+
+    .thenTest "create" -> simpleStore.create data: {} noodleId
+
+    .tapTest "create event triggered" (record) ->
+      fakeWeAreNotTheOneWhoTriggeredTheUpdate()
+      promiseSubscriber.waitForEventPromise
+      .then (event) ->
+        assert.eq event, []
+          :update
+          record.id
+          {} noodleId, record.id, updatedAt: 1
+          noodleId
+
+    .thenTest "update" (record) -> simpleStore.update record.id, data: {} otherData
+
+    .tapTest "update event triggered" (record) ->
+      fakeWeAreNotTheOneWhoTriggeredTheUpdate()
+      promiseSubscriber.waitForEventPromise
+      .then (event) ->
+        assert.eq event, []
+          :update
+          record.id
+          {} noodleId, otherData, record.id, updatedAt: 2
+          noodleId
+
+    .thenTest "delete" (record) -> simpleStore.delete record.id
+
+    .tapTest "delete event NOT triggered" (record) ->
+      promiseSubscriber.expectNoEventPromise
+
+    .thenTest "unsubscribe removes pusher subscription" ->
+      simpleStore.unsubscribe queryKeyNoodleId, subscriber, queryName
+      assert.eq MockPusherService.eventHandlerCount, 0

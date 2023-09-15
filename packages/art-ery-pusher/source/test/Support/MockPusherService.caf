@@ -32,7 +32,7 @@ class MockPusherService extends BaseObject
     delete @_subscriptionsByChannel[channel]
 
   trigger: (channel, event, payload) ->
-    timeout 50 ->
+    timeout 10 ->
       each handler in @_subscriptionsByChannel[channel]?.eventHandlers?[event]
         handler payload
     .then -> status: 200

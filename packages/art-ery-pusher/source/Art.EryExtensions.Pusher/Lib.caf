@@ -5,27 +5,29 @@ Config extract config, verboseLog
   SEE Pusher legal channel names: https://pusher.com/docs/client_api_guide/client_channels
   I think this matches legal channel names: /^[-a-zA-Z0-9_=@,.;]+$/
   OUT: any character that is illegal OR "." is replaced with ";"
-encodePusherChannelName = (key) ->
-  key.replace /[^-a-zA-Z0-9_=@,;]/g, ";"
+encodePusherChannelName = (key) -> key?.replace /[^-a-zA-Z0-9_=@,;]/g, ";"
 
 {}
   verboseLog
 
   ## getPusherChannel
     IN:
-      modelName: pipeline or pipelineName string
+      pipelineName: string
+      queryName: string (optional)
       key: string or plain object
         if plain object, must provide a pipeline that implements toKeyString
-  getPusherChannel = (modelName, key) ->
+  getPusherChannel = (pipelineName, queryName, key) ->
     encodePusherChannelName
-      each item in modelName, key
-        encodePusherChannelName item
+      compact []
+        encodePusherChannelName pipelineName
+        encodePusherChannelName queryName
+        encodePusherChannelName key
       .join '.'
 
-  subscribeToChanges: (modelName, key, handler) ->
+  subscribeToPusherChangeEvents: (pipelineName, queryName, key, handler) ->
     if Config extract pusherClient
 
-      channelName = getPusherChannel modelName, key
+      channelName = getPusherChannel pipelineName, queryName, key
       eventName = config.pusherEventName
 
       verboseLog subscribe: {} channelName
@@ -38,38 +40,32 @@ encodePusherChannelName = (key) ->
         channel.unbind eventName, handler
         pusherClient.unsubscribe channelName
 
-  ## sendChanged
-    IN:
-      modelName: pipeline-name string or pipeline
-
-    OUT:
-      true if pusher event send was actually attempted
-      else false
-  sendChanged: (modelName, key, payload) ->
+  ## sendPusherChangedEvent
+    IN: pipelineName: pipeline-name string or pipeline
+    OUT: boolean: pusher event-send actually attempted?
+  sendPusherChangedEvent: (pipelineName, queryName, key, payload) ->
     config extract pusherEventName
 
-    channel = getPusherChannel modelName, key
+    channel = getPusherChannel pipelineName, queryName,key
 
     if Config.pusherServer?
-      verboseLog sendChanged-sending: {} request = {} channel, pusherEventName, modelName, key, payload
+      verboseLog sendPusherChangedEvent-sending: {} request = {} channel, pusherEventName, pipelineName, key, payload
       Config.pusherServer.trigger channel, pusherEventName, payload || {}
       .then (response) ->
         if response.status != 200
-          verboseLog sendChanged-unspectedResponse: {} request, response
+          verboseLog sendPusherChangedEvent-unspectedResponse: {} request, response
 
-      .catch (error) ->
-        log aert-ery-pusher-sendChanged-error: {} request, error
-
+      .catch (error) -> log.error art-ery-pusher-sendPusherChangedEvent-error: {} request, error
       true
 
     else
-      verboseLog sendChanged-pretend-sending: {}
+      verboseLog sendPusherChangedEvent-pretend-sending: {}
         info: "" PusherServer not set. #{}
           if isBrowser then "" Cannot send events FROM the browser. ArtEryServer required.
           else "" Cannot send event.
         channel
         pusherEventName
-        modelName
+        pipelineName
         key
         payload
 

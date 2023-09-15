@@ -2,49 +2,46 @@ import &StandardImport, &Lib
 
 class PusherFilter extends Filter
 
-  initArtEryPusherSession: (response) ->
+  withArtEryPusherSession: (response) ->
     if isString response.session.artEryPusherSession
-      Promise.resolve response
-    else
-      response.withMergedSession
-        artEryPusherSession: cryptoRandomString 12 # should produce > 10^21 unique values
-
-  notifyAllQueriesWhichMayNeedUpdating: (pipeline, payload, data)->
-    each key, queryName in pipeline.getModelNamesAndKeysToUpdateOnRecordChange data
-      sendChanged queryName, key, payload if key?
+         Promise.resolve response
+    else response.withMergedSession artEryPusherSession: cryptoRandomString 12 # should produce > 10^21 unique values
 
   notifySingleRecordWhichNeedsUpdating: (pipeline, payload, data) ->
-    sendChanged
-      pipeline.name
-      pipeline.toKeyString data
-      payload
+    if keyString = pipeline.toKeyString data
+      sendPusherChangedEvent pipeline.name, null, keyString, payload
+
+  notifyAllQueriesWhichMayNeedUpdating: (pipeline, payload, data)->
+    each query, queryName from pipeline.queries
+      if queryKey = query.toKeyString data
+        sendPusherChangedEvent pipeline.name, queryName, queryKey, payload
 
   @group :outer
 
   @after
-    create: afterFilter = (response) ->
-      @initArtEryPusherSession response
-      .tap (response) ->
-        Promise.then ->
-          response extract type, key, data, request, pipeline, session.artEryPusherSession
-          data = merge
-            request.data
-            data
-            if key
-              pipeline.toKeyObject key
+    all: (response) ->
+      updateType = switch
+        when response.isUpdateRequest() then :update
+        when response.isDeleteRequest() then :delete
 
-          payload = {}
-            type
-            sender:   artEryPusherSession
-            key:      key || pipeline.toKeyString data
+      if updateType
+        @withArtEryPusherSession response
+        .tap (response) ->
+          Promise.then ->
+            response extract key, type, data, request, pipeline, session.artEryPusherSession
+            data = merge
+              request.data
+              data
+              pipeline.toKeyObject key if key
 
-          payload.updatedAt = data.updatedAt if data.updatedAt
+            payload =
+              type:     updateType
+              sender:   artEryPusherSession
+              key:      key || pipeline.toKeyString data
 
-          @notifyAllQueriesWhichMayNeedUpdating pipeline, payload, data
+            # record updated notification - no need to send on 'create' because no-one will be listening.
+            @notifySingleRecordWhichNeedsUpdating pipeline, payload, data unless type == :create
+            @notifyAllQueriesWhichMayNeedUpdating pipeline, payload, data
 
-          # record updated notification - no need to send on 'create' because no-one will be listening.
-          unless type == :create
-            @notifySingleRecordWhichNeedsUpdating pipeline, payload, data
 
-    update: afterFilter
-    delete: afterFilter
+      else response # TODO - going to change the semantic to a filter returning undefined is considered a side-effect-only filter

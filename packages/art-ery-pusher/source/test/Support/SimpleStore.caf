@@ -1,0 +1,33 @@
+import &StandardImport
+
+class SimpleStore extends PusherPipelineMixin KeyFieldsMixin Pipeline
+
+  @publicRequestTypes :get :create :update :reset :delete :byNoodleId
+
+  constructor: ->
+    @db = {}
+
+  @query
+    byNoodleId:
+      query: ({key}) -> array v, k from @db when v.noodleId == key
+      dataToKeyString: ({noodleId}) -> noodleId
+
+  @handlers
+    reset: ({data}) -> @db = object v, k from data with merge v, id: k
+
+    get: ({key}) -> @db[key]
+
+    create: (request) ->
+      key = request.data?.id ? randomString().slice 0, 8
+      @db[key] = merge request.data, id: key, updatedAt: 1
+
+    update: ({data, key, pipeline}) ->
+      if @db[key ?= pipeline.toKeyString data]
+        @db[key] = merge @db[key], merge data, updatedAt: (@db[key]?.updatedAt || 1) + 1
+      ? null
+
+    delete: ({key, data, pipeline}) ->
+      if out = @db[key ?= pipeline.toKeyString data]
+        delete @db[key]
+        out
+      ? null

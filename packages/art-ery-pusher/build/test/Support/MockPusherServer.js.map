@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "MockPusherServer.js",
+  "sourceRoot": "../../..",
+  "sources": [
+    "source/test/Support/MockPusherServer.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;+DAEA,yFACe,CAAC,kHAEd,QAAS,CAAC,aAAa,WAAW,UAAW,OAC3C,uCAA2B,aAAa,WAAW"
+}

@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "Support.js",
+  "sourceRoot": "../../..",
+  "sources": [
+    "source/test/Support/Support.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,0BACoB,0CAAgB,+BAChB,0CAAgB,+BAEpC,iCAAqB,YAAW,MAC5B,gBACE,SAAQ,SAAS,OAAM,kBAAkB,wBAE5C"
+}

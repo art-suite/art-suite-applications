@@ -1,9 +1,0 @@
-import &ArtStandardLib, &ArtConfig
-
-&ArtEryPusher/Server
-&TestConfig
-&tests/ArtEryExtensionsPusher/Pipelines
-
-configure artConfigName: :Test verbose: true
-
-&ArtEry/Server.start artConfigName: :Test verbose: true
