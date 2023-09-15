@@ -590,13 +590,8 @@ class Pipeline extends &RequestHandler
 
     else
       request.requireServerOriginOr isPublicRequestType, "to issue non-public requests"
-      .then => @filterChain[0].handleRequest request, @filterChain, 0
-      .tap (response) =>
-        log.error "not response!": response unless response.isResponse
-        if response.isSuccessful
-          {key, data} = response
-          @dataUpdated key ? @toKeyString(data), data if response.isUpdateRequest()
-          @dataDeleted key ? @toKeyString(data), data if response.isDeleteRequest()
+      .then -> @filterChain[0].handleRequest request, @filterChain, 0
+      .tap (response) -> log.error "not response!": response unless response.isResponse
 
   ## _processClientRequest
     IN:

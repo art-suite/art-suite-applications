@@ -84,3 +84,7 @@ Right now we have hard-coded a REST-api system for client<->server request trans
 Client: I'm inclined to say it's a Filter on the client-side. I think that would fully work.
 
 Server: Server-side, we need an HTTP server (or anything else custom) to wrap around the ArtEry pipelines. All that needs to happen there is to invoke the requests server-side in "server" mode so that the client filters are skipped.
+
+### Filters
+
+TODO: going to change the semantic to a filter returning undefined is considered a side-effect-only filter

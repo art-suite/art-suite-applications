@@ -159,7 +159,7 @@ class Filter extends &RequestHandler
     priority: -> @group + locationPriorityBoost[@location]
     logName:  -> @getName()
     props:    -> {} @location
-    inspectedObjects: -> if @path.match @name then @path else  @name
+    inspectedObjects: -> if @path?.match @name then @path else  @name
 
   #################################
   # class instance methods
