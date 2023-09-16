@@ -1,6 +1,7 @@
 import &ArtSuite
 &Configurations
 &Pipelines
+&ArtEry/Flux.defineModelsForAllPipelines()
 
 &ArtSuiteApp.initArtSuiteClient
   MainComponent:
