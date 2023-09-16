@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "Lib.js",
+  "sourceRoot": "../..",
+  "sources": [
+    "source/Art.Flux/Lib.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,oEAAO,8EACP,qBAEE,qDAAwB,QAAG,CAAC,YAAY,aAAc,OACpD,CAAO,OAAO,cACZ,uFAA0E,kBAAiB,CAAG,aAAgB,0BAAa,yBAA2B"
+}

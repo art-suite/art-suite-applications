@@ -1,0 +1,4 @@
+"use strict"
+let Caf = require('caffeine-script-runtime');
+Caf.defMod(module, () => {return Caf.importInvoke(["Neptune", "ArtModelStore", "ArtModelRegistry", "_resetArtSuiteModels", "ArtModelSubscriptionsMixin"], [global, require('@art-suite/art-models')], (Neptune, ArtModelStore, ArtModelRegistry, _resetArtSuiteModels, ArtModelSubscriptionsMixin) => {let GlobalEpochCycle, fluxStore, base, base1; if (GlobalEpochCycle = Caf.exists(base = Neptune.Art.Engine) && (Caf.exists(base1 = base.Core) && base1.GlobalEpochCycle)) {GlobalEpochCycle.singleton.includeFlux(ArtModelStore.singleton);}; return {ModelRegistry: ArtModelRegistry, models: ArtModelRegistry.models, _reset: _resetArtSuiteModels, fluxStore: fluxStore = ArtModelStore.singleton, FluxStore: {fluxStore}, FluxSubscriptionsMixin: ArtModelSubscriptionsMixin};});});
+//# sourceMappingURL=Flux.js.map

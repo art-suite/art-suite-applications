@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "StateFieldsMixin.js",
+  "sourceRoot": "../..",
+  "sources": [
+    "source/Art.Flux/StateFieldsMixin.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,sFAAO,wDAEP,gBAAC,mCAAe,sEAA+B,8EAC7C,yBAAoB,sCAsBN,KAAE,QAAG,CAAC,SAClB,uBAAmB,0BACW,mEAC5B,kBAAkB,cAClB,aAAa,MAEb,eAAW,aAAU,WAAO,SAE5B,IAAe,iBAAI,QAAQ,iBAAgB,QACzC,aAAa,OACb,kBAAkB,MAGlB,eAAW,OAAO,CAAC,MACjB,cAAU,SAAS,KAGX,eAAC,sCAAyB,aAAQ,OAC1C,SAAQ,iCAAqB,sCAAyB,+CAA+B,uCAA0B,uBAC/G,cAAU,OAAO,SAGT,eAAC,uCAA0B,aAAQ,MAC3C,cAAU,OAAO,OAGT,eAAC,sCAAyB,aAAQ,MAC1C,cAAU,QAAQ,WAAO,gBAG3B,eAAW,OAAO,CAAC,MAQjB,cAAU,OAAU,OAAK,aAAe,kBAAqB,cAEvD,eAAC,qCAAwB,aAAQ,MACzC,cAAU,OAAO,oCAGV"
+}

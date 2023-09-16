@@ -2,8 +2,7 @@
 // file: Art.Flux/.React/index.js
 
 (module.exports = require('./namespace'))
-.includeInNamespace(require('./React'))
+
 .addModules({
-  ComponentLib:  require('./ComponentLib'),
   FluxComponent: require('./FluxComponent')
 });

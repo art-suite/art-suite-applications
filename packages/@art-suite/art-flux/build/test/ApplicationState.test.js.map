@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "ApplicationState.test.js",
+  "sourceRoot": "../..",
+  "sources": [
+    "source/test/ApplicationState.test.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,2IAAO,uGAGP,gBAAQ,CACN,oBACE,WAAW,8BACX,KAAK,6BAAS,oDACU,mEACpB,kBACE,KAAK"
+}

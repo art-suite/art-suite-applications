@@ -6,5 +6,6 @@
 .addModules({
   ApplicationState: require('./ApplicationState'),
   FluxModel:        require('./FluxModel'),
-  Lib:              require('./Lib')
+  Lib:              require('./Lib'),
+  StateFieldsMixin: require('./StateFieldsMixin')
 });

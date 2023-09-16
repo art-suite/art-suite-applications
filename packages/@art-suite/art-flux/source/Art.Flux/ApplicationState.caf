@@ -1,29 +1,12 @@
-# TODO: rename to ApplicationStateModel
-{
-  lowerCamelCase
-  timeout
-  object
-  each, clone, BaseObject, log, isString, isPlainObject, merge, propsEq, mergeInto, Unique, defineModule
-  Promise
-  formattedInspect
-  eq
-  neq
-  getEnv
-  isFunction
-} = require 'art-standard-lib'
-
-{ArtModel} = require '@art-suite/art-models'
-
-{pending, success, failure, missing} = require "art-communication-status"
-StateFieldsMixin = require 'art-react/StateFieldsMixin'
+import &ArtStandardLib, &@ArtSuite/ArtModels, &ArtCommunicationStatus, {} &StateFieldsMixin
 
 {JsonStore} = require '@art-suite/art-foundation'
 {jsonStore} = JsonStore
 
-### ApplicationState
+## ApplicationState
   A state-store with the same state API as React Components:
-    setState: (map) -> or (key, value) -> # => null
-    getInitialState: -> # => {}
+    setState: (map) -> or (key, value) -> # @prototype null
+    getInitialState: -> # @prototype {}
     @state: {} # the current State
 
   NOTE: Components should never access @state. Instead, they should subscribe to state changes:
@@ -64,8 +47,7 @@ StateFieldsMixin = require 'art-react/StateFieldsMixin'
 
         render: ->
           TextElement text: "showingWelcome: #{@ozAppState.showingWelcome}"
-###
-defineModule module, class ApplicationState extends StateFieldsMixin ArtModel
+class ApplicationState extends StateFieldsMixin ArtModel
   @abstractClass()
   @persistant: -> @_persistant = true
 
@@ -79,27 +61,23 @@ defineModule module, class ApplicationState extends StateFieldsMixin ArtModel
       newDefaultState = (new hotUpdatedFromClass).state
       currentState = liveInstance.state
       mergedState = merge newDefaultState, currentState
-      stateDelta = object mergedState, when: (v, k) -> currentState[k] != v
+      stateDelta = object v, k from mergedState when currentState[k] != v
 
-      log "Flux.ApplicationState: model hot-reloaded": {model: liveInstance.name, stateDelta}
-      timeout 0, => liveInstance.setState stateDelta
+      log "Flux.ApplicationState: model hot-reloaded": model: liveInstance.name, stateDelta: stateDelta
+      timeout 0, @prototype liveInstance.setState stateDelta
 
     ret
 
-  constructor: ->
-    super
-    @state = @_getInitialState()
+  constructor:      -> @state = @_getInitialState()
+  modelRegistered:  -> @_updateAllState @state
 
-  modelRegistered: -> @_updateAllState @state
-
-  ###
+  ## getInitialState
     provided for consistency with React Components
     To use: override
     But, using @stateFields works just as well and also declares field getter / setters.
-  ###
   getInitialState: -> {}
 
-  ### setState
+  ## setState
     IN:
       option 1:
         IN: plainObject state-map
@@ -110,7 +88,6 @@ defineModule module, class ApplicationState extends StateFieldsMixin ArtModel
         IN: key, value
         AFFECT: set one state
         OUT: key
-  ###
   setState: (key, value) ->
     stateChanged = false
     if isFunction key
@@ -118,7 +95,7 @@ defineModule module, class ApplicationState extends StateFieldsMixin ArtModel
       @replaceState key @state
     else
       if isPlainObject map = key
-        for k, v of map when !propsEq @state[k], v
+        each v, k in map when !propsEq @state[k], v
           stateChanged = true
           @state[k] = v
           @load k
@@ -133,9 +110,7 @@ defineModule module, class ApplicationState extends StateFieldsMixin ArtModel
 
       key
 
-  @getter
-    propsToKey: ->
-      @_propsToKey ?= (props) -> @modelName
+  @getter propsToKey: -> @_propsToKey ?= (props) -> @modelName
 
   # remove one key-value pair
   removeState: (key) ->
@@ -146,12 +121,11 @@ defineModule module, class ApplicationState extends StateFieldsMixin ArtModel
     @_saveToLocalStorage()
     ret
 
-  ###
+  ## clearState
     Removes all values in @state.
     All entries currently in FluxStore become: state: missing
-  ###
   clearState: ->
-    for k, v of @state
+    each v, k in @state
       @_removeFromModelStore k
 
     @state = {}
@@ -161,14 +135,13 @@ defineModule module, class ApplicationState extends StateFieldsMixin ArtModel
   resetState: ->
     @replaceState @_getInitialState false
 
-  ###
+  ## replaceState
     Replace all state with newState.
     Logically equivelent to:
       @clearState()
       @setState newState
-  ###
   replaceState: (newState) ->
-    for k, v of @state
+    each v, k in @state
       unless newState.hasOwnProperty k
         @_removeFromModelStore k
         delete @state[k]
@@ -199,11 +172,11 @@ defineModule module, class ApplicationState extends StateFieldsMixin ArtModel
 
   _loadFromLocalStorage: ->
     if @class._persistant && !getEnv().resetAppState
-      Promise.then => jsonStore.getItem @localStorageKey
-      .then (loadedState) =>
+      Promise.then @prototype jsonStore.getItem @localStorageKey
+      .then (loadedState) @prototype
         loadedState = @postProcessLoadedState loadedState
         if loadedState && neq loadedState, @state
-          log "ApplicationState #{@class.name} loaded"
+          log "" ApplicationState #{@class.name} loaded
           @replaceState merge @state, loadedState
 
   _updateAllState: ->
@@ -212,11 +185,11 @@ defineModule module, class ApplicationState extends StateFieldsMixin ArtModel
 
   @getter
     savableState: -> merge @state
-    localStorageKey: -> "ApplicationState:#{@name}"
+    localStorageKey: -> "" ApplicationState:#{@name}
 
   _saveToLocalStorage: (state = @state)->
     if @class._persistant
-      Promise.then =>
+      Promise.then @prototype
         jsonStore.setItem @localStorageKey, @savableState
 
   _getInitialState: (loadFromLocalStorage = true) ->
