@@ -1,110 +1,109 @@
 import &StandardImport
 
 describe
-
   load: ->
     beforeEach _resetArtSuiteModels
 
-    test "model with async load", ->
+    test "model with async load" ->
       new Promise (resolve) ->
         class MyBasicModel extends ArtModel
-
           load: (key) ->
             artModelStore.onNextReady => @updateModelRecord key, status: missing
             null
 
-        res = artModelStore.subscribe "myBasicModel", "123", (modelRecord) ->
+        res = artModelStore.subscribe :myBasicModel :123 (modelRecord) ->
           return unless modelRecord.status != pending
           assert.selectedEq
-            status: missing, key: "123", modelName: "myBasicModel"
+            status: missing, key: :123 modelName: :myBasicModel
             modelRecord
+
           resolve()
+
         assert.selectedEq
-          status: pending, key: "123", modelName: "myBasicModel"
+          status: pending, key: :123 modelName: :myBasicModel
           res
 
-
-    test "model with @loadModelRecord", ->
+    test "model with @loadModelRecord" ->
       new Promise (resolve) ->
         class MyBasicModel extends ArtModel
+          loadModelRecord: (key) -> timeout(20).then -> status: missing
 
-          loadModelRecord: (key) ->
-            timeout(20).then -> status: missing
-
-        res = artModelStore.subscribe "myBasicModel", "123", (modelRecord) ->
+        res = artModelStore.subscribe :myBasicModel :123 (modelRecord) ->
           return unless modelRecord.status != pending
           assert.selectedEq
-            status: missing, key: "123", modelName: "myBasicModel"
+            status: missing, key: :123 modelName: :myBasicModel
             modelRecord
           resolve()
         assert.selectedEq
-          status: pending, key: "123", modelName: "myBasicModel"
+          status: pending, key: :123 modelName: :myBasicModel
           res
 
-    test "model with custom load - delayed", ->
+    test "model with custom load - delayed" ->
       class MyBasicModel extends ArtModel
-
         load: (key, callback) ->
           @updateModelRecord key, -> status: success, data: theKeyIs:key
           null
 
       new Promise (resolve) ->
-        res = artModelStore.subscribe "myBasicModel", "123", (modelRecord) ->
+        res = artModelStore.subscribe :myBasicModel :123 (modelRecord) ->
           assert.selectedEq
-            status: success, key: "123", modelName: "myBasicModel", data: theKeyIs:"123"
+            status: success, key: :123 modelName: :myBasicModel data: theKeyIs: :123
             modelRecord
           resolve()
         assert.selectedEq
-          status: pending, key: "123", modelName: "myBasicModel"
+          status: pending, key: :123 modelName: :myBasicModel
           res
 
       .then ->
         new Promise (resolve) ->
-          artModelStore.subscribe "myBasicModel", "456", (modelRecord) ->
+          artModelStore.subscribe :myBasicModel :456 (modelRecord) ->
             assert.selectedEq
-              status: success, key: "456", modelName: "myBasicModel", data: theKeyIs:"456"
+              status: success, key: :456 modelName: :myBasicModel data: theKeyIs: :456
               modelRecord
             resolve()
 
-    test "model with custom load - immediate", ->
+    test "model with custom load - immediate" ->
       class MyBasicModel extends ArtModel
-
-        load: (key, callback) ->
-          @updateModelRecord key, status: success, data: theKeyIs:key
+        load: (key, callback) -> @updateModelRecord key, status: success, data: theKeyIs:key
 
       new Promise (resolve, reject) ->
-        res = artModelStore.subscribe "myBasicModel", "123", (modelRecord) ->
+        res = artModelStore.subscribe :myBasicModel :123 (modelRecord) ->
           log.error "THIS SHOULDN'T HAPPEN!"
           reject()
+
         assert.selectedEq
-          status: success, key: "123", modelName: "myBasicModel", data: theKeyIs:"123"
+          status: success, key: :123 modelName: :myBasicModel data: theKeyIs: :123
           res
+
         artModelStore.onNextReady resolve
 
-    test "model with @loadData", ->
+    test "model with @loadData" ->
       class MyBasicModel extends ArtModel
         loadData: (key) -> Promise.resolve theKeyIs:key
 
       new Promise (resolve) ->
-        artModelStore.subscribe "myBasicModel", "123", (modelRecord) ->
+        artModelStore.subscribe :myBasicModel :123 (modelRecord) ->
           assert.selectedEq
-            status: success, key: "123", modelName: "myBasicModel", data: theKeyIs:"123"
+            status: success, key: :123 modelName: :myBasicModel data: theKeyIs: :123
             modelRecord
+
           resolve()
+
       .then ->
         new Promise (resolve) ->
-          artModelStore.subscribe "myBasicModel", "456", (modelRecord) ->
+          artModelStore.subscribe :myBasicModel :456 (modelRecord) ->
             assert.selectedEq
-              status: success, key: "456", modelName: "myBasicModel", data: theKeyIs:"456"
+              status: success, key: :456 modelName: :myBasicModel data: theKeyIs: :456
               modelRecord
+
             resolve()
 
   simultanious: ->
     beforeEach _resetArtSuiteModels
 
-    test "two simultantious ArtModel requests on the same key only triggers one artModelStore request", ->
+    test "two simultantious ArtModel requests on the same key only triggers one artModelStore request" ->
       counts =
-        load: 0
+        load:          0
         subscription1: 0
         subscription2: 0
       class MyBasicModel extends ArtModel
@@ -112,11 +111,11 @@ describe
           counts.load++
           @updateModelRecord key, status: success, data: theKeyIs:key
 
-      artModelStore.subscribe "myBasicModel", "123", (modelRecord) -> assert.eq(modelRecord.count, 2);counts.subscription1++
-      artModelStore.subscribe "myBasicModel", "123", (modelRecord) -> assert.eq(modelRecord.count, 2);counts.subscription2++
+      artModelStore.subscribe :myBasicModel :123 (modelRecord) -> assert.eq(modelRecord.count, 2);counts.subscription1++
+      artModelStore.subscribe :myBasicModel :123 (modelRecord) -> assert.eq(modelRecord.count, 2);counts.subscription2++
 
-      artModelStore.update "myBasicModel", "123", (modelRecord) -> count: (modelRecord.count || 0)+ 1
-      artModelStore.update "myBasicModel", "123", (modelRecord) -> count: (modelRecord.count || 0)+ 1
+      artModelStore.update    :myBasicModel :123 (modelRecord) -> count: (modelRecord.count || 0)+ 1
+      artModelStore.update    :myBasicModel :123 (modelRecord) -> count: (modelRecord.count || 0)+ 1
 
       artModelStore.onNextReady ->
         assert.eq counts, load: 1, subscription1: 1, subscription2: 1
@@ -126,16 +125,17 @@ describe
         load: 0
         sub1: 0
         sub2: 0
+
       class MyBasicModel extends ArtModel
         load: (key, callback) ->
           counts.load++
           @updateModelRecord key, status: success, data: theKeyIs:key
 
-      artModelStore.subscribe "myBasicModel", "123", (modelRecord) -> assert.eq(modelRecord.count, 1);counts.sub1++
-      artModelStore.subscribe "myBasicModel", "456", (modelRecord) -> assert.eq(modelRecord.count, 1);counts.sub2++
+      artModelStore.subscribe :myBasicModel :123 (modelRecord) -> assert.eq(modelRecord.count, 1); counts.sub1++
+      artModelStore.subscribe :myBasicModel :456 (modelRecord) -> assert.eq(modelRecord.count, 1); counts.sub2++
 
-      artModelStore.update "myBasicModel", "123", (modelRecord) -> count: (modelRecord.count || 0)+ 1
-      artModelStore.update "myBasicModel", "456", (modelRecord) -> count: (modelRecord.count || 0)+ 1
+      artModelStore.update    :myBasicModel :123 (modelRecord) -> count: (modelRecord.count ? 0)+ 1
+      artModelStore.update    :myBasicModel :456 (modelRecord) -> count: (modelRecord.count ? 0)+ 1
 
       artModelStore.onNextReady ->
         assert.eq counts, load: 2, sub1: 1, sub2: 1
@@ -147,19 +147,19 @@ describe
     # when this test model no longer exists.
     afterEach -> artModelStore.onNextReady()
 
-    test "multiple loadPromises with the same key only load once", ->
+    test "multiple loadPromises with the same key only load once" ->
       loadCount = 0
-      class User extends ArtModel
+      {user} = class User extends ArtModel
         loadData: (key) ->
           timeout 10
           .then ->
             loadCount++
             id: key
-            userName: "fred"
+            userName: :fred
 
-      p1 = models.user.loadPromise "abc"
-      p2 = models.user.loadPromise "abc"
-      p3 = models.user.loadPromise "def"
+      p1 = user.loadPromise :abc
+      p2 = user.loadPromise :abc
+      p3 = user.loadPromise :def
       Promise.all [p1, p2, p3]
       .then ->
         assert.eq loadCount, 2
@@ -168,23 +168,21 @@ describe
 
   aliases: ->
     beforeEach _resetArtSuiteModels
-    test "@aliases adds aliases to the model registry", ->
-      class User extends ArtModel
-        @aliases "owner", "sister"
+    test "@aliases adds aliases to the model registry" ->
+      {user} = class User extends ArtModel
+        @aliases :owner :sister
 
-      assert.eq models.user.class, User
-      assert.eq models.user, models.owner
-      assert.eq models.user, models.sister
+      assert.eq user.class, User
+      assert.eq user, models.owner
+      assert.eq user, models.sister
 
   functionsBoundToInstances: ->
     beforeEach _resetArtSuiteModels
-    test "use bound function", ->
-      class User extends ArtModel
-        foo: -> @_foo = (@_foo || 0) + 1
+    test "use bound function" ->
+      {user} = class User extends ArtModel
+        foo: -> @_foo =
+          @_foo ? 0
+          + 1
 
-      {user} = User
-      {foo} = user
-      foo()
-      assert.eq user._foo, 1
-      foo()
-      assert.eq user._foo, 2
+      user.foo(); assert.eq user._foo, 1
+      user.foo(); assert.eq user._foo, 2

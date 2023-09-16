@@ -1,20 +1,6 @@
-{
-  log, decapitalize, merge, isString
-  compactFlatten
-  Promise
-  formattedInspect
-  isPlainObject
-  ErrorWithInfo
-  defineModule
-} = require "art-standard-lib"
-{BaseObject} = require 'art-class-system'
-{InstanceFunctionBindingMixin} = require "@art-suite/instance-function-binding-mixin"
+import &StandardImport, &@ArtSuite/InstanceFunctionBindingMixin, &ArtModelStore, {} &ArtModelRegistry
 
-{missing, success, pending, failure, validStatus, isFailure} = require 'art-communication-status'
-{artModelStore} = require "./ArtModelStore"
-ArtModelRegistry = require './ArtModelRegistry'
-
-defineModule module, class ArtModel extends InstanceFunctionBindingMixin BaseObject
+class ArtModel extends InstanceFunctionBindingMixin BaseObject
   @abstractClass()
 
   @declarable
@@ -43,7 +29,7 @@ defineModule module, class ArtModel extends InstanceFunctionBindingMixin BaseObj
       @register()
     super
 
-  ###
+  ## @aliases
     INPUT: zero or more strings or arrays of strings
       - arbitrary nesting of arrays is OK
       - nulls are OK, they are ignored
@@ -61,7 +47,6 @@ defineModule module, class ArtModel extends InstanceFunctionBindingMixin BaseObj
           @subscriptions "chapterPost"
         in addition to the model's class name:
           @subscriptions "post"
-  ###
   @aliases: (args...) ->
     @_aliases = compactFlatten [args, @_aliases]
     null
@@ -71,7 +56,6 @@ defineModule module, class ArtModel extends InstanceFunctionBindingMixin BaseObj
   onNextReady: (f) -> artModelStore.onNextReady f
 
   constructor: (name)->
-    super
     @_name = name || decapitalize @class.getName()
     @bindFunctionsToInstance()
     @_activeLoadingRequests = {}
@@ -94,10 +78,11 @@ defineModule module, class ArtModel extends InstanceFunctionBindingMixin BaseObj
     log.error "DEPRICATED - mix ArtModelSubscriptionsMixin into your class, and use it's methods to subscribe to models"
     artModelStore.subscribe @_name, modelKey, subscriptionFunction
 
-  @getter "name",
+  @getter
+    :name
     modelName: -> @_name
 
-  ### load:
+  ## load:
     load the requested data for the given key and update the artModelStore
 
     required:
@@ -146,19 +131,17 @@ defineModule module, class ArtModel extends InstanceFunctionBindingMixin BaseObj
       loadModelRecord: (key) -> promise.then (modelRecord) ->
 
       @load will take care of updating ArtModelStore.
-  ###
   load: (key) ->
     # ensure artModelStore is updated in case this is not beind called from the artModelStore itself
     # returns {status: missing} since updateModelRecord returns the last argument,
     #   this makes the results immediately available to subscribers.
-
     if @loadData || @loadModelRecord
       @loadPromise key
       null
     else
       @updateModelRecord key, status: missing
 
-  ### loadPromise:
+  ## loadPromise:
     NOTE: @loadData or @loadModelRecord should be implemented.
     @loadPromise is an alternative to @load
 
@@ -184,34 +167,29 @@ defineModule module, class ArtModel extends InstanceFunctionBindingMixin BaseObj
     OUT: promise.then (modelRecord) ->
       modelRecord: the latest, just-loaded data
       ERRORS: errors are encoded into the modelRecord. The promise should always resolve.
-  ###
   loadPromise: (key) ->
-    if p = @_activeLoadingRequests[key]
-      # log "saved 1 reload due to activeLoadingRequests! (model: #{@name}, key: #{key})"
-      return p
+    @_activeLoadingRequests[key] ?=
+      if @loadData
+        Promise.then    -> @loadingRecord key
+        .then           -> @loadData key
+        .then (data)    -> @updateModelRecord key, if data? then {data, status: success} else status: missing
+        .catch (error)  ->
+          status = if validStatus status = error?.info?.status || error
+            status
+          else failure
+          info = error?.info
+          error = null unless error instanceof Error
+          @updateModelRecord key, {status, info, error}
 
-    p = if @loadData
-      Promise.then    => @loadingRecord key
-      .then           => @loadData key
-      .then (data)    => @updateModelRecord key, if data? then {data, status: success} else status: missing
-      .catch (error)  =>
-        status = if validStatus status = error?.info?.status || error
-          status
-        else failure
-        info = error?.info
-        error = null unless error instanceof Error
-        @updateModelRecord key, {status, info, error}
+      else if @loadModelRecord
+        @loadModelRecord key
+        .then (modelRecord) -> @updateModelRecord key, modelRecord
+        .catch (error)     -> @updateModelRecord key, status: failure, error: error
+      else
+        Promise.resolve @updateModelRecord key, status: missing
 
-    else if @loadModelRecord
-      @loadModelRecord key
-      .then (modelRecord) => @updateModelRecord key, modelRecord
-      .catch (error)     => @updateModelRecord key, status: failure, error: error
-    else
-      Promise.resolve @updateModelRecord key, status: missing
-
-    @_activeLoadingRequests[key] = p
-    .then (result) => @onNextReady(); result
-    .then (result) => @_activeLoadingRequests[key] = null; result
+      .tap -> @onNextReady()
+      .then (result) -> @_activeLoadingRequests[key] = null; result
 
   # load is not required to updateModelRecord
   # reload guarantees artModelStore is updated
@@ -239,16 +217,16 @@ defineModule module, class ArtModel extends InstanceFunctionBindingMixin BaseObj
   # EFFECT: if already loaded in artModelStore, just returns what's in ArtModelStore
   get: (key) ->
     key = @toKeyString key
-    Promise.then =>
+    Promise.then ->
       if (currentModelRecord = @getModelRecord(key))?.status == pending
         currentModelRecord = null
 
       currentModelRecord ? @loadPromise key
 
     .then (modelRecord)->
-      {status, data} = modelRecord
+      modelRecord extract status, data
       unless status == success
-        throw new ErrorWithInfo "ArtModel#get: Error getting data. Status: #{status}.", {status, modelRecord}
+        throw new ErrorWithInfo "ArtModel#get: Error getting data. Status: #{status}." {} status, modelRecord
 
       data
 
@@ -269,7 +247,7 @@ defineModule module, class ArtModel extends InstanceFunctionBindingMixin BaseObj
     throw new Error "ArtModel #{@name}: must override dataToKeyString for converting objects to key-strings."
 
   @getRecordPropsToKeyFunction: (recordType) ->
-    (props, stateField) =>
+    (props, stateField) ->
       propsField = stateField ? recordType
       props[propsField]?.id ? props[propsField + "Id"]
 

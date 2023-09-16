@@ -7,12 +7,12 @@ reset = ->
     assert.eq true, !!models.myModel,{models}
 
 describe basic: ->
-  test "artModelStore.reset & length", -> reset().then ->
+  test "artModelStore.reset & length" -> reset().then ->
     assert.eq artModelStore.length, 0
 
-  chainedTest "artModelStore.update basic", -> reset().then ->
-    artModelStore.subscribe "myModel", "myKey", -> # required to make the record persist
-    artModelStore.update "myModel", "myKey", bar:1
+  chainedTest "artModelStore.update basic" -> reset().then ->
+    artModelStore.subscribe :myModel :myKey -> # required to make the record persist
+    artModelStore.update :myModel :myKey bar:1
 
     artModelStore.onNextReady ->
       assert.eq artModelStore.length, 1
@@ -55,45 +55,45 @@ describe basic: ->
             updatedAt
             subscriberCount: 1
 
-  test "artModelStore.update with no subscriber is noop", -> reset().then ->
-    artModelStore.update "myModel", "myKey", bar:1
+  test "artModelStore.update with no subscriber is noop" -> reset().then ->
+    artModelStore.update :myModel :myKey bar:1
 
     artModelStore.onNextReady ->
       assert.eq artModelStore.length, 0
-      assert.eq !!artModelStore._getEntry("myModel", "myKey"), false
+      assert.eq !!artModelStore._getEntry(:myModel :myKey), false
 
-  test "artModelStore.update twice replaces old value", -> reset().then ->
-    artModelStore.subscribe "myModel", "myKey", -> # required to make the record persist
-    artModelStore.update "myModel", "myKey", bar:1
-    artModelStore.update "myModel", "myKey", baz:2
+  test "artModelStore.update twice replaces old value" -> reset().then ->
+    artModelStore.subscribe :myModel :myKey -> # required to make the record persist
+    artModelStore.update :myModel :myKey bar:1
+    artModelStore.update :myModel :myKey baz:2
 
     artModelStore.onNextReady ->
       assert.eq artModelStore.length, 1
       assert.selectedEq
-        status: pending, baz: 2, key: "myKey", modelName: "myModel"
-        artModelStore.get "myModel", "myKey"
+        status: pending, baz: 2, key: :myKey modelName: :myModel
+        artModelStore.get :myModel :myKey
 
-  # test "artModelStore.getHasSubscribers", ->
+  # test "artModelStore.getHasSubscribers" ->
   #   reset()
-  #   artModelStore.subscribe "myModel", "myKey", -> # required to make the record persist
-  #   assert.eq false, artModelStore.getHasSubscribers "myModel", "myKey"
-  #   assert.eq false, artModelStore.getHasSubscribers "myModel", "myKey"
+  #   artModelStore.subscribe :myModel :myKey -> # required to make the record persist
+  #   assert.eq false, artModelStore.getHasSubscribers :myModel :myKey
+  #   assert.eq false, artModelStore.getHasSubscribers :myModel :myKey
 
   #   artModelStore.onNextReady ->
-  #     assert.eq true, artModelStore.getHasSubscribers "myModel", "myKey"
+  #     assert.eq true, artModelStore.getHasSubscribers :myModel :myKey
 
-  test "artModelStore.update with update function can merge", -> reset().then ->
-    artModelStore.subscribe "myModel", "myKey", -> # required to make the record persist
-    artModelStore.update "myModel", "myKey", bar:1
-    artModelStore.update "myModel", "myKey", (old) -> merge old, baz:2
+  test "artModelStore.update with update function can merge" -> reset().then ->
+    artModelStore.subscribe :myModel :myKey -> # required to make the record persist
+    artModelStore.update :myModel :myKey bar:1
+    artModelStore.update :myModel :myKey (old) -> merge old, baz:2
 
     artModelStore.onNextReady ->
       assert.eq artModelStore.length, 1
       assert.selectedEq
-        status: pending, bar:1, baz: 2, key: "myKey", modelName: "myModel"
-        artModelStore.get "myModel", "myKey"
+        status: pending, bar:1, baz: 2, key: :myKey modelName: :myModel
+        artModelStore.get :myModel :myKey
 
-  test "artModelStore.update cant set key", -> reset().then ->
+  test "artModelStore.update cant set key" -> reset().then ->
     artModelStore.subscribe :myModel :myKey -> # required to make the record persist
     artModelStore.update    :myModel :myKey bar: 1 key: :boggle
 
@@ -103,52 +103,52 @@ describe basic: ->
         status: pending, bar: 1 key: :myKey modelName: :myModel
         artModelStore.get :myModel :myKey
 
-  test "artModelStore.update cant update key", -> reset().then ->
-    artModelStore.subscribe "myModel", "myKey", -> # required to make the record persist
-    artModelStore.update "myModel", "myKey", bar:1
+  test "artModelStore.update cant update key" -> reset().then ->
+    artModelStore.subscribe :myModel :myKey -> # required to make the record persist
+    artModelStore.update :myModel :myKey bar:1
 
     artModelStore.onNextReady ->
-      artModelStore.update "myModel", "myKey", bar:1, key: "boggle2"
+      artModelStore.update :myModel :myKey bar:1, key: "boggle2"
 
       artModelStore.onNextReady ->
         assert.selectedEq
-          status: pending, bar: 1, key: "myKey", modelName: "myModel"
-          artModelStore.get "myModel", "myKey"
+          status: pending, bar: 1, key: :myKey modelName: :myModel
+          artModelStore.get :myModel :myKey
 
-  test "artModelStore.subscribe basic", -> reset().then ->
+  test "artModelStore.subscribe basic" -> reset().then ->
     new Promise (resolve) ->
-      artModelStore.subscribe "myModel", "myKey", (modelRecord, previousModelRecord) ->
+      artModelStore.subscribe :myModel :myKey (modelRecord, previousModelRecord) ->
         assert.selectedEq
-          status: missing, key: "myKey", modelName: "myModel"
+          status: missing, key: :myKey modelName: :myModel
           previousModelRecord
 
         assert.selectedEq
-          status: pending, bar: 1, key: "myKey", modelName: "myModel"
+          status: pending, bar: 1, key: :myKey modelName: :myModel
           modelRecord
         resolve()
 
-      artModelStore.update "myModel", "myKey", bar: 1
+      artModelStore.update :myModel :myKey bar: 1
 
-  test "artModelStore.unsubscribe", -> reset().then ->
+  test "artModelStore.unsubscribe" -> reset().then ->
     count1 = 0
     count2 = 0
     subscriber1 = (modelRecord) -> count1++
     subscriber2 = (modelRecord) -> count2++
 
-    artModelStore.subscribe "myModel", "myKey", subscriber1
-    artModelStore.subscribe "myModel", "myKey", subscriber2
-    artModelStore.update "myModel", "myKey", bar: 1
+    artModelStore.subscribe :myModel :myKey subscriber1
+    artModelStore.subscribe :myModel :myKey subscriber2
+    artModelStore.update :myModel :myKey bar: 1
     artModelStore.onNextReady ->
       assert.eq count1, 1
       assert.eq count2, 1
-      artModelStore.unsubscribe "myModel", "myKey", subscriber2
-      artModelStore.update "myModel", "myKey", bar: 2
+      artModelStore.unsubscribe :myModel :myKey subscriber2
+      artModelStore.update :myModel :myKey bar: 2
       artModelStore.onNextReady ->
         assert.eq count1, 2
         assert.eq count2, 1
 
 
-  test "artModelStore model callbacks: modelStoreEntryUpdated, modelStoreEntryAdded, modelStoreEntryRemoved", ->
+  test "artModelStore model callbacks: modelStoreEntryUpdated, modelStoreEntryAdded, modelStoreEntryRemoved" ->
     new Promise (resolve) -> reset().then ->
       updateCount = addedCount = removedCount = 0
       class MyModel2 extends ArtModel
@@ -160,18 +160,18 @@ describe basic: ->
           assert.eq 1, ++removedCount
           resolve()
 
-      artModelStore.subscribe "myModel2", "myKey", mySubscription = -> 123
+      artModelStore.subscribe "myModel2", :myKey mySubscription = -> 123
       artModelStore.onNextReady ->
-        artModelStore.unsubscribe "myModel2", "myKey", mySubscription
+        artModelStore.unsubscribe "myModel2", :myKey mySubscription
 
-  test "subscribe triggers load on model", -> reset().then ->
+  test "subscribe triggers load on model" -> reset().then ->
     new Promise (resolve) ->
       class MyBasicModel extends ArtModel
         load: resolve
 
       artModelStore.subscribe :myBasicModel :123 (modelRecord) -> null
 
-  test "subscribe with initial value does not trigger load on model nor subscription callback", -> reset().then ->
+  test "subscribe with initial value does not trigger load on model nor subscription callback" -> reset().then ->
     class MyBasicModel extends ArtModel
       load: (key) -> assert.fail()
 

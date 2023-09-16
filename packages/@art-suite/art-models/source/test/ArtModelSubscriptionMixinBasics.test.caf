@@ -3,7 +3,7 @@ import &StandardImport, {} &ApplicationState
 describe
   subscribe: ->
     beforeEach _resetArtSuiteModels
-    test "with modelName and stateField", -> new Promise (resolve, reject) ->
+    test "with modelName and stateField" -> new Promise (resolve, reject) ->
       class MyModel extends ApplicationState
 
       myObject = new class MyObject extends ArtModelSubscriptionsMixin BaseObject
@@ -19,7 +19,7 @@ describe
       timeout()
       .then -> models.myModel.setState "myModelKey", "hi"
 
-    test "with modelKey = null means dont subscribe", ->
+    test "with modelKey = null means dont subscribe" ->
       class MyModel extends ApplicationState
 
       myObject = new class MyObject extends ArtModelSubscriptionsMixin BaseObject
@@ -32,65 +32,65 @@ describe
   change: ->
     beforeEach _resetArtSuiteModels
 
-    test "change subscription", -> new Promise (resolve, reject) ->
+    test "change subscription" -> new Promise (resolve, reject) ->
       class MyModel extends ApplicationState
 
       myObject = new class MyObject extends ArtModelSubscriptionsMixin BaseObject
 
         setState: (key, value) ->
-          if key == "myStateField" && value
-            if value == "hi"
+          if key == :myStateField && value
+            if value == :hi
               resolve()
             else
-              reject wrongSetState: {key, value}
+              reject wrongSetState: {} key, value
 
         constructor: ->
-          @subscribe "mySubscriptionKey", "myModel", "myModelKey", stateField: "myStateField"
+          @subscribe :mySubscriptionKey :myModel :myModelKey stateField: :myStateField
 
       timeout()
       .then ->
         # change the subscription
-        myObject.subscribe "mySubscriptionKey", "myModel", "myModelKey2", stateField: "myStateField"
+        myObject.subscribe :mySubscriptionKey :myModel :myModelKey2 stateField: :myStateField
 
       .then ->
         # should be ignored if properly not listening to old key
-        models.myModel.setState "myModelKey", "oops, still listening to old key"
+        models.myModel.setState :myModelKey "" oops, still listening to old key
 
         # should trigger updates, if properly listening to new key
-        models.myModel.setState "myModelKey2", "hi"
+        models.myModel.setState :myModelKey2 :hi
 
   unsubscribe: ->
     beforeEach _resetArtSuiteModels
 
-    test "unsubscribe", -> new Promise (resolve, reject) ->
+    test "unsubscribe" -> new Promise (resolve, reject) ->
       class MyModel extends ApplicationState
 
       myObject = new class MyObject extends ArtModelSubscriptionsMixin BaseObject
 
         setState: (key, value) ->
-          if key == "myStateField" && value
-            if value == "hi"
+          if key == :myStateField && value
+            if value == :hi
               resolve()
             else
-              log "reject"
+              log :reject
               reject wrongSetState: {key, value}
 
         constructor: ->
-          @subscribe "mySubscriptionKey", "myModel", "myModelKey", stateField: "myStateField"
+          @subscribe :mySubscriptionKey :myModel :myModelKey stateField: :myStateField
 
       timeout()
       .then ->
         # comment this out and test should fail
-        myObject.unsubscribe "mySubscriptionKey"
+        myObject.unsubscribe :mySubscriptionKey
 
         # should be ignored if properly not listening to old key
-        models.myModel.setState "myModelKey", "oops, still listening to old key"
+        models.myModel.setState :myModelKey "" oops, still listening to old key
 
         timeout 10 # not the best method to give the setState-reject a chance to fire before resolving, can anyone think of a better way?
 
       .then resolve
 
-    test "unsubscribeAll", -> new Promise (resolve, reject) ->
+    test "unsubscribeAll" -> new Promise (resolve, reject) ->
       class MyModel extends ApplicationState
 
       myObject = new class MyObject extends ArtModelSubscriptionsMixin BaseObject
@@ -104,7 +104,7 @@ describe
               reject wrongSetState: {key, value}
 
         constructor: ->
-          @subscribe "mySubscriptionKey", "myModel", "myModelKey", stateField: "myStateField"
+          @subscribe :mySubscriptionKey :myModel :myModelKey stateField: :myStateField
 
       timeout()
       .then ->
@@ -112,7 +112,7 @@ describe
         myObject.unsubscribeAll()
 
         # should be ignored if properly not listening to old key
-        models.myModel.setState "myModelKey", "oops, still listening to old key"
+        models.myModel.setState :myModelKey "" oops, still listening to old key
 
         timeout 10 # not the best method to give the setState-reject a chance to fire before resolving, can anyone think of a better way?
 
