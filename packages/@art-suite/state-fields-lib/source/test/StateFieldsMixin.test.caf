@@ -1,0 +1,51 @@
+import &StandardImport
+
+describe
+  StateFieldsMixin: ->
+    test "basic mixin" ->
+      class MyClass extends StateFieldsMixin BaseClass
+
+    test "stateFields" ->
+      class MyClass extends StateFieldsMixin BaseClass
+        @stateFields
+          name: :aliceDefault
+
+      assert.eq MyClass.getStateFields(), name: :aliceDefault
+
+  actions: ->
+    chainedTest "createInstance" ->
+      new class MyClass extends StateFieldsMixin BaseClass
+        @stateFields
+          name: :aliceDefault
+          loggedIn: false
+
+        @getter :state
+        constructor: -> @_state = object v, k from @getStateFields() with v
+
+        setState: (fieldName, value) -> @_state[fieldName] = value
+
+    .tapTest "defaults" (myClass) ->
+      assert.eq myClass.state, name: :aliceDefault, loggedIn: false
+
+    .tapTest "getter" (myClass) ->
+      assert.eq myClass.name, :aliceDefault
+
+    .tapTest "setter" (myClass) ->
+      myClass.name = newName = :bob
+      assert.eq myClass.name, newName
+
+    .tapTest "reset" (myClass) ->
+      myClass.resetName()
+      assert.eq myClass.name, :aliceDefault
+
+    .tapTest "clear" (myClass) ->
+      myClass.clearName()
+      assert.eq myClass.name, null
+
+    .tapTest "trigger" (myClass) ->
+      myClass.triggerLoggedIn()
+      assert.eq myClass.state.loggedIn, true
+
+    .tapTest "toggle" (myClass) ->
+      myClass.toggleLoggedIn()
+      assert.eq myClass.state.loggedIn, false

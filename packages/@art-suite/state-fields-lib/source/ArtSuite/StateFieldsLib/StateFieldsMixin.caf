@@ -1,0 +1,51 @@
+import &ArtStandardLib
+
+(superClass) -> class StateFieldsMixinCaf extends superClass
+  @extendableProperty stateFields: {}
+
+  ## stateFields
+    Declare state fields you intend to use.
+    IN: fields
+      map from field names to initial values
+
+    EFFECTS:
+      used to initialize @state
+      declares @getters and @setters for each field
+      for fieldName, declares:
+        @getter :fieldName
+        @setter :fieldName
+        resetFieldName:     -> @fieldName = default
+
+        if initial value is true or false:
+          # NOTE - setter defined above will force a true or false value no matter what is passed in
+          toggleFieldName:  -> @fieldName = !@fieldName
+          setIsFieldName:   -> @fieldName = true
+          clearFieldName:   -> @fieldName = false
+          triggerFieldName: -> @fieldName = true
+
+        else
+          clearFieldName: -> @fieldName = null
+  @stateFields: sf = (fields) ->
+    @extendStateFields fields
+    each initialValue, field from fields
+      defaultSetValue = initialValue
+      clearValue = null
+
+      @addGetter field, ~> @state[field]
+      @prototype[lowerCamelCase "reset #{field}"] = ~> @setState field, defaultSetValue
+
+      if initialValue == true || initialValue == false
+        clearValue = false
+        defaultSetValue = true
+
+        @addSetter field,                           (v) ~> @setState field, !!v
+        @prototype[lowerCamelCase "trigger #{field}"] = ~> @setState field, true
+        @prototype[lowerCamelCase "toggle #{field}"]  = ~> @setState field, !@state[field]
+
+      else
+        @addSetter field, (v) ~> @setState field, v
+
+      @prototype[lowerCamelCase "clear #{field}"] = ~> @setState field, clearValue
+
+  # ALIAS
+  @stateField: sf

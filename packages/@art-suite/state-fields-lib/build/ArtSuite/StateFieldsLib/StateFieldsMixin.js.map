@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "StateFieldsMixin.js",
+  "sourceRoot": "../../..",
+  "sources": [
+    "source/ArtSuite/StateFieldsLib/StateFieldsMixin.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,+EAAO,mDAEP,gBAAC,sCAAe,4EAAkC,iFAChD,yBAAoB,sCAwBN,KAAE,QAAG,CAAC,SAClB,uBAAmB,0BACW,mEAC5B,kBAAkB,cAClB,aAAa,MAEb,eAAW,mBAAU,kBAAO,WAClB,eAAC,qCAAwB,aAAQ,YAAM,qBAAU,OAAO,oBAElE,IAAe,iBAAI,QAAQ,iBAAgB,QACzC,aAAa,OACb,kBAAkB,MAElB,eAAW,eAAiC,CAAC,IAAM,qBAAU,SAAS,OAC5D,eAAC,uCAA0B,aAAQ,YAAM,qBAAU,OAAO,SAC1D,eAAC,sCAAyB,aAAQ,YAAO,qBAAU,QAAQ,WAAO,kBAG5E,eAAW,eAAO,CAAC,IAAM,qBAAU,OAAO,gBAElC,eAAC,qCAAwB,aAAQ,YAAM,qBAAU,OAAO,sCAGzD"
+}
