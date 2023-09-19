@@ -1,4 +1,4 @@
-import &StandardImport, &source.React.ComponentLib
+import &StandardImport, &build/ArtSuite/ArtModelComponents/ComponentLib
 
 testDeclaration = (declaration, expected) ->
   test "'#{formattedInspect declaration}'" ->
@@ -10,7 +10,7 @@ testDeclaration = (declaration, expected) ->
       else
         expected
 
-suite:
+describe
   strings: ->
     testDeclaration :post (parsed) ->
       post:

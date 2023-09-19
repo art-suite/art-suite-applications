@@ -1,4 +1,6 @@
-import &StandardImport, &ArtReact, &ArtCommunicationStatus
+import &StandardImport
+#  These tests are disabled until ArtReact is testable in Jest.
+#  This was a Mocha file and may need some additional Jest conversion work.
 
 resetAll = ->
   &source._reset()
@@ -45,7 +47,7 @@ testSubscriptionDefinition = (description, subscriptionDefinition, expected = :a
       models.myModel.myField  = :alice
       models.myModel.myField2 = :bob
 
-suite:
+describe
   getters: ->
     setup myModelSetup
     test "models getter", -> new Promise (resolve) ->

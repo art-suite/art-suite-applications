@@ -8,6 +8,7 @@
     "@art-suite/art-ery-core": "file:unpublished/art-ery-core",
     "@art-suite/art-flux": "file:packages/@art-suite/art-flux",
     "@art-suite/art-foundation": "^2.0.0",
+    "@art-suite/art-model-components": "file:packages/@art-suite/art-model-components",
     "@art-suite/art-models": "file:packages/@art-suite/art-models",
     "@art-suite/instance-function-binding-mixin": "^1.0.0",
     "@art-suite/monorepo": "^1.6.1",

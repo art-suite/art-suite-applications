@@ -1,13 +1,13 @@
-import &ArtStandardLib, &ArtCommunicationStatus, &@ArtSuite/ArtModels, (require "art-react"), &Lib, &ComponentLib
-## FluxComponent
-  FluxComponent
+import &ArtStandardLib, &ArtCommunicationStatus, &@ArtSuite/ArtModels, (require "art-react"), &ComponentLib
+## ModelComponent
+  ModelComponent
 
   Declarative (automatic) Flux Subscription support:
   - @subscriptions declaration method
 
   TODO:
     * _prepareSubscription should be triggered via createWithPostCreate rather than with each component creation
-class FluxComponent extends ArtModelSubscriptionsMixin Component
+class ModelComponent extends ArtModelSubscriptionsMixin Component
   @abstractClass()
 
   ##########################
@@ -88,7 +88,8 @@ class FluxComponent extends ArtModelSubscriptionsMixin Component
   # PRIVATE MEMBER METHODS
   ##########################
   _updateSubscription: (stateField, key, model, props) ->
-    @subscribe stateField,
+    @subscribe
+      stateField
       model.modelName
       key
       stateField: stateField

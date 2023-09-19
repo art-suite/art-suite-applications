@@ -1,13 +1,8 @@
-Foundation = require '@art-suite/art-foundation'
-Flux = require '@art-suite/art-flux'
-React = require 'art-react'
-{eq, log, Promise, timeout, createWithPostCreate, defineModule, formattedInspect, isString} = Foundation
-{success, missing, pending} = Foundation.CommunicationStatus
-
-{FluxStore, ModelRegistry, models, FluxModel, FluxComponent, fluxStore, ApplicationState} = Flux
-{assert} = require 'art-testbench'
-
-{Element} = React
+import &StandardImport
+# NOTE: this is copied from CoffeeScript and hasn't been checked for converstion errors
+#  As soon as we can run these tests (i.e. ArtReact is testable in Jest), we will need to
+#  work through any CoffeeScript > CaffeineScript conversion errors. (2023-09-19 SBD)
+#  This was a Mocha file and may need some additional Jest conversion work.
 
 resetAll = ->
   Flux._reset()
@@ -18,8 +13,7 @@ myModelSetup = ->
     createWithPostCreate class MyModel extends ApplicationState
       @stateFields myField: {}, myField2: {}
 
-defineModule module, suite:
-
+describe
 
   misc: ->
     setup myModelSetup

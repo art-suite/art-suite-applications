@@ -1,0 +1,7 @@
+[]
+  &ArtStandardLib
+  &ArtTestbench
+  &ArtCommunicationStatus
+  &@ArtSuite/ArtModels
+  # can't include build until ArtReact is A) 100% compiled to JS and B) doesn't require ArtEngine
+  # &build

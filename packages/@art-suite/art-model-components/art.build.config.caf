@@ -1,0 +1,8 @@
+package: &@ArtSuite/StandardPackageBuilder.configure {} &package
+
+webpack:
+  common: {}
+  targets:
+    index: {}
+    web_worker: {}
+    test: {}

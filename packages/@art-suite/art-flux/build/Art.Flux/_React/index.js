@@ -3,7 +3,4 @@
 
 (module.exports = require('./namespace'))
 .includeInNamespace(require('./React'))
-.addModules({
-  ComponentLib:  require('./ComponentLib'),
-  FluxComponent: require('./FluxComponent')
-});
+;
