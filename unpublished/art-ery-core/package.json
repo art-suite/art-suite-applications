@@ -1,4 +1,7 @@
 {
+  "name": "@art-suite/art-ery-core",
+  "bugs": "https://github.com/art-suite/art-suite-applications/issues",
+  "homepage": "https://github.com/art-suite/art-suite-applications",
   "jest": {
     "collectCoverageFrom": [
       "build/**/*.js",
@@ -14,6 +17,11 @@
       "<rootDir>/test"
     ],
     "verbose": true
+  },
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/art-suite/art-suite-applications.git"
   },
   "scripts": {
     "build": "cd source\nfind . -name '*.js' -o -name '*.css' | cpio -vpdm ../build\ncd ..\ncaf -m -c source -o build\nnpm run nn",

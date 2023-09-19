@@ -3,6 +3,7 @@
   "bugs": "https://github.com/art-suite/art-suite-applications/issues",
   "dependencies": {
     "@art-suite/art-models": "^0.1.2",
+    "@art-suite/state-fields-lib": "^1.0.2",
     "art-react": "^1.35.7"
   },
   "devDependencies": {

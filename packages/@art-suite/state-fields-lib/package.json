@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
+  "version": "1.0.2",
   "bugs": "https://github.com/art-suite/art-suite-applications/issues",
   "dependencies": {
     "art-standard-lib": "^1.70.6",

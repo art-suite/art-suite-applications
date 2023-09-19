@@ -6,12 +6,11 @@ class SimplePipelineResult extends FluxComponent
   render: ->
     Element
       :row :parentWidthChildrenHeight
+
       TextElement
-        :parentWidthChildrenHeight
-        mediumText
+        :parentWidthChildrenHeight mediumText
         text: "" SimplePipelineResult:
 
       TextElement
-        :parentWidthChildrenHeight
-        mediumText
+        :parentWidthChildrenHeight mediumText
         text: @simplePipeline

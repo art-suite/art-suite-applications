@@ -2,7 +2,6 @@ import &ArtStandardLib, &ArtEry
 
 class SimplePipeline extends Pipeline
 
-  @publicRequestTypes :get
-
-  @handler
-    get: ({key})-> "" The #{if isBrowser then :client else :server} received your request for: #{key}.
+  @publicHandlers
+    get: ({type, key, location}) ->
+      "" Request '#{type}:#{key}' processed by #{if isBrowser then :client else :server}.

@@ -6,7 +6,7 @@
 npm install
 ```
 
-## Dev
+## Run in Development (100% in-browser)
 
 This runs directly from the code in `/source` and hot-updates as changes are made.
 
@@ -14,7 +14,15 @@ This runs directly from the code in `/source` and hot-updates as changes are mad
 npm run start-dev
 ```
 
-## Build
+- Open: http://localhost:8080/
+
+#### About Development Mode
+
+The entire client-side and server-side code is built into one bundle which runs in the web browser. This allows you to debug your full app in one runtime.
+
+## Run in Production, Locally (Client + Server)
+
+### Build
 
 Build the code for deployment into `/build`
 
@@ -22,10 +30,14 @@ Build the code for deployment into `/build`
 npm run build
 ```
 
-## Server
-
-Serves the API and static assets on http://localhost:8085. The API is inspectable on http://localhost:8085/api. Static assets are served out of `/public`. The app is served from the built version of the code from /build.
+### Start Server
 
 ```bash
 npm run start-server
 ```
+
+- Open: http://localhost:8085/
+
+#### About the Server
+
+The NodeJS server serves the API and static assets on http://localhost:8085. The API is inspectable on http://localhost:8085/api. Static assets are served out of `/public`. The app is served from the built version of the code from /build.

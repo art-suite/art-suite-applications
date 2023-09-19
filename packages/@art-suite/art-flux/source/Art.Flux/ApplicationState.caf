@@ -1,6 +1,6 @@
-import &ArtStandardLib, &@ArtSuite/ArtModels, &ArtCommunicationStatus, {} &StateFieldsMixin
+import &ArtStandardLib, &@ArtSuite/ArtModels, &ArtCommunicationStatus, &@ArtSuite/StateFieldsLib
 
-{JsonStore} = require '@art-suite/art-foundation'
+{JsonStore} = &@ArtSuite/ArtFoundation
 {jsonStore} = JsonStore
 
 ## ApplicationState

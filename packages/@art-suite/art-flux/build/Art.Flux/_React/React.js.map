@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "React.js",
+  "sourceRoot": "../../..",
+  "sources": [
+    "source/Art.Flux/_React/React.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,yCAAQ,6CACyB"
+}
