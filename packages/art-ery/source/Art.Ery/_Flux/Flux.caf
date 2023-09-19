@@ -1,10 +1,11 @@
 defineModelsForAllPipelines: ->
-  log.warn
+  throw new Error
     """
       DEPRICATED: &ArtEry/Flux.defineModelsForAllPipelines()
       USE: &@ArtSuite/ArtPipelineModles.defineModelsForAllPipelines()
+
 defineArtEryPipelineFluxModels: ->
-  log.warn
+  throw new Error
     """
       DEPRICATED: &ArtEry/Flux.defineArtEryPipelineFluxModels()
       USE: &@ArtSuite/ArtPipelineModles.defineModelsForAllPipelines()

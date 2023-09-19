@@ -1,6 +1,5 @@
 import &StandardImport
 
-# can't convert to Caf until UpdateAfterMixin is Caf
 class MemStorePipeline extends KeyFieldsMixin Pipeline
   @abstractClass()
 

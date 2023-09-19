@@ -1,4 +1,4 @@
 "use strict"
 let Caf = require('caffeine-script-runtime');
-Caf.defMod(module, () => {return {defineModelsForAllPipelines: require('@art-suite/art-pipeline-models').defineModelsForAllPipelines};});
+Caf.defMod(module, () => {let Error = global.Error; return {defineModelsForAllPipelines: function() {return (() => {throw new Error("DEPRICATED: &ArtEry/Flux.defineModelsForAllPipelines()\nUSE: &@ArtSuite/ArtPipelineModles.defineModelsForAllPipelines()");})();}, defineArtEryPipelineFluxModels: function() {return (() => {throw new Error("DEPRICATED: &ArtEry/Flux.defineArtEryPipelineFluxModels()\nUSE: &@ArtSuite/ArtPipelineModles.defineModelsForAllPipelines()");})();}};});
 //# sourceMappingURL=Flux.js.map
