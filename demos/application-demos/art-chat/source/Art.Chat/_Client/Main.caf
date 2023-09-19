@@ -2,7 +2,7 @@ import &ArtSuite
 &ArtEryPusher/Client
 &Configurations
 &Pipelines
-&ArtEry/Flux.defineModelsForAllPipelines()
+&@ArtSuite/ArtPipelineModles.defineModelsForAllPipelines()
 
 &ArtSuiteApp.initArtSuiteClient
   MainComponent:
