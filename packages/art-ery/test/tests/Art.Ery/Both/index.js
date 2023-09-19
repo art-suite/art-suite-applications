@@ -12,4 +12,3 @@
   UpdateAfterMixin:   require('./UpdateAfterMixin')
 });
 require('./Filters');
-require('./Flux');

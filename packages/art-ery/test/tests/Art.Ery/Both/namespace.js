@@ -6,4 +6,3 @@ module.exports = require('../namespace').addNamespace(
   class Both extends Neptune.PackageNamespace {}
 );
 require('./Filters/namespace');
-require('./Flux/namespace');

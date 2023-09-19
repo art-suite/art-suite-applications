@@ -1,0 +1,10 @@
+&ArtConfig.configure()
+
+[]
+  &ArtStandardLib
+  &ArtClassSystem
+  &ArtTestbench
+  &ArtCommunicationStatus
+  &ArtEry
+  &@ArtSuite/ArtModels
+  &build

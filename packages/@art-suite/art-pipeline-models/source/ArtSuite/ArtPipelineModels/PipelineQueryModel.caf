@@ -1,6 +1,6 @@
 import &StandardImport
 
-class ArtEryQueryModel extends KeyFieldsMixin ArtModel
+class PipelineQueryModel extends KeyFieldsMixin ArtModel
   @abstractClass()
 
   loadData: (key) ->
@@ -95,7 +95,7 @@ class ArtEryQueryModel extends KeyFieldsMixin ArtModel
   ###############################
     ArtModel overrides
   ## dataUpdated
-    ArtEryModel calls dataUpdated and dataDeleted from its dataUpdated and dataDeleted functions, respectively.
+    PipelineModel calls dataUpdated and dataDeleted from its dataUpdated and dataDeleted functions, respectively.
   dataUpdated: (queryKey, singleRecordData) -> @_updateArtModelStoreIfExists queryKey, singleRecordData
   dataDeleted: (queryKey, singleRecordData) -> @_updateArtModelStoreIfExists queryKey, singleRecordData, true
 

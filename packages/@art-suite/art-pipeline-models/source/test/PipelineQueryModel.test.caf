@@ -1,8 +1,9 @@
 import &StandardImport
 
-suite:
+describe
+  noop: -> test "noop" -> assert.eq 1, 1
   pre2020Style: ->
-    setup ->
+    beforeEach ->
 
       class Post extends Pipeline
         @query postsByUserId: (request) ->
@@ -17,14 +18,12 @@ suite:
             array record in response.data
               merge record, message: "#{record.message} :)"
 
-      defineModelsForAllPipelines() # TODO - change to using a non-global registry so we don't have to call Flux._reset()
-
-    teardown: -> Flux._reset()
+      defineModelsForAllPipelines() # TODO - change to using a non-global registry so we don't have to call _resetArtSuiteModels()
 
     test "query model defined", ->
       assert.instanceOf
         models.postsByUserId
-        ArtEryQueryModel
+        PipelineQueryModel
         formattedInspect
           definedModels: Object.keys models
           lookingForModel: :postsByUserId
@@ -39,7 +38,7 @@ suite:
   2020Style:
     basic: ->
       messagesByUserId = null
-      setup ->
+      beforeEach ->
         class Message extends Pipeline
           @query
             byUserId:
@@ -58,10 +57,8 @@ suite:
 
         {messagesByUserId} = defineModelsForAllPipelines()
 
-      teardown: -> _resetArtSuiteModels()
-
       test "query model defined", ->
-        assert.instanceOf messagesByUserId, ArtEryQueryModel
+        assert.instanceOf messagesByUserId, PipelineQueryModel
 
       test "query loadData goes through pipeline", ->
         messagesByUserId.loadData "abc123"
@@ -77,30 +74,30 @@ suite:
         # assert.eq undefined user.propsToKey {}
 
     codeReuse: ->
-      setup ->
+      beforeEach ->
         _resetArtSuiteModels()
+        .then ->
+          class UserOwned extends Pipeline
+            @query byUserId: (request) ->
+              []
+                userId: request.key, message: "Hi!"
+                userId: request.key, message: "Really?"
 
-        class UserOwned extends Pipeline
-          @query byUserId: (request) ->
-            []
-              userId: request.key, message: "Hi!"
-              userId: request.key, message: "Really?"
+            @publicRequestTypes :byUserId
 
-          @publicRequestTypes :byUserId
+            @filter after: all: (response) ->
+              response.withData
+                array record in response.data
+                  merge record, message: "#{response.pipeline.name}: #{record.message} :)"
 
-          @filter after: all: (response) ->
-            response.withData
-              array record in response.data
-                merge record, message: "#{response.pipeline.name}: #{record.message} :)"
+          class Email extends UserOwned
+          class Photo extends UserOwned
 
-        class Email extends UserOwned
-        class Photo extends UserOwned
-
-        defineModelsForAllPipelines()
+          defineModelsForAllPipelines()
 
       test "query model defined", ->
-        assert.instanceOf models.emailsByUserId, ArtEryQueryModel
-        assert.instanceOf models.photosByUserId, ArtEryQueryModel
+        assert.instanceOf models.emailsByUserId, PipelineQueryModel
+        assert.instanceOf models.photosByUserId, PipelineQueryModel
 
       test "query loadData goes through pipeline", ->
         models.emailsByUserId.loadData "abc123"

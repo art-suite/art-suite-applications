@@ -1,6 +1,6 @@
-import &StandardImport, &PrefetchedRecordsCache
+import &StandardImport
 
-class ArtEryModel extends KeyFieldsMixin ArtModel
+class PipelineModel extends KeyFieldsMixin ArtModel
   @abstractClass()
 
   ## createModel
@@ -16,9 +16,9 @@ class ArtEryModel extends KeyFieldsMixin ArtModel
     name = pipeline.getName()
     return if models[name]
 
-    hotReloadKey = "ArtEryModel:#{name}"
+    hotReloadKey = "PipelineModel:#{name}"
 
-    class AnonymousArtEryModel extends ArtEryModel
+    class AnonymousArtEryModel extends PipelineModel
       @_name: ucName = upperCamelCase name
       @keyFields pipeline.keyFields if pipeline.keyFields
       @pipeline pipeline
@@ -127,7 +127,7 @@ class ArtEryModel extends KeyFieldsMixin ArtModel
     recordsModel = @
     pipeline = @_pipeline
 
-    class ArtEryQueryModelChild extends &ArtEryQueryModel
+    class ArtEryQueryModelChild extends &PipelineQueryModel
       @_name: upperCamelCase
         if /^by/.test queryName
           "#{pluralize pipeline.name} #{queryName}"

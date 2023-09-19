@@ -1,7 +1,1 @@
-import &StandardImport
-
-{}
-  &ArtEryModel.defineModelsForAllPipelines
-  defineArtEryPipelineFluxModels: () ->
-    log.warn "" DEPRECATED: defineArtEryPipelineFluxModels(). Use: defineModelsForAllPipelines().
-    &ArtEryModel.defineModelsForAllPipelines
+{} &@ArtSuite/ArtPipelineModels.defineModelsForAllPipelines

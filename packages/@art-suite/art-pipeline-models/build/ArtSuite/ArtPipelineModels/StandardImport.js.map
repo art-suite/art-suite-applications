@@ -3,8 +3,8 @@
   "file": "StandardImport.js",
   "sourceRoot": "../../..",
   "sources": [
-    "source/Art.Ery/_Flux/StandardImport.caf"
+    "source/ArtSuite/ArtPipelineModels/StandardImport.caf"
   ],
   "names": [],
-  "mappings": "AAAA;;AAAA,kCACE,8BACA,gBACA"
+  "mappings": "AAAA;;AAAA,kCACE,6BACA,qCACA,kCACA"
 }
