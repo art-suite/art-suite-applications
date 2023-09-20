@@ -1,6 +1,4 @@
 import &StandardImport, &ArtValidation, &PrefetchedRecordsCache, &Config, &RestClientLib, &RestServerLib, {}
-  &Response
-  &Request
   &Filter
   &DatabaseFilters
   &Session
@@ -84,7 +82,7 @@ class Pipeline extends &RequestHandler
     Overrides
 
   ## isRecord (override as needed)
-    # used by Request/Response.withTransformedRecords
+    # used by RequestResponseBase.withTransformedRecords
   isRecord: (data) -> isPlainObject(data) && present data?.id
 
   ## getFieldsRequestWillModify (override as needed)
@@ -145,7 +143,7 @@ class Pipeline extends &RequestHandler
             - a new request with the new, filtered values
 
             response in the form of:
-            - new Response
+            - new RequestResponseBase response
             - null        >> request.missing()
             - string      >> request.success data: message: string
             - plainObject >> request.success data: plainObject
@@ -165,11 +163,11 @@ class Pipeline extends &RequestHandler
 
     IN map:
       requestType: (request) ->
-        IN: ArtEry.Request instance
+        IN: RequestResponseBase request instance
         OUT:
-          ArtEry.Response instance
+          RequestResponseBase response instance
         OR
-          plain data which will be wrapped up in an ArtEry.Response instance
+          plain data which will be wrapped up in an RequestResponseBase instance
 
     @handler and @handlers are aliases.
   @handler:  @extendHandlers
@@ -336,7 +334,7 @@ class Pipeline extends &RequestHandler
         error: error
 
     .then (sessionData) =>
-      new Request merge
+      new RequestResponseBase merge
         options
         type:     type
         pipeline: @
@@ -560,7 +558,7 @@ class Pipeline extends &RequestHandler
 
   _normalizeRequest: (request) ->
     if isPlainObject request
-      new Request merge request, pipeline: @
+      new RequestResponseBase merge request, pipeline: @
 
     else
       request
@@ -593,7 +591,7 @@ class Pipeline extends &RequestHandler
                       [this is the stringified key]
       options:
         Passed directly to:
-          Request constructor
+          RequestResponseBase constructor
           AND response.toPromise
 
     OUT: SEE: response.toPromise

@@ -3,7 +3,7 @@ import &ArtStandardLib
 removeFromCleanStackTraceRegExp =
   ///
     processImmediate
-    | source/Art.Ery/(Pipeline|Request|Response|Filter\b)
+    | source/Art.Ery/(Pipeline|RequestResponseBase|Filter\b)
     | node_modules/.*(
       mocha
       | bluebird

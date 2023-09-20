@@ -4,7 +4,6 @@
 (module.exports = require('./namespace'))
 .includeInNamespace(require('./Ery'))
 .addModules({
-  ArtEryBaseObject:       require('./ArtEryBaseObject'),
   Config:                 require('./Config'),
   DatabaseFilters:        require('./DatabaseFilters'),
   Env:                    require('./Env'),
@@ -13,10 +12,8 @@
   Pipeline:               require('./Pipeline'),
   PipelineRegistry:       require('./PipelineRegistry'),
   PrefetchedRecordsCache: require('./PrefetchedRecordsCache'),
-  Request:                require('./Request'),
   RequestHandler:         require('./RequestHandler'),
   RequestResponseBase:    require('./RequestResponseBase'),
-  Response:               require('./Response'),
   RestClientLib:          require('./RestClientLib'),
   RestServerLib:          require('./RestServerLib'),
   Session:                require('./Session'),

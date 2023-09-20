@@ -60,7 +60,7 @@ class RequestResponseBase extends BaseObject
     else
       responseValidator.validate options, context: "Art.Ery.#{@class.name} options", logErrors: true
 
-      # If the session wasn't explicitly set, did it change in the Request part of the pipeline?
+      # If the session wasn't explicitly set, did it change in the request part of the pipeline?
       @_session ?= if neq @request.session, @request.originalRequest.session
         @request.session
 
@@ -316,7 +316,7 @@ class RequestResponseBase extends BaseObject
     pipeline = @pipelines[pipelineName]
     throw new Error "Pipeline not registered: #{formattedInspect pipelineName}" unless pipeline
 
-    new ArtEry.Request merge
+    new RequestResponseBase merge
       {} originatedOnServer: requestOptions?.originatedOnServer ? true
       requestOptions
       {}
@@ -752,7 +752,7 @@ class RequestResponseBase extends BaseObject
         responseProps
 
       when isPlainObject responseProps
-        new ArtEry.Response merge @propsForResponse, responseProps, {} status, request: @_request ? @
+        new RequestResponseBase merge @propsForResponse, responseProps, {} status, request: @_request ? @
 
       when isString responseProps
         @toResponse status, data: message: responseProps
@@ -801,7 +801,7 @@ class RequestResponseBase extends BaseObject
       promise.catch (errorWithInfo) ->
         {response} = errorWithInfo.info
   toPromise: (options) ->
-    throw new Error "ArtEry.Request: toPromise can only be called on Response objects." unless @isResponse
+    throw new Error "ArtEry.RequestResponseBase: toPromise can only be called on Response objects." unless @isResponse
     options extract? returnNullIfMissing, returnResponse, returnResponseObject
     @ extract data, isSuccessful, isMissing
 

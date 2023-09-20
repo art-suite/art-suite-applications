@@ -8,9 +8,7 @@
   KeyFieldsMixin:      require('./KeyFieldsMixin'),
   NiceStackTraces:     require('./NiceStackTraces'),
   PrefetchedRecords:   require('./PrefetchedRecords'),
-  Request:             require('./Request'),
   RequestResponseBase: require('./RequestResponseBase'),
-  Response:            require('./Response'),
   RestClientLib:       require('./RestClientLib'),
   Session:             require('./Session'),
   Stack:               require('./Stack')
