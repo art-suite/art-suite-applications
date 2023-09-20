@@ -1,4 +1,4 @@
-import &StandardImport, &ArtValidation, &PrefetchedRecordsCache, &Config, {}
+import &StandardImport, &ArtValidation, &PrefetchedRecordsCache, &Config, &RestClientLib, &RestServerLib, {}
   &Response
   &Request
   &Filter
@@ -286,14 +286,8 @@ class Pipeline extends &RequestHandler
 
       else config.location
 
-    restPath: -> @_restPath ?= "/#{config.apiRoot}/#{@name}"
-    restPathRegex: -> @_restPathRegex ?=
-      ///i
-        ^
-        #{escapeRegExp @restPath}
-        (?:-([a-z0-9_]+))?          # optional request-type (if missing, it is derived from the HTTP method)
-        (?:\/([^?]+))?       # optional key
-        (?=\?|$)
+    restPath: -> @_restPath ?= getPipelineRestPath @
+    restPathRegex: -> @_restPathRegex ?= getPipelineRestPathRegex @
 
     groupedFilters: -> @_groupedFilters ?= Pipeline.groupFilters @filters
     beforeFilters: -> @_beforeFilters ?= @groupedFilters.slice().reverse()
@@ -504,15 +498,7 @@ class Pipeline extends &RequestHandler
 
       out
 
-    apiReport: (options = {}) ->
-      {server, publicOnly} = options
-      object type from @requestTypes when !publicOnly || @getPublicRequestTypes()[type]
-        {method, url} = Request.getRestClientParamsForArtEryRequest
-          server: @remoteServer || server
-          type: type
-          restPath: @restPath
-
-        [method.toLocaleUpperCase()]: url
+    apiReport: (options = {}) -> apiReport @, options
 
   ###################
     RequestHandler API
@@ -522,7 +508,7 @@ class Pipeline extends &RequestHandler
       throw new Error "HARD DEPRICATED"
 
     if @location == :client && @remoteServer
-      request.sendRemoteRequest @remoteServer
+      sendRemoteRequest request
 
     else if handler = @handlers[request.type]
       @applyHandler request, handler, :handler

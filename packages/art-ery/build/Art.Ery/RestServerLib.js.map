@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "RestServerLib.js",
+  "sourceRoot": "../..",
+  "sources": [
+    "source/Art.Ery/RestServerLib.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,oGAAO,6BAAiB,uEAExB,2BAAW,CAAC,UAAU,uCACpB,EAAC,QAAQ,cAAc,4BACN,mDACf,EAAC,QAAQ,OAAO,oCAAmC,CACjD,QAAQ,yBAAyB,QAC3B,MACN,UAAU,8BAEZ,CAAC,6BAA6B"
+}

@@ -16,6 +16,8 @@
   RequestHandler:         require('./RequestHandler'),
   RequestResponseBase:    require('./RequestResponseBase'),
   Response:               require('./Response'),
+  RestClientLib:          require('./RestClientLib'),
+  RestServerLib:          require('./RestServerLib'),
   Session:                require('./Session'),
   Stack:                  require('./Stack'),
   StandardImport:         require('./StandardImport'),

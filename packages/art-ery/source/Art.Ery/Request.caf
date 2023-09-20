@@ -1,4 +1,4 @@
-import &StandardImport, &ArtRestClient
+import &StandardImport
 ArtEry = require :./namespace
 
 # validator must be initialized after Request and Pipeline have bene defined
@@ -146,63 +146,5 @@ class Request extends &RequestResponseBase
   handled: (_handledBy) ->
     @success().then (response) -> response.handled _handledBy
 
-  getRestRequestUrl:    (server) -> "" #{server}/#{@pipeline.name}#{@urlKeyClause}
-  getNonRestRequestUrl: (server) -> "" #{server}/#{@pipeline.name}-#{@type}#{@urlKeyClause}
-
   toPromise: ->
     throw new Error "ArtEry.Request: toPromise can only be called on Response objects."
-
-  restMap =
-    get:    :get
-    create: :post
-    update: :put
-    delete: :delete
-
-  @getRestClientParamsForArtEryRequest: getRestClientParamsForArtEryRequest = ({session, server, restPath, type, key, data}) ->
-    urlKeyClause = if present key then "/#{key}" else ''
-    server ?= ''
-    hasSessionData = objectHasKeys session
-    url = if (method = restMap[type]) && (method != :get || !hasSessionData)
-      "" #{server}#{restPath}#{urlKeyClause}
-    else
-      method = :post
-      "" #{server}#{restPath}-#{type}#{urlKeyClause}
-
-    method: method
-    url:    url
-    data:   data
-
-  @getter
-    remoteRequestProps: ->
-      @ extract session, data, props, pipeline, type, key
-
-      propsCount = 0
-      props = object v,k from props when v != undefined && k != :key && k != :data
-      data  = object v   from data  when v != undefined
-
-      remoteRequestData = null
-      (remoteRequestData ?= {}).session = session.signature if session.signature
-      (remoteRequestData ?= {}).props   = props if 0 < objectHasKeys props
-      (remoteRequestData ?= {}).data    = data  if 0 < objectHasKeys data
-
-      getRestClientParamsForArtEryRequest {}
-        restPath: pipeline.restPath
-        server:
-          switch pipeline.remoteServer
-            when true, ".", "/" then ""
-            else pipeline.remoteServer
-        type
-        key
-        session
-        data:           remoteRequestData
-
-  sendRemoteRequest: ->
-    restJsonRequest remoteRequest = @remoteRequestProps
-    .catch (error) ->
-      {status = failure, response, message} = error.info ? error
-
-      merge response, {status, message}
-
-    .then (remoteResponse) ->
-      @addFilterLog "#{remoteRequest.method.toLocaleUpperCase()} #{remoteRequest.url}", :remoteRequest
-      .toResponse remoteResponse.status, merge remoteResponse, {remoteRequest, remoteResponse}
