@@ -42,15 +42,15 @@ responseValidator = new Validator
 class Response extends &RequestResponseBase
 
   constructor: (options) ->
-    super merge options, creationStack: options.request.creationStack
     responseValidator.validate options, context: "Art.Ery.Response options", logErrors: true
+    super merge options, {} options.request.creationStack
 
-    @request = options.request
-    @status = options.status
-    @session = options.session
-    @remoteRequest = options.remoteRequest
-    @remoteResponse = options.remoteResponse
-    @props = options.props ? {}
+    @_request = options.request
+    @_status = options.status
+    @_session = options.session
+    @_remoteRequest = options.remoteRequest
+    @_remoteResponse = options.remoteResponse
+    @_props = options.props ? {}
 
     throw new Error "options.requestOptions is DEPRICATED - use options.props" if options.requestOptions
 
@@ -62,168 +62,3 @@ class Response extends &RequestResponseBase
     @_endTime = null
 
     @setGetCache() if @type == :create || @type == :get
-
-  @property :request :props :session :remoteResponse :remoteRequest
-  @setter :status
-
-  @getter
-    status: ->
-      if @_status == failure
-        switch @location
-        when :server then serverFailure
-        when :client then clientFailure
-
-      ? @_status
-
-
-    failed:             -> @_status == failure || @_status == serverFailure
-
-    data:               -> @_props.data
-    session:            -> @_session ? @request.session
-    responseData:       -> @_props.data
-    responseProps:      -> @_props
-    responseSession:    -> @_session
-
-    beforeFilterLog:    -> @request.filterLog || []
-    handledBy:          -> !@failed && peek @request.filterLog
-
-    # I'd like to just call this 'filterLog', but there appears to be a conflict somewhere' (SBD 1/2018)
-    rawRequestLog: -> compactFlatten [@beforeFilterLog, @afterFilterLog]
-    requestLog:          ->
-      {startTime, endTime} = @
-
-      firstTime = lastTime = startTime
-      lastProps = null
-
-      out = array {name, time} in @rawRequestLog
-        firstTime = lastTime = time unless firstTime?
-
-        lastProps?.deltaMs = (time - lastTime) * 1000 | 0
-
-        lastProps =
-          name: name
-          timeMs: 0
-          wallMs:  (time - firstTime) * 1000 | 0
-        lastTime = time
-        lastProps
-
-      log {} startTime, lastTime, @_endTime
-      lastProps?.deltaMs = (endTime - lastTime) * 1000 | 0
-
-      out
-
-    afterFilterLog:     -> @_filterLog || []
-    isSuccessful:       -> @_status == success
-    isMissing:          -> @_status == missing
-    notSuccessful:      -> @_status != success
-    description:        -> "" #{@requestString}: #{@status}
-    propsForClone: -> {}
-        @request
-        @status
-        @props
-        session:   @_session
-        filterLog:  @_filterLog
-        @remoteRequest
-        @remoteResponse
-        @errorProps
-
-    propsForResponse: -> @propsForClone
-
-    summary: -> response: merge {} @status, @props, @errorProps
-
-    plainObjectsResponse: (fields) ->
-      object v from fields || {@status, @props, @beforeFilterLog, @afterFilterLog, session: @_session} when
-        switch
-        when isPlainObject v then objectKeyCount(v) > 0
-        when isPlainArray  v then v.length > 0
-        else v != undefined
-
-    responseForRemoteRequest: ->
-      @getPlainObjectsResponse unless config.returnProcessingInfoToClient then {}
-        @status
-        @props
-        session: @_session
-
-  withMergedSession: (session) ->
-    Promise.resolve(session).then (session) =>
-      new @class merge @propsForClone, session: merge @session, session
-
-  ###
-    IN: options:
-      returnNullIfMissing: true [default: false]
-        if status == missing
-          if returnNullIfMissing
-            promise.resolve null
-          else
-            promise.reject new RequestError
-
-      returnResponse: true [default: false]
-      returnResponseObject: true (alias)
-        if true, the response object is returned, otherwise, just the data field is returned.
-
-    OUT:
-      # if response.isSuccessful && returnResponse == true
-      promise.then (response) ->
-
-      # if response.isSuccessful && returnResponse == false
-      promise.then (data) ->
-
-      # if response.isMissing && returnNullIfMissing == true
-      promise.then (data) -> # data == null
-
-      # else
-      promise.catch (errorWithInfo) ->
-        {response} = errorWithInfo.info
-  toPromise: (options) ->
-    options extract? returnNullIfMissing, returnResponse, returnResponseObject
-    @ extract data, isSuccessful, isMissing
-
-    returnResponse ?= returnResponseObject
-
-    if isMissing && returnNullIfMissing
-      data = null
-      isSuccessful = true
-
-    if isSuccessful
-      Promise.resolve if returnResponse then @ else data
-
-    else Promise.reject @_getRejectionError()
-
-
-  _getRejectionError: ->
-    @_preparedRejectionError ?= new RequestError {}
-      message:
-        compactFlatten []
-          @responseData?.message ? @responseProps?.message ? @errorProps?.exception?.message
-          ""
-          "" request: #{@pipeline}.#{@type}
-          formattedInspect {}
-            @status
-            @session
-            props: @requestProps
-
-        .join "\n"
-
-      @type
-      @status
-      @requestData
-      @responseData
-      sourceLib:  :ArtEry
-      response:   @
-      stack:
-        compactFlatten []
-          if exception = @errorProps?.exception
-              "Exception stack:\n#{cleanStackTrace exception.stack, false, true}\n"
-
-          array {time, request, context, name, stack, filterLog}, i in @requestTrace by -1
-            ""
-              #{request}: #{if filterLog? then (array {name} in filterLog with name when name != :created).join " -> " else "#{context} #{name}"}
-              (request-depth: #{i + 1}, start-time: #{time*1000|0}ms)
-              #{if stack then "\n#{cleanStackTrace stack, null, true}\n" else ''}
-
-          .join "\n"
-
-          getDetailedRequestTracingExplanation()
-          getCleanStackTraceWarning()
-
-        .join "\n"

@@ -65,16 +65,16 @@ class Request extends &RequestResponseBase
       stack:  @_creationStack
       time:   currentSecond()
 
-    @type = options.type
-    @pipeline = options.pipeline
-    @session = options.session
-    @originatedOnServer = options.originatedOnServer
+    @_type = options.type
+    @_pipeline = options.pipeline
+    @_session = options.session
+    @_originatedOnServer = options.originatedOnServer
 
     @_originalRequest ?= options.originalRequest ? @
-    @parentRequest = options.parentRequest
+    @_parentRequest = options.parentRequest
 
-    @props = options.props ? {}
-    @remoteRequest = options.remoteRequest
+    @_props = options.props ? {}
+    @_remoteRequest = options.remoteRequest
 
     @_verbose   = options.verbose
     @_context   = options.context
@@ -87,48 +87,3 @@ class Request extends &RequestResponseBase
     requestConstructorValidator().validate options, context: "create Art.Ery.Request options", logErrors: true
 
     throw new Error "options.requestOptions is DEPRICATED - use options.props" if options.requestOptions
-
-  @property :originalRequest :type :pipeline :session :originatedOnServer :parentRequest :props :data :key :context :remoteRequest
-
-  @getter
-    context:        -> @_context ?= {}
-    key:            -> @_props.key
-    data:           -> @_props.data
-    requestData:    -> @_props.data
-    requestProps:   -> @_props
-    requestOptions: -> throw new Error "" DEPRICATED: use props
-    description:    -> "" #{@requestString} request
-    summary:        -> request: {} @props
-
-  ##############################
-  # MISC
-  ##############################
-  @getter
-    request:          -> @
-    shortInspect:     -> "" #{if @parentRequest then @parentRequest.shortInspect + " > " else ""}#{@pipeline.getName()}-#{@type}(#{@key || ''})
-
-    # Also implemented in Response
-    beforeFilterLog:  -> @filterLog || []
-    afterFilterLog:   -> []
-    isRootRequest:    -> !@parentRequest
-    requestPipelineAndType: -> log.warn "" DEPRICATED - use pipelineAndType"; "#{@pipeline.name}-#{@type}
-
-    propsForClone: ->
-      {}
-        @originalRequest
-        @pipeline
-        @type
-        @props
-        @session
-        @parentRequest
-        @filterLog
-        @originatedOnServer
-        context: @_context
-        @verbose
-        @remoteRequest
-
-  handled: (_handledBy) ->
-    @success().then (response) -> response.handled _handledBy
-
-  toPromise: ->
-    throw new Error "ArtEry.Request: toPromise can only be called on Response objects."

@@ -6,9 +6,10 @@ class RequestResponseBase extends BaseObject
 
   constructor: (options) ->
     @_creationTime = currentSecond()
-    @filterLog = options.filterLog
-    @errorProps = options.errorProps
-    @creationStack = options.creationStack
+    @_filterLog = options.filterLog
+    @_errorProps = options.errorProps
+    @_creationStack = options.creationStack
+    @_request = options.request ? @
 
     if getDetailedRequestTracingEnabled()
       @_creationStack ?=
@@ -16,8 +17,11 @@ class RequestResponseBase extends BaseObject
         .stack
 
   @getter pipelines: -> PipelineRegistry.pipelines
-
-  @property :filterLog :errorProps :creationTime :creationStack
+  @getter :filterLog :errorProps :creationTime :creationStack
+  @getter :type :pipeline :session :props
+  @getter :originatedOnServer
+  @getter :request :originalRequest :parentRequest
+  @getter :remoteResponse :remoteRequest
 
   addFilterLog: (filter, context) ->
     @_filterLog = arrayWith
@@ -34,6 +38,38 @@ class RequestResponseBase extends BaseObject
   isDeleteRequest: -> @pipeline.isDeleteRequestType @type
 
   @getter
+    :request
+
+    isRequest:      -> !@isResponse
+    isResponse:     -> @status?
+    isRootRequest:  -> if @isRequest then !@parentRequest else @request.isRootRequest
+
+    propsForClone: ->
+      if @isRequest then {}
+        @originalRequest
+        @pipeline
+        @type
+        @props
+        @session
+        @parentRequest
+        @filterLog
+        @originatedOnServer
+        context: @_context
+        @verbose
+        @remoteRequest
+
+      else {}
+        @request
+        @status
+        @props
+        session:   @_session
+        filterLog:  @_filterLog
+        @remoteRequest
+        @remoteResponse
+        @errorProps
+
+    propsForResponse: -> if @isResponse then @propsForClone
+
     lastFilterLogEntry: ->
       peek(@filterLog) ? @request?.lastFilterLogEntry
 
@@ -63,8 +99,13 @@ class RequestResponseBase extends BaseObject
     endTime:            -> @creationTime
     wallTime:           -> @startTime - @endTime
 
-    isRequest:          -> !@isResonse
-    isResponse:         -> @status?
+    beforeFilterLog:    ->
+      if @isRequest then  @_filterLog ? []
+      else                @request.filterLog ? []
+
+    afterFilterLog:     ->
+      if @isRequest then  []
+      else                @_filterLog ? []
 
     requestChain: ->
       compactFlatten []
@@ -94,24 +135,40 @@ class RequestResponseBase extends BaseObject
       ["Art.Ery.#{@class.name}"]: array request in @requestChain
         request.simpleInspectedObjects
 
-  # Pass-throughs - to remove once we merge Request and Response
-  @getter
-    isSuccessful:       -> true
+    status: ->
+      if @_status == failure
+        switch @location
+        when :server then serverFailure
+        when :client then clientFailure
+
+      ? @_status
+
+    session:            -> @_session ? @request.session
+    handledBy:          -> @isResponse && !@failed && peek @request.filterLog
+    failed:             -> @_status == failure || @_status == serverFailure
+    isSuccessful:       -> @_status == success
+    isMissing:          -> @_status == missing
     isFailure:          -> @notSuccessful
-    notSuccessful:      -> false
+    notSuccessful:      -> @_status? && @_status != success
+
+    type:               -> @_type ? @request.type
+    key:                -> if @isRequest then @_props.key else @request.key ? @responseData?.id # TODO 2023 - this should really not be hard-coded use responseData.id; response should be able to specific a new key separate from the Data
+    data:               -> @_props.data
 
     requestSession:     -> @request.session
-    requestProps:       -> @request.requestProps
-    requestData:        -> @request.requestData
+    requestProps:       -> if @isRequest then @_props else @request.requestProps
+    requestData:        -> if @isRequest then @_props.data else @request.requestData
 
-    isRootRequest:      -> @request.isRootRequest
-    key:                -> @request.key ? @responseData?.id # TODO 2023 - this should really not be hard-coded use responseData.id; response should be able to specific a new key separate from the Data
-    pipeline:           -> @request.pipeline
-    parentRequest:      -> @request.parentRequest
+    responseSession:    -> @_session    if @isResponse
+    responseProps:      -> @_props      if @isResponse
+    responseData:       -> @_props.data if @isResponse
+
+    pipeline:           -> @_pipeline ?= @request.pipeline
+    parentRequest:      -> @_parentRequest ?= if @request != @ then @request.parentRequest
     isSubrequest:       -> !!@request.parentRequest
-    type:               -> @request.type
-    originatedOnServer: -> @request.originatedOnServer
-    context:            -> @request.context
+
+    originatedOnServer: -> if @isRequest then @_originatedOnServer else @request.originatedOnServer
+    context:            -> if @isRequest then @_context ?= {} else @request.context
     pipelineAndType:    -> "" #{@pipelineName}.#{@type}
 
     requestString: ->
@@ -130,6 +187,27 @@ class RequestResponseBase extends BaseObject
     requestPath: ->
       array r in @requestPathArray with r.requestString
       .join ' >> '
+
+    description: ->
+      if @isRequest then  "" #{@requestString} request
+      else                "" #{@requestString}: #{@status}
+
+    summary: ->
+      if @isRequest then  request: {} @props
+      else                response: merge {} @status, @props, @errorProps
+
+    plainObjectsResponse: (fields) ->
+      object v from fields || {@status, @props, @beforeFilterLog, @afterFilterLog, session: @_session} when
+        switch
+        when isPlainObject v then objectKeyCount(v) > 0
+        when isPlainArray  v then v.length > 0
+        else v != undefined
+
+    responseForRemoteRequest: ->
+      @getPlainObjectsResponse unless config.returnProcessingInfoToClient then {}
+        @status
+        @props
+        session: @_session
 
   toStringCore: ->
     "" ArtEry.#{if @isResponse then 'Response' else 'Request'} #{@pipelineName}.#{@type}#{if @key then " key: #{@key}" else ''}
@@ -592,7 +670,7 @@ class RequestResponseBase extends BaseObject
   ##########################
   # PRIVATE
   ##########################
-  ###
+  ## toResponse()
     IN:
       status: legal CommunicationStatus
       responseProps: (optionally Promise returning:)
@@ -636,3 +714,84 @@ class RequestResponseBase extends BaseObject
         if responseProps instanceof Error
               "" Internal Error: ArtEry.RequestResponseBase#toResponse received Error instance: #{formattedInspect responseProps}
         else  "" Internal Error: ArtEry.RequestResponseBase#toResponse received unsupported type
+
+  ## toPromise()
+    IN: options:
+      returnNullIfMissing: true [default: false]
+        if status == missing
+          if returnNullIfMissing
+            promise.resolve null
+          else
+            promise.reject new RequestError
+
+      returnResponse: true [default: false]
+      returnResponseObject: true (alias)
+        if true, the response object is returned, otherwise, just the data field is returned.
+
+    OUT:
+      # if response.isSuccessful && returnResponse == true
+      promise.then (response) ->
+
+      # if response.isSuccessful && returnResponse == false
+      promise.then (data) ->
+
+      # if response.isMissing && returnNullIfMissing == true
+      promise.then (data) -> # data == null
+
+      # else
+      promise.catch (errorWithInfo) ->
+        {response} = errorWithInfo.info
+  toPromise: (options) ->
+    throw new Error "ArtEry.Request: toPromise can only be called on Response objects." unless @isResponse
+    options extract? returnNullIfMissing, returnResponse, returnResponseObject
+    @ extract data, isSuccessful, isMissing
+
+    returnResponse ?= returnResponseObject
+
+    if isMissing && returnNullIfMissing
+      data = null
+      isSuccessful = true
+
+    if isSuccessful
+      Promise.resolve if returnResponse then @ else data
+
+    else Promise.reject @_getRejectionError()
+
+
+  _getRejectionError: ->
+    @_preparedRejectionError ?= new RequestError {}
+      message:
+        compactFlatten []
+          @responseData?.message ? @responseProps?.message ? @errorProps?.exception?.message
+          ""
+          "" request: #{@pipeline}.#{@type}
+          formattedInspect {}
+            @status
+            @session
+            props: @requestProps
+
+        .join "\n"
+
+      @type
+      @status
+      @requestData
+      @responseData
+      sourceLib:  :ArtEry
+      response:   @
+      stack:
+        compactFlatten []
+          if exception = @errorProps?.exception
+              "Exception stack:\n#{cleanStackTrace exception.stack, false, true}\n"
+
+          array {time, request, context, name, stack, filterLog}, i in @requestTrace by -1
+            ""
+              #{request}: #{if filterLog? then (array {name} in filterLog with name when name != :created).join " -> " else "#{context} #{name}"}
+              (request-depth: #{i + 1}, start-time: #{time*1000|0}ms)
+              #{if stack then "\n#{cleanStackTrace stack, null, true}\n" else ''}
+
+          .join "\n"
+
+          getDetailedRequestTracingExplanation()
+          getCleanStackTraceWarning()
+
+        .join "\n"
