@@ -1,7 +1,9 @@
-import &StandardImport, {} &RequestResponseBase
+import &StandardImport, {} &RequestResponseBase, &PipelineRegistry
 
-class RequestHandler extends &ArtEryBaseObject
+class RequestHandler extends BaseObject
   @abstractClass()
+
+  @getter pipelines: -> PipelineRegistry.pipelines
 
   ## applyHandler
     OUT:

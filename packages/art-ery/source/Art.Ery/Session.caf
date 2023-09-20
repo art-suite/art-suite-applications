@@ -1,4 +1,4 @@
-import &StandardImport, &Config, &ArtEvents
+import &StandardImport, &Config, &ArtEvents, {} &PipelineRegistry
 
 {JsonStore} = &@art-suite/art-foundation
 {jsonStore} = JsonStore
@@ -20,12 +20,14 @@ import &StandardImport, &Config, &ArtEvents
       If you need custom sessions on a per-pipline basis, use
       inheritance... I like! it's simpler!
 
-class Session extends EventedMixinCaf &ArtEryBaseObject
+class Session extends EventedMixinCaf BaseObject
   ###
     A global singleton Session is provided and used by default.
     Or multiple instances can be created and passed to the
     constructor of each Pipeline for per-pipeline custom sessions.
   @singletonClass()
+
+  @getter pipelines: -> PipelineRegistry.pipelines
 
   constructor: (@_data = {}, @_jsonStoreKey) ->
     @_startPollingSession() if isBrowser

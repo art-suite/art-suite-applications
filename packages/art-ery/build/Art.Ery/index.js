@@ -4,7 +4,6 @@
 (module.exports = require('./namespace'))
 .includeInNamespace(require('./Ery'))
 .addModules({
-  ArtEryBaseObject:       require('./ArtEryBaseObject'),
   Config:                 require('./Config'),
   DatabaseFilters:        require('./DatabaseFilters'),
   Env:                    require('./Env'),

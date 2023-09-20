@@ -1,5 +1,0 @@
-ArtEry = require :./namespace
-
-class ArtEryBaseObject extends &ArtClassSystem.BaseClass
-  @abstractClass()
-  @getter pipelines: -> ArtEry.pipelines

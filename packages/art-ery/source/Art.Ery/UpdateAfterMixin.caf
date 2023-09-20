@@ -2,14 +2,6 @@ import &StandardImport, {} &Filters.AfterEventsFilter
 
 ArtEry = require :./namespace
 
-## 2022-12-17 SBD: I just converted this. It compiles, but I haven't tested anything yet.
-  There were a lot of 'object' and 'array' conversions that might have gone wrong
-
-# Note, with CafScript, all the above becomes:
-# include &@ArtSuite/ArtFoundation, &ArtEry
-
-# Note, with CafScript, this line becomes just:
-# mixin UpdateAfterMixin
 (superClass) -> class UpdateAfterMixin extends superClass
   # Requires AfterEventsFilter on any pipeline you want to subscribe to
 

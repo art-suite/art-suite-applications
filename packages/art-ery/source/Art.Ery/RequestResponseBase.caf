@@ -1,8 +1,8 @@
-import &StandardImport, &Config
+import &StandardImport, &Config, {} &PipelineRegistry
 
 ArtEry = require :./namespace
 
-class RequestResponseBase extends &ArtEryBaseObject
+class RequestResponseBase extends BaseObject
 
   constructor: (options) ->
     @_creationTime = currentSecond()
@@ -14,6 +14,8 @@ class RequestResponseBase extends &ArtEryBaseObject
       @_creationStack ?=
         new Error
         .stack
+
+  @getter pipelines: -> PipelineRegistry.pipelines
 
   @property :filterLog :errorProps :creationTime :creationStack
 

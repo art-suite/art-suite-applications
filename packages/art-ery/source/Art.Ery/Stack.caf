@@ -1,7 +1,5 @@
 import &ArtStandardLib
 
-# // at Object.array (/Users/shanebdavis/dev/experiments/genui-peopleperf/node_modules/caffeine-script-runtime/source/Iteration2.js:161:23)
-
 removeFromCleanStackTraceRegExp =
   ///
     processImmediate
