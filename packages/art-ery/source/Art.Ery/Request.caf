@@ -58,19 +58,7 @@ requestConstructorValidator = ->
 
       BUT - there is only one context if location == "both" - if we are running without
       a remote server.
-
 class Request extends &RequestResponseBase
-  @createFromRemoteRequestProps: ({session, pipeline, type, key, requestData: {data, props}, remoteRequest}) ->
-    new Request {}
-      remoteRequest
-      pipeline
-      type
-      session
-      key
-      data
-      props
-      originatedOnClient: true
-
   constructor: (options = {}) ->
     @_filterLog ?= []
       name:   :created
@@ -112,7 +100,6 @@ class Request extends &RequestResponseBase
     description:    -> "" #{@requestString} request
     summary:        -> request: {} @props
 
-
   ##############################
   # MISC
   ##############################
@@ -123,7 +110,6 @@ class Request extends &RequestResponseBase
     # Also implemented in Response
     beforeFilterLog:  -> @filterLog || []
     afterFilterLog:   -> []
-    isRequest:        -> true
     isRootRequest:    -> !@parentRequest
     requestPipelineAndType: -> log.warn "" DEPRICATED - use pipelineAndType"; "#{@pipeline.name}-#{@type}
 
@@ -140,8 +126,6 @@ class Request extends &RequestResponseBase
         context: @_context
         @verbose
         @remoteRequest
-
-    urlKeyClause: -> if present @key then "/#{@key}" else ""
 
   handled: (_handledBy) ->
     @success().then (response) -> response.handled _handledBy

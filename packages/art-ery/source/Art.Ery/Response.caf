@@ -1,10 +1,10 @@
 import &StandardImport, &Config, {} &Request
 
 responseValidator = new Validator
-  request:  w "required", instanceof: Request
-  status:   w "required communicationStatus"
-  session:  "object"
-  props:    "object"
+  request:  [] :required instanceof: Request
+  status:   :required :communicationStatus
+  session:  :object
+  props:    :object
 
 ###
   TODO: Merge Response back into Request
@@ -62,8 +62,6 @@ class Response extends &RequestResponseBase
     @_endTime = null
 
     @setGetCache() if @type == :create || @type == :get
-
-  isResponse:     true
 
   @property :request :props :session :remoteResponse :remoteRequest
   @setter :status

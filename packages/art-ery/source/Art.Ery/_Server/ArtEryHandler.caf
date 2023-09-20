@@ -15,7 +15,7 @@ class ArtEryHandler extends &ArtExpressServer.PromiseHandler
       verifySession requestData.session
       .catch -> null
       .then (session) ->
-        pipeline._processRequest Request.createFromRemoteRequestProps {}
+        pipeline._processRequest createRequestFromRemoteRequestProps {}
           pipeline, type, key, requestData
           session: session || {}
           remoteRequest: request

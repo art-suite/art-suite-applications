@@ -63,6 +63,9 @@ class RequestResponseBase extends BaseObject
     endTime:            -> @creationTime
     wallTime:           -> @startTime - @endTime
 
+    isRequest:          -> !@isResonse
+    isResponse:         -> @status?
+
     requestChain: ->
       compactFlatten []
         if @isResponse then @request.requestChain
@@ -134,21 +137,19 @@ class RequestResponseBase extends BaseObject
   toString: -> "" <#{@toStringCore()}>
 
   ########################
-  # Context Props
-  ########################
+    Context Props
   @getter
-    requestCache:      -> @context.requestCache ?= {}
-    subrequestCount:   -> @context.subrequestCount ?= 0
+    requestCache:       -> @context.requestCache ?= {}
+    subrequestCount:    -> @context.subrequestCount ?= 0
 
   @setter
-    responseProps: -> throw new Error "" cannot set responseProps
+    responseProps:      -> throw new Error "" cannot set responseProps
 
   incrementSubrequestCount: -> @context.subrequestCount = (@context.subrequestCount | 0) + 1
 
   ########################
-  # Subrequest
-  ########################
-  ###
+    Subrequest
+
     TODO:
       I think I may have a way clean up the subrequest API and do
       what is easy in Ruby: method-missing.
@@ -175,7 +176,7 @@ class RequestResponseBase extends BaseObject
         sub-requests. These are just ALIASes to the API above.
   createSubRequest: (pipelineName, type, requestOptions) ->
     throw new Error "requestOptions must be an object" if requestOptions && !isPlainObject requestOptions
-    pipeline = ArtEry.pipelines[pipelineName]
+    pipeline = @pipelines[pipelineName]
     throw new Error "Pipeline not registered: #{formattedInspect pipelineName}" unless pipeline
 
     new ArtEry.Request merge
@@ -256,7 +257,7 @@ class RequestResponseBase extends BaseObject
 
   cachedGet: cachedGet = (pipelineName, key) ->
     if isPlainObject key
-      key = ArtEry.pipelines[pipelineName].dataToKeyString key
+      key = @pipelines[pipelineName].dataToKeyString key
     throw new Error "cachedGet: key must be a string OR object when pipeline supports dataToKeyString (#{formattedInspect {key}})" unless isString key
     @cachedSubrequest pipelineName, :get, key
 
@@ -286,12 +287,15 @@ class RequestResponseBase extends BaseObject
         Promise.resolve null
       else throw error
 
-  ##############################
-  ##############################
-  # Request Requirement Testing
-  ##############################
-  ##############################
-  ### rejectIfErrors: success unless errors?
+  ############################################################
+    ##########################################################
+
+      Request Requirement Testing
+
+    ##########################################################
+    ##########################################################
+
+  ## rejectIfErrors(): success unless errors?
     IN:   errors: null, string or array of strings
     OUT:  Promise
 
@@ -326,7 +330,7 @@ class RequestResponseBase extends BaseObject
 
     Promise.resolve testValue
 
-  ### require: Success if !!test
+  ## require(): Success if !!test
     OUT: see @rejectIfErrors
 
     EXAMPLE: request.require myLegalInputTest, "myLegalInputTest"
@@ -338,8 +342,7 @@ class RequestResponseBase extends BaseObject
         unless test then context ? []
         stackException
 
-  ### requiredFields
-    Success if all props in fields exists (are not null or undefined)
+  ## requiredFields(): Success if all props in fields exists (are not null or undefined)
 
     IN: fields (object)
     OUT-SUCCESS: fields
@@ -367,18 +370,20 @@ class RequestResponseBase extends BaseObject
     .then (testValue) -> @require !testValue, context
 
   ############################################################
-  ############################################################
-  # Request originatedOnServer requirement testing
-  ############################################################
-  ############################################################
+    ##########################################################
 
-  ### requireServerOrigin: Success if @originatedOnServer
+        Request originatedOnServer requirement testing
+
+    ##########################################################
+    ##########################################################
+
+  ## requireServerOrigin(): Success if @originatedOnServer
     OUT: see @rejectIfErrors
 
     EXAMPLE: request.requireServerOrigin "to use myServerOnlyFeature"
   requireServerOrigin: (context) -> @requireServerOriginOr false, context
 
-  ### requireServerOriginOr: Success if testValue or @originatedOnServer
+  ## requireServerOriginOr(): Success if testValue or @originatedOnServer
     OUT: see @rejectIfErrors
 
     EXAMPLE: request.requireServerOriginOr admin, "to use myAdminFeature"
@@ -394,7 +399,7 @@ class RequestResponseBase extends BaseObject
             "to #{context}"
           else ''
 
-  ### requireServerOriginIf: Success if !testValue or @originatedOnServer
+  ## requireServerOriginIf(): Success if !testValue or @originatedOnServer
     OUT: see @rejectIfErrors
 
     EXAMPLE: request.requireServerOriginIf clientAuthorized, "to use myFeature"
@@ -403,9 +408,13 @@ class RequestResponseBase extends BaseObject
     resolveRequireTestValue testValue
     .then (testValue) -> @requireServerOriginOr !testValue, context
 
-  ##################################
-  # GENERATE NEW RESPONSES/REQUESTS
-  ##################################
+  ############################################################
+    ##########################################################
+
+        GENERATE NEW RESPONSES/REQUESTS
+
+    ##########################################################
+    ##########################################################
 
   # Clones this instance with optional overriding constructorOptions
   with: (constructorOptions) ->
@@ -415,7 +424,7 @@ class RequestResponseBase extends BaseObject
   # Private; expects 'o' to be a plainObject (not a promise -> plainObject)
   _with: (o) -> new @class merge @propsForClone, o
 
-  ###
+  ## withXyz()
     IN: data can be a plainObject or a promise returning a plainObject
     OUT: promise.then (new request or response instance) ->
 
@@ -440,7 +449,7 @@ class RequestResponseBase extends BaseObject
   respondWithSession:           (session) -> @success {session}
   respondWithMergedSession:     (session) -> @success session: merge @session, session
 
-  ###
+  ## withTransformedRecords ()
     IN:
       withFunction, whenFunction
       OR: object:
@@ -485,7 +494,6 @@ class RequestResponseBase extends BaseObject
       Refactor. 'when' should really be a Filter - just like Caffeine/CoffeeScript comprehensions.
         Right now, if when is false, the record is still returned, just not "withed"
         Instead, only records that pass "when" should even be returned.
-  ###
   defaultWhenTest = (data, request) -> request.pipeline.isRecord data
   withTransformedRecords: (withFunction, whenFunction = defaultWhenTest) ->
     if isPlainObject options = withFunction
@@ -527,7 +535,7 @@ class RequestResponseBase extends BaseObject
 
     else Promise.resolve @
 
-  ###
+  ## next()
     next is used right after a filter or a handler.
     It's job is to convert the results into a request or response object.
 

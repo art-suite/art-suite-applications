@@ -1,4 +1,4 @@
-import &StandardImport, &RestClientLib
+import &StandardImport, &RestClientLib, {} &Request
 
 apiReport: (pipeline, options = {}) ->
   {server, publicOnly} = options
@@ -9,3 +9,14 @@ apiReport: (pipeline, options = {}) ->
       restPath: pipeline.restPath
 
     [method.toLocaleUpperCase()]: url
+
+createRequestFromRemoteRequestProps: ({session, pipeline, type, key, requestData: {data, props}, remoteRequest}) ->
+  new Request {}
+    remoteRequest
+    pipeline
+    type
+    session
+    key
+    data
+    props
+    originatedOnClient: true

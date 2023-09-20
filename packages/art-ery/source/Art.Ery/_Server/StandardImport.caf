@@ -2,3 +2,4 @@
   &ArtStandardLib
   &ArtCommunicationStatus
   &ArtEry
+  &RestServerLib
