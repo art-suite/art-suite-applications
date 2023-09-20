@@ -1,4 +1,12 @@
-# Simple Client Server
+# Simple ArtSuite Client Server
+
+Key ArtSuite packages used:
+
+- ArtEry
+  - ArtPipelines
+  - ArtModels
+- ArtReact (ArtComponents)
+- ArtEngine (ArtElements)
 
 ## Install
 
@@ -18,7 +26,7 @@ npm run start-dev
 
 #### About Development Mode
 
-The entire client-side and server-side code is built into one bundle which runs in the web browser. This allows you to debug your full app in one runtime.
+The entire client-side and server-side code is built into one bundle which runs in the web browser. This allows you to debug your full app in one runtime. You also get hot-reloading of both client and server code.
 
 ## Run in Production, Locally (Client + Server)
 
