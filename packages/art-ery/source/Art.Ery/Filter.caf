@@ -47,17 +47,17 @@ class Filter extends &RequestHandler
   # Class Declaration API
   ############################
   ## FilterFunction
-    FilterFunction: (response) -> Promise<RequestResponseBase>
-      IN: RequestResponseBase instance
+    FilterFunction: (response) -> Promise<Request>
+      IN: Request instance
       OUT: return a Promise returning one of the list below OR just return one of the list below:
-        RequestResponseBase request instance
-        RequestResponseBase response instance
+        Request request instance
+        Request response instance
         anythingElse -> toResponse anythingElse
 
       To reject a request:
       - throw an error
       - return a rejected promise
-      - or create a RequestResponseBase response object with the appropriate fields
+      - or create a Request response object with the appropriate fields
   @extendableProperty
     ## before USAGE: @before requestName: FilterFunction
     before: {}

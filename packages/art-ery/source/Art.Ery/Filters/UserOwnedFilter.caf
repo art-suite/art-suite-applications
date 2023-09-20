@@ -85,7 +85,7 @@ defineModule module, class UserOwnedFilter extends &Filter
   #######################
   ## requireUserCanUpdate
     IN:
-      request:        <RequestResponseBase> the update request (type matches /^update.*$/)
+      request:        <Request> the update request (type matches /^update.*$/)
       existingRecord: <Object> the current value for the record as-fetched with request.pipeline.get request.key
       updatingFields: <Object> all the fields that will be modified
         NOTE: values could be REPLACE-values, ADD-values or others

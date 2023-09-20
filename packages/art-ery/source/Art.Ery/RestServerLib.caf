@@ -1,4 +1,4 @@
-import &StandardImport, &RestClientLib, {} &RequestResponseBase
+import &StandardImport, &RestClientLib, {} &Request
 
 apiReport: (pipeline, options = {}) ->
   {server, publicOnly} = options
@@ -11,7 +11,7 @@ apiReport: (pipeline, options = {}) ->
     [method.toLocaleUpperCase()]: url
 
 createRequestFromRemoteRequestProps: ({session, pipeline, type, key, requestData: {data, props}, remoteRequest}) ->
-  new RequestResponseBase {}
+  new Request {}
     remoteRequest
     pipeline
     type

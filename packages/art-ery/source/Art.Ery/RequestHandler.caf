@@ -1,4 +1,4 @@
-import &StandardImport, {} &RequestResponseBase, &PipelineRegistry
+import &StandardImport, {} &Request, &PipelineRegistry
 
 class RequestHandler extends BaseObject
   @abstractClass()
@@ -49,7 +49,7 @@ class RequestHandler extends BaseObject
     .then
       (data) ->
         unless data?                                then request.missing()
-        else if data instanceof RequestResponseBase then data
+        else if data instanceof Request then data
         else if isJsonType data                     then request.success {data}
         else throw new ErrorWithInfo "invalid response data passed to RequestResponseBaseNext", {data}
 

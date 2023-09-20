@@ -1,7 +1,7 @@
 import &StandardImport
 
 newRequest = (options) ->
-  new RequestResponseBase merge
+  new Request merge
     type:   "get"
     pipeline: new Pipeline
     session: {}
@@ -11,14 +11,14 @@ class MyCompoundKeyPipe extends KeyFieldsMixin Pipeline
   @keyFields "userId/postId"
 
 newCompoundKeyRequest = (options) ->
-  new RequestResponseBase merge
+  new Request merge
     type:   "get"
     pipeline: new MyCompoundKeyPipe
     session: {}
     options
 
 newResponse = (responseOptions, requestOptions)->
-  new RequestResponseBase merge
+  new Request merge
     status: responseOptions?.status || success
     request: newRequest requestOptions
     responseOptions
@@ -47,7 +47,7 @@ suite:
             .rejectIfErrors ["my error"]
 
       resolveRequireTestValue: ->
-        resolveRequireTestValue = RequestResponseBase._resolveRequireTestValue
+        resolveRequireTestValue = Request._resolveRequireTestValue
         test "resolveRequireTestValue true" ->
           resolveRequireTestValue true
           .then (v) -> assert.true v
@@ -143,7 +143,7 @@ suite:
 
   requests:
     props: ->
-      test "new RequestResponseBase key and data set via props:", ->
+      test "new Request key and data set via props:", ->
 
         assert.selectedPropsEq
           # via getters
@@ -151,7 +151,7 @@ suite:
           data:   "abc"
           props:  props = key: "123", data: "abc"
 
-          new RequestResponseBase
+          new Request
             type:   "get"
             props:
               key:    "123"
@@ -159,7 +159,7 @@ suite:
             session:  {}
             pipeline: new Pipeline
 
-      test "new RequestResponseBase props: myProp: 987", ->
+      test "new Request props: myProp: 987", ->
 
         assert.selectedPropsEq
           # via getters
@@ -167,13 +167,13 @@ suite:
           data:   undefined
           props:  myProp: 987
 
-          new RequestResponseBase
+          new Request
             type:     "get"
             props:    myProp: 987
             session:  {}
             pipeline: new Pipeline
 
-      test "new RequestResponseBase key: and data: are merged into props:", ->
+      test "new Request key: and data: are merged into props:", ->
 
         assert.selectedPropsEq
           # via getters
@@ -186,7 +186,7 @@ suite:
           _data:  undefined
           _props: props
 
-          new RequestResponseBase
+          new Request
             type:   "get"
             key:    "123"
             data:   "abc"
@@ -195,7 +195,7 @@ suite:
             pipeline: new Pipeline
 
       test "remoteRequest prop", ->
-        r = new RequestResponseBase {}
+        r = new Request {}
           type: :get
           pipeline: new Pipeline
           session:  {}
@@ -208,48 +208,48 @@ suite:
           assert.eq r2.remoteRequest, remoteRequest
 
     validation:
-      "valid new RequestResponseBase": ->
+      "valid new Request": ->
         test "type: 'get'", ->
-          new RequestResponseBase
+          new Request
             type: "get"
             key: "123"
             pipeline: new Pipeline
             session: {}
 
         test "type: 'create'", ->
-          new RequestResponseBase
+          new Request
             type: "create"
             pipeline: new Pipeline
             session: {}
 
         test "type: 'update'", ->
-          new RequestResponseBase
+          new Request
             type: "update"
             key: "123"
             pipeline: new Pipeline
             session: {}
 
         test "type: 'delete'", ->
-          new RequestResponseBase
+          new Request
             type: "delete"
             key: "123"
             pipeline: new Pipeline
             session: {}
 
-      "invalid new RequestResponseBase": ->
+      "invalid new Request": ->
         test "missing everything", ->
-          assert.throws -> new RequestResponseBase
+          assert.throws -> new Request
 
         test "missing session", ->
           assert.throws ->
-            new RequestResponseBase
+            new Request
               type: "get"
               key: "123"
               pipeline: new Pipeline
 
         test "key: {}", ->
           assert.throws ->
-            new RequestResponseBase
+            new Request
               session: {}
               type: "get"
               key: {}
@@ -257,7 +257,7 @@ suite:
 
         test "props: key: {}", ->
           assert.throws ->
-            new RequestResponseBase
+            new Request
               session: {}
               type: "get"
               props: key: {}
@@ -265,7 +265,7 @@ suite:
 
     properties: ->
       test "getKey", ->
-        request = new RequestResponseBase
+        request = new Request
           type: "get"
           pipeline: new Pipeline
           session: {}
@@ -273,7 +273,7 @@ suite:
         assert.eq request.getKey(), "123"
 
       test "getRequestType alias for getType", ->
-        request = new RequestResponseBase
+        request = new Request
           type: "get"
           pipeline: new Pipeline
           session: {}
@@ -282,7 +282,7 @@ suite:
 
     withData: ->
       test "withData", ->
-        request = new RequestResponseBase
+        request = new Request
           type: "create"
           pipeline: new Pipeline
           session: {}
@@ -293,7 +293,7 @@ suite:
           assert.eq newRequest.data, foo: "bar"
 
       test "withMergedData", ->
-        request = new RequestResponseBase
+        request = new Request
           type: "create"
           pipeline: new Pipeline
           session: {}
@@ -305,7 +305,7 @@ suite:
 
     derivedRequestsPersistProps: ->
       test "originatedOnServer", ->
-        request = new RequestResponseBase
+        request = new Request
           type: "get"
           key: "123"
           originatedOnServer: true
@@ -496,25 +496,25 @@ suite:
         myRt2.outterRequest key: randomString()
 
   responses:
-      "new RequestResponseBase validation":
+      "new Request validation":
         invalid: ->
           test "without request or status ", ->
-            assert.throws -> new RequestResponseBase {}
+            assert.throws -> new Request {}
 
           test "without status", ->
-            assert.throws -> new RequestResponseBase request: newRequest()
+            assert.throws -> new Request request: newRequest()
 
           test "without request", ->
-            assert.throws -> new RequestResponseBase status: success
+            assert.throws -> new Request status: success
 
           test "props is not an object", ->
-            assert.throws -> new RequestResponseBase
+            assert.throws -> new Request
               props: 123
               status: success
               request: newRequest()
 
           test "invalid status", ->
-            assert.throws -> new RequestResponseBase
+            assert.throws -> new Request
               status: "dode"
               request: newRequest()
 
@@ -524,22 +524,22 @@ suite:
         valid: ->
 
           test "status: success", ->
-            new RequestResponseBase
+            new Request
               status: success
               request: newRequest()
 
           test "status: failure", ->
-            new RequestResponseBase
+            new Request
               status: failure
               request: newRequest()
 
           test "status: missing", ->
-            new RequestResponseBase
+            new Request
               status: missing
               request: newRequest()
 
       getters: ->
-        test "request", -> assert.instanceof RequestResponseBase, newResponse().request
+        test "request", -> assert.instanceof Request, newResponse().request
         test "requestData",   -> r = newResponse(props: foo: 1, data: bar: 2); assert.equal r.request.data, r.requestData
         test "requestProps",  -> r = newResponse(props: foo: 1, data: bar: 2); assert.equal r.request.props, r.requestProps
         test "responseProps", -> r = newResponse(props: foo: 1, data: bar: 2); assert.equal r.props, r.responseProps; assert.neq r.props, r.requestProps
@@ -553,14 +553,14 @@ suite:
         test "props defaults to {}", ->
           assert.selectedPropsEq
             props: {}
-            new RequestResponseBase
+            new Request
               status: success
               request: newRequest()
 
         test "props: myProp: 123", ->
           assert.selectedPropsEq
             props: myProp: 123
-            new RequestResponseBase
+            new Request
               status: success
               props: myProp: 123
               request: newRequest()
@@ -571,7 +571,7 @@ suite:
             _data: undefined
             data: 123
 
-            new RequestResponseBase
+            new Request
               status: success
               data: 123
               request: newRequest()
@@ -580,7 +580,7 @@ suite:
           assert.selectedPropsEq
             props: data: 123
 
-            new RequestResponseBase
+            new Request
               status: success
               data: 123
               props: data: 456

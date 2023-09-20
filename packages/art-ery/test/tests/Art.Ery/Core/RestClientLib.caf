@@ -1,7 +1,7 @@
 import &StandardImport, &build.RestClientLib
 
 newRequest = (options) ->
-  new RequestResponseBase merge
+  new Request merge
     type:     :get
     pipeline: new Pipeline
     session:  {}

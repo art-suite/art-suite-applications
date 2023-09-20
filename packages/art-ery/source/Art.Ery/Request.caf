@@ -6,7 +6,7 @@ responseValidator = requestValidator = null
 
 createValidators = () ->
   responseValidator ?= new Validator
-    request:  [] :required instanceof: RequestResponseBase
+    request:  [] :required instanceof: Request
     status:   :required :communicationStatus
     session:  :object
     props:    :object
@@ -15,12 +15,12 @@ createValidators = () ->
     pipeline:           required: instanceof: ArtEry.Pipeline
     type:               required: fieldType: :string
     session:            required: fieldType: :object
-    parentRequest:      instanceof: RequestResponseBase
+    parentRequest:      instanceof: Request
     originatedOnServer: :boolean
     props:              :object
     key:                :string
 
-class RequestResponseBase extends BaseObject
+class Request extends BaseObject
 
   constructor: (options) ->
     @_type = options.type
@@ -316,7 +316,7 @@ class RequestResponseBase extends BaseObject
     pipeline = @pipelines[pipelineName]
     throw new Error "Pipeline not registered: #{formattedInspect pipelineName}" unless pipeline
 
-    new RequestResponseBase merge
+    new Request merge
       {} originatedOnServer: requestOptions?.originatedOnServer ? true
       requestOptions
       {}
@@ -346,7 +346,7 @@ class RequestResponseBase extends BaseObject
     @subrequest pipelineName, type, requestOptions
     .then (result) ->
       if config.verbose
-        log ArtEry: RequestResponseBase: nonblockingSubrequest: {}
+        log ArtEry: Request: nonblockingSubrequest: {}
           status: :success
           pipelineName
           type
@@ -355,7 +355,7 @@ class RequestResponseBase extends BaseObject
           result
 
     .catch (error) ->
-      log ArtEry: RequestResponseBase: nonblockingSubrequest: {}
+      log ArtEry: Request: nonblockingSubrequest: {}
         status: :failure
         pipelineName
         type
@@ -658,7 +658,7 @@ class RequestResponseBase extends BaseObject
           else throw error
 
         .then (out) ->
-          if out?.status && out instanceof RequestResponseBase
+          if out?.status && out instanceof Request
             if isClientFailure out.status
               out._clearErrorStack?()
               null
@@ -696,7 +696,7 @@ class RequestResponseBase extends BaseObject
     Promise.resolve data
     .then
       (data) ->
-        return data if data instanceof RequestResponseBase
+        return data if data instanceof Request
         switch
         when !data?           then @missing()
         when isJsonType data  then @success {} data
@@ -735,7 +735,7 @@ class RequestResponseBase extends BaseObject
       responseProps: (optionally Promise returning:)
         PlainObject:          directly passed into the Response constructor
         String:               becomes data: message: string
-        RequestResponseBase:  returned directly
+        Request:  returned directly
         else:                 considered internal error, but it will create a valid, failing Response object
     OUT:
       promise.then (response) ->
@@ -746,13 +746,13 @@ class RequestResponseBase extends BaseObject
     Promise.resolve responseProps
     .then (responseProps = {}) ->
       switch
-      when responseProps instanceof RequestResponseBase
-        log.warn "DEPRICATED: toResponse is instanceof RequestResponseBase"
+      when responseProps instanceof Request
+        log.warn "DEPRICATED: toResponse is instanceof Request"
         # if used, shouldn't this still transform Request objects into Response objects?
         responseProps
 
       when isPlainObject responseProps
-        new RequestResponseBase merge @propsForResponse, responseProps, {} status, request: @_request ? @
+        new Request merge @propsForResponse, responseProps, {} status, request: @_request ? @
 
       when isString responseProps
         @toResponse status, data: message: responseProps
@@ -771,8 +771,8 @@ class RequestResponseBase extends BaseObject
       {} responseProps
       data: message:
         if responseProps instanceof Error
-              "" Internal Error: ArtEry.RequestResponseBase#toResponse received Error instance: #{formattedInspect responseProps}
-        else  "" Internal Error: ArtEry.RequestResponseBase#toResponse received unsupported type
+              "" Internal Error: ArtEry.Request#toResponse received Error instance: #{formattedInspect responseProps}
+        else  "" Internal Error: ArtEry.Request#toResponse received unsupported type
 
   ## toPromise()
     IN: options:
@@ -801,7 +801,7 @@ class RequestResponseBase extends BaseObject
       promise.catch (errorWithInfo) ->
         {response} = errorWithInfo.info
   toPromise: (options) ->
-    throw new Error "ArtEry.RequestResponseBase: toPromise can only be called on Response objects." unless @isResponse
+    throw new Error "ArtEry.Request: toPromise can only be called on Response objects." unless @isResponse
     options extract? returnNullIfMissing, returnResponse, returnResponseObject
     @ extract data, isSuccessful, isMissing
 
