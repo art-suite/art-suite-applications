@@ -2,14 +2,69 @@ import &StandardImport, &Config, {} &PipelineRegistry
 
 ArtEry = require :./namespace
 
+responseValidator = requestValidator = null
+
+createValidators = () ->
+  responseValidator ?= new Validator
+    request:  [] :required instanceof: RequestResponseBase
+    status:   :required :communicationStatus
+    session:  :object
+    props:    :object
+
+  requestValidator ?= new Validator
+    pipeline:           required: instanceof: ArtEry.Pipeline
+    type:               required: fieldType: :string
+    session:            required: fieldType: :object
+    parentRequest:      instanceof: RequestResponseBase
+    originatedOnServer: :boolean
+    props:              :object
+    key:                :string
+
 class RequestResponseBase extends BaseObject
 
   constructor: (options) ->
+    @_type = options.type
+    @_props = options.props ? {}
+    @_props.data = options.data if options.data?
+
+    @_pipeline = options.pipeline ? options.request.pipeline
+    @_session = options.session
+    @_originatedOnServer = options.originatedOnServer
     @_creationTime = currentSecond()
     @_filterLog = options.filterLog
     @_errorProps = options.errorProps
-    @_creationStack = options.creationStack
-    @_request = options.request ? @
+    @_creationStack = options.creationStack ? options.request?.creationStack
+    @_request = options.request
+    @_originalRequest ?= options.originalRequest ? @_request?.originalRequest ? @
+    @_parentRequest = options.parentRequest ? @_request?.parentRequest
+    @_rootRequest = @_parentRequest?.rootRequest ? @_request ? @
+    @_status = options.status
+
+    @_verbose   = options.verbose
+    @_context   = options.context
+
+    @_remoteRequest = options.remoteRequest
+    @_remoteResponse = options.remoteResponse
+
+    createValidators()
+    if @isRequest
+      key = options.key ? @_props.key
+      options.key = @_props.key = @pipeline.toKeyString key if key?
+      requestValidator.validate options, context: "Art.Ery.#{@class.name} options", logErrors: true
+
+      @_filterLog ?= []
+        name:   :created
+        stack:  @_creationStack
+        time:   currentSecond()
+
+    else
+      responseValidator.validate options, context: "Art.Ery.#{@class.name} options", logErrors: true
+
+      # If the session wasn't explicitly set, did it change in the Request part of the pipeline?
+      @_session ?= if neq @request.session, @request.originalRequest.session
+        @request.session
+
+      @setGetCache() if @type == :create || @type == :get
 
     if getDetailedRequestTracingEnabled()
       @_creationStack ?=
@@ -20,7 +75,12 @@ class RequestResponseBase extends BaseObject
   @getter :filterLog :errorProps :creationTime :creationStack
   @getter :type :pipeline :session :props
   @getter :originatedOnServer
-  @getter :request :originalRequest :parentRequest
+  @getter
+    :request          # (valid on responses only): get the final request-instance before the first response-instance was generated
+    :originalRequest  # get the first request instance
+    :parentRequest    # if this is a subrequest, get the request that triggered this one
+    :rootRequest      # get the very first request that triggered this whole chain of sub-requests, or, if this isn't a subrequest, returns self
+
   @getter :remoteResponse :remoteRequest
 
   addFilterLog: (filter, context) ->
@@ -38,11 +98,15 @@ class RequestResponseBase extends BaseObject
   isDeleteRequest: -> @pipeline.isDeleteRequestType @type
 
   @getter
-    :request
+    request:        ->
+      unless @_request
+        throw new Error ".request accessor is only valid on isResponse instances"
+      @_request
 
-    isRequest:      -> !@isResponse
-    isResponse:     -> @status?
-    isRootRequest:  -> if @isRequest then !@parentRequest else @request.isRootRequest
+    isRequest:      -> !@_request?
+    isResponse:     -> @_request?
+    isRootRequest:  -> !@parentRequest
+    isSubrequest:   -> !@isRootRequest
 
     propsForClone: ->
       if @isRequest then {}
@@ -92,8 +156,7 @@ class RequestResponseBase extends BaseObject
     requestType:        -> @type
     pipelineName:       -> @pipeline.getName()
     requestDataWithKey: -> merge @requestData, @keyObject
-    keyObject:          -> @request.pipeline.toKeyObject @key
-    rootRequest:        -> @parentRequest?.rootRequest ? @request
+    keyObject:          -> @pipeline.toKeyObject @key
     originalRequest:    -> @_originalRequest ? @request.originalRequest
     startTime:          -> @rootRequest.creationTime
     endTime:            -> @creationTime
@@ -155,17 +218,13 @@ class RequestResponseBase extends BaseObject
     key:                -> if @isRequest then @_props.key else @request.key ? @responseData?.id # TODO 2023 - this should really not be hard-coded use responseData.id; response should be able to specific a new key separate from the Data
     data:               -> @_props.data
 
-    requestSession:     -> @request.session
-    requestProps:       -> if @isRequest then @_props else @request.requestProps
-    requestData:        -> if @isRequest then @_props.data else @request.requestData
+    requestSession:     -> (@_request ? @).session
+    requestProps:       -> (@_request ? @).props
+    requestData:        -> (@_request ? @).props.data
 
     responseSession:    -> @_session    if @isResponse
     responseProps:      -> @_props      if @isResponse
     responseData:       -> @_props.data if @isResponse
-
-    pipeline:           -> @_pipeline ?= @request.pipeline
-    parentRequest:      -> @_parentRequest ?= if @request != @ then @request.parentRequest
-    isSubrequest:       -> !!@request.parentRequest
 
     originatedOnServer: -> if @isRequest then @_originatedOnServer else @request.originatedOnServer
     context:            -> if @isRequest then @_context ?= {} else @request.context
@@ -265,7 +324,7 @@ class RequestResponseBase extends BaseObject
         pipeline
         verbose: @verbose
         session: requestOptions?.session || @session
-        parentRequest: @request
+        parentRequest: @_request ? @
         @context
 
   subrequest: (pipelineOrPipelineName, type, requestOptionsOrKey, requestOptionsAfterKey) ->
@@ -693,7 +752,7 @@ class RequestResponseBase extends BaseObject
         responseProps
 
       when isPlainObject responseProps
-        new ArtEry.Response merge @propsForResponse, responseProps, {status, @request}
+        new ArtEry.Response merge @propsForResponse, responseProps, {} status, request: @_request ? @
 
       when isString responseProps
         @toResponse status, data: message: responseProps
