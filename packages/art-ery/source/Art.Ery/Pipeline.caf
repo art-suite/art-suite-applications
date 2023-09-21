@@ -26,9 +26,10 @@ import &StandardImport, &ArtValidation, &Config, &RestClientLib, &RestServerLib,
       and ArtEry (ArtPipelines?) to have namespaced registries so you can merge as many
       packages as you want based on ArtSuite without name-conflicts in their registries.
 
-preprocessFilter = (filter) ->
+preprocessFilters = (filter) ->
   if isPlainArray filter
-    each f in filter when f with instantiateFilter f
+    array f in filter when f with instantiateFilter f
+
   else
     instantiateFilter filter
 
@@ -74,20 +75,13 @@ class Pipeline extends &RequestHandler
     when @dataToKeyString && isPlainObject key then @dataToKeyString key
     else throw new Error "override toKeyString or dataToKeyString for non-string-keys like: #{formattedInspect key}"
 
-  ###########################
-    Overrides
+  #############################
+    ###########################
 
-  ## isRecord (override as needed)
-    # used by Request.withTransformedRecords
-  isRecord: (data) -> isPlainObject(data) && present data?.id
+      Declarative API
 
-  ## getFieldsRequestWillModify (override as needed)
-    # called by UserOwnedFilter.before.update for correct authorization validation
-    # overriden by Art.Ery.Aws.DynamoDb to support "add" and "setDefault" for a correct modifications-list
-  getFieldsRequestWillModify: (request) -> request.data ? {}
-
-  ###########################
-    Declarative API
+    ###########################
+    ###########################
   @extendableProperty
     queries: {}
     filters: []
@@ -109,7 +103,6 @@ class Pipeline extends &RequestHandler
     each map in maps
       @handlers map
       @publicRequestTypes Object.keys map
-
 
   ## filter
     define a single filter OR an array of filters to define.
@@ -152,7 +145,7 @@ class Pipeline extends &RequestHandler
           OUT: same or new response
             NOTE: all after-filters are applied if the handler generated the first response object
             UNLESS there is an error, in which case the error is returned directly.
-  @filter:        (filter)         -> @extendFilters preprocessFilter filter
+  @filter:        (filter)         -> @extendFilters preprocessFilters filter
 
   ## handler
     add one or more handlers
@@ -208,22 +201,20 @@ class Pipeline extends &RequestHandler
 
   ######################
     constructor
-  constructor: (@_options = {}) ->
+  constructor: (deprecatedOptions) ->
     @_subscribers = {}
     @_querySubscribers = {}
+    @_name ?= decapitalize @class.getName()
+    if deprecatedOptions
+      throw new Error "" DEPRECATED: constructor options. For custom session, use: @registry new PipelineRegistry
 
-  getPrefixedTableName: (tableName) -> "#{@tableNamePrefix}#{tableName}"
+  #####################################
+    ###################################
 
-  ## cachedGet - convenient alias altenative to request.cachedGet that matches the new subrequest patterns
-    IN:
-      request: - the request this will be a subrequest-of
-      key: <String> (default: request.key)
+      GETTERS - (no important side-effects)
 
-    EFFECT:
-      calls request.cachedGet. Note, cachedGet's cache is stored in request's context
-  cachedGet: (request, key) ->
-    request.cachedGet @pipelineName, key ? request.key
-
+    ###################################
+    ###################################
   @classGetter
     pipelineName: -> @_pipelineName ? decapitalize @getName()
     pluralPipelineName: ->
@@ -237,9 +228,8 @@ class Pipeline extends &RequestHandler
 
   @getter
     :options
+    :name
     pipelineName:     -> @class.getPipelineName()
-    tableNamePrefix:  -> @class._tableNamePrefix ? config.tableNamePrefix
-    tableName:        -> @getPrefixedTableName @name
     normalizedFields: ->
       nf = {}
       each v, k in @fields
@@ -247,8 +237,7 @@ class Pipeline extends &RequestHandler
 
       nf
 
-    name:     -> @_name     ?= @_options.name    ? decapitalize @class.getName()
-    session:  -> @_session  ?= @_options.session ? @registry.session
+    session: -> @registry.session
 
     handlerRequestTypesMap: (_into = {}) -> mergeInto _into, @handlers
     filterRequestTypesMap: (_into = {}) -> each filter in @filters into _into with mergeInto _into, filter.beforeFilters
@@ -259,15 +248,13 @@ class Pipeline extends &RequestHandler
     aliases:          -> Object.keys @class.getAliases()
     inspectedObjects: -> inspectedObjectLiteral @name
 
-    restPath: -> @_restPath ?= getPipelineRestPath @
-    restPathRegex: -> @_restPathRegex ?= getPipelineRestPathRegex @
 
     groupedFilters: -> @_groupedFilters ?= Pipeline.groupFilters @filters
     beforeFilters: -> @_beforeFilters ?= @groupedFilters.slice().reverse()
     afterFilters: -> @groupedFilters
-    status: -> :OK
 
     filterChain: -> @_filterChain ||= compactFlatten([@, @groupedFilters]).reverse()
+
     inspectedObjects: -> {}
       @name
       publicRequestTypes: Object.keys(@publicRequestTypes).sort()
@@ -276,6 +263,14 @@ class Pipeline extends &RequestHandler
       querySubscriberCounts:
         object querySubs in @_querySubscribers
           object subscribers in querySubs with subscribers.length
+
+  #####################################
+    ###################################
+
+      FILTERS
+
+    ###################################
+    ###################################
 
   # use a stable sort
   @groupFilters: (filters) ->
@@ -292,6 +287,24 @@ class Pipeline extends &RequestHandler
 
   getBeforeFilters: (request) -> array filter in @beforeFilters when filter.getBeforeFilter request
   getAfterFilters:  (request) -> array filter in @afterFilters  when filter.getAfterFilter  request
+
+  #####################################
+    ###################################
+
+      REQUESTS
+
+    ###################################
+    ###################################
+
+  ## cachedGet - convenient alias altenative to request.cachedGet that matches the new subrequest patterns
+    IN:
+      request: - the request this will be a subrequest-of
+      key: <String> (default: request.key)
+
+    EFFECT:
+      calls request.cachedGet. Note, cachedGet's cache is stored in request's context
+  cachedGet: (request, key) ->
+    request.cachedGet @pipelineName, key ? request.key
 
   createRequest: (type, options) ->
     log.warn "DEPRICATED - options must be an object now" unless isPlainObject options
@@ -323,9 +336,14 @@ class Pipeline extends &RequestHandler
       error.message += "\n\ninside #{@name}." + formattedInspect createRequest: {type, options}
       throw error
 
-  ###############################
-  # Subscriptions
-  ###############################
+  #####################################
+    ###################################
+
+      SUBSCRIPTIONS
+
+    ###################################
+    ###################################
+
   ## subscriber
     IN:
       key: string
@@ -461,28 +479,6 @@ class Pipeline extends &RequestHandler
   isDeleteRequestType: (actionType) -> /^delete/.test actionType
 
   ###################
-    RequestHandler API
-    SEE RequestHandler
-  handleRequest: (request) ->
-    if request.isResponse
-      throw new Error "HARD DEPRICATED"
-
-    if @location == :client && @remoteServer
-      sendRemoteRequest request
-
-    else if handler = @handlers[request.type]
-      @applyHandler request, handler, :handler
-      .then (response) =>
-        unless response.isResponse
-          request.failure "#{@pipelineName}.#{request.type} request was not handled"
-
-        else
-          response
-
-    else
-      request.failure "#{@pipelineName}: No handler for request type: #{formattedInspect request.type}"
-
-  ###################
     propsToKey (primarilly used by ArtEryFluxModel)
   @getter
     propsToKey: -> @_propsToKey ?= do =>
@@ -494,7 +490,7 @@ class Pipeline extends &RequestHandler
   ######################################
     ####################################
 
-      PRIVATE
+      PRIVATE CLASS METHODS
 
     ####################################
     ####################################
@@ -522,12 +518,51 @@ class Pipeline extends &RequestHandler
 
     {} queryName, options, toKeyString
 
+  @_defineClientRequestMethod: (requestType) ->
+    @extendClientApiMethodList requestType unless requestType in @getClientApiMethodList()
+    @prototype[requestType] ?= (a, b, c) ~> @_processClientRequest requestType, a, b, c
+
+  @_defineClientHandlerMethods: ->
+    each __, name in @getHandlers()           with @_defineClientRequestMethod name
+    each __, name in @getPublicRequestTypes() with @_defineClientRequestMethod name
+
+  @_initFields: ->
+    each filter in @getFilters() with @extendFields filter.fields
+
+  ######################################
+    ####################################
+
+      PRIVATE INSTANCE METHODS
+
+    ####################################
+    ####################################
   _normalizeRequest: (request) ->
     if isPlainObject request
       new Request merge request, pipeline: @
 
     else
       request
+
+  ## handleRequest
+    SEE RequestHandler API
+  handleRequest: (request) ->
+    if request.isResponse
+      throw new Error "HARD DEPRICATED"
+
+    if @location == :client && @remoteServer
+      sendRemoteRequest request
+
+    else if handler = @handlers[request.type]
+      @applyHandler request, handler, :handler
+      .then (response) =>
+        unless response.isResponse
+          request.failure "#{@pipelineName}.#{request.type} request was not handled"
+
+        else
+          response
+
+    else
+      request.failure "#{@pipelineName}: No handler for request type: #{formattedInspect request.type}"
 
   _processRequest: (request) ->
     haveHandler = !!@handlers[request.type]
@@ -588,9 +623,9 @@ class Pipeline extends &RequestHandler
       requestStartTime = currentSecond()
 
       @createRequest type, options
-      .then (request)  => @_processRequest request
-      .then (response) => @_processResponseSession response, requestStartTime
-      .then (response) => response.toPromise options
+      .then (request)  -> @_processRequest request
+      .then (response) -> @_processResponseSession response, requestStartTime
+      .then (response) -> response.toPromise options
 
   ## _processResponseSession
     mostRecentSessionUpdatedAt ensures we don't update the session out of order
@@ -624,16 +659,27 @@ class Pipeline extends &RequestHandler
 
     response
 
-  @_defineClientRequestMethod: (requestType) ->
-    @extendClientApiMethodList requestType unless requestType in @getClientApiMethodList()
-    @prototype[requestType] ?= (a, b, c) ~> @_processClientRequest requestType, a, b, c
+  #####################################
+    ###################################
 
-  @_defineClientHandlerMethods: ->
-    each __, name in @getHandlers()           with @_defineClientRequestMethod name
-    each __, name in @getPublicRequestTypes() with @_defineClientRequestMethod name
+      Overrides
 
-  @_initFields: ->
-    each filter in @getFilters() with @extendFields filter.fields
+    ###################################
+    ###################################
+
+  ## isRecord (override as needed)
+    used by Request.withTransformedRecords
+    OUT: boolean
+  isRecord: (data) -> isPlainObject(data) && present data?.id
+
+  ## getFieldsRequestWillModify (override as needed)
+    called by UserOwnedFilter.before.update for correct authorization validation
+    overriden by Art.Ery.Aws.DynamoDb to support "add" and "setDefault" for a correct modifications-list
+
+    IN: request
+    OUT: object with all fields the request will mutate
+      fieldName: fieldValue
+  getFieldsRequestWillModify: (request) -> request.data ? {}
 
   #####################################
     ###################################
@@ -648,7 +694,9 @@ class Pipeline extends &RequestHandler
   @getter
     isRemoteClient:   -> !!@remoteServer
     apiRoot:          -> @class._apiRoot ? config._apiRoot
-    remoteServer: -> @class._remoteServer ? config.remoteServer
+    remoteServer:     -> @class._remoteServer ? config.remoteServer
+    restPath:         -> @_restPath ?= getPipelineRestPath @
+    restPathRegex:    -> @_restPathRegex ?= getPipelineRestPathRegex @
 
     location: ->
       if @remoteServer && config.location != :server
@@ -658,7 +706,6 @@ class Pipeline extends &RequestHandler
 
   @remoteServer:    (@_remoteServer)    -> # override default (see config.remoteServer)
   @apiRoot:         (@_apiRoot)         -> # override default (see config.apiRoot)
-  @tableNamePrefix: (@_tableNamePrefix) -> # override default (see config.tableNamePrefix)
 
   getRequestProcessingReport: (location = @location) ->
     object requestType from @requestTypes
@@ -693,7 +740,7 @@ class Pipeline extends &RequestHandler
   #####################################
     ###################################
 
-      RecordPipeline Extensions
+      Database / RecordPipeline Extensions
 
     ###################################
     ###################################
@@ -703,7 +750,12 @@ class Pipeline extends &RequestHandler
       @queries
       @fields
 
+  @tableNamePrefix: (@_tableNamePrefix) -> # override default (see config.tableNamePrefix)
+  getPrefixedTableName: (tableName) -> "#{@tableNamePrefix}#{tableName}"
+
   @getter
+    tableNamePrefix:        -> @class._tableNamePrefix ? config.tableNamePrefix
+    tableName:              -> @getPrefixedTableName @name
     prefetchedRecordsCache: -> @registry.prefetchedRecordsCache
 
   getPrefetchedRecord: (key) -> @prefetchedRecordsCache.get @pipelineName, key
