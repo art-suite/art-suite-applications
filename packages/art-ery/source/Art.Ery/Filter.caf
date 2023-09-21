@@ -95,13 +95,15 @@ class Filter extends &RequestHandler
 
     Filter sequence, based on groups:
       loggers beforeFilter
-        outer beforeFilter
-          middle beforeFilter
-            inner beforeFilter
-              handler
-            inner afterFilter
-          middle afterFilter
-        outer afterFilter
+        authorization beforeFilter
+          outer beforeFilter
+            middle beforeFilter
+              inner beforeFilter
+                handler
+              inner afterFilter
+            middle afterFilter
+          outer afterFilter
+        authorization afterFilter
       loggers afterFilter
   @groupNames:
     loggers:        3

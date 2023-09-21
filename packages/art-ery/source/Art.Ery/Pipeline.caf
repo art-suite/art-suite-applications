@@ -69,9 +69,6 @@ class Pipeline extends &RequestHandler
 
       @
 
-  getPrefetchedRecord: (key) ->
-    prefetchedRecordsCache.get @pipelineName, key
-
   toKeyString: (key) ->
     switch
     when !key? || isString key then key
@@ -173,10 +170,6 @@ class Pipeline extends &RequestHandler
   @handler:  @extendHandlers
   @handlers: @extendHandlers
 
-  @remoteServer:    (@_remoteServer)    -> # override default (see config.remoteServer)
-  @apiRoot:         (@_apiRoot)         -> # override default (see config.apiRoot)
-  @tableNamePrefix: (@_tableNamePrefix) -> # override default (see config.tableNamePrefix)
-
   ## query
     declare a query - used by ArtEryFlux
 
@@ -257,32 +250,15 @@ class Pipeline extends &RequestHandler
 
     name:     -> @_name     ?= @_options.name    ? decapitalize @class.getName()
     session:  -> @_session  ?= @_options.session ? Session.singleton
-    handlerRequestTypesMap: (_into = {}) ->
-      mergeInto _into, @handlers
-      _into
 
-    filterRequestTypesMap: (_into = {}) ->
-      each filter in @filters
-        mergeInto _into, filter.beforeFilters
-      _into
-
-    requestTypesMap: (_into = {})->
-      @getHandlerRequestTypesMap @getFilterRequestTypesMap _into
+    handlerRequestTypesMap: (_into = {}) -> mergeInto _into, @handlers
+    filterRequestTypesMap: (_into = {}) -> each filter in @filters into _into with mergeInto _into, filter.beforeFilters
+    requestTypesMap: (_into = {}) -> @getHandlerRequestTypesMap @getFilterRequestTypesMap _into
 
     requestTypes: -> Object.keys @requestTypesMap
 
     aliases:          -> Object.keys @class.getAliases()
     inspectedObjects: -> inspectedObjectLiteral @name
-    isRemoteClient:   -> !!@remoteServer
-    apiRoot:          -> @class._apiRoot ? config._apiRoot
-
-    remoteServer: -> @class._remoteServer ? config.remoteServer
-
-    location: ->
-      if @remoteServer && config.location != :server
-        :client
-
-      else config.location
 
     restPath: -> @_restPath ?= getPipelineRestPath @
     restPathRegex: -> @_restPathRegex ?= getPipelineRestPathRegex @
@@ -432,22 +408,39 @@ class Pipeline extends &RequestHandler
       each subscriber in querySubscribers[queryKey]
         subscriber eventType, key, data, queryKey
 
-      ## TODO - notify ArtQueryModels with result-sets previously containing the record, but now they shouldn't
-        We don't have efficient access to the old record data currently.
+      ## TODO - Correctly update Query subscribers when record needs to be removed
 
-        Previously, we relied on the old record in stored in the singleton ArtModel. The problem with this
-        is even if we have the old record in some query results in  ArtQueryModel, it might NOT be in the singleton
-        ArtModel.
+        We don't currently handle an :update when the changing fields cause the record
+        to need to be removed from a local query result.
 
-        NOTE: we didn't even solve this problem in ArtEryPusher - there is no event sent to query-subscriptions
-        which should remove the changed record.
+        Previous Solution Wasn't 100%:
 
-        1. So, either we need a full list of all records we have locally,
+          We fetched the old record's data from the singlton ArtModel. Since
+          ArtPipelines are now ArtModel agnostic, that's no longer an option. Even if it was,
+          it wasn't foolproof. We may not have a local singleton instance and yet still need
+          to update one or more queries.
+
+          NOTE: I didn't even have a half solution for ArtEryPusher updates. I just
+          forgot to even consider the possibilty.
+
+        Options:
+
+        1. Maintain a full list of all records we have in use locally,
           regardless if they are in queries or the singleton model
-          CON: this breaks the ArtPipelines-doesn't-know-about-ArtModles isolation
-          CON: this doesn't solve the server-side ArtEryPusher problem
-        2. OR we need the ArtPipeline request to return some info about the
-          old record that changed (enough to create the oldQueryString).
+          CON: this breaks the ArtPipelines-doesn't-know-about-ArtModels isolation
+          PRO: less DB access; less data over the wire
+          (I wish we had WEAK references in JavaScript! Then ArtPipelines could keep
+          a WEAK reference to every query result)
+
+        1.5: HRM - we have similar option that could work: Send a :update event to
+          all subscribers regardless of the queryKey they are subscribing to.
+          CON: more client-side work
+          PRO: it should work...
+          IMPROVEMENT: if we know what fields were updated, we could skip some update
+            messages to queries whos fields didn't change.
+
+        2. OR ArtPipeline :update requests must return the old values for known
+          query-fields.
           Ex: response.props.oldData = partialRecord with just the replaced values
           PRO: this is a general solution with wider uses
           PRO: this keeps ArtPipelines agnostic to ArtModels
@@ -455,7 +448,9 @@ class Pipeline extends &RequestHandler
           CON: each data-update DB action also needs to read the old values back.
             I think this is freeish in DynamoDB, but other DBs don't do this.
 
-        Conclusion: Option #2 is the only real answer.
+        Conclusion: Option #2 is the only real answer. It's also the only answer that would
+        work for ArtEryPusher as well - assuming we have implemented data-over-the-wire for
+        Pusher events.
 
         potential code, assuming we can compute oldQueryKey:
           oldQueryKey = oldData && @queries[queryName].toKeyString oldData
@@ -465,38 +460,6 @@ class Pipeline extends &RequestHandler
 
   isUpdateRequestType: (actionType) -> /^(create|update)/.test actionType
   isDeleteRequestType: (actionType) -> /^delete/.test actionType
-
-  ###############################
-    Development Reports
-  getRequestProcessingReport: (location = @location) ->
-    object requestType from @requestTypes
-      compactFlatten []
-        array filter in @getBeforeFilters {} requestType, location with inspectedObjectLiteral filter.getName()
-        inspectedObjectLiteral if location == :client then "[remote request]" else "[local handler]"
-        array filter in @getAfterFilters  {} requestType, location with inspectedObjectLiteral filter.getName()
-
-  @getter
-    pipelineReport: (processingLocation)->
-      out =
-        tableName: @tableName
-        fields:
-          object fieldProps in @fields
-            each k in Object.keys(fieldProps).sort() into out2 = {}
-              v = fieldProps[k]
-              unless isFunction v
-                out2[k] = v
-
-      if processingLocation
-        out["#{processingLocation}Processing"]      = @getRequestProcessingReport :client
-
-      else
-        out.clientSideRequestProcessing             = @getRequestProcessingReport :client
-        out.serverSideRequestProcessing             = @getRequestProcessingReport :server
-        out.serverlessDevelopmentRequestProcessing  = @getRequestProcessingReport :both
-
-      out
-
-    apiReport: (options = {}) -> apiReport @, options
 
   ###################
     RequestHandler API
@@ -529,9 +492,13 @@ class Pipeline extends &RequestHandler
         propsField = stateField ? recordType
         props[propsField]?.id ? props[propsField + "Id"]
 
-  ###################
-    PRIVATE
+  ######################################
+    ####################################
 
+      PRIVATE
+
+    ####################################
+    ####################################
   ## _defineQueryHandlers
     query handler-functions: (request) -> response or any other value allowed for handlers
   @_defineQueryHandlers: ->
@@ -668,3 +635,74 @@ class Pipeline extends &RequestHandler
 
   @_initFields: ->
     each filter in @getFilters() with @extendFields filter.fields
+
+  #####################################
+    ###################################
+
+      REST Transport Extensions
+
+    ###################################
+    ###################################
+
+    Also SEE: handleRequest
+
+  @getter
+    isRemoteClient:   -> !!@remoteServer
+    apiRoot:          -> @class._apiRoot ? config._apiRoot
+    remoteServer: -> @class._remoteServer ? config.remoteServer
+
+    location: ->
+      if @remoteServer && config.location != :server
+        :client
+
+      else config.location
+
+  @remoteServer:    (@_remoteServer)    -> # override default (see config.remoteServer)
+  @apiRoot:         (@_apiRoot)         -> # override default (see config.apiRoot)
+  @tableNamePrefix: (@_tableNamePrefix) -> # override default (see config.tableNamePrefix)
+
+  getRequestProcessingReport: (location = @location) ->
+    object requestType from @requestTypes
+      compactFlatten []
+        array filter in @getBeforeFilters {} requestType, location with inspectedObjectLiteral filter.getName()
+        inspectedObjectLiteral if location == :client then "[remote request]" else "[local handler]"
+        array filter in @getAfterFilters  {} requestType, location with inspectedObjectLiteral filter.getName()
+
+  @getter
+    pipelineReport: (processingLocation)->
+      out =
+        tableName: @tableName
+        fields:
+          object fieldProps in @fields
+            each k in Object.keys(fieldProps).sort() into out2 = {}
+              v = fieldProps[k]
+              unless isFunction v
+                out2[k] = v
+
+      if processingLocation
+        out["#{processingLocation}Processing"]      = @getRequestProcessingReport :client
+
+      else
+        out.clientSideRequestProcessing             = @getRequestProcessingReport :client
+        out.serverSideRequestProcessing             = @getRequestProcessingReport :server
+        out.serverlessDevelopmentRequestProcessing  = @getRequestProcessingReport :both
+
+      out
+
+    apiReport: (options = {}) -> apiReport @, options
+
+  #####################################
+    ###################################
+
+      RecordPipeline Extensions
+
+    ###################################
+    ###################################
+
+    Big question, do these count as RecordPipeline extensions?
+
+      @queries
+      @fields
+
+  getPrefetchedRecord: (key) ->
+    prefetchedRecordsCache.get @pipelineName, key

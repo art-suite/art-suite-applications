@@ -13,7 +13,6 @@ class ValidationFilter extends &Filter
     create: (request) -> @_validate :validateCreate request
     update: (request) -> @_validate :validateUpdate request
 
-
   _validate: (method, request) ->
     Promise.then ->
       context = request.requestString

@@ -12,6 +12,5 @@
   TimestampFilter:         require('./TimestampFilter'),
   UniqueIdFilter:          require('./UniqueIdFilter'),
   UserOwnedFilter:         require('./UserOwnedFilter'),
-  UuidFilter:              require('./UuidFilter'),
   ValidationFilter:        require('./ValidationFilter')
 });

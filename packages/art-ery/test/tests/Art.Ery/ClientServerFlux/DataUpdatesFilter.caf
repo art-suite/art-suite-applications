@@ -14,9 +14,6 @@ class MyComponent extends ArtModelSubscriptionsMixin BaseObject
 
 class MyQueryComponent extends ArtModelSubscriptionsMixin BaseObject
   constructor: (key = preexistingKey)->
-    log MyQueryComponent: subscribe: {}
-      modelName: :userByEmail
-      key
     @subscribe :mySubscriptionKey :userByEmail key, {} stateField
 
 testSetup = (initialRecords) ->
@@ -145,7 +142,6 @@ suite:
         new Promise (resolve) ->
           cleanupInstance = new class MyComponentForDeleteTesting extends MyComponent
             setState: (_stateField, data) -> if _stateField == stateField
-              log delete: setState: {} data
               @_receivedRealData = true if data?.name?
               resolve() if !data? && @_receivedRealData
 
@@ -189,7 +185,6 @@ suite:
         new Promise (resolve) ->
           cleanupInstance = new class MyComponentForDeleteTesting extends MyComponent
             setState: (_stateField, data) -> if _stateField == stateField
-              log delete: setState: {} data
               @_receivedRealData = true if data?.name?
               resolve() if !data? && @_receivedRealData
 
@@ -205,14 +200,12 @@ suite:
         new Promise (resolve) ->
           class MyComponentForCreateTesting extends MyComponent
             setState: (_stateField, data) -> if _stateField == stateField
-              log MyComponentForCreateTesting: setState: {} data
               resolve() if data?.name == createNewUserName
 
           cleanupInstance = new MyComponentForCreateTesting newKey
 
           artModelStore.onNextReady ->
-            log :ready
-            pipelines.dataUpdatesFilterPipeline.subrequestTest log
+            pipelines.dataUpdatesFilterPipeline.subrequestTest
               data:
                 type: :create
                 key: newKey
@@ -230,7 +223,6 @@ suite:
           class MyComponentForQueryCreateTesting extends MyQueryComponent
             setState: (_stateField, data) ->
               if _stateField == stateField
-                log MyComponentForQueryCreateTesting: setState: {} stateField, data
                 @_wasInitiallyEmpty = true if isArray(data) && data.length == 0
 
                 resolve() if @_wasInitiallyEmpty && data?.length == 1
@@ -238,7 +230,6 @@ suite:
           cleanupInstance = new MyComponentForQueryCreateTesting newUserEmail
 
           artModelStore.onNextReady ->
-            log :sendCreate
             pipelines.dataUpdatesFilterPipeline.create
               data: name: newUserName, email: newUserEmail
 

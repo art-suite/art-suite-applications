@@ -6,7 +6,6 @@
 .addModules({
   Config:                 require('./Config'),
   DatabaseFilters:        require('./DatabaseFilters'),
-  Env:                    require('./Env'),
   Filter:                 require('./Filter'),
   KeyFieldsMixin:         require('./KeyFieldsMixin'),
   Pipeline:               require('./Pipeline'),
@@ -17,8 +16,8 @@
   RestClientLib:          require('./RestClientLib'),
   RestServerLib:          require('./RestServerLib'),
   Session:                require('./Session'),
-  Stack:                  require('./Stack'),
   StandardImport:         require('./StandardImport'),
   UpdateAfterMixin:       require('./UpdateAfterMixin')
 });
 require('./Filters');
+require('./Lib');

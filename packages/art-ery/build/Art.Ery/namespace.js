@@ -7,3 +7,4 @@ module.exports = require('neptune-namespaces-runtime').addNamespace(
   ._configureNamespace(require('../../package.json'))
 );
 require('./Filters/namespace');
+require('./Lib/namespace');

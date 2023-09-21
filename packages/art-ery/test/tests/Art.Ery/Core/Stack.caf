@@ -1,4 +1,4 @@
-import &StandardImport, &build.Stack
+import &StandardImport, &build.Lib.Stack
 
 suite: ->
   test "cleanStackTrace" ->

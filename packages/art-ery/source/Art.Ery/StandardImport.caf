@@ -1,6 +1,6 @@
-&ArtStandardLib.mergeWithSelf
+[]
+  &ArtStandardLib
   &ArtClassSystem
   &ArtCommunicationStatus
   &ArtValidation
-  &Stack
-  &env
+  &Lib

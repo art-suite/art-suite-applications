@@ -18,23 +18,14 @@ indent = (str, indentString = "  ", wordWrapIndent = "  ") ->
   .join :\n
 
 testNiceStackTrace = (name, tester) ->
-  test name, ->
+  test "#{name} - set VERBOSE_TESTING=true to log error details", ->
     assert.rejects tester
     .then (error) ->
-      log "" \n------------------------------\nNiceStackTrace
-      log indent error.message.red
-      log ''
-      log indent error.stack.grey
-    # catch error
-    #   log error
-    #   null
-
-  #  ->
-  #   try
-  #     tester()
-  #   catch error
-  #     log niceStackTrace: name
-  #     log error.stack
+      if process.env.VERBOSE_TESTING == true || process.env.VERBOSE_TESTING == "true"
+        log "" \n------------------------------\nNiceStackTrace
+        log indent error.message.red
+        log ''
+        log indent error.stack.grey
 
 suite: ->
   testNiceStackTrace "bad request arguments" ->

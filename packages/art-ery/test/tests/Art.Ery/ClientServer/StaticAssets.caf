@@ -4,4 +4,4 @@ suite: ->
   test "http://localhost:8085/static_asset.txt", ->
     &ArtRestClient.get "http://localhost:8085/static_asset.txt"
     .then (v) ->
-      log v
+      assert.eq v, "My static asset."
