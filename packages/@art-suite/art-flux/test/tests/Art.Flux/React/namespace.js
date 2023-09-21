@@ -3,5 +3,6 @@
 
 module.exports = require('../namespace').addNamespace(
   'React',
-  class React extends Neptune.PackageNamespace {}
+  (class React extends Neptune.PackageNamespace {})
+  ._configureNamespace(require('../../../../package.json'))
 );

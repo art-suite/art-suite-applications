@@ -1,6 +1,8 @@
 import &StandardImport, &ArtValidation
 
-###
+## KeyFieldsMixin
+  Designed to be used on ArtModels or ArtPipelines
+
   @primaryKey and @keyFields are synonymous
   Usage:
 

@@ -69,12 +69,6 @@ class Pipeline extends &RequestHandler
 
       @
 
-  toKeyString: (key) ->
-    switch
-    when !key? || isString key then key
-    when @dataToKeyString && isPlainObject key then @dataToKeyString key
-    else throw new Error "override toKeyString or dataToKeyString for non-string-keys like: #{formattedInspect key}"
-
   #############################
     ###########################
 
@@ -201,11 +195,10 @@ class Pipeline extends &RequestHandler
 
   ######################
     constructor
-  constructor: (deprecatedOptions) ->
+  constructor: (_deprecatedOptions) ->
     @_subscribers = {}
     @_querySubscribers = {}
-    @_name ?= decapitalize @class.getName()
-    if deprecatedOptions
+    if _deprecatedOptions
       throw new Error "" DEPRECATED: constructor options. For custom session, use: @registry new PipelineRegistry
 
   #####################################
@@ -223,13 +216,11 @@ class Pipeline extends &RequestHandler
       parts.push pluralize parts.pop()
       @_pluralPipelineName = lowerCamelCase parts
 
-  toString: -> @pipelineName
-  getLogName: (requestType) -> "#{requestType}-handler"
-
   @getter
-    :options
-    :name
-    pipelineName:     -> @class.getPipelineName()
+    name:             -> @class.pipelineName
+    pipelineName:     -> @class.pipelineName
+    session:          -> @registry.session
+
     normalizedFields: ->
       nf = {}
       each v, k in @fields
@@ -237,23 +228,48 @@ class Pipeline extends &RequestHandler
 
       nf
 
-    session: -> @registry.session
-
     handlerRequestTypesMap: (_into = {}) -> mergeInto _into, @handlers
-    filterRequestTypesMap: (_into = {}) -> each filter in @filters into _into with mergeInto _into, filter.beforeFilters
-    requestTypesMap: (_into = {}) -> @getHandlerRequestTypesMap @getFilterRequestTypesMap _into
-
-    requestTypes: -> Object.keys @requestTypesMap
-
-    aliases:          -> Object.keys @class.getAliases()
-    inspectedObjects: -> inspectedObjectLiteral @name
-
+    filterRequestTypesMap:  (_into = {}) -> each filter in @filters into _into with mergeInto _into, filter.beforeFilters
+    requestTypesMap:        (_into = {}) -> @getHandlerRequestTypesMap @getFilterRequestTypesMap _into
+    requestTypes:                        -> @_requestTypes ?= Object.keys @requestTypesMap
+    aliases:                             -> @_aliases      ?= Object.keys @class.getAliases()
 
     groupedFilters: -> @_groupedFilters ?= Pipeline.groupFilters @filters
-    beforeFilters: -> @_beforeFilters ?= @groupedFilters.slice().reverse()
-    afterFilters: -> @groupedFilters
+    beforeFilters:  -> @_beforeFilters ?= @groupedFilters.slice().reverse()
+    afterFilters:   -> @groupedFilters
+    filterChain:    -> @_filterChain ||= compactFlatten([@, @groupedFilters]).reverse()
 
-    filterChain: -> @_filterChain ||= compactFlatten([@, @groupedFilters]).reverse()
+  # Inspect Getters
+  toString: -> @pipelineName
+  getLogName: (requestType) -> "#{requestType}-handler"
+
+  getRequestProcessingReport: (location = @location) ->
+    object requestType from @requestTypes
+      compactFlatten []
+        array filter in @getBeforeFilters {} requestType, location with inspectedObjectLiteral filter.getName()
+        inspectedObjectLiteral if location == :client then "[remote request]" else "[local handler]"
+        array filter in @getAfterFilters  {} requestType, location with inspectedObjectLiteral filter.getName()
+
+  @getter
+    pipelineReport: (processingLocation)->
+      out =
+        tableName: @tableName
+        fields:
+          object fieldProps in @fields
+            each k in Object.keys(fieldProps).sort() into out2 = {}
+              v = fieldProps[k]
+              unless isFunction v
+                out2[k] = v
+
+      if processingLocation
+        out["#{processingLocation}Processing"]      = @getRequestProcessingReport :client
+
+      else
+        out.clientSideRequestProcessing             = @getRequestProcessingReport :client
+        out.serverSideRequestProcessing             = @getRequestProcessingReport :server
+        out.serverlessDevelopmentRequestProcessing  = @getRequestProcessingReport :both
+
+      out
 
     inspectedObjects: -> {}
       @name
@@ -478,15 +494,6 @@ class Pipeline extends &RequestHandler
   isUpdateRequestType: (actionType) -> /^(create|update)/.test actionType
   isDeleteRequestType: (actionType) -> /^delete/.test actionType
 
-  ###################
-    propsToKey (primarilly used by ArtEryFluxModel)
-  @getter
-    propsToKey: -> @_propsToKey ?= do =>
-      recordType = @pipelineName
-      (props, stateField) ->
-        propsField = stateField ? recordType
-        props[propsField]?.id ? props[propsField + "Id"]
-
   ######################################
     ####################################
 
@@ -544,6 +551,8 @@ class Pipeline extends &RequestHandler
       request
 
   ## handleRequest
+    This is really a private method even though this is not called "_handleRequest"
+    It overrides the RequestHandler#handleRequest method.
     SEE RequestHandler API
   handleRequest: (request) ->
     if request.isResponse
@@ -667,6 +676,30 @@ class Pipeline extends &RequestHandler
     ###################################
     ###################################
 
+  ## toKeyString
+    IN:
+      key: null, undefined, string or plain-object
+    OUT:
+      if key is null, undefined or string: key is returned untouched
+      if key is plain-object: attempt to convert to string
+
+    To Override, add your own custom dataToKeyString method (e.g. use KeyFieldsMixin)
+  toKeyString: (key) ->
+    switch
+    when !key? || isString key then key
+    when @dataToKeyString && isPlainObject key then @dataToKeyString key
+    else throw new Error "override toKeyString or dataToKeyString for non-string-keys like: #{formattedInspect key}"
+
+  ###################
+    propsToKey (primarilly used by ArtEryFluxModel)
+      NOTE: KeyFieldsMixin overrides this
+  @getter
+    propsToKey: -> @_propsToKey ?= do =>
+      recordType = @pipelineName
+      (props, stateField) ->
+        propsField = stateField ? recordType
+        props[propsField]?.id ? props[propsField + "Id"]
+
   ## isRecord (override as needed)
     used by Request.withTransformedRecords
     OUT: boolean
@@ -707,34 +740,7 @@ class Pipeline extends &RequestHandler
   @remoteServer:    (@_remoteServer)    -> # override default (see config.remoteServer)
   @apiRoot:         (@_apiRoot)         -> # override default (see config.apiRoot)
 
-  getRequestProcessingReport: (location = @location) ->
-    object requestType from @requestTypes
-      compactFlatten []
-        array filter in @getBeforeFilters {} requestType, location with inspectedObjectLiteral filter.getName()
-        inspectedObjectLiteral if location == :client then "[remote request]" else "[local handler]"
-        array filter in @getAfterFilters  {} requestType, location with inspectedObjectLiteral filter.getName()
-
   @getter
-    pipelineReport: (processingLocation)->
-      out =
-        tableName: @tableName
-        fields:
-          object fieldProps in @fields
-            each k in Object.keys(fieldProps).sort() into out2 = {}
-              v = fieldProps[k]
-              unless isFunction v
-                out2[k] = v
-
-      if processingLocation
-        out["#{processingLocation}Processing"]      = @getRequestProcessingReport :client
-
-      else
-        out.clientSideRequestProcessing             = @getRequestProcessingReport :client
-        out.serverSideRequestProcessing             = @getRequestProcessingReport :server
-        out.serverlessDevelopmentRequestProcessing  = @getRequestProcessingReport :both
-
-      out
-
     apiReport: (options = {}) -> apiReport @, options
 
   #####################################

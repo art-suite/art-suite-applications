@@ -4,8 +4,5 @@
 (module.exports = require('./namespace'))
 
 .addModules({
-  ComponentLib:      require('./ComponentLib'),
-  FluxComponent:     require('./FluxComponent'),
-  FluxComponentTest: require('./FluxComponent.test'),
-  StandardImport:    require('./StandardImport')
+  StandardImport: require('./StandardImport')
 });
