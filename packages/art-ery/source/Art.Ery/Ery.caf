@@ -10,8 +10,8 @@ global.artEryPipelineRegistries = pipelineRegistries
     pipelineRegistry
     pipelineRegistry.pipelines
     pipelineRegistry.session
+    pipelineRegistry.prefetchedRecordsCache
     pipelineRegistries
-    &PrefetchedRecordsCache.prefetchedRecordsCache
 
     sendInitializeRequestToAllPipelines: (registry = pipelineRegistry)->
       Promise.all array pipeline in registry.pipelines when

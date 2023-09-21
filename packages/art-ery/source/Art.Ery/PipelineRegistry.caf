@@ -1,4 +1,4 @@
-import &StandardImport, {} &Session
+import &StandardImport, {} &Session, &PrefetchedRecordsCache
 
 class PipelineRegistry extends BaseObject
   @singletonClass()
@@ -16,13 +16,9 @@ class PipelineRegistry extends BaseObject
     pipelineRegistries[registryNumber] = @
 
   @getter :name :pipelines :uniqueName
-  @getter session: ->
-    @_session ?= new Session
-      null
-      "ArtEry-#{@name}-Session"
-      @
-
-  # @pipelines: global.artEryPipelines = pipelines = {}
+  @getter
+    session: -> @_session ?= new Session null, "ArtEry-#{@name}-Session", @
+    prefetchedRecordsCache: -> @_prefetchedRecordsCache ?= new PrefetchedRecordsCache @
 
   # returns the Pipeline's singleton
   register: ({singleton, _aliases, name}) ->

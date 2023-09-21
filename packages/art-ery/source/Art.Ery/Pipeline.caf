@@ -1,8 +1,9 @@
-import &StandardImport, &ArtValidation, &PrefetchedRecordsCache, &Config, &RestClientLib, &RestServerLib, {}
+import &StandardImport, &ArtValidation, &Config, &RestClientLib, &RestServerLib, {}
   &Filter
   &DatabaseFilters
   &Session
   &Request
+  &PrefetchedRecordsCache
 
 ##
   TODO: (July2019)
@@ -702,5 +703,7 @@ class Pipeline extends &RequestHandler
       @queries
       @fields
 
-  getPrefetchedRecord: (key) ->
-    prefetchedRecordsCache.get @pipelineName, key
+  @getter
+    prefetchedRecordsCache: -> @registry.prefetchedRecordsCache
+
+  getPrefetchedRecord: (key) -> @prefetchedRecordsCache.get @pipelineName, key

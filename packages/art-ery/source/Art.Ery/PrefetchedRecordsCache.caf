@@ -1,8 +1,6 @@
 import &StandardImport
 
 class PrefetchedRecordsCache extends BaseClass
-  @singletonClass()
-
   constructor: ->
     @_repository = []
 

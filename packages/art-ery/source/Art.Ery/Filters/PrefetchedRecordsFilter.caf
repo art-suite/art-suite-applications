@@ -9,5 +9,5 @@ class PrefetchedRecordsFilter extends &Filter
   @after
     all: (response) ->
       if response.props extract dataUpdates
-        prefetchedRecordsCache.addPrefetchedRecords dataUpdates, @expirationSeconds
+        response.pipeline.prefetchedRecordsCache.addPrefetchedRecords dataUpdates, @expirationSeconds
       response

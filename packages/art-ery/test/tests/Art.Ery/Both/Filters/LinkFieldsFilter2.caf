@@ -1,12 +1,15 @@
 import &StandardImport, SimplePipeline: &SimplePipeline
 
 suite: ->
-
+  prefetchedRecordsCache = pipelines = registry = null
   chainedTest ->
+    {prefetchedRecordsCache, pipelines} = registry = new PipelineRegistry
     class User extends SimplePipeline
+      @registry registry
 
     filter = null
     class PostPipeline extends SimplePipeline
+      @registry registry
       @filter filter = new LinkFieldsFilter2 fields:
         user: "" prefetch required link autoCreate
 
@@ -120,8 +123,10 @@ suite: ->
   test "included retries on networkFailure", ->
     failureCount = 0
     successCount = 0
+    {pipelines} = registry = new PipelineRegistry
 
     class User extends Pipeline
+      @registry registry
       history = {}
       records =
         0: name: :Fred
@@ -139,6 +144,7 @@ suite: ->
             request.toResponse networkFailure
 
     class PostPipeline extends SimplePipeline
+      @registry registry
       isRecord: ({message}) -> message?
       @publicRequestTypes :getSampleData
 
