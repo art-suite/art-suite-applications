@@ -5,14 +5,13 @@ import &StandardImport, &PipelineRegistry, &Config
   &DatabaseFilters
   {}
     config
-    pipelines
-    &Session.session
-    &package
-    &package.version
+    pipelineRegistry
+    pipelineRegistry.pipelines
+    pipelineRegistry.session
     &PrefetchedRecordsCache.prefetchedRecordsCache
 
-    sendInitializeRequestToAllPipelines: ->
-      Promise.all array pipeline in pipelines when
+    sendInitializeRequestToAllPipelines: (registry = pipelineRegistry)->
+      Promise.all array pipeline in registry.pipelines when
           pipeline.class.getHandlers().initialize
         pipeline.initialize originatedOnServer: true
 
@@ -25,7 +24,7 @@ import &StandardImport, &PipelineRegistry, &Config
 
     getArtEryRemoteServer: -> config.remoteServer
 
-    # for testing
+    # for testing - soon to be DEPRECATED once testing uses its own, local pipelineRegistries
     _reset: (pipelineTestFunction)->
-      &PipelineRegistry._reset pipelineTestFunction
+      pipelineRegistry._reset pipelineTestFunction
       &Filters._resetFilters()

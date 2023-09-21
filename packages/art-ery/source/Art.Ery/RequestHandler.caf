@@ -1,9 +1,14 @@
-import &StandardImport, {} &Request, &PipelineRegistry
+import &StandardImport, &PipelineRegistry, {} &Request
 
 class RequestHandler extends BaseObject
   @abstractClass()
 
-  @getter pipelines: -> PipelineRegistry.pipelines
+  @extendableProperty
+    registry: pipelineRegistry
+
+  @getter
+    registry: -> @class.getRegistry()
+    pipelines: -> @registry.pipelines
 
   ## applyHandler
     OUT:

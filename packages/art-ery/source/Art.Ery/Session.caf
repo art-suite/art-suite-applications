@@ -1,4 +1,4 @@
-import &StandardImport, &Config, &ArtEvents, {} &PipelineRegistry
+import &StandardImport, &Config, &ArtEvents
 
 {JsonStore} = &@art-suite/art-foundation
 {jsonStore} = JsonStore
@@ -21,16 +21,14 @@ import &StandardImport, &Config, &ArtEvents, {} &PipelineRegistry
       inheritance... I like! it's simpler!
 
 class Session extends EventedMixinCaf BaseObject
-  ###
-    A global singleton Session is provided and used by default.
-    Or multiple instances can be created and passed to the
-    constructor of each Pipeline for per-pipeline custom sessions.
-  @singletonClass()
+  @getter
+    :registry
+    pipelines: -> @registry.pipelines
 
-  @getter pipelines: -> PipelineRegistry.pipelines
-
-  constructor: (@_data = {}, @_jsonStoreKey) ->
+  constructor: (data, @_jsonStoreKey, @_registry) ->
+    @_data = data ? {}
     @_startPollingSession() if isBrowser
+    throw new Error "registry required" unless @registry
 
   _startPollingSession: ->
     interval 5000 -> @reloadSession()
@@ -51,7 +49,7 @@ class Session extends EventedMixinCaf BaseObject
     :sessionLoadPromise
     :data
     :updatedAt
-    jsonStoreKey: -> @_jsonStoreKey ? :Art.Ery.Session
+    jsonStoreKey: -> @_jsonStoreKey ? "Art.Ery.Session"
 
     loadedDataPromise: ->
       if config.location == :server

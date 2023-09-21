@@ -1,20 +1,42 @@
-import &StandardImport
+import &StandardImport, {} &Session
 
-class PipelineRegistry extends &ArtEvents/ExtendableEventedMixin BaseObject
-  @pipelines: global.artEryPipelines = pipelines = {}
+class PipelineRegistry extends BaseObject
+  @singletonClass()
+
+  @pipelineRegistries: pipelineRegistries = []
+
+  constructor: (name)->
+    @_name = name ? @class.name
+    @_pipelines = {}
+    @_registryRegistry()
+
+  _registryRegistry: ->
+    registryNumber = pipelineRegistries.length
+    @_uniqueName = "#{@name}#{registryNumber}"
+    pipelineRegistries[registryNumber] = @
+
+  @getter :name :pipelines :uniqueName
+  @getter session: ->
+    @_session ?= new Session
+      null
+      "ArtEry-#{@name}-Session"
+      @
+
+  # @pipelines: global.artEryPipelines = pipelines = {}
 
   # returns the singleton
-  @register: ({singleton, _aliases}) ->
+  register: ({singleton, _aliases, name}) ->
 
-    each alias in _aliases
-      pipelines[alias] = singleton
+    each _, alias in _aliases
+      if @pipelines[alias]
+        log {} _aliases
+        throw new Error "Error registrying alias #{formattedInspect alias} for Pipeline '#{name}' - already exists: #{formattedInspect @pipelines[alias]}"
+      @pipelines[alias] = singleton
 
-    pipeline = pipelines[singleton extract name] = singleton
-
-    @handleEvent :register {} name, pipeline
+    @pipelines[singleton extract name] = singleton
     singleton
 
-  # used for testing
-  @_reset: (testFunction = -> true) ->
-    each key in Object.keys pipelines when testFunction pipelines[key]
-      delete pipelines[key]
+  # used for testing (soon to be DEPRECATED once testing uses locally instantiated registries)
+  _reset: (testFunction = -> true) ->
+    each key in Object.keys @pipelines when testFunction @pipelines[key]
+      delete @pipelines[key]

@@ -1,4 +1,4 @@
-import &StandardImport, &Config, {} &PipelineRegistry
+import &StandardImport, &Config
 
 ArtEry = require :./namespace
 
@@ -71,7 +71,7 @@ class Request extends BaseObject
         new Error
         .stack
 
-  @getter pipelines: -> PipelineRegistry.pipelines
+  @getter pipelines: -> @pipeline.pipelines
   @getter :filterLog :errorProps :creationTime :creationStack
   @getter :type :pipeline :session :props
   @getter :originatedOnServer

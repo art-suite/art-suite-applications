@@ -2,8 +2,6 @@ import &StandardImport, &ArtValidation, &PrefetchedRecordsCache, &Config, &RestC
   &Filter
   &DatabaseFilters
   &Session
-  &Filters # needed?
-  &PipelineRegistry
   &Request
 
 ##
@@ -45,7 +43,7 @@ class Pipeline extends &RequestHandler
 
   @register: ->
     @singletonClass()
-    PipelineRegistry.register @
+    @getRegistry().register @
 
   @postCreateConcreteClass: ({hotReloaded}) ->
     @_defineQueryHandlers()
@@ -249,7 +247,7 @@ class Pipeline extends &RequestHandler
       nf
 
     name:     -> @_name     ?= @_options.name    ? decapitalize @class.getName()
-    session:  -> @_session  ?= @_options.session ? Session.singleton
+    session:  -> @_session  ?= @_options.session ? @registry.session
 
     handlerRequestTypesMap: (_into = {}) -> mergeInto _into, @handlers
     filterRequestTypesMap: (_into = {}) -> each filter in @filters into _into with mergeInto _into, filter.beforeFilters

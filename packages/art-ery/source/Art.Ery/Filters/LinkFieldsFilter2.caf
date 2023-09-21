@@ -1,4 +1,4 @@
-import &StandardImport, &PipelineRegistry
+import &StandardImport
 
 class LinkFieldsFilter2 extends &ValidationFilter
   @location :server
@@ -62,7 +62,7 @@ class LinkFieldsFilter2 extends &ValidationFilter
         response
 
       else
-        @_prefetchRecords response, response.pipelineName, response.responseData
+        @_prefetchRecords response, response.pipeline, response.responseData
         .then (dataUpdates) ->
           response.withMergedProps {} dataUpdates
 
@@ -71,9 +71,10 @@ class LinkFieldsFilter2 extends &ValidationFilter
       a filter with .linkFields field
       OR: false
   pipelinesLinkedFieldFilters = {}
-  @getLinkedFieldFilterForPipeline: getLinkedFieldFilterForPipeline = (pipelineName) ->
-    pipelinesLinkedFieldFilters[pipelineName] ?=
-      find filter in pipelines[pipelineName].filters when filter.linkFields
+  @getLinkedFieldFilterForPipeline: getLinkedFieldFilterForPipeline = (pipeline) ->
+    registryFieldFilters = pipelinesLinkedFieldFilters[pipeline.registry.uniqueName] ?= {}
+    registryFieldFilters[pipeline.name] ?=
+      find filter in pipeline.filters when filter.linkFields
       || false
 
   ###############
@@ -99,7 +100,6 @@ class LinkFieldsFilter2 extends &ValidationFilter
         props.required =   true if required
 
   _setPrefetch: (request, pipelineName, key, value) ->
-    # log _setPrefetch: {} pipelineName, key, value
     # throw new Error "not expecting _setPrefetch!"
     vivifyObjectPathAndSet request.context, :dataUpdates pipelineName, key, value
 
@@ -114,8 +114,10 @@ class LinkFieldsFilter2 extends &ValidationFilter
         For example, add: or setDefault: values may be specified for updates.
   _preprocessRequest: (request) ->
     processedData = merge request.data
+    request extract pipelines
     preprocessRequestFailure = null
     Promise.all array {idFieldName, autoCreate, pipelineName}, fieldName in @linkFields
+      throw new Error "pipelineName is not a string!" unless isString pipelineName
       if linkedFieldData = processedData[fieldName]
         Promise.then ->
           if linkedFieldData.id
@@ -155,15 +157,15 @@ class LinkFieldsFilter2 extends &ValidationFilter
         .then (record) -> @_setPrefetch request, pipelineName, key, record
 
   # TODO: use bulkGet if available
-  _prefetchRecords: (request, pipelineName, data) ->
+  _prefetchRecords: (request, pipeline, data) ->
     Promise.then ->
       switch
       when data is Array
         Promise.all array record in data
-          @_prefetchRecords request, pipelineName, record
+          @_prefetchRecords request, pipeline, record
 
-      when request.pipelines[pipelineName].isRecord?(data) &&
-          getLinkedFieldFilterForPipeline(pipelineName) extract linkFields
+      when pipeline.isRecord?(data) &&
+          getLinkedFieldFilterForPipeline(pipeline) extract linkFields
 
         # NOTES: the Con with this is it returns the data twice, let's assume we fix that:
         # The Pro is it avoids returning the data twice if it is linked in recursively.

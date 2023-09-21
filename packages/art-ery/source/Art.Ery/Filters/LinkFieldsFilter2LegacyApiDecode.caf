@@ -10,16 +10,16 @@ class LinkFieldsFilter2LegacyApiDecode extends &Filter
     all: (response) ->
       response.withMergedProps
         data: legacyDecode
-          response.pipelineName
+          response.pipeline
           dataUpdates = {}
           response.data
         dataUpdates: dataUpdates
 
-  legacyDecode = (pipelineName, dataUpdates, data) ->
-    if getLinkedFieldFilterForPipeline(pipelineName) extract linkFields
+  legacyDecode = (pipeline, dataUpdates, data) ->
+    if getLinkedFieldFilterForPipeline(pipeline) extract linkFields
       switch
-      when data is Array  then array record in data with  legacyDecodeB linkFields, dataUpdates, record
-      when data is Object then                            legacyDecodeB linkFields, dataUpdates, data
+      when data is Array  then array record in data with  legacyDecodeB pipeline, linkFields, dataUpdates, record
+      when data is Object then                            legacyDecodeB pipeline, linkFields, dataUpdates, data
       else data
     else data
 
@@ -37,12 +37,13 @@ class LinkFieldsFilter2LegacyApiDecode extends &Filter
         myPipelineName: recordId: record
 
       record: <Object>
-  legacyDecodeB = (linkFields, dataUpdates, record) ->
+  legacyDecodeB = (pipeline, linkFields, dataUpdates, record) ->
     mergeWithoutNulls record, object {idFieldName, pipelineName}, fieldName in linkFields when record[fieldName]
       inlineRecord = record[fieldName]
       vivifyObjectPathAndSet dataUpdates, pipelineName, inlineRecord.id, inlineRecord
       legacyDecode
-        pipelineName
+        pipeline.pipelines[pipelineName]
         dataUpdates
         inlineRecord
+
       null
