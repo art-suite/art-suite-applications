@@ -24,7 +24,7 @@ class PipelineRegistry extends BaseObject
 
   # @pipelines: global.artEryPipelines = pipelines = {}
 
-  # returns the singleton
+  # returns the Pipeline's singleton
   register: ({singleton, _aliases, name}) ->
 
     each _, alias in _aliases
@@ -35,8 +35,3 @@ class PipelineRegistry extends BaseObject
 
     @pipelines[singleton extract name] = singleton
     singleton
-
-  # used for testing (soon to be DEPRECATED once testing uses locally instantiated registries)
-  _reset: (testFunction = -> true) ->
-    each key in Object.keys @pipelines when testFunction @pipelines[key]
-      delete @pipelines[key]

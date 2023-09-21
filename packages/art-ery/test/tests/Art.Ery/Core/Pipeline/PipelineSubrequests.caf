@@ -1,9 +1,10 @@
 import &StandardImport
 
 suite: ->
-  setup ->
-    _reset()
+  chainedTest ->
+    registry = new PipelineRegistry
     class MyPipeline extends Pipeline
+      @registry registry
       @publicHandlers
         get: ({key}) -> "Got #{key}?"
 
@@ -23,8 +24,8 @@ suite: ->
           assert.neq promises[0], promises[2]
           Promise.all promises
 
-  test "triggerCachedGet", ->
-    pipelines.myPipeline.triggerGachedGet key: "milk", returnResponseObject: true
+  .tapTest "triggerCachedGet", ({myPipeline})->
+    myPipeline.triggerGachedGet key: "milk", returnResponseObject: true
     .then ({data, subrequestCount}) ->
       assert.eq subrequestCount, 2
       assert.eq data, []

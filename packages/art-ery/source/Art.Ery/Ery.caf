@@ -1,5 +1,7 @@
 import &StandardImport, &PipelineRegistry, &Config
 
+global.artEryPipelines = pipelineRegistry.pipelines
+global.artEryPipelineRegistries = pipelineRegistries
 []
   &Filters
   &DatabaseFilters
@@ -8,6 +10,7 @@ import &StandardImport, &PipelineRegistry, &Config
     pipelineRegistry
     pipelineRegistry.pipelines
     pipelineRegistry.session
+    pipelineRegistries
     &PrefetchedRecordsCache.prefetchedRecordsCache
 
     sendInitializeRequestToAllPipelines: (registry = pipelineRegistry)->
@@ -23,8 +26,3 @@ import &StandardImport, &PipelineRegistry, &Config
           &ArtEry.sendInitializeRequestToAllPipelines()
 
     getArtEryRemoteServer: -> config.remoteServer
-
-    # for testing - soon to be DEPRECATED once testing uses its own, local pipelineRegistries
-    _reset: (pipelineTestFunction)->
-      pipelineRegistry._reset pipelineTestFunction
-      &Filters._resetFilters()
