@@ -152,7 +152,7 @@ class Request extends BaseObject
         @parentRequest
         @filterLog
         @originatedOnServer
-        context: @_context
+        context: @_context  # don't vivify context
         @verbose
         @remoteRequest
 
@@ -160,8 +160,8 @@ class Request extends BaseObject
         @request
         @status
         @props
-        session:   @_session
-        filterLog:  @_filterLog
+        session: @_session  # Responses should only have a "local" session if the session changed
+        @filterLog
         @remoteRequest
         @remoteResponse
         @errorProps
