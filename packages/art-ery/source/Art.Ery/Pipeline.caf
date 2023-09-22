@@ -26,20 +26,6 @@ import &StandardImport, &ArtValidation, &Config, &RestClientLib, &RestServerLib,
       and ArtEry (ArtPipelines?) to have namespaced registries so you can merge as many
       packages as you want based on ArtSuite without name-conflicts in their registries.
 
-preprocessFilters = (filter) ->
-  if isPlainArray filter
-    array f in filter when f with instantiateFilter f
-
-  else
-    instantiateFilter filter
-
-instantiateFilter = (filter) ->
-  if isClass filter                 then new filter
-  else if isFunction filter         then filter @
-  else if filter instanceof Filter  then filter
-  else if isPlainObject filter      then new Filter filter
-  else throw "" invalid filter: #{inspect filter} #{filter instanceof Filter}
-
 class Pipeline extends &RequestHandler
   @abstractClass() # any sub-class that shouldn't auto-register should be an abstract class
 
@@ -54,20 +40,7 @@ class Pipeline extends &RequestHandler
     @register() unless hotReloaded
     super
 
-  @instantiateFilter: instantiateFilter
-
   @getAliases: -> @_aliases || {}
-
-  @addDatabaseFilters: (options) ->
-    @filter DatabaseFilters.createDatabaseFilters options, @
-
-  @addDatabaseFiltersV2: (options) ->
-    @filter DatabaseFilters.createDatabaseFilters
-      merge
-        linkFilterVersion: 2
-        options
-
-      @
 
   #############################
     ###########################
@@ -139,7 +112,7 @@ class Pipeline extends &RequestHandler
           OUT: same or new response
             NOTE: all after-filters are applied if the handler generated the first response object
             UNLESS there is an error, in which case the error is returned directly.
-  @filter:        (filter)         -> @extendFilters preprocessFilters filter
+  @filter:        (filter)         -> @extendFilters Filter.preprocessFilters filter
 
   ## handler
     add one or more handlers
@@ -755,6 +728,17 @@ class Pipeline extends &RequestHandler
 
       @queries
       @fields
+
+  @addDatabaseFilters: (options) ->
+    @filter DatabaseFilters.createDatabaseFilters options, @
+
+  @addDatabaseFiltersV2: (options) ->
+    @filter DatabaseFilters.createDatabaseFilters
+      merge
+        linkFilterVersion: 2
+        options
+
+      @
 
   @tableNamePrefix: (@_tableNamePrefix) -> # override default (see config.tableNamePrefix)
   getPrefixedTableName: (tableName) -> "#{@tableNamePrefix}#{tableName}"

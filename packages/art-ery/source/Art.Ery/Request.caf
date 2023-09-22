@@ -22,35 +22,53 @@ createValidators = () ->
 
 class Request extends BaseObject
 
+  ## constuctor
+    IN:
+      type?:    action type
+      props?:   request props:
+        key?:   string or plain-object
+        data?:  JSON value
+
+      # response-only
+      request:  the final request-instance
+      status:   (string) valid ArtCommunicationStatus
   constructor: (options) ->
-    @_type = options.type
-    @_props = options.props ? {}
-    @_props.data = options.data if options.data?
+    # common
+    @_type                = options.type
+    @_props               = options.props ? {}
+    @_props.data          = options.data if options.data?
 
-    @_pipeline = options.pipeline ? options.request.pipeline
-    @_session = options.session
-    @_originatedOnServer = options.originatedOnServer
-    @_creationTime = currentSecond()
-    @_filterLog = options.filterLog
-    @_errorProps = options.errorProps
-    @_creationStack = options.creationStack ? options.request?.creationStack
-    @_request = options.request
-    @_originalRequest ?= options.originalRequest ? @_request?.originalRequest ? @
-    @_parentRequest = options.parentRequest ? @_request?.parentRequest
-    @_rootRequest = @_parentRequest?.rootRequest ? @_request ? @
-    @_status = options.status
+    @_pipeline            = options.pipeline ? options.request.pipeline
+    @_session             = options.session
 
-    @_verbose   = options.verbose
-    @_context   = options.context
+    @_originatedOnServer  = options.originatedOnServer
+    @_context             = options.context
 
-    @_remoteRequest = options.remoteRequest
-    @_remoteResponse = options.remoteResponse
+    # response-only
+    @_request             = options.request
+    @_status              = options.status
+
+    # inspection / debugging tracking
+    @_verbose             = options.verbose
+    @_creationTime        = currentSecond()
+    @_filterLog           = options.filterLog
+    @_errorProps          = options.errorProps
+    @_creationStack       = options.creationStack ? options.request?.creationStack
+
+    # request history structure
+    @_originalRequest     = options.originalRequest ? @_request?.originalRequest ? @
+    @_parentRequest       = options.parentRequest ? @_request?.parentRequest
+    @_rootRequest         = @_parentRequest?.rootRequest ? @_request ? @
+
+    # transport layer info objects
+    @_remoteRequest       = options.remoteRequest   # available serverside and clientside
+    @_remoteResponse      = options.remoteResponse  # only available clientside
 
     createValidators()
     if @isRequest
       key = options.key ? @_props.key
       options.key = @_props.key = @pipeline.toKeyString key if key?
-      requestValidator.validate options, context: "Art.Ery.#{@class.name} options", logErrors: true
+      requestValidator.validate options, logErrors: true
 
       @_filterLog ?= []
         name:   :created
@@ -58,7 +76,7 @@ class Request extends BaseObject
         time:   currentSecond()
 
     else
-      responseValidator.validate options, context: "Art.Ery.#{@class.name} options", logErrors: true
+      responseValidator.validate options, logErrors: true
 
       # If the session wasn't explicitly set, did it change in the request part of the pipeline?
       @_session ?= if neq @request.session, @request.originalRequest.session
@@ -72,16 +90,29 @@ class Request extends BaseObject
         .stack
 
   @getter pipelines: -> @pipeline.pipelines
-  @getter :filterLog :errorProps :creationTime :creationStack
-  @getter :type :pipeline :session :props
-  @getter :originatedOnServer
   @getter
+    :pipeline
+    :props
+    session:            -> @_session ? @request.session
+    originatedOnServer: -> if @isRequest then @_originatedOnServer else @request.originatedOnServer
+    type:               -> @_type ? @request.type
+    key:                -> if @isRequest then @_props.key else @request.key ? @responseData?.id # TODO 2023 - this should really not be hard-coded use responseData.id; response should be able to specific a new key separate from the Data
+    data:               -> @_props.data
+
+    :filterLog
+    :errorProps
+    :creationTime
+    :creationStack
+
     :request          # (valid on responses only): get the final request-instance before the first response-instance was generated
     :originalRequest  # get the first request instance
     :parentRequest    # if this is a subrequest, get the request that triggered this one
     :rootRequest      # get the very first request that triggered this whole chain of sub-requests, or, if this isn't a subrequest, returns self
 
-  @getter :remoteResponse :remoteRequest
+    :remoteResponse
+    :remoteRequest
+
+    context:            -> if @isRequest then @_context ?= {} else @request.context
 
   addFilterLog: (filter, context) ->
     @_filterLog = arrayWith
@@ -94,20 +125,23 @@ class Request extends BaseObject
 
     @
 
-  isUpdateRequest: -> @pipeline.isUpdateRequestType @type
-  isDeleteRequest: -> @pipeline.isDeleteRequestType @type
-
   @getter
-    request:        ->
-      unless @_request
-        throw new Error ".request accessor is only valid on isResponse instances"
-      @_request
+    # BOOLEAN info-getters
+    isRequest:          -> !@_request?
+    isResponse:         -> @_request?
+    isRootRequest:      -> !@parentRequest
+    isSubrequest:       -> !@isRootRequest
+    isUpdateRequest:    -> @pipeline.isUpdateRequestType @type
+    isDeleteRequest:    -> @pipeline.isDeleteRequestType @type
+    verbose:            -> @_verbose || @originalRequest?._verbose || @rootRequest?._verbose
 
-    isRequest:      -> !@_request?
-    isResponse:     -> @_request?
-    isRootRequest:  -> !@parentRequest
-    isSubrequest:   -> !@isRootRequest
+    location:           -> @pipeline.location
+    requestType:        -> @type # alias for @type - do we need?
+    pipelineName:       -> @pipeline.getName()
+    requestDataWithKey: -> merge @requestData, @keyObject
+    keyObject:          -> @pipeline.toKeyObject @key
 
+    # Request and Response props for cloning and creation
     propsForClone: ->
       if @isRequest then {}
         @originalRequest
@@ -134,33 +168,74 @@ class Request extends BaseObject
 
     propsForResponse: -> if @isResponse then @propsForClone
 
-    lastFilterLogEntry: ->
-      peek(@filterLog) ? @request?.lastFilterLogEntry
-
-    requestTrace: ->
-      @lastFilterLogEntry extract? name, context, time, stack, exception
-
-      compactFlatten []
-        @parentRequest?.requestTrace
-        {}
-          time:       time - @startTime
-          request:    @requestString
-          context:    dashCase context
-          filterLog:  compactFlatten [@beforeFilterLog, @afterFilterLog]
-          name
-          stack
-          exception
-
-    verbose:            -> @_verbose || @originalRequest?._verbose || @rootRequest?._verbose
-    location:           -> @pipeline.location
-    requestType:        -> @type
-    pipelineName:       -> @pipeline.getName()
-    requestDataWithKey: -> merge @requestData, @keyObject
-    keyObject:          -> @pipeline.toKeyObject @key
-    originalRequest:    -> @_originalRequest ? @request.originalRequest
+    # TIMING
     startTime:          -> @rootRequest.creationTime
     endTime:            -> @creationTime
     wallTime:           -> @startTime - @endTime
+
+    # RESPONSE STATUS & status-helpers
+    status: ->
+      if @_status == failure
+        switch @location
+        when :server then serverFailure
+        when :client then clientFailure
+
+      ? @_status
+
+    failed:             -> @_status == failure || @_status == serverFailure
+    isSuccessful:       -> @_status == success
+    isMissing:          -> @_status == missing
+    isFailure:          -> @notSuccessful
+    notSuccessful:      -> @_status? && @_status != success
+
+    # get requests props from request OR response
+    requestSession:     -> (@_request ? @).session
+    requestProps:       -> (@_request ? @).props
+    requestData:        -> (@_request ? @).props.data
+
+    # get response propts from request OR response - obviously if not a response object, they will all be undefined
+    responseSession:    -> @_session    if @isResponse
+    responseProps:      -> @_props      if @isResponse
+    responseData:       -> @_props.data if @isResponse
+
+
+    plainObjectsResponse: (fields) ->
+      object v from fields || {@status, @props, @beforeFilterLog, @afterFilterLog, session: @_session} when
+        switch
+        when isPlainObject v then objectKeyCount(v) > 0
+        when isPlainArray  v then v.length > 0
+        else v != undefined
+
+    responseForRemoteRequest: ->
+      @getPlainObjectsResponse unless config.returnProcessingInfoToClient then {}
+        @status
+        @props
+        session: @_session
+
+  ############################################################
+    ##########################################################
+
+      Inspect & Debug
+
+    ##########################################################
+    ##########################################################
+  @getter
+    ##################################
+      Inspect and return just a String
+    pipelineAndType:    -> "" #{@pipelineName}.#{@type}
+
+    requestString: ->
+      if @key then @pipelineAndType + " #{formattedInspect @key}"
+      else @pipelineAndType
+
+    description: ->
+      if @isRequest then  "" #{@requestString} request
+      else                "" #{@requestString}: #{@status}
+
+    ##################################
+      FilterLog
+    lastFilterLogEntry: ->
+      peek(@filterLog) ? @request?.lastFilterLogEntry
 
     beforeFilterLog:    ->
       if @isRequest then  @_filterLog ? []
@@ -176,11 +251,39 @@ class Request extends BaseObject
         else @parentRequest?.requestChain
         @
 
-    simpleInspectedObjects: ->
-      # TODO: instead of @propsForClone, let's just clone the stuff we want
-      # Also, let's compact things a bit with: "pipelineName.requestType"
-      # break out key and data from props... etc...
+    handledBy:          -> @isResponse && !@failed && peek @request.filterLog
 
+    requestTrace: ->
+      @lastFilterLogEntry extract? name, context, time, stack, exception
+
+      compactFlatten []
+        @parentRequest?.requestTrace
+        {}
+          time:       time - @startTime
+          request:    @requestString
+          context:    dashCase context
+          filterLog:  compactFlatten [@beforeFilterLog, @afterFilterLog]
+          name
+          stack
+          exception
+
+
+    ##################################
+      request path
+    requestPathArray: (_into) ->
+      localInto = _into ? []
+      @parentRequest?.getRequestPathArray localInto
+
+      localInto.push @
+      localInto
+
+    requestPath: ->
+      array r in @requestPathArray with r.requestString
+      .join ' >> '
+
+    ##################################
+      inspect-objects
+    simpleInspectedObjects: ->
       props = objectWithout @props, :key :data
       props = null unless 0 < objectKeyCount props
 
@@ -198,94 +301,21 @@ class Request extends BaseObject
       ["Art.Ery.#{@class.name}"]: array request in @requestChain
         request.simpleInspectedObjects
 
-    status: ->
-      if @_status == failure
-        switch @location
-        when :server then serverFailure
-        when :client then clientFailure
-
-      ? @_status
-
-    session:            -> @_session ? @request.session
-    handledBy:          -> @isResponse && !@failed && peek @request.filterLog
-    failed:             -> @_status == failure || @_status == serverFailure
-    isSuccessful:       -> @_status == success
-    isMissing:          -> @_status == missing
-    isFailure:          -> @notSuccessful
-    notSuccessful:      -> @_status? && @_status != success
-
-    type:               -> @_type ? @request.type
-    key:                -> if @isRequest then @_props.key else @request.key ? @responseData?.id # TODO 2023 - this should really not be hard-coded use responseData.id; response should be able to specific a new key separate from the Data
-    data:               -> @_props.data
-
-    requestSession:     -> (@_request ? @).session
-    requestProps:       -> (@_request ? @).props
-    requestData:        -> (@_request ? @).props.data
-
-    responseSession:    -> @_session    if @isResponse
-    responseProps:      -> @_props      if @isResponse
-    responseData:       -> @_props.data if @isResponse
-
-    originatedOnServer: -> if @isRequest then @_originatedOnServer else @request.originatedOnServer
-    context:            -> if @isRequest then @_context ?= {} else @request.context
-    pipelineAndType:    -> "" #{@pipelineName}.#{@type}
-
-    requestString: ->
-      if @key then @pipelineAndType + " #{formattedInspect @key}"
-      else @pipelineAndType
-
-    description: -> @requestString
-
-    requestPathArray: (_into) ->
-      localInto = _into ? []
-      @parentRequest?.getRequestPathArray localInto
-
-      localInto.push @
-      localInto
-
-    requestPath: ->
-      array r in @requestPathArray with r.requestString
-      .join ' >> '
-
-    description: ->
-      if @isRequest then  "" #{@requestString} request
-      else                "" #{@requestString}: #{@status}
-
+    ## summary - smallest "inspectedObjects"
     summary: ->
       if @isRequest then  request: {} @props
       else                response: merge {} @status, @props, @errorProps
 
-    plainObjectsResponse: (fields) ->
-      object v from fields || {@status, @props, @beforeFilterLog, @afterFilterLog, session: @_session} when
-        switch
-        when isPlainObject v then objectKeyCount(v) > 0
-        when isPlainArray  v then v.length > 0
-        else v != undefined
+  toStringCore: -> "" ArtEry.#{if @isResponse then 'Response' else 'Request'} #{@pipelineName}.#{@type}#{if @key then " key: #{@key}" else ''}
+  toString:     -> "" <#{@toStringCore()}>
 
-    responseForRemoteRequest: ->
-      @getPlainObjectsResponse unless config.returnProcessingInfoToClient then {}
-        @status
-        @props
-        session: @_session
+  ############################################################
+    ##########################################################
 
-  toStringCore: ->
-    "" ArtEry.#{if @isResponse then 'Response' else 'Request'} #{@pipelineName}.#{@type}#{if @key then " key: #{@key}" else ''}
+      Subrequests
 
-  toString: -> "" <#{@toStringCore()}>
-
-  ########################
-    Context Props
-  @getter
-    requestCache:       -> @context.requestCache ?= {}
-    subrequestCount:    -> @context.subrequestCount ?= 0
-
-  @setter
-    responseProps:      -> throw new Error "" cannot set responseProps
-
-  incrementSubrequestCount: -> @context.subrequestCount = (@context.subrequestCount | 0) + 1
-
-  ########################
-    Subrequest
+    ##########################################################
+    ##########################################################
 
     TODO:
       I think I may have a way clean up the subrequest API and do
@@ -311,6 +341,13 @@ class Request extends BaseObject
 
         I kinda like this more because it makes it clear we are talking
         sub-requests. These are just ALIASes to the API above.
+
+  @getter
+    requestCache:       -> @context.requestCache ?= {}
+    subrequestCount:    -> @context.subrequestCount ?= 0
+
+  incrementSubrequestCount: -> @context.subrequestCount = (@context.subrequestCount | 0) + 1
+
   createSubRequest: (pipelineName, type, requestOptions) ->
     throw new Error "requestOptions must be an object" if requestOptions && !isPlainObject requestOptions
     pipeline = @pipelines[pipelineName]
@@ -505,14 +542,6 @@ class Request extends BaseObject
   rejectIf: (testValue, context) ->
     resolveRequireTestValue testValue
     .then (testValue) -> @require !testValue, context
-
-  ############################################################
-    ##########################################################
-
-        Request originatedOnServer requirement testing
-
-    ##########################################################
-    ##########################################################
 
   ## requireServerOrigin(): Success if @originatedOnServer
     OUT: see @rejectIfErrors
@@ -712,11 +741,11 @@ class Request extends BaseObject
           error.props.response
         else @failure {} error
 
-  success:                    (responseProps) -> @toResponse success,                     responseProps
-  missing:                    (responseProps) -> @toResponse missing,                     responseProps
-  clientFailure:              (responseProps) -> @toResponse clientFailure,               responseProps
-  clientFailureNotAuthorized: (responseProps) -> @toResponse clientFailureNotAuthorized,  responseProps
-  failure:                    (responseProps) -> @toResponse failure,                     responseProps
+  success:                              (responseProps) -> @toResponse success,                     responseProps
+  missing:                              (responseProps) -> @toResponse missing,                     responseProps
+  clientFailure:                        (responseProps) -> @toResponse clientFailure,               responseProps
+  clientFailureNotAuthorized:           (responseProps) -> @toResponse clientFailureNotAuthorized,  responseProps
+  failure:                              (responseProps) -> @toResponse failure,                     responseProps
   # NOTE: there is no serverFailure method because you should always use just 'failure'.
   # This is because you may be running on the client or the server. If running on the client, it isn't a serverFailure.
   # If status == "failure", the ArtEry HTTP server will convert that status to serverFailure automatically.
@@ -726,9 +755,13 @@ class Request extends BaseObject
   rejectWithClientFailureNotAuthorized: (responseProps) -> @toResponse clientFailureNotAuthorized,  responseProps, true
   rejectWithFailure:                    (responseProps) -> @toResponse failure,                     responseProps, true
 
-  ##########################
-  # PRIVATE
-  ##########################
+  ############################################################
+    ##########################################################
+
+      PRIVATE
+
+    ##########################################################
+    ##########################################################
   ## toResponse()
     IN:
       status: legal CommunicationStatus
@@ -815,7 +848,6 @@ class Request extends BaseObject
       Promise.resolve if returnResponse then @ else data
 
     else Promise.reject @_getRejectionError()
-
 
   _getRejectionError: ->
     @_preparedRejectionError ?= new RequestError {}

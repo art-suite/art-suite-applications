@@ -37,8 +37,8 @@ class DataUpdatesFilter extends &Filter
       response extract key, type, responseData, pipelineName, context
 
       groupName =
-        if response.isUpdateRequest() then :dataUpdates
-        else if response.isDeleteRequest() then :dataDeletes
+        if response.isUpdateRequest then :dataUpdates
+        else if response.isDeleteRequest then :dataDeletes
 
       if groupName
         switch
@@ -59,8 +59,8 @@ class DataUpdatesFilter extends &Filter
 
   sendDataEvents: (response) ->
     response extract pipeline, key, data, pipelines, responseProps extract dataUpdates, dataDeletes
-    pipeline.dataUpdated key ? @toKeyString(data), data if response.isUpdateRequest()
-    pipeline.dataDeleted key ? @toKeyString(data), data if response.isDeleteRequest()
+    pipeline.dataUpdated key ? @toKeyString(data), data if response.isUpdateRequest
+    pipeline.dataDeleted key ? @toKeyString(data), data if response.isDeleteRequest
 
     @sendDataUpdateEvents pipelines, dataUpdates
     @sendDataDeleteEvents pipelines, dataDeletes

@@ -43,6 +43,21 @@ Validator extract normalizeFields
     Maybe 'client' should be 'requester' instead of 'client'? 'requester' and 'server'?
 
 class Filter extends &RequestHandler
+
+  @preprocessFilters: (filter) =>
+    if isPlainArray filter
+      array f in filter when f with @preprocessFilter f
+
+    else
+      @preprocessFilter filter
+
+  @preprocessFilter: (filter) ->
+    if isClass filter                 then new filter
+    else if isFunction filter         then filter @
+    else if filter instanceof Filter  then filter
+    else if isPlainObject filter      then new Filter filter
+    else throw "" invalid filter: #{inspect filter} #{filter instanceof Filter}
+
   ############################
   # Class Declaration API
   ############################
