@@ -6,10 +6,8 @@
 .addModules({
   Config:                 require('./Config'),
   DatabaseFilters:        require('./DatabaseFilters'),
-  Filter:                 require('./Filter'),
   KeyFieldsMixin:         require('./KeyFieldsMixin'),
   Pipeline:               require('./Pipeline'),
-  PipelineRegistry:       require('./PipelineRegistry'),
   PrefetchedRecordsCache: require('./PrefetchedRecordsCache'),
   Request:                require('./Request'),
   RequestHandler:         require('./RequestHandler'),

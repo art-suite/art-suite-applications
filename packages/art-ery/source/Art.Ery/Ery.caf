@@ -1,4 +1,4 @@
-import &StandardImport, &PipelineRegistry, &Config
+import &StandardImport, &@ArtSuite/ArtPipelines.PipelineRegistry, &Config
 
 global.artEryPipelines = pipelineRegistry.pipelines
 global.artEryPipelineRegistries = pipelineRegistries
@@ -6,6 +6,8 @@ global.artEryPipelineRegistries = pipelineRegistries
   &Filters
   &DatabaseFilters
   {}
+    &@ArtSuite/ArtPipelines.Filter
+    &@ArtSuite/ArtPipelines.PipelineRegistry
     config
     pipelineRegistry
     pipelineRegistry.pipelines
