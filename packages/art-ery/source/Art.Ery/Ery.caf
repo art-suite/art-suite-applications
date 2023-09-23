@@ -8,6 +8,7 @@ global.artEryPipelineRegistries = pipelineRegistries
   {}
     &@ArtSuite/ArtPipelines.Filter
     &@ArtSuite/ArtPipelines.PipelineRegistry
+    &@ArtSuite/ArtPipelines.RequestHandler
     config
     pipelineRegistry
     pipelineRegistry.pipelines

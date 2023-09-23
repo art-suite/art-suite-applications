@@ -10,7 +10,6 @@
   Pipeline:               require('./Pipeline'),
   PrefetchedRecordsCache: require('./PrefetchedRecordsCache'),
   Request:                require('./Request'),
-  RequestHandler:         require('./RequestHandler'),
   RestClientLib:          require('./RestClientLib'),
   RestServerLib:          require('./RestServerLib'),
   Session:                require('./Session'),

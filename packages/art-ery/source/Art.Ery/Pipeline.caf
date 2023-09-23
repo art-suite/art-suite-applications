@@ -22,7 +22,7 @@ import &StandardImport, &ArtValidation, &Config, &RestClientLib, &RestServerLib,
       and ArtEry (ArtPipelines?) to have namespaced registries so you can merge as many
       packages as you want based on ArtSuite without name-conflicts in their registries.
 
-class Pipeline extends &RequestHandler
+class Pipeline extends RequestHandler
   @abstractClass() # any sub-class that shouldn't auto-register should be an abstract class
 
   @register: ->

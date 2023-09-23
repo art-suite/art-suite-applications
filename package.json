@@ -11,6 +11,7 @@
     "@art-suite/art-model-components": "file:packages/@art-suite/art-model-components",
     "@art-suite/art-models": "file:packages/@art-suite/art-models",
     "@art-suite/art-pipeline-models": "file:packages/@art-suite/art-pipeline-models",
+    "@art-suite/art-pipelines": "file:packages/@art-suite/art-pipelines",
     "@art-suite/instance-function-binding-mixin": "^1.0.0",
     "@art-suite/monorepo": "^1.6.1",
     "@art-suite/pipelines": "file:unpublished/@art-suite/pipelines",
