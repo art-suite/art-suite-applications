@@ -1,0 +1,888 @@
+import &StandardImport, &Config
+
+# ArtEry = require :./namespace
+
+responseValidator = requestValidator = null
+
+createValidators = () ->
+  responseValidator ?= new Validator
+    request:  [] :required instanceof: Request
+    status:   :required :communicationStatus
+    session:  :object
+    props:    :object
+
+  requestValidator ?= new Validator
+    # pipeline:           required: instanceof: ArtEry.Pipeline
+    type:               required: fieldType: :string
+    session:            required: fieldType: :object
+    parentRequest:      instanceof: Request
+    originatedOnServer: :boolean
+    props:              :object
+    key:                :string
+
+class Request extends BaseObject
+
+  ## constuctor
+    IN:
+      type?:    action type
+      props?:   request props:
+        key?:   string or plain-object
+        data?:  JSON value
+
+      # response-only
+      request:  the final request-instance
+      status:   (string) valid ArtCommunicationStatus
+  constructor: (options) ->
+    # common
+    @_type                = options.type
+    @_props               = options.props ? {}
+    @_props.data          = options.data if options.data?
+
+    @_pipeline            = options.pipeline ? options.request.pipeline
+    @_session             = options.session
+
+    @_originatedOnServer  = options.originatedOnServer
+    @_context             = options.context
+
+    # response-only
+    @_request             = options.request
+    @_status              = options.status
+
+    # inspection / debugging tracking
+    @_verbose             = options.verbose
+    @_creationTime        = currentSecond()
+    @_filterLog           = options.filterLog
+    @_errorProps          = options.errorProps
+    @_creationStack       = options.creationStack ? options.request?.creationStack
+
+    # request history structure
+    @_originalRequest     = options.originalRequest ? @_request?.originalRequest ? @
+    @_parentRequest       = options.parentRequest ? @_request?.parentRequest
+    @_rootRequest         = @_parentRequest?.rootRequest ? @_request ? @
+
+    # transport layer info objects
+    @_remoteRequest       = options.remoteRequest   # available serverside and clientside
+    @_remoteResponse      = options.remoteResponse  # only available clientside
+
+    createValidators()
+    if @isRequest
+      key = options.key ? @_props.key
+      options.key = @_props.key = @pipeline.toKeyString key if key?
+      requestValidator.validate options, logErrors: true
+
+      @_filterLog ?= []
+        name:   :created
+        stack:  @_creationStack
+        time:   currentSecond()
+
+    else
+      responseValidator.validate options, logErrors: true
+
+      # If the session wasn't explicitly set, did it change in the request part of the pipeline?
+      @_session ?= if neq @request.session, @request.originalRequest.session
+        @request.session
+
+      @setGetCache() if @type == :create || @type == :get
+
+    if getDetailedRequestTracingEnabled()
+      @_creationStack ?=
+        new Error
+        .stack
+
+  @getter pipelines: -> @pipeline.pipelines
+  @getter
+    :pipeline
+    :props
+    session:            -> @_session ? @request.session
+    originatedOnServer: -> if @isRequest then @_originatedOnServer else @request.originatedOnServer
+    type:               -> @_type ? @request.type
+    key:                -> if @isRequest then @_props.key else @request.key ? @responseData?.id # TODO 2023 - this should really not be hard-coded use responseData.id; response should be able to specific a new key separate from the Data
+    data:               -> @_props.data
+
+    :filterLog
+    :errorProps
+    :creationTime
+    :creationStack
+
+    :request          # (valid on responses only): get the final request-instance before the first response-instance was generated
+    :originalRequest  # get the first request instance
+    :parentRequest    # if this is a subrequest, get the request that triggered this one
+    :rootRequest      # get the very first request that triggered this whole chain of sub-requests, or, if this isn't a subrequest, returns self
+
+    :remoteResponse
+    :remoteRequest
+
+    context:            -> if @isRequest then @_context ?= {} else @request.context
+
+  addFilterLog: (filter, context) ->
+    @_filterLog = arrayWith
+      @_filterLog
+      name:       if isString filter then filter else filter.getLogName @type
+      context:    context
+      time:       currentSecond()
+      stack:      @originalRequest?.creationStack
+      exception:  @errorProps?.exception
+
+    @
+
+  @getter
+    # BOOLEAN info-getters
+    isRequest:          -> !@_request?
+    isResponse:         -> @_request?
+    isRootRequest:      -> !@parentRequest
+    isSubrequest:       -> !@isRootRequest
+    isUpdateRequest:    -> @pipeline.isUpdateRequestType @type
+    isDeleteRequest:    -> @pipeline.isDeleteRequestType @type
+    verbose:            -> @_verbose || @originalRequest?._verbose || @rootRequest?._verbose
+
+    location:           -> @pipeline.location
+    requestType:        -> @type # alias for @type - do we need?
+    pipelineName:       -> @pipeline.getName()
+    requestDataWithKey: -> merge @requestData, @keyObject
+    keyObject:          -> @pipeline.toKeyObject @key
+
+    # Request and Response props for cloning and creation
+    propsForClone: ->
+      if @isRequest then {}
+        @originalRequest
+        @pipeline
+        @type
+        @props
+        @session
+        @parentRequest
+        @filterLog
+        @originatedOnServer
+        context: @_context  # don't vivify context
+        @verbose
+        @remoteRequest
+
+      else {}
+        @request
+        @status
+        @props
+        session: @_session  # Responses should only have a "local" session if the session changed
+        @filterLog
+        @remoteRequest
+        @remoteResponse
+        @errorProps
+
+    propsForResponse: -> if @isResponse then @propsForClone
+
+    # TIMING
+    startTime:          -> @rootRequest.creationTime
+    endTime:            -> @creationTime
+    wallTime:           -> @startTime - @endTime
+
+    # RESPONSE STATUS & status-helpers
+    status: ->
+      if @_status == failure
+        switch @location
+        when :server then serverFailure
+        when :client then clientFailure
+
+      ? @_status
+
+    failed:             -> @_status == failure || @_status == serverFailure
+    isSuccessful:       -> @_status == success
+    isMissing:          -> @_status == missing
+    isFailure:          -> @notSuccessful
+    notSuccessful:      -> @_status? && @_status != success
+
+    # get requests props from request OR response
+    requestSession:     -> (@_request ? @).session
+    requestProps:       -> (@_request ? @).props
+    requestData:        -> (@_request ? @).props.data
+
+    # get response propts from request OR response - obviously if not a response object, they will all be undefined
+    responseSession:    -> @_session    if @isResponse
+    responseProps:      -> @_props      if @isResponse
+    responseData:       -> @_props.data if @isResponse
+
+
+    plainObjectsResponse: (fields) ->
+      object v from fields || {@status, @props, @beforeFilterLog, @afterFilterLog, session: @_session} when
+        switch
+        when isPlainObject v then objectKeyCount(v) > 0
+        when isPlainArray  v then v.length > 0
+        else v != undefined
+
+    responseForRemoteRequest: ->
+      @getPlainObjectsResponse unless config.returnProcessingInfoToClient then {}
+        @status
+        @props
+        session: @_session
+
+  ############################################################
+    ##########################################################
+
+      Inspect & Debug
+
+    ##########################################################
+    ##########################################################
+  @getter
+    ##################################
+      Inspect and return just a String
+    pipelineAndType:    -> "" #{@pipelineName}.#{@type}
+
+    requestString: ->
+      if @key then @pipelineAndType + " #{formattedInspect @key}"
+      else @pipelineAndType
+
+    description: ->
+      if @isRequest then  "" #{@requestString} request
+      else                "" #{@requestString}: #{@status}
+
+    ##################################
+      FilterLog
+    lastFilterLogEntry: ->
+      peek(@filterLog) ? @request?.lastFilterLogEntry
+
+    beforeFilterLog:    ->
+      if @isRequest then  @_filterLog ? []
+      else                @request.filterLog ? []
+
+    afterFilterLog:     ->
+      if @isRequest then  []
+      else                @_filterLog ? []
+
+    requestChain: ->
+      compactFlatten []
+        if @isResponse then @request.requestChain
+        else @parentRequest?.requestChain
+        @
+
+    handledBy:          -> @isResponse && !@failed && peek @request.filterLog
+
+    requestTrace: ->
+      @lastFilterLogEntry extract? name, context, time, stack, exception
+
+      compactFlatten []
+        @parentRequest?.requestTrace
+        {}
+          time:       time - @startTime
+          request:    @requestString
+          context:    dashCase context
+          filterLog:  compactFlatten [@beforeFilterLog, @afterFilterLog]
+          name
+          stack
+          exception
+
+
+    ##################################
+      request path
+    requestPathArray: (_into) ->
+      localInto = _into ? []
+      @parentRequest?.getRequestPathArray localInto
+
+      localInto.push @
+      localInto
+
+    requestPath: ->
+      array r in @requestPathArray with r.requestString
+      .join ' >> '
+
+    ##################################
+      inspect-objects
+    simpleInspectedObjects: ->
+      props = objectWithout @props, :key :data
+      props = null unless 0 < objectKeyCount props
+
+      raw = {}
+        "#{@class.name}": @requestString
+        @originatedOnServer
+        @data
+        @status
+        props
+        @errorProps
+
+      toInspectedObjects object v from raw when v?
+
+    inspectedObjects: ->
+      ["Art.Ery.#{@class.name}"]: array request in @requestChain
+        request.simpleInspectedObjects
+
+    ## summary - smallest "inspectedObjects"
+    summary: ->
+      if @isRequest then  request: {} @props
+      else                response: merge {} @status, @props, @errorProps
+
+  toStringCore: -> "" ArtEry.#{if @isResponse then 'Response' else 'Request'} #{@pipelineName}.#{@type}#{if @key then " key: #{@key}" else ''}
+  toString:     -> "" <#{@toStringCore()}>
+
+  ############################################################
+    ##########################################################
+
+      Subrequests
+
+    ##########################################################
+    ##########################################################
+
+    TODO:
+      I think I may have a way clean up the subrequest API and do
+      what is easy in Ruby: method-missing.
+
+      Here's the new API:
+        # request on the same pipeline
+        request.pipeline.requestType requestOptions
+
+        # request on another pipeline
+        request.pipelines.otherPipelineName.requestType requestOptions
+
+      Here's how:
+        .pipeline and .pipelines are getters
+        And they return proxy objects, generated and cached on the fly.
+
+      Alt API idea:
+        # same pipeline
+        request.subrequest.requestType
+
+        # other pipelines
+        request.crossSubrequest.user.requestType
+
+        I kinda like this more because it makes it clear we are talking
+        sub-requests. These are just ALIASes to the API above.
+
+  @getter
+    requestCache:       -> @context.requestCache ?= {}
+    subrequestCount:    -> @context.subrequestCount ?= 0
+
+  incrementSubrequestCount: -> @context.subrequestCount = (@context.subrequestCount | 0) + 1
+
+  createSubRequest: (pipelineName, type, requestOptions) ->
+    throw new Error "requestOptions must be an object" if requestOptions && !isPlainObject requestOptions
+    pipeline = @pipelines[pipelineName]
+    throw new Error "Pipeline not registered: #{formattedInspect pipelineName}" unless pipeline
+
+    new Request merge
+      {} originatedOnServer: requestOptions?.originatedOnServer ? true
+      requestOptions
+      {}
+        type
+        pipeline
+        verbose: @verbose
+        session: requestOptions?.session || @session
+        parentRequest: @_request ? @
+        @context
+
+  subrequest: (pipelineOrPipelineName, type, requestOptionsOrKey, requestOptionsAfterKey) ->
+    requestOptions =
+      if isString requestOptionsOrKey
+        merge requestOptionsAfterKey, key: requestOptionsOrKey
+      else requestOptionsOrKey
+
+    subrequest = @createSubRequest
+      pipelineName = pipelineOrPipelineName.pipelineName ? pipelineOrPipelineName
+      type
+      requestOptions
+
+    @incrementSubrequestCount()
+    subrequest.pipeline._processRequest subrequest
+    .then (response) -> response.toPromise requestOptions
+
+  nonblockingSubrequest: (pipelineName, type, requestOptions) ->
+    @subrequest pipelineName, type, requestOptions
+    .then (result) ->
+      if config.verbose
+        log ArtEry: Request: nonblockingSubrequest: {}
+          status: :success
+          pipelineName
+          type
+          requestOptions
+          parentRequest: {} @pipelineName, @type, @key
+          result
+
+    .catch (error) ->
+      log ArtEry: Request: nonblockingSubrequest: {}
+        status: :failure
+        pipelineName
+        type
+        requestOptions
+        parentRequest: {} @pipelineName, @type, @key
+        error
+
+    Promise.resolve()
+
+  _getPipelineTypeCache: (pipelineName, type) ->
+    (@requestCache[pipelineName] ?= {})[type] ?= {}
+
+  cachedSubrequest: (pipelineName, requestType, keyOrRequestProps, d) ->
+    throw new Error "DEPRICATED: 4-param cachedSubrequest" if d != undefined
+    @_cachedSubrequest pipelineName, requestType, requestType, keyOrRequestProps
+
+  _cachedSubrequest: (pipelineName, cacheType, requestType, keyOrRequestProps) ->
+    key = if isString keyOrRequestProps
+      keyOrRequestProps
+    else
+      keyOrRequestProps.key
+    throw new Error "_cachedSubrequest: key must be a string (#{formattedInspect {key}})" unless isString key
+    @_getPipelineTypeCache(pipelineName, cacheType)[key] ?=
+      @subrequest pipelineName, requestType, keyOrRequestProps
+      .catch (error) ->
+        if error.status == networkFailure && requestType == :get
+          # attempt retry once
+          timeout 20 + 10 * Math.random()
+          .then -> @subrequest pipelineName, requestType, keyOrRequestProps
+
+        else throw error
+
+  setGetCache: ->
+    if @status == success && present(@key) && @responseData?
+      @_getPipelineTypeCache(@pipelineName, :get)[@key] = Promise.then -> @responseData
+
+  cachedGet: cachedGet = (pipelineName, key) ->
+    if isPlainObject key
+      key = @pipelines[pipelineName].dataToKeyString key
+    throw new Error "cachedGet: key must be a string OR object when pipeline supports dataToKeyString (#{formattedInspect {key}})" unless isString key
+    @cachedSubrequest pipelineName, :get, key
+
+  # TODO: when we move LinkFieldsFilter's include-linking to the very-end of a client-initiated request
+  #   this will become a simple alias for cacheGet, since all gets will be w/o include.
+  cachedGetWithoutInclude: (pipelineName, key) ->
+    throw new Error "cachedGetWithoutInclude: key must be a string (#{formattedInspect {key}})" unless isString key
+    # use main get-cache if available
+    @_getPipelineTypeCache(pipelineName, :get)[key]
+
+    # if not, get w/o includes
+    ? @_cachedSubrequest
+      pipelineName
+      :get-no-include
+      :get
+      key:    key
+      props:  include: false
+
+  cachedPipelineGet: cachedGet # depricated(?) alias
+
+  # like cachedGet, excepts it success with null if it doesn't exist or if key doesn't exist
+  cachedGetIfExists: (pipelineName, key) ->
+    return Promise.resolve null unless key?
+    @cachedGet pipelineName, key
+    .catch (error) ->
+      if error.status == missing
+        Promise.resolve null
+      else throw error
+
+  ############################################################
+    ##########################################################
+
+      Request Requirement Testing
+
+    ##########################################################
+    ##########################################################
+
+  ## rejectIfErrors(): success unless errors?
+    IN:   errors: null, string or array of strings
+    OUT:  Promise
+
+      if errors?
+        Promise.reject clientFailure with message based on errors
+      else
+        Promise.resolve request
+  createRequirementNotMetRequestProps = (pipelineAndType, errors, stackException) ->
+    data: data =
+      details: compactFlatten([pipelineAndType, 'requirement not met', errors]).join ' - '
+      message: "Request requirement not met: " + compactFlatten([errors]).join ' - '
+    errorProps: if getDetailedRequestTracingEnabled()
+      exception: stackException ? new Error data.message
+
+  rejectIfErrors: (errors, stackException) ->
+    if errors
+      @clientFailure createRequirementNotMetRequestProps @pipelineAndType, errors, stackException
+      .then (response) -> response.toPromise()
+    else
+      Promise.resolve @
+
+  rejectNotAuthorizedIfErrors: (errors) ->
+    if errors
+      @clientFailureNotAuthorized createRequirementNotMetRequestProps @pipelineAndType, errors
+      .then (response) -> response.toPromise()
+    else
+      Promise.resolve @
+
+  @_resolveRequireTestValue: resolveRequireTestValue = (testValue) ->
+    if isFunction testValue
+      testValue = testValue()
+
+    Promise.resolve testValue
+
+  ## require(): Success if !!test
+    OUT: see @rejectIfErrors
+
+    EXAMPLE: request.require myLegalInputTest, "myLegalInputTest"
+  require: (test, context) ->
+    stackException = new Error context if getDetailedRequestTracingEnabled()
+    resolveRequireTestValue test
+    .then (test) ->
+      @rejectIfErrors
+        unless test then context ? []
+        stackException
+
+  ## requiredFields(): Success if all props in fields exists (are not null or undefined)
+
+    IN: fields (object)
+    OUT-SUCCESS: fields
+
+    OUT-REJECTED: see @rejectIfErrors
+
+    EXAMPLE:
+      # CaffeineScript's Object-Restructuring makes this particularly nice
+      request.requiredFields
+        {foo, bar} = request.data # creates a new object with just foo and bar fields
+  requiredFields: (fields, context) ->
+    missingFields = null
+    each v, k from fields when !v?
+      (missingFields ?= []).push k
+
+    @rejectIfErrors if missingFields then ["missing fields: " + missingFields.join(", "), context]
+    .then -> fields
+
+  ### rejectIf: Success if !test
+    OUT: see @rejectIfErrors
+
+    EXAMPLE: request.rejectIf !myLegalInputTest, "myLegalInputTest"
+  rejectIf: (testValue, context) ->
+    resolveRequireTestValue testValue
+    .then (testValue) -> @require !testValue, context
+
+  ## requireServerOrigin(): Success if @originatedOnServer
+    OUT: see @rejectIfErrors
+
+    EXAMPLE: request.requireServerOrigin "to use myServerOnlyFeature"
+  requireServerOrigin: (context) -> @requireServerOriginOr false, context
+
+  ## requireServerOriginOr(): Success if testValue or @originatedOnServer
+    OUT: see @rejectIfErrors
+
+    EXAMPLE: request.requireServerOriginOr admin, "to use myAdminFeature"
+  requireServerOriginOr: (testValue, context) ->
+    return Promise.resolve @ if @originatedOnServer
+    resolveRequireTestValue testValue
+    .then (testValue) ->
+      @rejectNotAuthorizedIfErrors unless testValue
+        "originatedOnServer required " +
+          if context?.match /\s*to\s/
+            context
+          else if context
+            "to #{context}"
+          else ''
+
+  ## requireServerOriginIf(): Success if !testValue or @originatedOnServer
+    OUT: see @rejectIfErrors
+
+    EXAMPLE: request.requireServerOriginIf clientAuthorized, "to use myFeature"
+  requireServerOriginIf: (testValue, context) ->
+    return Promise.resolve @ if @originatedOnServer
+    resolveRequireTestValue testValue
+    .then (testValue) -> @requireServerOriginOr !testValue, context
+
+  ############################################################
+    ##########################################################
+
+        GENERATE NEW RESPONSES/REQUESTS
+
+    ##########################################################
+    ##########################################################
+
+  # Clones this instance with optional overriding constructorOptions
+  with: (constructorOptions) ->
+    Promise.resolve(constructorOptions).then (constructorOptions) ->
+      @_with constructorOptions
+
+  # Private; expects 'o' to be a plainObject (not a promise -> plainObject)
+  _with: (o) -> new @class merge @propsForClone, o
+
+  ## withXyz()
+    IN: data can be a plainObject or a promise returning a plainObject
+    OUT: promise.then (new request or response instance) ->
+
+    withData:           new instance has @data replaced by `data`
+    withMergedData:     new instance has @data merged with `data`
+    withSession:        new instance has @session replaced by `session`
+    withMergedSession:  new instance has @session merged with `session`
+  withData:                     (data)  -> Promise.resolve(data).then   (data)  -> @_with {data}
+  withMergedData:               (data)  -> Promise.resolve(data).then   (data)  -> @_with data: merge @data, data
+
+  withKey:                      (data)  -> Promise.resolve(data).then   (key)   -> @_with {key}
+
+  withProps:                    (props) -> Promise.resolve(props).then  (props) -> @_with {props, key: props.key, data: props.data}
+  withMergedProps:              (props) -> Promise.resolve(props).then  (props) -> @_with key: props.key, data: props.data, props: merge @props, props
+  withMergedPropsWithoutNulls:  (props) -> Promise.resolve(props).then  (props) -> @_with key: props.key, data: props.data, props: mergeWithoutNulls @props, props
+
+  withMergedErrorProps:         (errorProps) -> Promise.resolve(errorProps).then (errorProps) -> @_with errorProps: merge @errorProps, errorProps
+
+  withSession:                  (session) -> Promise.resolve(session).then  (session) -> @_with {session}
+  withMergedSession:            (session) -> Promise.resolve(session).then  (session) -> @_with session: merge @session, session
+
+  respondWithSession:           (session) -> @success {session}
+  respondWithMergedSession:     (session) -> @success session: merge @session, session
+
+  ## withTransformedRecords ()
+    IN:
+      withFunction, whenFunction
+      OR: object:
+        with: withFunction
+        when: whenFunction
+
+    withFunction: (record, requestOrResponse) ->
+      IN:
+        record: a plain object
+        requestOrResponse: this
+      OUT: See EFFECT below
+        (can return a Promise in all situations)
+
+    whenFunction: (record, requestOrResponse) -> t/f
+      withFunction is only applied if whenFunction returns true
+
+    EFFECT:
+      if isPlainObject @data
+        called once: singleRecordTransform @data
+        if singleRecordTransform returns:
+          null:         >> return status: missing
+          plainObject:  >> return @withData data
+          response:     >> return response
+
+        See singleRecordTransform.OUT above for results
+
+      if isArray @data
+        Basically:
+          @withData array record in @data with singleRecordTransform record
+
+        But, each value returned from singleRecordTransform:
+          null:                              omitted from array results
+          response.status is clientFailure*: omitted from array results
+          plainObject:                       returned in array results
+          if any error:
+              exception thrown
+              rejected promise
+              response.status is not success and not clientFailure
+            then a failing response is returned
+
+    TODO:
+      Refactor. 'when' should really be a Filter - just like Caffeine/CoffeeScript comprehensions.
+        Right now, if when is false, the record is still returned, just not "withed"
+        Instead, only records that pass "when" should even be returned.
+  defaultWhenTest = (data, request) -> request.pipeline.isRecord data
+  withTransformedRecords: (withFunction, whenFunction = defaultWhenTest) ->
+    if isPlainObject options = withFunction
+      withFunction = options.with
+      whenFunction = options.when ? defaultWhenTest
+
+    if isPlainObject @data
+      Promise.resolve
+        if whenFunction @data, @
+          @next withFunction @data, @
+
+        else @
+
+    else if isArray @data
+      firstFailure = null
+      transformedRecords = array record from @data
+        Promise.then ->
+          if whenFunction record, @ then withFunction record, @
+          else record
+
+        .catch (error) ->
+          switch
+          when error.status == :missing then null
+          when response = error?.props?.response then response
+          else throw error
+
+        .then (out) ->
+          if out?.status && out instanceof Request
+            if isClientFailure out.status
+              out._clearErrorStack?()
+              null
+
+            else firstFailure ?= out
+
+          else out
+
+      Promise.all transformedRecords
+      .then (records) -> firstFailure ? @withData compactFlatten records
+
+    else Promise.resolve @
+
+  ## next()
+    next is used right after a filter or a handler.
+    It's job is to convert the results into a request or response object.
+
+    IN:
+      null/undefined OR
+      JSON-compabile data-type OR
+      Response/Request OR
+      something else - which is invalid, but is handled.
+
+      OR a Promise returing one of the above
+
+    OUT:
+      if a Request or Response object was passed in, that is immediatly returned.
+      Otherwise, this returns a Response object as follows:
+
+
+      if data is null/undefined, return @missing
+      if data is a JSON-compatible data structure, return @success with that data
+      else, return @failure
+  next: (data) ->
+    Promise.resolve data
+    .then
+      (data) ->
+        return data if data instanceof Request
+        switch
+        when !data?           then @missing()
+        when isJsonType data  then @success {} data
+        else
+          log.error invalidXYZ: data
+          throw new Error "invalid response data passed to RequestResponseBaseNext"
+          # TODO: should return an inspected version of Data IFF the server is in debug-mode
+
+      # send response-errors back through the 'resolved' promise path
+      # We allow them to be thrown in order to skip parts of code, but they should be returned normally
+      (error) ->
+        if error.props?.response?.isResponse
+          error.props.response
+        else @failure {} error
+
+  success:                              (responseProps) -> @toResponse success,                     responseProps
+  missing:                              (responseProps) -> @toResponse missing,                     responseProps
+  clientFailure:                        (responseProps) -> @toResponse clientFailure,               responseProps
+  clientFailureNotAuthorized:           (responseProps) -> @toResponse clientFailureNotAuthorized,  responseProps
+  failure:                              (responseProps) -> @toResponse failure,                     responseProps
+  # NOTE: there is no serverFailure method because you should always use just 'failure'.
+  # This is because you may be running on the client or the server. If running on the client, it isn't a serverFailure.
+  # If status == "failure", the ArtEry HTTP server will convert that status to serverFailure automatically.
+
+  rejectWithMissing:                    (responseProps) -> @toResponse missing,                     responseProps, true
+  rejectWithClientFailure:              (responseProps) -> @toResponse clientFailure,               responseProps, true
+  rejectWithClientFailureNotAuthorized: (responseProps) -> @toResponse clientFailureNotAuthorized,  responseProps, true
+  rejectWithFailure:                    (responseProps) -> @toResponse failure,                     responseProps, true
+
+  ############################################################
+    ##########################################################
+
+      PRIVATE
+
+    ##########################################################
+    ##########################################################
+  ## toResponse()
+    IN:
+      status: legal CommunicationStatus
+      responseProps: (optionally Promise returning:)
+        PlainObject:          directly passed into the Response constructor
+        String:               becomes data: message: string
+        Request:  returned directly
+        else:                 considered internal error, but it will create a valid, failing Response object
+    OUT:
+      promise.then (response) ->
+      .catch -> # should never happen
+  toResponse: (status, responseProps, returnRejectedPromiseOnFailure = false) ->
+    throw new Error "missing status" unless isString status
+
+    Promise.resolve responseProps
+    .then (responseProps = {}) ->
+      switch
+      when responseProps instanceof Request
+        log.warn "DEPRICATED: toResponse is instanceof Request"
+        # if used, shouldn't this still transform Request objects into Response objects?
+        responseProps
+
+      when isPlainObject responseProps
+        new Request merge @propsForResponse, responseProps, {} status, request: @_request ? @
+
+      when isString responseProps
+        @toResponse status, data: message: responseProps
+
+      # unsupported responseProps type is an internal failure
+      else @toResponse failure, @_toErrorResponseProps responseProps
+
+    .then (response) ->
+      if returnRejectedPromiseOnFailure
+            response.toPromise()
+      else  response
+
+  _toErrorResponseProps: (responseProps) ->
+    log
+      @
+      {} responseProps
+      data: message:
+        if responseProps instanceof Error
+              "" Internal Error: ArtEry.Request#toResponse received Error instance: #{formattedInspect responseProps}
+        else  "" Internal Error: ArtEry.Request#toResponse received unsupported type
+
+  ## toPromise()
+    IN: options:
+      returnNullIfMissing: true [default: false]
+        if status == missing
+          if returnNullIfMissing
+            promise.resolve null
+          else
+            promise.reject new RequestError
+
+      returnResponse: true [default: false]
+      returnResponseObject: true (alias)
+        if true, the response object is returned, otherwise, just the data field is returned.
+
+    OUT:
+      # if response.isSuccessful && returnResponse == true
+      promise.then (response) ->
+
+      # if response.isSuccessful && returnResponse == false
+      promise.then (data) ->
+
+      # if response.isMissing && returnNullIfMissing == true
+      promise.then (data) -> # data == null
+
+      # else
+      promise.catch (errorWithInfo) ->
+        {response} = errorWithInfo.info
+  toPromise: (options) ->
+    throw new Error "ArtEry.Request: toPromise can only be called on Response objects." unless @isResponse
+    options extract? returnNullIfMissing, returnResponse, returnResponseObject
+    @ extract data, isSuccessful, isMissing
+
+    returnResponse ?= returnResponseObject
+
+    if isMissing && returnNullIfMissing
+      data = null
+      isSuccessful = true
+
+    if isSuccessful
+      Promise.resolve if returnResponse then @ else data
+
+    else Promise.reject @_getRejectionError()
+
+  _getRejectionError: ->
+    @_preparedRejectionError ?= new RequestError {}
+      message:
+        compactFlatten []
+          @responseData?.message ? @responseProps?.message ? @errorProps?.exception?.message
+          ""
+          "" request: #{@pipeline}.#{@type}
+          formattedInspect {}
+            @status
+            @session
+            props: @requestProps
+
+        .join "\n"
+
+      @type
+      @status
+      @requestData
+      @responseData
+      sourceLib:  :ArtEry
+      response:   @
+      stack:
+        compactFlatten []
+          if exception = @errorProps?.exception
+              "Exception stack:\n#{cleanStackTrace exception.stack, false, true}\n"
+
+          array {time, request, context, name, stack, filterLog}, i in @requestTrace by -1
+            ""
+              #{request}: #{if filterLog? then (array {name} in filterLog with name when name != :created).join " -> " else "#{context} #{name}"}
+              (request-depth: #{i + 1}, start-time: #{time*1000|0}ms)
+              #{if stack then "\n#{cleanStackTrace stack, null, true}\n" else ''}
+
+          .join "\n"
+
+          getDetailedRequestTracingExplanation()
+          getCleanStackTraceWarning()
+
+        .join "\n"

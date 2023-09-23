@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "Config.js",
+  "sourceRoot": "../../..",
+  "sources": [
+    "source/ArtSuite/ArtPipelines/Config.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,6EAAO,6BAAiB,uDAExB,kDAAqB,8DACnB,eAEE,SAAS,OAIT,8BAA8B"
+}

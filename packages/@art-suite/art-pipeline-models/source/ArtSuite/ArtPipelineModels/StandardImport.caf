@@ -2,4 +2,5 @@
   &ArtStandardLib
   &ArtCommunicationStatus
   &@ArtSuite/ArtModels
+  &@ArtSuite/ArtPipelines
   &ArtEry

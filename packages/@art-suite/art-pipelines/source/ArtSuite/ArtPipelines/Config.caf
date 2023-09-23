@@ -1,0 +1,10 @@
+import &StandardImport, &ArtConfig
+
+class Config extends Configurable
+  @defaults
+    # increase logging level with interesting stuff
+    verbose: false
+
+    # If true, @beforeFilterLog, @handledBy, @afterFilterLog are returned
+    # Don't use in production :).
+    returnProcessingInfoToClient: false
