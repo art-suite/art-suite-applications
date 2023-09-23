@@ -21,8 +21,8 @@ class PusherFilter extends Filter
   @after
     all: (response) ->
       updateType = switch
-        when response.isUpdateRequest() then :update
-        when response.isDeleteRequest() then :delete
+        when response.isUpdateRequest then :update
+        when response.isDeleteRequest then :delete
 
       if updateType
         @withArtEryPusherSession response
