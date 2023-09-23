@@ -10,7 +10,6 @@
   Pipeline:         require('./Pipeline'),
   RestClientLib:    require('./RestClientLib'),
   RestServerLib:    require('./RestServerLib'),
-  Session:          require('./Session'),
   StandardImport:   require('./StandardImport'),
   UpdateAfterMixin: require('./UpdateAfterMixin')
 });
