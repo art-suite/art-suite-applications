@@ -9,6 +9,8 @@ global.artEryPipelineRegistries = pipelineRegistries
     &@ArtSuite/ArtPipelines.Filter
     &@ArtSuite/ArtPipelines.PipelineRegistry
     &@ArtSuite/ArtPipelines.RequestHandler
+    &@ArtSuite/ArtPipelines.Request
+    &@ArtSuite/ArtPipelines.PrefetchedRecordsCache
     config
     pipelineRegistry
     pipelineRegistry.pipelines

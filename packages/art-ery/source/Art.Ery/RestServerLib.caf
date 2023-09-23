@@ -1,4 +1,4 @@
-import &StandardImport, &RestClientLib, {} &Request
+import &StandardImport, &RestClientLib
 
 apiReport: (pipeline, options = {}) ->
   {server, publicOnly} = options

@@ -4,17 +4,15 @@
 (module.exports = require('./namespace'))
 .includeInNamespace(require('./Ery'))
 .addModules({
-  Config:                 require('./Config'),
-  DatabaseFilters:        require('./DatabaseFilters'),
-  KeyFieldsMixin:         require('./KeyFieldsMixin'),
-  Pipeline:               require('./Pipeline'),
-  PrefetchedRecordsCache: require('./PrefetchedRecordsCache'),
-  Request:                require('./Request'),
-  RestClientLib:          require('./RestClientLib'),
-  RestServerLib:          require('./RestServerLib'),
-  Session:                require('./Session'),
-  StandardImport:         require('./StandardImport'),
-  UpdateAfterMixin:       require('./UpdateAfterMixin')
+  Config:           require('./Config'),
+  DatabaseFilters:  require('./DatabaseFilters'),
+  KeyFieldsMixin:   require('./KeyFieldsMixin'),
+  Pipeline:         require('./Pipeline'),
+  RestClientLib:    require('./RestClientLib'),
+  RestServerLib:    require('./RestServerLib'),
+  Session:          require('./Session'),
+  StandardImport:   require('./StandardImport'),
+  UpdateAfterMixin: require('./UpdateAfterMixin')
 });
 require('./Filters');
 require('./Lib');
