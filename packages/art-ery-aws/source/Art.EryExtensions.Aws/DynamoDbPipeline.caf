@@ -26,8 +26,8 @@ class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMixin Pipeline
     @query @_getAutoDefinedQueries localIndexes
 
   @getter
-    globalIndexes: -> @_options.globalIndexes || @class._globalIndexes
-    localIndexes:  -> @_options.localIndexes  || @class._localIndexes
+    globalIndexes: -> @class._globalIndexes
+    localIndexes:  -> @class._localIndexes
 
   @primaryKey: ->
     super
@@ -431,7 +431,6 @@ class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMixin Pipeline
         table:      @tableName
         attributes: @dynamoDbCreationAttributes
         key:        @keyFieldsString
-        @_options
 
     createTableParams: ->
       StreamlinedDynamoDbApi.CreateTable.translateParams @streamlinedCreateTableParams

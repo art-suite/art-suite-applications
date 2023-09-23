@@ -19,6 +19,10 @@ class PipelineRegistry extends BaseObject
   @getter
     session: -> @_session ?= new Session null, "ArtEry-#{@name}-Session", @
     prefetchedRecordsCache: -> @_prefetchedRecordsCache ?= new PrefetchedRecordsCache @
+    inspectedObjects: -> {}
+      @name
+      @uniqueName
+      @pipelines
 
   # returns the Pipeline's singleton
   register: ({singleton, _aliases, name}) ->

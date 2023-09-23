@@ -8,12 +8,6 @@ class Config extends Configurable
     # "client", "server", or "both" - 'both' is the serverless mode for development & testing
     location: "both"
 
-    # if true, sessions will be saved in the browser's localStorage
-    #   and shared across windows for the same URL.
-    # If false, sessions will be lost when the web-page is closed.
-    #   Each window will have is own session regardless of URL.
-    saveSessions: true
-
     apiRoot: "api"
 
     ###
@@ -32,14 +26,6 @@ class Config extends Configurable
         server as the remote-API.
     remoteServer: null
 
-    # increase logging level with interesting stuff
-    verbose: false
-
-    # If true, @beforeFilterLog, @handledBy, @afterFilterLog are returned
-    # Don't use in production :).
-    returnProcessingInfoToClient: false
-
-
     ###
       generating a secury HMAC privateSessionKey:
 
@@ -57,5 +43,23 @@ class Config extends Configurable
       > openssl rand -base64 32
     server:
       privateSessionKey: "todo+generate+your+one+unique+key" # 22 base64 characters == 132 bits
+
+    ##############################
+      MOVED TO ART-PIPELINES
+    ##############################
+
+    # if true, sessions will be saved in the browser's localStorage
+    #   and shared across windows for the same URL.
+    # If false, sessions will be lost when the web-page is closed.
+    #   Each window will have is own session regardless of URL.
+    saveSessions: true
+
+    # increase logging level with interesting stuff
+    verbose: false
+
+    # If true, @beforeFilterLog, @handledBy, @afterFilterLog are returned
+    # Don't use in production :).
+    returnProcessingInfoToClient: false
+
 
   @getPrefixedTableName: (tableName) => "" #{@config.tableNamePrefix}#{tableName}

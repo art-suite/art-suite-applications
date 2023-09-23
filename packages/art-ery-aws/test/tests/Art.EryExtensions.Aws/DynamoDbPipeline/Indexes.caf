@@ -2,12 +2,14 @@ import &StandardImport, &ArtAws
 
 myAppMessage = MyAppMessage = null
 setupPromise = null
+pipelinse = registry = null
 
 setupWithMyTable = ->
   deleteTestTables()
   .then ->
-    Neptune.Art.Ery.PipelineRegistry._reset()
+    {pipelines} = registry = new PipelineRegistry
     {myAppMessage} = class MyAppMessage extends DynamoDbPipeline
+      @registry registry
       @publicRequestTypes :get :create :update :delete :byUserIdEventAt :byUserIdEventAtDesc
 
       @addDatabaseFilters

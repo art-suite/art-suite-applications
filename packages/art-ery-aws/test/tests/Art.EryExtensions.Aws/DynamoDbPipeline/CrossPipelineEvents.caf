@@ -1,13 +1,17 @@
 import &StandardImport
+registry = null
+pipelines = null
+session = null
 
 sharedAfterEventTests = (setupUserWith) ->
 
   chainedTest -> deleteTestTables().then ->
+    {pipelines, session} = registry = new PipelineRegistry
     AfterEventsFilter._reset()
-    Neptune.Art.Ery.PipelineRegistry._reset()
 
     User = null
     class User extends DynamoDbPipeline
+      @registry registry
       @publicRequestTypes :get :create :update :delete
       @addDatabaseFilters
         linkFilterVersion: 2
@@ -20,6 +24,7 @@ sharedAfterEventTests = (setupUserWith) ->
     setupUserWith User
 
     class Post extends DynamoDbPipeline
+      @registry registry
       @publicRequestTypes :get :create :update :delete
       @addDatabaseFilters
         linkFilterVersion: 2
@@ -114,12 +119,13 @@ suite:
         assert.eq User.getUpdatePropsFunctions(), post: create: [postCreateUpdateFunction]
 
     _mergeUpdateProps: ->
+      User = null
       suiteSetup ->
         AfterEventsFilter._reset()
-        Neptune.Art.Ery.PipelineRegistry._reset()
+        {pipelines} = registry = new PipelineRegistry
 
-        User = null
         class User extends DynamoDbPipeline
+          @registry registry
           @addDatabaseFilters
             linkFilterVersion: 2
             fields:
@@ -131,7 +137,7 @@ suite:
       test "basic", ->
         assert.eq
           foo: key: "foo", set: bar: 123
-          DynamoDbPipeline._mergeUpdateProps
+          User._mergeUpdateProps
             [] key: "foo", set: bar: 123
             :user
 
@@ -141,7 +147,7 @@ suite:
             key:        "foo"
             set:        bar: 123
             setDefault: baz: 456
-          DynamoDbPipeline._mergeUpdateProps
+          User._mergeUpdateProps
             []
               key: "foo", set: bar: 123
               key: "foo", setDefault: baz: 456
@@ -151,7 +157,7 @@ suite:
         assert.eq
           foo: key: "foo", set: name: "alice"
           bar: key: "bar", set: name: "bill"
-          DynamoDbPipeline._mergeUpdateProps
+          User._mergeUpdateProps
             []
               key: "foo", set: name: "alice"
               key: "bar", set: name: "bill"
@@ -161,7 +167,7 @@ suite:
         assert.eq
           foo: key: "foo", set: name: "alice", address: "123 Street"
           bar: key: "bar", set: name: "bill"
-          DynamoDbPipeline._mergeUpdateProps
+          User._mergeUpdateProps
             []
               []
                 key: "foo", set: name: "alice"

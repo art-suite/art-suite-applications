@@ -3,6 +3,7 @@ import &StandardImport, {} &Filters.AfterEventsFilter
 ArtEry = require :./namespace
 
 (superClass) -> class UpdateAfterMixin extends superClass
+  @abstractClass()
   # Requires AfterEventsFilter on any pipeline you want to subscribe to
 
   #######################
@@ -128,7 +129,9 @@ ArtEry = require :./namespace
 
   # OUT: updateItemPropsBykey
   @_mergeUpdateProps: (manyUpdateItemProps, toUpdatePipelineName) ->
-    pipeline = ArtEry.pipelines[toUpdatePipelineName]
+    pipeline = @pipelines[toUpdatePipelineName]
+    unless pipeline
+      throw new Error "pipeline #{formattedInspect toUpdatePipelineName} does not exist on registry #{formattedInspect @getRegistry()}"
     each props from compactFlatten manyUpdateItemProps when props into out = {}
       unless props.key
         log.error "key not found for one or more updateItem entries": {manyUpdateItemProps}
@@ -171,7 +174,7 @@ ArtEry = require :./namespace
 
     after: all: (request) ->
       if request.context.updateAfterMixinDepth == 1
-        UpdateAfterMixin._applyAllUpdates request
+        request.pipeline.class._applyAllUpdates request
       else
         Promise.resolve()
 

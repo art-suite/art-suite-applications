@@ -8,3 +8,9 @@ class Config extends Configurable
     # If true, @beforeFilterLog, @handledBy, @afterFilterLog are returned
     # Don't use in production :).
     returnProcessingInfoToClient: false
+
+    # if true, sessions will be saved in the browser's localStorage
+    #   and shared across windows for the same URL.
+    # If false, sessions will be lost when the web-page is closed.
+    #   Each window will have is own session regardless of URL.
+    saveSessions: true

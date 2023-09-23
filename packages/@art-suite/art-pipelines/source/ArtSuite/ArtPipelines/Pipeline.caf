@@ -39,6 +39,9 @@ class Pipeline extends &RequestHandler
     @register() unless hotReloaded
     super
 
+  @classGetter
+    pipelines: -> @getRegistry().pipelines
+
   @getAliases: -> @_aliases || {}
 
   #############################
