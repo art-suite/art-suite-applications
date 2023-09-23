@@ -3,7 +3,7 @@ import &StandardImport, &LinkFieldsFilter2
 
 # run this AFTER LinkFieldsFilter2 to convert dataUpdates to
 # The old over-the-while protocol: including linked objects inline in their parent objects.
-class LinkFieldsFilter2LegacyApiDecode extends &Filter
+class LinkFieldsFilter2LegacyApiDecode extends Filter
   @location :client
 
   @after

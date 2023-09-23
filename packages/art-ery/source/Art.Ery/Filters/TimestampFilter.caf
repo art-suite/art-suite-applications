@@ -1,6 +1,6 @@
 import &StandardImport
 
-class TimestampFilter extends &Filter
+class TimestampFilter extends Filter
 
   @group :outer
 

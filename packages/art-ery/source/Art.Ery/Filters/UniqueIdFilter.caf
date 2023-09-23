@@ -16,7 +16,7 @@ cryptoRandomBase62Id = (numChars) ->
 
 log2_62 = Math.log(62) / Math.log(2)
 
-class UniqueIdFilter extends &Filter
+class UniqueIdFilter extends Filter
   @group :outer
 
   ### constructor

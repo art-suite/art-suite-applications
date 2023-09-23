@@ -1,6 +1,6 @@
 import &StandardImport, &PrefetchedRecordsCache
 
-class PrefetchedRecordsFilter extends &Filter
+class PrefetchedRecordsFilter extends Filter
   @location :client
 
   constructor: (options) ->

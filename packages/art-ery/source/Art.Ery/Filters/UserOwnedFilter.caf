@@ -14,7 +14,7 @@ import &StandardImport
       Generally, these user-admins have the same level of access as
       the owner themselves, but perhaps not.
       CUSTOMIZE WITH: override options.requireUserCanUpdate
-defineModule module, class UserOwnedFilter extends &Filter
+defineModule module, class UserOwnedFilter extends Filter
   @group :outer
 
   ## constructor

@@ -1,6 +1,6 @@
 import &StandardImport
 
-class LinkFieldsFilter2Transition2BFilter extends &Filter
+class LinkFieldsFilter2Transition2BFilter extends Filter
   @location :client
 
   @before
