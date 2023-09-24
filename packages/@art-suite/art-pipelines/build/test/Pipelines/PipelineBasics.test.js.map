@@ -3,7 +3,7 @@
   "file": "PipelineBasics.test.js",
   "sourceRoot": "../../..",
   "sources": [
-    "source/test/Pipeline/PipelineBasics.test.caf"
+    "source/test/Pipelines/PipelineBasics.test.caf"
   ],
   "names": [],
   "mappings": "AAAA;;AAAA,uGAAO,sEAEP,gBAAQ,CACN,wBAAc,OACZ,KAAK,8CACH,EAAC,+CAA2B,eAC5B,UAAU,SAAU,iBAAgB,OAAM,IAAI,aAC9C,UAAU,SAAU,iBAAgB,QAAQ,YAC5C,UAAU,SAAU,iBAAgB,OAAO,IAAI,UAAS,QAAQ,WAAW,uCAC3E,UAAU,WAAU"

@@ -203,10 +203,10 @@ class Filter extends &RequestHandler
 
   shouldFilter: (processingLocation) ->
     switch @location
-      when :server then processingLocation != :client
-      when :client then processingLocation != :server
-      when :both   then true
-      else throw new Error "" Filter #{@getName()}: invalid filter location: #{@location}
+    when :server then processingLocation != :client
+    when :client then processingLocation != :server
+    when :both   then true
+    else throw new Error "" Filter #{@getName()}: invalid filter location: #{@location}
 
   toString: -> @getName()
 

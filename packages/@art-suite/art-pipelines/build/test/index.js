@@ -4,10 +4,13 @@
 (module.exports = require('./namespace'))
 
 .addModules({
-  FiltersTest:    require('./Filters.test'),
-  RequestTest:    require('./Request.test'),
-  SessionTest:    require('./Session.test'),
-  StandardImport: require('./StandardImport')
+  FilterBaseTest:     require('./FilterBase.test'),
+  FiltersTest:        require('./Filters.test'),
+  RequestTest:        require('./Request.test'),
+  SessionTest:        require('./Session.test'),
+  SimplePipeline:     require('./SimplePipeline'),
+  SimplePipelineTest: require('./SimplePipeline.test'),
+  StandardImport:     require('./StandardImport')
 });
 require('./Lib');
-require('./Pipeline');
+require('./Pipelines');

@@ -4,11 +4,9 @@
 (module.exports = require('./namespace'))
 
 .addModules({
-  AuthPipeline:       require('./AuthPipeline'),
-  Config:             require('./Config'),
-  FilterBase:         require('./FilterBase'),
-  SimplePipeline:     require('./SimplePipeline'),
-  SimplePipelineTest: require('./SimplePipeline.test'),
-  UpdateAfterMixin:   require('./UpdateAfterMixin')
+  AuthPipeline:     require('./AuthPipeline'),
+  Config:           require('./Config'),
+  SimplePipeline:   require('./SimplePipeline'),
+  UpdateAfterMixin: require('./UpdateAfterMixin')
 });
 require('./Filters');

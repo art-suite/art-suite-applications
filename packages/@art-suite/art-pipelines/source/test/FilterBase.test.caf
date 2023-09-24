@@ -1,6 +1,8 @@
 import &StandardImport, {} &SimplePipeline
 
-suite:
+&ArtConfig.configure()
+
+describe
   extendFields: ->
     test "on subclass", ->
       class MyFilter extends Filter
@@ -66,7 +68,7 @@ suite:
 
     test "b > a > g > save > g > a > b", ->
       orderLog = []
-      createWithPostCreate class MyPipeline extends SimplePipeline
+      class MyPipeline extends SimplePipeline
         @filter new OrderTestFilter :g
         @filter new OrderTestFilter :a
         @filter new OrderTestFilter :b
@@ -93,7 +95,7 @@ suite:
 
     test "before and after all", ->
       orderLog = []
-      createWithPostCreate class MyPipeline extends SimplePipeline
+      class MyPipeline extends SimplePipeline
         @filter new OrderTestFilter :g
         @filter new OrderTestFilter :a
         @filter new OrderTestFilter :b

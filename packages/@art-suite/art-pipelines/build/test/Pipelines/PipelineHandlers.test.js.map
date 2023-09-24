@@ -3,7 +3,7 @@
   "file": "PipelineHandlers.test.js",
   "sourceRoot": "../../..",
   "sources": [
-    "source/test/Pipeline/PipelineHandlers.test.caf"
+    "source/test/Pipelines/PipelineHandlers.test.caf"
   ],
   "names": [],
   "mappings": "AAAA;;AAAA,2FAAO,4DAGP,mCACA,KAAK,wCAAW,mDACW,8DACvB,qBAAgB,aAAK,CAAC,UAAY,aAAK,GAAG,KAAK,WAEjD,IAAI,IAAI,YACR,UAAU,kBAAkB,WAC5B,aACM,CAAC,SACL,UAAU,OAAM,KAAK,GAAG,KAAK,SAEjC,KAAK,6CAAmB,mDACG,8DACvB,qBAAgB,aAAK,CAAC,UAAY,kCAEnC,KAAI,uBACO,CAAC,SAAS,UAAU,MAAM,kBAExC,KAAK,4CAAkB,mDACI,8DACvB,qBAAgB,iBAAQ,4BAEzB,KAAI,uBACO,CAAC,SAAS,UAAU,MAAM,mBAExC,KAAK,wCAAoB,uCACJ,wDACjB,WAAM,CAAC,sBAAc,CAAC,UAAW,QAC9B,aAAa,GAAG,GAAG,QAEtB,wBAAoB,oBAEtB,UAAU,gCAAgC,yBAC1C,wBAAuB,KAAK,aACtB,CAAC,YACL,UAAU,UAAU,OAAO,GAAG,GAAG"
