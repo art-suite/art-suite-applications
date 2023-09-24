@@ -6,24 +6,12 @@ import &StandardImport, &ArtValidation, &Config, {}
 
 ##
   TODO: (July2019)
-    Factor out all ArtFlux-related stuff
-      ArtEry should be independent of ArtFlux or any other client-side state-management-system.
+    Factor out all ArtModels-related stuff
+      ArtPipelines should be independent of ArtModels or any other client-side state-management-system.
 
       Remaining:
-
-        query:
-          Another declaration passed directly to ArtFlux
-
-        aliases:
-          Another declaration passed directly to ArtFlux
-
-      Perhaps we need a subclass: PipelineWithFluxModel?
-
-    Namespaced-Registry
-
-      I still don't quite know how I want to do this, but I want BOTH ArtFlux (ArtModels?)
-      and ArtEry (ArtPipelines?) to have namespaced registries so you can merge as many
-      packages as you want based on ArtSuite without name-conflicts in their registries.
+        query:    Another declaration passed directly to ArtModels
+        aliases:  Another declaration passed directly to ArtModels
 
 class Pipeline extends &RequestHandler
   @abstractClass() # any sub-class that shouldn't auto-register should be an abstract class
@@ -132,13 +120,22 @@ class Pipeline extends &RequestHandler
   @handlers: @extendHandlers
 
   ## query
-    declare a query - used by ArtEryFlux
+    declare a query - used by ArtPipelineModels
+    Also used to impliement the action of the query... somehow???
 
-    IN: map:
-      queryName: map:
-        class properties for anonymous subclass of ArtEryQueryFluxModel
+    IN: {}
+      queryName: {} #
+        query:            (request) -> response
+        dataToKeyString:  (data)    -> string
+        keyFields:        string[]
+        localSort:        (data[]) -> sorted data[]
+        localMerge:       (previousQueryData, updatedRecordData, wasDeleted) ->
+          IN:
+            previousQueryData:  record[] or null
+            updatedRecordData:  record[] or null
+            wasDeleted:         boolean - true? updatedRecordData is a list of deleted records
 
-    queryName is used as both the ArtFlux model-name AND the ArtEry request-type:
+    queryName is used as both the ArtModel name AND the ArtPipeline request-type:
       Example:
         # invoke query
         myPipeline.myQueryName key: queryKey
@@ -162,8 +159,8 @@ class Pipeline extends &RequestHandler
         @aliases "chapterPost"
 
     purpose:
-      - used by ArtEryFluxComponent to make model aliases
-        (see FluxModel.aliases)
+      - used by ArtPipelineModels to make model aliases
+        (see ArtModel.aliases)
   @aliases: (args...)->
     @_aliases = object v, k from args with-key lowerCamelCase v with true
     @
@@ -663,7 +660,7 @@ class Pipeline extends &RequestHandler
     else throw new Error "override toKeyString or dataToKeyString for non-string-keys like: #{formattedInspect key}"
 
   ###################
-    propsToKey (primarilly used by ArtEryFluxModel)
+    propsToKey (primarilly used by ArtPipelineModels)
       NOTE: KeyFieldsMixin overrides this
   @getter
     propsToKey: -> @_propsToKey ?= do =>

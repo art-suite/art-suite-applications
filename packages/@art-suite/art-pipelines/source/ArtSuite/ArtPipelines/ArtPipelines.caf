@@ -1,0 +1,5 @@
+{}
+  &PipelineRegistry.pipelineRegistry.pipelines
+  &PipelineRegistry.pipelineRegistry.session
+  &PipelineRegistry.pipelineRegistries
+  &PipelineRegistry.pipelineRegistry

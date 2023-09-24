@@ -1,0 +1,29 @@
+import &StandardImport
+
+test 'singleton instance', ->
+  {session} = PipelineRegistry.pipelineRegistry
+  session.data = userId: 'abc'
+  assert.eq session.data, userId: 'abc'
+
+test "change event", -> new Promise (done) ->
+  session = new Session {userId: '123'}, null, PipelineRegistry.pipelineRegistry
+  session.on change: ({props}) ->
+    assert.eq props, data: userId: '456'
+    done()
+
+  session.data = userId: '456'
+
+chainedTest "new Session", ->
+  new PipelineRegistry
+  .session
+
+.tapTest "no session at start", (session) ->
+  assert.eq session.data, {}
+
+.tapTest "session.data = userId: :123", (session) ->
+  session.data = userId: :123
+  assert.eq session.data, userId: :123
+
+.tapTest "session.data = foo: 'bar'", (session) ->
+  session.data = foo: 'bar'
+  assert.eq session.data, foo: 'bar'

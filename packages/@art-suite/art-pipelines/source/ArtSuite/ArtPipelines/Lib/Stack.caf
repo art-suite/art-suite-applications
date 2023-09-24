@@ -26,13 +26,13 @@ else
 
 {}
   getCleanStackTraceWarning = ->
-    unless getEnv().ARTERY_CLEAN_STACK_TRACE == false || getEnv().ARTERY_CLEAN_STACK_TRACE == :false
-      "" NOTE: cleanStackTrace applied. Disable with: getEnv().ARTERY_CLEAN_STACK_TRACE=false
+    unless getEnv().ART_PIPELINES_CLEAN_STACK_TRACE == false || getEnv().ART_PIPELINES_CLEAN_STACK_TRACE == :false
+      "" NOTE: cleanStackTrace applied. Disable with: getEnv().ART_PIPELINES_CLEAN_STACK_TRACE=false
 
     else ''
 
   cleanStackTrace = (stack, keepFirstLine, quiet) ->
-    return stack if getEnv().ARTERY_CLEAN_STACK_TRACE == false || getEnv().ARTERY_CLEAN_STACK_TRACE == :false
+    return stack if getEnv().ART_PIPELINES_CLEAN_STACK_TRACE == false || getEnv().ART_PIPELINES_CLEAN_STACK_TRACE == :false
     if (error = stack) instanceof Error
       error.stack = cleanStackTrace error.stack, keepFirstLine, quiet
       error

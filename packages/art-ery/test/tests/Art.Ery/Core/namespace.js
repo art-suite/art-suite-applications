@@ -5,4 +5,3 @@ module.exports = require('../namespace').addNamespace(
   'Core',
   class Core extends Neptune.PackageNamespace {}
 );
-require('./Pipeline/namespace');

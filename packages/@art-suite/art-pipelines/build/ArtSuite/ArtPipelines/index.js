@@ -2,7 +2,7 @@
 // file: ArtSuite/ArtPipelines/index.js
 
 (module.exports = require('./namespace'))
-
+.includeInNamespace(require('./ArtPipelines'))
 .addModules({
   Config:                 require('./Config'),
   Filter:                 require('./Filter'),

@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "PrefetchedRecords.test.js",
+  "sourceRoot": "../../..",
+  "sources": [
+    "source/test/Lib/PrefetchedRecords.test.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,oHAAO,mFAEP,KAAK,oEACH,cAAc,IAAI,wBAClB,iCAAgC,CAC9B,aAAY,OAAO,WAAW,qBAC9B,YAEF,UACE,UACA,gBACE,cACA,cAEN,KAAK,yGACH,cAAc,IAAI,wBAClB,iCAAgC,CAC9B,aAAY,OAAO,WAAW,qBAC9B,KAEF,iCAAgC,CAC9B,kBAAiB,OAAO,gBAAgB,0BACxC,KAEF,UACE,UACA,gBACE,cACA,kBAEJ,UACE,eACA,gBACE,mBACA,qBAEN,KAAK,4EACH,cAAc,IAAI,wBAClB,iCAAgC,CAC9B,aAAY,OAAO,WAAW,qBAC9B,cAEF,QAAQ,UACN,oBACE,gBACE,cACA"
+}

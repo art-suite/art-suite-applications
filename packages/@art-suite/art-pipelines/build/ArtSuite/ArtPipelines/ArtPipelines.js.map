@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "ArtPipelines.js",
+  "sourceRoot": "../../..",
+  "sources": [
+    "source/ArtSuite/ArtPipelines/ArtPipelines.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,kCACE,qEACA,iEACA,sEACA"
+}

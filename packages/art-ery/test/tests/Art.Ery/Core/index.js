@@ -4,13 +4,5 @@
 (module.exports = require('./namespace'))
 
 .addModules({
-  Filters:           require('./Filters'),
-  KeyFieldsMixin:    require('./KeyFieldsMixin'),
-  NiceStackTraces:   require('./NiceStackTraces'),
-  PrefetchedRecords: require('./PrefetchedRecords'),
-  Request:           require('./Request'),
-  RestClientLib:     require('./RestClientLib'),
-  Session:           require('./Session'),
-  Stack:             require('./Stack')
+  KeyFieldsMixin: require('./KeyFieldsMixin')
 });
-require('./Pipeline');

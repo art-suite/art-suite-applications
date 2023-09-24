@@ -1,6 +1,6 @@
 import &StandardImport, &Config
 
-# ArtEry = require :./namespace
+# ArtPipelines = require :./namespace
 
 responseValidator = requestValidator = null
 
@@ -12,7 +12,7 @@ createValidators = () ->
     props:    :object
 
   requestValidator ?= new Validator
-    # pipeline:           required: instanceof: ArtEry.Pipeline
+    # pipeline:           required: instanceof: ArtPipelines.Pipeline
     type:               required: fieldType: :string
     session:            required: fieldType: :object
     parentRequest:      instanceof: Request
@@ -306,7 +306,7 @@ class Request extends BaseObject
       if @isRequest then  request: {} @props
       else                response: merge {} @status, @props, @errorProps
 
-  toStringCore: -> "" ArtEry.#{if @isResponse then 'Response' else 'Request'} #{@pipelineName}.#{@type}#{if @key then " key: #{@key}" else ''}
+  toStringCore: -> "" ArtPipeline-#{if @isResponse then 'Response' else 'Request'} #{@pipelineName}.#{@type}#{if @key then " key: #{@key}" else ''}
   toString:     -> "" <#{@toStringCore()}>
 
   ############################################################
@@ -383,7 +383,7 @@ class Request extends BaseObject
     @subrequest pipelineName, type, requestOptions
     .then (result) ->
       if config.verbose
-        log ArtEry: Request: nonblockingSubrequest: {}
+        log ArtPipelines: Request: nonblockingSubrequest: {}
           status: :success
           pipelineName
           type
@@ -392,7 +392,7 @@ class Request extends BaseObject
           result
 
     .catch (error) ->
-      log ArtEry: Request: nonblockingSubrequest: {}
+      log ArtPipelines: Request: nonblockingSubrequest: {}
         status: :failure
         pipelineName
         type
@@ -748,7 +748,7 @@ class Request extends BaseObject
   failure:                              (responseProps) -> @toResponse failure,                     responseProps
   # NOTE: there is no serverFailure method because you should always use just 'failure'.
   # This is because you may be running on the client or the server. If running on the client, it isn't a serverFailure.
-  # If status == "failure", the ArtEry HTTP server will convert that status to serverFailure automatically.
+  # If status == "failure", the ArtPipelines HTTP server will convert that status to serverFailure automatically.
 
   rejectWithMissing:                    (responseProps) -> @toResponse missing,                     responseProps, true
   rejectWithClientFailure:              (responseProps) -> @toResponse clientFailure,               responseProps, true
@@ -804,8 +804,8 @@ class Request extends BaseObject
       {} responseProps
       data: message:
         if responseProps instanceof Error
-              "" Internal Error: ArtEry.Request#toResponse received Error instance: #{formattedInspect responseProps}
-        else  "" Internal Error: ArtEry.Request#toResponse received unsupported type
+              "" Internal Error: ArtPipelines.Request#toResponse received Error instance: #{formattedInspect responseProps}
+        else  "" Internal Error: ArtPipelines.Request#toResponse received unsupported type
 
   ## toPromise()
     IN: options:
@@ -834,7 +834,7 @@ class Request extends BaseObject
       promise.catch (errorWithInfo) ->
         {response} = errorWithInfo.info
   toPromise: (options) ->
-    throw new Error "ArtEry.Request: toPromise can only be called on Response objects." unless @isResponse
+    throw new Error "ArtPipelines.Request: toPromise can only be called on Response objects." unless @isResponse
     options extract? returnNullIfMissing, returnResponse, returnResponseObject
     @ extract data, isSuccessful, isMissing
 
@@ -867,7 +867,7 @@ class Request extends BaseObject
       @status
       @requestData
       @responseData
-      sourceLib:  :ArtEry
+      sourceLib:  :ArtPipelines
       response:   @
       stack:
         compactFlatten []

@@ -60,6 +60,7 @@ class PipelineQueryModel extends KeyFieldsMixin ArtModel
     IN:
       previousQueryData: array of records or null
       updatedRecordData: single record or null
+      wasDeleted: boolean - if true, updatedRecordData is a list of deleted records
     OUT: return null if nothing changed, else return a new array
   localMerge: (previousQueryData, updatedRecordData, wasDeleted) ->
     previousQueryData ?= []
