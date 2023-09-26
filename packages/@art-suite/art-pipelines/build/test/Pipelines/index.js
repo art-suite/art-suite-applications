@@ -8,6 +8,11 @@
   PipelineBasicsTest:         require('./PipelineBasics.test'),
   PipelineCustomRequestsTest: require('./PipelineCustomRequests.test'),
   PipelineFailuresTest:       require('./PipelineFailures.test'),
+  PipelineFields:             require('./PipelineFields'),
+  PipelineFieldsTest:         require('./PipelineFields.test'),
   PipelineHandlersTest:       require('./PipelineHandlers.test'),
-  PipelineSubrequestsTest:    require('./PipelineSubrequests.test')
+  PipelineInspectorsTest:     require('./PipelineInspectors.test'),
+  PipelineRequestsTest:       require('./PipelineRequests.test'),
+  PipelineSubrequestsTest:    require('./PipelineSubrequests.test'),
+  PipelineSubscriptionsTest:  require('./PipelineSubscriptions.test')
 });

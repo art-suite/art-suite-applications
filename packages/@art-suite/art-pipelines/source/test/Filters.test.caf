@@ -30,7 +30,6 @@ describe
       .then (result) ->
         assert.eq result, "Hello Frank."
 
-
     test :after ->
       class MyPipeline extends Pipeline
         @handlers helloWorld: ({data}) -> "Hello #{data}."
@@ -209,9 +208,6 @@ describe
       .then (result)->
         assert.eq result, "me!"
 
-  groups: ->
-
-
   regressions: ->
     test "can share filter instances" ->
       class MyFilter extends Filter
@@ -236,3 +232,95 @@ describe
       ]).then ([foo1, foo2]) ->
         assert.eq foo1, foo1ed: true, myFiltered: true
         assert.eq foo2, foo2ed: true, myFiltered: true
+
+  extendFields: ->
+    test "on subclass", ->
+      class MyFilter extends Filter
+        @fields foo: "string"
+
+      assert.eq ["foo"], Object.keys MyFilter.getFields()
+      assert.selectedEq
+        fieldType:  "string"
+        dataType:   "string"
+        MyFilter.getFields().foo
+
+    test "filter fields add to pipeline", ->
+      class MyFilter extends Filter
+        @fields filterFoo: "string"
+
+      class MyPipeline extends Pipeline
+        @fields pipelineFoo: "string"
+
+        @filter MyFilter
+
+      assert.eq
+        :filterFoo :pipelineFoo
+        Object.keys MyPipeline.getFields()
+        .sort()
+
+    test "on subclass and sub-subclass - with new field", ->
+      class MyFilter extends Filter
+        @fields foo: "string"
+
+      class MySubFilter extends MyFilter
+        @fields bar: "number"
+
+      assert.eq ["foo"], Object.keys MyFilter.getFields()
+      assert.eq ["foo", "bar"], Object.keys MySubFilter.getFields()
+
+      assert.selectedEq {fieldType: "string"}, MyFilter.getFields().foo
+      assert.selectedEq {fieldType: "string"}, MySubFilter.getFields().foo
+      assert.selectedEq {fieldType: "number"}, MySubFilter.getFields().bar
+
+    test "on subclass and sub-subclass - with replaced field", ->
+      class MyFilter extends Filter
+        @fields foo: "string"
+
+      class MySubFilter extends MyFilter
+        @fields foo: "number"
+
+      assert.eq ["foo"], Object.keys MyFilter.getFields()
+      assert.eq ["foo"], Object.keys MySubFilter.getFields()
+
+      assert.selectedEq {fieldType: "string"}, MyFilter.getFields().foo
+      assert.selectedEq {fieldType: "number"}, MySubFilter.getFields().foo
+
+    test "on subclass and subclass-instance", ->
+      class MyFilter extends Filter
+        @fields foo: "string"
+
+      myFilter = new MyFilter
+      myFilter.extendFields bar: "number"
+
+      assert.eq ["foo"], Object.keys MyFilter.getFields()
+      assert.eq ["foo", "bar"], Object.keys myFilter.getFields()
+
+  all: ->
+
+    class OrderTestFilter extends Filter
+      constructor: (@str) ->
+
+      @before all: (request)  -> request.withData         message: "" #{if m = request.data.message  then "#{m}\n" else ''}before-#{request.type}(#{@str})
+      @after  all: (response) -> response.withMergedData  message: "" #{if m = response.data.message then "#{m}\n" else ''}after-#{response.request.type}(#{@str})
+
+    test "before and after all" ->
+      orderLog = []
+      class MyPipeline extends Pipeline
+        @filter new OrderTestFilter :g
+        @filter new OrderTestFilter :a
+        @filter new OrderTestFilter :b
+
+        @publicHandlers create: ({data:{message}}) -> message: "#{message}\ncreate-handler"
+
+      MyPipeline.singleton.create data: {}
+      .then (savedData) ->
+        assert.eq
+          savedData.message
+          """
+            before-create(b)
+            before-create(a)
+            before-create(g)
+            create-handler
+            after-create(g)
+            after-create(a)
+            after-create(b)

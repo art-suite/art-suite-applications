@@ -283,6 +283,7 @@ class Request extends BaseObject
 
     ##################################
       inspect-objects
+
     simpleInspectedObjects: ->
       props = objectWithout @props, :key :data
       props = null unless 0 < objectKeyCount props
@@ -865,14 +866,17 @@ class Request extends BaseObject
 
       @type
       @status
-      @requestData
-      @responseData
+      @requestProps
+      @responseProps
       sourceLib:  :ArtPipelines
-      response:   @
+      response: if getEnv().ART_PIPELINES_ATTACH_RESPONSE_TO_ERRORS then @
+
       stack:
         compactFlatten []
+          @responseData?.message ? @responseProps?.message ? @errorProps?.exception?.message
+
           if exception = @errorProps?.exception
-              "Exception stack:\n#{cleanStackTrace exception.stack, false, true}\n"
+              "Exception stack:\n#{cleanStackTrace exception.stack, true, true}\n"
 
           array {time, request, context, name, stack, filterLog}, i in @requestTrace by -1
             ""

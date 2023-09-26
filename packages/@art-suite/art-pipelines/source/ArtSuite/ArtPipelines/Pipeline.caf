@@ -47,6 +47,9 @@ class Pipeline extends &RequestHandler
     fields: {}
     publicRequestTypes: {}
 
+  @fields:  @extendFields
+  @field:   @extendFields
+
   @publicRequestTypes: (values...) ->
     publicRequestTypes = {}
     each v in compactFlatten values
@@ -56,10 +59,12 @@ class Pipeline extends &RequestHandler
     @extendPublicRequestTypes publicRequestTypes
 
   # delcare handlers and publicRequestTypes as one
-  @publicHandlers: (maps...) ->
+  @publicHandlers: publicHandlers = (maps...) ->
     each map in maps
       @handlers map
       @publicRequestTypes Object.keys map
+
+  @publicHandler: publicHandlers
 
   ## filter
     define a single filter OR an array of filters to define.
@@ -295,21 +300,18 @@ class Pipeline extends &RequestHandler
     request.cachedGet @pipelineName, key ? request.key
 
   createRequest: (type, options) ->
-    log.warn "DEPRICATED - options must be an object now" unless isPlainObject options
-    options = key: options if isString options
-
     if getDetailedRequestTracingEnabled()
       stack = (new Error).stack
 
     Promise
-    .then => options.session || @session.loadedDataPromise
-    .tapCatch (error) =>
+    .then -> options.session || @session.loadedDataPromise
+    .tapCatch (error) ->
       log.error Pipeline_createRequest:
-        message: "Error getting session"
-        info: {@pipelineName, type, options}
+        message: "" Error getting session
+        info: {} @pipelineName, type, options
         error: error
 
-    .then (sessionData) =>
+    .then (sessionData) ->
       new Request merge
         options
         type:     type
@@ -317,7 +319,7 @@ class Pipeline extends &RequestHandler
         session:  sessionData
         creationStack: stack
 
-    .catch (error) =>
+    .catch (error) ->
       if stack?
         error.stack = cleanStackTrace stack
 
@@ -366,13 +368,11 @@ class Pipeline extends &RequestHandler
         @subscriberRemoved called
   unsubscribe: (key, subscriber, queryName) ->
     subscribers = @_getSubscribers queryName
-    if subscribersForKey = subscribers[key]
+    if subscriber in subscribersForKey = subscribers[key]
       removeFirstMatch subscribersForKey, subscriber
-      if subscribersForKey.length == 0
-        delete subscribers[key]
-        @subscriberRemoved key, subscriber, queryName
-        subscriber
-
+      delete subscribers[key] if subscribersForKey.length == 0
+      @subscriberRemoved key, subscriber, queryName
+      subscriber
 
   ## _getSubscribers
     IN:
@@ -515,12 +515,6 @@ class Pipeline extends &RequestHandler
 
     ####################################
     ####################################
-  _normalizeRequest: (request) ->
-    if isPlainObject request
-      new Request merge request, pipeline: @
-
-    else
-      request
 
   ## handleRequest
     This is really a private method even though this is not called "_handleRequest"
@@ -532,7 +526,7 @@ class Pipeline extends &RequestHandler
 
     if handler = @handlers[request.type]
       @applyHandler request, handler, :handler
-      .then (response) =>
+      .then (response) ->
         unless response.isResponse
           request.failure "#{@pipelineName}.#{request.type} request was not handled"
 
@@ -547,7 +541,7 @@ class Pipeline extends &RequestHandler
     isPublicRequestType = !!@getPublicRequestTypes()[request.type]
 
     unless haveHandler || isPublicRequestType
-      Promise.then => request.clientFailure data:
+      Promise.then -> request.clientFailure data:
         message: "'#{request.type}' is an invalid request type"
         validRequestTypes: Object.keys @handlers
 
@@ -663,7 +657,7 @@ class Pipeline extends &RequestHandler
     propsToKey (primarilly used by ArtPipelineModels)
       NOTE: KeyFieldsMixin overrides this
   @getter
-    propsToKey: -> @_propsToKey ?= do =>
+    propsToKey: -> @_propsToKey ?= do ->
       recordType = @pipelineName
       (props, stateField) ->
         propsField = stateField ? recordType

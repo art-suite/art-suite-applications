@@ -1,0 +1,38 @@
+import &StandardImport
+
+{myPipeline} = class MyPipeline extends Pipeline
+  @filter before: get: (request) -> request
+  @filter after: all: (response) -> response
+  @fields userId: :number
+  @publicHandlers
+    get: (request) -> @_myState
+    set: (request) -> @_myState = request.data
+  @handlers
+    hiddenHandler: -> :bar
+
+test "inspectedObjects" ->
+  myPipeline extract inspectedObjects
+  assert.isPlainObject inspectedObjects
+
+test "pipelineReport" ->
+
+  myPipeline extract pipelineReport
+  assert.eq
+    [] :userId
+    Object.keys pipelineReport.fields
+    .sort()
+
+  assert.eq
+    [] :get, :hiddenHandler, :set
+    Object.keys pipelineReport.clientSideRequestProcessing
+    .sort()
+
+  assert.eq
+    [] :get, :hiddenHandler, :set
+    Object.keys pipelineReport.serverSideRequestProcessing
+    .sort()
+
+  assert.eq
+    [] :get, :hiddenHandler, :set
+    Object.keys pipelineReport.serverlessDevelopmentRequestProcessing
+    .sort()

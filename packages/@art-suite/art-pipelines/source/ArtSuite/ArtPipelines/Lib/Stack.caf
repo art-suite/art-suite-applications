@@ -2,6 +2,7 @@ import &ArtStandardLib
 
 removeFromCleanStackTraceRegExp =
   ///
+    ^\s+at\_
     processImmediate
     | Art.Ery/(Pipeline|Request|Filter\b)
     | ArtSuite/ArtPipelines/(Pipeline|Request|Filter\b)
@@ -19,8 +20,10 @@ repathStackTrace = if isNode
   path = eval("require") "path"
   cwd = global.process.cwd()
   (line) ->
-    line.replace /([^ (]+)(?=:\d+)/, (filePath) ->
-      path.relative cwd, filePath
+    if getEnv().ART_PIPELINES_REPATH_STACK_TRACE
+      line.replace /([^ (]+)(?=:\d+)/, (filePath) ->
+        path.relative cwd, filePath
+    else line
 else
   (line) -> line
 

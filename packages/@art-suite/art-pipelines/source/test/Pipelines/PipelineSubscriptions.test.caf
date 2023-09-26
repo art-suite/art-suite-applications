@@ -1,0 +1,86 @@
+import &StandardImport
+
+&ArtConfig.configure()
+
+subscriberEvents = []
+events = []
+subscriber = myPipeline = null
+
+chainedTest "setup subscriptions" ->
+  {myPipeline} = class MyPipeline extends Pipeline
+    subscriberAdded:    (key, subscriber, queryName) -> subscriberEvents.push added:   merge {} key, queryName
+    subscriberRemoved:  (key, subscriber, queryName) -> subscriberEvents.push removed: merge {} key, queryName
+
+    @query
+      byUserId:
+        query: (request) -> [] message: "hi there" userId: :user123
+        dataToKeyString: ({userId}) -> userId
+
+.tapTest "subscribe" ->
+  assert.eq subscriberEvents, []
+  myPipeline.subscribe :foo subscriber = (args...) -> events.push args
+  assert.eq subscriberEvents, [] added: key: :foo
+
+.tapTest "subscribe twice does nothing" ->
+  subscriberEvents = []
+  myPipeline.subscribe :foo subscriber
+  assert.eq subscriberEvents, []
+
+.tapTest "_sendDataSubscriptionEvent single" ->
+  assert.eq events, []
+  myPipeline._sendDataSubscriptionEvent :update :foo :someData
+  assert.eq events, [] [] :update, :foo, :someData
+
+.tapTest "_sendDataSubscriptionEvent list" ->
+  events = []
+  myPipeline._sendDataSubscriptionEvent :batchUpdate :foo []
+    :data1
+    :data2
+    :data3
+
+  assert.eq
+    events
+    []
+      [] :batchUpdate, :foo, :data1
+      [] :batchUpdate, :foo, :data2
+      [] :batchUpdate, :foo, :data3
+
+.tapTest "unsubscribe" ->
+  subscriberEvents = []
+  myPipeline.unsubscribe :foo subscriber
+  assert.eq subscriberEvents, [] removed: key: :foo
+
+.tapTest "unsubscribe twice does nothing" ->
+  subscriberEvents = []
+  myPipeline.unsubscribe :foo subscriber
+  assert.eq subscriberEvents, []
+
+.tapTest "subscribe query" ->
+  subscriberEvents = []
+  myPipeline.subscribe :user123 (subscriber = (args...) -> events.push args), :byUserId
+  assert.eq subscriberEvents, [] added: key: :user123 queryName: :byUserId
+
+.tapTest "subscribe query twice does nothing" ->
+  subscriberEvents = []
+  myPipeline.subscribe :user123 subscriber, :byUserId
+  assert.eq subscriberEvents, []
+
+.tapTest "_sendDataSubscriptionEvent single with query subscribers" ->
+  events = []
+  myPipeline._sendDataSubscriptionEvent :update :abc123 userId: :user123
+  assert.eq events, []
+    []
+      :update
+      :abc123
+      userId: :user123
+      :user123
+
+.tapTest "unsubscribe query" ->
+  subscriberEvents = []
+  myPipeline.unsubscribe :user123 subscriber, :byUserId
+  assert.eq subscriberEvents, [] removed: key: :user123, queryName: :byUserId
+
+.tapTest "unsubscribe query does nothing" ->
+  subscriberEvents = []
+  myPipeline.unsubscribe :user123 subscriber, :byUserId
+  assert.eq subscriberEvents, []

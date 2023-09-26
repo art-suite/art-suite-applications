@@ -8,3 +8,9 @@ describe
       assert.eq :user2    user.propsToKey userId: :user2
       assert.eq :user3    user.propsToKey(user: {id: :user3}, userId: :user4), "" whole object has precidence
       assert.eq undefined user.propsToKey {}
+
+  pluralPipelineName: ->
+    test "pipeline.propsToKey" ->
+      class User extends Pipeline
+      assert.eq User.pluralPipelineName, :users
+      assert.eq User.pluralPipelineName, :users # test cached version

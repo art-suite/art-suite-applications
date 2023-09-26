@@ -1,0 +1,21 @@
+import &StandardImport
+
+&ArtConfig.configure()
+
+test :cachedGet ->
+  getLog = []
+  {myPipeline} = class MyPipeline extends Pipeline
+    @publicHandler
+      get: (request) ->
+        getLog.push request.key
+        if request.key == :foo
+          myPipeline.cachedGet request, :bar
+          .then -> myPipeline.cachedGet request, :bar
+          .then -> :done
+        else :done
+
+  myPipeline.get :foo
+  .then ->
+    assert.eq
+      :foo :bar
+      getLog

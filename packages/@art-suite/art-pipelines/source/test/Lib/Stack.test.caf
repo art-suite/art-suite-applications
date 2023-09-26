@@ -1,5 +1,7 @@
 import &StandardImport, &build.Lib.Stack
 
+getEnv().ART_PIPELINES_REPATH_STACK_TRACE = true
+
 test "cleanStackTrace" ->
   assert.eq
     cleanStackTrace

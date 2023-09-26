@@ -1,0 +1,10 @@
+import &StandardImport
+
+&ArtConfig.configure()
+describe
+  failures: ->
+    test "no handler" ->
+      {myPipeline} = class MyPipeline extends Pipeline
+        @publicRequestTypes :get
+
+      assert.rejects myPipeline.get :bar

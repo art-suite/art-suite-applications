@@ -17,7 +17,8 @@ test "second aliases call replaces first", ->
     @aliases "MyPipelineAlias"
     @aliases "FooLand"
 
-  assert.eq MyPipeline.getAliases(), fooLand: true
+  assert.eq MyPipeline.getAliases(),        fooLand: true
+  assert.eq MyPipeline.myPipeline.aliases,  [] :fooLand
   assert.eq Object.keys(MyPipeline.getRegistry().pipelines).sort(), [] :fooLand, :myPipeline
 
 test "aliases are not inherited", ->

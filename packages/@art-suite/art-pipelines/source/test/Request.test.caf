@@ -15,6 +15,8 @@ newResponse = (responseOptions, requestOptions)->
 
 &ArtConfig.configure()
 
+getEnv().ART_PIPELINES_ATTACH_RESPONSE_TO_ERRORS = true
+
 describe
   common:
     requireHelpers:
@@ -747,3 +749,4 @@ describe
             .then (response) ->
               assert.eq response.status, success
               assert.ok !response.data?
+

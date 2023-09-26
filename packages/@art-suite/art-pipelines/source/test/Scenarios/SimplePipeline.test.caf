@@ -1,6 +1,7 @@
 import &StandardImport, {} &SimplePipeline
 
 &ArtConfig.configure()
+getEnv().ART_PIPELINES_ATTACH_RESPONSE_TO_ERRORS = true
 
 test "clientApiMethodList", ->
   simplePipeline = new SimplePipeline
