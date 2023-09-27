@@ -4,7 +4,6 @@
 (module.exports = require('./namespace'))
 
 .addModules({
-  NiceStackTracesTest:   require('./NiceStackTraces.test'),
-  PrefetchedRecordsTest: require('./PrefetchedRecords.test'),
-  StackTest:             require('./Stack.test')
+  NiceStackTracesTest: require('./NiceStackTraces.test'),
+  StackTest:           require('./Stack.test')
 });

@@ -4,7 +4,6 @@
 (module.exports = require('./namespace'))
 
 .addModules({
-  FilterBaseTest: require('./FilterBase.test'),
   FiltersTest:    require('./Filters.test'),
   RequestTest:    require('./Request.test'),
   SessionTest:    require('./Session.test'),

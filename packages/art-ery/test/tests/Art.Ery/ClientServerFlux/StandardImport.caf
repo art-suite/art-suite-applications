@@ -1,3 +1,7 @@
+import &ArtStandardLib
+
+getEnv().ART_PIPELINES_ATTACH_RESPONSE_TO_ERRORS = true
+
 []
   &StandardImport
   require :art-ery/Flux

@@ -1,9 +1,9 @@
 import &StandardImport, SimplePipeline: &SimplePipeline
 
 suite: ->
-  prefetchedRecordsCache = pipelines = registry = null
+  pipelines = registry = null
   chainedTest ->
-    {prefetchedRecordsCache, pipelines} = registry = new PipelineRegistry
+    {pipelines} = registry = new PipelineRegistry
     class User extends SimplePipeline
       @registry registry
 
@@ -46,7 +46,7 @@ suite: ->
 
   .tapTest "user was prefetched", (user) ->
     assert.eq
-      prefetchedRecordsCache.get :user, user.id
+      getPrefetchedRecord pipelines.user, user.id
       user
 
   .tapTest "create with existing user", (user) ->
@@ -73,14 +73,14 @@ suite: ->
         data:                 id: :2 message: :hi     userId: :1
         dataUpdates: user: 1: id: :1 name:    :Frank
 
-  .tapTest "new user was prefetched", ->
+  .tapTest "new user was prefetched", (user) ->
     assert.eq
-      prefetchedRecordsCache.get :user, :1
+      getPrefetchedRecord pipelines.user, :1
       id: :1 name:    :Frank
 
-  .tapTest "new user was prefetched", ->
+  .tapTest "new user was prefetched", (user) ->
     assert.eq
-      prefetchedRecordsCache.get :user, :1
+      getPrefetchedRecord pipelines.user, :1
       id: :1 name:    :Frank
 
   .thenTest "get with auto prefetch" ->

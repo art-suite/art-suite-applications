@@ -9,6 +9,7 @@
   LinkFieldsFilter:        require('./LinkFieldsFilter'),
   LinkFieldsFilter2:       require('./LinkFieldsFilter2'),
   LinkFieldsFilterInclude: require('./LinkFieldsFilterInclude'),
+  PrefetchedRecordsCache:  require('./PrefetchedRecordsCache'),
   TimestampFilter:         require('./TimestampFilter'),
   UniqueIdFilter:          require('./UniqueIdFilter'),
   UserOwnedFilter:         require('./UserOwnedFilter'),

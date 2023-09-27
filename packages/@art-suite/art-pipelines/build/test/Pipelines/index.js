@@ -8,7 +8,6 @@
   PipelineBasicsTest:         require('./PipelineBasics.test'),
   PipelineCustomRequestsTest: require('./PipelineCustomRequests.test'),
   PipelineFailuresTest:       require('./PipelineFailures.test'),
-  PipelineFields:             require('./PipelineFields'),
   PipelineFieldsTest:         require('./PipelineFields.test'),
   PipelineHandlersTest:       require('./PipelineHandlers.test'),
   PipelineInspectorsTest:     require('./PipelineInspectors.test'),

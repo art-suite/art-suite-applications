@@ -2,7 +2,6 @@ import &StandardImport, &ArtValidation, &Config, {}
   &Filter
   &Session
   &Request
-  &PrefetchedRecordsCache
 
 ##
   TODO: (July2019)
@@ -676,6 +675,3 @@ class Pipeline extends &RequestHandler
     OUT: object with all fields the request will mutate
       fieldName: fieldValue
   getFieldsRequestWillModify: (request) -> request.data ? {}
-
-  ##
-  getPrefetchedRecord: (key) -> @prefetchedRecordsCache.get @pipelineName, key

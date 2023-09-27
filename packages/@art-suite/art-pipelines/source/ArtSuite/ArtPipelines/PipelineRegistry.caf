@@ -1,4 +1,4 @@
-import &StandardImport, {} &Session, &PrefetchedRecordsCache
+import &StandardImport, {} &Session
 
 class PipelineRegistry extends BaseObject
   @singletonClass()
@@ -18,7 +18,6 @@ class PipelineRegistry extends BaseObject
   @getter :name :pipelines :uniqueName
   @getter
     session: -> @_session ?= new Session null, "ArtPipelines-#{@name}-Session", @
-    prefetchedRecordsCache: -> @_prefetchedRecordsCache ?= new PrefetchedRecordsCache @
     inspectedObjects: -> {}
       @name
       @uniqueName

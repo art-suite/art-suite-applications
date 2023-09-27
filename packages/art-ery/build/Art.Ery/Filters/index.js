@@ -11,6 +11,7 @@
   LinkFieldsFilter2LegacyApiDecode:    require('./LinkFieldsFilter2LegacyApiDecode'),
   LinkFieldsFilter2LegacyApiEncode:    require('./LinkFieldsFilter2LegacyApiEncode'),
   LinkFieldsFilter2Transition2BFilter: require('./LinkFieldsFilter2Transition2BFilter'),
+  PrefetchedRecordsCache:              require('./PrefetchedRecordsCache'),
   PrefetchedRecordsFilter:             require('./PrefetchedRecordsFilter'),
   TimestampFilter:                     require('./TimestampFilter'),
   UniqueIdFilter:                      require('./UniqueIdFilter'),

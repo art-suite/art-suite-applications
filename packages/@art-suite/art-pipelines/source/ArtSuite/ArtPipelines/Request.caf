@@ -731,7 +731,6 @@ class Request extends BaseObject
         when !data?           then @missing()
         when isJsonType data  then @success {} data
         else
-          log.error invalidXYZ: data
           throw new Error "invalid response data passed to RequestResponseBaseNext"
           # TODO: should return an inspected version of Data IFF the server is in debug-mode
 

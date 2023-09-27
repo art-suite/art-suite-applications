@@ -1,4 +1,4 @@
-import &StandardImport
+import &StandardImport, &PrefetchedRecordsCache
 
 class PrefetchedRecordsFilter extends Filter
   @location :client
@@ -6,8 +6,14 @@ class PrefetchedRecordsFilter extends Filter
   constructor: (options) ->
     @expirationSeconds = options?.expirationSeconds ? 1
 
+  @before
+    get: (request) ->
+      getPrefetchedRecord request.pipeline, request.key unless request.props.noCache
+      ? request
+
   @after
     all: (response) ->
       if response.props extract dataUpdates
-        response.pipeline.prefetchedRecordsCache.addPrefetchedRecords dataUpdates, @expirationSeconds
+        addPrefetchedRecords response.pipeline, dataUpdates, @expirationSeconds
+
       response

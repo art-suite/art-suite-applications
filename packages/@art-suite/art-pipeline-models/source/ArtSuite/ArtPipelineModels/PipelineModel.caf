@@ -152,8 +152,7 @@ class PipelineModel extends KeyFieldsMixin ArtModel
   # ArtModel Overrides
   ########################
   loadData: (key) ->
-    prefetchedRecordsCache.get @pipelineName, key                               # LinkFieldsFilterV2
-    ? @_pipeline.get {} key, returnNullIfMissing: true, props: include: "auto"  # include: :auto is for LinkFieldsFilterV1
+    @_pipeline.get {} key, returnNullIfMissing: true, props: include: "auto"  # include: :auto is for LinkFieldsFilterV1
 
   ################################################
   # DataUpdatesFilter callbacks

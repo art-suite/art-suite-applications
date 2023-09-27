@@ -29,7 +29,7 @@ suite:
           data:                                     {} id, userRemoteId,  createdAt, updatedAt, message: :Hi
           dataUpdates: userRemote: [userRemoteId]:  {}                    createdAt, updatedAt, name:    :Frank  id: userRemoteId
 
-        assert.exists prefetchedRecordsCache.get :userRemote userRemoteId
+        assert.exists getPrefetchedRecord pipelines.userRemote, userRemoteId
 
   transition2A: ->
     chainedTest ->
@@ -67,7 +67,7 @@ suite:
             message:      :Hi
             userRemote2A: {} createdAt, updatedAt, name: :Frank id: userRemote2AId
 
-        assert.doesNotExist prefetchedRecordsCache.get :userRemote2A userRemote2AId
+        assert.doesNotExist getPrefetchedRecord pipelines.userRemote2A, userRemote2AId
 
 
   transition2B: ->
@@ -99,4 +99,4 @@ suite:
           data:                                         {} id, userRemote2BId,  createdAt, updatedAt, message: :Hi
           dataUpdates: userRemote2B: [userRemote2BId]:  {}                      createdAt, updatedAt, name:    :Frank  id: userRemote2BId
 
-        assert.exists prefetchedRecordsCache.get :userRemote2B userRemote2BId
+        assert.exists getPrefetchedRecord pipelines.userRemote2B, userRemote2BId

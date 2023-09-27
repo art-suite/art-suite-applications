@@ -59,4 +59,3 @@ class Pipeline extends &@ArtSuite/ArtPipelines.Pipeline
   @getter
     tableNamePrefix:        -> @class._tableNamePrefix ? config.tableNamePrefix
     tableName:              -> @getPrefixedTableName @name
-    prefetchedRecordsCache: -> @registry.prefetchedRecordsCache

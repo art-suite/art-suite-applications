@@ -5,18 +5,18 @@ global.artEryPipelineRegistries = pipelineRegistries
 []
   &Filters
   &DatabaseFilters
+  &Filters/PrefetchedRecordsCache
   {}
     &@ArtSuite/ArtPipelines.Filter
     &@ArtSuite/ArtPipelines.PipelineRegistry
     &@ArtSuite/ArtPipelines.RequestHandler
     &@ArtSuite/ArtPipelines.Request
-    &@ArtSuite/ArtPipelines.PrefetchedRecordsCache
+    &Filters/PrefetchedRecordsCache
     &@ArtSuite/ArtPipelines.Session
     config
     pipelineRegistry
     pipelineRegistry.pipelines
     pipelineRegistry.session
-    pipelineRegistry.prefetchedRecordsCache
     pipelineRegistries
 
     sendInitializeRequestToAllPipelines: (registry = pipelineRegistry)->
