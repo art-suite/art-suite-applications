@@ -1,5 +1,5 @@
 require '../index.caf'
-&fake-indexeddb/auto
+require "fake-indexeddb/auto"
 global.window = global
 &art-testbench/testing
 .init
