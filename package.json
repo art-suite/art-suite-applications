@@ -52,7 +52,7 @@
     "art-suite-app": "file:packages/art-suite-app",
     "art-suite-demos": "file:demos/art-suite-demos",
     "art-suite-server": "file:packages/art-suite-server",
-    "art-testbench": "^3.2.2",
+    "art-testbench": "^3.2.13",
     "art-text": "file:packages/art-text",
     "art-validation": "^1.9.6",
     "art-xbd": "^1.1.6",

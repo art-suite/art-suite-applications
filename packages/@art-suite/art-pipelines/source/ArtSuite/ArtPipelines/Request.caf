@@ -40,6 +40,7 @@ class Request extends BaseObject
 
     @_pipeline            = options.pipeline ? options.request.pipeline
     @_session             = options.session
+    @_location            = options.location ? @_pipeline.location
 
     @_originatedOnServer  = options.originatedOnServer
     @_context             = options.context
@@ -92,6 +93,7 @@ class Request extends BaseObject
   @getter pipelines: -> @pipeline.pipelines
   @getter
     :pipeline
+    :location
     :props
     session:            -> @_session ? @request.session
     originatedOnServer: -> if @isRequest then @_originatedOnServer else @request.originatedOnServer
@@ -135,7 +137,6 @@ class Request extends BaseObject
     isDeleteRequest:    -> @pipeline.isDeleteRequestType @type
     verbose:            -> @_verbose || @originalRequest?._verbose || @rootRequest?._verbose
 
-    location:           -> @pipeline.location
     requestType:        -> @type # alias for @type - do we need?
     pipelineName:       -> @pipeline.getName()
     requestDataWithKey: -> merge @requestData, @keyObject
@@ -266,7 +267,6 @@ class Request extends BaseObject
           name
           stack
           exception
-
 
     ##################################
       request path
@@ -868,7 +868,7 @@ class Request extends BaseObject
       @requestProps
       @responseProps
       sourceLib:  :ArtPipelines
-      response: if getEnv().ART_PIPELINES_ATTACH_RESPONSE_TO_ERRORS then @
+      response: @
 
       stack:
         compactFlatten []

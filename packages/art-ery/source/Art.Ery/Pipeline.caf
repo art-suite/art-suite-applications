@@ -4,6 +4,9 @@ import &StandardImport, &Config, &RestClientLib, &RestServerLib, {}
 class Pipeline extends &@ArtSuite/ArtPipelines.Pipeline
   @abstractClass() # any sub-class that shouldn't auto-register should be an abstract class
 
+  constructor: ->
+    @_location = config.location
+
   # override
   handleRequest: (request) ->
     if @location == :client && @remoteServer

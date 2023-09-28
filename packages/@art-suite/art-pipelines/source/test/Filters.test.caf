@@ -31,13 +31,17 @@ describe
         assert.eq result, "Hello Frank."
 
     test :after ->
-      class MyPipeline extends Pipeline
+      {myPipeline} = class MyPipeline extends Pipeline
         @handlers helloWorld: ({data}) -> "Hello #{data}."
         @publicRequestTypes :helloWorld
 
         @filter
           after: helloWorld: (request) ->
             request.withData request.data + " How are you?"
+
+      # assert.eq
+      #   myPipeline.location
+      #   :foo
 
       pipelines.myPipeline.helloWorld data: "frank"
       .then (result) ->

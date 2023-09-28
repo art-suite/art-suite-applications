@@ -4,6 +4,7 @@
 (module.exports = require('./namespace'))
 .includeInNamespace(require('./Lib'))
 .addModules({
-  Env:   require('./Env'),
-  Stack: require('./Stack')
+  Env:      require('./Env'),
+  Location: require('./Location'),
+  Stack:    require('./Stack')
 });

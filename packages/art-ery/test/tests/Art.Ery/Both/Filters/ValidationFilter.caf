@@ -1,4 +1,4 @@
-import &StandardImport, SimplePipeline: &SimplePipeline
+import &StandardImport, {} &SimplePipeline
 
 suite:
   basics: ->
@@ -18,13 +18,15 @@ suite:
         id: id
 
     test :preprocess ->
-      class MyPipeline extends SimplePipeline
+      {myPipeline} = class MyPipeline extends SimplePipeline
         @filter new ValidationFilter fields:
-          foo: preprocess: (o) -> "" #{o}#{o}
+          foo: preprocess: (o) -> "" validated(#{o})
 
-      MyPipeline.singleton.create data: foo: 123
+      assert.eq myPipeline.location, :both
+
+      myPipeline.create data: foo: 123
       .then (response) ->
-        assert.eq response.foo, :123123
+        assert.eq response.foo, "validated(validated(123))"
 
     test "required field - missing" ->
       class MyPipeline extends SimplePipeline

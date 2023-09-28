@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "Location.js",
+  "sourceRoot": "../../../..",
+  "sources": [
+    "source/ArtSuite/ArtPipelines/Lib/Location.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,uGAAO,iHAEP,QACE,kCAAiB,UAAQ,UAAQ,SACjC,6CAAuB,wBACvB,0BAAkB,CAAC,WAAY,KACyF,0BAA0B,oKAChJ,YAEF,gCAAuB,OAAG,YAAe,WAAa"
+}

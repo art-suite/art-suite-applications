@@ -54,9 +54,9 @@ class RequestHandler extends BaseObject
     .then
       (data) ->
         unless data?                                then request.missing()
-        else if data instanceof Request then data
-        else if isJsonType data                     then request.success {data}
-        else throw new ErrorWithInfo "invalid response data passed to RequestResponseBaseNext", {data}
+        else if data instanceof Request             then data
+        else if isJsonType data                     then request.success {} data
+        else throw new ErrorWithInfo "invalid response data passed to RequestResponseBaseNext", {} data
 
       # send response-errors back through the 'resolved' promise path
       # We allow them to be thrown in order to skip parts of code, but they should be returned normally

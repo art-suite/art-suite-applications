@@ -7,7 +7,9 @@ class FilterLocation extends Pipeline
   @remoteServer :http://localhost:8085
 
   requestWithLog = (request, name) ->
-    request.withData customLog: arrayWith request.data?.customLog, "" #{name}@#{request.location}
+    request.withData
+      customLog: arrayWith request.data?.customLog, "" #{name}@#{request.location}
+      fromRemoteRequest: arrayWith request.data?.fromRemoteRequest, !!request.remoteRequest
 
   @filter
     location: :client
