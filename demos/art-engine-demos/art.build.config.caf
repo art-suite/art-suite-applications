@@ -1,7 +1,4 @@
-npm:
-  description: "" Art.Engine.Demos
-  dependencies:
-    art-suite: :git://github.com/imikimi/art-suite
+package: &package
 
 webpack:
   # common properties are merged into each target's properties

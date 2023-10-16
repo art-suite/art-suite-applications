@@ -1,0 +1,169 @@
+import &ArtStandardLib, &ArtAtomic, &ArtEngine, &@ArtSuite/ArtCanvas
+
+->
+  bgColor = rgbColor #777
+  textColor = rgbColor :white
+  normalOpacity = .3
+
+  StyleProps =
+    standardSpacing: 10
+    mediumText:
+      fontFamily: :sans-serif
+      fontSize:   16
+      color:      #0009
+
+  newButton = ({text, click, size}) ->
+    new Element
+      size: ww: 1 hch: 1
+      cursor: :pointer
+      margin: StyleProps.standardSpacing
+      on: pointerClick: click
+      []
+        new RectangleElement color: :#0001 radius: 3
+        new TextElement merge
+          StyleProps.mediumText
+          size:     ww: 1 hch: 1
+          align:    :center
+          padding:  v: StyleProps.standardSpacing
+          text:     text
+
+  showParseError = (c) ->
+    if input.parent
+      parent = input.removeFromParent()
+      info.text = "invalid color"
+      x = dialog.location.x
+
+      #shake WRONG
+      dialog.animate =
+        to: location: dialog.currentLocation.withX x-5
+        duration: 1/20
+        then:
+          to: location: dialog.currentLocation.withX x+5
+          duration: 1/10
+          then:
+            to: location: dialog.currentLocation.withX x
+            duration: 1/20
+
+      timeout 1000, ->
+        info.text = ""
+        parent.addChild input
+        log "adding input back in"
+        timeout 1000, -> input.focus()
+
+  setColorFromString = (colorString) ->
+    c = rgbColor colorString
+    if c.parseError
+      showParseError c
+    else
+      dialogBackground.color = c
+
+      # TODO - updated to newer animation code (as-of 2023, this is REALLY out of date!)
+      # dialog.animate = log "animate",
+      #   duration: .33
+      #   f:  :easeOutQuart
+      #   to: scale:  point 1.2
+      #   then: duration: .17 to: scale: point 1
+
+      # dialogBackground.animate = log "animate",
+      #   duration:.33
+      #   f:  :easeOutQuart
+      #   to: color: c
+
+  resetColor = ->
+    setColorFromString input.value = "orange"
+    input.focus()
+
+  timeout 100, -> input.focus()
+
+  new CanvasElement
+    canvasId: "artCanvas"
+    []
+      new RectangleElement color: :red
+
+      dialog = new Element
+        size: w:300, hch:1
+        location: ps: .5
+        axis: .5
+        childrenLayout: "column"
+
+        []
+          dialogBackground = new RectangleElement
+            inFlow: false
+            color: "orange"
+            radius:5
+            shadow: offsetY: 5, blur:5, color: "#0007"
+
+          new Element
+            size: hch: 1 h: StyleProps.standardSpacing * 5
+            cursor: :move
+            on: pointerMove: (e) -> dialog.location = dialog.currentLocation.add e.parentParentDelta
+
+            []
+              new RectangleElement color: #0001 size: ps: 1
+              new TextElement merge
+                StyleProps.mediumText
+                size:     cs: 1
+                align:    :center
+                text:     "" Form Demo
+                location: ps: .5
+                axis: .5
+
+          new Element
+            padding: StyleProps.standardSpacing
+            size: hch: 1
+            childrenLayout: "column"
+
+            []
+              new TextElement merge
+                StyleProps.mediumText
+                size:   ww: 1 hch: 1
+                margin: StyleProps.standardSpacing
+                text: "Instructions:\n  Type in an HTML color\n  Press Enter\nSome extra text to demo this text-area word-wraps."
+
+              new Element
+                margin: StyleProps.standardSpacing
+                size: ww:1, h:30
+                []
+                  info = new TextElement merge
+                    StyleProps.mediumText
+                    text: ""
+                    location: ps: .5
+                    color: "red"
+                    axis: point .5
+                  input = new TextInputElement
+                    size: ww:1, hh:1
+                    value: "orange"
+                    align: "center"
+                    on: enter: (e) -> setColorFromString e.target.value
+                    new RectangleElement color: rgbColor 1,1,1,.75
+
+              new Element
+                size: ww:1, hch:1
+                childrenLayout: :row
+                []
+                  newButton
+                    text: "submit"
+                    click: -> setColorFromString input.value
+
+                  newButton
+                    text: "reset"
+                    click: -> resetColor()
+
+              new Element
+                margin: StyleProps.standardSpacing
+                size: ww:1, hch:1
+                childrenLayout: "row"
+                []
+                  newButton
+                    text: "invisible"
+                    click: ->
+                      dialog.visible = false
+                      timeout 1000, -> dialog.visible = true
+
+                  newButton
+                    text: "opacity=0"
+                    click: ->
+                      dialog.animate =
+                        to:
+                          opacity: 0
+                        on: done: -> timeout 500, -> dialog.opacity = 1
