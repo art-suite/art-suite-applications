@@ -45,9 +45,13 @@ class Pipeline extends &RequestHandler
     clientApiMethodList: []
     fields: {}
     publicRequestTypes: {}
+    requestTypes: {}
 
   @fields:  @extendFields
   @field:   @extendFields
+
+  @requestTypes: @extendRequestTypes
+  @requestType:  @extendRequestTypes
 
   @publicRequestTypes: (values...) ->
     publicRequestTypes = {}
@@ -197,18 +201,32 @@ class Pipeline extends &RequestHandler
       parts.push pluralize parts.pop()
       @_pluralPipelineName = lowerCamelCase parts
 
+  normalizeFieldsProps = (fieldsProps) -> if fieldsProps then normalizeFieldProps
+    switch
+    when isString fieldsProps then fieldsProps
+    when isPlainObject fieldsProps then fields: fieldsProps
+    else throw new Error "expecting Object of fields, or string for singleton. Got: #{formattedInspect fieldsProps}"
+
+  normalizeRequestResponseProps = (requeestResponseProps) -> if requeestResponseProps
+    requeestResponseProps extract key, data, props
+    merge {}
+      key:    normalizeFieldsProps key
+      data:   normalizeFieldsProps data
+      props:  normalizeFieldsProps props
+
   @getter
     name:             -> @class.pipelineName
     pipelineName:     -> @class.pipelineName
     session:          -> @registry.session
     :location
 
-    normalizedFields: ->
-      nf = {}
-      each v, k in @fields
-        nf[k] = normalizeFieldProps v
+    normalizedFields: -> object v in @fields with normalizeFieldProps v
 
-      nf
+    normalizedRequestTypes: ->
+      object {request, response}, k in @requestTypes
+        merge
+          request:  if request then normalizeRequestResponseProps request
+          response: if response then  normalizeRequestResponseProps response
 
     handlerRequestTypesMap: (_into = {}) -> mergeInto _into, @handlers
     filterRequestTypesMap:  (_into = {}) -> each filter in @filters into _into with mergeInto _into, filter.beforeFilters

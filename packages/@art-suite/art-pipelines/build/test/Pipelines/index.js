@@ -12,6 +12,7 @@
   PipelineHandlersTest:       require('./PipelineHandlers.test'),
   PipelineInspectorsTest:     require('./PipelineInspectors.test'),
   PipelineRequestsTest:       require('./PipelineRequests.test'),
+  PipelineRequestTypesTest:   require('./PipelineRequestTypes.test'),
   PipelineSubrequestsTest:    require('./PipelineSubrequests.test'),
   PipelineSubscriptionsTest:  require('./PipelineSubscriptions.test')
 });

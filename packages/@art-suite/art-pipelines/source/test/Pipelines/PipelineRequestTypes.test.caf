@@ -1,0 +1,94 @@
+import &StandardImport, &ArtValidation
+
+eqStringifyFunctionsR = (a, b) ->
+  switch
+  when isObject a then
+    isObject b
+    && eq Object.keys(a).sort(), Object.keys(b).sort()
+    && !find v, k in a when !eqStringifyFunctionsR v, b[k]
+  when isArray a then
+    isArray b
+    && a.length == b.length
+    && !find v, i in a when !eqStringifyFunctionsR v, b[i]
+  when isFunction a then
+    isFunction b
+    && "#{a}" == "#{b}"
+  else eq a, b
+
+assert.eqStringifyFunctions = (a, b, context) ->
+  if !equal = eqStringifyFunctionsR a, b
+    assert.eq a, b
+
+describe
+  basics: ->
+    chainedTest "simple" ->
+      requestTypes = null
+      {myPipeline} = class MyPipeline extends Pipeline
+        @requestTypes requestTypes =
+          getTime:
+            response:   data: time: :number
+
+      assert.eq
+        myPipeline.requestTypes
+        requestTypes
+
+      myPipeline
+
+    .thenTest "simple normalizedRequestTypes" (myPipeline) ->
+      assert.eqStringifyFunctions
+        myPipeline.normalizedRequestTypes
+        getTime:
+            response:   data: normalizeFieldProps fields: time: :number
+
+    test "CRUD request types" ->
+      requestTypes = null
+      {myPipeline} = class MyPipeline extends Pipeline
+        @fields
+          id:   :string
+          name: :string
+          age:  :number
+
+        @requestTypes requestTypes =
+          get:
+            request:    key:  :record
+            response:   data: :record
+
+          create:
+            request:    data: :record
+            response:   key:  :record data: :record
+
+          update:
+            request:    key:  :record data: :record
+            response:   data: :record
+
+          delete:
+            request:    key:  :record
+            response:   data: :record
+
+      assert.eq
+        myPipeline.requestTypes
+        requestTypes
+
+  normalized: ->
+    test "singleton data" ->
+      {myPipeline} = class MyPipeline extends Pipeline
+        @requestTypes
+          getTime:
+            response:   data: :number
+
+      assert.eqStringifyFunctions
+        myPipeline.normalizedRequestTypes
+        getTime: response: data: normalizeFieldProps :number
+
+    test ":record data" ->
+      {myPipeline} = class MyPipeline extends Pipeline
+        @fields
+          name: :string
+
+        @requestTypes
+          getTime:
+            response:   data: :record
+
+      assert.eqStringifyFunctions
+        myPipeline.normalizedRequestTypes
+        getTime: response: data: normalizeFieldProps {} myPipeline.fields
