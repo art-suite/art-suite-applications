@@ -5,7 +5,7 @@ class Filter extends &RequestHandler
 
   @preprocessFilters: (filter) =>
     if isPlainArray filter
-      array f in filter when f with @preprocessFilter f
+      array f in compactFlatten filter when f with @preprocessFilter f
 
     else
       @preprocessFilter filter
@@ -17,9 +17,18 @@ class Filter extends &RequestHandler
     else if isPlainObject filter      then new Filter filter
     else throw "" invalid filter: #{inspect filter} #{filter instanceof Filter}
 
-  ############################
-  # Class Declaration API
-  ############################
+  @locationNames: locationNames =
+    server: true
+    client: true
+    both: true
+
+  #############################
+    ###########################
+
+      Declarative API
+
+    ###########################
+    ###########################
   ## FilterFunction
     FilterFunction: (response) -> Promise<Request>
       IN: Request instance
@@ -39,24 +48,29 @@ class Filter extends &RequestHandler
     ## after USAGE: @after requestName: FilterFunction
     after: {}
 
-  #################################################
-    FIELDS
-  #################################################
+  ## @fields extendableProperty
+    USAGE: see Pipeline.fields
+    Triggers pipeline.fields thisFitler.fields when added to a pipeline
   @extendableProperty
     fields: {}
     {} extend: (oldFields, addFields) ->
       merge oldFields, normalizeFields addFields
+  @field: @extendFields
 
-  # If true, any after-filters will process both successful AND failed responses
-  # By defailt, after-filters will only filter successful responses.
+  ## @requestTypes extendableProperty
+    USAGE: see Pipeline.requestTypes
+    Triggers pipeline.requestTypes thisFitler.requestTypes when added to a pipeline
+  @extendableProperty
+    requestTypes: {}
+  @requestType: @extendRequestTypes
+
+  ## @filterFailures extendableProperty
+    If true, any after-filters will process both successful AND failed responses
+    By defailt, after-filters will only filter successful responses.
   @extendableProperty filterFailures: false
 
-  @locationNames: locationNames =
-    server: true
-    client: true
-    both: true
-
-  ## location USAGE: @location :server
+  ## @location extendableProperty
+    USAGE: @location :server
     determine if the filter will run on the 'server', 'client' or 'both'.
   @extendableProperty
     location: :server

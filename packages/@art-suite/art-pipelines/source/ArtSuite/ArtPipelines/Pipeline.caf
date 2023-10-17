@@ -22,7 +22,7 @@ class Pipeline extends &RequestHandler
   @postCreateConcreteClass: ({hotReloaded}) ->
     @_defineQueryHandlers()
     @_defineClientHandlerMethods()
-    @_initFields()
+    @_initFilters()
     @register() unless hotReloaded
     super
 
@@ -38,30 +38,32 @@ class Pipeline extends &RequestHandler
 
     ###########################
     ###########################
+
+  ## @requestTypes extendable property
   @extendableProperty
-    queries: {}
-    filters: []
-    handlers: {}
-    clientApiMethodList: []
-    fields: {}
-    publicRequestTypes: {}
     requestTypes: {}
+  @requestType:   @extendRequestTypes
 
-  @fields:  @extendFields
-  @field:   @extendFields
+  ## @fields extendable property
+  @extendableProperty
+    fields: {}
+  @field:         @extendFields
 
-  @requestTypes: @extendRequestTypes
-  @requestType:  @extendRequestTypes
+  ## @publicRequestTypes extendable property
+    Extend Usage: Pass in one or more names of request-types which are part of the public API.
+      @publicRequestType :foo
+      @publicRequestTypes :foo :bar :ba
 
-  @publicRequestTypes: (values...) ->
-    publicRequestTypes = {}
-    each v in compactFlatten values
-      each k in w v
-        publicRequestTypes[k] = true
+    Get Usage: returns map from public request-types to true
+      @getPublicRequestTypes()[:foo] returns true or undefiend
+  @extendableProperty
+    publicRequestTypes: {}
+    {} extend: (publicRequestTypes, values...) ->
+      object in w (compactFlatten values).join ' ' into publicRequestTypes with true
 
-    @extendPublicRequestTypes publicRequestTypes
+  @publicRequestType: @extendPublicRequestTypes
 
-  # delcare handlers and publicRequestTypes as one
+  ## publicHandlers - shorthand for declaring a handler AND marking it as a publicRequestType
   @publicHandlers: publicHandlers = (maps...) ->
     each map in maps
       @handlers map
@@ -69,7 +71,7 @@ class Pipeline extends &RequestHandler
 
   @publicHandler: publicHandlers
 
-  ## filter
+  ## @filter extendable property
     define a single filter OR an array of filters to define.
 
     NOTE: the order of filter definitions matter:
@@ -110,9 +112,12 @@ class Pipeline extends &RequestHandler
           OUT: same or new response
             NOTE: all after-filters are applied if the handler generated the first response object
             UNLESS there is an error, in which case the error is returned directly.
-  @filter:        (filter)         -> @extendFilters Filter.preprocessFilters filter
+  @extendableProperty
+    filters: []
+    {} extend: (filters, addFilters...) -> filters.concat Filter.preprocessFilters addFilters
+  @filter: @extendFilters
 
-  ## handler
+  ## @handler extendable property
     add one or more handlers
 
     IN map:
@@ -122,12 +127,11 @@ class Pipeline extends &RequestHandler
           Request response instance
         OR
           plain data which will be wrapped up in an Request instance
+  @extendableProperty
+    handlers: {}
+  @handler: @extendHandlers
 
-    @handler and @handlers are aliases.
-  @handler:  @extendHandlers
-  @handlers: @extendHandlers
-
-  ## query
+  ## @query extendable property
     declare a query - used by ArtPipelineModels
     Also used to impliement the action of the query... somehow???
 
@@ -151,8 +155,10 @@ class Pipeline extends &RequestHandler
         # subscribe to Model in FluxComponent
         @subscriptions
           myQueryName: queryKey
-  @query: (map) ->
-    @extendQueries object options, queryName from map with @_normalizeQuery queryName, options
+  @extendableProperty
+    queries: {}
+    {} extend: (queries, newQueries) -> object options, queryName from newQueries into queries with normalizeQuery queryName, options
+  @query: @extendQueries
 
   ## aliases
     INPUT: zero or more strings or arrays of strings
@@ -194,6 +200,7 @@ class Pipeline extends &RequestHandler
     ###################################
     ###################################
   @classGetter
+    :clientApiMethodList
     pipelineName: -> @_pipelineName ? decapitalize @getName()
     pluralPipelineName: ->
       return @_pluralPipelineName if @_pluralPipelineName
@@ -201,32 +208,54 @@ class Pipeline extends &RequestHandler
       parts.push pluralize parts.pop()
       @_pluralPipelineName = lowerCamelCase parts
 
-  normalizeFieldsProps = (fieldsProps) -> if fieldsProps then normalizeFieldProps
+  normalizeFieldsProps = (fieldsProps, fields) -> if fieldsProps then normalizeFieldProps
     switch
     when isString fieldsProps then fieldsProps
     when isPlainObject fieldsProps then fields: fieldsProps
     else throw new Error "expecting Object of fields, or string for singleton. Got: #{formattedInspect fieldsProps}"
+    record: {} fields
 
-  normalizeRequestResponseProps = (requeestResponseProps) -> if requeestResponseProps
-    requeestResponseProps extract key, data, props
+  _normalizeRequestResponseProps: (requestType, requestResponseProps, fields) -> if requestResponseProps
+    requestResponseProps extract key, keyFields, data, props
+    if key == true
+      keyFields = @keyFields
+      key = object v, k from fields when k in keyFields
+      unless objectHasKeys key
+        throw new Error "" Error defining requestType '#{@name}.#{requestType}': One or more keyFields (#{formattedInspect keyFields}) are missing from the pipeline's fields definitions: #{Object.keys(@fields).join ', '}
+    else if key
+      if (keyArray = key) is Array
+        each v in keyArray into key = {}
+          if v is Object then mergeInto key, v
+          else if v is String
+            unless key[v] = def = @fields[v]
+              throw new Error "" Error defining requestType '#{@name}.#{requestType}': Key's field (#{v}) was not found in the pipeline's fields definitions: #{Object.keys(@fields).join ', '}
+
+      if key is Object
+        keyCount = objectKeyCount key
+        if keyCount > 1 && keyFields?.length != keyCount
+          throw new Error "" Error defining requestType '#{@name}.#{requestType}': Key's definition (#{formattedInspect key}) must have a matching keyFields (#{formattedInspect keyFields}) for serialization purposes
+
     merge {}
-      key:    normalizeFieldsProps key
-      data:   normalizeFieldsProps data
-      props:  normalizeFieldsProps props
+      keyFields
+      key:    normalizeFieldsProps key, fields
+      data:   normalizeFieldsProps data, fields
+      props:  normalizeFieldsProps props, fields
 
   @getter
+    keyFields:        -> [] :id # use KeyFieldsMixin to add custom key fields
     name:             -> @class.pipelineName
     pipelineName:     -> @class.pipelineName
     session:          -> @registry.session
     :location
+    clientApiMethodList: -> @class.clientApiMethodList
 
     normalizedFields: -> object v in @fields with normalizeFieldProps v
 
     normalizedRequestTypes: ->
       object {request, response}, k in @requestTypes
         merge
-          request:  if request then normalizeRequestResponseProps request
-          response: if response then  normalizeRequestResponseProps response
+          request:  if request then @_normalizeRequestResponseProps k, request, @fields
+          response: if response then  @_normalizeRequestResponseProps k, response, @fields
 
     handlerRequestTypesMap: (_into = {}) -> mergeInto _into, @handlers
     filterRequestTypesMap:  (_into = {}) -> each filter in @filters into _into with mergeInto _into, filter.beforeFilters
@@ -525,7 +554,7 @@ class Pipeline extends &RequestHandler
     each pipelineQuery, k in @getQueries() when !handlers[k]
       handlers = @extendHandlers k, pipelineQuery.options.query
 
-  @_normalizeQuery: (queryName, options) ->
+  @_normalizeQuery: normalizeQuery = (queryName, options) ->
     options = query: options if isFunction options
     unless isFunction(options.query) && options.query.length > 0
       throw new Error
@@ -543,15 +572,20 @@ class Pipeline extends &RequestHandler
     {} queryName, options, toKeyString
 
   @_defineClientRequestMethod: (requestType) ->
-    @extendClientApiMethodList requestType unless requestType in @getClientApiMethodList()
+    @clientApiMethodList.push requestType unless requestType in @clientApiMethodList
     @prototype[requestType] ?= (a, b, c) ~> @_processClientRequest requestType, a, b, c
 
   @_defineClientHandlerMethods: ->
+    @_clientApiMethodList = []
     each __, name in @getHandlers()           with @_defineClientRequestMethod name
     each __, name in @getPublicRequestTypes() with @_defineClientRequestMethod name
 
-  @_initFields: ->
-    each filter in @getFilters() with @extendFields filter.fields
+  @_initFilters: ->
+    # Note, in all things, the pipeline's definitions have priority over the filter's definitions
+    each filter in @getFilters() when objectHasKeys filter.fields with @extendFields merge filter.fields, @getFields()
+
+    # requestTypes may depend on FieldTyeps, so run them second
+    each filter in @getFilters() when objectHasKeys filter.requestTypes with @extendRequestTypes merge filter.requestTypes, @getRequestTypes()
 
   ######################################
     ####################################

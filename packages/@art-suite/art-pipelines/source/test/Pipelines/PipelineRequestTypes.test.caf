@@ -1,23 +1,23 @@
 import &StandardImport, &ArtValidation
 
-eqStringifyFunctionsR = (a, b) ->
-  switch
-  when isObject a then
-    isObject b
-    && eq Object.keys(a).sort(), Object.keys(b).sort()
-    && !find v, k in a when !eqStringifyFunctionsR v, b[k]
-  when isArray a then
-    isArray b
-    && a.length == b.length
-    && !find v, i in a when !eqStringifyFunctionsR v, b[i]
-  when isFunction a then
-    isFunction b
-    && "#{a}" == "#{b}"
-  else eq a, b
+# eqAfterStringifyingFunctionsR = (a, b) ->
+#   switch
+#   when isObject a then
+#     isObject b
+#     && eq Object.keys(a).sort(), Object.keys(b).sort()
+#     && !find v, k in a when !eqAfterStringifyingFunctionsR v, b[k]
+#   when isArray a then
+#     isArray b
+#     && a.length == b.length
+#     && !find v, i in a when !eqAfterStringifyingFunctionsR v, b[i]
+#   when isFunction a then
+#     isFunction b
+#     && "#{a}" == "#{b}"
+#   else eq a, b
 
-assert.eqStringifyFunctions = (a, b, context) ->
-  if !equal = eqStringifyFunctionsR a, b
-    assert.eq a, b
+# assert.eqAfterStringifyingFunctions = (a, b, context) ->
+#   if !equal = eqAfterStringifyingFunctionsR a, b
+#     assert.eq a, b
 
 describe
   basics: ->
@@ -35,39 +35,10 @@ describe
       myPipeline
 
     .thenTest "simple normalizedRequestTypes" (myPipeline) ->
-      assert.eqStringifyFunctions
+      assert.eqAfterStringifyingFunctions
         myPipeline.normalizedRequestTypes
         getTime:
             response:   data: normalizeFieldProps fields: time: :number
-
-    test "CRUD request types" ->
-      requestTypes = null
-      {myPipeline} = class MyPipeline extends Pipeline
-        @fields
-          id:   :string
-          name: :string
-          age:  :number
-
-        @requestTypes requestTypes =
-          get:
-            request:    key:  :record
-            response:   data: :record
-
-          create:
-            request:    data: :record
-            response:   key:  :record data: :record
-
-          update:
-            request:    key:  :record data: :record
-            response:   data: :record
-
-          delete:
-            request:    key:  :record
-            response:   data: :record
-
-      assert.eq
-        myPipeline.requestTypes
-        requestTypes
 
   normalized: ->
     test "singleton data" ->
@@ -76,7 +47,7 @@ describe
           getTime:
             response:   data: :number
 
-      assert.eqStringifyFunctions
+      assert.eqAfterStringifyingFunctions
         myPipeline.normalizedRequestTypes
         getTime: response: data: normalizeFieldProps :number
 
@@ -89,6 +60,57 @@ describe
           getTime:
             response:   data: :record
 
-      assert.eqStringifyFunctions
+      assert.eqAfterStringifyingFunctions
         myPipeline.normalizedRequestTypes
-        getTime: response: data: normalizeFieldProps {} myPipeline.fields
+        getTime: response: data: merge
+          normalizeFieldProps {} myPipeline.fields
+          fieldType: :record
+
+  filters: ->
+    test "filters can define request-types" ->
+      requestTypes = null
+      class CrudFilter extends Filter
+        @requestTypes requestTypes =
+          get:
+            request:    key:  :string
+            response:   data: :record
+
+          create:
+            request:    data: :record
+            response:   key:  :string data: :record
+
+          update:
+            request:    key:  :string data: :record
+            response:   data: :record
+
+          delete:
+            request:    key:  :string
+            response:   data: :record
+
+      pipelineRequestTypes = null
+      {myUser} = class MyUser extends Pipeline
+        @filter CrudFilter
+        @field
+          otherId:  :string
+          age:      :number
+
+        @requestType pipelineRequestTypes =
+          customRequestType: request: data: :string
+          get: request: {}, response: data: :record # should not be overridden by the filter
+
+          userByOtherId:
+            request:    key:  otherId: :string
+            response:   data: array: :record
+
+          userByMultiSearch:
+            request:
+              keyFields:  :keyword :age
+              key:
+                keyword:  :string
+                :age
+
+            response:   data: array: :record
+
+      assert.eq
+        myUser.requestTypes
+        merge requestTypes, pipelineRequestTypes
