@@ -1,0 +1,170 @@
+import &ArtStandardLib, &ArtClassSystem, &ArtTestbench, &ArtValidation, &build
+
+class MyBaseClass extends BaseClass
+  @classGetter recordName: -> @_recordName ?= lowerCamelCase @name
+  @getter recordName: -> @class.recordName
+
+describe
+  declarationTypes: ->
+    test "no delcaration defaults to: 'id'" ->
+      myInstance = new class MyClass extends KeyFieldsMixin MyBaseClass
+
+      assert.eq
+        myInstance.toKeyObject input = "mom"
+        id: "mom"
+
+      assert.eq
+        myInstance.toKeyObject
+          id: :123
+          name: :alice
+        id: :123
+
+    test "@primaryKey string" ->
+      myInstance = new class MyClass extends KeyFieldsMixin MyBaseClass
+        @primaryKey :monkeyId
+
+      assert.eq myInstance.keyFields, [] :monkeyId
+
+    test "@keyFields string" ->
+      myInstance = new class MyClass extends KeyFieldsMixin MyBaseClass
+        @keyFields :monkeyId
+
+      assert.eq myInstance.keyFields, [] :monkeyId
+
+    test "@keyFields string/string" ->
+      myInstance = new class MyClass extends KeyFieldsMixin MyBaseClass
+        @keyFields :monkeyId/owlId
+
+      assert.eq myInstance.keyFields, [] :monkeyId :owlId
+
+    test "@keyFields [string, string]" ->
+      myInstance = new class MyClass extends KeyFieldsMixin MyBaseClass
+        @keyFields [] :monkeyId :owlId
+
+      assert.eq myInstance.keyFields, [] :monkeyId :owlId
+
+    test "@keyFields string, string" ->
+      myInstance = new class MyClass extends KeyFieldsMixin MyBaseClass
+        @keyFields :monkeyId :owlId
+
+      assert.eq myInstance.keyFields, [] :monkeyId :owlId
+
+    test "@keyFields string/string, string/string/string" ->
+      myInstance = new class MyClass extends KeyFieldsMixin MyBaseClass
+        @keyFields :monkeyId/elephantId/bugId :owlId/pidgeonId
+
+      assert.eq myInstance.keyFields, [] :monkeyId, :elephantId, :bugId, :owlId, :pidgeonId
+
+  basics: ->
+    tests =
+      id:             [] :abc123 id: :abc123
+      myKey:          [] :abc123 myKey: :abc123
+      myKey1/myKey2:  [] :abc123/def456 myKey1: :abc123 myKey2: :def456
+
+    each [input, output], key from tests
+      test "primaryKey: '#{input}' >>> #{formattedInspect output}" ->
+        myInstance = new class MyClass extends KeyFieldsMixin MyBaseClass
+          @primaryKey key
+
+        assert.eq myInstance.toKeyObject(input), output
+        assert.eq myInstance.dataToKeyString(myInstance.toKeyObject input), input
+
+
+        assert.false myInstance.allKeyFieldsPresent object v, k from output with-key k + :wrong
+        assert.true myInstance.allKeyFieldsPresent output
+
+  getters: ->
+    myInstance = new class MyClass extends KeyFieldsMixin MyBaseClass
+      @primaryKey :myKey/myDate
+
+    test "keyFields" ->
+      assert.eq
+        myInstance.keyFields
+        :myKey :myDate
+
+    test "keyFieldsString" ->
+      assert.eq
+        myInstance.keyFieldsString
+        :myKey/myDate
+
+    test "keyValidator" ->
+      assert.instanceOf
+        myInstance.keyValidator
+        Validator
+
+  helpers: ->
+    myInstance = new class MyClass extends KeyFieldsMixin MyBaseClass
+      @primaryKey :myKey/myDate
+    test "dataWithoutKeyFields" ->
+      assert.eq
+        myInstance.dataWithoutKeyFields myKey: :bob myDate: :boo somethingElse: :frank
+        somethingElse: :frank
+
+    test "isRecord" ->
+      assert.true myInstance.isRecord myKey: :bob myDate: :boo somethingElse: :frank
+      assert.true myInstance.isRecord myKey: :bob myDate: :boo
+      assert.false myInstance.isRecord myKey: :bob
+
+  keyValidator: ->
+    test "keyValidator preprocesses" ->
+      myInstance = new class MyClass extends KeyFieldsMixin MyBaseClass
+        @primaryKey :myKey/myDate
+        @classGetter
+          fields: ->
+            myKey:  :trimmedString
+            myDate: preprocess: (v) -> v | 0
+
+      assert.eq
+        myInstance.keyValidator.preprocess
+          myKey:  "  mom  "
+          myDate: :123
+        myKey:  :mom
+        myDate: 123
+
+      assert.eq
+        myInstance.toKeyObject input = "mom/123"
+        myKey: "mom"
+        myDate: 123
+
+  propsToKey: ->
+    test "defaultKey (id)" ->
+      user = new class User extends KeyFieldsMixin MyBaseClass
+      assert.eq (user.propsToKey user: id: :user1), :user1
+      assert.eq :user2    user.propsToKey userId: :user2
+      assert.eq :user3    user.propsToKey(user: {id: :user3}, userId: :user4), "" whole object has precidence
+      assert.eq undefined user.propsToKey {}
+
+    test "defaultKey (id) obeys stateField override" ->
+      user = new class User extends KeyFieldsMixin MyBaseClass
+      assert.eq :user2    user.propsToKey {userId: :user2, friendId: :user3}
+      assert.eq :user3    user.propsToKey {userId: :user2, friendId: :user3}, :friend
+
+    test "custom single primaryKey" ->
+      email = new class Email extends KeyFieldsMixin MyBaseClass
+        @primaryKey :email
+
+      assert.eq :def        email.propsToKey {} email: :def
+      assert.eq undefined   email.propsToKey {} emailId: :def
+      assert.eq {id: :def}  email.propsToKey {} email: id: :def
+      assert.eq undefined   email.propsToKey {}
+
+    test "custom primaryKey pair" ->
+      myInstance = new class FavoritePost extends KeyFieldsMixin MyBaseClass
+        @primaryKey :userId/postId
+
+      assert.eq {userId: undefined, postId: undefined}  myInstance.propsToKey {}
+      assert.eq {userId: :user1 postId: :post1}         myInstance.propsToKey userId: :user1 postId: :post1
+      assert.eq
+        userId: :user2 postId: :post2
+        myInstance.propsToKey
+          user: id: :user2
+          post: id: :post2
+
+      assert.eq
+        userId: :user3 postId: :post3
+        myInstance.propsToKey
+          user: id: :user3
+          post: id: :post3
+          userId: :user4
+          postId: :post4
+        "" whole objects have precidence

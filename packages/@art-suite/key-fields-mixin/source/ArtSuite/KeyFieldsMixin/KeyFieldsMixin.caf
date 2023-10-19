@@ -1,0 +1,136 @@
+import &ArtStandardLib, &ArtValidation
+
+## KeyFieldsMixin
+  Designed to be used on ArtModels or ArtPipelines
+
+  @primaryKey and @keyFields are synonymous
+  Usage:
+
+    class MyModel extends KeyFieldsMixin Pipeline # or FluxModel or whatever
+      # 1 key
+      @primaryKey "foo"
+      @keyFields "foo"
+      @keyFields ["foo"]
+
+      # 2 keys
+      @keyFields "foo/bar"
+      @keyFields ["foo", "bar"]
+
+      # 3 keys
+      @keyFields "foo/bar/baz"   # compound key with 3 fields
+      @keyFields ["foo", "bar', "baz"]
+
+      # Default:
+      # @keyFields "id"
+
+  Note that order matters. @keyFields is a lists of strings. Forward slash (/) is
+  used as a delimiter, so it shouldn't be in the names of your key-fields. Ideally
+  each key field name should match: /[-._a-zA-Z0-9]+/
+
+KeyFieldsMixin: (superClass) -> class KeyFieldsMixin extends superClass
+  @abstractClass()
+
+  ###########################################
+  # Class API
+  # TODO: use Declarable
+  ###########################################
+  @getKeyFields:        -> @_keyFields
+  @getKeyFieldsString:  -> @_keyFieldsString
+
+  # defaults
+  @_keyFieldsString:  defaultKeyFieldsString = "id"
+  @_keyFields:        [defaultKeyFieldsString]
+
+  # declaration API
+  @primaryKey: keyFields = (args...) ->
+    @_keyFieldsString =
+      @_keyFields = compactFlatten array v in compactFlatten args with v.split "/"
+      .join "/"
+
+  @keyFields: keyFields
+
+  @classGetter
+    keyValidator: -> @_keyValidator ?= new Validator
+      if fields = @getFields?() then
+        object fieldName in @getKeyFields()
+          unless fields[fieldName]
+            throw new Error "Key field #{JSON.stringify fieldName} is missing from fields definitions"
+          fields[fieldName]
+
+      else object fieldName in @getKeyFields() with "" required string
+
+  ###########################################
+  # Instance API
+  ###########################################
+  @getter
+    keyFieldsString:  -> @class._keyFieldsString
+    keyFields:        -> @class._keyFields
+    keyValidator:     -> @class.keyValidator
+
+  allKeyFieldsPresent: (data) ->
+    find keyField in @keyFields when !present data[keyField]
+      false
+    ? true
+
+  isRecord: (data) -> isPlainObject(data) && @allKeyFieldsPresent data
+
+  dataToKeyString: (a) ->
+    @validateKey a
+    array field in @keyFields with a[field]
+    .join "/"
+
+  @getter
+    ## propsToKey: (props, stateField) -> key
+    propsToKey: ->
+      @_propsToKey ?=
+        if @keyFields.length == 1
+          @_createPropsToKeyFunction @keyFields[0]
+        else
+          fMap = object v in @keyFields with @_createPropsToKeyFunction v
+          (props) -> object f in fMap with f props
+
+  toKeyObject: (a) ->
+    @preprocessKey @validateKey
+      if isPlainObject a
+        object v in @keyFields with a[v]
+
+      else if isString a
+        if @keyFields.length > 1
+          splitInput = a.split "/"
+          keyObject = object v, i in @keyFields with splitInput[i]
+          if splitInput.length != @keyFields.length
+            log.warn KeyFieldsMixin_toKeyObject: {}
+              message: "wrong number of /-delimited fields in key-string"
+              @pipelineName
+              input: a
+              splitInput
+              @keyFields
+              usingKeyObject: keyObject
+
+          keyObject
+
+        else
+          [@keyFields[0]]: a
+
+      else throw new Error "Expecting string or plain object"
+
+  dataWithoutKeyFields: (data) -> data && object v, k in data when not(k in @keyFields)
+  preprocessKey: (key) -> @keyValidator.preprocess key
+  validateKey: (key) -> @keyValidator.validate key
+
+  ################################
+  ## PRIVATE
+  ################################
+  _createPropsToKeyFunction: (keyField) ->
+    if keyField == :id
+      @ extract recordName
+      (props, stateField) ->
+        propsField = stateField ? recordName
+        props[propsField]?.id ? props[propsField + :Id]
+
+    else if matches = keyField.match /^(.+)Id$/
+      [propsIdField, propsField] = matches
+      (props) ->  props[propsField]?.id ? props[propsIdField]
+
+    else
+      (props) ->  props[keyField]
