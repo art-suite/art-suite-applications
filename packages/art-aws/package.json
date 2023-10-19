@@ -6,7 +6,7 @@
     "art-rest-client": "^1.8.11",
     "aws-sdk": "^2.809.0",
     "aws4": "^1.6.0",
-    "dynamodb-local": "0.0.31"
+    "dynamodb-local": "^0.0.32"
   },
   "description": "Streamlined APIs for AWS SDK with Promises and Art.Foundation",
   "devDependencies": {
