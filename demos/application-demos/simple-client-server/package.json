@@ -12,7 +12,7 @@
     "stream-browserify": "^3.0.0"
   },
   "engines": {
-    "node": "8.x"
+    "node": "18.x"
   },
   "homepage": "https://github.com/art-suite/art-suite-applications",
   "license": "ISC",

@@ -10,7 +10,7 @@
   },
   "description": "Streamlined APIs for AWS SDK with Promises and Art.Foundation",
   "devDependencies": {
-    "art-testbench": "^3.2.2",
+    "art-testbench": "^3.2.13",
     "mocha": "^7.2.0",
     "mock-fs": "^5.0.0"
   },
