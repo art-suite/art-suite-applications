@@ -115,7 +115,7 @@ describe
             myDate: preprocess: (v) -> v | 0
 
       assert.eq
-        myInstance.keyValidator.preprocess
+        myInstance.preprocessKey
           myKey:  "  mom  "
           myDate: :123
         myKey:  :mom
@@ -130,9 +130,13 @@ describe
     test "defaultKey (id)" ->
       user = new class User extends KeyFieldsMixin MyBaseClass
       assert.eq (user.propsToKey user: id: :user1), :user1
-      assert.eq :user2    user.propsToKey userId: :user2
-      assert.eq :user3    user.propsToKey(user: {id: :user3}, userId: :user4), "" whole object has precidence
-      assert.eq undefined user.propsToKey {}
+      assert.eq (user.propsToKey userId: :user2),   :user2
+      assert.eq
+        user.propsToKey user: {id: :user3}, userId: :user4
+        :user3
+        "" whole object has precidence
+
+      assert.eq (user.propsToKey {}), undefined
 
     test "defaultKey (id) obeys stateField override" ->
       user = new class User extends KeyFieldsMixin MyBaseClass

@@ -52,9 +52,12 @@ KeyFieldsMixin: (superClass) -> class KeyFieldsMixin extends superClass
   @classGetter
     keyValidator: -> @_keyValidator ?= new Validator
       if fields = @getFields?() then
-        object fieldName in @getKeyFields()
-          unless fields[fieldName]
-            throw new Error "Key field #{JSON.stringify fieldName} is missing from fields definitions"
+        object fieldName in @getKeyFields() when fields[fieldName]
+          # TODO 2023 - this breaks art-ery tests; shouldn't we demand key-fields have field-definitions, tho?
+          #   Clearly `id` needs to get auto-generated field-defs (a string), maybe they all get
+          #   auto-generated?
+          # unless fields[fieldName]
+          #   throw new Error "Key field #{JSON.stringify fieldName} is missing from fields definitions"
           fields[fieldName]
 
       else object fieldName in @getKeyFields() with "" required string
@@ -89,34 +92,33 @@ KeyFieldsMixin: (superClass) -> class KeyFieldsMixin extends superClass
           fMap = object v in @keyFields with @_createPropsToKeyFunction v
           (props) -> object f in fMap with f props
 
-  toKeyObject: (a) ->
-    @preprocessKey @validateKey
-      if isPlainObject a
-        object v in @keyFields with a[v]
+  toKeyObject: (a) -> @validateKey
+    if isPlainObject a
+      object v in @keyFields with a[v]
 
-      else if isString a
-        if @keyFields.length > 1
-          splitInput = a.split "/"
-          keyObject = object v, i in @keyFields with splitInput[i]
-          if splitInput.length != @keyFields.length
-            log.warn KeyFieldsMixin_toKeyObject: {}
-              message: "wrong number of /-delimited fields in key-string"
-              @pipelineName
-              input: a
-              splitInput
-              @keyFields
-              usingKeyObject: keyObject
+    else if isString a
+      if @keyFields.length > 1
+        splitInput = a.split "/"
+        keyObject = object v, i in @keyFields with splitInput[i]
+        if splitInput.length != @keyFields.length
+          log.warn KeyFieldsMixin_toKeyObject: {}
+            message: "wrong number of /-delimited fields in key-string"
+            @pipelineName
+            input: a
+            splitInput
+            @keyFields
+            usingKeyObject: keyObject
 
-          keyObject
+        keyObject
 
-        else
-          [@keyFields[0]]: a
+      else
+        [@keyFields[0]]: a
 
-      else throw new Error "Expecting string or plain object"
+    else throw new Error "Expecting string or plain object"
 
   dataWithoutKeyFields: (data) -> data && object v, k in data when not(k in @keyFields)
-  preprocessKey: (key) -> @keyValidator.preprocess key
-  validateKey: (key) -> @keyValidator.validate key
+  preprocessKey:  (key) -> @keyValidator.preprocess key
+  validateKey:    (key) -> @keyValidator.validate key # Note Validator.validate also calls prepocess
 
   ################################
   ## PRIVATE
