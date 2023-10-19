@@ -4,6 +4,7 @@
     "art-standard-lib": "^1.70.6",
     "art-validation": "^1.11"
   },
+  "main": "./build/",
   "homepage": "https://github.com/art-suite/art-suite-applications",
   "jest": {
     "collectCoverageFrom": [
@@ -31,7 +32,7 @@
     "test": "npm run nn\njest",
     "watch": "npm-watch"
   },
-  "version": "1.0.2",
+  "version": "1.0.3",
   "watch": {
     "build": {
       "extensions": [
