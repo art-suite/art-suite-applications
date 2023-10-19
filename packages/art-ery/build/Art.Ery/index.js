@@ -6,7 +6,6 @@
 .addModules({
   Config:           require('./Config'),
   DatabaseFilters:  require('./DatabaseFilters'),
-  KeyFieldsMixin:   require('./KeyFieldsMixin'),
   Pipeline:         require('./Pipeline'),
   RestClientLib:    require('./RestClientLib'),
   RestServerLib:    require('./RestServerLib'),

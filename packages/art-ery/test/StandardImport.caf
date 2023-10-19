@@ -6,4 +6,5 @@
   &ArtTestbench
   &ArtEry
   &@ArtSuite/ArtPipelines
+  &@ArtSuite/KeyFieldsMixin
   &build

@@ -32,7 +32,7 @@
     "test": "npm run nn\njest",
     "watch": "npm-watch"
   },
-  "version": "1.0.3",
+  "version": "1.0.4",
   "watch": {
     "build": {
       "extensions": [

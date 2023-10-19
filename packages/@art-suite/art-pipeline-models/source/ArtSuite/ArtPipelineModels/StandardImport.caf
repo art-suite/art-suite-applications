@@ -3,4 +3,5 @@
   &ArtCommunicationStatus
   &@ArtSuite/ArtModels
   &@ArtSuite/ArtPipelines
+  &@ArtSuite/KeyFieldsMixin
   &ArtEry

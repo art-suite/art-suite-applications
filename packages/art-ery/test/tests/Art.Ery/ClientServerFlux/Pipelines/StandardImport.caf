@@ -1,2 +1,4 @@
-&ArtStandardLib.mergeWithSelf
-  require :art-ery
+[]
+  &ArtStandardLib
+  &@ArtSuite/KeyFieldsMixin
+  &build
