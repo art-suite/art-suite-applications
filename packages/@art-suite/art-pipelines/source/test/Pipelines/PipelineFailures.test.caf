@@ -8,9 +8,9 @@ describe
       filterLog = []
       class MyPipeline extends Pipeline
         @publicHandlers create: (request) -> foo: 1, bar: 2
-        @filter name: "myFilter1", after: create: (response) -> filterLog.push "myFilter1"; response
-        @filter name: "myFilter2", after: create: (response) -> filterLog.push "myFilter2"; throw new Error "internal oops"
-        @filter name: "myFilter3", after: create: (response) -> filterLog.push "myFilter3"; response
+        @filter name: :myFilter1 after: create: (response) -> filterLog.push :myFilter1; response
+        @filter name: :myFilter2 after: create: (response) -> filterLog.push :myFilter2; throw new Error "internal oops"
+        @filter name: :myFilter3 after: create: (response) -> filterLog.push :myFilter3; response
 
       p = new MyPipeline
       assert.rejects p.create()
@@ -24,9 +24,9 @@ describe
     test "clientFailure", ->
       class MyPipeline extends Pipeline
         @publicHandlers create: (request) -> foo: 1, bar: 2
-        @filter name: "myFilter1", after: create: (response) -> response
-        @filter name: "myFilter2", after: create: (response) -> response.clientFailure "you lose!"
-        @filter name: "myFilter3", after: create: (response) -> response
+        @filter name: :myFilter1 after: create: (response) -> response
+        @filter name: :myFilter2 after: create: (response) -> response.clientFailure "you lose!"
+        @filter name: :myFilter3 after: create: (response) -> response
 
       p = new MyPipeline
       assert.rejects p.create()

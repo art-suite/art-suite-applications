@@ -12,7 +12,7 @@ class Filter extends &RequestHandler
 
   @preprocessFilter: (filter) ->
     if isClass filter                 then new filter
-    else if isFunction filter         then filter @
+    else if isFunction filter         then throw new Error "Passing a function for Filter definition is DEPRICATED" # filter @
     else if filter instanceof Filter  then filter
     else if isPlainObject filter      then new Filter filter
     else throw "" invalid filter: #{inspect filter} #{filter instanceof Filter}
@@ -149,7 +149,10 @@ class Filter extends &RequestHandler
     priority: -> @group + locationPriorityBoost[@location]
     logName:  -> @getName()
     props:    -> {} @location
-    inspectedObjects: -> if @path?.match @name then @path else  @name
+    inspectedObjects: ->
+      filter: merge {} @name, @location, @group,
+        before: if objectHasKeys @before then Object.keys @before
+        after:  if objectHasKeys @after then Object.keys @after
 
   #################################
   # class instance methods

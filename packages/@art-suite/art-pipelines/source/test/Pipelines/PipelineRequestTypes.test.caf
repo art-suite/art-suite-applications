@@ -40,6 +40,29 @@ describe
         getTime:
             response:   data: normalizeFieldProps fields: time: :number
 
+  autodefined: ->
+    test "handlers define request types" ->
+      {myPipeline} = class MyPipeline extends Pipeline
+        @handler rock: -> :roll
+
+      assert.eq
+        myPipeline.requestTypes
+        rock: {}
+
+    test "beforeFilters define request types and afterFilters do not" ->
+      {myPipeline} = class MyPipeline extends Pipeline
+        @filter
+          name: :myFilter
+          before: rock: -> :roll
+
+        @filter
+          name: :myOtherFilter
+          after: roll: -> :rap
+
+      assert.eq
+        myPipeline.requestTypes
+        rock: {}
+
   normalized: ->
     test "singleton data" ->
       {myPipeline} = class MyPipeline extends Pipeline
@@ -52,13 +75,18 @@ describe
         getTime: response: data: normalizeFieldProps :number
 
     test ":record data" ->
+      requestTypes = null
       {myPipeline} = class MyPipeline extends Pipeline
         @fields
           name: :string
 
-        @requestTypes
+        @requestTypes requestTypes =
           getTime:
             response:   data: :record
+
+      assert.eq
+        myPipeline.requestTypes
+        requestTypes
 
       assert.eqAfterStringifyingFunctions
         myPipeline.normalizedRequestTypes
@@ -66,25 +94,26 @@ describe
           normalizeFieldProps {} myPipeline.fields
           fieldType: :record
 
+##
   filters: ->
     test "filters can define request-types" ->
       requestTypes = null
       class CrudFilter extends Filter
         @requestTypes requestTypes =
           get:
-            request:    key:  :string
+            request:    key:  true
             response:   data: :record
 
           create:
             request:    data: :record
-            response:   key:  :string data: :record
+            response:   key:  true    data: :record
 
           update:
-            request:    key:  :string data: :record
+            request:    key:  true    data: :record
             response:   data: :record
 
           delete:
-            request:    key:  :string
+            request:    key:  true
             response:   data: :record
 
       pipelineRequestTypes = null
@@ -98,13 +127,17 @@ describe
           customRequestType: request: data: :string
           get: request: {}, response: data: :record # should not be overridden by the filter
 
+          userBySimpleQuery:
+            request:    key:  :string
+            response:   data: array: :record
+
           userByOtherId:
             request:    key:  otherId: :string
             response:   data: array: :record
 
           userByMultiSearch:
             request:
-              keyFields:  :keyword :age
+              # keyFields:  :keyword :age
               key:
                 keyword:  :string
                 :age

@@ -3,6 +3,42 @@ import &StandardImport
 &ArtConfig.configure()
 
 describe
+  definitionMethods: ->
+    test :plainObjectDefinition ->
+      class MyPipeline extends Pipeline
+        @filter before: helloWorld: -> "" Hello world!
+
+      assert.isArray MyPipeline.getFilters()
+      assert.eq MyPipeline.getFilters().length, 1
+      assert.instanceOf MyPipeline.getFilters()[0], Filter
+      assert.eq
+        MyPipeline.getFilters()
+        MyPipeline.myPipeline.filters
+
+      assert.eq
+        toInspectedObjects MyPipeline.myPipeline.filters
+        [] filter: name: :Filter, location: :server, group: 0, before: [] :helloWorld
+
+    test :class ->
+      class MyFilter extends Filter
+        @before helloWorld: -> "" Hello world!
+      class MyPipeline extends Pipeline
+        @filter MyFilter
+
+      assert.eq
+        toInspectedObjects MyPipeline.myPipeline.filters
+        [] filter: name: :MyFilter, location: :server, group: 0, before: [] :helloWorld
+
+    test :instance ->
+      class MyFilter extends Filter
+        @before helloWorld: -> "" Hello world!
+      class MyPipeline extends Pipeline
+        @filter new MyFilter
+
+      assert.eq
+        toInspectedObjects MyPipeline.myPipeline.filters
+        [] filter: name: :MyFilter, location: :server, group: 0, before: [] :helloWorld
+
   basic: ->
     test :before ->
       class MyPipeline extends Pipeline

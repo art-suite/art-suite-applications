@@ -60,7 +60,6 @@ class Pipeline extends &RequestHandler
     publicRequestTypes: {}
     {} extend: (publicRequestTypes, values...) ->
       object in w (compactFlatten values).join ' ' into publicRequestTypes with true
-
   @publicRequestType: @extendPublicRequestTypes
 
   ## publicHandlers - shorthand for declaring a handler AND marking it as a publicRequestType
@@ -68,7 +67,6 @@ class Pipeline extends &RequestHandler
     each map in maps
       @handlers map
       @publicRequestTypes Object.keys map
-
   @publicHandler: publicHandlers
 
   ## @filter extendable property
@@ -178,6 +176,7 @@ class Pipeline extends &RequestHandler
   @aliases: (args...)->
     @_aliases = object v, k from args with-key lowerCamelCase v with true
     @
+  @alias: @extendAliases
 
   ######################
     constructor
@@ -202,6 +201,7 @@ class Pipeline extends &RequestHandler
   @classGetter
     :clientApiMethodList
     pipelineName: -> @_pipelineName ? decapitalize @getName()
+    recordName:   -> @pipelineName # KeyFieldsMixin expects a recordName method
     pluralPipelineName: ->
       return @_pluralPipelineName if @_pluralPipelineName
       parts = getCodeWords @getPipelineName()
@@ -215,7 +215,7 @@ class Pipeline extends &RequestHandler
     else throw new Error "expecting Object of fields, or string for singleton. Got: #{formattedInspect fieldsProps}"
     record: {} fields
 
-  _normalizeRequestResponseProps: (requestType, requestResponseProps, fields) -> if requestResponseProps
+  @_normalizeRequestResponseProps: (requestType, requestResponseProps, fields) -> if requestResponseProps
     requestResponseProps extract key, keyFields, data, props
     if key == true
       keyFields = @keyFields
@@ -241,26 +241,30 @@ class Pipeline extends &RequestHandler
       data:   normalizeFieldsProps data, fields
       props:  normalizeFieldsProps props, fields
 
+  @classGetter
+    normalizedRequestTypes: ->
+      @_normalizedRequestTypes ?= object {request, response}, k in @getRequestTypes()
+        merge
+          request:  if request then   @_normalizeRequestResponseProps k, request, @getFields()
+          response: if response then  @_normalizeRequestResponseProps k, response, @getFields()
+
   @getter
     keyFields:        -> [] :id # use KeyFieldsMixin to add custom key fields
     name:             -> @class.pipelineName
     pipelineName:     -> @class.pipelineName
+    recordName:       -> @class.recordName
+    normalizedRequestTypes: -> @class.normalizedRequestTypes
     session:          -> @registry.session
     :location
     clientApiMethodList: -> @class.clientApiMethodList
 
     normalizedFields: -> object v in @fields with normalizeFieldProps v
 
-    normalizedRequestTypes: ->
-      object {request, response}, k in @requestTypes
-        merge
-          request:  if request then @_normalizeRequestResponseProps k, request, @fields
-          response: if response then  @_normalizeRequestResponseProps k, response, @fields
 
-    handlerRequestTypesMap: (_into = {}) -> mergeInto _into, @handlers
-    filterRequestTypesMap:  (_into = {}) -> each filter in @filters into _into with mergeInto _into, filter.beforeFilters
-    requestTypesMap:        (_into = {}) -> @getHandlerRequestTypesMap @getFilterRequestTypesMap _into
-    requestTypes:                        -> @_requestTypes ?= Object.keys @requestTypesMap
+    # handlerRequestTypesMap: (_into = {}) -> mergeInto _into, @handlers
+    # filterRequestTypesMap:  (_into = {}) -> each filter in @filters into _into with mergeInto _into, filter.beforeFilters
+    # requestTypesMap:        (_into = {}) -> @getHandlerRequestTypesMap @getFilterRequestTypesMap _into
+    # requestTypes:                        -> @_requestTypes ?= Object.keys @requestTypesMap
     aliases:                             -> @_aliases      ?= Object.keys @class.getAliases()
 
     groupedFilters: -> @_groupedFilters ?= Pipeline.groupFilters @filters
@@ -295,7 +299,7 @@ class Pipeline extends &RequestHandler
   getLogName: (requestType) -> "#{requestType}-handler"
 
   getRequestProcessingReport: (location = @location) ->
-    object requestType from @requestTypes
+    object requestType from log @requestTypes
       compactFlatten []
         array filter in @getBeforeFilters {} requestType, location with inspectedObjectLiteral filter.getName()
         inspectedObjectLiteral if location == :client then "[remote request]" else "[local handler]"
@@ -325,8 +329,8 @@ class Pipeline extends &RequestHandler
     inspectedObjects: -> {}
       @name
       publicRequestTypes: Object.keys(@publicRequestTypes).sort()
-      requestTypes: (array @requestTypes).sort()
-      subscriberCounts: object subscribers in @_subscribers with subscribers.length
+      requestTypes:       (array @requestTypes).sort()
+      subscriberCounts:   object subscribers in @_subscribers with subscribers.length
       querySubscriberCounts:
         object querySubs in @_querySubscribers
           object subscribers in querySubs with subscribers.length
@@ -586,6 +590,16 @@ class Pipeline extends &RequestHandler
 
     # requestTypes may depend on FieldTyeps, so run them second
     each filter in @getFilters() when objectHasKeys filter.requestTypes with @extendRequestTypes merge filter.requestTypes, @getRequestTypes()
+
+    each _, name in @getHandlers()
+      @extendRequestTypes [name]: {}
+
+    each filter in @getFilters()
+      each _, name in filter.before
+        @extendRequestTypes [name]: {}
+
+    # validate requestTypes
+    @getNormalizedRequestTypes()
 
   ######################################
     ####################################
