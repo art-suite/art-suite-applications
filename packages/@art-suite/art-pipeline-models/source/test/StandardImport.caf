@@ -5,6 +5,6 @@
   &ArtClassSystem
   &ArtTestbench
   &ArtCommunicationStatus
-  &ArtEry
+  &@ArtSuite/ArtPipelines
   &@ArtSuite/ArtModels
   &build

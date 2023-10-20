@@ -18,7 +18,7 @@ class PipelineModel extends KeyFieldsMixin ArtModel
 
     hotReloadKey = "PipelineModel:#{name}"
 
-    class AnonymousArtEryModel extends PipelineModel
+    class AnonymousArtPipelineModel extends PipelineModel
       @_name: ucName = upperCamelCase name
       @keyFields pipeline.keyFields if pipeline.keyFields
       @pipeline pipeline
