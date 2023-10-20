@@ -1,0 +1,4 @@
+coverage/
+**/test/
+*.tgz
+art.build.config.caf
