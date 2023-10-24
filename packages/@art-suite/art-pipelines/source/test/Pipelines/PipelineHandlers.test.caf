@@ -19,6 +19,13 @@ test "return string", ->
   (new MyPipeline)
   .foo().then (data) -> assert.eq data, "my string"
 
+test "default: missing", ->
+  {user} = class User extends Pipeline
+    @publicHandlers
+      get: (request) ->
+
+  assert.missing user.get :abc
+
 test "return false", ->
   class MyPipeline extends Pipeline
     @publicHandlers foo: -> false

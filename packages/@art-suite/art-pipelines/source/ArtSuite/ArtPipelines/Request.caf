@@ -309,6 +309,7 @@ class Request extends BaseObject
 
   toStringCore: -> "" ArtPipeline-#{if @isResponse then 'Response' else 'Request'} #{@pipelineName}.#{@type}#{if @key then " key: #{@key}" else ''}
   toString:     -> "" <#{@toStringCore()}>
+  toJSON:       -> @inspectedObjects
 
   ############################################################
     ##########################################################
@@ -850,42 +851,53 @@ class Request extends BaseObject
     else Promise.reject @_getRejectionError()
 
   _getRejectionError: ->
-    @_preparedRejectionError ?= new RequestError {}
-      message:
-        compactFlatten []
-          @responseData?.message ? @responseProps?.message ? @errorProps?.exception?.message
-          ""
-          "" request: #{@pipeline}.#{@type}
-          formattedInspect {}
-            @status
-            @session
-            props: @requestProps
-
-        .join "\n"
-
-      @type
-      @status
-      @requestProps
-      @responseProps
-      sourceLib:  :ArtPipelines
-      response: @
-
-      stack:
-        compactFlatten []
-          @responseData?.message ? @responseProps?.message ? @errorProps?.exception?.message
-
-          if exception = @errorProps?.exception
-              "Exception stack:\n#{cleanStackTrace exception.stack, true, true}\n"
-
-          array {time, request, context, name, stack, filterLog}, i in @requestTrace by -1
+    if !@_preparedRejectionError
+      @_preparedRejectionError = new RequestError {}
+        message:
+          compactFlatten []
+            @responseData?.message ? @responseProps?.message ? @errorProps?.exception?.message
             ""
-              #{request}: #{if filterLog? then (array {name} in filterLog with name when name != :created).join " -> " else "#{context} #{name}"}
-              (request-depth: #{i + 1}, start-time: #{time*1000|0}ms)
-              #{if stack then "\n#{cleanStackTrace stack, null, true}\n" else ''}
+            "" request: #{@pipeline}.#{@type}
+            formattedInspect {}
+              @status
+              @session
+              props: @requestProps
 
           .join "\n"
 
-          getDetailedRequestTracingExplanation()
-          getCleanStackTraceWarning()
+        @type
+        @status
+        @requestProps
+        @responseProps
+        sourceLib:  :ArtPipelines
+        # response: @
 
-        .join "\n"
+        stack:
+          compactFlatten []
+            @responseData?.message ? @responseProps?.message ? @errorProps?.exception?.message
+
+            if exception = @errorProps?.exception
+                "Exception stack:\n#{cleanStackTrace exception.stack, true, true}\n"
+
+            array {time, request, context, name, stack, filterLog}, i in @requestTrace by -1
+              ""
+                #{request}: #{if filterLog? then (array {name} in filterLog with name when name != :created).join " -> " else "#{context} #{name}"}
+                (status: #{@status}, request-depth: #{i + 1}, start-time: #{time*1000|0}ms)
+                #{if stack then "\n#{cleanStackTrace stack, null, true}\n" else ''}
+
+            .join "\n"
+
+            getDetailedRequestTracingExplanation()
+            getCleanStackTraceWarning()
+
+          .join "\n"
+
+      # JEST has some error with serializing objects on errors, even with a custom toJSON.
+      #   the problem appears to be related to serializing via an Object.keys conversion rather than using toJSON
+      #   I looked closely at jest-circus, which is JESTS runner, but I don't think it's cuasing it. When it bundels up
+      #   the errors, it doesn't do the serializing
+      # Anyway, this seems to work for attaching the response without making it a listable prop
+      # We NEED response on the error object for certain error handling
+      Object.defineProperty @_preparedRejectionError.props, :response, value: @, writable: false
+
+    @_preparedRejectionError

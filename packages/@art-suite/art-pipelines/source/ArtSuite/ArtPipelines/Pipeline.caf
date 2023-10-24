@@ -335,6 +335,7 @@ class Pipeline extends &RequestHandler
         object querySubs in @_querySubscribers
           object subscribers in querySubs with subscribers.length
 
+  toJSON: -> @inspectedObjects
   #####################################
     ###################################
 

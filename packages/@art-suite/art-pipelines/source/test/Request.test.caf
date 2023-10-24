@@ -750,3 +750,19 @@ describe
               assert.eq response.status, success
               assert.ok !response.data?
 
+
+  stringify: ->
+    test "json" ->
+      request = newRequest props: foo: 1
+      assert.eq
+        JSON.stringify request
+        JSON.stringify request.inspectedObjects
+      assert.eq
+        JSON.stringify request.pipeline
+        JSON.stringify request.pipeline.inspectedObjects
+
+    # uncomment this and run JEST - this should produce a nice error
+    # test "json and errors and jest" ->
+    #   newRequest props: foo: 1
+    #   .failure "something happened"
+    #   .then (request) -> request.toPromise()

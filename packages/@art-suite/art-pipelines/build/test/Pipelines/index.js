@@ -11,6 +11,7 @@
   PipelineFieldsTest:         require('./PipelineFields.test'),
   PipelineHandlersTest:       require('./PipelineHandlers.test'),
   PipelineInspectorsTest:     require('./PipelineInspectors.test'),
+  PipelineRegressionsTest:    require('./PipelineRegressions.test'),
   PipelineRequestsTest:       require('./PipelineRequests.test'),
   PipelineRequestTypesTest:   require('./PipelineRequestTypes.test'),
   PipelineSubrequestsTest:    require('./PipelineSubrequests.test'),

@@ -1,0 +1,25 @@
+import &StandardImport
+ArtConfig.configure()
+test "simple filter which didn't work in Browser-ReactJS land" ->
+  # OH! The reason was location defaults to :Server
+  # HERE, it thinks we are ON the :server
+  # BROWSER - where we had the problem, therefor skipped the filter, as it should.
+  {user} = class User extends Pipeline
+    @publicRequestTypes :get
+    @filter
+      before: get: (request) -> request.with key: request.key || "Alice"
+      after:  get: (response) -> response.withData name: "#{response.data.name} is Awesome"
+
+    @handlers get: (request) -> name: request.key
+
+  user.get()
+  .then (result) ->
+    assert.eq
+      result
+      name: "Alice is Awesome"
+
+    user.get :Bob
+  .then (result) ->
+    assert.eq
+      result
+      name: "Bob is Awesome"
