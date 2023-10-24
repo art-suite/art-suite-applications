@@ -158,7 +158,7 @@ class PipelineModel extends KeyFieldsMixin ArtModel
   # DataUpdatesFilter callbacks
   ################################################
   ## dataUpdated
-  dataUpdated: (key, data) -> @updateModelRecord key, (oldRecord) -> merge oldRecord, data: merge oldRecord.data, data
+  dataUpdated: (key, data) -> @updateModelRecord key, (oldRecord) -> merge oldRecord, status: success, data: merge oldRecord.data, data
   dataDeleted: (key, dataOrKey) -> @updateModelRecord key, status: missing
 
   ##########################

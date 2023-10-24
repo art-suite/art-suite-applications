@@ -1,0 +1,51 @@
+import &StandardImport
+
+resolver = null
+user = null
+preparedKey = :abc
+preparedData = name: :alice
+
+chainedTest "from ArtEryReactJs spike" ->
+  pipelineRegistry = new PipelineRegistry
+  class DataUpdatesFilter extends Filter
+    @location :both
+    @after all: (response) ->
+      response.tap ({ pipeline, key, data, isUpdateRequest, isDeleteRequest }) ->
+        if isUpdateRequest then pipeline.dataUpdated key || pipeline.toKeyString(data), data
+        if isDeleteRequest then pipeline.dataDeleted key || pipeline.toKeyString(data), data
+
+  {user} = class User extends Pipeline
+    @registry pipelineRegistry
+    @getter records: -> @_records ?= {}
+    @filter DataUpdatesFilter
+    @publicHandlers
+      get:    (request) -> request.pipeline.records[request.key]
+      create: (request) -> request.pipeline.records[request.key] = request.data
+      update: (request) -> mergeInto request.pipeline.records[request.key], request.data
+
+  defineModelsForAllPipelines pipelineRegistry
+
+  subscriptionObject = new class SubscriptionObject extends ArtModelSubscriptionsMixin BaseObject
+    constructor: ->
+      @_state = {}
+
+    setState: (key, value) ->
+      @_state[key] = value;
+
+  new Promise (resolve) ->
+    resolver = resolve
+    subscriptionObject.subscribe {}
+      key: preparedKey
+      stateField: :user
+      modelName: :user
+      updatesCallback: (modelRecord) -> resolver modelRecord
+
+.thenTest "should be missing at first" (modelRecord) ->
+  assert.eq modelRecord.status, missing
+
+.thenTest "now create the record" ->
+  user.create preparedKey, data: preparedData
+  new Promise (resolve) -> resolver = resolve
+
+.thenTest "should resolve success" (modelRecord) ->
+  assert.eq modelRecord.status, success

@@ -6,6 +6,7 @@
 .addModules({
   PipelineModelTest:      require('./PipelineModel.test'),
   PipelineQueryModelTest: require('./PipelineQueryModel.test'),
+  RegressionsTest:        require('./Regressions.test'),
   SimplePipeline:         require('./SimplePipeline'),
   StandardImport:         require('./StandardImport')
 });

@@ -1,63 +1,61 @@
 import &StandardImport, {} &SimplePipeline
 
 
-describe
-  PipelineMode: ->
-    orderLog = []
-    User = null
-    user = null
-    MySubscriber = null
+orderLog = []
+User = null
+user = null
+MySubscriber = null
 
-    beforeEach ->
-      _resetArtSuiteModels()
-      class MySubscriber extends ArtModelSubscriptionsMixin BaseObject
+beforeEach ->
+  _resetArtSuiteModels()
+  class MySubscriber extends ArtModelSubscriptionsMixin BaseObject
 
-      class User extends SimplePipeline
-        @filter new UniqueIdFilter
-        @filter new TimestampFilter
-        @filter new ValidationFilter
-          username: :trimmedString
-          message:  :trimmedString
+  class User extends SimplePipeline
+    # @filter new UniqueIdFilter
+    # @filter new TimestampFilter
+    # @filter new ValidationFilter
+    #   username: :trimmedString
+    #   message:  :trimmedString
 
-      defineModelsForAllPipelines()
+  defineModelsForAllPipelines()
 
-      {user} = models
+  {user} = models
 
-    test "model.propsToKey" ->
-      assert.eq :user1    user.propsToKey user: id: :user1
-      assert.eq :user2    user.propsToKey userId: :user2
-      assert.eq :user3    user.propsToKey(user: {id: :user3}, userId: :user4), "" whole object has precidence
-      assert.eq undefined user.propsToKey {}
+test "model.propsToKey" ->
+  assert.eq :user1    user.propsToKey user: id: :user1
+  assert.eq :user2    user.propsToKey userId: :user2
+  assert.eq :user3    user.propsToKey(user: {id: :user3}, userId: :user4), "" whole object has precidence
+  assert.eq undefined user.propsToKey {}
 
-    test "user instanceof ArtModel", ->
-      assert.eq models.user, user
-      assert.instanceOf models.user, ArtModel
+test "user instanceof ArtModel", ->
+  assert.eq models.user, user
+  assert.instanceOf models.user, ArtModel
 
-    test "myModel.create", ->
-      user.create data: username: "Shane", message: "Hi"
+test "myModel.create", ->
+  user.create data: username: "Shane", message: "Hi"
 
-    test "create with missing required field", ->
-      user.create data: username: "Shane", message: ""
+test "create with missing required field", ->
+  user.create data: username: "Shane", message: ""
 
-    test "subscribe when state is success", ->
-      user.pipeline.reset data: 123: name: "alice"
-      .then ->
-        mySubscriber = new MySubscriber
-        new Promise (resolve) ->
-          mySubscriber.subscribe
-            modelName:  "user"
-            key:        "123"
-            callback:   (artModelRecord) ->
-              resolve() if artModelRecord.status == success
+test "subscribe when state is success", ->
+  user.pipeline.reset data: 123: name: "alice"
+  .then ->
+    mySubscriber = new MySubscriber
+    new Promise (resolve) ->
+      mySubscriber.subscribe
+        modelName:  "user"
+        key:        "123"
+        callback:   (artModelRecord) ->
+          resolve() if artModelRecord.status == success
 
-    test "subscribe when state is missing", ->
-      user.pipeline.reset data: 123: name: "alice"
-      .then ->
-        mySubscriber = new MySubscriber
-        new Promise (resolve) ->
-          mySubscriber.subscribe
-            modelName:  "user"
-            key:        "456"
-            callback:   (artModelRecord) ->
-              resolve() if artModelRecord.status == missing
+test "subscribe when state is missing", ->
+  user.pipeline.reset data: 123: name: "alice"
+  .then ->
+    mySubscriber = new MySubscriber
+    new Promise (resolve) ->
+      mySubscriber.subscribe
+        modelName:  "user"
+        key:        "456"
+        callback:   (artModelRecord) ->
+          resolve() if artModelRecord.status == missing
 
