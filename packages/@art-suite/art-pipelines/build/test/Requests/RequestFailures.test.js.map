@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "RequestFailures.test.js",
+  "sourceRoot": "../../..",
+  "sources": [
+    "source/test/Requests/RequestFailures.test.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,uGAAO,sEAEP,0CACA,SAAQ,CACN,sBAAY,OACV,KAAK,iDACH,EAAC,iEAAuC,8DACtC,wBAAoB,mBAEtB,eAAe,eAAe"
+}

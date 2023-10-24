@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "PipelineRegistry.test.js",
+  "sourceRoot": "../..",
+  "sources": [
+    "source/test/PipelineRegistry.test.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,sHAAO,kFAEP,gBAAQ,CAAC,qBACP,KAAK,sBACH,UACE,KAAI,wBAEJ,sBAEJ,KAAK,cACH,UACE,KAAI,kBAAiB,MAAM,iBAE3B,WAEJ,KAAK,iCACH,UACE,KAAI,mCAEJ,mCAEJ,KAAK,yBACH,UACE,KAAI,kBAAiB,iBAAiB,6BAEtC"
+}

@@ -5,17 +5,22 @@ class PipelineRegistry extends BaseObject
 
   @pipelineRegistries: pipelineRegistries = []
 
-  constructor: (name)->
+  constructor: (options = {})->
+    unless isPlainObject options
+      throw new Error "Expecting options object"
+    {name, defaultLocation = getDefaultLocation()} = options
+
     @_name = name ? @class.name
     @_pipelines = {}
     @_registryRegistry()
+    @_defaultLocation = validateLocation defaultLocation
 
   _registryRegistry: ->
     registryNumber = pipelineRegistries.length
     @_uniqueName = "#{@name}#{registryNumber}"
     pipelineRegistries[registryNumber] = @
 
-  @getter :name :pipelines :uniqueName
+  @getter :name :pipelines :uniqueName :defaultLocation
   @getter
     session: -> @_session ?= new Session null, "ArtPipelines-#{@name}-Session", @
     inspectedObjects: -> {}

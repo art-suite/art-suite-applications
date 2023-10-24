@@ -40,7 +40,7 @@ class Request extends BaseObject
 
     @_pipeline            = options.pipeline ? options.request.pipeline
     @_session             = options.session
-    @_location            = options.location ? @_pipeline.location
+    @_location            = validateLocation options.location ? @_pipeline.defaultLocation
 
     @_originatedOnServer  = options.originatedOnServer
     @_context             = options.context
@@ -119,11 +119,13 @@ class Request extends BaseObject
   addFilterLog: (filter, context) ->
     @_filterLog = arrayWith
       @_filterLog
-      name:       if isString filter then filter else filter.getLogName @type
-      context:    context
-      time:       currentSecond()
-      stack:      @originalRequest?.creationStack
-      exception:  @errorProps?.exception
+      {}
+        name:       if isString filter then filter else filter.getLogName @type
+        context
+        @location
+        time:       currentSecond()
+        stack:      @originalRequest?.creationStack
+        exception:  @errorProps?.exception
 
     @
 
@@ -146,6 +148,7 @@ class Request extends BaseObject
     propsForClone: ->
       if @isRequest then {}
         @originalRequest
+        @location
         @pipeline
         @type
         @props
@@ -159,6 +162,7 @@ class Request extends BaseObject
 
       else {}
         @request
+        @location
         @status
         @props
         session: @_session  # Responses should only have a "local" session if the session changed
@@ -167,7 +171,13 @@ class Request extends BaseObject
         @remoteResponse
         @errorProps
 
-    propsForResponse: -> if @isResponse then @propsForClone
+    propsForResponse: -> {}
+      @request
+      @location
+      @remoteRequest
+      @remoteResponse
+      filterLog: @afterFilterLog
+      session: @_session  # Responses should only have a "local" session if the session changed
 
     # TIMING
     startTime:          -> @rootRequest.creationTime

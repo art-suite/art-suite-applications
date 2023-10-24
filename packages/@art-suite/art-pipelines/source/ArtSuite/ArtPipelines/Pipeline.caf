@@ -186,7 +186,6 @@ class Pipeline extends &RequestHandler
     @_filtersForLocation = {}
     @_groupedFiltersForLocation = {}
     @_filterChainsForLocation = {}
-    @_location = getDefaultLocation()
 
     if _deprecatedOptions
       throw new Error "" DEPRECATED: constructor options. For custom session, use: @registry new PipelineRegistry
@@ -255,7 +254,7 @@ class Pipeline extends &RequestHandler
     recordName:       -> @class.recordName
     normalizedRequestTypes: -> @class.normalizedRequestTypes
     session:          -> @registry.session
-    :location
+    defaultLocation:  -> @registry.defaultLocation
     clientApiMethodList: -> @class.clientApiMethodList
 
     normalizedFields: -> object v in @fields with normalizeFieldProps v

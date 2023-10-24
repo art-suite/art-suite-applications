@@ -1,0 +1,26 @@
+import &StandardImport
+
+describe options: ->
+  test :default-name ->
+    assert.eq
+      new PipelineRegistry
+      .name
+      :PipelineRegistry
+
+  test :name ->
+    assert.eq
+      new PipelineRegistry name: :Alice
+      .name
+      :Alice
+
+  test :default-defaultLocation ->
+    assert.eq
+      new PipelineRegistry
+      .defaultLocation
+      Lib.getDefaultLocation()
+
+  test :defaultLocation ->
+    assert.eq
+      new PipelineRegistry defaultLocation: :client
+      .defaultLocation
+      :client

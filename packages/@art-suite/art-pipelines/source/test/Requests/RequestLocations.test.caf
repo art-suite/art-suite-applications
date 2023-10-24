@@ -1,0 +1,37 @@
+import &StandardImport
+
+&ArtConfig.configure()
+
+describe
+  trueDefault: ->
+    test "in tests, server is the default" ->
+      {myPipeline} = class MyPipeline extends Pipeline
+        @registry new PipelineRegistry
+
+        @publicHandler
+          get: (request) -> "#{request.location}-handler"
+
+      myPipeline.get :bar, returnResponse: true
+      .then ({data, location, rootRequest}) ->
+        assert.eq
+          data
+          :server-handler
+
+  defaultLocation_client: ->
+    {myPipeline} = class MyPipeline extends Pipeline
+      @registry new PipelineRegistry defaultLocation: :client
+      @filter name: :server-filter location: :server after: get: ({data}) -> "#{data}/server-filter"
+      @filter name: :client-filter location: :client after: get: ({data}) -> "#{data}/client-filter"
+
+      @publicHandler
+        get: (request) -> "#{request.location}-handler"
+
+    test "client (default)" ->
+      myPipeline.get :bar, returnResponse: true
+      .then ({data, location, rootRequest, filterLog}) ->
+        assert.eq data, :client-handler/client-filter
+
+    test "server (override)" ->
+      myPipeline.get :bar, returnResponse: true location: :server
+      .then ({data, location, rootRequest, filterLog}) ->
+        assert.eq data, :server-handler/server-filter
