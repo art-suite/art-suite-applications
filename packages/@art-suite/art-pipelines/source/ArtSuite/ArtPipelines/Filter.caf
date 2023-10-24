@@ -99,6 +99,7 @@ class Filter extends &RequestHandler
     outer:          1
     middle:         0
     inner:          -1
+    handler:        -2
 
   ## group USAGE: @group :outer
   @extendableProperty
