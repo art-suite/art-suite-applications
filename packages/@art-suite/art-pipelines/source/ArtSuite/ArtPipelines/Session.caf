@@ -53,4 +53,4 @@ class Session extends EventedMixinCaf BaseObject
 
   reset: -> @data = {}
 
-  @singleton.loadSession() if isBrowser
+  # @singleton.loadSession() if isBrowser
