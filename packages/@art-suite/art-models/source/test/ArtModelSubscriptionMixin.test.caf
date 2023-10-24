@@ -18,7 +18,7 @@ describe
   "subscribe and initialModelRecord": ->
 
     chainedTest "with stateField and initialModelRecord" -> _resetArtSuiteModels().then ->
-      class MyModel extends &ApplicationState
+      class MyModel extends ApplicationState
 
       new class MyObject extends ArtModelSubscriptionsMixin BaseObject
 
@@ -37,7 +37,7 @@ describe
       artModelStore.onNextReady()
 
     test "with stateField and no initialModelRecord" -> _resetArtSuiteModels().then ->
-      class MyModel extends &ApplicationState
+      class MyModel extends ApplicationState
 
       new class MyObject extends ArtModelSubscriptionsMixin BaseObject
 

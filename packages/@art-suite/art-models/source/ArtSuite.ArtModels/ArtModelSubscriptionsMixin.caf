@@ -155,9 +155,9 @@ import &StandardImport, &ArtModelStore, {} &ArtModelRegistry
     if stateField && isFunction @setState
       {status = null, progress = null, data = null} = modelRecord if modelRecord
       @setState stateField, data
-      @setState stateField + :Key        key ? modelRecord.key
-      @setState stateField + :Status      status
-      @setState stateField + :Progress    progress
+      @setState stateField + :Key       key ? modelRecord.key
+      @setState stateField + :Status    status
+      @setState stateField + :Progress  progress
       @setState
         stateField + :FailureInfo
         if modelRecord && isFailure status

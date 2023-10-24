@@ -17,5 +17,3 @@ class ApplicationState extends ArtModel
       modelRecord = if @state.hasOwnProperty key
             status: success, data: @state[key]
       else  status: missing
-
-    modelRecord
