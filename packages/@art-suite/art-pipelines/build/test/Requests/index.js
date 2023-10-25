@@ -4,7 +4,6 @@
 (module.exports = require('./namespace'))
 
 .addModules({
-  RequestFailresTest:   require('./RequestFailres.test'),
   RequestFailuresTest:  require('./RequestFailures.test'),
   RequestLocationsTest: require('./RequestLocations.test')
 });

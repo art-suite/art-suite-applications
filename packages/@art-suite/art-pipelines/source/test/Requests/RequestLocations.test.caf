@@ -46,41 +46,38 @@ describe
         .then (data) -> assert.eq data, :server-handler/server-filter
 
     test "now, what if the client-side handler fires off a server-side request - faking like it's a remote request?" ->
-      class BothMode extends Filter
-        @location :client
-        @group :handler
-        @before all: (request) ->
-          request.pipeline.get request.key, {}
-            location:       :server
-            props:          JSON.parse JSON.stringify request.props
-            returnResponse: true
-            remoteRequest:  request
-            request.filterLog
-
-          .then  (remoteResponse) ->
-            request.toResponse
-              if isFailure remoteResponse.status then :serverFailure
-              else remoteResponse.status
-              {}
-                remoteResponse
-                remoteResponse.remoteRequest
-                remoteResponse.filterLog
-                props: JSON.parse JSON.stringify remoteResponse.props
-
       {myPipeline} = class MyPipeline extends Pipeline
         @registry new PipelineRegistry defaultLocation: :client
 
-        @filter name: :server-filter location: :server after: get: ({data}) -> "#{data}/server-filter"
-        @filter name: :client-filter location: :client after: get: ({data}) -> "#{data}/client-filter"
+        @filter
+          name: :server-filter
+          location: :server
+          before: get: (request) -> request.withData compactFlattenAll request.data, :before-server-filter
+          after:  get: (request) -> request.withData compactFlattenAll request.data, :after-server-filter
 
-        @filter BothMode
+        @filter
+          name: :client-filter
+          location: :client
+          before: get: (request) -> request.withData compactFlattenAll request.data, :before-client-filter
+          after:  get: (request) -> request.withData compactFlattenAll request.data, :after-client-filter
+
+        @filter SimulatedClientServerTransportFilter
 
         @publicHandler
-          get: (request) -> "#{request.data}/#{request.location}-handler"
+          get: ({data,location}) -> compactFlattenAll data, "" #{location}-handler
 
-      Promise.all []
-        myPipeline.get :bar data: :requestData
-        .then (data) -> assert.eq data, :requestData/server-handler/server-filter/client-filter
+      myPipeline.get :bar data: :requestData
+      .then (data) -> assert.eq data, []
+        :requestData
+        :before-client-filter
+        :before-server-filter
+        :server-handler
+        :after-server-filter
+        :after-client-filter
 
-        myPipeline.get :bar  data: :requestData location: :server
-        .then (data) -> assert.eq data, :requestData/server-handler/server-filter
+      .then -> myPipeline.get :bar  data: :requestData location: :server
+      .then (data) -> assert.eq data, []
+        :requestData
+        :before-server-filter
+        :server-handler
+        :after-server-filter

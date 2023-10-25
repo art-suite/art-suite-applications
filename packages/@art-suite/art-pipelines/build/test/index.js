@@ -5,7 +5,6 @@
 
 .addModules({
   FiltersTest:          require('./Filters.test'),
-  PipelineRegistry:     require('./PipelineRegistry'),
   PipelineRegistryTest: require('./PipelineRegistry.test'),
   RequestTest:          require('./Request.test'),
   SessionTest:          require('./Session.test'),

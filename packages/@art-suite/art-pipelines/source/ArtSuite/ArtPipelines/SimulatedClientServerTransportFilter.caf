@@ -1,0 +1,22 @@
+import &StandardImport
+
+class SimulatedClientServerTransportFilter extends &Filter
+  @location :client
+  @group :handler
+  @before all: (request) ->
+    request.pipeline.get request.key, {}
+      location:       :server
+      props:          JSON.parse JSON.stringify request.props
+      returnResponse: true
+      remoteRequest:  request
+      request.filterLog
+
+    .then  (remoteResponse) ->
+      request.toResponse
+        if isFailure remoteResponse.status then :serverFailure
+        else remoteResponse.status
+        {}
+          remoteResponse
+          remoteResponse.remoteRequest
+          remoteResponse.filterLog
+          props: JSON.parse JSON.stringify remoteResponse.props

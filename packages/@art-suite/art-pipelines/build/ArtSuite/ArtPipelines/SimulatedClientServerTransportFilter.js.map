@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "SimulatedClientServerTransportFilter.js",
+  "sourceRoot": "../../..",
+  "sources": [
+    "source/ArtSuite/ArtPipelines/SimulatedClientServerTransportFilter.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,kFAAO,8FAEP,8GAAmD,mGACjD,cAAU,WACV,WAAO,YACP,YAAO,CAAC,aAAK,CAAC,UAAW,OACvB,qBAAqB,cACnB,UAAgB,UAChB,OAAgB,WAAW,eAAe,iBAC1C,gBAAgB,MAChB,eAAgB,SAChB,oCAEK,CAAC,mBACN,mBACK,UAAU,yBAA2B,kBACnC,wBAEH,gBACA,6CACA,qCACA,OAAO,WAAW,eAAe"
+}
