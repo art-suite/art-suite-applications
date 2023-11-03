@@ -40,9 +40,8 @@ class Request extends BaseObject
 
     @_pipeline            = options.pipeline ? options.request.pipeline
     @_session             = options.session
-    @_location            = validateLocation options.location ? @_pipeline.defaultLocation
+    @_location            = validateLocation options.location ? @_pipeline.location
 
-    @_originatedOnServer  = options.originatedOnServer
     @_context             = options.context
 
     # response-only
@@ -52,7 +51,8 @@ class Request extends BaseObject
     # inspection / debugging tracking
     @_verbose             = options.verbose
     @_creationTime        = currentSecond()
-    @_filterLog           = options.filterLog
+    @_afterFilterLog      = options.afterFilterLog
+    @_beforeFilterLog     = options.beforeFilterLog
     @_errorProps          = options.errorProps
     @_creationStack       = options.creationStack ? options.request?.creationStack
 
@@ -65,16 +65,16 @@ class Request extends BaseObject
     @_remoteRequest       = options.remoteRequest   # available serverside and clientside
     @_remoteResponse      = options.remoteResponse  # only available clientside
 
+    @_originatedOnServer  = options.originatedOnServer ? @_parentRequest?.originatedOnServer ? @_location == :server
+
     createValidators()
     if @isRequest
       key = options.key ? @_props.key
       options.key = @_props.key = @pipeline.toKeyString key if key?
       requestValidator.validate options, logErrors: true
 
-      @_filterLog ?= []
-        name:   :created
-        stack:  @_creationStack
-        time:   currentSecond()
+      if !@_beforeFilterLog
+        @addFilterLog undefined, :created
 
     else
       responseValidator.validate options, logErrors: true
@@ -101,7 +101,6 @@ class Request extends BaseObject
     key:                -> if @isRequest then @_props.key else @request.key ? @responseData?.id # TODO 2023 - this should really not be hard-coded use responseData.id; response should be able to specific a new key separate from the Data
     data:               -> @_props.data
 
-    :filterLog
     :errorProps
     :creationTime
     :creationStack
@@ -115,19 +114,6 @@ class Request extends BaseObject
     :remoteRequest
 
     context:            -> if @isRequest then @_context ?= {} else @request.context
-
-  addFilterLog: (filter, context) ->
-    @_filterLog = arrayWith
-      @_filterLog
-      {}
-        name:       if isString filter then filter else filter.getLogName @type
-        context
-        @location
-        time:       currentSecond()
-        stack:      @originalRequest?.creationStack
-        exception:  @errorProps?.exception
-
-    @
 
   @getter
     # BOOLEAN info-getters
@@ -154,7 +140,7 @@ class Request extends BaseObject
         @props
         @session
         @parentRequest
-        @filterLog
+        @beforeFilterLog
         @originatedOnServer
         context: @_context  # don't vivify context
         @verbose
@@ -166,18 +152,19 @@ class Request extends BaseObject
         @status
         @props
         session: @_session  # Responses should only have a "local" session if the session changed
-        @filterLog
+        @beforeFilterLog
+        @afterFilterLog
         @remoteRequest
         @remoteResponse
         @errorProps
 
     propsForResponse: -> {}
+      @beforeFilterLog
+      @afterFilterLog
       @request
       @location
       @remoteRequest
       @remoteResponse
-      filterLog: @afterFilterLog
-      session: @_session  # Responses should only have a "local" session if the session changed
 
     # TIMING
     startTime:          -> @rootRequest.creationTime
@@ -191,13 +178,14 @@ class Request extends BaseObject
         when :server then serverFailure
         when :client then clientFailure
 
-      ? @_status
+      ? @_status ? pending
 
-    failed:             -> @_status == failure || @_status == serverFailure
+    isError:            -> @_status == failure || @_status == serverFailure || @_status == clientFailure
+    failed:             -> throw new Error "" .failed is DEPRECATED - use .isError or .isFailure
     isSuccessful:       -> @_status == success
     isMissing:          -> @_status == missing
-    isFailure:          -> @notSuccessful
-    notSuccessful:      -> @_status? && @_status != success
+    isFailure:          -> isFailure @_status
+    notSuccessful:      -> @isFailure
 
     # get requests props from request OR response
     requestSession:     -> (@_request ? @).session
@@ -230,6 +218,35 @@ class Request extends BaseObject
 
     ##########################################################
     ##########################################################
+
+  ##################################
+    FilterLog
+
+  @getter
+    lastFilterLogEntry: -> peek(@afterFilterLog) ? peek @beforeFilterLog
+    beforeFilterLog:    -> @_beforeFilterLog ? []
+    afterFilterLog:     -> @_afterFilterLog ? []
+    activeFilterLog:    -> if @isRequest then @_beforeFilterLog else @_afterFilterLog
+    filterLog: -> array entry in compactFlatten [] @beforeFilterLog, @afterFilterLog
+      if entry.exception then entry else objectWithout entry, :stack :exception
+
+  createFilterLog: (filter, context, status = pending) ->
+    {}
+      name:       if isString filter then filter else filter?.name
+      context
+      status
+      @location
+      time:       currentSecond()
+      stack:      @originalRequest?.creationStack
+      exception:  @errorProps?.exception
+
+  addFilterLog: (filter, context, status = @status) ->
+    @_setActiveFitlerLog arrayWith @activeFilterLog, newFilterLog = @createFilterLog filter, context, status
+    newFilterLog
+
+  _setActiveFitlerLog: (newFilterLog) ->
+    if @isRequest then @_beforeFilterLog = newFilterLog else @_afterFilterLog = newFilterLog
+
   @getter
     ##################################
       Inspect and return just a String
@@ -243,26 +260,16 @@ class Request extends BaseObject
       if @isRequest then  "" #{@requestString} request
       else                "" #{@requestString}: #{@status}
 
-    ##################################
-      FilterLog
-    lastFilterLogEntry: ->
-      peek(@filterLog) ? @request?.lastFilterLogEntry
-
-    beforeFilterLog:    ->
-      if @isRequest then  @_filterLog ? []
-      else                @request.filterLog ? []
-
-    afterFilterLog:     ->
-      if @isRequest then  []
-      else                @_filterLog ? []
-
     requestChain: ->
       compactFlatten []
         if @isResponse then @request.requestChain
         else @parentRequest?.requestChain
         @
 
-    handledBy:          -> @isResponse && !@failed && peek @request.filterLog
+    handledBy: -> peek @beforeFilterLog if @isResponse && !@isError
+    failedIn: ->
+      if @isResponse && @isError
+        find entry in @filterLog when entry.exception || isFailure entry.status
 
     requestTrace: ->
       @lastFilterLogEntry extract? name, context, time, stack, exception
@@ -273,7 +280,7 @@ class Request extends BaseObject
           time:       time - @startTime
           request:    @requestString
           context:    dashCase context
-          filterLog:  compactFlatten [@beforeFilterLog, @afterFilterLog]
+          @filterLog
           name
           stack
           exception
@@ -299,17 +306,19 @@ class Request extends BaseObject
       props = null unless 0 < objectKeyCount props
 
       raw = {}
-        "#{@class.name}": @requestString
+        "#{if @isResponse then :response else :request}": @requestString
         @originatedOnServer
         @data
         @status
+        @location
         props
         @errorProps
+        @session
 
       toInspectedObjects object v from raw when v?
 
     inspectedObjects: ->
-      ["Art.Ery.#{@class.name}"]: array request in @requestChain
+      Art.Pipelines.Request: array request in @requestChain
         request.simpleInspectedObjects
 
     ## summary - smallest "inspectedObjects"
@@ -366,7 +375,9 @@ class Request extends BaseObject
     throw new Error "Pipeline not registered: #{formattedInspect pipelineName}" unless pipeline
 
     new Request merge
-      {} originatedOnServer: requestOptions?.originatedOnServer ? true
+      {}
+        @location
+        originatedOnServer: requestOptions?.originatedOnServer ? true
       requestOptions
       {}
         type
@@ -389,6 +400,7 @@ class Request extends BaseObject
 
     @incrementSubrequestCount()
     subrequest.pipeline._processRequest subrequest
+    .tap (response) ->  log createSubRequest: {} response.status, response.filterLog
     .then (response) -> response.toPromise requestOptions
 
   nonblockingSubrequest: (pipelineName, type, requestOptions) ->
@@ -810,7 +822,7 @@ class Request extends BaseObject
       else  response
 
   _toErrorResponseProps: (responseProps) ->
-    log
+    log.error
       @
       {} responseProps
       data: message:

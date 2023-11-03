@@ -1,0 +1,50 @@
+import &StandardImport
+
+describe
+  definedInFilterClass: ->
+    test "filter can define request type" ->
+      requestDefinedRequestType = heartbeat: response: data: :string
+      class MyFilter extends Filter
+        @requestType requestDefinedRequestType
+        @before heartbeat: -> :OK
+
+      {myPipe} = class MyPipe extends Pipeline
+        @filter MyFilter
+
+      assert.eq
+        myPipe.requestTypes
+        requestDefinedRequestType
+
+    test "all-filter does not define 'all' request type" ->
+      class MyFilter extends Filter
+        @before all: (request) -> request
+
+      {myPipe} = class MyPipe extends Pipeline
+        @filter MyFilter
+        @handler get: -> :OK
+
+      assert.eq
+        myPipe.requestTypes
+        get: {}
+
+  definedInline: ->
+    test "filter can define request type" ->
+      requestDefinedRequestType = heartbeat: response: data: :string
+      {myPipe} = class MyPipe extends Pipeline
+        @filter
+          requestType: requestDefinedRequestType
+          before: heartbeat: -> :OK
+
+      assert.eq
+        myPipe.requestTypes
+        requestDefinedRequestType
+
+    test "all-filter does not define 'all' request type" ->
+      {myPipe} = class MyPipe extends Pipeline
+        @filter all: (request) -> request
+        @handler get: -> :OK
+
+      assert.eq
+        myPipe.requestTypes
+        get: {}
+

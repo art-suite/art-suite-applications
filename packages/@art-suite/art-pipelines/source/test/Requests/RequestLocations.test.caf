@@ -9,12 +9,12 @@ describe
         @registry new PipelineRegistry
         @publicHandler get: (request) -> "#{request.location}-handler"
 
-      myPipeline.get :bar
+      myPipeline.get :bar session: {}
       .then (data) -> assert.eq data, :server-handler
 
-  defaultLocation_client: ->
+  location_client: ->
     {myPipeline} = class MyPipeline extends Pipeline
-      @registry new PipelineRegistry defaultLocation: :client
+      @registry new PipelineRegistry location: :client
       @filter name: :server-filter location: :server after: get: ({data}) -> "#{data}/server-filter"
       @filter name: :client-filter location: :client after: get: ({data}) -> "#{data}/client-filter"
 
@@ -22,16 +22,16 @@ describe
 
     test "client (default)" ->
       myPipeline.get :bar
-      .then (data) -> assert.eq data, :client-handler/client-filter
+      .then (data) -> assert.eq data, :server-handler/server-filter/client-filter
 
     test "server (override)" ->
-      myPipeline.get :bar location: :server
+      myPipeline.get :bar location: :server session: {}
       .then (data) -> assert.eq data, :server-handler/server-filter
 
   clientAndServerHandlers: ->
     test "we can fake a client-side-only handler using a client-side only before-filter" ->
       {myPipeline} = class MyPipeline extends Pipeline
-        @registry new PipelineRegistry defaultLocation: :client
+        @registry new PipelineRegistry location: :client
         @filter name: :client-filter-handler location: :client before: get: ({data}) -> "#{data}client-filter-handler"
         @filter name: :server-filter location: :server after: get: ({data}) -> "#{data}/server-filter"
         @filter name: :client-filter location: :client after: get: ({data}) -> "#{data}/client-filter"
@@ -42,12 +42,12 @@ describe
         myPipeline.get :bar
         .then (data) -> assert.eq data, :client-filter-handler/client-filter
 
-        myPipeline.get :bar location: :server
+        myPipeline.get :bar location: :server session: {}
         .then (data) -> assert.eq data, :server-handler/server-filter
 
     test "now, what if the client-side handler fires off a server-side request - faking like it's a remote request?" ->
       {myPipeline} = class MyPipeline extends Pipeline
-        @registry new PipelineRegistry defaultLocation: :client
+        @registry new PipelineRegistry location: :client
 
         @filter
           name: :server-filter
@@ -61,8 +61,6 @@ describe
           before: get: (request) -> request.withData compactFlattenAll request.data, :before-client-filter
           after:  get: (request) -> request.withData compactFlattenAll request.data, :after-client-filter
 
-        @filter SimulatedClientServerTransportFilter
-
         @publicHandler
           get: ({data,location}) -> compactFlattenAll data, "" #{location}-handler
 
@@ -75,9 +73,31 @@ describe
         :after-server-filter
         :after-client-filter
 
-      .then -> myPipeline.get :bar  data: :requestData location: :server
+      .then -> myPipeline.get :bar  data: :requestData location: :server session: {}
       .then (data) -> assert.eq data, []
         :requestData
         :before-server-filter
         :server-handler
         :after-server-filter
+
+    test "both-filter" ->
+      {myPipeline} = class MyPipeline extends Pipeline
+        @registry new PipelineRegistry location: :client
+
+        @filter
+          name: :both-filter
+          location: :both
+          before: get: (request) -> request.withData compactFlattenAll request.data, "" before-both/#{request.location}-filter
+          after:  get: (request) -> request.withData compactFlattenAll request.data, "" after-both/#{request.location}-filter
+
+        @publicHandler
+          get: ({data,location}) -> compactFlattenAll data, "" #{location}-handler
+
+      myPipeline.get :bar data: :requestData
+      .then (data) -> assert.eq data, []
+        :requestData
+        :before-both/client-filter
+        :before-both/server-filter
+        :server-handler
+        :after-both/server-filter
+        :after-both/client-filter

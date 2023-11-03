@@ -1,10 +1,15 @@
 import &ArtStandardLib
 
 {}
-  validLocations = :client :server :both
-  validLocationsRegexp = /^client|server|both$/
+  validLocations = :client :server
+  validLocationsRegexp = /^client|server$/
   validateLocation: (location) ->
     throw new Error "Invalid location: #{formattedInspect location}. Valid locations: #{validLocations.join ', '}" unless validLocationsRegexp.test location
     location
 
   getDefaultLocation: -> if isBrowser then :client else :server
+
+  filterLocations =
+    server: true
+    client: true
+    both: true

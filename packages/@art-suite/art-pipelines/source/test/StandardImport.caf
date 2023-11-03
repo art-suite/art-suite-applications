@@ -1,6 +1,12 @@
+import &ArtStandardLib
+
 []
   &ArtStandardLib
   &ArtClassSystem
   &ArtCommunicationStatus
-  &build
   &ArtTestbench
+  &build
+  simplifyFilterLog: (filterLog) ->
+    array {name, context, location, status} in filterLog
+      compactFlatten [] location, status, context, name
+      .join "-"

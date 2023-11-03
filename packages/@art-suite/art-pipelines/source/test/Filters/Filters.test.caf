@@ -1,5 +1,11 @@
 import &StandardImport
 
+pipelineRegistry = new &build.PipelineRegistry location: :client
+pipelineRegistry extract pipelines
+
+class Pipeline extends &build.Pipeline
+  @registry pipelineRegistry
+
 &ArtConfig.configure()
 
 describe
@@ -46,7 +52,7 @@ describe
         @publicRequestTypes :helloWorld
         @filter before: helloWorld: (request) -> request.withData upperCamelCase request.data
 
-      pipelines.myPipeline.helloWorld data: :frank
+      pipelines.myPipeline.helloWorld data: :frank location: :server
       .then (result) -> assert.eq result, "" Hello Frank.
 
     test :all ->
@@ -55,7 +61,7 @@ describe
         @publicRequestTypes :helloWorld
         @filter before: all: (request) -> request.withData upperCamelCase request.data
 
-      pipelines.myPipeline.helloWorld data: :frank
+      pipelines.myPipeline.helloWorld data: :frank location: :server
       .then (result) -> assert.eq result, "" Hello Frank.
 
     test :after ->
@@ -64,7 +70,7 @@ describe
         @publicRequestTypes :helloWorld
         @filter after: helloWorld: (request) -> request.withData request.data + " How are you?"
 
-      pipelines.myPipeline.helloWorld data: :frank
+      pipelines.myPipeline.helloWorld data: :frank location: :server
       .then (result) -> assert.eq result, "" Hello frank. How are you?
 
   order:
@@ -82,7 +88,7 @@ describe
             before: helloWorld: (r) -> r.withData r.data + :/b-before/
             after:  helloWorld: (r) -> r.withData r.data + :/b-after/
 
-        pipelines.myPipeline.helloWorld data: :frank
+        pipelines.myPipeline.helloWorld data: :frank location: :server
         .then (result) ->
           assert.eq result, "" Hello frank/b-before//a-before/./a-after//b-after/
 
@@ -97,7 +103,7 @@ describe
           @filter name: :filterC  group: :middle    after: myAction: (r) -> r.withData "" #{r.data}C
           @filter name: :filterD  group: :loggers   after: myAction: (r) -> r.withData "" #{r.data}D
 
-        pipelines.myPipeline.myAction()
+        pipelines.myPipeline.myAction location: :server
         .then (result) ->
           assert.eq result, "-BCAD"
 
@@ -111,7 +117,7 @@ describe
           @filter name: :filterC  after: myAction: (r) -> r.withData "" #{r.data}C
           @filter name: :filterD  after: myAction: (r) -> r.withData "" #{r.data}D
 
-        pipelines.myPipeline.myAction()
+        pipelines.myPipeline.myAction location: :server
         .then (result) ->
           assert.eq result, "-ABCD"
 
@@ -126,29 +132,9 @@ describe
             response.withData array a from response.data with "#{a} #{a}"
 
       assert.eq Post.post.clientApiMethodList, [] "byUserId"
-      Post.post.byUserId key: :foo
+      Post.post.byUserId key: :foo location: :server
       .then (results) ->
         assert.eq results, [] "foo foo", "1 1", "2 2", "3 3"
-
-  filterLogs: ->
-    test "basic", ->
-      class MyPipeline extends Pipeline
-        @handlers foo: (request) -> merge request.data, myHandlerRan: true
-        @publicRequestTypes :foo
-
-        @filter name: :MyBeforeFooFilter  before: foo: (request)  -> request.withMergedData myBeforeFooFilterRan: true
-        @filter name: :MyAfterFooFilter   after:  foo: (response) -> response.withMergedData myAfterFooFilterRan: true
-
-      p = new MyPipeline
-      p.foo returnResponseObject: true
-      .then (response) ->
-        assert.eq [:created :MyBeforeFooFilter :foo-handler], array {name} in response.beforeFilterLog with name
-        assert.eq [:MyAfterFooFilter                       ], array {name} in response.afterFilterLog  with name
-        assert.eq
-          response.data
-          myHandlerRan: true
-          myBeforeFooFilterRan: true
-          myAfterFooFilterRan: true
 
   location: ->
     test "before filters by location" ->
@@ -160,9 +146,8 @@ describe
         @filter location: :both   before: foo: (request) -> request
         @filter location: :server before: foo: (request) -> request
 
-      assert.eq [:client :both],          array f in pipelines.myPipeline.getBeforeFilters requestType: :foo location: :client with f.location
+      assert.eq [:both :client],          array f in pipelines.myPipeline.getBeforeFilters requestType: :foo location: :client with f.location
       assert.eq [:server :both],          array f in pipelines.myPipeline.getBeforeFilters requestType: :foo location: :server with f.location
-      assert.eq [:client :server :both],  array f in pipelines.myPipeline.getBeforeFilters requestType: :foo location: :both   with f.location
 
     test "after filters by location" ->
       class MyPipeline extends Pipeline
@@ -173,9 +158,8 @@ describe
         @filter location: :both   after:  foo: (request) -> request
         @filter location: :server after:  foo: (request) -> request
 
-      assert.eq [:both :client],            array f in pipelines.myPipeline.getAfterFilters requestType: :foo location: :client with f.location
+      assert.eq [:client :both],            array f in pipelines.myPipeline.getAfterFilters requestType: :foo location: :client with f.location
       assert.eq [:both :server],            array f in pipelines.myPipeline.getAfterFilters requestType: :foo location: :server with f.location
-      assert.eq [:both :server :client],    array f in pipelines.myPipeline.getAfterFilters requestType: :foo location: :both   with f.location
 
   filterFailures: ->
     test :basic ->
@@ -195,7 +179,7 @@ describe
       assert.eq false  pipelines.myPipeline.filters[0].filterFailures
       assert.eq true   pipelines.myPipeline.filters[1].filterFailures
 
-      pipelines.myPipeline.foo()
+      pipelines.myPipeline.foo location: :server
       .then (result)-> assert.eq result, "" me!
 
   regressions: ->
@@ -217,8 +201,8 @@ describe
         @filter instance
 
       Promise.all []
-        pipelines.myPipeline1.foo()
-        pipelines.myPipeline2.foo()
+        pipelines.myPipeline1.foo location: :server
+        pipelines.myPipeline2.foo location: :server
       .then ([foo1, foo2]) ->
         assert.eq foo1, foo1ed: true myFiltered: true
         assert.eq foo2, foo2ed: true myFiltered: true
@@ -299,9 +283,11 @@ describe
         @filter new OrderTestFilter :a
         @filter new OrderTestFilter :b
 
-        @publicHandlers create: ({data:{message}}) -> message: "#{message}\ncreate-handler"
+        @publicHandlers create: ({data:{message}}) -> message:
+          compactFlatten [message, :create-handler]
+          .join "\n"
 
-      MyPipeline.singleton.create data: {}
+      MyPipeline.singleton.create data: {}, location: :server
       .then (savedData) ->
         assert.eq
           savedData.message

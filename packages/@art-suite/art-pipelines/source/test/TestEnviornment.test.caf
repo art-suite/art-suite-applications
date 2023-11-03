@@ -1,0 +1,16 @@
+import &StandardImport, &getSimulatedTestingFromClientResources()
+
+test "in tests, we default to the :client location" ->
+  assert.eq
+    pipelineRegistry.location
+    :client
+
+test "in tests, use a custom pipelineRegistry" ->
+  assert.neq
+    pipelineRegistry
+    &build.pipelineRegistry
+
+test "in tests, the Pipeline class was extended to use our custom pipelineRegistry" ->
+  assert.eq
+    Pipeline.getRegistry()
+    pipelineRegistry

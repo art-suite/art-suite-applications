@@ -28,7 +28,8 @@ class RequestHandler extends BaseObject
             handler: @
             response
 
-        else response
+        else
+          response
 
     if request.verbose
       resultPromise
@@ -38,7 +39,7 @@ class RequestHandler extends BaseObject
             before: request.summary
             after:  result.summary
 
-          if result.failed && !request.failed then log.error content else log content
+          if result.isError && !request.isError then log.error content else log content
 
         else log "ArtPipelines-applyHandler-Verbose #{request.requestString} - #{dashCase context} #{@getLogName @type}": "no-change"
 
@@ -47,8 +48,9 @@ class RequestHandler extends BaseObject
   ## _applyHandler
   _applyHandler: (request, handlerFunction, context) ->
 
+    newFilterLog = null
     Promise.then ->
-      request.addFilterLog @, context
+      newFilterLog = request.addFilterLog @, context
       handlerFunction.call @, request
 
     .then
@@ -56,11 +58,19 @@ class RequestHandler extends BaseObject
         unless data?                                then request.missing()
         else if data instanceof Request             then data
         else if isJsonType data                     then request.success {} data
-        else throw new ErrorWithInfo "invalid response data passed to RequestResponseBaseNext", {} data
+        else
+          request.failure
+            """
+              Invalid response data returned from handler: #{@name} context: #{context}
+
+              #{} formattedInspect {} data
 
       # send response-errors back through the 'resolved' promise path
       # We allow them to be thrown in order to skip parts of code, but they should be returned normally
       (error) ->
+        newFilterLog.exception = error
+        # newFilterLog.status = if request.location == :client then :clientFailure else :serverFailure
+
         if error.props?.response?.isResponse
           error.props.response
 
@@ -73,6 +83,8 @@ class RequestHandler extends BaseObject
             source:
               this: @
               function: handlerFunction
+
+    .tap (requestResponse) -> newFilterLog.status = requestResponse.status
 
     ## handleRequest
       IN:

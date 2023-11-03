@@ -1,0 +1,35 @@
+import &StandardImport, &getSimulatedTestingFromClientResources()
+&ArtConfig.configure()
+
+class SimulatedClientServerTransportFilter extends Filter
+  @location :client
+  @group :handler
+  @before all: (request) -> request.pipeline.processClientToServerRequest request
+
+test "with SimulatedClientServerTransportFilter" ->
+  {myPipeline} = class MyPipeline extends Pipeline
+    @filter SimulatedClientServerTransportFilter
+    @publicHandler get: -> "get-handler"
+
+  assert.eq
+    myPipeline.pipelineReport
+    fields:             {}
+    requestTypes:       get: {}
+    publicRequestTypes: get: true
+    processing:
+      client: get: [] :SimulatedClientServerTransportFilter, "" [remote request]
+      server: get: [] "" [local handler]
+
+  myPipeline.get returnResponse: true
+  .then (response) ->
+    assert.eq
+      simplifyFilterLog response.filterLog
+      []
+        :client-pending-created
+        :client-success-beforeFilter-SimulatedClientServerTransportFilter
+        :client-pending-continueAtServerLocation
+        :server-pending-created
+        :server-success-handler-myPipeline
+        :server-success-completed
+        :client-success-resumedAtClientLocation
+        :client-success-completed

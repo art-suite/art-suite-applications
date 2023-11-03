@@ -1,6 +1,7 @@
 import &StandardImport
 
-getEnv().ART_PIPELINES_ATTACH_RESPONSE_TO_ERRORS = true
+Pipeline.registry new PipelineRegistry session: {}
+
 &ArtConfig.configure()
 describe
   afterFilterFailures: ->
@@ -33,8 +34,15 @@ describe
       .then (error) ->
         {response} = error.props
         assert.present response.errorProps.failedIn
-        assert.eq [:created "create-handler"],         array {name} from response.beforeFilterLog with name
-        assert.eq ["myFilter1", "myFilter2"], array {name} from response.afterFilterLog with name
+        assert.eq simplifyFilterLog(response.beforeFilterLog), []
+          :server-pending-created
+          :server-success-handler-myPipeline
+
+        assert.eq simplifyFilterLog(response.afterFilterLog),  []
+          :server-success-afterFilter-myFilter1
+          :server-clientFailure-afterFilter-myFilter2
+          :server-clientFailure-completed
+
         assert.match response.data.message, "you lose!"
         assert.doesNotExist error.props.response.errorProps.source
 
@@ -42,18 +50,28 @@ describe
     test "clientFailure", ->
       class MyPipeline extends Pipeline
         @publicHandlers create: (request) -> foo: 1, bar: 2
-        @filter name: "myFilter1", before: create: (response) -> response
-        @filter name: "myFilter2", before: create: (response) -> response.clientFailure "you lose!"
-        @filter name: "myFilter3", before: create: (response) -> response
+        @filter name: :myFilter1 before: create: (response) -> response
+        @filter name: :myFilter2 before: create: (response) -> response.failure "you lose!"
+        @filter name: :myFilter3 before: create: (response) -> response
 
       p = new MyPipeline
       assert.rejects p.create()
       .then (error) ->
         {response} = error.props
         assert.present response.errorProps.failedIn
-        assert.eq [:created "myFilter3", "myFilter2"], array {name} from response.beforeFilterLog with name
-        assert.eq response.afterFilterLog, []
-        assert.eq response.handledBy.name, "myFilter2"
+        assert.eq
+          simplifyFilterLog response.beforeFilterLog
+          []
+            :server-pending-created
+            :server-pending-beforeFilter-myFilter3
+            :server-serverFailure-beforeFilter-myFilter2
+
+        assert.eq
+          simplifyFilterLog response.afterFilterLog
+          [] :server-serverFailure-completed
+
+        assert.doesNotExist response.handledBy
+        assert.eq response.failedIn.name, :myFilter2
         assert.eq response.data.message, "you lose!"
 
     test "internal error", ->
@@ -84,6 +102,8 @@ describe
       p = new MyPipeline
       assert.rejects p.create()
       .then (error) ->
+        if !error.props
+          log WTF: error
         {response} = error.props
         assert.present response.errorProps.failedIn
         assert.eq filterLog, ["myFilter1"]

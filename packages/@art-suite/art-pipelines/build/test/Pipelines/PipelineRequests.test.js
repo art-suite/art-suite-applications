@@ -1,4 +1,0 @@
-"use strict"
-let Caf = require('caffeine-script-runtime');
-Caf.defMod(module, () => {return Caf.importInvoke(["test", "Pipeline", "assert"], [global, require('../StandardImport')], (test, Pipeline, assert) => {require('art-config').configure(); return test("cachedGet", function() {let getLog, myPipeline, MyPipeline; getLog = []; ({myPipeline} = MyPipeline = Caf.defClass(class MyPipeline extends Pipeline {}, function(MyPipeline, classSuper, instanceSuper) {this.publicHandler({get: function(request) {getLog.push(request.key); return (request.key === "foo") ? myPipeline.cachedGet(request, "bar").then(() => myPipeline.cachedGet(request, "bar")).then(() => "done") : "done";}});})); return myPipeline.get("foo").then(() => assert.eq(["foo", "bar"], getLog));});});});
-//# sourceMappingURL=PipelineRequests.test.js.map

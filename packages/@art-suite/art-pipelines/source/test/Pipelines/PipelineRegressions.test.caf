@@ -1,4 +1,5 @@
 import &StandardImport
+Pipeline.registry new PipelineRegistry session: {}
 ArtConfig.configure()
 test "simple filter which didn't work in Browser-ReactJS land" ->
   # OH! The reason was location defaults to :Server

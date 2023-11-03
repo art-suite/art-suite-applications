@@ -4,12 +4,15 @@
 (module.exports = require('./namespace'))
 
 .addModules({
-  FiltersTest:          require('./Filters.test'),
-  PipelineRegistryTest: require('./PipelineRegistry.test'),
-  RequestTest:          require('./Request.test'),
-  SessionTest:          require('./Session.test'),
-  StandardImport:       require('./StandardImport')
+  GetSimulatedTestingFromClientResources:   require('./getSimulatedTestingFromClientResources'),
+  PipelineRegistryTest:                     require('./PipelineRegistry.test'),
+  RequestTest:                              require('./Request.test'),
+  SessionTest:                              require('./Session.test'),
+  SimulatedClientServerTransportFilterTest: require('./SimulatedClientServerTransportFilter.test'),
+  StandardImport:                           require('./StandardImport'),
+  TestEnviornmentTest:                      require('./TestEnviornment.test')
 });
+require('./Filters');
 require('./Lib');
 require('./Pipelines');
 require('./Requests');

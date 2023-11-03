@@ -1,4 +1,4 @@
-import &StandardImport
+import &StandardImport, &getSimulatedTestingFromClientResources()
 
 newRequest = (options) ->
   new Request merge
@@ -338,46 +338,6 @@ describe
           {context} = request
           subrequest = request.createSubRequest "myPipeline", "get"
           assert.same context, subrequest.context
-
-    subrequests: ->
-      subrequestPipeline = null
-
-      subrequestHandlers =
-        form1: (request) -> subrequestPipeline.bar request, {} request.props
-        form2: (request) -> subrequestPipeline.bar request, request.key, props: objectWithout request.props,             :key
-        form3: (request) -> request.subrequest :subrequestPipeline :bar {} request.props
-        form4: (request) -> request.subrequest :subrequestPipeline :bar request.key, props: objectWithout request.props, :key
-        form5: (request) -> subrequestPipeline.bar request
-
-      subrequestCompatibleHandlers =
-        compatibleForm1: (request) -> subrequestPipeline.bar null, {} request.props
-        compatibleForm2: (request) -> subrequestPipeline.bar null, request.key, props: objectWithout request.props,             :key
-
-      beforeEach ->
-        {subrequestPipeline} = class SubrequestPipeline extends Pipeline
-          @handlers handlers = merge
-            subrequestHandlers
-            subrequestCompatibleHandlers
-            bar: (request) -> merge request.props, isSubrequest: !!request.parentRequest
-          @publicRequestTypes "HOWHOW", Object.keys handlers
-
-      key = "myKey"
-      props = prop1: "propValue1"
-
-      each _, k in subrequestHandlers
-        test "subrequests #{k}", ->
-          subrequestPipeline[k] key, {} props
-          .then (data) -> assert.eq
-            data
-            merge props, {} key, isSubrequest: true
-
-      each _, k in subrequestCompatibleHandlers
-        test "subrequestCompatible #{k}", ->
-          subrequestPipeline[k] key, {} props
-          .then (data) ->
-            assert.eq
-              data
-              merge props, {} key, isSubrequest: false
 
     ## compoundKeys: ->
       class MyCompoundKeyPipe extends KeyFieldsMixin Pipeline

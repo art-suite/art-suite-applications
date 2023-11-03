@@ -254,7 +254,7 @@ class Pipeline extends &RequestHandler
     recordName:       -> @class.recordName
     normalizedRequestTypes: -> @class.normalizedRequestTypes
     session:          -> @registry.session
-    defaultLocation:  -> @registry.defaultLocation
+    location:         -> @registry.location
     clientApiMethodList: -> @class.clientApiMethodList
 
     normalizedFields: -> object v in @fields with normalizeFieldProps v
@@ -283,52 +283,42 @@ class Pipeline extends &RequestHandler
     @_filterChainsForLocation[location] ?=
       compactFlatten []
         @
-        if location == :both
-          []
-            @getGroupedFiltersForLocation :server
-            @getGroupedFiltersForLocation :client
-
-        else
-          @getGroupedFiltersForLocation location
+        @getGroupedFiltersForLocation location
 
       .reverse()
 
   # Inspect Getters
   toString: -> @pipelineName
-  getLogName: (requestType) -> "#{requestType}-handler"
 
   getRequestProcessingReport: (location = @location) ->
-    object requestType from log @requestTypes
+    object requestType from @requestTypes
       compactFlatten []
-        array filter in @getBeforeFilters {} requestType, location with inspectedObjectLiteral filter.getName()
-        inspectedObjectLiteral if location == :client then "[remote request]" else "[local handler]"
-        array filter in @getAfterFilters  {} requestType, location with inspectedObjectLiteral filter.getName()
+        array filter in @getBeforeFilters {} requestType, location with  filter.getName()
+        if location == :client then "[remote request]" else "[local handler]"
+        array filter in @getAfterFilters  {} requestType, location with  filter.getName()
 
   @getter
-    pipelineReport: (processingLocation)->
-      out =
-        tableName: @tableName
-        fields:
-          object fieldProps in @fields
-            each k in Object.keys(fieldProps).sort() into out2 = {}
-              v = fieldProps[k]
-              unless isFunction v
-                out2[k] = v
+    pipelineReport: -> {}
+      fields:
+        object fieldProps in @fields
+          each k in Object.keys(fieldProps).sort() into out2 = {}
+            v = fieldProps[k]
+            unless isFunction v
+              out2[k] = v
 
-      if processingLocation
-        out["#{processingLocation}Processing"]      = @getRequestProcessingReport :client
+      @requestTypes
+      @publicRequestTypes
 
-      else
-        out.clientSideRequestProcessing             = @getRequestProcessingReport :client
-        out.serverSideRequestProcessing             = @getRequestProcessingReport :server
-        out.serverlessDevelopmentRequestProcessing  = @getRequestProcessingReport :both
-
-      out
+      processing:
+        client: @getRequestProcessingReport :client
+        server: @getRequestProcessingReport :server
 
     inspectedObjects: -> {}
       @name
       publicRequestTypes: Object.keys(@publicRequestTypes).sort()
-      requestTypes:       (array @requestTypes).sort()
+      requestTypes:       Object.keys(@requestTypes).sort()
+
+    inspectSubscribers: ->
       subscriberCounts:   object subscribers in @_subscribers with subscribers.length
       querySubscriberCounts:
         object querySubs in @_querySubscribers
@@ -381,6 +371,10 @@ class Pipeline extends &RequestHandler
     if getDetailedRequestTracingEnabled()
       stack = (new Error).stack
 
+    location = options.location || @location
+
+    if !options.session && !@session then throw new Error "Session Required: No session present on request, and no default session in registry."
+
     Promise
     .then -> options.session || @session.loadedDataPromise
     .tapCatch (error) ->
@@ -398,11 +392,42 @@ class Pipeline extends &RequestHandler
         creationStack: stack
 
     .catch (error) ->
-      if stack?
-        error.stack = cleanStackTrace stack
+      # if stack?
+      log inside.createRequest: cleanStackTrace error.stack
+      error.stack = cleanStackTrace stack ? error.stack
 
-      error.message += "\n\ninside #{@name}." + formattedInspect createRequest: {type, options}
+      error.message += "\n\ninside #{@name}." + formattedInspect createRequest: {} type, options: objectWithout options, :filterLog
       throw error
+
+  processClientToServerRequest: (request) ->
+    request.addFilterLog undefined, :continueAtServerLocation
+
+    throw new Error "Expecting: request.location == 'client'. Got: #{formattedInspect request.location}" unless request.location == :client
+    @[request.type] request.key, {}
+      location:       :server
+      props:          JSON.parse JSON.stringify request.props
+      returnResponse: true
+      remoteRequest:  request
+      session:        JSON.parse JSON.stringify request.session
+
+    .then  (remoteResponse) ->
+      request.toResponse
+        if isFailure remoteResponse.status then :serverFailure
+        else remoteResponse.status
+        {}
+          remoteResponse
+          remoteResponse.remoteRequest
+          beforeFilterLog:  compactFlattenAll
+            request.beforeFilterLog
+            remoteResponse.beforeFilterLog
+          afterFilterLog: compactFlattenAll
+            remoteResponse.afterFilterLog
+            request.createFilterLog undefined, :resumedAtClientLocation, remoteResponse.status
+
+          # transport protocol should generally not return the session object unless it changed
+          session: if remoteResponse.session && !eq request.session, remoteResponse.session
+            JSON.parse JSON.stringify remoteResponse.session
+          props: JSON.parse JSON.stringify remoteResponse.props
 
   #####################################
     ###################################
@@ -585,17 +610,18 @@ class Pipeline extends &RequestHandler
     each __, name in @getPublicRequestTypes() with @_defineClientRequestMethod name
 
   @_initFilters: ->
+    requestTypes = @extendRequestTypes() # get requestTypes - and, since we are about to mutate it, this makes sure we have the version that will be mutated
     # Note, in all things, the pipeline's definitions have priority over the filter's definitions
     each filter in @getFilters() when objectHasKeys filter.fields with @extendFields merge filter.fields, @getFields()
 
     # requestTypes may depend on FieldTyeps, so run them second
-    each filter in @getFilters() when objectHasKeys filter.requestTypes with @extendRequestTypes merge filter.requestTypes, @getRequestTypes()
+    each filter in @getFilters() when objectHasKeys filter.requestTypes with @extendRequestTypes filter.requestTypes
 
-    each _, name in @getHandlers()
+    each _, name in @getHandlers() when !requestTypes[name]
       @extendRequestTypes [name]: {}
 
     each filter in @getFilters()
-      each _, name in filter.before
+      each _, name in filter.before when name != :all && !requestTypes[name]
         @extendRequestTypes [name]: {}
 
     # validate requestTypes
@@ -617,7 +643,10 @@ class Pipeline extends &RequestHandler
     if request.isResponse
       throw new Error "HARD DEPRICATED"
 
-    if handler = @handlers[request.type]
+    if request.location == :client
+      @processClientToServerRequest request
+
+    else if handler = @handlers[request.type]
       @applyHandler request, handler, :handler
       .then (response) ->
         unless response.isResponse
@@ -643,6 +672,7 @@ class Pipeline extends &RequestHandler
       request.requireServerOriginOr isPublicRequestType, "to issue non-public requests"
       .then -> filterChain[0].handleRequest request, filterChain, 0
       .tap (response) -> log.error "not response!": response unless response.isResponse
+      .tap (response) -> response.addFilterLog undefined, :completed
 
   ## _processClientRequest
     IN:
@@ -712,16 +742,12 @@ class Pipeline extends &RequestHandler
         if the log-in returns AFTER the log-out, it should be ignored.
   mostRecentSessionUpdatedAt = 0
   _processResponseSession: (response, requestStartTime) ->
-    if response extract responseSession
-      currentSession = @session.data
-      message =
-        if requestStartTime > mostRecentSessionUpdatedAt
-          mostRecentSessionUpdatedAt = requestStartTime
-          @session.data = responseSession
-          "" updated
-
-        else
-          "" out-of-order update blocked
+    if response.location == :client &&
+        response extract responseSession
+        && neq responseSession, @session.data
+        && requestStartTime > mostRecentSessionUpdatedAt
+      mostRecentSessionUpdatedAt = requestStartTime
+      @session.data = responseSession
 
     response
 

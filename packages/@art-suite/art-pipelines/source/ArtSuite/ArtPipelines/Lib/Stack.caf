@@ -2,8 +2,7 @@ import &ArtStandardLib
 
 removeFromCleanStackTraceRegExp =
   ///
-    ^\s+at\_
-    processImmediate
+    ^ \s+ at \s+ processImmediate
     | Art.Ery/(Pipeline|Request|Filter\b)
     | ArtSuite/ArtPipelines/(Pipeline|Request|Filter\b)
     | node_modules/.*(

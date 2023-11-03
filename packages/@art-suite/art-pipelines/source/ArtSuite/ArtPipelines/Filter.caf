@@ -17,11 +17,6 @@ class Filter extends &RequestHandler
     else if isPlainObject filter      then new Filter filter
     else throw "" invalid filter: #{inspect filter} #{filter instanceof Filter}
 
-  @locationNames: locationNames =
-    server: true
-    client: true
-    both: true
-
   #############################
     ###########################
 
@@ -75,7 +70,7 @@ class Filter extends &RequestHandler
   @extendableProperty
     location: :server
     {} extend: (__, v) ->
-      throw new Error "invalid location: #{v}" unless locationNames[v]
+      throw new Error "invalid location: #{v}" unless filterLocations[v]
       v
 
   ###
@@ -111,44 +106,8 @@ class Filter extends &RequestHandler
       else
         0
 
-  ###
-    2018-04-19 SBD: I still think 'both' should be 1000, but it breaks Zo.
-
-    Why? Because the ValidationFilter sets default fields and the UserOwnedFilter
-    throws errors if the user attempts to set fields they aren't allowed to manually
-    set. Well, this means the UserOwnedFilter needs to fire BEFORE ValidationFilter.
-
-    The real problem here is ValidationFilter actually acts differently client-side vs
-    server-side. I'm beginning to think the "both" mode for a Filter actually doesn't
-    make much sense. I think we DO want to have a client-side validator which is
-    initialized with the exact same constraint as the server-side validator. However,
-    I'm beginning to think it just makes more sense if they are actually different filters.
-
-    Right now I'm overloading what "Validation" means - and overloading usually (always?)
-    creates unecessary complexity.
-
-    And guess what? Validation, and only as a pre-filter, is STILL the only example I've
-    found where a "both" filter kind-of makes sense.
-
-    If we split Validator into separate Client and Server, we can drop the whole "both"
-    concept - which probably simplifies A LOT of code! ooo!
-
-    2022-12-17 SBD: YES! Split ValidationFitler; Drop 'both' for filter run-location, and
-      not metioned here but mentioned elsewhere, run the exact same filter sequence wheather
-      we are running 100% client-side or split client-server (needs some refactoring).
-
-      THEN we can drop this whole 'locationPriorityBoost' hack
-
-      In fact, I want to drop 'priority' all together, though I'm not quite sure what I want
-      to replace it with.
-  locationPriorityBoost =
-    client: 2000
-    both:   0
-    server: 0
-
   @getter
-    priority: -> @group + locationPriorityBoost[@location]
-    logName:  -> @getName()
+    priority: -> @group
     props:    -> {} @location
     inspectedObjects: ->
       filter: merge {} @name, @location, @group,
@@ -175,6 +134,8 @@ class Filter extends &RequestHandler
     @filterFailures = options.filterFailures
     @after          = options.after
     @before         = options.before
+
+    @extendRequestTypes requestTypes if requestTypes = options.requestType ? options.requestTypes
 
   @property :name
 

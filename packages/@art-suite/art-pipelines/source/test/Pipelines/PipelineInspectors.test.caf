@@ -24,15 +24,10 @@ test "pipelineReport" ->
 
   assert.eq
     [] :get, :hiddenHandler, :set
-    Object.keys pipelineReport.clientSideRequestProcessing
+    Object.keys pipelineReport.processing.client
     .sort()
 
   assert.eq
     [] :get, :hiddenHandler, :set
-    Object.keys pipelineReport.serverSideRequestProcessing
-    .sort()
-
-  assert.eq
-    [] :get, :hiddenHandler, :set
-    Object.keys pipelineReport.serverlessDevelopmentRequestProcessing
+    Object.keys pipelineReport.processing.server
     .sort()

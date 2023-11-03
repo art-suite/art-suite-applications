@@ -8,21 +8,24 @@ class PipelineRegistry extends BaseObject
   constructor: (options = {})->
     unless isPlainObject options
       throw new Error "Expecting options object"
-    {name, defaultLocation = getDefaultLocation()} = options
+    {name, session, location = getDefaultLocation()} = options
 
     @_name = name ? @class.name
     @_pipelines = {}
     @_registryRegistry()
-    @_defaultLocation = validateLocation defaultLocation
+    @_location = validateLocation location
+
+    if session || @location == :client
+      throw new Error "session option must only be the session data" if session && !isPlainObject session
+      @_session = new Session session, "ArtPipelines-#{@name}-Session", @
 
   _registryRegistry: ->
     registryNumber = pipelineRegistries.length
     @_uniqueName = "#{@name}#{registryNumber}"
     pipelineRegistries[registryNumber] = @
 
-  @getter :name :pipelines :uniqueName :defaultLocation
+  @getter :name :pipelines :uniqueName :location :session
   @getter
-    session: -> @_session ?= new Session null, "ArtPipelines-#{@name}-Session", @
     inspectedObjects: -> {}
       @name
       @uniqueName
@@ -33,7 +36,6 @@ class PipelineRegistry extends BaseObject
 
     each _, alias in _aliases
       if @pipelines[alias]
-        log {} _aliases
         throw new Error "Error registrying alias #{formattedInspect alias} for Pipeline '#{name}' - already exists: #{formattedInspect @pipelines[alias]}"
       @pipelines[alias] = singleton
 

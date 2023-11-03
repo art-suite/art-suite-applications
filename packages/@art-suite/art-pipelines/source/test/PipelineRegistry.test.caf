@@ -13,14 +13,14 @@ describe options: ->
       .name
       :Alice
 
-  test :default-defaultLocation ->
+  test :default-location ->
     assert.eq
       new PipelineRegistry
-      .defaultLocation
+      .location
       Lib.getDefaultLocation()
 
-  test :defaultLocation ->
+  test :location ->
     assert.eq
-      new PipelineRegistry defaultLocation: :client
-      .defaultLocation
+      new PipelineRegistry location: :client
+      .location
       :client

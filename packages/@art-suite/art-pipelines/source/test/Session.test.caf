@@ -1,29 +1,53 @@
 import &StandardImport
 
-test 'singleton instance', ->
-  {session} = PipelineRegistry.pipelineRegistry
-  session.data = userId: 'abc'
-  assert.eq session.data, userId: 'abc'
+describe
+  locationsAndSessions: ->
+    test 'singleton instance does not exist when location is server', ->
+      {session, location} = PipelineRegistry.pipelineRegistry
+      assert.eq location, :server
+      assert.doesNotExist session
 
-test "change event", -> new Promise (done) ->
-  session = new Session {userId: '123'}, null, PipelineRegistry.pipelineRegistry
-  session.on change: ({props}) ->
-    assert.eq props, data: userId: '456'
-    done()
+    test "client-side gets a session automatically" ->
+      {session, location} = new PipelineRegistry location: :client
+      assert.eq location, :client
+      assert.exists session
 
-  session.data = userId: '456'
+    test "server-side with now session is the default" ->
+      {session, location} = new PipelineRegistry
+      assert.eq location, :server
+      assert.doesNotExist session
 
-chainedTest "new Session", ->
-  new PipelineRegistry
-  .session
+    test "server-side can have a session, if provided" ->
+      {session, location} = new PipelineRegistry session: {}
+      assert.eq location, :server
+      assert.exists session
 
-.tapTest "no session at start", (session) ->
-  assert.eq session.data, {}
+  basics: ->
+    test "session data setter and getter", ->
+      session = new Session {userId: '123'}, null, PipelineRegistry.pipelineRegistry
+      session.data = userId: 'abc'
+      assert.eq session.data, userId: 'abc'
 
-.tapTest "session.data = userId: :123", (session) ->
-  session.data = userId: :123
-  assert.eq session.data, userId: :123
+    test "change event", -> new Promise (done) ->
+      session = new Session {userId: '123'}, null, PipelineRegistry.pipelineRegistry
+      session.on change: ({props}) ->
+        assert.eq props, data: userId: '456'
+        done()
 
-.tapTest "session.data = foo: 'bar'", (session) ->
-  session.data = foo: 'bar'
-  assert.eq session.data, foo: 'bar'
+      session.data = userId: '456'
+
+    chainedTest "new Session", ->
+      new PipelineRegistry location: :client
+      .session
+
+    .tapTest "no session at start", (session) ->
+      assert.eq session.data, {}
+
+    .tapTest "session.data = userId: :123", (session) ->
+      session.data = userId: :123
+      assert.eq session.data, userId: :123
+
+    .tapTest "session.data = foo: 'bar'", (session) ->
+      session.data = foo: 'bar'
+      assert.eq session.data, foo: 'bar'
+

@@ -1,0 +1,113 @@
+import &StandardImport
+
+&ArtConfig.configure()
+describe
+  filterLogging: ->
+
+    {user} = class User extends Pipeline
+      @filter
+        name: :myServerFilter
+        before: get: (request) -> if request.data?.fail == "beforeServerFilter" then throw new Error else request
+        after: get: (response) -> if response.request.data?.fail == "afterServerFilter" then throw new Error else response
+
+      @filter
+        name: :myClientFilter
+        location: :client
+        before: get: (request) -> if request.data?.fail == "beforeClientFilter" then throw new Error else request
+        after: get: (response) -> if response.request.data?.fail == "afterClientFilter" then throw new Error else response
+
+      @publicHandler get: -> :hi
+
+    test "server-only filterLog" ->
+      user.get returnResponse: true location: :server session: {}
+      .then (response) ->
+        assert.eq
+          simplifyFilterLog response.beforeFilterLog
+          beforeFilterLog = []
+            :server-pending-created
+            :server-pending-beforeFilter-myServerFilter
+            :server-success-handler-user
+
+        assert.eq
+          simplifyFilterLog response.afterFilterLog
+          afterFilterLog = []
+            :server-success-afterFilter-myServerFilter
+            :server-success-completed
+
+        assert.eq
+          simplifyFilterLog response.filterLog
+          compactFlattenAll beforeFilterLog, afterFilterLog
+
+    test "client-server filterLog" ->
+      user.get returnResponse: true location: :client session: {}
+      .then (response) ->
+        assert.eq
+          simplifyFilterLog response.beforeFilterLog
+          beforeFilterLog =
+            :client-pending-created
+            :client-pending-beforeFilter-myClientFilter
+            :client-pending-continueAtServerLocation
+            :server-pending-created
+            :server-pending-beforeFilter-myServerFilter
+            :server-success-handler-user
+
+        assert.eq
+          simplifyFilterLog response.afterFilterLog
+          afterFilterLog = []
+            :server-success-afterFilter-myServerFilter
+            :server-success-completed
+            :client-success-resumedAtClientLocation
+            :client-success-afterFilter-myClientFilter
+            :client-success-completed
+
+        assert.eq
+          simplifyFilterLog response.filterLog
+          compactFlattenAll beforeFilterLog, afterFilterLog
+
+    test "fail in client-before" ->
+      assert.rejects user.get returnResponse: true location: :client session: {}, data: fail: :beforeClientFilter
+      .then ({props:{response}}) ->
+        assert.eq
+          simplifyFilterLog response.beforeFilterLog
+          []
+            :client-pending-created
+            :client-clientFailure-beforeFilter-myClientFilter
+
+    test "fail in server-before" ->
+      assert.rejects user.get returnResponse: true location: :client session: {}, data: fail: :beforeServerFilter
+      .then ({props:{response}}) ->
+        assert.eq
+          simplifyFilterLog response.beforeFilterLog
+          []
+            :server-pending-created
+            :server-serverFailure-beforeFilter-myServerFilter
+
+    test "fail in server-after" ->
+      assert.rejects user.get returnResponse: true location: :server session: {}, data: fail: :afterServerFilter
+      .then ({props:{response}}) ->
+        assert.eq
+          simplifyFilterLog response.filterLog
+          []
+            :server-pending-created
+            :server-pending-beforeFilter-myServerFilter
+            :server-success-handler-user
+            :server-serverFailure-afterFilter-myServerFilter
+            :server-serverFailure-completed
+
+    test "fail in client-after" ->
+      assert.rejects user.get returnResponse: true location: :client session: {}, data: fail: :afterClientFilter
+      .then ({props:{response}}) ->
+        assert.eq
+          simplifyFilterLog response.filterLog
+          []
+            :client-pending-created
+            :client-pending-beforeFilter-myClientFilter
+            :client-pending-continueAtServerLocation
+            :server-pending-created
+            :server-pending-beforeFilter-myServerFilter
+            :server-success-handler-user
+            :server-success-afterFilter-myServerFilter
+            :server-success-completed
+            :client-success-resumedAtClientLocation
+            :client-clientFailure-afterFilter-myClientFilter
+            :client-clientFailure-completed

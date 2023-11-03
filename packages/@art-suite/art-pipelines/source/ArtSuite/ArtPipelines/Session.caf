@@ -32,10 +32,7 @@ class Session extends EventedMixinCaf BaseObject
     :updatedAt
     jsonStoreKey: -> @_jsonStoreKey ? "Art.Ery.Session"
 
-    loadedDataPromise: ->
-      if config.location == :server
-        throw new Error "" INTERNAL ERROR: Attempted to access the global session serverside. HINT: Use 'session: {}' for no-session requests.
-      @loadSession().then => @data
+    loadedDataPromise: -> @loadSession().then => @data
 
     sessionSignature: -> @_data?.signature
 
