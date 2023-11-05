@@ -1,5 +1,8 @@
 {}
-  &ModelRegistry.models
   &ModelRegistry.modelRegistry
+  &ModelRegistry.modelRegistry.models
+
+  # DEPRECATRED
+  artModelStore: &ModelRegistry.modelRegistry.modelStore
   ArtModelSubscriptionsMixin: &ModelSubscriptionsMixin
   ArtModel: &Model

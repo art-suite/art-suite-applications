@@ -10,6 +10,10 @@ class ModelRegistry extends BaseObject
     @_modelStore = new &ModelStore @
 
   @getter :models :modelStore
+  @getter
+    inspectedObjects: -> {}
+      @name
+      @models
 
   ## register
     IN: model (instance / singleton)
