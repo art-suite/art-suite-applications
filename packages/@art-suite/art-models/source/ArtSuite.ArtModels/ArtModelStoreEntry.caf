@@ -1,13 +1,10 @@
 import &StandardImport, &ModelRegistry, &Lib
 
-getModelStore = -> _modelStore ?= &ArtModelStore.artModelStore
-
 retryExponent = 2
 
 class ArtModelStoreEntry extends BaseObject
   # assumes ArtModelStoreEntry "owns" the modelRecord - it will alter the object by adding a "key" field
   constructor: (@_model, key, initialModelRecord = {}) ->
-    # @_model       = models[modelName]
     @_autoReload  = @_model.autoReloadEnabled
 
     @_currentPendingReload = null
@@ -22,6 +19,8 @@ class ArtModelStoreEntry extends BaseObject
   @getter :previousModelRecord :modelRecord :subscribers :model :autoReload
   @getter
     modelName:          -> @model.modelName
+    modelRegistry:      -> @model.modelRegistry
+    modelStore:         -> @modelRegistry.modelStore
     subscriberCount:    -> @_subscribers.length
     key:                -> @_modelRecord.key
     status:             -> @_modelRecord.status
@@ -78,7 +77,7 @@ class ArtModelStoreEntry extends BaseObject
       @reloadAt = now + rangeMin + (rangeMax - rangeMin) * Math.random()
       @ extract modelName, key
       @_currentPendingReload = thisPendingReload = timeoutAt @reloadAt, ~>
-        entry = getModelStore()._getEntry modelName, key
+        entry = @modelStore._getEntry modelName, key
         if thisPendingReload == entry?._currentPendingReload
           entry._resetAutoReload()
           entry.reload()
@@ -96,7 +95,7 @@ class ArtModelStoreEntry extends BaseObject
 
     @
 
-  # added, removed and updated are triggered by ArtModelStore during the Epoch update
+  # added, removed and updated are triggered by ModelStore during the Epoch update
   added:    -> @model.modelStoreEntryAdded @
   removed:  -> @model.modelStoreEntryRemoved @
   updated:  ->

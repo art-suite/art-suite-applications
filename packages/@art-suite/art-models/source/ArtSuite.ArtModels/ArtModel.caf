@@ -1,4 +1,4 @@
-import &StandardImport, &@ArtSuite/InstanceFunctionBindingMixin, &ArtModelStore, &ModelRegistry
+import &StandardImport, &@ArtSuite/InstanceFunctionBindingMixin, &ModelStore, &ModelRegistry
 
 class ArtModel extends InstanceFunctionBindingMixin BaseObject
   @abstractClass()
@@ -133,7 +133,7 @@ class ArtModel extends InstanceFunctionBindingMixin BaseObject
                         promise.catch (a validStatus or error info, status becomes failure) ->
       loadModelRecord: (key) -> promise.then (modelRecord) ->
 
-      @load will take care of updating ArtModelStore.
+      @load will take care of updating ModelStore.
   load: (key) ->
     # ensure modelStore is updated in case this is not beind called from the modelStore itself
     # returns {status: missing} since updateModelRecord returns the last argument,
@@ -150,7 +150,7 @@ class ArtModel extends InstanceFunctionBindingMixin BaseObject
 
     Unlike @load, @loadPromise returns a promise that resolves when the load is done.
 
-    The down-side is @loadPromise cannot immediately update the ArtModelStore. If you have
+    The down-side is @loadPromise cannot immediately update the ModelStore. If you have
     a model which stores its data locally, like ApplicationState, then override @load
     for immediate modelStore updates.
 
@@ -217,7 +217,7 @@ class ArtModel extends InstanceFunctionBindingMixin BaseObject
 
   # IN: key
   # OUT: promise.then data
-  # EFFECT: if already loaded in modelStore, just returns what's in ArtModelStore
+  # EFFECT: if already loaded in modelStore, just returns what's in ModelStore
   get: (key) ->
     key = @toKeyString key
     Promise.then ->
@@ -260,7 +260,7 @@ class ArtModel extends InstanceFunctionBindingMixin BaseObject
   ###################################################
   # OVERRIDES - Events
   ###################################################
-  # Override to respond to entries being added or removed from the ArtModelStore
+  # Override to respond to entries being added or removed from the ModelStore
 
   # called when an entry is updated OR added OR if it is about to be removed
   # this is called before modelStoreEntryAdded or modelStoreEntryRemoved

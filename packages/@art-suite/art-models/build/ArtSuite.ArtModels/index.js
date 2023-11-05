@@ -10,5 +10,6 @@
   ArtModelSubscriptionsMixin: require('./ArtModelSubscriptionsMixin'),
   Lib:                        require('./Lib'),
   ModelRegistry:              require('./ModelRegistry'),
+  ModelStore:                 require('./ModelStore'),
   StandardImport:             require('./StandardImport')
 });

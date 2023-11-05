@@ -1,13 +1,13 @@
 import &StandardImport, &ArtEpochedState, &Lib, {} &ArtModelStoreEntry, &ModelRegistry
 
-## ArtModelStore:
-  a key-fields artModelStore
+## ModelStore:
+  a key-fields modelStore
   'fields' are plain Objects with any fields with any values you want except:
-    the 'key' field is set automatically to match the Object's key in the artModelStore
+    the 'key' field is set automatically to match the Object's key in the modelStore
   Updates to values result in NEW Objects. A Value object is never altered.
   Epoched
   Supports change-notificaiton subscriptions per key.
-class ArtModelStore extends EpochClass
+class ModelStore extends EpochClass
   constructor: (@_modelRegistry) ->
     throw new Error "missing modelRegistry" unless @_modelRegistry instanceof &ModelRegistry
     @_length = 0
@@ -46,7 +46,7 @@ class ArtModelStore extends EpochClass
   @getter hardDeprecatedFunctionsAsMap :hasSubscribers
 
   ## subscribe
-    subscribe to all changes to the artModelStore ArtModelStoreEntry identified by modelName and Key.
+    subscribe to all changes to the modelStore ArtModelStoreEntry identified by modelName and Key.
 
     subscribers:
       are notified on all changes to the entry's:
@@ -69,7 +69,7 @@ class ArtModelStore extends EpochClass
           1. !propsEq modelRecord, previousModelRecord
           2. only called once per change
 
-      initialModelRecord: if set, and the key is not in the artModelStore, this is used
+      initialModelRecord: if set, and the key is not in the modelStore, this is used
         as the initial value instead of calling "load" on the model.
 
     OUT:

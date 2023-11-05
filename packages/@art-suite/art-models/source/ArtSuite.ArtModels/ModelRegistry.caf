@@ -7,7 +7,7 @@ class ModelRegistry extends BaseObject
     @_models = {}
     @_modelRegistrationPromiseResolvers = {}
     @_modelRegistrationPromises = {}
-    @_modelStore = new &ArtModelStore @
+    @_modelStore = new &ModelStore @
 
   @getter :models :modelStore
 
