@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "LinkFieldsFilter2Transition2BFilter.js",
+  "sourceRoot": "../../..",
+  "sources": [
+    "source/ArtSuite/ArtEryDbFiltersPack/LinkFieldsFilter2Transition2BFilter.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,uEAAO,oFAEP,4GAAkD,qFAChD,cAAU,WAEV,YAAO,CACL,aAAK,CAAC,WAAa,iCAAyB,iCAAiC"
+}

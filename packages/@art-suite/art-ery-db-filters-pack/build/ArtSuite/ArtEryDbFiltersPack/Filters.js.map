@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "Filters.js",
+  "sourceRoot": "../../..",
+  "sources": [
+    "source/ArtSuite/ArtEryDbFiltersPack/Filters.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;kCACA,2BAAiB,OACf"
+}

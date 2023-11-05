@@ -1,0 +1,144 @@
+import &StandardImport, &Filters, {}
+  &AfterEventsFilter
+  &DataUpdatesFilter
+  &LinkFieldsFilter
+  &LinkFieldsFilter2
+  &LinkFieldsFilter2LegacyApiEncode
+  &LinkFieldsFilter2Transition2BFilter
+  &PrefetchedRecordsFilter
+  &TimestampFilter
+  &UniqueIdFilter
+  &UserOwnedFilter
+  &ValidationFilter
+
+Validator extract normalizeFieldProps
+
+class DatabaseFilters
+  ###
+    TODO: I want to refactor "userOwned":
+
+      Instead of:
+        userOwned: true
+
+      I want to specify the owner-field as:
+        user: "owner"
+
+      That allows the field-name to be customized, but
+      more importantly, it makes it look like all the
+      other field defs (consistency).
+
+      Last, if we treat it as any other field-declaration keyword, we can do:
+        user: "include owner"
+
+    TODO: I want a way to send other options without intermixing them with field-names.
+
+      One idea, fields must be in a fields property:
+
+        @createDatabaseFilters
+          fields:
+            ...
+          otherOptionA:
+          otherOptionB:
+          ...
+
+  ## createDatabaseFilters
+    IN:
+      options:
+        fields: {}
+        userOwned: t/f/{}
+        linkFilterVersion:
+          null, 2, :transition2A, :transition2B
+
+      PipelineClass: <Pipeline> (required)
+  @createDatabaseFilters: (options = {}, PipelineClass) ->
+    if options?.fields
+      options extract
+        fields extract id
+        userOwned, linkFilterVersion
+    else
+      log.warn "DEPRICATED: (Pipeline: #{PipelineClass?.name}) you should now specify fields as: createDatabaseFilters fields: {}"
+      (fields = options) extract? id, userOwned
+
+    if userOwned
+      throw new Error "expecting object or boolean" unless userOwned is Object or userOwned is Boolean
+      fields.user = "" required link
+      fields = objectWithout fields, :userOwned
+
+    if id
+      uniqueIdProps = id
+      fields = objectWithout fields, :id
+
+    linkFields  = {}
+    otherFields = {}
+    addValidationFilter = false
+    otherFields = object v, k in fields
+      if (v = normalizeFieldProps v) extract link
+        linkFields[k]       = v
+        :object
+
+      else
+        addValidationFilter = true
+        v
+
+    compactFlatten []
+      if hasProperties linkFields
+        ## Transition deprication plan
+          1) let's just try transition2A and transition2B on a few pipelines first to see
+            if we missed anything.
+          2) Then, depricate v1 until no more deprication warns
+          3) Then, depricate transition2A until no more deprication warns
+          4) Then, WAIT A FEW MONTHS - for old clients in the wild to update.
+          5) Finally, depricate transition2B until no more deprication warns
+          6) If anyone else was actually using ArtEry, we'd wait here, too,
+            but we could probably just remove
+            all the transition code at this point.
+        switch linkFilterVersion
+        when :transition2A
+          log.warn "" TRANSITIONAL: using LinkFieldsFilter v2 + transition2A for #{PipelineClass?.name} (YOU SHOULD: finish the transition and switch fully to createDatabaseFilters linkFilterVersion: 2)
+          # USE: convert one pipeline at a time over to this and test. THEN do the same with transition2B.
+          # BREAKING CHANGES: server-side subrequests won't have inline, included records
+          []
+            # serverSide:
+            new LinkFieldsFilter2 fields: linkFields
+            new LinkFieldsFilter2LegacyApiEncode
+
+        when :transition2B
+          log.warn "" TRANSITIONAL: using LinkFieldsFilter v2 + transition2B for #{PipelineClass?.name} (YOU SHOULD: finish the transition and switch fully to createDatabaseFilters linkFilterVersion: 2)
+          # USE: convert one pipeline at a time over to this and test.
+          # THEN LEAVE IT - this will support old clients while providing full functionality to new clients.
+          # EVENTUALLY, once we have all clients updated for a few months, switch to full v2 with no legacy support.
+          # BREAKING CHANGES: client-side records won't have inline, included records
+          []
+            # serverSide:
+            new LinkFieldsFilter2 fields: linkFields
+            new LinkFieldsFilter2LegacyApiEncode
+
+            # clientSide:
+            # new LinkFieldsFilter2LegacyApiDecode # DOH, we don't need this (I think). LinkFieldsFilter2Transition2BFilter does the job.
+            new LinkFieldsFilter2Transition2BFilter
+            new PrefetchedRecordsFilter
+
+        when 2
+          # log.warn "" using v2 for #{} PipelineClass?.name
+          []
+            # serverSide:
+            new LinkFieldsFilter2 fields: linkFields
+
+            # clientSide:
+            new PrefetchedRecordsFilter
+
+        when 1
+          new LinkFieldsFilter fields: linkFields
+
+        when null, undefined
+          log.warn "" DEPRICATED: defaulting to LinkFieldsFilter v1 for #{PipelineClass?.name}. This will NOT be the default in future versions. USE: createDatabaseFilters linkFilterVersion: 1
+          new LinkFieldsFilter fields: linkFields
+
+        else throw new Error "" invalid linkFilterVersion: #{} formattedInspect linkFilterVersion
+
+      new ValidationFilter fields: otherFields, exclusive: true if addValidationFilter
+      new AfterEventsFilter
+      new DataUpdatesFilter
+      new UniqueIdFilter uniqueIdProps unless present(PipelineClass?._keyFieldsString) && PipelineClass._keyFieldsString != "id"
+      new TimestampFilter
+      new UserOwnedFilter userOwned if userOwned

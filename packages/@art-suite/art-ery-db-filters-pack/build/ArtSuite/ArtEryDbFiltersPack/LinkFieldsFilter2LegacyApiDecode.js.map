@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "LinkFieldsFilter2LegacyApiDecode.js",
+  "sourceRoot": "../../..",
+  "sources": [
+    "source/ArtSuite/ArtEryDbFiltersPack/LinkFieldsFilter2LegacyApiDecode.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;iCACA,2IAAO,6BAAiB,+KAIxB,sGAA+C,mHAC7C,cAAU,WAEV,WAAM,CACJ,aAAK,CAAC,4BAAY,OAChB,yBAAwB,CACtB,MAAM,aACJ,mBACA,kBACA,gBACW,mBAEnB,eAAY,QAAG,CAAC,UAAU,aAAa,uBAAQ,OAC7C,cAAG,gCAAgC,wBACjC,wBAAM,MACD,cAAQ,SAAY,iBAAgB,kBAAW,cAAc,UAAU,YAAY,aAAa,UAAM,MACtG,cAAQ,UAAuC,qBAAc,UAAU,YAAY,aAAa,gBAChG,qBACF,QAgBP,gBAAa,QAAG,CAAC,UAAU,YAAY,aAAa,SAAU,OAC5D,kBAAkB,mBAAyD,2EACzE,eAAe,OAAO,YACtB,uBAAuB,aAAa,cAAc,iBAAiB,eACnE,aACE,mBAAmB,eACnB,aACA,sBAEF"
+}
