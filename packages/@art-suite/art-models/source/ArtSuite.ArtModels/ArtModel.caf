@@ -4,7 +4,7 @@ class ArtModel extends InstanceFunctionBindingMixin BaseObject
   @abstractClass()
 
   @extendableProperty
-    registry: artModelRegistry
+    modelRegistry: artModelRegistry
 
   @declarable
     staleDataReloadSeconds:         null      # if >0, reload stale data as soon as its older than this number in seconds
@@ -23,7 +23,7 @@ class ArtModel extends InstanceFunctionBindingMixin BaseObject
   # NOTE: @fields calls register for you, so if you use @fields, you don't need to call @register
   @register: ->
     @singletonClass()
-    @getRegistry().register @
+    @getModelRegistry().register @
 
   @postCreateConcreteClass: ({hotReloaded}) ->
     if hotReloaded
@@ -67,12 +67,12 @@ class ArtModel extends InstanceFunctionBindingMixin BaseObject
     log.warn "DEPRICATED: ArtModel#register is no longer used. Instead, the class is registered automatically post-create."
 
   @classGetter
-    models: -> @getRegistry().models
-    modelStore: -> @getRegistry().modelStore
+    models: -> @getModelRegistry().models
+    modelStore: -> @getModelRegistry().modelStore
 
   @getter
-    models: -> @registry.models
-    modelStore: -> @getRegistry().modelStore
+    models: -> @modelRegistry.models
+    modelStore: -> @getModelRegistry().modelStore
     singlesModel: -> @_singlesModel || @
     modelStoreEntries: -> @modelStore.getEntriesForModel @name
 
@@ -213,7 +213,7 @@ class ArtModel extends InstanceFunctionBindingMixin BaseObject
   getModelRecord:     (key) -> @modelStore.get @_name, @toKeyString key
   updateModelRecord:  (key, modelRecord) -> @modelStore.update @_name, key, modelRecord
 
-  onModelRegistered: (modelName) -> @registry.onModelRegistered modelName
+  onModelRegistered: (modelName) -> @modelRegistry.onModelRegistered modelName
 
   # IN: key
   # OUT: promise.then data

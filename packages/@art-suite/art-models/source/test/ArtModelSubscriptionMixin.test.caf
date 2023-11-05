@@ -2,22 +2,22 @@ import &StandardImport, {} &ApplicationState
 
 
 newRegistry = ->
-  registry = new ArtModelRegistry
+  modelRegistry = new ArtModelRegistry
   class MyModel extends ApplicationState
-    @registry registry
-  registry
+    @modelRegistry modelRegistry
+  modelRegistry
 
 describe
   subscribeOnModelRegistered: ->
 
     test "subscribeOnModelRegistered" ->
       new Promise (resolve, reject) ->
-        {models} = registry = newRegistry()
+        {models} = modelRegistry = newRegistry()
         class MyModelB extends ArtModel
-          @registry registry
+          @modelRegistry modelRegistry
 
         class MyModelA extends ArtModelSubscriptionsMixin ArtModel
-          @modelRegistry registry
+          @modelRegistry modelRegistry
 
           constructor: ->
             @subscribeOnModelRegistered :mySubscriptionKey :myModelB :myModelKey updatesCallback: ->
@@ -26,10 +26,10 @@ describe
   "subscribe and initialModelRecord": ->
 
     test "with stateField and initialModelRecord" ->
-      {models, modelStore} = registry = newRegistry()
+      {models, modelStore} = modelRegistry = newRegistry()
 
       new class MyObject extends ArtModelSubscriptionsMixin BaseObject
-        @modelRegistry registry
+        @modelRegistry modelRegistry
 
         constructor: ->
           @subscribe :mySubscriptionKey :myModel :myModelKey,
@@ -46,10 +46,10 @@ describe
       modelStore.onNextReady()
 
     test "with stateField and no initialModelRecord" ->
-      {models, modelStore} = registry = newRegistry()
+      {models, modelStore} = modelRegistry = newRegistry()
 
       new class MyObject extends ArtModelSubscriptionsMixin BaseObject
-        @modelRegistry registry
+        @modelRegistry modelRegistry
 
         constructor: -> @subscribe :mySubscriptionKey :myModel :myModelKey, stateField: :myStateField
 

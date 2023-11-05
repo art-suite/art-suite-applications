@@ -1,12 +1,12 @@
 import &StandardImport
 
 newRegistry = ->
-  registry = new ArtModelRegistry
+  modelRegistry = new ArtModelRegistry
 
   class MyModel extends ArtModel
-    @registry registry
+    @modelRegistry modelRegistry
 
-  registry
+  modelRegistry
 
 chainedTest "modelStore.update basic" ->
   {modelStore} = newRegistry()
@@ -149,10 +149,10 @@ test "modelStore.unsubscribe" ->
 
 test "modelStore model callbacks: modelStoreEntryUpdated, modelStoreEntryAdded, modelStoreEntryRemoved" ->
   new Promise (resolve) ->
-    {modelStore} = registry = newRegistry()
+    {modelStore} = modelRegistry = newRegistry()
     updateCount = addedCount = removedCount = 0
     class MyModel2 extends ArtModel
-      @registry registry
+      @modelRegistry modelRegistry
       modelStoreEntryUpdated:  (entry) -> updateCount++
       modelStoreEntryAdded:    (entry) -> addedCount++
       modelStoreEntryRemoved:  (entry) ->
@@ -166,18 +166,18 @@ test "modelStore model callbacks: modelStoreEntryUpdated, modelStoreEntryAdded, 
       modelStore.unsubscribe "myModel2", :myKey mySubscription
 
 test "subscribe triggers load on model" ->
-  {modelStore} = registry = newRegistry()
+  {modelStore} = modelRegistry = newRegistry()
   new Promise (resolve) ->
     class MyBasicModel extends ArtModel
-      @registry registry
+      @modelRegistry modelRegistry
       load: resolve
 
     modelStore.subscribe :myBasicModel :123 (modelRecord) -> null
 
 test "subscribe with initial value does not trigger load on model nor subscription callback" ->
-  {modelStore} = registry = newRegistry()
+  {modelStore} = modelRegistry = newRegistry()
   class MyBasicModel extends ArtModel
-    @registry registry
+    @modelRegistry modelRegistry
     load: (key) -> assert.fail()
 
   modelStore.subscribe

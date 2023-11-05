@@ -8,16 +8,16 @@ import &StandardImport, &ArtEpochedState, &Lib, {} &ArtModelStoreEntry, &ArtMode
   Epoched
   Supports change-notificaiton subscriptions per key.
 class ArtModelStore extends EpochClass
-  constructor: (@_registry) ->
-    throw new Error "missing registry" unless @_registry instanceof &ArtModelRegistry
+  constructor: (@_modelRegistry) ->
+    throw new Error "missing modelRegistry" unless @_modelRegistry instanceof &ArtModelRegistry
     @_length = 0
     @_entriesByModelName = {}
     @_addedEntries = []
 
   @getter
-    :registry
+    :modelRegistry
     :length
-    models: -> @registry.models
+    models: -> @modelRegistry.models
     inspectedObjects: -> toInspectedObjects @_entriesByModelName
     status: ->
       entrySubscribers = 0

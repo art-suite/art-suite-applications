@@ -1,18 +1,18 @@
 import &StandardImport, {} &ApplicationState
 
 newRegistry = ->
-  registry = new ArtModelRegistry
+  modelRegistry = new ArtModelRegistry
   class MyModel extends ApplicationState
-    @registry registry
-  registry
+    @modelRegistry modelRegistry
+  modelRegistry
 
 describe
   subscribe: ->
     test "with modelName and stateField" -> new Promise (resolve, reject) ->
-      {models} = registry = newRegistry()
+      {models} = modelRegistry = newRegistry()
 
       myObject = new class MyObject extends ArtModelSubscriptionsMixin BaseObject
-        @modelRegistry registry
+        @modelRegistry modelRegistry
 
         setState: (key, value) ->
           resolve() if key == "myStateField" && value == "hi"
@@ -38,10 +38,10 @@ describe
   change: ->
 
     test "change subscription" -> new Promise (resolve, reject) ->
-      {models} = registry = newRegistry()
+      {models} = modelRegistry = newRegistry()
 
       myObject = new class MyObject extends ArtModelSubscriptionsMixin BaseObject
-        @modelRegistry registry
+        @modelRegistry modelRegistry
 
         setState: (key, value) ->
           if key == :myStateField && value
@@ -68,7 +68,7 @@ describe
   unsubscribe: ->
 
     test "unsubscribe" -> new Promise (resolve, reject) ->
-      {models} = registry = newRegistry()
+      {models} = modelRegistry = newRegistry()
 
       myObject = new class MyObject extends ArtModelSubscriptionsMixin BaseObject
 
@@ -96,7 +96,7 @@ describe
       .then resolve
 
     test "unsubscribeAll" -> new Promise (resolve, reject) ->
-      {models} = registry = newRegistry()
+      {models} = modelRegistry = newRegistry()
 
       myObject = new class MyObject extends ArtModelSubscriptionsMixin BaseObject
 

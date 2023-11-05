@@ -5,10 +5,10 @@ newRegistry = -> new ArtModelRegistry
 describe
   load: ->
     test "model with async load" ->
-      {modelStore} = registry = newRegistry()
+      {modelStore} = modelRegistry = newRegistry()
       new Promise (resolve) ->
         class MyBasicModel extends ArtModel
-          @registry registry
+          @modelRegistry modelRegistry
           load: (key) ->
             modelStore.onNextReady => @updateModelRecord key, status: missing
             null
@@ -26,10 +26,10 @@ describe
           res
 
     test "model with @loadModelRecord" ->
-      {modelStore} = registry = newRegistry()
+      {modelStore} = modelRegistry = newRegistry()
       new Promise (resolve) ->
         class MyBasicModel extends ArtModel
-          @registry registry
+          @modelRegistry modelRegistry
           loadModelRecord: (key) -> timeout(20).then -> status: missing
 
         res = modelStore.subscribe :myBasicModel :123 (modelRecord) ->
@@ -43,9 +43,9 @@ describe
           res
 
     test "model with custom load - delayed" ->
-      {modelStore} = registry = newRegistry()
+      {modelStore} = modelRegistry = newRegistry()
       class MyBasicModel extends ArtModel
-        @registry registry
+        @modelRegistry modelRegistry
         load: (key, callback) ->
           @updateModelRecord key, -> status: success, data: theKeyIs:key
           null
@@ -69,9 +69,9 @@ describe
             resolve()
 
     test "model with custom load - immediate" ->
-      {modelStore} = registry = newRegistry()
+      {modelStore} = modelRegistry = newRegistry()
       class MyBasicModel extends ArtModel
-        @registry registry
+        @modelRegistry modelRegistry
         load: (key, callback) -> @updateModelRecord key, status: success, data: theKeyIs:key
 
       new Promise (resolve, reject) ->
@@ -86,9 +86,9 @@ describe
         modelStore.onNextReady resolve
 
     test "model with @loadData" ->
-      {modelStore} = registry = newRegistry()
+      {modelStore} = modelRegistry = newRegistry()
       class MyBasicModel extends ArtModel
-        @registry registry
+        @modelRegistry modelRegistry
         loadData: (key) -> Promise.resolve theKeyIs:key
 
       new Promise (resolve) ->
@@ -110,13 +110,13 @@ describe
 
   simultanious: ->
     test "two simultantious ArtModel requests on the same key only triggers one modelStore request" ->
-      {modelStore} = registry = newRegistry()
+      {modelStore} = modelRegistry = newRegistry()
       counts =
         load:          0
         subscription1: 0
         subscription2: 0
       class MyBasicModel extends ArtModel
-        @registry registry
+        @modelRegistry modelRegistry
         load: (key, callback) ->
           counts.load++
           @updateModelRecord key, status: success, data: theKeyIs:key
@@ -131,14 +131,14 @@ describe
         assert.eq counts, load: 1, subscription1: 1, subscription2: 1
 
     test "two simultantious ArtModel requests on the different keys triggers two modelStore requests", ->
-      {modelStore} = registry = newRegistry()
+      {modelStore} = modelRegistry = newRegistry()
       counts =
         load: 0
         sub1: 0
         sub2: 0
 
       class MyBasicModel extends ArtModel
-        @registry registry
+        @modelRegistry modelRegistry
         load: (key, callback) ->
           counts.load++
           @updateModelRecord key, status: success, data: theKeyIs:key
@@ -154,7 +154,7 @@ describe
 
   loadPromise: ->
     test "multiple loadPromises with the same key only load once" ->
-      {modelStore} = registry = newRegistry()
+      {modelStore} = modelRegistry = newRegistry()
       loadCount = 0
       {user} = class User extends ArtModel
         loadData: (key) ->
@@ -174,10 +174,10 @@ describe
         assert.neq p1, p3
 
   aliases: ->
-    test "@aliases adds aliases to the model registry" ->
-      {modelStore, models} = registry = newRegistry()
+    test "@aliases adds aliases to the model modelRegistry" ->
+      {modelStore, models} = modelRegistry = newRegistry()
       {user} = class User extends ArtModel
-        @registry registry
+        @modelRegistry modelRegistry
         @aliases :owner :sister
 
       assert.eq user.class, User
@@ -186,9 +186,9 @@ describe
 
   functionsBoundToInstances: ->
     test "use bound function" ->
-      {modelStore} = registry = newRegistry()
+      {modelStore} = modelRegistry = newRegistry()
       {user} = class User extends ArtModel
-        @registry registry
+        @modelRegistry modelRegistry
         foo: -> @_foo =
           @_foo ? 0
           + 1
