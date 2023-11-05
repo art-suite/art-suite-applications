@@ -7,7 +7,7 @@ describe
     test "model with async load" ->
       {modelStore} = modelRegistry = newRegistry()
       new Promise (resolve) ->
-        class MyBasicModel extends ArtModel
+        class MyBasicModel extends Model
           @modelRegistry modelRegistry
           load: (key) ->
             modelStore.onNextReady => @updateModelRecord key, status: missing
@@ -28,7 +28,7 @@ describe
     test "model with @loadModelRecord" ->
       {modelStore} = modelRegistry = newRegistry()
       new Promise (resolve) ->
-        class MyBasicModel extends ArtModel
+        class MyBasicModel extends Model
           @modelRegistry modelRegistry
           loadModelRecord: (key) -> timeout(20).then -> status: missing
 
@@ -44,7 +44,7 @@ describe
 
     test "model with custom load - delayed" ->
       {modelStore} = modelRegistry = newRegistry()
-      class MyBasicModel extends ArtModel
+      class MyBasicModel extends Model
         @modelRegistry modelRegistry
         load: (key, callback) ->
           @updateModelRecord key, -> status: success, data: theKeyIs:key
@@ -70,7 +70,7 @@ describe
 
     test "model with custom load - immediate" ->
       {modelStore} = modelRegistry = newRegistry()
-      class MyBasicModel extends ArtModel
+      class MyBasicModel extends Model
         @modelRegistry modelRegistry
         load: (key, callback) -> @updateModelRecord key, status: success, data: theKeyIs:key
 
@@ -87,7 +87,7 @@ describe
 
     test "model with @loadData" ->
       {modelStore} = modelRegistry = newRegistry()
-      class MyBasicModel extends ArtModel
+      class MyBasicModel extends Model
         @modelRegistry modelRegistry
         loadData: (key) -> Promise.resolve theKeyIs:key
 
@@ -109,13 +109,13 @@ describe
             resolve()
 
   simultanious: ->
-    test "two simultantious ArtModel requests on the same key only triggers one modelStore request" ->
+    test "two simultantious Model requests on the same key only triggers one modelStore request" ->
       {modelStore} = modelRegistry = newRegistry()
       counts =
         load:          0
         subscription1: 0
         subscription2: 0
-      class MyBasicModel extends ArtModel
+      class MyBasicModel extends Model
         @modelRegistry modelRegistry
         load: (key, callback) ->
           counts.load++
@@ -130,14 +130,14 @@ describe
       modelStore.onNextReady ->
         assert.eq counts, load: 1, subscription1: 1, subscription2: 1
 
-    test "two simultantious ArtModel requests on the different keys triggers two modelStore requests", ->
+    test "two simultantious Model requests on the different keys triggers two modelStore requests", ->
       {modelStore} = modelRegistry = newRegistry()
       counts =
         load: 0
         sub1: 0
         sub2: 0
 
-      class MyBasicModel extends ArtModel
+      class MyBasicModel extends Model
         @modelRegistry modelRegistry
         load: (key, callback) ->
           counts.load++
@@ -156,7 +156,7 @@ describe
     test "multiple loadPromises with the same key only load once" ->
       {modelStore} = modelRegistry = newRegistry()
       loadCount = 0
-      {user} = class User extends ArtModel
+      {user} = class User extends Model
         loadData: (key) ->
           timeout 10
           .then ->
@@ -176,7 +176,7 @@ describe
   aliases: ->
     test "@aliases adds aliases to the model modelRegistry" ->
       {modelStore, models} = modelRegistry = newRegistry()
-      {user} = class User extends ArtModel
+      {user} = class User extends Model
         @modelRegistry modelRegistry
         @aliases :owner :sister
 
@@ -187,7 +187,7 @@ describe
   functionsBoundToInstances: ->
     test "use bound function" ->
       {modelStore} = modelRegistry = newRegistry()
-      {user} = class User extends ArtModel
+      {user} = class User extends Model
         @modelRegistry modelRegistry
         foo: -> @_foo =
           @_foo ? 0

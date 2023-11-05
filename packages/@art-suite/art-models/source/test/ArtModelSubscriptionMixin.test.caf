@@ -13,10 +13,10 @@ describe
     test "subscribeOnModelRegistered" ->
       new Promise (resolve, reject) ->
         {models} = modelRegistry = newRegistry()
-        class MyModelB extends ArtModel
+        class MyModelB extends Model
           @modelRegistry modelRegistry
 
-        class MyModelA extends ModelSubscriptionsMixin ArtModel
+        class MyModelA extends ModelSubscriptionsMixin Model
           @modelRegistry modelRegistry
 
           constructor: ->

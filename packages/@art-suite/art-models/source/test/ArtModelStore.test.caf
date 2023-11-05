@@ -3,7 +3,7 @@ import &StandardImport
 newRegistry = ->
   modelRegistry = new ModelRegistry
 
-  class MyModel extends ArtModel
+  class MyModel extends Model
     @modelRegistry modelRegistry
 
   modelRegistry
@@ -151,7 +151,7 @@ test "modelStore model callbacks: modelStoreEntryUpdated, modelStoreEntryAdded, 
   new Promise (resolve) ->
     {modelStore} = modelRegistry = newRegistry()
     updateCount = addedCount = removedCount = 0
-    class MyModel2 extends ArtModel
+    class MyModel2 extends Model
       @modelRegistry modelRegistry
       modelStoreEntryUpdated:  (entry) -> updateCount++
       modelStoreEntryAdded:    (entry) -> addedCount++
@@ -168,7 +168,7 @@ test "modelStore model callbacks: modelStoreEntryUpdated, modelStoreEntryAdded, 
 test "subscribe triggers load on model" ->
   {modelStore} = modelRegistry = newRegistry()
   new Promise (resolve) ->
-    class MyBasicModel extends ArtModel
+    class MyBasicModel extends Model
       @modelRegistry modelRegistry
       load: resolve
 
@@ -176,7 +176,7 @@ test "subscribe triggers load on model" ->
 
 test "subscribe with initial value does not trigger load on model nor subscription callback" ->
   {modelStore} = modelRegistry = newRegistry()
-  class MyBasicModel extends ArtModel
+  class MyBasicModel extends Model
     @modelRegistry modelRegistry
     load: (key) -> assert.fail()
 
