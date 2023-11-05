@@ -8,13 +8,16 @@ import &StandardImport, &ArtEpochedState, &Lib, {} &ArtModelStoreEntry, &ArtMode
   Epoched
   Supports change-notificaiton subscriptions per key.
 class ArtModelStore extends EpochClass
-  @singletonClass()
-
-  constructor: -> @__reset()
+  constructor: (@_registry) ->
+    throw new Error "missing registry" unless @_registry instanceof &ArtModelRegistry
+    @_length = 0
+    @_entriesByModelName = {}
+    @_addedEntries = []
 
   @getter
+    :registry
     :length
-    models: -> ArtModelRegistry.models
+    models: -> @registry.models
     inspectedObjects: -> toInspectedObjects @_entriesByModelName
     status: ->
       entrySubscribers = 0
@@ -121,15 +124,6 @@ class ArtModelStore extends EpochClass
   # PRIVATE
   ########################
 
-  # broken out for testing
-  _reset: ->
-    @onNextReady -> @__reset()
-
-  __reset: ->
-    @_length = 0
-    @_entriesByModelName = {}
-    @_addedEntries = []
-
   _getEntriesForModelName: (modelName) -> @_entriesByModelName[modelName] ?= {}
 
   ## _validateModelNameAndKey
@@ -139,7 +133,7 @@ class ArtModelStore extends EpochClass
     !!@models[modelName]
     || throw new Error
         """
-          Expected valid modelName. Inputs: #{formattedInspect {modelName, key}}
+          Expected valid model name. Inputs: #{formattedInspect {modelName, key}}
           Valid models: #{Object.keys(@models).join('\n') || "(no models registered)"}
 
     && !key? || key is String
@@ -150,7 +144,10 @@ class ArtModelStore extends EpochClass
 
   _addEntry: (modelName, key, initialModelRecord) ->
     @_length++
-    @_addedEntries.push entry = @_getEntriesForModelName(modelName)[key] = new ArtModelStoreEntry modelName, key, initialModelRecord
+    @_addedEntries.push entry = @_getEntriesForModelName(modelName)[key] = new ArtModelStoreEntry
+      @models[modelName]
+      key
+      initialModelRecord
     entry
 
   _removeEntry: (entry) ->

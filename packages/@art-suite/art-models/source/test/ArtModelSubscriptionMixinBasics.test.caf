@@ -1,12 +1,18 @@
 import &StandardImport, {} &ApplicationState
 
+newRegistry = ->
+  registry = new ArtModelRegistry
+  class MyModel extends ApplicationState
+    @registry registry
+  registry
+
 describe
   subscribe: ->
-    beforeEach _resetArtSuiteModels
     test "with modelName and stateField" -> new Promise (resolve, reject) ->
-      class MyModel extends ApplicationState
+      {models} = registry = newRegistry()
 
       myObject = new class MyObject extends ArtModelSubscriptionsMixin BaseObject
+        @modelRegistry registry
 
         setState: (key, value) ->
           resolve() if key == "myStateField" && value == "hi"
@@ -30,12 +36,12 @@ describe
       assert.hasNoKeys myObject.subscriptions
 
   change: ->
-    beforeEach _resetArtSuiteModels
 
     test "change subscription" -> new Promise (resolve, reject) ->
-      class MyModel extends ApplicationState
+      {models} = registry = newRegistry()
 
       myObject = new class MyObject extends ArtModelSubscriptionsMixin BaseObject
+        @modelRegistry registry
 
         setState: (key, value) ->
           if key == :myStateField && value
@@ -60,10 +66,9 @@ describe
         models.myModel.setState :myModelKey2 :hi
 
   unsubscribe: ->
-    beforeEach _resetArtSuiteModels
 
     test "unsubscribe" -> new Promise (resolve, reject) ->
-      class MyModel extends ApplicationState
+      {models} = registry = newRegistry()
 
       myObject = new class MyObject extends ArtModelSubscriptionsMixin BaseObject
 
@@ -91,7 +96,7 @@ describe
       .then resolve
 
     test "unsubscribeAll" -> new Promise (resolve, reject) ->
-      class MyModel extends ApplicationState
+      {models} = registry = newRegistry()
 
       myObject = new class MyObject extends ArtModelSubscriptionsMixin BaseObject
 

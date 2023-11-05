@@ -6,14 +6,14 @@ retryExponent = 2
 
 class ArtModelStoreEntry extends BaseObject
   # assumes ArtModelStoreEntry "owns" the modelRecord - it will alter the object by adding a "key" field
-  constructor: (modelName, key, initialModelRecord = {}) ->
-    @_model       = models[modelName]
+  constructor: (@_model, key, initialModelRecord = {}) ->
+    # @_model       = models[modelName]
     @_autoReload  = @_model.autoReloadEnabled
 
     @_currentPendingReload = null
 
     initialModelRecord.key ?= key
-    initialModelRecord.modelName ?= modelName
+    initialModelRecord.modelName ?= @modelName
     @setModelRecord initialModelRecord
 
     @_subscribers = []
@@ -21,9 +21,9 @@ class ArtModelStoreEntry extends BaseObject
 
   @getter :previousModelRecord :modelRecord :subscribers :model :autoReload
   @getter
+    modelName:          -> @model.modelName
     subscriberCount:    -> @_subscribers.length
     key:                -> @_modelRecord.key
-    modelName:          -> @_modelRecord.modelName
     status:             -> @_modelRecord.status
     inspectedObjects:   -> merge {}
       @modelName, @key, @status

@@ -1,17 +1,19 @@
 import &StandardImport
 
+newRegistry = -> new ArtModelRegistry
+
 describe
   load: ->
-    beforeEach _resetArtSuiteModels
-
     test "model with async load" ->
+      {modelStore} = registry = newRegistry()
       new Promise (resolve) ->
         class MyBasicModel extends ArtModel
+          @registry registry
           load: (key) ->
-            artModelStore.onNextReady => @updateModelRecord key, status: missing
+            modelStore.onNextReady => @updateModelRecord key, status: missing
             null
 
-        res = artModelStore.subscribe :myBasicModel :123 (modelRecord) ->
+        res = modelStore.subscribe :myBasicModel :123 (modelRecord) ->
           return unless modelRecord.status != pending
           assert.selectedEq
             status: missing, key: :123 modelName: :myBasicModel
@@ -24,11 +26,13 @@ describe
           res
 
     test "model with @loadModelRecord" ->
+      {modelStore} = registry = newRegistry()
       new Promise (resolve) ->
         class MyBasicModel extends ArtModel
+          @registry registry
           loadModelRecord: (key) -> timeout(20).then -> status: missing
 
-        res = artModelStore.subscribe :myBasicModel :123 (modelRecord) ->
+        res = modelStore.subscribe :myBasicModel :123 (modelRecord) ->
           return unless modelRecord.status != pending
           assert.selectedEq
             status: missing, key: :123 modelName: :myBasicModel
@@ -39,13 +43,15 @@ describe
           res
 
     test "model with custom load - delayed" ->
+      {modelStore} = registry = newRegistry()
       class MyBasicModel extends ArtModel
+        @registry registry
         load: (key, callback) ->
           @updateModelRecord key, -> status: success, data: theKeyIs:key
           null
 
       new Promise (resolve) ->
-        res = artModelStore.subscribe :myBasicModel :123 (modelRecord) ->
+        res = modelStore.subscribe :myBasicModel :123 (modelRecord) ->
           assert.selectedEq
             status: success, key: :123 modelName: :myBasicModel data: theKeyIs: :123
             modelRecord
@@ -56,18 +62,20 @@ describe
 
       .then ->
         new Promise (resolve) ->
-          artModelStore.subscribe :myBasicModel :456 (modelRecord) ->
+          modelStore.subscribe :myBasicModel :456 (modelRecord) ->
             assert.selectedEq
               status: success, key: :456 modelName: :myBasicModel data: theKeyIs: :456
               modelRecord
             resolve()
 
     test "model with custom load - immediate" ->
+      {modelStore} = registry = newRegistry()
       class MyBasicModel extends ArtModel
+        @registry registry
         load: (key, callback) -> @updateModelRecord key, status: success, data: theKeyIs:key
 
       new Promise (resolve, reject) ->
-        res = artModelStore.subscribe :myBasicModel :123 (modelRecord) ->
+        res = modelStore.subscribe :myBasicModel :123 (modelRecord) ->
           log.error "THIS SHOULDN'T HAPPEN!"
           reject()
 
@@ -75,14 +83,16 @@ describe
           status: success, key: :123 modelName: :myBasicModel data: theKeyIs: :123
           res
 
-        artModelStore.onNextReady resolve
+        modelStore.onNextReady resolve
 
     test "model with @loadData" ->
+      {modelStore} = registry = newRegistry()
       class MyBasicModel extends ArtModel
+        @registry registry
         loadData: (key) -> Promise.resolve theKeyIs:key
 
       new Promise (resolve) ->
-        artModelStore.subscribe :myBasicModel :123 (modelRecord) ->
+        modelStore.subscribe :myBasicModel :123 (modelRecord) ->
           assert.selectedEq
             status: success, key: :123 modelName: :myBasicModel data: theKeyIs: :123
             modelRecord
@@ -91,7 +101,7 @@ describe
 
       .then ->
         new Promise (resolve) ->
-          artModelStore.subscribe :myBasicModel :456 (modelRecord) ->
+          modelStore.subscribe :myBasicModel :456 (modelRecord) ->
             assert.selectedEq
               status: success, key: :456 modelName: :myBasicModel data: theKeyIs: :456
               modelRecord
@@ -99,55 +109,52 @@ describe
             resolve()
 
   simultanious: ->
-    beforeEach _resetArtSuiteModels
-
-    test "two simultantious ArtModel requests on the same key only triggers one artModelStore request" ->
+    test "two simultantious ArtModel requests on the same key only triggers one modelStore request" ->
+      {modelStore} = registry = newRegistry()
       counts =
         load:          0
         subscription1: 0
         subscription2: 0
       class MyBasicModel extends ArtModel
+        @registry registry
         load: (key, callback) ->
           counts.load++
           @updateModelRecord key, status: success, data: theKeyIs:key
 
-      artModelStore.subscribe :myBasicModel :123 (modelRecord) -> assert.eq(modelRecord.count, 2);counts.subscription1++
-      artModelStore.subscribe :myBasicModel :123 (modelRecord) -> assert.eq(modelRecord.count, 2);counts.subscription2++
+      modelStore.subscribe :myBasicModel :123 (modelRecord) -> assert.eq(modelRecord.count, 2);counts.subscription1++
+      modelStore.subscribe :myBasicModel :123 (modelRecord) -> assert.eq(modelRecord.count, 2);counts.subscription2++
 
-      artModelStore.update    :myBasicModel :123 (modelRecord) -> count: (modelRecord.count || 0)+ 1
-      artModelStore.update    :myBasicModel :123 (modelRecord) -> count: (modelRecord.count || 0)+ 1
+      modelStore.update    :myBasicModel :123 (modelRecord) -> count: (modelRecord.count || 0)+ 1
+      modelStore.update    :myBasicModel :123 (modelRecord) -> count: (modelRecord.count || 0)+ 1
 
-      artModelStore.onNextReady ->
+      modelStore.onNextReady ->
         assert.eq counts, load: 1, subscription1: 1, subscription2: 1
 
-    test "two simultantious ArtModel requests on the different keys triggers two artModelStore requests", ->
+    test "two simultantious ArtModel requests on the different keys triggers two modelStore requests", ->
+      {modelStore} = registry = newRegistry()
       counts =
         load: 0
         sub1: 0
         sub2: 0
 
       class MyBasicModel extends ArtModel
+        @registry registry
         load: (key, callback) ->
           counts.load++
           @updateModelRecord key, status: success, data: theKeyIs:key
 
-      artModelStore.subscribe :myBasicModel :123 (modelRecord) -> assert.eq(modelRecord.count, 1); counts.sub1++
-      artModelStore.subscribe :myBasicModel :456 (modelRecord) -> assert.eq(modelRecord.count, 1); counts.sub2++
+      modelStore.subscribe :myBasicModel :123 (modelRecord) -> assert.eq(modelRecord.count, 1); counts.sub1++
+      modelStore.subscribe :myBasicModel :456 (modelRecord) -> assert.eq(modelRecord.count, 1); counts.sub2++
 
-      artModelStore.update    :myBasicModel :123 (modelRecord) -> count: (modelRecord.count ? 0)+ 1
-      artModelStore.update    :myBasicModel :456 (modelRecord) -> count: (modelRecord.count ? 0)+ 1
+      modelStore.update    :myBasicModel :123 (modelRecord) -> count: (modelRecord.count ? 0)+ 1
+      modelStore.update    :myBasicModel :456 (modelRecord) -> count: (modelRecord.count ? 0)+ 1
 
-      artModelStore.onNextReady ->
+      modelStore.onNextReady ->
         assert.eq counts, load: 2, sub1: 1, sub2: 1
 
   loadPromise: ->
-    beforeEach _resetArtSuiteModels
-
-    # wait for pending ArtModelStore updates so following test's dont fail
-    # when this test model no longer exists.
-    afterEach -> artModelStore.onNextReady()
-
     test "multiple loadPromises with the same key only load once" ->
+      {modelStore} = registry = newRegistry()
       loadCount = 0
       {user} = class User extends ArtModel
         loadData: (key) ->
@@ -167,9 +174,10 @@ describe
         assert.neq p1, p3
 
   aliases: ->
-    beforeEach _resetArtSuiteModels
     test "@aliases adds aliases to the model registry" ->
+      {modelStore, models} = registry = newRegistry()
       {user} = class User extends ArtModel
+        @registry registry
         @aliases :owner :sister
 
       assert.eq user.class, User
@@ -177,9 +185,10 @@ describe
       assert.eq user, models.sister
 
   functionsBoundToInstances: ->
-    beforeEach _resetArtSuiteModels
     test "use bound function" ->
+      {modelStore} = registry = newRegistry()
       {user} = class User extends ArtModel
+        @registry registry
         foo: -> @_foo =
           @_foo ? 0
           + 1

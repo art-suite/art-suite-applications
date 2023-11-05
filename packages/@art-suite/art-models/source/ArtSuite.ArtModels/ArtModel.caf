@@ -1,7 +1,10 @@
-import &StandardImport, &@ArtSuite/InstanceFunctionBindingMixin, &ArtModelStore, {} &ArtModelRegistry
+import &StandardImport, &@ArtSuite/InstanceFunctionBindingMixin, &ArtModelStore, &ArtModelRegistry
 
 class ArtModel extends InstanceFunctionBindingMixin BaseObject
   @abstractClass()
+
+  @extendableProperty
+    registry: artModelRegistry
 
   @declarable
     staleDataReloadSeconds:         null      # if >0, reload stale data as soon as its older than this number in seconds
@@ -20,7 +23,7 @@ class ArtModel extends InstanceFunctionBindingMixin BaseObject
   # NOTE: @fields calls register for you, so if you use @fields, you don't need to call @register
   @register: ->
     @singletonClass()
-    ArtModelRegistry.register @getSingleton()
+    @getRegistry().register @
 
   @postCreateConcreteClass: ({hotReloaded}) ->
     if hotReloaded
@@ -53,7 +56,7 @@ class ArtModel extends InstanceFunctionBindingMixin BaseObject
 
   @_aliases: []
 
-  onNextReady: (f) -> artModelStore.onNextReady f
+  onNextReady: (f) -> @modelStore.onNextReady f
 
   constructor: (name)->
     @_name = name || decapitalize @class.getName()
@@ -64,30 +67,30 @@ class ArtModel extends InstanceFunctionBindingMixin BaseObject
     log.warn "DEPRICATED: ArtModel#register is no longer used. Instead, the class is registered automatically post-create."
 
   @classGetter
-    models: -> ArtModelRegistry.models
-    artModelStore: -> artModelStore
+    models: -> @getRegistry().models
+    modelStore: -> @getRegistry().modelStore
 
   @getter
-    models: -> ArtModelRegistry.models
-    artModelStore: -> artModelStore
+    models: -> @registry.models
+    modelStore: -> @getRegistry().modelStore
     singlesModel: -> @_singlesModel || @
-    modelStoreEntries: -> artModelStore.getEntriesForModel @name
+    modelStoreEntries: -> @modelStore.getEntriesForModel @name
 
   # DEPRICATED
   subscribe: (modelKey, subscriptionFunction) ->
     log.error "DEPRICATED - mix ArtModelSubscriptionsMixin into your class, and use it's methods to subscribe to models"
-    artModelStore.subscribe @_name, modelKey, subscriptionFunction
+    @modelStore.subscribe @_name, modelKey, subscriptionFunction
 
   @getter
     :name
     modelName: -> @_name
 
   ## load:
-    load the requested data for the given key and update the artModelStore
+    load the requested data for the given key and update the modelStore
 
     required:
-      Should ALWAYS call artModelStore.update immediately OR once the data is available.
-      Clients will assume that a call to "load" forces a reload of the data in the artModelStore.
+      Should ALWAYS call modelStore.update immediately OR once the data is available.
+      Clients will assume that a call to "load" forces a reload of the data in the modelStore.
 
     optional:
       If the data is immediately available, you can return the modelRecord instead of "null"
@@ -96,7 +99,7 @@ class ArtModel extends InstanceFunctionBindingMixin BaseObject
         first render.
 
     Note:
-      Typically called automatically by the artModelStore when a Component subscribes to
+      Typically called automatically by the modelStore when a Component subscribes to
       data from this model with the given key.
 
     The simplest possible load function:
@@ -105,14 +108,14 @@ class ArtModel extends InstanceFunctionBindingMixin BaseObject
     The "load" function below is:
       Simplest "load" with immediate modelRecord return.
       Immediate return means:
-      - artModelStore.subscribe() will return the modelRecord returned from this "load"
+      - modelStore.subscribe() will return the modelRecord returned from this "load"
       - Components subscriptions will update state in time for the inital render.
 
     inputs:
       key: string
 
     side effects:
-      expected to call artModelStore.update @_name, key, modelRecord
+      expected to call modelStore.update @_name, key, modelRecord
         - when modelRecord.status is no longer pending
         - optionally as progress is made loading the modelRecord.data
 
@@ -132,7 +135,7 @@ class ArtModel extends InstanceFunctionBindingMixin BaseObject
 
       @load will take care of updating ArtModelStore.
   load: (key) ->
-    # ensure artModelStore is updated in case this is not beind called from the artModelStore itself
+    # ensure modelStore is updated in case this is not beind called from the modelStore itself
     # returns {status: missing} since updateModelRecord returns the last argument,
     #   this makes the results immediately available to subscribers.
     if @loadData || @loadModelRecord
@@ -149,18 +152,18 @@ class ArtModel extends InstanceFunctionBindingMixin BaseObject
 
     The down-side is @loadPromise cannot immediately update the ArtModelStore. If you have
     a model which stores its data locally, like ApplicationState, then override @load
-    for immediate artModelStore updates.
+    for immediate modelStore updates.
 
     However, if your model always has to get the data asynchronously, override @loadData
     or @loadModelRecord and use @loadPromise anytime you need to manually trigger a load.
 
     EFFECTS:
     - Triggers loadData or loadModelRecord.
-    - Puts the results in the artModelStore.
+    - Puts the results in the modelStore.
     - Elegently reduces multiple in-flight requests with the same key to one Promise.
       @loadData or @loadModelRecord will only be invoked once per key while their
       returned promises are unresolved.
-      NOTE: the block actually extends all the way through to the artModelStore being updated.
+      NOTE: the block actually extends all the way through to the modelStore being updated.
       That means you can immediately call @getModelRecord and get the latest data - when
       the promise resolves.
 
@@ -192,7 +195,7 @@ class ArtModel extends InstanceFunctionBindingMixin BaseObject
       .then (result) -> @_activeLoadingRequests[key] = null; result
 
   # load is not required to updateModelRecord
-  # reload guarantees artModelStore is updated
+  # reload guarantees modelStore is updated
   # override reload if your load does not always updateModelRecord (eventually)
   reload: (key) ->
     if @loadData || @loadModelRecord
@@ -207,14 +210,14 @@ class ArtModel extends InstanceFunctionBindingMixin BaseObject
     if isFailure (modelRecord = @getModelRecord key)?.status
       @updateModelRecord key, merge modelRecord, status: pending
 
-  getModelRecord:     (key) -> artModelStore.get @_name, @toKeyString key
-  updateModelRecord:  (key, modelRecord) -> artModelStore.update @_name, key, modelRecord
+  getModelRecord:     (key) -> @modelStore.get @_name, @toKeyString key
+  updateModelRecord:  (key, modelRecord) -> @modelStore.update @_name, key, modelRecord
 
-  onModelRegistered: (modelName) -> ArtModelRegistry.onModelRegistered modelName
+  onModelRegistered: (modelName) -> @registry.onModelRegistered modelName
 
   # IN: key
   # OUT: promise.then data
-  # EFFECT: if already loaded in artModelStore, just returns what's in ArtModelStore
+  # EFFECT: if already loaded in modelStore, just returns what's in ArtModelStore
   get: (key) ->
     key = @toKeyString key
     Promise.then ->

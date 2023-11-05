@@ -1,9 +1,12 @@
-import &StandardImport, &ArtModelStore, {} &ArtModelRegistry
+import &StandardImport, &ArtModelStore, &ArtModelRegistry
 
 # when CafScript arrives, this line will just be:
 # mixin ArtModelSubscriptionsMixin
 (superClass) -> class ArtModelSubscriptionsMixin extends superClass
   @abstractClass() if superClass.getIsAbstractClass()
+
+  @extendableProperty
+    modelRegistry: artModelRegistry
 
   ################################
   # constructor
@@ -15,7 +18,8 @@ import &StandardImport, &ArtModelStore, {} &ArtModelRegistry
   # getters
   ################################
   @getter
-    models: -> ArtModelRegistry.models
+    models: -> @modelRegistry.models
+    modelStore: -> @modelRegistry.modelStore
     subscriptions: -> @_subscriptions
 
   ################################
@@ -101,9 +105,9 @@ import &StandardImport, &ArtModelStore, {} &ArtModelRegistry
 
     @_subscriptions[subscriptionKey] = {modelName, modelKey, subscriptionFunction}
 
-    # NOTE: subscriptionFunction is the 'handle' needed later to unsubscribe from the artModelStore
+    # NOTE: subscriptionFunction is the 'handle' needed later to unsubscribe from the modelStore
     @_setStateFromModelRecord stateField,
-      artModelStore.subscribe modelName, modelKey, subscriptionFunction, initialModelRecord
+      @modelStore.subscribe modelName, modelKey, subscriptionFunction, initialModelRecord
       initialModelRecord
       key
 
@@ -118,7 +122,7 @@ import &StandardImport, &ArtModelStore, {} &ArtModelRegistry
     if isPlainObject subscriptionKeyOrOptions
       subscriptionKeyOrOptions extract modelName
 
-    ArtModelRegistry.onModelRegistered modelName
+    @modelRegistry.onModelRegistered modelName
     .then -> @subscribe subscriptionKeyOrOptions, modelName, modelKey, options
 
   ################################
@@ -127,7 +131,7 @@ import &StandardImport, &ArtModelStore, {} &ArtModelRegistry
   unsubscribe: (subscriptionKey)->
     if subscription = @_subscriptions[subscriptionKey]
       subscription extract subscriptionFunction, modelName, modelKey
-      artModelStore.unsubscribe modelName, modelKey, subscriptionFunction
+      @modelStore.unsubscribe modelName, modelKey, subscriptionFunction
       delete @_subscriptions[subscriptionKey]
     null
 
@@ -142,7 +146,7 @@ import &StandardImport, &ArtModelStore, {} &ArtModelRegistry
   ################################
   _getRetryNow = (modelName, key) ->
     ->
-      artModelStore._getEntry modelName, key
+      @modelStore._getEntry modelName, key
       .reload()
 
   ################################

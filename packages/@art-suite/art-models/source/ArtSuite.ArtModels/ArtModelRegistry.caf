@@ -1,14 +1,20 @@
 import &ArtStandardLib, &ArtClassSystem
 
 class ArtModelRegistry extends BaseObject
-  @models: global.artModels ?= {}
-  @_modelRegistrationPromiseResolvers: {}
-  @_modelRegistrationPromises: {}
+  @singletonClass()
+
+  constructor: ->
+    @_models = {}
+    @_modelRegistrationPromiseResolvers = {}
+    @_modelRegistrationPromises = {}
+    @_modelStore = new &ArtModelStore @
+
+  @getter :models :modelStore
 
   ## register
     IN: model (instance / singleton)
     OUT: model
-  @register: (model) =>
+  register: ({singleton: model}) ->
     @_registerAliases model
     @_registerModel model.modelName, model
     @_modelRegistered model
@@ -18,7 +24,7 @@ class ArtModelRegistry extends BaseObject
     OUT: promise.then (model) -> model has been registered
     GUARANTEE: Will fire exactly once, unless the model is never registered.
     NOTE: This means it will fire, once, even if the model was already registered.
-  @onModelRegistered: (modelName) =>
+  onModelRegistered: (modelName) ->
     @_modelRegistrationPromises[modelName] ?= Promise.then ->
       @models[modelName]
       ? new Promise (resolve) -> @_modelRegistrationPromiseResolvers[modelName] = resolve
@@ -26,7 +32,7 @@ class ArtModelRegistry extends BaseObject
   ##########################
     PRIVATE
   ##########################
-  @_registerModel: (name, model) =>
+  _registerModel: (name, model) ->
     if @models[name]
       throw new Error
         """
@@ -37,12 +43,12 @@ class ArtModelRegistry extends BaseObject
     model.modelRegistered()
     model
 
-  @_registerAliases: (model) =>
+  _registerAliases: (model) ->
     each alias in model.class._aliases with @_registerModel alias, model
 
-  @_modelRegistered: (model) =>
+  _modelRegistered: (model) ->
     @_modelRegistrationPromiseResolvers[model.modelName]? model
     model
 
   # used for testing
-  @_reset: -> each k in Object.keys @models with delete @models[k]
+  _reset: -> each k in Object.keys @models with delete @models[k]
