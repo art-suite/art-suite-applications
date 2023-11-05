@@ -4,9 +4,16 @@ import
 
 class ArtEryHandler extends &ArtExpressServer.PromiseHandler
 
+  constructor: (options = {}) ->
+    @_pipelineRegistry = options.pipelineRegistry ? pipelineRegistry
+
+  @getter
+    :pipelineRegistry
+    pipelines: -> @pipelineRegistry.pipelines
+
   canHandleRequest: (request) ->
     {url} = request
-    find pipeline, pipelineName in pipelines when pipeline.restPathRegex.test url
+    find pipeline, pipelineName in @pipelines when pipeline.restPathRegex.test url
 
   handleApiRequest: (request, requestData) ->
     if found = @_findPipelineForRequest request
@@ -21,10 +28,10 @@ class ArtEryHandler extends &ArtExpressServer.PromiseHandler
           remoteRequest: request
 
         .then (response) ->
-          if response.failed
+          if response.isError
             log.error response
           else if config.verbose
-            log "#{response.requestString}: subrequestCount: #{response.subrequestCount}, recordsReturned: #{if response.data then response.data.length ? 1 else 0}"
+            log "#{response.requestString}: subrequestCount: #{response.subrequestCount}, recordsReturned: #{if response.data then if isArray response.data then response.data.length else 1 else 0}"
           prepareSignedSessionForResponse session, response.responseForRemoteRequest
 
     else
@@ -43,7 +50,7 @@ class ArtEryHandler extends &ArtExpressServer.PromiseHandler
   _findPipelineForRequest: (request) ->
     {url, method} = request
 
-    if found = find pipeline, pipelineName in pipelines
+    if found = find pipeline, pipelineName in @pipelines
         if match = url.match pipeline.restPathRegex
           {match, pipeline}
 

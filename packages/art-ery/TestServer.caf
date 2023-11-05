@@ -8,5 +8,6 @@
     verbose: true
     Art: Ery: verbose: true
 
-&Server.start
+&Server.start {}
+  &test/tests/ArtEry/PipelineRegistry.pipelineRegistry
   static: root: :./test/public/

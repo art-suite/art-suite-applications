@@ -3,7 +3,7 @@ import &StandardImport, SimplePipeline: &SimplePipeline
 suite: ->
   pipelines = registry = null
   chainedTest ->
-    {pipelines} = registry = new PipelineRegistry
+    {pipelines} = registry = new PipelineRegistry location: :client
     class User extends SimplePipeline
       @registry registry
 
@@ -123,7 +123,7 @@ suite: ->
   test "included retries on networkFailure", ->
     failureCount = 0
     successCount = 0
-    {pipelines} = registry = new PipelineRegistry
+    {pipelines} = registry = new PipelineRegistry session: {}
 
     class User extends Pipeline
       @registry registry

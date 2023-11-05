@@ -2,3 +2,4 @@
   &ArtStandardLib
   &@ArtSuite/KeyFieldsMixin
   &build
+  &PipelineRegistry

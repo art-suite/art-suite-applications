@@ -19,21 +19,19 @@ suite:
 
     test :preprocess ->
       {myPipeline} = class MyPipeline extends SimplePipeline
-        @filter new ValidationFilter fields:
-          foo: preprocess: (o) -> "" validated(#{o})
-
-      assert.eq myPipeline.location, :both
+        @filter new ValidationFilter fields: foo: preprocess: (o) -> "" validated(#{o})
+      assert.eq myPipeline.location, :client
 
       myPipeline.create data: foo: 123
       .then (response) ->
         assert.eq response.foo, "validated(validated(123))"
 
-    test "required field - missing" ->
+    test "required field - when missing, it's a clientFailure" ->
       class MyPipeline extends SimplePipeline
         @filter new ValidationFilter fields:
           foo: required: true
 
-      assert.rejects MyPipeline.singleton.create data: bar: 123
+      assert.clientFailure MyPipeline.singleton.create data: bar: 123
       .then ({info: {response}}) ->
         assert.eq response.data.errors, foo: :missing
 

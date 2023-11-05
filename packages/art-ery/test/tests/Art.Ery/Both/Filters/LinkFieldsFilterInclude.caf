@@ -71,7 +71,7 @@ suite: ->
       pipelines.user.create(data: name: "George").then (user) -> userId1 = user.id
       pipelines.user.create(data: name: "Frank" ).then (user) -> userId2 = user.id
 
-    .then -> pipelines.postPipeline.getSampleData returnResponseObject: true, props: include: true
+    .then -> pipelines.postPipeline.getSampleData returnResponseObject: true location: :server props: include: true
     .then ({data, subrequestCount}) ->
       assert.eq subrequestCount, 2
       assert.eq

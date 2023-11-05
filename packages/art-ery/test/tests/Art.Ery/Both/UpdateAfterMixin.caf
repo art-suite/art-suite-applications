@@ -19,7 +19,9 @@ suite: ->
         assert.eq pipelines.user.store[user.id].lastPostId, post.id
 
   test "parallel updates on the same record only cause one update" ->
+    {pipelines} = registry = new PipelineRegistry location: :server, session: {}
     class User extends UpdateAfterMixin &MemStorePipeline
+      @registry registry
 
       @updateAfter
         create:
@@ -39,7 +41,9 @@ suite: ->
             request.subrequest :comment :create data: userId: key, message: "hi!"
 
     class Post    extends UpdateAfterMixin &MemStorePipeline
+      @registry registry
     class Comment extends UpdateAfterMixin &MemStorePipeline
+      @registry registry
 
     pipelines.user.create data: name: :alice
     .then (user) ->
@@ -56,7 +60,9 @@ suite: ->
           updateCount:    1
 
   test "two updates" ->
+    {pipelines} = registry = new PipelineRegistry location: :server, session: {}
     class User extends UpdateAfterMixin &MemStorePipeline
+      @registry registry
 
       @updateAfter
         create:
@@ -66,6 +72,7 @@ suite: ->
               key: data.toUserId,   data: lastMessageReceivedId:  data.id
 
     class Message extends UpdateAfterMixin &MemStorePipeline
+      @registry registry
 
     Promise.all []
       pipelines.user.create data: name: :alice

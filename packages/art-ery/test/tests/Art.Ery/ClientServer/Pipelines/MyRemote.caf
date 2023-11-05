@@ -59,7 +59,7 @@ class MyRemote extends Pipeline
   @handlers
     get:                    ({key, data}) -> "" #{data?.greeting ? :Hello} #{key ? :World}!
 
-    hello:                  ({session}) -> "" Hello, #{session.username}!
+    hello:                  ({session}) -> "" Hello, #{session.username ? formattedInspect {} session}!
 
     preAlterSession:        -> true
     returnFalse:            -> false

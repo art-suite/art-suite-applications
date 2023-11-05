@@ -35,8 +35,7 @@ class Auth extends Pipeline
         # not logged in
         request.success()
 
-    hello: (request) ->
-      request.subrequest :myRemote :hello # request.session.username
+    hello: (request) -> @pipelines.myRemote.hello request
 
     setFooSession: (request) -> request.respondWithMergedSession foo: request.data.foo
 

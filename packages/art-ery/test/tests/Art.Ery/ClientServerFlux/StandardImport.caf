@@ -7,3 +7,4 @@ getEnv().ART_PIPELINES_ATTACH_RESPONSE_TO_ERRORS = true
   require :art-ery/Flux
   &@ArtSuite/KeyFieldsMixin
   &@ArtSuite/ArtModels
+  &PipelineRegistry

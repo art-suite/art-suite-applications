@@ -1,4 +1,4 @@
-import &StandardImport
+import &StandardImport, &PipelineRegistry
 suite:
   regression: ->
     test :preprocess ->

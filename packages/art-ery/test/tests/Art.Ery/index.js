@@ -4,7 +4,9 @@
 (module.exports = require('./namespace'))
 
 .addModules({
-  MemStorePipeline: require('./MemStorePipeline')
+  MemStorePipeline: require('./MemStorePipeline'),
+  PipelineRegistry: require('./PipelineRegistry'),
+  StandardImport:   require('./StandardImport')
 });
 require('./Both');
 require('./ClientServer');

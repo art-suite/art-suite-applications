@@ -14,6 +14,8 @@ import &StandardImport
 
           The merged options-object passed into start is passed to each getMiddleware call.
 
+        pipelineRegistry: &ArtEry.pipelineRegistry
+
     config.location = :server
 
     &ArtExpressServer.start
@@ -22,6 +24,6 @@ import &StandardImport
       options
 
       handlers: compactFlatten []
-        &ArtEryHandler
-        &ArtEryInfoHandler
+        new &ArtEryHandler options
+        new &ArtEryInfoHandler options
         options.handlers

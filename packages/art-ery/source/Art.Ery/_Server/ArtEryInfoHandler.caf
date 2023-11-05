@@ -2,10 +2,18 @@ import &StandardImport
 
 class ArtEryInfoHandler extends &ArtExpressServer.PromiseHandler
 
+  constructor: (options = {}) ->
+    @_pipelineRegistry = options.pipelineRegistry ? pipelineRegistry
+
+  @getter
+    :pipelineRegistry
+    pipelines: -> @pipelineRegistry.pipelines
+
   @getter
     handleUrlRegex: -> @_exactDefaultHandlerRegex ||= /// ^ \/ #{config.apiRoot} \/? $
 
   handleApiRequest: (request, requestData) ->
-    reports = object pipeline from pipelines with pipeline.getApiReport publicOnly: true
+    reports = object pipeline from @pipelines with pipeline.getApiReport publicOnly: true
+    log new: ArtEryInfoHandler: handleApiRequest: {} @pipelines, reports
     Art.Ery.Api:
       object report from reports when 0 < objectKeyCount report

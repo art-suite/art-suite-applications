@@ -2,11 +2,12 @@ import &StandardImport, &RestClientLib
 
 apiReport: (pipeline, options = {}) ->
   {server, publicOnly} = options
-  object type from pipeline.requestTypes when !publicOnly || pipeline.getPublicRequestTypes()[type]
-    {method, url} = getRestClientParamsForArtEryRequest
+  pipeline extract publicRequestTypes
+  object props, type from if publicOnly then pipeline.publicRequestTypes else pipeline.requestTypes
+    {method, url} = getRestClientParamsForArtEryRequest {}
       server: pipeline.remoteServer || server
-      type: type
-      restPath: pipeline.restPath
+      type
+      pipeline.restPath
 
     [method.toLocaleUpperCase()]: url
 
@@ -19,4 +20,5 @@ createRequestFromRemoteRequestProps: ({session, pipeline, type, key, requestData
     key
     data
     props
+    location: :server
     originatedOnClient: true

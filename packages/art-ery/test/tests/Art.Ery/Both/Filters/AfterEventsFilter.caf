@@ -9,6 +9,7 @@ suite: ->
 
   test "AfterEventsFilter.on", ->
     {myPipeline} = class MyPipeline extends Pipeline
+      @registry new PipelineRegistry location: :server, session: {}
       @filter AfterEventsFilter
       @publicRequestTypes :myRequest
       @handler
@@ -24,6 +25,7 @@ suite: ->
   test "AfterEventsFilter.registerPipelineListener", ->
     new Promise (resolve) ->
       {myPipeline} = class MyPipeline extends Pipeline
+        @registry new PipelineRegistry location: :server, session: {}
         @filter AfterEventsFilter
         @publicRequestTypes :myRequest
         @handler

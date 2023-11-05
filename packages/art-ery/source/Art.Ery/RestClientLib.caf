@@ -64,4 +64,4 @@ getRemoteRequestProps = (request) ->
 
     .then (remoteResponse) ->
       request.addFilterLog "#{remoteRequest.method.toLocaleUpperCase()} #{remoteRequest.url}", :remoteRequest
-      .toResponse remoteResponse.status, merge remoteResponse, {remoteRequest, remoteResponse}
+      request.toResponse remoteResponse.status, merge remoteResponse, {remoteRequest, remoteResponse}

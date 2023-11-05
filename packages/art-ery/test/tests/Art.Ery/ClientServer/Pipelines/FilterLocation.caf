@@ -6,31 +6,32 @@ class FilterLocation extends Pipeline
 
   @remoteServer :http://localhost:8085
 
-  requestWithLog = (request, name) ->
+  requestWithLog = (request, name, beforeAfter) ->
     request.withData
-      customLog: arrayWith request.data?.customLog, "" #{name}@#{request.location}
-      fromRemoteRequest: arrayWith request.data?.fromRemoteRequest, !!request.remoteRequest
+      customLog: arrayWith request.data?.customLog, "" #{beforeAfter}-#{name}@#{request.location}
 
   @filter
     location: :client
     name:     :clientFilter
-    before:   filterTest: (request) -> requestWithLog request, @name
-    after:    filterTest: (request) -> requestWithLog request, @name
+    before:   filterTest: (request) -> requestWithLog request, @name, :before
+    after:    filterTest: (request) -> requestWithLog request, @name, :after
 
   @filter
     location: :both
     name:     :bothFilter
-    before:   filterTest: (request) -> requestWithLog request, @name
-    after:    filterTest: (request) -> requestWithLog request, @name
+    before:   filterTest: (request) -> requestWithLog request, @name, :before
+    after:    filterTest: (request) -> requestWithLog request, @name, :after
 
   @filter
     location: :server
     name:     :serverFilter
-    before:   filterTest: (request) -> requestWithLog request, @name
-    after:    filterTest: (request) -> requestWithLog request, @name
+    before:   filterTest: (request) -> requestWithLog request, @name, :before
+    after:    filterTest: (request) -> requestWithLog request, @name, :after
 
   @publicRequestTypes :filterTest
 
   @handlers
     filterTest: (request) ->
-      request.success data: customLog: arrayWith request.data?.customLog, "" [handler@#{request.location}]
+      request.success data:
+        customLog: arrayWith request.data?.customLog, "" handler@#{request.location}
+        fromRemoteRequest: request.data?.fromRemoteRequest

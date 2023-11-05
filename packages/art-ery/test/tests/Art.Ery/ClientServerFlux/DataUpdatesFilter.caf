@@ -17,7 +17,7 @@ class MyQueryComponent extends ArtModelSubscriptionsMixin BaseObject
     @subscribe :mySubscriptionKey :userByEmail key, {} stateField
 
 testSetup = (initialRecords) ->
-  &@ArtSuite/ArtPipelineModels.defineModelsForAllPipelines()
+  &@ArtSuite/ArtPipelineModels.defineModelsForAllPipelines pipelineRegistry
   pipelines.dataUpdatesFilterPipeline.reset
     data: initialRecords || [preexistingKey]: name: preexistingName
 
