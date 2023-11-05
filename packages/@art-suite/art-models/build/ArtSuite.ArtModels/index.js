@@ -5,10 +5,10 @@
 .includeInNamespace(require('./ArtModels'))
 .addModules({
   ArtModel:                   require('./ArtModel'),
-  ArtModelRegistry:           require('./ArtModelRegistry'),
   ArtModelStore:              require('./ArtModelStore'),
   ArtModelStoreEntry:         require('./ArtModelStoreEntry'),
   ArtModelSubscriptionsMixin: require('./ArtModelSubscriptionsMixin'),
   Lib:                        require('./Lib'),
+  ModelRegistry:              require('./ModelRegistry'),
   StandardImport:             require('./StandardImport')
 });

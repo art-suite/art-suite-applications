@@ -1,6 +1,6 @@
 import &StandardImport
 
-newRegistry = -> new ArtModelRegistry
+newRegistry = -> new ModelRegistry
 
 describe
   load: ->

@@ -1,4 +1,4 @@
-import &StandardImport, &ArtEpochedState, &Lib, {} &ArtModelStoreEntry, &ArtModelRegistry
+import &StandardImport, &ArtEpochedState, &Lib, {} &ArtModelStoreEntry, &ModelRegistry
 
 ## ArtModelStore:
   a key-fields artModelStore
@@ -9,7 +9,7 @@ import &StandardImport, &ArtEpochedState, &Lib, {} &ArtModelStoreEntry, &ArtMode
   Supports change-notificaiton subscriptions per key.
 class ArtModelStore extends EpochClass
   constructor: (@_modelRegistry) ->
-    throw new Error "missing modelRegistry" unless @_modelRegistry instanceof &ArtModelRegistry
+    throw new Error "missing modelRegistry" unless @_modelRegistry instanceof &ModelRegistry
     @_length = 0
     @_entriesByModelName = {}
     @_addedEntries = []
@@ -79,7 +79,7 @@ class ArtModelStore extends EpochClass
 
     side effects:
       vivifies a new entry with modelRecord = {status: pending} if one isn't present
-      calls ArtModelRegistry[modelName].load key if vivification occured
+      calls ModelRegistry[modelName].load key if vivification occured
       Notifies all subscribers.
 
     returns: current modelRecord for the entry

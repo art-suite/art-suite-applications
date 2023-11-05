@@ -1,4 +1,4 @@
-import &StandardImport, &ArtModelStore, &ArtModelRegistry
+import &StandardImport, &ArtModelStore, &ModelRegistry
 
 # when CafScript arrives, this line will just be:
 # mixin ArtModelSubscriptionsMixin
@@ -6,7 +6,7 @@ import &StandardImport, &ArtModelStore, &ArtModelRegistry
   @abstractClass() if superClass.getIsAbstractClass()
 
   @extendableProperty
-    modelRegistry: artModelRegistry
+    modelRegistry: modelRegistry
 
   ################################
   # constructor

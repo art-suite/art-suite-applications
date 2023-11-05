@@ -1,4 +1,4 @@
-import &StandardImport, &ArtModelRegistry, &Lib
+import &StandardImport, &ModelRegistry, &Lib
 
 getModelStore = -> _modelStore ?= &ArtModelStore.artModelStore
 

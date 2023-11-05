@@ -1,6 +1,6 @@
 import &ArtStandardLib, &ArtClassSystem
 
-class ArtModelRegistry extends BaseObject
+class ModelRegistry extends BaseObject
   @singletonClass()
 
   constructor: ->
@@ -36,7 +36,7 @@ class ArtModelRegistry extends BaseObject
     if @models[name]
       throw new Error
         """
-          #{ArtModelRegistry.namespacePath}: model already registered with same name
+          #{ModelRegistry.namespacePath}: model already registered with same name
           #{} formattedInspect {} name, model, previouslyRegisteredModel: @models[name]
 
     @models[name] = model

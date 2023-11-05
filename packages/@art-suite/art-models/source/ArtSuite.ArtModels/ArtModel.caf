@@ -1,10 +1,10 @@
-import &StandardImport, &@ArtSuite/InstanceFunctionBindingMixin, &ArtModelStore, &ArtModelRegistry
+import &StandardImport, &@ArtSuite/InstanceFunctionBindingMixin, &ArtModelStore, &ModelRegistry
 
 class ArtModel extends InstanceFunctionBindingMixin BaseObject
   @abstractClass()
 
   @extendableProperty
-    modelRegistry: artModelRegistry
+    modelRegistry: modelRegistry
 
   @declarable
     staleDataReloadSeconds:         null      # if >0, reload stale data as soon as its older than this number in seconds

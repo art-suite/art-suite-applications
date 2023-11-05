@@ -1,7 +1,7 @@
 import &StandardImport, {} &ApplicationState
 
 newRegistry = ->
-  modelRegistry = new ArtModelRegistry
+  modelRegistry = new ModelRegistry
   class MyModel extends ApplicationState
     @modelRegistry modelRegistry
   modelRegistry
