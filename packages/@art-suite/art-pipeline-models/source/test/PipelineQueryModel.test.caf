@@ -1,25 +1,25 @@
 import &StandardImport
 
+
 describe
   noop: -> test "noop" -> assert.eq 1, 1
   pre2020Style: ->
-    beforeEach ->
-      registry = null
-      class Post extends Pipeline
-        @registry registry = new PipelineRegistry location: :client
-        @query postsByUserId: (request) ->
-          []
-            userId: request.key, message: "Hi!"
-            userId: request.key, message: "Really?"
+    {pipelineRegistry, modelRegistry: {models}, defineModelsForAllPipelines} = newRegistries()
+    class Post extends Pipeline
+      @registry pipelineRegistry
+      @query postsByUserId: (request) ->
+        []
+          userId: request.key, message: "Hi!"
+          userId: request.key, message: "Really?"
 
-        @publicRequestTypes :postsByUserId
+      @publicRequestTypes :postsByUserId
 
-        @filter after: all: (response) ->
-          response.withData
-            array record in response.data
-              merge record, message: "#{record.message} :)"
+      @filter after: all: (response) ->
+        response.withData
+          array record in response.data
+            merge record, message: "#{record.message} :)"
 
-      defineModelsForAllPipelines registry
+    defineModelsForAllPipelines()
 
     test "query model defined", ->
       assert.instanceOf
@@ -38,27 +38,27 @@ describe
 
   2020Style:
     basic: ->
-      messagesByUserId = registry = null
-      beforeEach ->
-        class Message extends Pipeline
-          @registry registry = new PipelineRegistry location: :client
+      messagesByUserId = null
+      {pipelineRegistry, modelRegistry, models, defineModelsForAllPipelines} = newRegistries()
+      class Message extends Pipeline
+        @registry pipelineRegistry
 
-          @query
-            byUserId:
-              query: (request) ->
-                []
-                  userId: request.key, message: "Hi!"
-                  userId: request.key, message: "Really?"
-              keyFields: [] :userId
+        @query
+          byUserId:
+            query: (request) ->
+              []
+                userId: request.key, message: "Hi!"
+                userId: request.key, message: "Really?"
+            keyFields: [] :userId
 
-          @publicRequestTypes :byUserId
+        @publicRequestTypes :byUserId
 
-          @filter after: all: (response) ->
-            response.withData
-              array record in response.data
-                merge record, message: "#{record.message} :)"
+        @filter after: all: (response) ->
+          response.withData
+            array record in response.data
+              merge record, message: "#{record.message} :)"
 
-        {messagesByUserId} = defineModelsForAllPipelines registry
+      {messagesByUserId} = defineModelsForAllPipelines()
 
       test "query model defined", ->
         assert.instanceOf messagesByUserId, PipelineQueryModel
@@ -77,28 +77,26 @@ describe
         # assert.eq undefined user.propsToKey {}
 
     codeReuse: ->
-      beforeEach ->
-        registry = null
-        _resetArtSuiteModels()
-        .then ->
-          class UserOwned extends Pipeline
-            @registry registry = new PipelineRegistry location: :client
-            @query byUserId: (request) ->
-              []
-                userId: request.key, message: "Hi!"
-                userId: request.key, message: "Really?"
+      {pipelineRegistry, modelRegistry, models, defineModelsForAllPipelines} = newRegistries()
 
-            @publicRequestTypes :byUserId
+      class UserOwned extends Pipeline
+        @registry pipelineRegistry
+        @query byUserId: (request) ->
+          []
+            userId: request.key, message: "Hi!"
+            userId: request.key, message: "Really?"
 
-            @filter after: all: (response) ->
-              response.withData
-                array record in response.data
-                  merge record, message: "#{response.pipeline.name}: #{record.message} :)"
+        @publicRequestTypes :byUserId
 
-          class Email extends UserOwned
-          class Photo extends UserOwned
+        @filter after: all: (response) ->
+          response.withData
+            array record in response.data
+              merge record, message: "#{response.pipeline.name}: #{record.message} :)"
 
-          defineModelsForAllPipelines registry
+      class Email extends UserOwned
+      class Photo extends UserOwned
+
+      defineModelsForAllPipelines()
 
       test "query model defined", ->
         assert.instanceOf models.emailsByUserId, PipelineQueryModel

@@ -11,7 +11,7 @@ class PipelineModel extends KeyFieldsMixin ArtModel
       It's important that all the model aliases are the same model-instance object.
 
     OUT: singleton for new AnonymousArtEryModel class
-  @createModel: (pipeline) ->
+  @createModel: (pipeline, modelRegistry) ->
     {aliases} = pipeline
     name = pipeline.getName()
     return if models[name]
@@ -19,20 +19,23 @@ class PipelineModel extends KeyFieldsMixin ArtModel
     hotReloadKey = "PipelineModel:#{name}"
 
     class AnonymousArtPipelineModel extends PipelineModel
+      @modelRegistry modelRegistry
+
       @_name: ucName = upperCamelCase name
       @keyFields pipeline.keyFields if pipeline.keyFields
       @pipeline pipeline
       @aliases aliases if aliases
       @getHotReloadKey: -> hotReloadKey
 
-  @defineModelsForAllPipelines: (registry = pipelineRegistry) =>
-    each pipeline in registry.pipelines
-      @createModel pipeline
+  @defineModelsForAllPipelines: (pipelineRegistry = pipelineRegistry, modelRegistry = modelRegistry) =>
+    each pipeline in pipelineRegistry.pipelines
+      @createModel pipeline, modelRegistry
 
-    models
+    modelRegistry.models
 
   @bindWithArtEry: =>
-    PipelineRegistry.on register: ({name, pipeline}) -> @createModel pipeline
+    log.warn "" DEPRECATED: bindWithArtEry - ArtEry should handle this itself
+    PipelineRegistry.on register: ({name, pipeline}) -> @createModel pipeline, modelRegistry
 
     @defineModelsForAllPipelines()
 
@@ -126,8 +129,10 @@ class PipelineModel extends KeyFieldsMixin ArtModel
 
     recordsModel = @
     pipeline = @_pipeline
+    @ extract modelRegistry
 
     class ArtEryQueryModelChild extends &PipelineQueryModel
+      @modelRegistry modelRegistry
       @_name: upperCamelCase
         if /^by/.test queryName
           "#{pluralize pipeline.name} #{queryName}"

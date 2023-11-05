@@ -4,19 +4,15 @@ import &StandardImport, {} &SimplePipeline
 orderLog = []
 User = user = MySubscriber = registry = null
 
-beforeEach ->
-  _resetArtSuiteModels()
-  class MySubscriber extends ArtModelSubscriptionsMixin BaseObject
+{pipelineRegistry, modelRegistry, defineModelsForAllPipelines} = newRegistries()
 
-  class User extends SimplePipeline
-    @registry registry = new PipelineRegistry location: :client
-    # @filter new UniqueIdFilter
-    # @filter new TimestampFilter
-    # @filter new ValidationFilter
-    #   username: :trimmedString
-    #   message:  :trimmedString
+class MySubscriber extends ArtModelSubscriptionsMixin BaseObject
+  @modelRegistry modelRegistry
 
-  {user} = defineModelsForAllPipelines registry
+class User extends SimplePipeline
+  @registry pipelineRegistry
+
+{user} = defineModelsForAllPipelines()
 
 test "model.propsToKey" ->
   assert.eq :user1    user.propsToKey user: id: :user1
@@ -25,8 +21,7 @@ test "model.propsToKey" ->
   assert.eq undefined user.propsToKey {}
 
 test "user instanceof ArtModel", ->
-  assert.eq models.user, user
-  assert.instanceOf models.user, ArtModel
+  assert.instanceOf user, ArtModel
 
 test "myModel.create", ->
   user.create data: username: "Shane", message: "Hi"

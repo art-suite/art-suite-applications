@@ -6,7 +6,7 @@ preparedKey = :abc
 preparedData = name: :alice
 
 chainedTest "from ArtEryReactJs spike" ->
-  pipelineRegistry = new PipelineRegistry location: :client
+  {pipelineRegistry, modelRegistry, defineModelsForAllPipelines} = newRegistries()
   class DataUpdatesFilter extends Filter
     @after all: (response) ->
       response.tap ({ pipeline, key, data, isUpdateRequest, isDeleteRequest }) ->
@@ -22,9 +22,10 @@ chainedTest "from ArtEryReactJs spike" ->
       create: (request) -> request.pipeline.records[request.key] = request.data
       update: (request) -> mergeInto request.pipeline.records[request.key], request.data
 
-  defineModelsForAllPipelines pipelineRegistry
+  defineModelsForAllPipelines()
 
   subscriptionObject = new class SubscriptionObject extends ArtModelSubscriptionsMixin BaseObject
+    @modelRegistry modelRegistry
     constructor: ->
       @_state = {}
 
