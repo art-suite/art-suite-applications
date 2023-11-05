@@ -4,12 +4,12 @@
 (module.exports = require('./namespace'))
 .includeInNamespace(require('./ArtModels'))
 .addModules({
-  ArtModel:                   require('./ArtModel'),
-  ArtModelStore:              require('./ArtModelStore'),
-  ArtModelStoreEntry:         require('./ArtModelStoreEntry'),
-  ArtModelSubscriptionsMixin: require('./ArtModelSubscriptionsMixin'),
-  Lib:                        require('./Lib'),
-  ModelRegistry:              require('./ModelRegistry'),
-  ModelStore:                 require('./ModelStore'),
-  StandardImport:             require('./StandardImport')
+  ArtModel:                require('./ArtModel'),
+  ArtModelStoreEntry:      require('./ArtModelStoreEntry'),
+  Lib:                     require('./Lib'),
+  ModelRegistry:           require('./ModelRegistry'),
+  ModelStore:              require('./ModelStore'),
+  ModelStoreEntry:         require('./ModelStoreEntry'),
+  ModelSubscriptionsMixin: require('./ModelSubscriptionsMixin'),
+  StandardImport:          require('./StandardImport')
 });

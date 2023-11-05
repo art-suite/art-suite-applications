@@ -1,3 +1,4 @@
 {}
   &ModelRegistry.models
   &ModelRegistry.modelRegistry
+  ArtModelSubscriptionsMixin: &ModelSubscriptionsMixin

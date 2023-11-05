@@ -1,4 +1,4 @@
-import &StandardImport, &ArtEpochedState, &Lib, {} &ArtModelStoreEntry, &ModelRegistry
+import &StandardImport, &ArtEpochedState, &Lib, {} &ModelStoreEntry, &ModelRegistry
 
 ## ModelStore:
   a key-fields modelStore
@@ -46,7 +46,7 @@ class ModelStore extends EpochClass
   @getter hardDeprecatedFunctionsAsMap :hasSubscribers
 
   ## subscribe
-    subscribe to all changes to the modelStore ArtModelStoreEntry identified by modelName and Key.
+    subscribe to all changes to the modelStore ModelStoreEntry identified by modelName and Key.
 
     subscribers:
       are notified on all changes to the entry's:
@@ -144,7 +144,7 @@ class ModelStore extends EpochClass
 
   _addEntry: (modelName, key, initialModelRecord) ->
     @_length++
-    @_addedEntries.push entry = @_getEntriesForModelName(modelName)[key] = new ArtModelStoreEntry
+    @_addedEntries.push entry = @_getEntriesForModelName(modelName)[key] = new ModelStoreEntry
       @models[modelName]
       key
       initialModelRecord

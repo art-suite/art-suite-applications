@@ -2,8 +2,8 @@ import &StandardImport, &ModelRegistry, &Lib
 
 retryExponent = 2
 
-class ArtModelStoreEntry extends BaseObject
-  # assumes ArtModelStoreEntry "owns" the modelRecord - it will alter the object by adding a "key" field
+class ModelStoreEntry extends BaseObject
+  # assumes ModelStoreEntry "owns" the modelRecord - it will alter the object by adding a "key" field
   constructor: (@_model, key, initialModelRecord = {}) ->
     @_autoReload  = @_model.autoReloadEnabled
 
@@ -135,7 +135,7 @@ class ArtModelStoreEntry extends BaseObject
     each subscriber in-array @_subscribers with subscriber @_modelRecord, @_previousModelRecord
     @_previousModelRecord = null
 
-  # subscriber is a function with the signature: (ArtModelStoreEntry) ->
+  # subscriber is a function with the signature: (ModelStoreEntry) ->
   # to unsubscribe, you must provide the exact same subscription function
   _subscribe:   (subscriber) -> pushIfNotPresent @_subscribers, subscriber
   _unsubscribe: (subscriber) -> removeFirstMatch @_subscribers, subscriber

@@ -16,7 +16,7 @@ describe
         class MyModelB extends ArtModel
           @modelRegistry modelRegistry
 
-        class MyModelA extends ArtModelSubscriptionsMixin ArtModel
+        class MyModelA extends ModelSubscriptionsMixin ArtModel
           @modelRegistry modelRegistry
 
           constructor: ->
@@ -28,7 +28,7 @@ describe
     test "with stateField and initialModelRecord" ->
       {models, modelStore} = modelRegistry = newRegistry()
 
-      new class MyObject extends ArtModelSubscriptionsMixin BaseObject
+      new class MyObject extends ModelSubscriptionsMixin BaseObject
         @modelRegistry modelRegistry
 
         constructor: ->
@@ -48,7 +48,7 @@ describe
     test "with stateField and no initialModelRecord" ->
       {models, modelStore} = modelRegistry = newRegistry()
 
-      new class MyObject extends ArtModelSubscriptionsMixin BaseObject
+      new class MyObject extends ModelSubscriptionsMixin BaseObject
         @modelRegistry modelRegistry
 
         constructor: -> @subscribe :mySubscriptionKey :myModel :myModelKey, stateField: :myStateField

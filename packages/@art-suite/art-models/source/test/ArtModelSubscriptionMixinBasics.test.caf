@@ -11,7 +11,7 @@ describe
     test "with modelName and stateField" -> new Promise (resolve, reject) ->
       {models} = modelRegistry = newRegistry()
 
-      myObject = new class MyObject extends ArtModelSubscriptionsMixin BaseObject
+      myObject = new class MyObject extends ModelSubscriptionsMixin BaseObject
         @modelRegistry modelRegistry
 
         setState: (key, value) ->
@@ -28,7 +28,7 @@ describe
     test "with modelKey = null means dont subscribe" ->
       class MyModel extends ApplicationState
 
-      myObject = new class MyObject extends ArtModelSubscriptionsMixin BaseObject
+      myObject = new class MyObject extends ModelSubscriptionsMixin BaseObject
 
         constructor: ->
           @subscribe :mySubscriptionKey :myModel null stateField: :myStateField
@@ -40,7 +40,7 @@ describe
     test "change subscription" -> new Promise (resolve, reject) ->
       {models} = modelRegistry = newRegistry()
 
-      myObject = new class MyObject extends ArtModelSubscriptionsMixin BaseObject
+      myObject = new class MyObject extends ModelSubscriptionsMixin BaseObject
         @modelRegistry modelRegistry
 
         setState: (key, value) ->
@@ -70,7 +70,7 @@ describe
     test "unsubscribe" -> new Promise (resolve, reject) ->
       {models} = modelRegistry = newRegistry()
 
-      myObject = new class MyObject extends ArtModelSubscriptionsMixin BaseObject
+      myObject = new class MyObject extends ModelSubscriptionsMixin BaseObject
 
         setState: (key, value) ->
           if key == :myStateField && value
@@ -98,7 +98,7 @@ describe
     test "unsubscribeAll" -> new Promise (resolve, reject) ->
       {models} = modelRegistry = newRegistry()
 
-      myObject = new class MyObject extends ArtModelSubscriptionsMixin BaseObject
+      myObject = new class MyObject extends ModelSubscriptionsMixin BaseObject
 
         setState: (key, value) ->
           if key == "myStateField" && value
