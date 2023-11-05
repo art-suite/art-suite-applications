@@ -4,8 +4,9 @@ describe
   noop: -> test "noop" -> assert.eq 1, 1
   pre2020Style: ->
     beforeEach ->
-
+      registry = null
       class Post extends Pipeline
+        @registry registry = new PipelineRegistry location: :client
         @query postsByUserId: (request) ->
           []
             userId: request.key, message: "Hi!"
@@ -18,7 +19,7 @@ describe
             array record in response.data
               merge record, message: "#{record.message} :)"
 
-      defineModelsForAllPipelines() # TODO - change to using a non-global registry so we don't have to call _resetArtSuiteModels()
+      defineModelsForAllPipelines registry
 
     test "query model defined", ->
       assert.instanceOf
@@ -37,9 +38,11 @@ describe
 
   2020Style:
     basic: ->
-      messagesByUserId = null
+      messagesByUserId = registry = null
       beforeEach ->
         class Message extends Pipeline
+          @registry registry = new PipelineRegistry location: :client
+
           @query
             byUserId:
               query: (request) ->
@@ -55,7 +58,7 @@ describe
               array record in response.data
                 merge record, message: "#{record.message} :)"
 
-        {messagesByUserId} = defineModelsForAllPipelines()
+        {messagesByUserId} = defineModelsForAllPipelines registry
 
       test "query model defined", ->
         assert.instanceOf messagesByUserId, PipelineQueryModel
@@ -75,9 +78,11 @@ describe
 
     codeReuse: ->
       beforeEach ->
+        registry = null
         _resetArtSuiteModels()
         .then ->
           class UserOwned extends Pipeline
+            @registry registry = new PipelineRegistry location: :client
             @query byUserId: (request) ->
               []
                 userId: request.key, message: "Hi!"
@@ -93,7 +98,7 @@ describe
           class Email extends UserOwned
           class Photo extends UserOwned
 
-          defineModelsForAllPipelines()
+          defineModelsForAllPipelines registry
 
       test "query model defined", ->
         assert.instanceOf models.emailsByUserId, PipelineQueryModel

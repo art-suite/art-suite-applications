@@ -6,9 +6,8 @@ preparedKey = :abc
 preparedData = name: :alice
 
 chainedTest "from ArtEryReactJs spike" ->
-  pipelineRegistry = new PipelineRegistry
+  pipelineRegistry = new PipelineRegistry location: :client
   class DataUpdatesFilter extends Filter
-    @location :both
     @after all: (response) ->
       response.tap ({ pipeline, key, data, isUpdateRequest, isDeleteRequest }) ->
         if isUpdateRequest then pipeline.dataUpdated key || pipeline.toKeyString(data), data

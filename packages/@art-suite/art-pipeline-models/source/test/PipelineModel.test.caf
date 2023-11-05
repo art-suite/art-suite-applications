@@ -2,24 +2,21 @@ import &StandardImport, {} &SimplePipeline
 
 
 orderLog = []
-User = null
-user = null
-MySubscriber = null
+User = user = MySubscriber = registry = null
 
 beforeEach ->
   _resetArtSuiteModels()
   class MySubscriber extends ArtModelSubscriptionsMixin BaseObject
 
   class User extends SimplePipeline
+    @registry registry = new PipelineRegistry location: :client
     # @filter new UniqueIdFilter
     # @filter new TimestampFilter
     # @filter new ValidationFilter
     #   username: :trimmedString
     #   message:  :trimmedString
 
-  defineModelsForAllPipelines()
-
-  {user} = models
+  {user} = defineModelsForAllPipelines registry
 
 test "model.propsToKey" ->
   assert.eq :user1    user.propsToKey user: id: :user1

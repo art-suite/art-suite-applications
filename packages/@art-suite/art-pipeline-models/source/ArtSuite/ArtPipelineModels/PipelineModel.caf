@@ -26,7 +26,7 @@ class PipelineModel extends KeyFieldsMixin ArtModel
       @getHotReloadKey: -> hotReloadKey
 
   @defineModelsForAllPipelines: (registry = pipelineRegistry) =>
-    each pipeline, name in registry.pipelines when name == pipeline.getName()
+    each pipeline in registry.pipelines
       @createModel pipeline
 
     models
