@@ -429,13 +429,10 @@ describe
 
     requestTrace: ->
       test "requestTrace depth 1" ->
-        {myRt} = class MyRt extends Pipeline
+        class MyRt extends Pipeline
+          @publicHandler myHandler: (request) -> request.requestTrace
 
-          @publicHandlers
-            myHandler: (request) ->
-              request.requestTrace
-
-        myRt.myHandler()
+        .myRt.myHandler location: :server
         .then (requestTrace) ->
           assert.isArray requestTrace
           assert.selectedEq
@@ -444,20 +441,28 @@ describe
           assert.selectedEq
             request: :myRt.myHandler
             requestTrace[0]
-          # assert.selectedEq
-          #   name: :myHandler-handler
-          #   requestTrace[0].lastFilter
+
+      test "requestTrace client > continueAtServerLocation > server == 2" ->
+        class MyRt extends Pipeline
+          @publicHandler myHandler: (request) -> request.requestTrace
+
+        .myRt.myHandler()
+        .then (requestTrace) ->
+          assert.isArray requestTrace
+          assert.selectedEq
+            length: 2
+            requestTrace
+          assert.selectedEq
+            request: :myRt.myHandler
+            requestTrace[0]
 
       test "requestTrace depth 2" ->
-        {myRt2} = class MyRt2 extends Pipeline
-
+        class MyRt2 extends Pipeline
           @publicHandlers
-            outterRequest: (request) ->
-              myRt2.innerRequest request
+            outterRequest:  (request) -> request.pipeline.innerRequest request
+            innerRequest:   (request) -> request.requestTrace
 
-            innerRequest: (request) -> request.requestTrace
-
-        myRt2.outterRequest key: randomString()
+        .myRt2.outterRequest key: randomString()
 
   responses:
       "new Request validation":

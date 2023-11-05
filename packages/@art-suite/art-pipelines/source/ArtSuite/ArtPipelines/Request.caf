@@ -85,8 +85,8 @@ class Request extends BaseObject
 
       @setGetCache() if @type == :create || @type == :get
 
-    if getDetailedRequestTracingEnabled()
-      @_creationStack ?=
+    if getDetailedRequestTracingEnabled() && !@_creationStack
+      @_creationStack =
         new Error
         .stack
 
@@ -253,7 +253,7 @@ class Request extends BaseObject
     pipelineAndType:    -> "" #{@pipelineName}.#{@type}
 
     requestString: ->
-      if @key then @pipelineAndType + " #{formattedInspect @key}"
+      if @key then @pipelineAndType + "(#{JSON.stringify @key})"
       else @pipelineAndType
 
     description: ->
@@ -275,12 +275,13 @@ class Request extends BaseObject
       @lastFilterLogEntry extract? name, context, time, stack, exception
 
       compactFlatten []
-        @parentRequest?.requestTrace
+        (@parentRequest || @remoteRequest)?.requestTrace
         {}
           time:       time - @startTime
           request:    @requestString
           context:    dashCase context
           @filterLog
+          @location
           name
           stack
           exception
@@ -400,7 +401,6 @@ class Request extends BaseObject
 
     @incrementSubrequestCount()
     subrequest.pipeline._processRequest subrequest
-    .tap (response) ->  log createSubRequest: {} response.status, response.filterLog
     .then (response) -> response.toPromise requestOptions
 
   nonblockingSubrequest: (pipelineName, type, requestOptions) ->
@@ -874,6 +874,7 @@ class Request extends BaseObject
 
   _getRejectionError: ->
     if !@_preparedRejectionError
+
       @_preparedRejectionError = new RequestError {}
         message:
           compactFlatten []
@@ -896,23 +897,32 @@ class Request extends BaseObject
 
         stack:
           compactFlatten []
-            @responseData?.message ? @responseProps?.message ? @errorProps?.exception?.message
+            message if (message = @responseData?.message ? @responseProps?.message ? @errorProps?.exception?.message) && !message.match exception?.stack?[0]
 
             if exception = @errorProps?.exception
-                "Exception stack:\n#{cleanStackTrace exception.stack, true, true}\n"
+                cleanStackTrace exception.stack, keepErrorLines: true quiet: true
 
-            array {time, request, context, name, stack, filterLog}, i in @requestTrace by -1
-              ""
-                #{request}: #{if filterLog? then (array {name} in filterLog with name when name != :created).join " -> " else "#{context} #{name}"}
-                (status: #{@status}, request-depth: #{i + 1}, start-time: #{time*1000|0}ms)
-                #{if stack then "\n#{cleanStackTrace stack, null, true}\n" else ''}
+            array {time, request, context, name, stack, filterLog, exception, location}, i in @requestTrace by -1
+              compactFilterLog =
+                if filterLog? then
+                  array {name, context} in filterLog when context != :created && context != :completed
+                    compactFlatten [] name, context
+                    .join '-'
 
-            .join "\n"
+                  .join " -> "
+                else "#{context} #{name}"
+
+              """
+                request #{request}: #{compactFilterLog} (status: #{@status}, location: #{location}, request-depth: #{i + 1}, start-time: #{time*1000|0}ms)
+                #{if stack then "#{cleanStackTrace stack, quiet: true}\n" else ''}
+
+            .join "\n\n"
 
             getDetailedRequestTracingExplanation()
-            getCleanStackTraceWarning()
+            cleanStackTraceWarnings
 
           .join "\n"
+          .replace /\n\s*\n\s*[\n+]/g, "\n\n"
 
       # JEST has some error with serializing objects on errors, even with a custom toJSON.
       #   the problem appears to be related to serializing via an Object.keys conversion rather than using toJSON

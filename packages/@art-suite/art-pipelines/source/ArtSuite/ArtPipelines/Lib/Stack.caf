@@ -4,52 +4,77 @@ removeFromCleanStackTraceRegExp =
   ///
     ^ \s+ at \s+ processImmediate
     | Art.Ery/(Pipeline|Request|Filter\b)
-    | ArtSuite/ArtPipelines/(Pipeline|Request|Filter\b)
-    | node_modules/.*(
-      mocha
-      | bluebird
-      | jest
-      | art-testbench
-      | @art-suite/chained-test
-      | @art-suite/assert
-      | caffeine-script-runtime
-    )
+    | source/ArtSuite/ArtPipelines
+    | <anonymous>
+    | node:internal
+    | node_modules/.*
+      (
+        mocha
+        | bluebird
+        | jest
+        | art-testbench
+        | @art-suite/
+        | caffeine-script-runtime
+      )
 
-repathStackTrace = if isNode
-  path = eval("require") "path"
-  cwd = global.process.cwd()
-  (line) ->
-    if getEnv().ART_PIPELINES_REPATH_STACK_TRACE
-      line.replace /([^ (]+)(?=:\d+)/, (filePath) ->
-        path.relative cwd, filePath
-    else line
-else
-  (line) -> line
+
+notFalseOrFalse = (v) -> v != false && v != :false
+
+detectStackTracePathRegEx = /([^ (]+)(?=:\d+)/
 
 {}
-  getCleanStackTraceWarning = ->
-    unless getEnv().ART_PIPELINES_CLEAN_STACK_TRACE == false || getEnv().ART_PIPELINES_CLEAN_STACK_TRACE == :false
-      "" NOTE: cleanStackTrace applied. Disable with: getEnv().ART_PIPELINES_CLEAN_STACK_TRACE=false
+  shouldCleanStackTrace = notFalseOrFalse getEnv().ART_PIPELINES_CLEAN_STACK_TRACE
+  shouldRepathStackTrace = notFalseOrFalse getEnv().ART_PIPELINES_REPATH_STACK_TRACE
 
-    else ''
+  cleanStackTraceWarnings =
+    compactFlatten []
+      if shouldCleanStackTrace then "" NOTE: cleanStackTrace applied. (set ART_PIPELINES_CLEAN_STACK_TRACE=false to disable)
+      if shouldRepathStackTrace then "" NOTE: repathStackTraceLine(s) applied. (set ART_PIPELINES_REPATH_STACK_TRACE=false to disable)
+    .join "\n"
 
-  cleanStackTrace = (stack, keepFirstLine, quiet) ->
-    return stack if getEnv().ART_PIPELINES_CLEAN_STACK_TRACE == false || getEnv().ART_PIPELINES_CLEAN_STACK_TRACE == :false
+  repathStackTraceLine =
+    if isNode && shouldRepathStackTrace
+      path = eval("require") "path"
+      cwd = global.process.cwd()
+      replaceFunc = (filePath) -> path.relative cwd, filePath
+      (line) -> line.replace detectStackTracePathRegEx, replaceFunc
+    else
+      (line) -> line
+
+  cleanStackTrace = (stack, options = {}) ->
+    return stack unless shouldCleanStackTrace
+    options extract keepErrorLines, quiet, outputAtLeastOnePathLine
     if (error = stack) instanceof Error
-      error.stack = cleanStackTrace error.stack, keepFirstLine, quiet
+      error.stack = cleanStackTrace error.stack, options
       error
 
     else if stack is String
-      outLines = array line, i in stack.split "\n" when (keepFirstLine || i > 0) && !removeFromCleanStackTraceRegExp.test line
-        repathStackTrace line
+      pathLineKeepCount = 0
+      prePathLines = []
+      firstPathLine = null
+      outLines = []
+      each line, i in stack.split "\n" when
 
-      out = if outLines.length == 0
-        stack
-      else outLines.join "\n"
+        if detectStackTracePathRegEx.test line
+          pathLineKeepCount++
+          firstPathLine ?= line
+          unless removeFromCleanStackTraceRegExp.test line
+            outLines.push repathStackTraceLine line
+
+        else if !firstPathLine
+          prePathLines.push line
+
+      if outputAtLeastOnePathLine && pathLineKeepCount == 0
+        outLines = [] firstPathLine
+
+      if keepErrorLines
+        outLines = compactFlattenAll prePathLines, outLines
+
+      out = outLines.join "\n"
       if quiet then out
       else
         out
         + if /\n\s*$/.test out then '' else :\n
-        + getCleanStackTraceWarning()
+        + cleanStackTraceWarnings
 
     else stack

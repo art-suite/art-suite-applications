@@ -151,8 +151,8 @@ class Filter extends &RequestHandler
   getBeforeFilter: ({requestType, location}) -> @shouldFilter(location) && (@before[requestType] || @before.all)
   getAfterFilter:  ({requestType, location}) -> @shouldFilter(location) && (@after[requestType]  || @after.all)
 
-  processBefore:  (request) -> @applyHandler request, @getBeforeFilter(request), :beforeFilter
-  processAfter:   (request) -> @applyHandler request, @getAfterFilter(request),  :afterFilter
+  processBefore:  (request) -> @applyHandler request, @getBeforeFilter(request), :before
+  processAfter:   (request) -> @applyHandler request, @getAfterFilter(request),  :after
 
   handleRequest: (request, filterChain, currentFilterChainIndex) ->
     @processBefore request

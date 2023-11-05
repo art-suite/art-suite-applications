@@ -26,10 +26,10 @@ test "with SimulatedClientServerTransportFilter" ->
       simplifyFilterLog response.filterLog
       []
         :client-pending-created
-        :client-success-beforeFilter-SimulatedClientServerTransportFilter
+        :client-success-SimulatedClientServerTransportFilter-before
         :client-pending-continueAtServerLocation
         :server-pending-created
-        :server-success-handler-myPipeline
+        :server-success-myPipeline-handler
         :server-success-completed
         :client-success-resumedAtClientLocation
         :client-success-completed

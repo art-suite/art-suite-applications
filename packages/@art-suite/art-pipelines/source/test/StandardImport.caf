@@ -8,5 +8,5 @@ import &ArtStandardLib
   &build
   simplifyFilterLog: (filterLog) ->
     array {name, context, location, status} in filterLog
-      compactFlatten [] location, status, context, name
+      compactFlatten [] location, status, name, context
       .join "-"

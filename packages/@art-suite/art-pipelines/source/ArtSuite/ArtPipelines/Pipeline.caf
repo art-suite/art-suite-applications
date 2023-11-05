@@ -369,7 +369,7 @@ class Pipeline extends &RequestHandler
 
   createRequest: (type, options) ->
     if getDetailedRequestTracingEnabled()
-      stack = (new Error).stack
+      {stack} = new Error
 
     location = options.location || @location
 
@@ -404,13 +404,14 @@ class Pipeline extends &RequestHandler
 
     throw new Error "Expecting: request.location == 'client'. Got: #{formattedInspect request.location}" unless request.location == :client
     @[request.type] request.key, {}
-      location:       :server
-      props:          JSON.parse JSON.stringify request.props
-      returnResponse: true
-      remoteRequest:  request
-      session:        JSON.parse JSON.stringify request.session
+      location:           :server
+      originatedOnServer: false
+      props:              JSON.parse JSON.stringify request.props
+      returnResponse:     true
+      remoteRequest:      request
+      session:            JSON.parse JSON.stringify request.session
 
-    .then  (remoteResponse) ->
+    .then (remoteResponse) ->
       request.toResponse
         if isFailure remoteResponse.status then :serverFailure
         else remoteResponse.status
@@ -656,6 +657,7 @@ class Pipeline extends &RequestHandler
           response
 
     else
+      request.addFilterLog @, :noHandler
       request.failure "#{@pipelineName}: No handler for request type: #{formattedInspect request.type}"
 
   _processRequest: (request) ->

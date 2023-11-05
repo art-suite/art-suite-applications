@@ -8,3 +8,50 @@ describe
         @publicRequestTypes :get
 
       assert.rejects myPipeline.get :bar
+      .then (rejectsWith) ->
+        assert.match rejectsWith.stack,
+          ///
+            myPipeline-noHandler (.|\n)+
+            continueAtServerLocation (.|\n)+
+            source/test/Requests/RequestFailures.test.caf (.|\n)+
+
+    test "error in handler" ->
+      customErrorMessage = "" My my my, this is a custom failure!
+      {myPipeline} = class MyPipeline extends Pipeline
+        @publicHandler get: (request) -> throw new Error customErrorMessage
+
+      assert.rejects myPipeline.get :bar
+      .then (rejectsWith) ->
+        assert.match rejectsWith.stack,
+          ///
+            #{customErrorMessage} (.|\n)+
+            source/test/Requests/RequestFailures.test.caf (.|\n)+
+            myPipeline-handler (.|\n)+
+            continueAtServerLocation (.|\n)+
+            source/test/Requests/RequestFailures.test.caf (.|\n)+
+
+  originatedOnServer: ->
+    test "baseline: originatedOnServer OK when actually from server" ->
+      {myPipeline} = class MyPipeline extends Pipeline
+        @publicHandler
+          get: (request) ->
+            request.requireServerOrigin()
+            .then -> "" Yes, master!
+
+      myPipeline.get :bar location: :server
+
+    test "originatedOnServer enforced" ->
+      {myPipeline} = class MyPipeline extends Pipeline
+        @publicHandler
+          get: (request) ->
+            request.requireServerOrigin()
+            .then -> "" Yes, master!
+
+      assert.rejects myPipeline.get :bar
+      .then (rejectsWith) ->
+        assert.match rejectsWith.stack,
+          ///
+            originatedOnServer\ required (.|\n)+
+            myPipeline-handler (.|\n)+
+            continueAtServerLocation (.|\n)+
+            source/test/Requests/RequestFailures.test.caf (.|\n)+

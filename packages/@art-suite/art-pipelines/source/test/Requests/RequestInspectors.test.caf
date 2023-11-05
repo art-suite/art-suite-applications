@@ -25,13 +25,13 @@ describe
           simplifyFilterLog response.beforeFilterLog
           beforeFilterLog = []
             :server-pending-created
-            :server-pending-beforeFilter-myServerFilter
-            :server-success-handler-user
+            :server-pending-myServerFilter-before
+            :server-success-user-handler
 
         assert.eq
           simplifyFilterLog response.afterFilterLog
           afterFilterLog = []
-            :server-success-afterFilter-myServerFilter
+            :server-success-myServerFilter-after
             :server-success-completed
 
         assert.eq
@@ -45,19 +45,19 @@ describe
           simplifyFilterLog response.beforeFilterLog
           beforeFilterLog =
             :client-pending-created
-            :client-pending-beforeFilter-myClientFilter
+            :client-pending-myClientFilter-before
             :client-pending-continueAtServerLocation
             :server-pending-created
-            :server-pending-beforeFilter-myServerFilter
-            :server-success-handler-user
+            :server-pending-myServerFilter-before
+            :server-success-user-handler
 
         assert.eq
           simplifyFilterLog response.afterFilterLog
           afterFilterLog = []
-            :server-success-afterFilter-myServerFilter
+            :server-success-myServerFilter-after
             :server-success-completed
             :client-success-resumedAtClientLocation
-            :client-success-afterFilter-myClientFilter
+            :client-success-myClientFilter-after
             :client-success-completed
 
         assert.eq
@@ -71,7 +71,7 @@ describe
           simplifyFilterLog response.beforeFilterLog
           []
             :client-pending-created
-            :client-clientFailure-beforeFilter-myClientFilter
+            :client-clientFailure-myClientFilter-before
 
     test "fail in server-before" ->
       assert.rejects user.get returnResponse: true location: :client session: {}, data: fail: :beforeServerFilter
@@ -80,7 +80,7 @@ describe
           simplifyFilterLog response.beforeFilterLog
           []
             :server-pending-created
-            :server-serverFailure-beforeFilter-myServerFilter
+            :server-serverFailure-myServerFilter-before
 
     test "fail in server-after" ->
       assert.rejects user.get returnResponse: true location: :server session: {}, data: fail: :afterServerFilter
@@ -89,9 +89,9 @@ describe
           simplifyFilterLog response.filterLog
           []
             :server-pending-created
-            :server-pending-beforeFilter-myServerFilter
-            :server-success-handler-user
-            :server-serverFailure-afterFilter-myServerFilter
+            :server-pending-myServerFilter-before
+            :server-success-user-handler
+            :server-serverFailure-myServerFilter-after
             :server-serverFailure-completed
 
     test "fail in client-after" ->
@@ -101,13 +101,13 @@ describe
           simplifyFilterLog response.filterLog
           []
             :client-pending-created
-            :client-pending-beforeFilter-myClientFilter
+            :client-pending-myClientFilter-before
             :client-pending-continueAtServerLocation
             :server-pending-created
-            :server-pending-beforeFilter-myServerFilter
-            :server-success-handler-user
-            :server-success-afterFilter-myServerFilter
+            :server-pending-myServerFilter-before
+            :server-success-user-handler
+            :server-success-myServerFilter-after
             :server-success-completed
             :client-success-resumedAtClientLocation
-            :client-clientFailure-afterFilter-myClientFilter
+            :client-clientFailure-myClientFilter-after
             :client-clientFailure-completed

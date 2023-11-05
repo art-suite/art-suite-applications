@@ -4,14 +4,13 @@
 (module.exports = require('./namespace'))
 .includeInNamespace(require('./ArtPipelines'))
 .addModules({
-  Config:                               require('./Config'),
-  Filter:                               require('./Filter'),
-  Pipeline:                             require('./Pipeline'),
-  PipelineRegistry:                     require('./PipelineRegistry'),
-  Request:                              require('./Request'),
-  RequestHandler:                       require('./RequestHandler'),
-  Session:                              require('./Session'),
-  SimulatedClientServerTransportFilter: require('./SimulatedClientServerTransportFilter'),
-  StandardImport:                       require('./StandardImport')
+  Config:           require('./Config'),
+  Filter:           require('./Filter'),
+  Pipeline:         require('./Pipeline'),
+  PipelineRegistry: require('./PipelineRegistry'),
+  Request:          require('./Request'),
+  RequestHandler:   require('./RequestHandler'),
+  Session:          require('./Session'),
+  StandardImport:   require('./StandardImport')
 });
 require('./Lib');

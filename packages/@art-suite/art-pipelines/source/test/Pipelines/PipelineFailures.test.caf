@@ -36,11 +36,11 @@ describe
         assert.present response.errorProps.failedIn
         assert.eq simplifyFilterLog(response.beforeFilterLog), []
           :server-pending-created
-          :server-success-handler-myPipeline
+          :server-success-myPipeline-handler
 
         assert.eq simplifyFilterLog(response.afterFilterLog),  []
-          :server-success-afterFilter-myFilter1
-          :server-clientFailure-afterFilter-myFilter2
+          :server-success-myFilter1-after
+          :server-clientFailure-myFilter2-after
           :server-clientFailure-completed
 
         assert.match response.data.message, "you lose!"
@@ -63,8 +63,8 @@ describe
           simplifyFilterLog response.beforeFilterLog
           []
             :server-pending-created
-            :server-pending-beforeFilter-myFilter3
-            :server-serverFailure-beforeFilter-myFilter2
+            :server-pending-myFilter3-before
+            :server-serverFailure-myFilter2-before
 
         assert.eq
           simplifyFilterLog response.afterFilterLog
