@@ -4,12 +4,5 @@
 (module.exports = require('./namespace'))
 
 .addModules({
-  DatabaseFilters:         require('./DatabaseFilters'),
-  LinkFieldsFilter:        require('./LinkFieldsFilter'),
-  LinkFieldsFilter2:       require('./LinkFieldsFilter2'),
-  LinkFieldsFilterInclude: require('./LinkFieldsFilterInclude'),
-  PrefetchedRecordsCache:  require('./PrefetchedRecordsCache'),
-  TimestampFilter:         require('./TimestampFilter'),
-  UniqueIdFilter:          require('./UniqueIdFilter'),
-  ValidationFilter:        require('./ValidationFilter')
+  DatabaseFilters: require('./DatabaseFilters')
 });

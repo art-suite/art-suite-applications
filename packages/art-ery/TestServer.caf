@@ -1,7 +1,6 @@
 &register
 &Server
 &test/tests/ArtEry/ClientServer/Pipelines
-&test/tests/ArtEry/ClientServerFlux/Pipelines
 
 &ArtConfig.configure
   artConfig:
