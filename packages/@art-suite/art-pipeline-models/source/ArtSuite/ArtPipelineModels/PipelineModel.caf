@@ -27,11 +27,11 @@ class PipelineModel extends KeyFieldsMixin ArtModel
       @aliases aliases if aliases
       @getHotReloadKey: -> hotReloadKey
 
-  @defineModelsForAllPipelines: (pipelineRegistry = pipelineRegistry, modelRegistry = modelRegistry) =>
-    each pipeline in pipelineRegistry.pipelines
-      @createModel pipeline, modelRegistry
+  @defineModelsForAllPipelines: (_pipelineRegistry = pipelineRegistry, _modelRegistry = modelRegistry) =>
+    each pipeline in _pipelineRegistry.pipelines
+      @createModel pipeline, _modelRegistry
 
-    modelRegistry.models
+    _modelRegistry.models
 
   @bindWithArtEry: =>
     log.warn "" DEPRECATED: bindWithArtEry - ArtEry should handle this itself
