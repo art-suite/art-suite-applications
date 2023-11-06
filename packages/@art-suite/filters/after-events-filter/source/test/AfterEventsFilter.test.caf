@@ -1,0 +1,39 @@
+import &StandardImport
+
+&ArtConfig.configure()
+
+test "does not define fields" ->
+  class MyPipeline extends Pipeline
+    @filter AfterEventsFilter
+
+  assert.eq MyPipeline.getFields(), {}
+
+test :AfterEventsFilter.on ->
+  {myPipeline} = class MyPipeline extends Pipeline
+    @registry new PipelineRegistry location: :server, session: {}
+    @filter AfterEventsFilter
+    @publicRequestTypes :myRequest
+    @handler
+      myRequest: -> "hello"
+
+  new Promise (resolve) ->
+    AfterEventsFilter.on :myPipeline :myRequest (response) ->
+      assert.eq response.data, :hello
+      resolve()
+
+    myPipeline.myRequest {}
+
+test :AfterEventsFilter.registerPipelineListener ->
+  new Promise (resolve) ->
+    {myPipeline} = class MyPipeline extends Pipeline
+      @registry new PipelineRegistry location: :server, session: {}
+      @filter AfterEventsFilter
+      @publicHandler myRequest: -> :hello
+
+      handleRequestAfterEvent: (response) ->
+        assert.eq response.data, :hello
+        resolve()
+
+    AfterEventsFilter.registerPipelineListener myPipeline, :myPipeline :myRequest
+
+    myPipeline.myRequest {}
