@@ -6,7 +6,7 @@ session = null
 sharedAfterEventTests = (setupUserWith) ->
 
   chainedTest -> deleteTestTables().then ->
-    {pipelines, session} = registry = new PipelineRegistry
+    {pipelines, session} = registry = new PipelineRegistry location: :client
     AfterEventsFilter._reset()
 
     User = null
@@ -122,7 +122,7 @@ suite:
       User = null
       suiteSetup ->
         AfterEventsFilter._reset()
-        {pipelines} = registry = new PipelineRegistry
+        {pipelines} = registry = new PipelineRegistry location: :client
 
         class User extends DynamoDbPipeline
           @registry registry

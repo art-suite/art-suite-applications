@@ -7,7 +7,7 @@ pipelines = null
 setupWithMyTable = ->
   deleteTestTables()
   .then ->
-    {pipelines} = registry = new PipelineRegistry
+    {pipelines} = registry = new PipelineRegistry location: :client
     {myTable} = class MyTable extends DynamoDbPipeline
       @registry registry
       @publicRequestTypes :get :create :update :delete :getAll :batchGet
@@ -227,6 +227,7 @@ suite:
       pipelines.myCompoundKeyTable.update
         returnResponseObject: true
         originatedOnServer: true
+        location: :server
         props:
           createOk: true
           key: userId: :123 postId: :abc
@@ -258,18 +259,20 @@ suite:
   "compound primaryKey": ->
     myManyToManyTable = null
     chainedTest ->
-      {myManyToManyTable} = class MyManyToManyTable extends DynamoDbPipeline
-        @registry registry
-        @primaryKey :userId/postId
-        @publicRequestTypes :create :get :update :getAll :byUserId
-        @addDatabaseFilters
-          linkFilterVersion: 2
-          fields:
-            user: "required link"
-            post: "required link"
-            rank: :number
+      setupWithMyTable()
+      .then ->
+        {myManyToManyTable} = class MyManyToManyTable extends DynamoDbPipeline
+          @registry new PipelineRegistry location: :client
+          @primaryKey :userId/postId
+          @publicRequestTypes :create :get :update :getAll :byUserId
+          @addDatabaseFilters
+            linkFilterVersion: 2
+            fields:
+              user: "required link"
+              post: "required link"
+              rank: :number
 
-      myManyToManyTable._vivifyTable()
+        myManyToManyTable._vivifyTable()
 
     .softTapTest
       "primaryKey defines the correct queries" ->

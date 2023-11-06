@@ -7,7 +7,7 @@ pipelinse = registry = null
 setupWithMyTable = ->
   deleteTestTables()
   .then ->
-    {pipelines} = registry = new PipelineRegistry
+    {pipelines} = registry = new PipelineRegistry location: :client
     {myAppMessage} = class MyAppMessage extends DynamoDbPipeline
       @registry registry
       @publicRequestTypes :get :create :update :delete :byUserIdEventAt :byUserIdEventAtDesc
