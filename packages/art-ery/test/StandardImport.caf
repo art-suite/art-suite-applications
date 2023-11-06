@@ -8,3 +8,13 @@
   &@ArtSuite/ArtPipelines
   &@ArtSuite/KeyFieldsMixin
   &build
+  newRegistries: ->
+    {}
+      pipelineRegistry = new &@ArtSuite/ArtPipelines.PipelineRegistry location: :client
+      pipelineRegistry.pipelines
+      modelRegistry = new &@ArtSuite/ArtModels.ModelRegistry
+      modelRegistry.models
+      defineModelsForAllPipelines = ->
+        &@ArtSuite/ArtPipelineModels.defineModelsForAllPipelines
+          pipelineRegistry
+          modelRegistry

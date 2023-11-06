@@ -5,6 +5,7 @@
 
 .addModules({
   DataUpdatesFilter: require('./DataUpdatesFilter'),
+  SimpleStore:       require('./SimpleStore'),
   StandardImport:    require('./StandardImport')
 });
 require('./Pipelines');

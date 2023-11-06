@@ -3,6 +3,7 @@ import &StandardImport, &Config, &RestClientLib, &RestServerLib, {}
 
 class Pipeline extends &@ArtSuite/ArtPipelines.Pipeline
   @abstractClass() # any sub-class that shouldn't auto-register should be an abstract class
+  @registry new &@ArtSuite/ArtPipelines.PipelineRegistry location: :client
 
   # override
   handleRequest: (request) ->

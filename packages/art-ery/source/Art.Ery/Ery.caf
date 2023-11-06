@@ -1,5 +1,6 @@
 import &StandardImport, &@ArtSuite/ArtPipelines.PipelineRegistry, &Config
 
+pipelineRegistry = &Pipeline.getRegistry()
 global.artEryPipelines = pipelineRegistry.pipelines
 global.artEryPipelineRegistries = pipelineRegistries
 []

@@ -8,16 +8,43 @@ newUserName = :bill
 createNewUserName = :craig
 cleanupInstance = null
 
-class MyComponent extends ArtModelSubscriptionsMixin BaseObject
-  constructor: (key = preexistingKey)->
-    @subscribe :mySubscriptionKey :dataUpdatesFilterPipeline key, {} stateField
-
-class MyQueryComponent extends ArtModelSubscriptionsMixin BaseObject
-  constructor: (key = preexistingKey)->
-    @subscribe :mySubscriptionKey :userByEmail key, {} stateField
+MyComponent = MyQueryComponent = pipelineRegistry = modelRegistry = models = pipelines = null
 
 testSetup = (initialRecords) ->
-  &@ArtSuite/ArtPipelineModels.defineModelsForAllPipelines pipelineRegistry
+  {pipelineRegistry, modelRegistry, models, pipelines, defineModelsForAllPipelines} = newRegistries()
+  class DataUpdatesFilterPipeline extends &SimpleStore
+    @registry pipelineRegistry
+    @publicRequestTypes :subrequestTest :update :delete :userByEmail
+
+    @filter DataUpdatesFilter
+
+    @filter
+      before:
+        create: (request) -> request.withMergedData createdAt: 123, updatedAt: 123
+        update: (request) -> request.withMergedData updatedAt: 321
+
+    @query
+      userByEmail:
+        query:            ({key}) -> array v, k from @db when v.email == key
+        dataToKeyString:  ({email}) -> email
+
+    @handlers
+      subrequestTest: (request) ->
+        {key, data, type} = request.data
+        request.require isString(type), "subrequestTest needs a request-type"
+        .then -> request.subrequest request.pipelineName, type, {} key, data
+
+  class MyComponent extends ArtModelSubscriptionsMixin BaseObject
+    @modelRegistry modelRegistry
+    constructor: (key = preexistingKey)->
+      @subscribe :mySubscriptionKey :dataUpdatesFilterPipeline key, {} stateField
+
+  class MyQueryComponent extends ArtModelSubscriptionsMixin BaseObject
+    @modelRegistry modelRegistry
+    constructor: (key = preexistingKey)->
+      @subscribe :mySubscriptionKey :userByEmail key, {} stateField
+
+  defineModelsForAllPipelines()
   pipelines.dataUpdatesFilterPipeline.reset
     data: initialRecords || [preexistingKey]: name: preexistingName
 
@@ -124,10 +151,9 @@ suite:
 
   ArtModelUpdates:
     basicRequests: ->
-      setup -> testSetup()
-      teardown -> cleanupInstance?.unsubscribeAll()
 
       test "update", ->
+        testSetup()
         new Promise (resolve) ->
           cleanupInstance = new class MyComponentForUpdateTesting extends MyComponent
             setState: (_stateField, data) -> if _stateField == stateField
@@ -165,7 +191,6 @@ suite:
     subrequests: ->
       cleanupInstance = null
       setup -> testSetup()
-      teardown -> cleanupInstance?.unsubscribeAll()
 
       test "update", ->
         new Promise (resolve) ->
@@ -215,7 +240,6 @@ suite:
     #  SO, we need to test these scenarios directly on ArtEryFluxModles - i.e. do dataUpdates on a single record update the query-models?
     queryUpdates: ->
       setup -> testSetup()
-      teardown -> cleanupInstance?.unsubscribeAll()
 
       test "create", ->
         newUserEmail = :bill@imikimi.com

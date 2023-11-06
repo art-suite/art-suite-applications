@@ -59,8 +59,8 @@ class DataUpdatesFilter extends Filter
 
   sendDataEvents: (response) ->
     response extract pipeline, key, data, pipelines, responseProps extract dataUpdates, dataDeletes
-    pipeline.dataUpdated key ? @toKeyString(data), data if response.isUpdateRequest
-    pipeline.dataDeleted key ? @toKeyString(data), data if response.isDeleteRequest
+    pipeline.dataUpdated key ? response.pipeline.toKeyString(data), data if response.isUpdateRequest
+    pipeline.dataDeleted key ? response.pipeline.toKeyString(data), data if response.isDeleteRequest
 
     @sendDataUpdateEvents pipelines, dataUpdates
     @sendDataDeleteEvents pipelines, dataDeletes
