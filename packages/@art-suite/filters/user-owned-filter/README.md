@@ -1,4 +1,4 @@
-# AfterEventsFilter
+# UserOwnedFilter
 
 # Use
 
@@ -6,22 +6,22 @@ To use, just add the filter to your pipelines. Typically you'll want it on all y
 
 ```coffeescript
 # CaffeineScript
-import &@ArtSuite/ArtPipelines, &@ArtSuite/AfterEventsFilter
+import &@ArtSuite/ArtPipelines, &@ArtSuite/UserOwnedFilter
 
 class BasePipeline extends Pipeline
   @abstractClass()
-  @filter AfterEventsFilter
+  @filter UserOwnedFilter
 
-class User extends BasePipeline # <-- automatically has AfterEventsFilter
+class User extends BasePipeline # <-- automatically has UserOwnedFilter
 ```
 
 ```javascript
 // JavaScript
 const { Pipeline } = require("@art-suite/art-pipelines");
-const { AfterEventsFilter } = require("@art-suite/after-events-filter");
+const { UserOwnedFilter } = require("@art-suite/user-owned-filter");
 
 class BasePipeline extends Pipeline {}
-BasePipeline.filter(AfterEventsFilter);
+BasePipeline.filter(UserOwnedFilter);
 
-class User extends BasePipeline {} // # <-- automatically has AfterEventsFilter
+class User extends BasePipeline {} // # <-- automatically has UserOwnedFilter
 ```

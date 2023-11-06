@@ -1,0 +1,10 @@
+&ArtStandardLib.merge
+  # for testing
+  _resetFilters: -> &@ArtSuite/AfterEventsFilter._reset()
+  &@ArtSuite/AfterEventsFilter
+  &@ArtSuite/DataUpdatesFilter
+  &@ArtSuite/UserOwnedFilter
+  &@ArtSuite/LinkFieldsFilters
+  &@ArtSuite/ValidationFilter
+  &@ArtSuite/TimestampFilter
+  &@ArtSuite/UniqueIdFilter

@@ -1,0 +1,45 @@
+import &ArtStandardLib, &ArtValidation, &@ArtSuite/ArtPipelines
+
+ValidationFilter: class ValidationFilter extends Filter
+  @location :both
+
+  constructor: (options) ->
+    # NOTE - not using Validator's 'exclusive' feature because we need to test
+    #   unexpected fields against pipeline.fields not the options.fields that were passed in.
+    @_exclusive = options?.exclusive
+    @_validator = new Validator @fields
+
+  @before
+    create: (request) -> @_validate :validateCreate request
+    update: (request) -> @_validate :validateUpdate request
+
+  _validate: (method, request) ->
+    Promise.then ->
+      context = request.requestString
+      validatedData = @_validator[method] request.data, {context}
+      data =
+        if request.location == :client
+          # preprocess, but don't apply defaults
+          # TODO: add tests for this!!!! (SBD 9/6/2021)
+          @_validator.preprocess request.data
+
+        else validatedData
+
+      rejection = if @_exclusive
+        {fields} = request.pipeline
+        unexpectedFields = null
+        each v, k in data when !fields[k]
+          (unexpectedFields ||= []).push k
+
+        if unexpectedFields
+          throw new ErrorWithInfo
+            "" #{context} failed. #{pluralize unexpectedFields.length, "Unexpected field"}: #{unexpectedFields.join ', '}
+            unexpected: unexpectedFields
+
+      rejection || request.withData data
+
+    .catch (exception) ->
+      exception extract message, info
+      request.clientFailure
+        data: merge info, message: "" ValidationFilter: #{message}
+        errorProps: {} exception

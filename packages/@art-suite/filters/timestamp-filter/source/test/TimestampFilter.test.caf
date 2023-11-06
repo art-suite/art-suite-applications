@@ -1,0 +1,33 @@
+import &StandardImport, {} &SimplePipeline
+
+&ArtConfig.configure()
+
+{pipelines} = pipelineRegistry = new PipelineRegistry location: :client
+
+test "fields are set correctly" ->
+  class MyPipeline extends SimplePipeline
+    @registry pipelineRegistry
+    @filter TimestampFilter
+
+  assert.eq MyPipeline.singleton.fields.createdAt, FieldTypes.secondsTimestamp
+  assert.eq MyPipeline.singleton.fields.updatedAt, FieldTypes.secondsTimestamp
+
+test :create ->
+  class MyPipeline extends SimplePipeline
+    @registry pipelineRegistry
+    @filter TimestampFilter
+
+  .singleton.create data: {}
+  .then ({createdAt, updatedAt, id}) ->
+    assert.isNumber createdAt
+    assert.isNumber updatedAt
+    assert.eq createdAt, updatedAt
+    id
+
+  .then (id) ->
+    MyPipeline.singleton.update key: id, data: foo: :bar
+
+  .then ({createdAt, updatedAt}) ->
+    assert.isNumber createdAt
+    assert.isNumber updatedAt
+    assert.gte updatedAt, createdAt

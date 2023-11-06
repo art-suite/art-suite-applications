@@ -1,0 +1,20 @@
+import &StandardImport, {} &SimplePipeline
+
+&ArtConfig.configure()
+
+{session, pipelines} = pipelineRegistry = new PipelineRegistry location: :client
+
+test "fields are set correctly" ->
+  class MyPipeline extends SimplePipeline
+    @registry pipelineRegistry
+    @filter UniqueIdFilter
+
+  assert.eq MyPipeline.getFields().id.dataType, :string
+
+test :create ->
+  new class MyPipeline extends SimplePipeline
+    @registry pipelineRegistry
+    @filter UniqueIdFilter
+
+  .create {}
+  .then ({id}) -> assert.match id, /// ^[-_a-zA-Z0-9\/\:]{12}$

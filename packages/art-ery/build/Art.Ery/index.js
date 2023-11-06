@@ -6,11 +6,11 @@
 .addModules({
   Config:           require('./Config'),
   DatabaseFilters:  require('./DatabaseFilters'),
+  Filters:          require('./Filters'),
   Pipeline:         require('./Pipeline'),
   RestClientLib:    require('./RestClientLib'),
   RestServerLib:    require('./RestServerLib'),
   StandardImport:   require('./StandardImport'),
   UpdateAfterMixin: require('./UpdateAfterMixin')
 });
-require('./Filters');
 require('./Lib');

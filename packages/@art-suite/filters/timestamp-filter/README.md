@@ -1,4 +1,4 @@
-# AfterEventsFilter
+# ValidationFilter
 
 # Use
 
@@ -6,22 +6,22 @@ To use, just add the filter to your pipelines. Typically you'll want it on all y
 
 ```coffeescript
 # CaffeineScript
-import &@ArtSuite/ArtPipelines, &@ArtSuite/AfterEventsFilter
+import &@ArtSuite/ArtPipelines, &@ArtSuite/ValidationFilter
 
 class BasePipeline extends Pipeline
   @abstractClass()
-  @filter AfterEventsFilter
+  @filter ValidationFilter
 
-class User extends BasePipeline # <-- automatically has AfterEventsFilter
+class User extends BasePipeline # <-- automatically has ValidationFilter
 ```
 
 ```javascript
 // JavaScript
 const { Pipeline } = require("@art-suite/art-pipelines");
-const { AfterEventsFilter } = require("@art-suite/after-events-filter");
+const { ValidationFilter } = require("@art-suite/validation-filter");
 
 class BasePipeline extends Pipeline {}
-BasePipeline.filter(AfterEventsFilter);
+BasePipeline.filter(ValidationFilter);
 
-class User extends BasePipeline {} // # <-- automatically has AfterEventsFilter
+class User extends BasePipeline {} // # <-- automatically has ValidationFilter
 ```

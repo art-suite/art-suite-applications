@@ -1,0 +1,122 @@
+import &StandardImport
+
+&ArtConfig.configure()
+
+{session, pipelines} = pipelineRegistry = new PipelineRegistry location: :client
+class SimplePipeline extends Pipeline
+  @registry pipelineRegistry
+
+  constructor: ->
+    @_store = {}
+    @_nextUniqueKey = 0
+
+  @getter
+    :store
+    nextUniqueKey: ->
+      @_nextUniqueKey++ while @_store[@_nextUniqueKey]
+      (@_nextUniqueKey++).toString()
+
+  @publicRequestTypes :reset :get :getAll :create :update :delete
+
+  @handlers
+    reset: ({data}) ->
+      @_store = data || {}
+      {}
+
+    get: ({key}) -> @_store[key]
+    getAll: -> array k in (Object.keys(@_store).sort()) with @store[k]
+
+    create: (request) ->
+      {data} = request
+      data = if data.id
+        data
+      else
+        merge data, id: @nextUniqueKey
+
+      if @_store[data.id]
+        request.clientFailure "" Record already exists with id: #{data.id}
+
+      else
+        @_store[data.id] = data
+
+    update: ({key, data}) ->
+      if previousData = @_store[key]
+        @_store[key] = merge previousData, data
+
+    delete: ({key}) ->
+      if previousData = @_store[key]
+        @_store[key] = null
+        previousData
+
+describe
+  basics: ->
+    test "fields are set correctly", ->
+      foo = bar = id = null
+      class MyPipeline extends SimplePipeline
+        @filter new ValidationFilter fields:
+          foo: foo = preprocess: (o) -> "" #{o}#{o}
+
+        @filter new ValidationFilter fields: fields =
+          bar: bar = validate: (v) -> (v | 0) == v
+          id: id = FieldTypes.id
+
+      assert.eq MyPipeline.singleton.fields,
+        foo: foo
+        bar: bar
+        id: id
+
+    test :preprocess ->
+      {myPipeline} = class MyPipeline extends SimplePipeline
+        @filter new ValidationFilter fields: foo: preprocess: (o) -> "" validated(#{o})
+      assert.eq myPipeline.location, :client
+
+      myPipeline.create data: foo: 123
+      .then (response) ->
+        assert.eq response.foo, "validated(validated(123))"
+
+    test "required field - when missing, it's a clientFailure" ->
+      class MyPipeline extends SimplePipeline
+        @filter new ValidationFilter fields:
+          foo: required: true
+
+      assert.clientFailure MyPipeline.singleton.create data: bar: 123
+      .then ({info: {response}}) ->
+        assert.eq response.data.errors, foo: :missing
+
+    test "required field - present" ->
+      class MyPipeline extends SimplePipeline
+        @filter new ValidationFilter fields:
+          foo: required: true
+
+      MyPipeline.singleton.create data: foo: 123
+      .then (data) ->
+        assert.eq data.foo, 123
+
+    test "validate - invalid" ->
+      class MyPipeline extends SimplePipeline
+        @filter new ValidationFilter fields:
+          foo: FieldTypes.trimmedString
+
+      assert.rejects MyPipeline.singleton.create data: foo: 123
+      .then ({info: {response}}) -> assert.eq response.data.errors, foo: :invalid
+
+    test "validate - valid with preprocessing" ->
+      class MyPipeline extends SimplePipeline
+        @filter new ValidationFilter fields:
+          foo: FieldTypes.trimmedString
+
+      MyPipeline.singleton.create data: foo: "  123  "
+      .then (data) ->
+        assert.eq data.foo, :123
+
+  exclusive: ->
+    MyPipeline = null
+
+    class MyPipeline extends SimplePipeline
+      @filter new ValidationFilter
+        exclusive: true
+        fields:
+          foo: FieldTypes.trimmedString
+
+    test :create -> assert.rejects MyPipeline.singleton.create data: bar: 123
+    test :update -> assert.rejects MyPipeline.singleton.update data: bar: 123
