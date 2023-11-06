@@ -1,14 +1,14 @@
 {
   "bugs": "https://github.com/art-suite/art-suite-applications/issues",
   "dependencies": {
-    "@art-suite/art-pipelines": "^*",
+    "@art-suite/art-pipelines": "^0.2.0",
+    "art-class-system": "^1.11.13",
     "art-communication-status": "^1.5.13",
     "art-standard-lib": "^1.70.6",
-    "art-class-system": "*",
     "art-validation": "^1.11"
   },
   "devDependencies": {
-    "@art-suite/art-models": "*",
+    "@art-suite/art-models": "^0.1.3",
     "@art-suite/key-fields-mixin": "^1.0.4"
   },
   "homepage": "https://github.com/art-suite/art-suite-applications",

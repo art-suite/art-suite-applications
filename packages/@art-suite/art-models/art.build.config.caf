@@ -1,6 +1,3 @@
-import &ArtStandardLib
-package:
-  require(:../standard-package-builder) &package,
-    sourceDir: :source
-    targetDir: :build
-    coffeeScript: true
+package: &@ArtSuite/StandardPackageBuilder.configure {}
+  &package
+  scripts: jest: "jest --reporters=jest-fixed-default-reporter/SummaryReporter"

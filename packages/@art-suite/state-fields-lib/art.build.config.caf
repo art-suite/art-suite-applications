@@ -1,1 +1,3 @@
-package: &@ArtSuite/StandardPackageBuilder.configure {} &package
+package: &@ArtSuite/StandardPackageBuilder.configure {}
+  &package
+  scripts: jest: "jest --reporters=jest-fixed-default-reporter/SummaryReporter"

@@ -6,6 +6,7 @@
     "@art-suite/art-canvas": "file:packages/@art-suite/art-canvas",
     "@art-suite/art-components": "file:unpublished/art-components",
     "@art-suite/art-ery-core": "file:unpublished/art-ery-core",
+    "@art-suite/art-ery-db-filters-pack": "file:packages/@art-suite/art-ery-db-filters-pack",
     "@art-suite/art-flux": "file:packages/@art-suite/art-flux",
     "@art-suite/art-foundation": "^2.0.0",
     "@art-suite/art-model-components": "file:packages/@art-suite/art-model-components",
@@ -107,6 +108,9 @@
     "webpack-merge": "^5.7.3",
     "webpack-node-externals": "^3.0.0"
   },
+  "devDependencies": {
+    "jest-fixed-default-reporter": "^2.0.1"
+  },
   "homepage": "https://github.com/art-suite/art-suite-applications",
   "license": "ISC",
   "repository": {
@@ -114,6 +118,7 @@
     "url": "https://github.com/art-suite/art-suite-applications.git"
   },
   "scripts": {
+    "jest": "art-monorepo run --command \"npm run --silent jest --if-present\" --verbose",
     "sync": "art-monorepo sync",
     "test": "art-monorepo test"
   }
