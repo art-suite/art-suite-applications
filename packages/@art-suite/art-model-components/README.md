@@ -28,8 +28,8 @@ class MyComponent extends ModelComponent
 
 ```coffeescript
 # pipelines/Compass.caf
-import &ArtEry
-class Compass extends ArtPipeline
+import &@ArtSuite/ArtPipelines
+class Compass extends Pipeline
 
   constructor: ->
     @_compassByUserId = {}
