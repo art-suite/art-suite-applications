@@ -1,3 +1,0 @@
-import &ArtStandardLib
-
-package: -> merge &package, {}

@@ -1,4 +1,0 @@
-
-fluxLog = []
-getFluxLog: -> fluxLog
-resetFluxLog: -> fluxLog = []
