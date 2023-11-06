@@ -1,0 +1,61 @@
+import &ArtStandardLib, &@ArtSuite/ArtPipelines
+
+DataUpdatesFilter: class DataUpdatesFilter extends Filter
+
+  # for subrequests, this will still be on the server
+  # for root requests, there is work to do on both the client and server
+  @location :both
+  @group :outer
+
+  @after all: (response) ->
+    if response.isRootRequest
+
+      switch response.location
+      when :client
+        response
+        .tap (response) -> @sendDataEvents response
+
+      when :server :both
+        response.withMergedPropsWithoutNulls {dataUpdates, dataDeletes} = response.context
+
+    else
+      response extract key, type, responseData, pipelineName, context
+
+      groupName =
+        if response.isUpdateRequest then :dataUpdates
+        else if response.isDeleteRequest then :dataDeletes
+
+      if groupName
+        switch
+        when responseData is Array
+          each record in responseData
+            key = response.pipeline.toKeyString record
+            vivifyObjectPathAndSet context, groupName, pipelineName, key, record
+
+        when key, response.pipeline.isRecord responseData
+          responseData ?=
+            response.pipeline.toKeyObject? key || responseData
+            || {}
+
+          key ?= response.pipeline.toKeyString responseData
+          vivifyObjectPathAndSet context, groupName, pipelineName, key, responseData
+
+      response
+
+  sendDataEvents: (response) ->
+    response extract pipeline, key, data, pipelines, responseProps extract dataUpdates, dataDeletes
+    pipeline.dataUpdated key ? response.pipeline.toKeyString(data), data if response.isUpdateRequest
+    pipeline.dataDeleted key ? response.pipeline.toKeyString(data), data if response.isDeleteRequest
+
+    @sendDataUpdateEvents pipelines, dataUpdates
+    @sendDataDeleteEvents pipelines, dataDeletes
+
+  sendDataUpdateEvents: (pipelines, dataUpdates) ->
+    each dataUpdatesByKey, pipelineName in dataUpdates || []
+      each data, key in dataUpdatesByKey
+        pipelines[pipelineName].dataUpdated key, data
+
+  sendDataDeleteEvents: (pipelines, dataDeletes) ->
+    each dataDeletesByKey, pipelineName in dataDeletes || []
+      each data, key in dataDeletesByKey
+        pipelines[pipelineName].dataDeleted key, data
