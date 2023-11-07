@@ -12,7 +12,7 @@
 
 {config} = require "../ElasticsearchConfig"
 {Aws4RestClient} = require 'art-aws'
-{CommunicationStatus:{missing}} = require 'art-foundation'
+{missing} = require 'art-communication-status'
 ElasticsearchPipeline = require './ElasticsearchPipeline'
 
 defineModule module, class ElasticsearchGlobal extends require './ElasticsearchPipelineBase'

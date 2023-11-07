@@ -1,4 +1,5 @@
-{merge, defineModule, select, newObjectFromEach, mergeInto, Configurable} = require 'art-foundation'
+{merge, defineModule, select, newObjectFromEach, mergeInto} = require 'art-standardlib'
+{Configurable} = require 'art-config'
 
 defineModule module, class ElasticsearchConfig extends Configurable
   @defaults
