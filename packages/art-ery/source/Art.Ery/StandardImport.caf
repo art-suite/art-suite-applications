@@ -3,5 +3,4 @@
   &ArtClassSystem
   &ArtCommunicationStatus
   &ArtValidation
-  &Lib
   &@ArtSuite/ArtPipelines

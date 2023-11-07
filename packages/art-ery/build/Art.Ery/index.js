@@ -4,12 +4,10 @@
 (module.exports = require('./namespace'))
 .includeInNamespace(require('./Ery'))
 .addModules({
-  Config:           require('./Config'),
-  Filters:          require('./Filters'),
-  Pipeline:         require('./Pipeline'),
-  RestClientLib:    require('./RestClientLib'),
-  RestServerLib:    require('./RestServerLib'),
-  StandardImport:   require('./StandardImport'),
-  UpdateAfterMixin: require('./UpdateAfterMixin')
+  Config:         require('./Config'),
+  Filters:        require('./Filters'),
+  Pipeline:       require('./Pipeline'),
+  RestClientLib:  require('./RestClientLib'),
+  RestServerLib:  require('./RestServerLib'),
+  StandardImport: require('./StandardImport')
 });
-require('./Lib');
