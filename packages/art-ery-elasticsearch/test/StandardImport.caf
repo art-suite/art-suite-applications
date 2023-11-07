@@ -1,0 +1,5 @@
+&ArtStandardLib.merge
+  &ArtStandardLib
+  &ArtEry
+  &ArtCommunicationStatus
+  require '../index.coffee'

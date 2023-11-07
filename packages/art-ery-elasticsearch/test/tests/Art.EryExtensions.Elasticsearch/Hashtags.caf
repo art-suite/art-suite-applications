@@ -1,0 +1,84 @@
+import &StandardImport
+##
+  This is an example of how to do #hashTags.
+  The ideas came from: http://blog.pixlee.com/finding-hashtags-in-elasticsearch
+
+  SBD NOTE:
+    I've decided NOT to use this method.
+    I've decided it's best to have my own pre-process step
+    that extracts hashTags and puts them in their own list-field-type.
+
+    That way hashTags can be found exactly OR with word-stemming, etc,
+    when not using the #-symbol. Example:
+
+      #foo -> matches only /#foo\b/i
+      foo -> matches "#fooing #fooed and #fooy"
+
+defineModule module, suite: ->
+  @timeout 10000
+
+  postSearch = null
+
+  setup ->
+
+    class PostSearch extends ElasticsearchPipeline
+      @mapping
+        properties:
+          text:   type: :text analyzer: :english_with_hashtags
+          text2:  type: :text analyzer: :english
+
+        settings:
+          analysis:
+            char_filter:
+              space_hashtags:
+                type:     :mapping
+                mappings: [] "#=>|#"
+
+            filter:
+              english_stop:               type: :stop            stopwords: :_english_
+              # english_keywords:           type: :keyword_marker  keywords:  []
+              english_stemmer:            type: :stemmer         language:  :english
+              english_possessive_stemmer: type: :stemmer         language:  :possessive_english
+              hashtag_as_alphanum:
+                type: :word_delimiter
+                type_table:
+                  "# => ALPHANUM"
+                  "@ => ALPHANUM"
+
+            analyzer:
+              english_with_hashtags:
+                type:         :custom
+                char_filter:  :space_hashtags
+                tokenizer:    :whitespace
+                filter:
+                  :english_possessive_stemmer
+                  :lowercase
+                  :hashtag_as_alphanum
+                  :english_stop
+                  # :english_keywords
+                  :english_stemmer
+
+    {postSearch} = pipelines
+
+    pipelines.elasticsearchGlobal.deleteIndex returnNullIfMissing: true, data: force: true
+    .then -> pipelines.elasticsearchGlobal.initialize()
+
+  test "initialize" ->
+
+  test "index then search", ->
+    postSearch.update key: :123, data: text: "" This, my friends, is the #winnings!
+    .then -> timeout 1000 # it takes > 500ms for the new entry to show up in the search...
+    .then ->
+      Promise.all []
+        postSearch.elasticsearch data: query: match: text: "winnings"
+        postSearch.elasticsearch data: query: match: text: "winning"
+        postSearch.elasticsearch data: query: match: text: "win"
+        postSearch.elasticsearch data: query: match: text: "#winnings"
+        postSearch.elasticsearch data: query: match: text: "#winning"
+        postSearch.elasticsearch data: query: match: text: "#win"
+    .then (results) ->
+      assert.eq
+        0 0 0,
+        1 1 1
+        array out from results with out.hits.total
+

@@ -1,0 +1,98 @@
+import &StandardImport
+
+suite: ->
+  @timeout 10000
+
+  userSearch = postSearch = null
+
+  setup ->
+    class UserSearch extends ElasticsearchPipeline
+      @mapping
+        properties:
+          email: type: :keyword
+          name:  type: :text
+          about: type: :text, analyzer: :english
+
+    class PostSearch extends ElasticsearchPipeline
+      @parentField "userId"
+
+      @mapping
+        _parent:    type: :user_search
+        properties:
+          userId:   type: :keyword
+          text:     type: :text,    analyzer: :english
+          comments: type: :integer
+
+    {userSearch, postSearch} = pipelines
+
+    pipelines.elasticsearchGlobal.deleteIndex returnNullIfMissing: true, data: force: true
+    .then -> pipelines.elasticsearchGlobal.initialize()
+
+  test "initializing", ->
+
+  test "post with non-existant parent", ->
+    postSearch.update
+      key:      :123
+      data:
+        userId: :abc
+        text:   "" This is the best post ever
+
+  test "user", ->
+    userSearch.update
+      key: :abc
+      data:
+        email:  :shanebdavis@imikimi.com
+        name:   :Shane
+        about:  "" I made this!
+
+  test "post illegal without parent-id field", ->
+    assert.rejects postSearch.update
+      key: :123
+      data:
+        # userId: "abc"
+        text:   "This is the best post ever"
+
+  test "post and user pair", ->
+    Promise.all []
+      postSearch.update key: :123 data: userId: :abc text: "" This is the best post ever.
+      postSearch.update key: :456 data: userId: :def text: "" No, THIS is the best post ever.
+
+      userSearch.update
+        key: :abc
+        data:
+          email:  :shanebdavis@imikimi.com
+          name:   :Shane
+          about:  "" I made this!
+
+    .then -> timeout 1000
+    .then ->
+      postSearch.elasticsearch data: query:
+        has_parent:
+          parent_type: :user_search
+          query:
+            match:
+              about: :made
+
+    .then (result) ->
+      assert.eq result.hits.total, 1
+      assert.eq result.hits.hits[0]._id, :123
+
+  test "update post", ->
+    Promise.all []
+      postSearch.update key: :123 data: userId: :abc comments: 0 text: "" This is the best post ever.
+
+      userSearch.update
+        key: :abc
+        data:
+          email:  :shanebdavis@imikimi.com
+          name:   :Shane
+          about:  "" I made this!
+
+    .then ->
+      postSearch.update key: :123 data: userId: :abc comments: 1
+
+    .then ->
+      postSearch.get key: :123 data: userId: :abc
+
+    .then ({comments}) ->
+      assert.eq comments, 1
