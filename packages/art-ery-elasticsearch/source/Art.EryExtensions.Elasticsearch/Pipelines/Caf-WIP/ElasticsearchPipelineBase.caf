@@ -1,0 +1,78 @@
+import &ArtStandardLib, &ArtClassSystem, &ArtEry, &ElasticsearchConfig, &AwsAws
+
+class ElasticsearchPipelineBase extends Pipeline
+  @abstractClass()
+
+  @getter
+    restClient:         -> new Aws4RestClient merge config, service: 'es'
+    elasticsearchIndex: -> @_elasticsearchIndex ?= snakeCase config.index
+    indexUrl:   (index) -> "" /#{} index || @getElasticsearchIndex()
+
+  normalizeJsonRestClientResponse: (request, _promise) ->
+    _promise.catch (error) -> @normalizeJsonRestClientError request, error
+
+  normalizeJsonRestClientError: (request, error) ->
+    if  error.status
+      request.toResponse error.status, data: error.data
+    else throw error
+
+## WEBPACK
+
+  /* WEBPACK VAR INJECTION */(function(module) {var Aws4RestClient, DeclarableMixin, ElasticsearchPipelineBase, Pipeline, array, config, defineModule, formattedInspect, log, merge, mergeInto, object, objectWithout, pipelines, ref, ref1, snakeCase,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { @constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
+
+  ref = __webpack_require__(/*! art-standard-lib */ 51), formattedInspect = ref.formattedInspect, log = ref.log, defineModule = ref.defineModule, merge = ref.merge, array = ref.array, mergeInto = ref.mergeInto, object = ref.object, objectWithout = ref.objectWithout, snakeCase = ref.snakeCase;
+
+  DeclarableMixin = __webpack_require__(/*! art-class-system */ 128).DeclarableMixin;
+
+  ref1 = __webpack_require__(/*! art-ery */ 252), Pipeline = ref1.Pipeline, pipelines = ref1.pipelines;
+
+  config = __webpack_require__(/*! ../ElasticsearchConfig */ 507).config;
+
+  Aws4RestClient = __webpack_require__(/*! art-aws */ 409).Aws4RestClient;
+
+  defineModule(module, ElasticsearchPipelineBase = (function(superClass) {
+    extend(ElasticsearchPipelineBase, superClass);
+
+    function ElasticsearchPipelineBase() {
+      return ElasticsearchPipelineBase.__super__.constructor.apply(this, arguments);
+    }
+
+    ElasticsearchPipelineBase.abstractClass();
+
+    ElasticsearchPipelineBase.getter({
+      restClient: function() {
+        return new Aws4RestClient(merge(config, {
+          service: 'es'
+        }));
+      },
+      elasticsearchIndex: function() {
+        return @_elasticsearchIndex || (@_elasticsearchIndex = snakeCase(config.index));
+      },
+      indexUrl: function(index) {
+        return "/" + (index || @getElasticsearchIndex());
+      }
+    });
+
+    ElasticsearchPipelineBase.prototype.normalizeJsonRestClientResponse = function(request, p) {
+      return p["catch"]((function(_this) {
+        return function(e) {
+          return _this.normalizeJsonRestClientError(request, e);
+        };
+      })(this));
+    };
+
+    ElasticsearchPipelineBase.prototype.normalizeJsonRestClientError = function(request, error) {
+      if (error.status) {
+        return request.toResponse(error.status, {
+          data: error.data
+        });
+      } else {
+        throw error;
+      }
+    };
+
+    return ElasticsearchPipelineBase;
+
+  })(DeclarableMixin(Pipeline)));
