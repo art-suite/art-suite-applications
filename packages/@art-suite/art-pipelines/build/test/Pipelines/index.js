@@ -4,6 +4,7 @@
 (module.exports = require('./namespace'))
 
 .addModules({
+  KeyFieldsMixin:             require('./KeyFieldsMixin'),
   PipelineAliasesTest:        require('./PipelineAliases.test'),
   PipelineBasicsTest:         require('./PipelineBasics.test'),
   PipelineCachedGetTest:      require('./PipelineCachedGet.test'),
@@ -14,5 +15,6 @@
   PipelineInspectorsTest:     require('./PipelineInspectors.test'),
   PipelineRegressionsTest:    require('./PipelineRegressions.test'),
   PipelineRequestTypesTest:   require('./PipelineRequestTypes.test'),
-  PipelineSubscriptionsTest:  require('./PipelineSubscriptions.test')
+  PipelineSubscriptionsTest:  require('./PipelineSubscriptions.test'),
+  PipelineWithKeyFieldsMixin: require('./PipelineWithKeyFieldsMixin')
 });
