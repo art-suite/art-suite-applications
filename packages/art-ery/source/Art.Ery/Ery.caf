@@ -8,6 +8,8 @@ global.artEryPipelineRegistries = pipelineRegistries
   &@ArtSuite/DatabaseFilters
   &@ArtSuite/LinkFieldsFilters.PrefetchedRecordsCache
   &@ArtSuite/AfterEventsFilter
+
+  &@ArtSuite/KeyFieldsMixin
   {}
     &@ArtSuite/ArtPipelines.Filter
     &@ArtSuite/ArtPipelines.PipelineRegistry
