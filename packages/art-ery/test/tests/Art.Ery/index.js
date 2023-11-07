@@ -4,9 +4,8 @@
 (module.exports = require('./namespace'))
 
 .addModules({
+  Config:           require('./Config'),
   PipelineRegistry: require('./PipelineRegistry'),
   StandardImport:   require('./StandardImport')
 });
-require('./Both');
 require('./ClientServer');
-require('./Core');

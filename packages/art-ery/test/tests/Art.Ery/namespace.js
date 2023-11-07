@@ -6,6 +6,4 @@ module.exports = require('../namespace').addNamespace(
   (class Ery extends Neptune.PackageNamespace {})
   ._configureNamespace(require('../../../package.json'))
 );
-require('./Both/namespace');
 require('./ClientServer/namespace');
-require('./Core/namespace');
