@@ -2,8 +2,7 @@
   "bugs": "https://github.com/art-suite/art-suite-applications/issues",
   "dependencies": {
     "@art-suite/art-pipelines": "^0.2.0",
-    "art-communication-status": "^1.5.13",
-    "art-standard-lib": "^1.70.6"
+    "art-validation": "^1.11"
   },
   "homepage": "https://github.com/art-suite/art-suite-applications",
   "jest": {
@@ -20,7 +19,7 @@
   },
   "license": "ISC",
   "main": "./build",
-  "name": "@art-suite/after-events-filter",
+  "name": "@art-suite/database-filters",
   "repository": {
     "type": "git",
     "url": "https://github.com/art-suite/art-suite-applications.git"

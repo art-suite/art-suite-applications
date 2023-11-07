@@ -34,7 +34,8 @@
     "url": "https://github.com/art-suite/art-suite-applications.git"
   },
   "scripts": {
-    "start": "nn -s --watch&\ncafSourceMaps=true webpack serve --hot --progress --open&\nwait"
+    "start": "nn -s --watch&\ncafSourceMaps=true webpack serve --hot --progress --open&\nwait",
+    "test": "webpack serve  --progress"
   },
   "version": "0.20.2"
 }

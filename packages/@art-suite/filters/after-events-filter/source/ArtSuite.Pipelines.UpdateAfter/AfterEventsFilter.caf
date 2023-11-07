@@ -1,6 +1,6 @@
 import &ArtStandardLib, &@ArtSuite/ArtPipelines
 
-AfterEventsFilter: class AfterEventsFilter extends Filter
+class AfterEventsFilter extends Filter
   @handlers: {}
   @_registeredPipelineHandlers: {}
 

@@ -48,7 +48,7 @@ class Pipeline extends &@ArtSuite/ArtPipelines.Pipeline
 
       @
 
-  @tableNamePrefix: (@_tableNamePrefix) -> # override default (see config.tableNamePrefix)
+  @tableNamePrefix:     (@_tableNamePrefix) -> # override default (see config.tableNamePrefix)
   getPrefixedTableName: (tableName) -> "#{@tableNamePrefix}#{tableName}"
 
   @getter

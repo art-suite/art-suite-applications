@@ -4,14 +4,13 @@
 (module.exports = require('./namespace'))
 
 .addModules({
-  AuthRequests:            require('./AuthRequests'),
-  ClientFailures:          require('./ClientFailures'),
-  CompoundKeys:            require('./CompoundKeys'),
-  FilterLocationRequests:  require('./FilterLocationRequests'),
-  LinkFieldsFilter2Remote: require('./LinkFieldsFilter2Remote'),
-  MyRemoteRequests:        require('./MyRemoteRequests'),
-  Sessions:                require('./Sessions'),
-  StandardImport:          require('./StandardImport'),
-  StaticAssets:            require('./StaticAssets')
+  AuthRequests:           require('./AuthRequests'),
+  ClientFailures:         require('./ClientFailures'),
+  CompoundKeys:           require('./CompoundKeys'),
+  FilterLocationRequests: require('./FilterLocationRequests'),
+  MyRemoteRequests:       require('./MyRemoteRequests'),
+  Sessions:               require('./Sessions'),
+  StandardImport:         require('./StandardImport'),
+  StaticAssets:           require('./StaticAssets')
 });
 require('./Pipelines');

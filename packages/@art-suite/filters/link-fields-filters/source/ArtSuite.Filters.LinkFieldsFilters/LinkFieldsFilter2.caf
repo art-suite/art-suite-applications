@@ -131,16 +131,17 @@ class LinkFieldsFilter2 extends ValidationFilter
             unless pipelines[pipelineName]
               preprocessRequestFailure =
                 request.rejectWithClientFailure
-                  "Linked pipeline not found: #{formattedInspect {} pipelineName}"
+                  "" Linked pipeline not found: #{formattedInspect {} pipelineName}. Valid pipelines: #{} formattedInspect Object.keys pipelines
 
-            pipelines[pipelineName].create
-              request
-              props:
-                include:  false   # DEPRICATED - this can be removed after Transition1 is compliete; only included during the transition; in the future, the fact that this is a subrequest automatically ensures include: false
-                data:     linkedFieldData
+            else
+              pipelines[pipelineName].create
+                request
+                props:
+                  include:  false   # DEPRICATED - this can be removed after Transition1 is compliete; only included during the transition; in the future, the fact that this is a subrequest automatically ensures include: false
+                  data:     linkedFieldData
 
-            .tap (linkedFieldData) ->
-              @_setPrefetch request, pipelineName, linkedFieldData.id, linkedFieldData
+              .tap (linkedFieldData) ->
+                @_setPrefetch request, pipelineName, linkedFieldData.id, linkedFieldData
 
         .tap ({id}) ->
           processedData[idFieldName] = id

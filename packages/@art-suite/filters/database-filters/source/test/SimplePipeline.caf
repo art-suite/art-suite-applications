@@ -24,7 +24,6 @@ class SimplePipeline extends Pipeline
     create: (request) ->
       {data} = request
       data = if data.id
-        throw new Error "ever used?"
         data
       else
         merge data, id: @nextUniqueKey
