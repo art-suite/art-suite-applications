@@ -1,4 +1,4 @@
-{merge, defineModule, select, newObjectFromEach, mergeInto} = require 'art-standardlib'
+{merge, defineModule, select, newObjectFromEach, mergeInto} = require 'art-standard-lib'
 {Configurable} = require 'art-config'
 
 defineModule module, class ElasticsearchConfig extends Configurable
