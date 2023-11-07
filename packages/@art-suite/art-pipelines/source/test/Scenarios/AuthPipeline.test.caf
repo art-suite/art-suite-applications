@@ -1,0 +1,55 @@
+import &StandardImport
+
+&ArtConfig.configure()
+isPresentString = (s) -> isString(s) && present s
+
+{auth} = class Auth extends Pipeline
+  @registry new PipelineRegistry location: :client
+
+  ## a stupid authentication test
+  authenticationFailed = ({username, password}) ->
+    unless isPresentString username       then "username not present"
+    else unless isPresentString password  then "password not present"
+    else unless username == password      then "username and password don't match"
+
+  @publicHandlers
+    authenticate: (request) ->
+      {data} = request
+      if message = authenticationFailed data
+        request.clientFailure data: message: message
+      else
+        request.respondWithMergedSession username: data.username
+
+    get: ({session}) -> session
+    authOnlyGet: (request) ->
+      request.rejectNotAuthorizedIfErrors !present request.session.username
+      .then -> :Works!
+
+{session} = pipelineRegistry = Auth.getRegistry()
+
+describe
+  basics: ->
+    test "clientApiMethodList", ->
+      assert.eq auth.clientApiMethodList, wordsArray "authenticate get authOnlyGet"
+
+    test "auth success", ->
+      auth.authenticate data: username: "bar", password: "bar"
+      .then -> assert.eq auth.session.data, username: "bar"
+
+    test "auth failure", ->
+      assert.rejects auth.authenticate data: username: "bar", password: "baz"
+      .then ({info: {response}}) ->
+        assert.eq response.status, clientFailure
+        assert.isString response.data.message
+
+  getBeforeAndAfterAuth: ->
+    chainedTest "get without auth is blank"   ->
+      session.reset()
+      auth.get()
+      .then (v) -> assert.eq v, {}
+    .thenTest
+      "authOnlyGet should fail"   -> assert.clientFailureNotAuthorized auth.authOnlyGet()
+      "authenticate"              -> auth.authenticate data: username: :bar password: :bar
+      "now get should be valid"   -> auth.get().then (v) -> assert.eq v, username: :bar
+      "authOnlyGet works now"     -> auth.authOnlyGet()
+

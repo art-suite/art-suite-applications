@@ -4,6 +4,8 @@
 (module.exports = require('./namespace'))
 
 .addModules({
+  AuthPipeline:       require('./AuthPipeline'),
+  AuthPipelineTest:   require('./AuthPipeline.test'),
   SimplePipeline:     require('./SimplePipeline'),
   SimplePipelineTest: require('./SimplePipeline.test')
 });
