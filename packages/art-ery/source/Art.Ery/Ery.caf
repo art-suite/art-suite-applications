@@ -5,7 +5,7 @@ global.artEryPipelines = pipelineRegistry.pipelines
 global.artEryPipelineRegistries = pipelineRegistries
 []
   &Filters
-  &DatabaseFilters
+  &@ArtSuite/DatabaseFilters
   &@ArtSuite/LinkFieldsFilters.PrefetchedRecordsCache
   &@ArtSuite/KeyFieldsMixin
   {}

@@ -5,7 +5,6 @@
 .includeInNamespace(require('./Ery'))
 .addModules({
   Config:           require('./Config'),
-  DatabaseFilters:  require('./DatabaseFilters'),
   Filters:          require('./Filters'),
   Pipeline:         require('./Pipeline'),
   RestClientLib:    require('./RestClientLib'),

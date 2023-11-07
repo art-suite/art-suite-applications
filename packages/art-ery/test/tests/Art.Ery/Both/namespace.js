@@ -5,4 +5,3 @@ module.exports = require('../namespace').addNamespace(
   'Both',
   class Both extends Neptune.PackageNamespace {}
 );
-require('./Filters/namespace');

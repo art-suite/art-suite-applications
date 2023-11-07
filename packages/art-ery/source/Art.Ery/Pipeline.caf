@@ -1,5 +1,5 @@
 import &StandardImport, &Config, &RestClientLib, &RestServerLib, {}
-  &DatabaseFilters
+  &@ArtSuite/DatabaseFilters
 
 class Pipeline extends &@ArtSuite/ArtPipelines.Pipeline
   @abstractClass() # any sub-class that shouldn't auto-register should be an abstract class

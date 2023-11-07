@@ -8,4 +8,3 @@
   Config:         require('./Config'),
   SimplePipeline: require('./SimplePipeline')
 });
-require('./Filters');
