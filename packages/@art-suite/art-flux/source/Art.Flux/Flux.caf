@@ -20,12 +20,11 @@ import &@ArtSuite/ArtModels
       :presentationDraw
 
 if GlobalEpochCycle = Neptune.Art.Engine?.Core?.GlobalEpochCycle
-  GlobalEpochCycle.singleton.includeFlux ArtModelStore.singleton
+  GlobalEpochCycle.singleton.includeFlux ModelStore.singleton
 
 {}
-  ModelRegistry:          ArtModelRegistry
-  models:                 ArtModelRegistry.models
-  _reset:                 _resetArtSuiteModels
-  fluxStore =             ArtModelStore.singleton
+  ModelRegistry
+  ModelRegistry.models
+  fluxStore =             ModelRegistry.singleton
   FluxStore:              {} fluxStore
   FluxSubscriptionsMixin: ArtModelSubscriptionsMixin

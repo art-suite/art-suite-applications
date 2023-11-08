@@ -3,7 +3,6 @@ import &StandardImport
 
 describe
   create: ->
-    beforeEach _resetArtSuiteModels
     test :basic ->
       class MyState extends ApplicationState
         @stateFields

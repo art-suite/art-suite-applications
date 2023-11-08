@@ -1,9 +1,15 @@
 import &StandardImport
+models = fluxStore = FluxModel = null
+reset = ->
+  {models} = modelRegistry = new ModelRegistry
+  FluxModel = class FluxModel extends &build.FluxModel
+    @modelRegistry modelRegistry
+
+  fluxStore = modelRegistry.modelStore
 
 describe
   load: ->
-    beforeEach _reset
-    afterEach -> fluxStore.onNextReady()
+    beforeEach reset
 
     test "model with async load", ->
       new Promise (resolve) ->
@@ -81,8 +87,7 @@ describe
         fluxStore.onNextReady -> resolve()
 
   loadData: ->
-    beforeEach _reset
-    afterEach -> fluxStore.onNextReady()
+    beforeEach reset
 
     test "basic loadData returning promise", ->
       class MyBasicModel extends FluxModel
@@ -141,8 +146,7 @@ describe
         assert.neq p1, p3
 
   functionsBoundToInstances: ->
-    beforeEach _reset
-    afterEach -> fluxStore.onNextReady()
+    beforeEach reset
     test "member functions declared in Concrete models can be used without 'this'", ->
       class User extends FluxModel
         foo: -> @_foo = (@_foo || 0) + 1
@@ -154,8 +158,7 @@ describe
       assert.eq user._foo, 2
 
   aliases: ->
-    beforeEach _reset
-    afterEach -> fluxStore.onNextReady()
+    beforeEach reset
     test "@aliases adds aliases to the model registry", ->
       class User extends FluxModel
         @aliases :owner :sister
@@ -165,8 +168,7 @@ describe
       assert.eq models.user, models.sister
 
   simultanious: ->
-    beforeEach _reset
-    afterEach -> fluxStore.onNextReady()
+    beforeEach reset
 
     test "two simultantious FluxModel requests on the same key only triggers one store request", ->
       counts =

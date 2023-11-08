@@ -6,5 +6,5 @@
     "source/Art.Flux/Flux.caf"
   ],
   "names": [],
-  "mappings": "AAAA;;AAAA,mKAAO,kLAqBP,IAAG,qCAAmB,mFACpB,uCAAuC,oCAGvC,eAAwB,kBACxB,QAAwB,yBACxB,QAAwB,sBACxB,uBAAwB,yBACxB,YAA2B,YAC3B,wBAAwB"
+  "mappings": "AAAA;;AAAA,qIAAO,sJAqBP,IAAG,qCAAmB,mFACpB,uCAAuC,iCAGvC,eACA,8BACA,uBAAwB,yBACxB,YAA2B,YAC3B,wBAAwB"
 }

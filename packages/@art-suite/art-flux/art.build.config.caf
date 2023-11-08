@@ -1,7 +1,6 @@
 package: &@ArtSuite/StandardPackageBuilder.configure {}
   &package
-  mocha: true
-  coffeeScript: true
+  scripts: jest: "jest --reporters=jest-fixed-default-reporter/SummaryReporter"
 
 webpack:
   common: {}
