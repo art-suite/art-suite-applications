@@ -46,7 +46,7 @@
     "test-server": "caf ./TestServer.caf",
     "watch": "npm-watch"
   },
-  "version": "1.119.0",
+  "version": "2.0.0",
   "watch": {
     "build": {
       "extensions": [

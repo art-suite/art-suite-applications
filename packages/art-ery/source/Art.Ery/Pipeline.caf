@@ -13,13 +13,13 @@ class Pipeline extends &@ArtSuite/ArtPipelines.Pipeline
 
   @getter
     isRemoteClient:   -> !!@remoteServer
-    apiRoot:          -> @class._apiRoot ? config._apiRoot
+    # apiRoot:          -> @class._apiRoot ? config._apiRoot
     remoteServer:     -> @class._remoteServer ? config.remoteServer
     restPath:         -> @_restPath ?= getPipelineRestPath @
     restPathRegex:    -> @_restPathRegex ?= getPipelineRestPathRegex @
 
   @remoteServer:    (@_remoteServer)    -> # override default (see config.remoteServer)
-  @apiRoot:         (@_apiRoot)         -> # override default (see config.apiRoot)
+  # @apiRoot:         (@_apiRoot)         -> # override default (see config.apiRoot)
 
   @getter
     apiReport: (options = {}) -> apiReport @, options
