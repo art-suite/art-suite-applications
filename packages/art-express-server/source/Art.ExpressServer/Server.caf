@@ -64,19 +64,26 @@ class Server extends &LoggingMixin &ArtClassSystem.BaseClass
         port:         PORT
         manyOptions...
 
-    numWorkers = numWorkers | 0 if numWorkers?
+    @_numWorkers = numWorkers | 0 if numWorkers?
 
-    if numWorkers > 1
+    if @numWorkers > 1
       &throng
-        workers: numWorkers
+        workers: @numWorkers
         master: ->
           @logEnvironment()
-          @log start: throng: workers: numWorkers
+          @log start: throng: workers: @numWorkers
 
         start: fastBind @_startOneServer, @
+
     else
       @logEnvironment()
       @_startOneServer()
+
+  stop: ->
+    if @numWorkers > 1
+      throw new Error "cant stop throng"
+    else
+      @server.close()
 
   logEnvironment: ->
     @logVerbose start: {}
@@ -95,7 +102,6 @@ class Server extends &LoggingMixin &ArtClassSystem.BaseClass
             getEnv().ART_EXPRESS_SERVER_VERBOSE
 
       Neptune: Neptune.getVersions()
-
 
   ##################
   # PRIVATE
@@ -153,11 +159,11 @@ class Server extends &LoggingMixin &ArtClassSystem.BaseClass
         else @logVerbose "ART_EXPRESS_SERVER_MAX_SIZE_MB=#{ART_EXPRESS_SERVER_MAX_SIZE_MB} -> tested OK! MemoryUsage(#{rssMegabytes}MB) <= #{ART_EXPRESS_SERVER_MAX_SIZE_MB}MB (uptime: #{@uptimeString}, #{@requestCount} requests)".green
         timeout memoryCheckCycleMs, checkMemory
 
-
-
   @getter
     uptime: -> currentSecond() - @startTime
     uptimeString: -> timeAgeString @uptime
+    :numWorkers
+    :server
 
   _startOneServer: (@workerId) ->
     @startTime = currentSecond()
@@ -208,7 +214,7 @@ class Server extends &LoggingMixin &ArtClassSystem.BaseClass
     each mw in compactFlatten [postmiddleware]
       @app.use mw
 
-    server = @app.listen port | 0, =>
+    @_server = @app.listen port | 0, =>
       @log "" listening on: http://localhost:#{port}
 
-    @_initMonitors server
+    @_initMonitors @_server
