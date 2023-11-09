@@ -435,12 +435,12 @@ describe
         .myRt.myHandler location: :server
         .then (requestTrace) ->
           assert.isArray requestTrace
-          assert.selectedEq
-            length: 1
-            requestTrace
-          assert.selectedEq
-            request: :myRt.myHandler
-            requestTrace[0]
+          assert.eq
+            requestTrace.length
+            1
+          assert.eq
+            requestTrace[0].requestString
+            :myRt.myHandler
 
       test "requestTrace client > continueAtServerLocation > server == 2" ->
         class MyRt extends Pipeline
@@ -449,12 +449,13 @@ describe
         .myRt.myHandler()
         .then (requestTrace) ->
           assert.isArray requestTrace
-          assert.selectedEq
-            length: 2
-            requestTrace
-          assert.selectedEq
-            request: :myRt.myHandler
-            requestTrace[0]
+          assert.eq
+            requestTrace.length
+            2
+
+          assert.match
+            JSON.stringify requestTrace[0] # note, when going to the "local server" and back, the request-trace gets serialized into JSON and changes
+            :myRt.myHandler
 
       test "requestTrace depth 2" ->
         class MyRt2 extends Pipeline

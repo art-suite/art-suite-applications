@@ -3,8 +3,10 @@ import &StandardImport, &PipelineRegistry, {} &Request
 class RequestHandler extends BaseObject
   @abstractClass()
 
-  @extendableProperty
-    registry: pipelineRegistry
+  @extendableProperty {} pipelineRegistry
+  @registry: @extendPipelineRegistry
+  @getRegistry: -> @getPipelineRegistry()
+  @getter registry: -> @pipelineRegistry
 
   @getter
     registry: -> @class.getRegistry()
@@ -56,7 +58,11 @@ class RequestHandler extends BaseObject
     .then
       (data) ->
         unless data?                                then request.missing()
-        else if data instanceof Request             then data
+        else if data instanceof Request
+          if isFailure data.status
+            newFilterLog.stack = data.creationStack
+
+          data
         else if isJsonType data                     then request.success {} data
         else
           request.failure
@@ -68,7 +74,7 @@ class RequestHandler extends BaseObject
       # send response-errors back through the 'resolved' promise path
       # We allow them to be thrown in order to skip parts of code, but they should be returned normally
       (error) ->
-        newFilterLog.exception = error
+        newFilterLog.exception = error || new Error "there was no error"
         # newFilterLog.status = if request.location == :client then :clientFailure else :serverFailure
 
         if error.props?.response?.isResponse

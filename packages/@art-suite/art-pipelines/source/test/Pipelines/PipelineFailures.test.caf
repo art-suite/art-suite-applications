@@ -22,7 +22,7 @@ describe
         assert.match error.message, "internal oops"
         assert.eq response.errorProps.source.this.name, "myFilter2"
 
-    test "clientFailure", ->
+    test "clientFailure response.clientFailure", ->
       class MyPipeline extends Pipeline
         @publicHandlers create: (request) -> foo: 1, bar: 2
         @filter name: :myFilter1 after: create: (response) -> response
@@ -45,6 +45,52 @@ describe
 
         assert.match response.data.message, "you lose!"
         assert.doesNotExist error.props.response.errorProps.source
+
+    test "serverFailure Promise.reject", ->
+      class MyPipeline extends Pipeline
+        @publicHandlers create: (request) -> foo: 1, bar: 2
+        @filter name: :myFilter1 after: create: (response) -> response
+        @filter name: :myFilter2 after: create: (response) -> Promise.reject "I reject you!"
+        @filter name: :myFilter3 after: create: (response) -> response
+
+      p = new MyPipeline
+      assert.rejects p.create()
+      .then (error) ->
+        {response} = error.props
+        assert.present response.errorProps.failedIn
+        assert.eq simplifyFilterLog(response.beforeFilterLog), []
+          :server-pending-created
+          :server-success-myPipeline-handler
+
+        assert.eq simplifyFilterLog(response.afterFilterLog),  []
+          :server-success-myFilter1-after
+          :server-serverFailure-myFilter2-after
+          :server-serverFailure-completed
+
+        assert.exists error.props.response.errorProps.source
+
+    test "serverFailure throw Error", ->
+      class MyPipeline extends Pipeline
+        @publicHandlers create: (request) -> foo: 1, bar: 2
+        @filter name: :myFilter1 after: create: (response) -> response
+        @filter name: :myFilter2 after: create: (response) -> throw new Error "I throw you!"
+        @filter name: :myFilter3 after: create: (response) -> response
+
+      p = new MyPipeline
+      assert.rejects p.create()
+      .then (error) ->
+        {response} = error.props
+        assert.present response.errorProps.failedIn
+        assert.eq simplifyFilterLog(response.beforeFilterLog), []
+          :server-pending-created
+          :server-success-myPipeline-handler
+
+        assert.eq simplifyFilterLog(response.afterFilterLog),  []
+          :server-success-myFilter1-after
+          :server-serverFailure-myFilter2-after
+          :server-serverFailure-completed
+
+        assert.exists error.props.response.errorProps.source
 
   beforeFilterFailures: ->
     test "clientFailure", ->

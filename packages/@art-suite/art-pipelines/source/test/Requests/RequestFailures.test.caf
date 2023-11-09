@@ -55,3 +55,41 @@ describe
             myPipeline-handler (.|\n)+
             continueAtServerLocation (.|\n)+
             source/test/Requests/RequestFailures.test.caf (.|\n)+
+
+  rejectionInFilter: ->
+    test "request.clientFailure" ->
+      {myPipeline} = class MyPipeline extends Pipeline
+        @filter
+          location: :client
+          name: :myClientFailureFilter
+          before: all: (request) -> request.clientFailure :foo
+
+        @publicHandler
+          get: (request) ->
+
+      assert.rejects myPipeline.get :bar
+      .then (rejectsWith) ->
+        assert.match rejectsWith.stack,
+          ///
+            request .* myClientFailureFilter-before (.|\n)+
+            at\ Filter.clientFailure (.|\n)+
+            at\ get (.|\n)+
+
+    test "Promse.reject" ->
+      {myPipeline} = class MyPipeline extends Pipeline
+        @filter
+          location: :client
+          name: :myClientFailureFilter
+          before: all: (request) -> throw new Error :foo
+
+        @publicHandler
+          get: (request) ->
+
+      assert.rejects myPipeline.get :bar
+      .then (rejectsWith) ->
+        assert.match rejectsWith.stack,
+          ///
+            Error:\ foo (.|\n)+
+            at\ Filter.all (.|\n)+
+            request .* myClientFailureFilter-before (.|\n)+
+            at\ get (.|\n)+
