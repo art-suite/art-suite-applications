@@ -8,7 +8,6 @@ class PromiseHandler extends &LoggingMixin BaseClass
     .middleware
 
   constructor: (@options = {}) ->
-    super
     @logVerbose :initialized # : {@options}
     @_commonResponseHeaders = @options.commonResponseHeaders
 

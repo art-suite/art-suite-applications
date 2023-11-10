@@ -1,5 +1,2 @@
 package: &@ArtSuite/StandardPackageBuilder.configure {}
   &package
-  mocha: true
-  scripts:
-    test-server: "" caf ./TestServer
