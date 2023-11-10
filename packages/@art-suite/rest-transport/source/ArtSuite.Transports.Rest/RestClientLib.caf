@@ -1,0 +1,68 @@
+import &StandardImport, &ArtRestClient
+
+{}
+  apiRoot = 'api'
+  restMap = {}
+    :get
+    :delete
+    create: :post
+    update: :put
+
+  getPipelineRestPath = (apiRoot, pipeline) -> "/#{apiRoot}/#{pipeline.name}"
+  getPipelineRestPathRegex = (apiRoot, pipeline) ->
+    ///i
+      ^
+      #{escapeRegExp getPipelineRestPath apiRoot, pipeline}
+      (?:-([a-z0-9_]+))?          # optional request-type (if missing, it is derived from the HTTP method)
+      (?:\/([^?]+))?       # optional key
+      (?=\?|$)
+
+  getRestClientParamsForArtEryRequest = ({session, server, restPath, type, key, data}) ->
+    urlKeyClause = if present key then "/#{key}" else ''
+    server ?= ''
+    hasSessionData = objectHasKeys session
+
+    {}
+      url:
+        if (method = restMap[type]) && (method != :get || !hasSessionData)
+          "" #{server}#{restPath}#{urlKeyClause}
+        else
+          method = :post
+          "" #{server}#{restPath}-#{type}#{urlKeyClause}
+
+      method
+      data
+
+  getRemoteRequestProps = (request) ->
+    request extract session, data, props, pipeline, type, key
+
+    props = object v,k from props when v != undefined && k != :key && k != :data
+    data  = object v   from data  when v != undefined
+
+    remoteRequestData = null
+    (remoteRequestData ?= {}).session = session.signature if session.signature
+    (remoteRequestData ?= {}).props   = props if objectHasKeys props
+    (remoteRequestData ?= {}).data    = data  if objectHasKeys data
+
+    getRestClientParamsForArtEryRequest {}
+      restPath: getPipelineRestPath apiRoot, pipeline
+      server:
+        switch pipeline.remoteServer
+        when true, ".", "/" then ""
+        else pipeline.remoteServer
+      type
+      key
+      session
+      data:           remoteRequestData
+
+  sendRemoteRequest: (request, sendRequestMethod = restJsonRequest) ->
+    sendRequestMethod remoteRequest = getRemoteRequestProps request
+    .catch (error) ->
+      {status = failure, response, message} = error.info ? error
+
+      merge response, {status, message}
+
+    .then (remoteResponse) ->
+      remoteResponse ?= status: missing
+      request.addFilterLog "#{remoteRequest.method.toLocaleUpperCase()} #{remoteRequest.url}", :remoteRequest
+      request.toResponse remoteResponse.status, merge remoteResponse, {remoteRequest, remoteResponse}

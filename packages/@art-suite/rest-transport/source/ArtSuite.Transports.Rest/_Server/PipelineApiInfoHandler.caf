@@ -1,0 +1,19 @@
+import &StandardImport, &RestServerLib
+
+class PipelineApiInfoHandler extends &ArtExpressServer.PromiseHandler
+
+  constructor: (options = {}) ->
+    @_pipelineRegistry = options.pipelineRegistry ? pipelineRegistry
+    @_apiRoot = options.apiRoot ? config.apiRoot
+
+  @getter
+    :pipelineRegistry
+    :apiRoot
+    pipelines: -> @pipelineRegistry.pipelines
+
+  @getter
+    handleUrlRegex: -> @_exactDefaultHandlerRegex ?= /// ^ \/ #{@_apiRoot} \/? $
+
+  handleApiRequest: (request, requestData) ->
+    reports = object pipeline from @pipelines with apiReport pipeline, {} @apiRoot, publicOnly: true
+    Promise.resolve object report from reports when 0 < objectKeyCount report

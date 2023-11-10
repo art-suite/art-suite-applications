@@ -1,0 +1,20 @@
+import &ArtStandardLib, &@ArtSuite/ArtPipelines
+&Server
+
+pipelineRegistry = new PipelineRegistry location: :client
+
+class SimplePipeline extends Pipeline
+  @registry pipelineRegistry
+  @filter &RestClientSimulatedTransportFilter
+  @publicHandler
+    get: (request) -> "" Hello world.
+    login: (request) -> request.respondWithSession user: :alice
+
+&ArtConfig.configure
+  artConfig:
+    verbose: true
+    Art: Ery: verbose: true
+
+server = &Server.start {} pipelineRegistry, port: 0
+
+# timeout 1000 -> server.stop()

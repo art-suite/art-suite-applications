@@ -1,0 +1,16 @@
+import &StandardImport, &build/ArtSuite-Transports-Rest/Server
+
+&ArtConfig.configure()
+
+{session, pipelines} = pipelineRegistry = new PipelineRegistry location: :client
+class SimplePipeline extends Pipeline
+  @registry pipelineRegistry
+  @publicHandler get: (request) ->
+
+test "PipelineApiInfoHandler" ->
+  new PipelineApiInfoHandler {} pipelineRegistry
+  .handleApiRequest()
+  .then (result) ->
+    assert.eq
+      result
+      simplePipeline: get: GET: :/api/simplePipeline

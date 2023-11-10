@@ -1,0 +1,78 @@
+import
+  &StandardImport
+  &SessionsLib
+  &RestServerLib
+
+class PipelineApiHandler extends &ArtExpressServer.PromiseHandler
+
+  ## constructor
+    options:
+      pipelineRegistry: [required: ArtPipelines.PipelineRegistry] registry for all the pipelines that will be handled
+      apiRoot:  [string] root URL path for the api
+  constructor: (options = {}) ->
+    @_pipelineRegistry = options.pipelineRegistry ? pipelineRegistry
+    @_apiRoot = options.apiRoot ? config.apiRoot
+
+  @getter
+    :pipelineRegistry
+    :apiRoot
+    pipelines: -> @pipelineRegistry.pipelines
+    pipelineRestPathPatterns: -> @_pipelineRestPathPatterns ?= object pipeline in @pipelines with getPipelineRestPathRegex @apiRoot, pipeline
+
+  # canHandleRequest: IN: request [{url: string}]
+  canHandleRequest: ({url}) -> find pattern, pipelineName in @pipelineRestPathPatterns when pattern.test url
+
+  ## handleApiRequest: (override - see ArtExprssServer#handleApiRequest)
+    IN:
+      request:      [required: {url: string, method: string}]
+      requestData:  [required, but inidividual properties are not]
+        session
+        data
+        props
+  handleApiRequest: (request, requestData) ->
+    requestData ?= {}
+    if found = @_findPipelineForRequest request
+      {pipeline, type, key} = found
+
+      verifySession requestData.session
+      .catch -> null
+      .then (session) ->
+        pipeline._processRequest createRequestFromRemoteRequestProps {}
+          pipeline, type, key, requestData
+          session: session || {}
+          remoteRequest: request
+
+        .then (response) ->
+          if response.isError
+            log.error response
+          else if config.server.verbose
+            log "#{response.requestString}: subrequestCount: #{response.subrequestCount}, recordsReturned: #{if response.data then if isArray response.data then response.data.length else 1 else 0}"
+          prepareSignedSessionForResponse session, response.responseForRemoteRequest
+
+    else
+      Promise.resolve null # missing
+
+  ######################
+  # PRIVATE
+  ######################
+
+  httpMethodsToArtEryRequestTypes =
+    get:    :get
+    post:   :create
+    put:    :update
+    delete: :delete
+
+  _findPipelineForRequest: (request) ->
+    {url, method} = request
+
+    if found = find pattern, pipelineName in @pipelineRestPathPatterns with {} match, pipelineName if match = url.match pattern
+      found extract pipelineName, match
+      [__, type, key] = match
+      type ?= type = httpMethodsToArtEryRequestTypes[method.toLocaleLowerCase()]
+
+      pipeline = @pipelines[pipelineName]
+
+      if config.server.verbose && type && !pipeline.publicRequestTypes[type]
+        log.warn "" ArtEryHandler blocked request: '#{pipeline.name}.#{type}': #{if type in pipeline.requestTypes then "not in publicRequestTypes" else "not a valid request-type"}
+
+      pipeline.publicRequestTypes[type] && {} pipeline, type, key

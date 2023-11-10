@@ -1,0 +1,35 @@
+import &StandardImport
+
+&ArtConfig.configure()
+
+{session, pipelines} = pipelineRegistry = new PipelineRegistry location: :client
+class SimplePipeline extends Pipeline
+  @registry pipelineRegistry
+  @filter &RestClientSimulatedTransportFilter
+  @publicHandler
+    get: (request) -> received: {} request.remoteRequest, request.props, request.session
+    login: (request) -> request.respondWithSession user: :alice
+
+chainedTest "simplePipeline.get", ->
+  pipelines.simplePipeline.get()
+  .then (result) ->
+    assert.eq
+      result
+      received:
+          props:   {}
+          session: {}
+          remoteRequest: url: :/api/simplePipeline, method: :get, data: null
+
+.thenTest "simplePipeline.get with session", ->
+  assert.present signatureBefore = session.data.signature
+  pipelines.simplePipeline.login returnResponseObject: true
+  .then (result) ->
+    assert.eq
+      result.remoteResponse
+      status: :success
+      session: {}
+        user: :alice
+        session.data.signature
+
+    assert.present session.data.signature
+    assert.neq signatureBefore, session.data.signature

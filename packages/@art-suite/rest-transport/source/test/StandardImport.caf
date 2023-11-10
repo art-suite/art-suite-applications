@@ -1,0 +1,7 @@
+[]
+  &ArtStandardLib
+  &ArtClassSystem
+  &@ArtSuite/ArtPipelines
+  &ArtValidation
+  &build
+  &ArtTestbench

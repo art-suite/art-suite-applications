@@ -1,0 +1,7 @@
+import &ArtStandardLib, &ArtValidation, &@ArtSuite/ArtPipelines
+
+class RestClientTransportFilter extends Filter
+  @location :client
+
+  @group :handler
+

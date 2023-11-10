@@ -1,0 +1,12 @@
+import &StandardImport, &build/ArtSuite-Transports-Rest/Server
+import RestClientLib
+
+class RestClientSimulatedTransportFilter extends Filter
+  @location :client
+
+  @group :handler
+
+  @before all: (request) ->
+    sendRemoteRequest request, (remoteRequest) ->
+      new PipelineApiHandler {} request.pipelineRegistry
+      .handleApiRequest remoteRequest, remoteRequest.data
