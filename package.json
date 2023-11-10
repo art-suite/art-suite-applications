@@ -19,9 +19,10 @@
     "@art-suite/instance-function-binding-mixin": "^1.0.0",
     "@art-suite/key-fields-mixin": "file:packages/@art-suite/key-fields-mixin",
     "@art-suite/link-fields-filters": "file:packages/@art-suite/filters/link-fields-filters",
-    "@art-suite/monorepo": "^1.6.3",
+    "@art-suite/monorepo": "^1.7.4",
     "@art-suite/pointer-actions-mixin": "file:packages/@art-suite/pointer-actions-mixin",
-    "@art-suite/standard-package-builder": "^1.0.0",
+    "@art-suite/rest-transport": "file:packages/@art-suite/rest-transport",
+    "@art-suite/standard-package-builder": "^1.1.5",
     "@art-suite/state-fields-lib": "file:packages/@art-suite/state-fields-lib",
     "@art-suite/timestamp-filter": "file:packages/@art-suite/filters/timestamp-filter",
     "@art-suite/unique-id-filter": "file:packages/@art-suite/filters/unique-id-filter",
@@ -56,7 +57,7 @@
     "art-html-factory": "^2.1.11",
     "art-markdown": "file:packages/art-markdown",
     "art-react": "file:packages/art-react",
-    "art-rest-client": "^1.8.11",
+    "art-rest-client": "^1.10.0",
     "art-standard-lib": "^1.70.6",
     "art-suite": "file:packages/art-suite",
     "art-suite-app": "file:packages/art-suite-app",
@@ -126,6 +127,7 @@
   "scripts": {
     "jest": "art-monorepo run --command \"npm run --silent jest --if-present\" --verbose",
     "sync": "art-monorepo sync",
-    "test": "art-monorepo test"
+    "test": "art-monorepo test",
+    "versions": "art-monorepo versions"
   }
 }

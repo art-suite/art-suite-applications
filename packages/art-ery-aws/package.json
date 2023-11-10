@@ -3,11 +3,11 @@
   "bugs": "https://github.com/art-suite/art-suite-applications/issues",
   "dependencies": {
     "art-aws": "^1.29.9",
-    "art-ery": "^1.119.0"
+    "art-ery": "^2.0.0"
   },
   "description": "ArtEry for AWS Lambda + DynamoDB",
   "devDependencies": {
-    "@art-suite/standard-package-builder": "^1.0.0",
+    "@art-suite/standard-package-builder": "^1.1.5",
     "art-build-configurator": "^1.29.3"
   },
   "homepage": "https://github.com/art-suite/art-suite-applications",

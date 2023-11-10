@@ -3,7 +3,7 @@
   "bugs": "https://github.com/art-suite/art-suite-applications/issues",
   "dependencies": {
     "art-config": "^2.0.3",
-    "art-express-server": "^1.2.2",
+    "art-express-server": "^1.4.0",
     "art-html-factory": "^2.1.11",
     "art-standard-lib": "^1.70.6",
     "image-size": "^1.0.0",
@@ -11,7 +11,7 @@
   },
   "description": "Art.Suite.Server",
   "devDependencies": {
-    "@art-suite/standard-package-builder": "^1.0.0",
+    "@art-suite/standard-package-builder": "^1.1.5",
     "art-build-configurator": "^1.29.3",
     "art-testbench": "^3.2.13",
     "mocha": "^7.2.0",

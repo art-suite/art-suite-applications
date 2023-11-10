@@ -3,7 +3,7 @@
   "bugs": "https://github.com/art-suite/art-suite-applications/issues",
   "dependencies": {
     "art-build-configurator": "^1.29.3",
-    "art-rest-client": "^1.8.11",
+    "art-rest-client": "^1.10.0",
     "aws-sdk": "^2.809.0",
     "aws4": "^1.6.0"
   },
