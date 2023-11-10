@@ -1,0 +1,37 @@
+import &StandardImport, Server: &build/Server
+
+{pipelines} = pipelineRegistry = new PipelineRegistry location: :client
+
+server = null
+
+restClientTransportFilter = new RestClientTransportFilter
+
+class MyPipeline extends Pipeline
+  @registry pipelineRegistry
+  @filter restClientTransportFilter
+  @publicHandler
+    get: (request) -> "" Hello #{if request.session.user then request.session.user else :world}.
+    login: (request) -> request.respondWithSession user: request.key
+
+&ArtConfig.configure()
+
+chainedTest "start server" ->
+  server = Server.start {} pipelineRegistry, port: 0 verbose: true quiet: true
+  restClientTransportFilter.remoteServer = "" http://#{} server.hostAndPort
+
+.tapTest "make a get request" ->
+  pipelines.myPipeline.get()
+  .then (result) -> assert.eq result, "" Hello world.
+
+.tapTest "make a login request" ->
+  pipelines.myPipeline.login key: :Shane returnResponse: true
+  .then (response) ->
+    assert.eq response.props, {}
+    assert.eq response.session.user, :Shane
+
+.tapTest "make a get request with session" ->
+  pipelines.myPipeline.get()
+  .then (result) -> assert.eq result, "" Hello Shane.
+
+test "shut down the server" ->
+  server.stop()

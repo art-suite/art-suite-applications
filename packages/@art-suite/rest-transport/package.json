@@ -23,10 +23,10 @@
   },
   "license": "ISC",
   "main": "./build",
-  "name": "@art-suite/validation-filter",
+  "name": "@art-suite/rest-transport",
   "repository": {
     "type": "git",
-    "url": "https://github.com/art-suite/rest-transport.git"
+    "url": "https://github.com/art-suite/art-suite-applications.git"
   },
   "scripts": {
     "build": "cd source\nfind . -name '*.js' -o -name '*.css' | cpio -vpdm ../build\ncd ..\ncaf -m -c source -o build\nnpm run nn",

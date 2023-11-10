@@ -1,7 +1,22 @@
-import &ArtStandardLib, &ArtValidation, &@ArtSuite/ArtPipelines
+import &ArtStandardLib, &ArtValidation, &@ArtSuite/ArtPipelines, &RestClientLib
 
 class RestClientTransportFilter extends Filter
   @location :client
-
   @group :handler
 
+  constructor: (options = {}) ->
+    @remoteServer = options.remoteServer
+
+  @property :remoteServer
+
+  validateRemoteServer: ->
+    unless /^https?:\/\//.test @remoteServer
+      throw new Error "" Invalid remoteServer. It must start with http:// or https://. Got: #{formattedInspect @remoteServer}
+
+  @before
+    all: (request) ->
+      if @remoteServer
+        @validateRemoteServer()
+        sendRemoteRequest request, {} @remoteServer
+
+      else request

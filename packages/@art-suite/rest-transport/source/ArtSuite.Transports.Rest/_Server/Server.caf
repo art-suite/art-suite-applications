@@ -10,9 +10,7 @@ start: (options = {}) ->
   options extract pipelineRegistry, handlers
   throw new Error "pipelineRegistry required" unless pipelineRegistry
 
-  server = new &ArtExpressServer.Server
-
-  server.start merge
+  new &ArtExpressServer.Server merge
     {}
       allowAllCors: true
       config.server.verbose
@@ -24,4 +22,4 @@ start: (options = {}) ->
       new &PipelineApiInfoHandler {} pipelineRegistry
       options.handlers
 
-  server
+  .start()

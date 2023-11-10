@@ -33,8 +33,10 @@ import &StandardImport, &ArtRestClient
       method
       data
 
-  getRemoteRequestProps = (request) ->
+  getRemoteRequestProps = (request, options) ->
     request extract session, data, props, pipeline, type, key
+
+    options extract? remoteServer
 
     props = object v,k from props when v != undefined && k != :key && k != :data
     data  = object v   from data  when v != undefined
@@ -47,18 +49,23 @@ import &StandardImport, &ArtRestClient
     getRestClientParamsForArtEryRequest {}
       restPath: getPipelineRestPath apiRoot, pipeline
       server:
-        switch pipeline.remoteServer
+        switch remoteServer
         when true, ".", "/" then ""
-        else pipeline.remoteServer
+        else remoteServer
       type
       key
       session
       data:           remoteRequestData
 
   sendRemoteRequest: (request, sendRequestMethod = restJsonRequest) ->
-    sendRequestMethod remoteRequest = getRemoteRequestProps request
+    if !sendRequestMethod? || isPlainObject sendRequestMethod
+      options = sendRequestMethod
+      sendRequestMethod = restJsonRequest
+
+    sendRequestMethod remoteRequest = getRemoteRequestProps request, options
     .catch (error) ->
-      {status = failure, response, message} = error.info ? error
+      status = error.info?.status ? error.status ? failure
+      {response, message} = error.info ? error
 
       merge response, {status, message}
 
