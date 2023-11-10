@@ -5,7 +5,7 @@
     "@art-suite/key-fields-mixin": "^1.0.4",
     "art-build-configurator": "^1.29.3",
     "art-events": "^2.0.0",
-    "art-express-server": "^1.2.2",
+    "art-express-server": "^1.3.0",
     "compress": "^0.99.0",
     "express": "^4.17.1",
     "jsonwebtoken": "^9.0.2",
@@ -14,7 +14,7 @@
   "description": "A pipelined business-logic framework for cloud-backed data. ArtEry conceptually allows you to write apps 100% as client-code, but with the security and performance of cloud-code.",
   "devDependencies": {
     "@art-suite/art-flux": "^2.1.5",
-    "art-ery": "^1.119.0",
+    "art-ery": "^2.0.0",
     "art-testbench": "^3.2.13",
     "mocha": "^7.2.0"
   },
