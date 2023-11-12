@@ -1,7 +1,0 @@
-require '../index.caf'
-require "fake-indexeddb/auto"
-global.window = global
-&art-testbench/testing
-.init
-  synchronous: true
-  defineTests: -> &TestsArtEryIndexedDb

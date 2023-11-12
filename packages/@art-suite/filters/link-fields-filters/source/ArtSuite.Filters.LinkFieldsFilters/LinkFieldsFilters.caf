@@ -1,0 +1,57 @@
+import &StandardImport
+
+getLinkFieldFilters: (fields, linkFilterVersion) ->
+  if find {link} in fields when link
+    ## Transition deprication plan
+      1) let's just try transition2A and transition2B on a few pipelines first to see
+        if we missed anything.
+      2) Then, depricate v1 until no more deprication warns
+      3) Then, depricate transition2A until no more deprication warns
+      4) Then, WAIT A FEW MONTHS - for old clients in the wild to update.
+      5) Finally, depricate transition2B until no more deprication warns
+      6) If anyone else was actually using ArtEry, we'd wait here, too,
+        but we could probably just remove
+        all the transition code at this point.
+    switch linkFilterVersion
+    when :transition2A
+      # log.warn "" TRANSITIONAL: using LinkFieldsFilter v2 + transition2A (YOU SHOULD: finish the transition and switch fully to createDatabaseFilters linkFilterVersion: 2)
+      # USE: convert one pipeline at a time over to this and test. THEN do the same with transition2B.
+      # BREAKING CHANGES: server-side subrequests won't have inline, included records
+      []
+        # serverSide:
+        new &LinkFieldsFilter2 {} fields
+        new &LinkFieldsFilter2LegacyApiEncode
+
+    when :transition2B
+      # log.warn "" TRANSITIONAL: using LinkFieldsFilter v2 + transition2B (YOU SHOULD: finish the transition and switch fully to createDatabaseFilters linkFilterVersion: 2)
+      # USE: convert one pipeline at a time over to this and test.
+      # THEN LEAVE IT - this will support old clients while providing full functionality to new clients.
+      # EVENTUALLY, once we have all clients updated for a few months, switch to full v2 with no legacy support.
+      # BREAKING CHANGES: client-side records won't have inline, included records
+      []
+        # serverSide:
+        new &LinkFieldsFilter2 {} fields
+        new &LinkFieldsFilter2LegacyApiEncode
+
+        # clientSide:
+        # new LinkFieldsFilter2LegacyApiDecode # DOH, we don't need this (I think). LinkFieldsFilter2Transition2BFilter does the job.
+        new &LinkFieldsFilter2Transition2BFilter
+        new &PrefetchedRecordsFilter
+
+    when 2
+      # log.warn "" using v2 for #{} PipelineClass?.name
+      []
+        # serverSide:
+        new &LinkFieldsFilter2 {} fields
+
+        # clientSide:
+        new &PrefetchedRecordsFilter
+
+    when 1
+      new &LinkFieldsFilter {} fields
+
+    when null, undefined
+      log.warn "" DEPRICATED: defaulting to LinkFieldsFilter v1. This will NOT be the default in future versions. USE: createDatabaseFilters linkFilterVersion: 1
+      new &LinkFieldsFilter {} fields
+
+    else throw new Error "" invalid linkFilterVersion: #{} formattedInspect linkFilterVersion

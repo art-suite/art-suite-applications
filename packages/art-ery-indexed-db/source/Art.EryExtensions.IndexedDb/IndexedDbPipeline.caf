@@ -1,17 +1,17 @@
 import &StandardImport
 IndexedDb = &IndexeddbPromised
 
-globalIndexDb = null
+globalIndexDb = {}
 
-getGlobalIndexDb = ->
-  unless globalIndexDb
+getGlobalIndexDb = ({pipelines, uniqueName}) ->
+  unless globalIndexDb[uniqueName]
     dbVersion = 0
     dbName = null
     each pipeline in pipelines when pipeline instanceof IndexedDbPipeline
       dbVersion += pipeline.dbVersion || 1
       dbName ||= pipeline.dbName
-    globalIndexDb = new IndexedDb dbName ||= :IndexedDbPipeline
-    globalIndexDb.setVersion dbVersion
+    indexDb = new IndexedDb dbName ||= :IndexedDbPipeline
+    indexDb.setVersion dbVersion
     each pipeline in pipelines when pipeline instanceof IndexedDbPipeline
       {name} = pipeline
       {_indexes} = pipeline.class
@@ -25,16 +25,17 @@ getGlobalIndexDb = ->
           options: unique: false
 
       # log addObjectStore: {dbVersion, dbName, name, keyType, indexes}
-      globalIndexDb.addObjectStore {dbVersion, dbName, name, keyType, indexes}
-    globalIndexDb = globalIndexDb.build()
-  globalIndexDb
+      indexDb.addObjectStore {dbVersion, dbName, name, keyType, indexes}
+    globalIndexDb[uniqueName] = indexDb.build()
+
+  globalIndexDb[uniqueName]
 
 class IndexedDbPipeline extends KeyFieldsMixin UpdateAfterMixin Pipeline
   @abstractClass()
 
   @getter
     objectStore: ->
-      @_objectStore ||= getGlobalIndexDb()[@pipelineName]
+      @_objectStore ||= getGlobalIndexDb(@getRegistry())[@pipelineName]
 
   ########################
   # indexes
@@ -73,6 +74,7 @@ class IndexedDbPipeline extends KeyFieldsMixin UpdateAfterMixin Pipeline
   @handlers
     get: (request) ->
       @objectStore.get request.key
+      .then (ret) -> ret && merge ret
 
     getAll: (request) ->
       @objectStore.getAll()
@@ -91,4 +93,4 @@ class IndexedDbPipeline extends KeyFieldsMixin UpdateAfterMixin Pipeline
       @objectStore.get request.key
       .then (oldData) ->
         @objectStore.delete request.key
-        .then -> oldData
+        .then -> merge oldData
