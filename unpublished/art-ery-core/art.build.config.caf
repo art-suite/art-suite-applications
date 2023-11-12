@@ -1,2 +1,0 @@
-package: &@ArtSuite/StandardPackageBuilder.configure {}
-  &package
