@@ -895,12 +895,16 @@ class Request extends BaseObject
         sourceLib:  :ArtPipelines
         # response: @
 
-        stack:
-          compactFlatten []
-            message if (message = @responseData?.message ? @responseProps?.message ? @errorProps?.exception?.message) && !message.match exception?.stack?[0]
+        stack: if true
+          if @errorProps extract? exception
+            exceptionDetails = cleanStackTrace exception.stack, keepErrorLines: true quiet: true
 
-            if exception = @errorProps?.exception
-              cleanStackTrace exception.stack, keepErrorLines: true quiet: true
+          message = @responseData?.message ? @responseProps?.message ? @errorProps?.exception?.message
+
+          compactFlatten []
+            "#{message}\n" if message && !exceptionDetails?.match message
+
+            exceptionDetails
 
             array request, i in @requestTrace by -1
               request extract requestString, filterLog, location, rootRequest extract creationStack

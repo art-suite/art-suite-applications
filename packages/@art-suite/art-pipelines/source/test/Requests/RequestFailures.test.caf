@@ -62,7 +62,7 @@ describe
         @filter
           location: :client
           name: :myClientFailureFilter
-          before: all: (request) -> request.clientFailure :foo
+          before: all: (request) -> request.clientFailure "" A nice explanation.
 
         @publicHandler
           get: (request) ->
@@ -71,6 +71,7 @@ describe
       .then (rejectsWith) ->
         assert.match rejectsWith.stack,
           ///
+            A\ nice\ explanation(.|\n)+
             request .* myClientFailureFilter-before (.|\n)+
             at\ Filter.clientFailure (.|\n)+
             at\ get (.|\n)+
