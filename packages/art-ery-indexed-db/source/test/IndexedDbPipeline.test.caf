@@ -16,36 +16,35 @@ class Food extends IndexedDbPipeline
     name: "required trimmedString"
     type: :trimmedString
 
-test 'create get' ->
+chainedTest 'init' -> pipelines.food.create data: name: :Throwaway
+
+.thenTest 'create' ->
   pipelines.food.create data: name: :Shane
-  .then (out) ->
+  .tap (out) ->
     assert.eq out.name, :Shane
     assert.isNumber out.createdAt
     assert.isNumber out.updatedAt
     assert.present out.id
-    pipelines.food.get key: out.id
-  .then (out) ->
-    assert.eq out.name, :Shane
-    assert.isNumber out.createdAt
-    assert.eq out.createdAt, out.updatedAt
-    assert.present out.id
 
-test 'update' ->
-  pipelines.food.create data: name: :Shane
-  .tap -> timeout 1000
-  .then (out) ->
-    pipelines.food.update key: out.id, data: name: "" #{out.name} Delamore
-  .then (out) ->
-    pipelines.food.get key: out.id
-  .then (out) ->
-    assert.eq out.name, "" Shane Delamore
-    assert.neq out.createdAt, out.updatedAt
-    assert.present out.id
+.tapTest
+  :get ({id}) ->
+    pipelines.food.get key: id
+    .tap (out) ->
+      assert.eq out.name, :Shane
+      assert.isNumber out.createdAt
+      assert.eq out.createdAt, out.updatedAt
+      assert.present out.id
 
-test 'delete' ->
-  pipelines.food.create data: name: :Shane
-  .then (out) ->
-    pipelines.food.delete key: out.id
+  :update ({id, name}) ->
+    pipelines.food.update key: id, data: name: "" #{name} Delamore
+    .then (out) ->
+      assert.eq out.name, "" Shane Delamore
+      pipelines.food.get key: id
+    .then (out) ->
+      assert.eq out.name, "" Shane Delamore
+
+  :delete ({id}) ->
+    pipelines.food.delete key: id
     .then (deleted) ->
-      assert.eq out.id, deleted.id
-      assert.rejects pipelines.food.get key: out.id
+      assert.eq id, deleted.id
+      assert.rejects pipelines.food.get key: id

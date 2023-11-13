@@ -8,24 +8,24 @@ getGlobalIndexDb = ({pipelines, uniqueName}) ->
     dbVersion = 0
     dbName = null
     each pipeline in pipelines when pipeline instanceof IndexedDbPipeline
-      dbVersion += pipeline.dbVersion || 1
-      dbName ||= pipeline.dbName
-    indexDb = new IndexedDb dbName ||= :IndexedDbPipeline
+      dbVersion += pipeline.dbVersion ? 1
+      dbName ?= pipeline.dbName
+
+    indexDb = new IndexedDb dbName ?= :IndexedDbPipeline
     indexDb.setVersion dbVersion
     each pipeline in pipelines when pipeline instanceof IndexedDbPipeline
-      {name} = pipeline
-      {_indexes} = pipeline.class
+      pipeline extract name, class._indexes
       keyType = keyPath: :id
-      # log addObjectStore: {dbVersion, dbName, name, keyType}
+
       indexes = if _indexes
         array indexKey, queryModelName from _indexes
-          [selectBy, orderBy] = indexKey.split "/"
+          [selectBy, orderBy] = indexKey.split :/
           name: queryModelName
-          keyPath: [selectBy, orderBy]
+          keyPath: [] selectBy, orderBy
           options: unique: false
 
-      # log addObjectStore: {dbVersion, dbName, name, keyType, indexes}
       indexDb.addObjectStore {dbVersion, dbName, name, keyType, indexes}
+
     globalIndexDb[uniqueName] = indexDb.build()
 
   globalIndexDb[uniqueName]
@@ -33,9 +33,7 @@ getGlobalIndexDb = ({pipelines, uniqueName}) ->
 class IndexedDbPipeline extends KeyFieldsMixin UpdateAfterMixin Pipeline
   @abstractClass()
 
-  @getter
-    objectStore: ->
-      @_objectStore ||= getGlobalIndexDb(@getRegistry())[@pipelineName]
+  @getter objectStore: -> @_objectStore ?= getGlobalIndexDb(@getRegistry())[@pipelineName]
 
   ########################
   # indexes
