@@ -25,40 +25,13 @@ suite:
     test "requestHost", ->
       assert.resolved.eq pipelines.myRemote.requestHost(), "localhost"
 
-  manuallySignSession: ->
-    chainedTest "set session and manually sign it", ->
-      pipelines.myRemote.setSessionData data: id: id = randomString()
-      .then -> pipelines.myRemote.manuallySignSession returnResponseObject: true
-      .then (response) ->
-        {signature} = response.data
-        assert.present signature
-        assert.eq response.session.id, id
-        {} signature, id
-
-    .tapTest
-      "validate the session is set" ({id}) ->
-          pipelines.myRemote.getSessionData()
-          .then (body) -> assert.eq body.id, id
-
-      "reset the session, validate not set" ->
-        session.reset()
-        pipelines.myRemote.getSessionData()
-        .then (body) ->
-          assert.notPresent body.id
-
-      "replace the session via signature, validate we restored it" ({signature, id}) ->
-        session.data = {signature}
-        pipelines.myRemote.getSessionData()
-        .then (body) -> assert.eq body.id, id
-
-
   remote:
     basic: ->
       test "/api", ->
         &ArtRestClient.get "http://localhost:8085/api"
         .then (v) ->
           assert.isString v
-          assert.match v, /Art.Ery.*api/i
+          assert.match v, /api\/auth/i
         .catch (e) ->
           log.error "START THE TEST SERVER: npm run testServer"
           throw e

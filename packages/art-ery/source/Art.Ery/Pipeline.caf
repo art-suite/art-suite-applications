@@ -1,4 +1,4 @@
-import &StandardImport, &Config, &RestClientLib, &RestServerLib, {}
+import &StandardImport, &Config, &RestClientLib, {}
   &@ArtSuite/DatabaseFilters
 
 class Pipeline extends &@ArtSuite/ArtPipelines.Pipeline
@@ -20,9 +20,6 @@ class Pipeline extends &@ArtSuite/ArtPipelines.Pipeline
 
   @remoteServer:    (@_remoteServer)    -> # override default (see config.remoteServer)
   # @apiRoot:         (@_apiRoot)         -> # override default (see config.apiRoot)
-
-  @getter
-    apiReport: (options = {}) -> apiReport @, options
 
   #####################################
     ###################################

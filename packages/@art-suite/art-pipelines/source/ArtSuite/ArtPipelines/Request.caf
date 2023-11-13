@@ -185,6 +185,7 @@ class Request extends BaseObject
 
     isError:            -> @_status == failure || @_status == serverFailure || @_status == clientFailure
     failed:             -> throw new Error "" .failed is DEPRECATED - use .isError or .isFailure
+    isServerFailure:    -> @status == serverFailure
     isSuccessful:       -> @_status == success
     isMissing:          -> @_status == missing
     isFailure:          -> isFailure @_status

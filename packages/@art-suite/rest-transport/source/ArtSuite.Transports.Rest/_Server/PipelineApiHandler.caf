@@ -43,14 +43,26 @@ class PipelineApiHandler extends &ArtExpressServer.PromiseHandler
           remoteRequest: request
 
         .then (response) ->
-          if response.isError
-            log.error response
+          if response.isServerFailure
+            response.toPromise()
+            .catch (error) ->
+              log.withOptions
+                isError: true unquoted: true
+                """ #{@getRequestLogHeader request, response}: #{} error.stack
+
           else if config.server.verbose
-            log "#{response.requestString}: subrequestCount: #{response.subrequestCount}, recordsReturned: #{if response.data then if isArray response.data then response.data.length else 1 else 0}"
+            log
+              ""
+                #{@getRequestLogHeader request, response}:
+                subrequestCount: #{response.subrequestCount}, recordsReturned: #{if response.data then if isArray response.data then response.data.length else 1 else 0}
+
           prepareSignedSessionForResponse session, response.responseForRemoteRequest
 
     else
       Promise.resolve null # missing
+
+  getRequestLogHeader: (request, response) ->
+    "" #{@logHeader} #{request.method}:#{request.url} (#{encodeHttpStatus response.status}, #{(currentSecond() - response.startTime) * 1000 | 0}ms)
 
   ######################
   # PRIVATE

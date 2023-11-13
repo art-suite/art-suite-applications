@@ -1,7 +1,5 @@
 import &StandardImport
 
-require("../../../../../").Server extract? signSession
-
 class MyRemote extends Pipeline
 
   @remoteServer :http://localhost:8085
@@ -79,10 +77,6 @@ class MyRemote extends Pipeline
 
     setSessionData:         (request) -> request.respondWithSession request.data
     getSessionData:         ({session}) -> session
-
-    manuallySignSession: (request) ->
-      signSession request.session
-      .then (signature) -> {signature}
 
     slowSetSessionA: (request) ->
       timeout 250

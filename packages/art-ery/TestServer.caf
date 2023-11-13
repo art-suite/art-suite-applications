@@ -1,6 +1,7 @@
 &register
 &Server
 &test/tests/ArtEry/ClientServer/Pipelines
+require('source-map-support/register')
 
 &ArtConfig.configure
   artConfig:

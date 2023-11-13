@@ -1,5 +1,0 @@
-&ArtStandardLib.merge
-  &ArtStandardLib
-  &ArtCommunicationStatus
-  &ArtEry
-  &RestServerLib
