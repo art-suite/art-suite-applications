@@ -1,6 +1,6 @@
 import &StandardImport
 
-getLinkFieldFilters: (fields, linkFilterVersion) ->
+getLinkFieldFilters: ({fields, linkFilterVersion, prefetchedRecordsExpirationSeconds}) ->
   if find {link} in fields when link
     ## Transition deprication plan
       1) let's just try transition2A and transition2B on a few pipelines first to see
@@ -36,7 +36,7 @@ getLinkFieldFilters: (fields, linkFilterVersion) ->
         # clientSide:
         # new LinkFieldsFilter2LegacyApiDecode # DOH, we don't need this (I think). LinkFieldsFilter2Transition2BFilter does the job.
         new &LinkFieldsFilter2Transition2BFilter
-        new &PrefetchedRecordsFilter
+        new &PrefetchedRecordsFilter expirationSeconds: prefetchedRecordsExpirationSeconds
 
     when 2
       # log.warn "" using v2 for #{} PipelineClass?.name
@@ -45,7 +45,7 @@ getLinkFieldFilters: (fields, linkFilterVersion) ->
         new &LinkFieldsFilter2 {} fields
 
         # clientSide:
-        new &PrefetchedRecordsFilter
+        new &PrefetchedRecordsFilter expirationSeconds: prefetchedRecordsExpirationSeconds
 
     when 1
       new &LinkFieldsFilter {} fields

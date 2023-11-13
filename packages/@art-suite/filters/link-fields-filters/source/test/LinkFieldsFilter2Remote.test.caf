@@ -2,52 +2,29 @@ import &StandardImport, &@ArtSuite/DatabaseFilters
 
 &ArtConfig.configure()
 
-{pipelines} = pipelineRegistry = new PipelineRegistry location: :client
-class BasePipeline extends &SimplePipeline
-  @registry pipelineRegistry
-  @abstractClass()
-
-class MessageRemote extends BasePipeline
-  @filter createDatabaseFilters
-    linkFilterVersion: 2
-    fields:
-      userRemote: :autoCreate :link :prefetch
-      message:    :trimmedString
-
-class MessageRemote2A extends BasePipeline
-  @filter createDatabaseFilters
-    linkFilterVersion: :transition2A
-    fields:
-      userRemote2A: :autoCreate :link :prefetch
-      message:      :trimmedString
-
-class MessageRemote2B extends BasePipeline
-  @filter createDatabaseFilters
-    linkFilterVersion: :transition2B
-    fields:
-      userRemote2B: :autoCreate :link :prefetch
-      message:      :trimmedString
-
-class UserRemote extends BasePipeline
-  @filter createDatabaseFilters
-    linkFilterVersion: 2
-    fields:
-      name: :trimmedString
-
-class UserRemote2A extends BasePipeline
-  @filter createDatabaseFilters
-    linkFilterVersion: :transition2A
-    fields:
-      name: :trimmedString
-
-class UserRemote2B extends BasePipeline
-  @filter createDatabaseFilters
-    linkFilterVersion: :transition2B
-    fields:
-      name: :trimmedString
-
 describe
   fullV2: ->
+    {pipelines} = pipelineRegistry = new PipelineRegistry location: :client
+    class BasePipeline extends &SimplePipeline
+      @registry pipelineRegistry
+      @abstractClass()
+
+    ## Version 2
+    class MessageRemote extends BasePipeline
+      @filter createDatabaseFilters
+        prefetchedRecordsExpirationSeconds: .01
+        linkFilterVersion: 2
+        fields:
+          userRemote: :autoCreate :link :prefetch
+          message:    :trimmedString
+
+    class UserRemote extends BasePipeline
+      @filter createDatabaseFilters
+        prefetchedRecordsExpirationSeconds: .01
+        linkFilterVersion: 2
+        fields:
+          name: :trimmedString
+
     chainedTest ->
       pipelines.messageRemote.create
         data:
@@ -79,7 +56,28 @@ describe
 
         assert.exists getPrefetchedRecord pipelines.userRemote, userRemoteId
 
+    .tapTest "let prefetchedRecords expire" -> timeout .02
+
   transition2A: ->
+    {pipelines} = pipelineRegistry = new PipelineRegistry location: :client
+    class BasePipeline extends &SimplePipeline
+      @registry pipelineRegistry
+      @abstractClass()
+
+    ## Version 2A
+    class MessageRemote2A extends BasePipeline
+      @filter createDatabaseFilters
+        linkFilterVersion: :transition2A
+        fields:
+          userRemote2A: :autoCreate :link :prefetch
+          message:      :trimmedString
+
+    class UserRemote2A extends BasePipeline
+      @filter createDatabaseFilters
+        linkFilterVersion: :transition2A
+        fields:
+          name: :trimmedString
+
     chainedTest ->
       pipelines.messageRemote2A.create
         data:
@@ -117,8 +115,28 @@ describe
 
         assert.doesNotExist getPrefetchedRecord pipelines.userRemote2A, userRemote2AId
 
-
   transition2B: ->
+    {pipelines} = pipelineRegistry = new PipelineRegistry location: :client
+    class BasePipeline extends &SimplePipeline
+      @registry pipelineRegistry
+      @abstractClass()
+
+    ## Version 2B
+    class MessageRemote2B extends BasePipeline
+      @filter createDatabaseFilters
+        prefetchedRecordsExpirationSeconds: .01
+        linkFilterVersion: :transition2B
+        fields:
+          userRemote2B: :autoCreate :link :prefetch
+          message:      :trimmedString
+
+    class UserRemote2B extends BasePipeline
+      @filter createDatabaseFilters
+        prefetchedRecordsExpirationSeconds: .01
+        linkFilterVersion: :transition2B
+        fields:
+          name: :trimmedString
+
     # These are IDENTICAL to fullV2 except with *Remote2B* names instead of *Remote* names
     chainedTest ->
       pipelines.messageRemote2B.create
@@ -148,3 +166,5 @@ describe
           dataUpdates: userRemote2B: [userRemote2BId]:  {}                      createdAt, updatedAt, name:    :Frank  id: userRemote2BId
 
         assert.exists getPrefetchedRecord pipelines.userRemote2B, userRemote2BId
+
+    .tapTest "let prefetchedRecords expire" -> timeout .02

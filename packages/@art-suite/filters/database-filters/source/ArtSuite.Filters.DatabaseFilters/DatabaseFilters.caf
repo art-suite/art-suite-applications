@@ -25,6 +25,7 @@ class DatabaseFilters
       options extract
         fields extract id
         userOwned, linkFilterVersion
+        prefetchedRecordsExpirationSeconds
     else
       log.warn "DEPRICATED: (Pipeline: #{PipelineClass?.name}) you should now specify fields as: createDatabaseFilters fields: {}"
       (fields = options) extract? id, userOwned
@@ -51,7 +52,7 @@ class DatabaseFilters
         v
 
     compactFlatten []
-      getLinkFieldFilters linkFields, linkFilterVersion
+      getLinkFieldFilters {} linkFilterVersion, prefetchedRecordsExpirationSeconds, fields: linkFields
       new ValidationFilter fields: otherFields, exclusive: true if addValidationFilter
       new AfterEventsFilter
       new DataUpdatesFilter
