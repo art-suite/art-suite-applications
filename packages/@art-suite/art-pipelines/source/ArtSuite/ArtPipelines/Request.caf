@@ -1,7 +1,5 @@
 import &StandardImport, &Config
 
-# ArtPipelines = require :./namespace
-
 responseValidator = requestValidator = null
 
 createValidators = () ->

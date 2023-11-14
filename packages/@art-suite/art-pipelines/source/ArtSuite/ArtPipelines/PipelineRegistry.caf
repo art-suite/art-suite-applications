@@ -26,6 +26,7 @@ class PipelineRegistry extends BaseObject
 
   @getter :name :pipelines :uniqueName :location :session
   @getter
+    pipelineRegistry: -> @
     inspectedObjects: -> {}
       @name
       @uniqueName

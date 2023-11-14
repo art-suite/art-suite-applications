@@ -1,0 +1,24 @@
+import &ArtStandardLib
+
+(superClass) -> class PipelineRegistryMixin extends superClass
+  @extendableProperty pipelineRegistryInstances: {}
+  ## getRegisryInstance
+    IN:
+      pipeline, request, pipelineRegistry or anything with a pipelineRegistry property/getter that returns a valid pipelineRegistry
+      constructorPropsOrPropsFunction: optional, props to pass to new instances
+        OR, a props-function to invoke and the pass to new instances
+  @getPipelineRegistryInstance: ({pipelineRegistry}, constructorPropsOrPropsFunction) ->
+    pipelineRegistry extract uniqueName
+    if @getPipelineRegistryInstances()[uniqueName]
+      @getPipelineRegistryInstances()[uniqueName]
+    else
+      props = if isFunction constructorPropsOrPropsFunction
+        constructorPropsOrPropsFunction()
+      else constructorPropsOrPropsFunction
+      @extendPipelineRegistryInstances [uniqueName]: ret = new @ pipelineRegistry, props
+      ret
+
+  constructor: (pipelineRegistry) -> @_pipelineRegistry = pipelineRegistry
+  @getter
+    :pipelineRegistry
+    inspectedObjects: -> [@class.name]: {} @pipelineRegistry
