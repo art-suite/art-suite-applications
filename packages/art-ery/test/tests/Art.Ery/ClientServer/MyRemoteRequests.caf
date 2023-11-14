@@ -14,11 +14,7 @@ suite:
       assert.rejects pipelines.myRemote.simulateServerFailure()
       .then ({info:{response}}) -> assert.eq response.status, serverFailure
 
-
   pipelines: ->
-    test "restPath", ->
-      assert.eq pipelines.myRemote.restPath, "/api/myRemote"
-
     test "remoteServer", ->
       assert.eq pipelines.myRemote.remoteServer, "http://localhost:8085"
 

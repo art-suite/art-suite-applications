@@ -4,7 +4,4 @@ import &ArtStandardLib
 
 &ArtTestbench/Testing
 .init
-  defineTests: ->
-    suiteSetup -> &build.initForTesting()
-
-    &Tests
+  defineTests: -> &Tests

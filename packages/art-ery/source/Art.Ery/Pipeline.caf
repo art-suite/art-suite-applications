@@ -1,25 +1,26 @@
-import &StandardImport, &Config, &RestClientLib, {}
-  &@ArtSuite/DatabaseFilters
+import &StandardImport, &Config, &Globals, {} &@ArtSuite/DatabaseFilters
 
 class Pipeline extends &@ArtSuite/ArtPipelines.Pipeline
   @abstractClass() # any sub-class that shouldn't auto-register should be an abstract class
-  @registry new &@ArtSuite/ArtPipelines.PipelineRegistry location: :client
+  @registry pipelineRegistry
 
-  # override
-  handleRequest: (request) ->
-    if request.location == :client && @remoteServer
-      sendRemoteRequest request
-    else super
+  @filter RestTransportClientFilter
+
+  @remoteServer: (@_remoteServer) ->
+
+  constructor: ->
+    if @remoteServer
+      if @restTransportClientConfig extract remoteServer && @remoteServer != remoteServer
+        throw new Error
+          "" Only one remoteServer can be configured per pipelineRegistry: #{} formattedInspect []
+            remoteServer
+            @remoteServer
+
+      @restTransportClientConfig.remoteServer = @remoteServer
 
   @getter
-    isRemoteClient:   -> !!@remoteServer
-    # apiRoot:          -> @class._apiRoot ? config._apiRoot
-    remoteServer:     -> @class._remoteServer ? config.remoteServer
-    restPath:         -> @_restPath ?= getPipelineRestPath @
-    restPathRegex:    -> @_restPathRegex ?= getPipelineRestPathRegex @
-
-  @remoteServer:    (@_remoteServer)    -> # override default (see config.remoteServer)
-  # @apiRoot:         (@_apiRoot)         -> # override default (see config.apiRoot)
+    restTransportClientConfig:  -> getRestTransportClientConfig @pipelineRegistry
+    remoteServer:               -> @class._remoteServer ? config.remoteServer
 
   #####################################
     ###################################

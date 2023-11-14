@@ -1,4 +1,4 @@
-&ArtStandardLib.merge
+[]
   # for testing
   _resetFilters: -> &@ArtSuite/AfterEventsFilter._reset()
   &@ArtSuite/AfterEventsFilter
@@ -8,3 +8,4 @@
   &@ArtSuite/ValidationFilter
   &@ArtSuite/TimestampFilter
   &@ArtSuite/UniqueIdFilter
+  &@ArtSuite/LinkFieldsFilters.PrefetchedRecordsCache

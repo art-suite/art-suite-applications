@@ -1,38 +1,20 @@
-import &StandardImport, &@ArtSuite/ArtPipelines.PipelineRegistry, &Config
+import &StandardImport, &@ArtSuite/ArtPipelines, &Config, &Globals
 
-pipelineRegistry = &Pipeline.getRegistry()
-global.artEryPipelines = pipelineRegistry.pipelines
-global.artEryPipelineRegistries = pipelineRegistries
-[]
+compactFlatten []
   &Filters
-  &@ArtSuite/DatabaseFilters
-  &@ArtSuite/LinkFieldsFilters.PrefetchedRecordsCache
   &@ArtSuite/AfterEventsFilter
 
   &@ArtSuite/KeyFieldsMixin
+  &Globals
   {}
-    &@ArtSuite/ArtPipelines.Filter
-    &@ArtSuite/ArtPipelines.PipelineRegistry
-    &@ArtSuite/ArtPipelines.RequestHandler
-    &@ArtSuite/ArtPipelines.Request
-    &@ArtSuite/LinkFieldsFilters.PrefetchedRecordsCache
-    &@ArtSuite/ArtPipelines.Session
+    Filter, PipelineRegistry, RequestHandler, Request, Session
+
     config
-    pipelineRegistry
-    pipelineRegistry.pipelines
-    pipelineRegistry.session
-    pipelineRegistries
 
     sendInitializeRequestToAllPipelines: (registry = pipelineRegistry)->
-      Promise.all array pipeline in registry.pipelines when
-          pipeline.class.getHandlers().initialize
-        pipeline.initialize originatedOnServer: true
+      Promise.all array pipeline in registry.pipelines
+        pipeline.initialize? originatedOnServer: true
 
-    initForTesting: ->
-      &ArtEry
-      Promise
-      .then ->
-        unless &ArtEry.config.remoteServer
-          &ArtEry.sendInitializeRequestToAllPipelines()
-
-    getArtEryRemoteServer: -> config.remoteServer
+    getArtEryRemoteServer: (registry = pipelineRegistry) ->
+      getRestTransportClientConfig registry
+      .remoteServer

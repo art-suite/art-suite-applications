@@ -6,7 +6,7 @@
 .addModules({
   Config:        require('./Config'),
   Filters:       require('./Filters'),
+  Globals:       require('./Globals'),
   Pipeline:      require('./Pipeline'),
-  RestClientLib: require('./RestClientLib'),
-  RestServerLib: require('./RestServerLib')
+  RestClientLib: require('./RestClientLib')
 });
