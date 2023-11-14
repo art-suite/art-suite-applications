@@ -4,34 +4,48 @@ import &StandardImport, Server: &build/Server
 
 server = null
 
-restClientTransportFilter = new RestClientTransportFilter
+restTransportClientFilter = new RestTransportClientFilter
 
 class MyPipeline extends Pipeline
   @registry pipelineRegistry
-  @filter restClientTransportFilter
+  @filter restTransportClientFilter
   @publicHandler
-    get: (request) -> "" Hello #{if request.session.user then request.session.user else :world}.
-    login: (request) -> request.respondWithSession user: request.key
+    get:    (request) -> "" Hello #{if request.session.user then request.session.user else :world}.
+    login:  (request) -> request.respondWithSession user: request.key
 
 &ArtConfig.configure()
 
 chainedTest "start server" ->
   server = Server.start {} pipelineRegistry, port: 0 verbose: true quiet: true
-  restClientTransportFilter.remoteServer = "" http://#{} server.hostAndPort
 
-.tapTest "make a get request" ->
-  pipelines.myPipeline.get()
-  .then (result) -> assert.eq result, "" Hello world.
+.tapTest
+  "get before setting remoteServer is processed 'locally'" ->
+    pipelines.myPipeline.get returnResponse: true
+    .then (response) ->
+      assert.eq response.data, "" Hello world.
+      assert.doesNotExist response.remoteRequest.method
+      assert.instanceOf response.remoteResponse, Request
 
-.tapTest "make a login request" ->
-  pipelines.myPipeline.login key: :Shane returnResponse: true
-  .then (response) ->
-    assert.eq response.props, {}
-    assert.eq response.session.user, :Shane
+  "set remoteServer" ->
+    getRestTransportClientConfig pipelineRegistry
+    .remoteServer = remoteServer = :http:// + server.hostAndPort
 
-.tapTest "make a get request with session" ->
-  pipelines.myPipeline.get()
-  .then (result) -> assert.eq result, "" Hello Shane.
+  "make a get request" ->
+    pipelines.myPipeline.get returnResponse: true
+    .then (response) ->
+      assert.eq response.data, "" Hello world.
+      assert.exists response.remoteRequest.method
+      assert.notInstanceOf response.remoteResponse, Request
+
+  "make a login request" ->
+    pipelines.myPipeline.login key: :Shane returnResponse: true
+    .then (response) ->
+      assert.eq response.props, {}
+      assert.eq response.session.user, :Shane
+
+  "make a get request with session" ->
+    pipelines.myPipeline.get()
+    .then (result) -> assert.eq result, "" Hello Shane.
 
 test "shut down the server" ->
   server.stop()

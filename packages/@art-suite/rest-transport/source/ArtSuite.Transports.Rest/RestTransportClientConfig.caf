@@ -1,0 +1,7 @@
+import &StandardImport
+
+class RestTransportClientConfig extends PipelineRegistryMixin BaseClass
+  @getRestTransportClientConfig: (pipelineOrRegistry) => @getPipelineRegistryInstance pipelineOrRegistry
+
+  @property :remoteServer
+  @getter inspectedObjects: -> RestTransportClientConfig: {} @remoteServer, @pipelineRegistry
