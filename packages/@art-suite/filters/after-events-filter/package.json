@@ -1,7 +1,7 @@
 {
   "bugs": "https://github.com/art-suite/art-suite-applications/issues",
   "dependencies": {
-    "@art-suite/art-pipelines": "^0.2.0",
+    "@art-suite/art-pipelines": "^0.2.1",
     "art-communication-status": "^1.5.13",
     "art-standard-lib": "^1.70.6"
   },

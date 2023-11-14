@@ -6,8 +6,6 @@
     "@art-suite/art-app-kit-boilerplate": "file:demos/art-app-kit-boilerplate",
     "@art-suite/art-canvas": "file:packages/@art-suite/art-canvas",
     "@art-suite/art-components": "file:unpublished/art-components",
-    "@art-suite/art-ery-core": "file:unpublished/art-ery-core",
-    "@art-suite/art-ery-db-filters-pack": "file:packages/@art-suite/art-ery-db-filters-pack",
     "@art-suite/art-flux": "file:packages/@art-suite/art-flux",
     "@art-suite/art-foundation": "^2.0.0",
     "@art-suite/art-model-components": "file:packages/@art-suite/art-model-components",
