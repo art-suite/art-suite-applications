@@ -1,9 +1,11 @@
 import &StandardImport
 
+{pipelines} = pipelineRegistry = new PipelineRegistry
+
 describe
   locationsAndSessions: ->
     test 'singleton instance does not exist when location is server', ->
-      {session, location} = PipelineRegistry.pipelineRegistry
+      {session, location} = pipelineRegistry
       assert.eq location, :server
       assert.doesNotExist session
 
@@ -24,12 +26,12 @@ describe
 
   basics: ->
     test "session data setter and getter", ->
-      session = new Session {userId: '123'}, null, PipelineRegistry.pipelineRegistry
+      session = new Session {userId: '123'}, null, pipelineRegistry
       session.data = userId: 'abc'
       assert.eq session.data, userId: 'abc'
 
     test "change event", -> new Promise (done) ->
-      session = new Session {userId: '123'}, null, PipelineRegistry.pipelineRegistry
+      session = new Session {userId: '123'}, null, pipelineRegistry
       session.on change: ({props}) ->
         assert.eq props, data: userId: '456'
         done()

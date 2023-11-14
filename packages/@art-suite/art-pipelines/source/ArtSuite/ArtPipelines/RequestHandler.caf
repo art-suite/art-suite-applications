@@ -3,7 +3,7 @@ import &StandardImport, &PipelineRegistry, {} &Request
 class RequestHandler extends BaseObject
   @abstractClass()
 
-  @extendableProperty {} pipelineRegistry
+  @extendableProperty pipelineRegistry: null
   @registry: @extendPipelineRegistry
   @getRegistry: -> @getPipelineRegistry()
   @getter registry: -> @pipelineRegistry

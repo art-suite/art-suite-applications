@@ -1,0 +1,10 @@
+
+class Pipeline extends &@ArtSuite/ArtPipelines.Pipeline
+  @abstractClass()
+  @pipelineRegistry new &@ArtSuite/ArtPipelines.PipelineRegistry session: {}
+
+{}
+  Pipeline
+  pipelineRegistry = Pipeline.getPipelineRegistry()
+  pipelineRegistry.pipelines
+  pipelineRegistry.session

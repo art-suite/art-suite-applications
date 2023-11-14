@@ -1,6 +1,7 @@
 import &StandardImport
 
 class SimpleStore extends PusherPipelineMixin KeyFieldsMixin Pipeline
+  @pipelineRegistry new PipelineRegistry location: :client
 
   @publicRequestTypes :get :create :update :reset :delete :byNoodleId
 

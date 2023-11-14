@@ -1,10 +1,4 @@
-import &StandardImport
-
-pipelineRegistry = new &build.PipelineRegistry location: :client
-pipelineRegistry extract pipelines
-
-class Pipeline extends &build.Pipeline
-  @registry pipelineRegistry
+import &StandardImport, &PipelineWithRegistry
 
 &ArtConfig.configure()
 

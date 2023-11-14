@@ -1,6 +1,6 @@
 import &StandardImport
 
-pipelineRegistry = new &@ArtSuite/ArtPipelines.PipelineRegistry location: :client
+pipelineRegistry = new PipelineRegistry location: :client
 global.artEryPipelines = pipelineRegistry.pipelines
 global.artEryPipelineRegistries = pipelineRegistries
 global.artErySession = pipelineRegistry.session

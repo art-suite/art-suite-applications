@@ -3,17 +3,6 @@
   &ArtClassSystem
   &ArtCommunicationStatus
   &@ArtSuite/ArtPipelines
-  &@ArtSuite/ArtModels
   &@ArtSuite/KeyFieldsMixin
   &build
   &ArtTestbench
-  newRegistries: ->
-    {}
-      pipelineRegistry = new &@ArtSuite/ArtPipelines.PipelineRegistry location: :client
-      pipelineRegistry.pipelines
-      modelRegistry = new &@ArtSuite/ArtModels.ModelRegistry
-      modelRegistry.models
-      defineModelsForAllPipelines = ->
-        &@ArtSuite/ArtPipelineModels.defineModelsForAllPipelines
-          pipelineRegistry
-          modelRegistry

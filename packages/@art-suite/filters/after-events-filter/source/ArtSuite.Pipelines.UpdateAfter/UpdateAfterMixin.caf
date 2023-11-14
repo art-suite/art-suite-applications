@@ -1,6 +1,4 @@
-import &ArtStandardLib, &@ArtSuite/ArtPipelines, &ArtCommunicationStatus, &AfterEventsFilter
-
-ArtEry = require :./namespace
+import &ArtStandardLib, &@ArtSuite/ArtPipelines, &ArtCommunicationStatus, {} &AfterEventsFilter
 
 (superClass) -> class UpdateAfterMixin extends superClass
   @abstractClass()
@@ -58,7 +56,7 @@ ArtEry = require :./namespace
       requestType: triggeringPipelineName: updateItemPropsFunction
 
       updateItemPropsFunction: (response) -> updateItemProps
-      IN: response is the ArtEry request-response for the request-in-progress on
+      IN: response is the ArtPipeline request-response for the request-in-progress on
         the specified triggeringPipelineName.
         (response.pipelineName == the specified triggeringPipelineName)
 

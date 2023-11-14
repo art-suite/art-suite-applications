@@ -3,7 +3,7 @@ import &StandardImport, &PipelineRegistry
 {pipelines} = pipelineRegistry = new PipelineRegistry location: :client
 class Pipeline extends &build.Pipeline
   @abstractClass()
-  @registry pipelineRegistry
+  @pipelineRegistry pipelineRegistry
 
 
 describe

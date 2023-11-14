@@ -4,7 +4,8 @@ import &StandardImport
 require "fake-indexeddb/auto"
 global.window = global
 
-class Food extends IndexedDbPipeline
+{food} = class Food extends IndexedDbPipeline
+  @registry new PipelineRegistry session: {}
   @indexes
     foodByType: :type/createdAt
 
@@ -12,14 +13,16 @@ class Food extends IndexedDbPipeline
 
   dbVersion: 2
   dbName: :FoodNetwork
-  @addDatabaseFilters fields:
-    name: "required trimmedString"
-    type: :trimmedString
+  @filter createDatabaseFilters
+    linkFilterVersion: 2
+    fields:
+      name: "required trimmedString"
+      type: :trimmedString
 
-chainedTest 'init' -> pipelines.food.create data: name: :Throwaway
+chainedTest 'init' -> food.create data: name: :Throwaway
 
 .thenTest 'create' ->
-  pipelines.food.create data: name: :Shane
+  food.create data: name: :Shane
   .tap (out) ->
     assert.eq out.name, :Shane
     assert.isNumber out.createdAt
@@ -28,7 +31,7 @@ chainedTest 'init' -> pipelines.food.create data: name: :Throwaway
 
 .tapTest
   :get ({id}) ->
-    pipelines.food.get key: id
+    food.get key: id
     .tap (out) ->
       assert.eq out.name, :Shane
       assert.isNumber out.createdAt
@@ -36,15 +39,15 @@ chainedTest 'init' -> pipelines.food.create data: name: :Throwaway
       assert.present out.id
 
   :update ({id, name}) ->
-    pipelines.food.update key: id, data: name: "" #{name} Delamore
+    food.update key: id, data: name: "" #{name} Delamore
     .then (out) ->
       assert.eq out.name, "" Shane Delamore
-      pipelines.food.get key: id
+      food.get key: id
     .then (out) ->
       assert.eq out.name, "" Shane Delamore
 
   :delete ({id}) ->
-    pipelines.food.delete key: id
+    food.delete key: id
     .then (deleted) ->
       assert.eq id, deleted.id
-      assert.rejects pipelines.food.get key: id
+      assert.rejects food.get key: id

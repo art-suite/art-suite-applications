@@ -6,4 +6,8 @@
     EryExtensions:
       Pusher: verbose: false verifyConnection: :silent
 
-{} &SimpleStore.simpleStore
+{}
+  &SimpleStore.simpleStore
+  &SimpleStore.simpleStore.pipelines
+  &SimpleStore.simpleStore.session
+  &SimpleStore.simpleStore.pipelineRegistry

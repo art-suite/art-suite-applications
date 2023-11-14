@@ -1,6 +1,7 @@
 import &StandardImport
 
 class SimplePipeline extends Pipeline
+  @pipelineRegistry new PipelineRegistry session: {}
 
   constructor: ->
     @_store = {}

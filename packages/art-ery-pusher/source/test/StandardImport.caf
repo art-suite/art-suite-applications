@@ -1,8 +1,9 @@
 []
   &ArtStandardLib
   &ArtClassSystem
-  &ArtEry
+  &@ArtSuite/ArtPipelines
   &ArtCommunicationStatus
+  &@ArtSuite/KeyFieldsMixin
   &build
 
   &ArtTestbench

@@ -1,6 +1,7 @@
 import &StandardImport
 
 {myPipeline} = class MyPipeline extends Pipeline
+  @pipelineRegistry new PipelineRegistry
   @filter before: get: (request) -> request
   @filter after: all: (response) -> response
   @fields userId: :number

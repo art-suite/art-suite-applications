@@ -1,5 +1,4 @@
-import &StandardImport
-  # uncomment these to see if we get a clear failure message
+import &StandardImport, &PipelineWithRegistry
 
 indent = (str, indentString = "  ", wordWrapIndent = "  ") ->
   array line in str.split("\n")

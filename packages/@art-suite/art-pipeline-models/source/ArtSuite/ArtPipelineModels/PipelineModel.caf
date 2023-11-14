@@ -27,7 +27,7 @@ class PipelineModel extends KeyFieldsMixin ArtModel
       @aliases aliases if aliases
       @getHotReloadKey: -> hotReloadKey
 
-  @defineModelsForAllPipelines: (_pipelineRegistry = pipelineRegistry, _modelRegistry = modelRegistry) =>
+  @defineModelsForAllPipelines: (_pipelineRegistry, _modelRegistry = modelRegistry) =>
     each pipeline in _pipelineRegistry.pipelines
       @createModel pipeline, _modelRegistry
 

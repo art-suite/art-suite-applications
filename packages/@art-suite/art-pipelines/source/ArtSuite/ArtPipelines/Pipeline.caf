@@ -17,6 +17,8 @@ class Pipeline extends &RequestHandler
 
   @register: ->
     @singletonClass()
+    unless @getRegistry()
+      throw new Error "" No PipelineRegistry configured for pipeline: #{} @getName()
     @getRegistry().register @
 
   @postCreateConcreteClass: ({hotReloaded}) ->

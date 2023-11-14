@@ -4,8 +4,9 @@
 (module.exports = require('./namespace'))
 
 .addModules({
-  GetSimulatedTestingFromClientResources:   require('./getSimulatedTestingFromClientResources'),
   PipelineRegistryTest:                     require('./PipelineRegistry.test'),
+  PipelineWithRegistry:                     require('./PipelineWithRegistry'),
+  PipelineWithRegistryAtClient:             require('./PipelineWithRegistryAtClient'),
   RequestTest:                              require('./Request.test'),
   SessionTest:                              require('./Session.test'),
   SimulatedClientServerTransportFilterTest: require('./SimulatedClientServerTransportFilter.test'),

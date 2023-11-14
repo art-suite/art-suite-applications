@@ -4,7 +4,6 @@
 (module.exports = require('./namespace'))
 
 .addModules({
-  KeyFieldsMixin:             require('./KeyFieldsMixin'),
   PipelineAliasesTest:        require('./PipelineAliases.test'),
   PipelineBasicsTest:         require('./PipelineBasics.test'),
   PipelineCachedGetTest:      require('./PipelineCachedGet.test'),

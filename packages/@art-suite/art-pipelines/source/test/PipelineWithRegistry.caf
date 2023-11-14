@@ -1,0 +1,10 @@
+
+class Pipeline extends &build.Pipeline
+  @abstractClass()
+  @pipelineRegistry new &build.PipelineRegistry session: {}
+
+{}
+  Pipeline
+  pipelineRegistry = Pipeline.getPipelineRegistry()
+  pipelineRegistry.pipelines
+  pipelineRegistry.session

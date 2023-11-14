@@ -1,8 +1,6 @@
 import &StandardImport, {} &Session
 
 class PipelineRegistry extends BaseObject
-  @singletonClass()
-
   @pipelineRegistries: pipelineRegistries = []
 
   constructor: (options = {})->

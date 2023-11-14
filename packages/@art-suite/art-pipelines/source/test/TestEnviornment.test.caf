@@ -1,4 +1,4 @@
-import &StandardImport, &getSimulatedTestingFromClientResources()
+import &StandardImport, &PipelineWithRegistryAtClient
 
 test "in tests, we default to the :client location" ->
   assert.eq

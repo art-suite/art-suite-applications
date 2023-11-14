@@ -4,7 +4,7 @@ import &StandardImport
 isPresentString = (s) -> isString(s) && present s
 
 {auth} = class Auth extends Pipeline
-  @registry new PipelineRegistry location: :client
+  @pipelineRegistry new PipelineRegistry location: :client
 
   ## a stupid authentication test
   authenticationFailed = ({username, password}) ->

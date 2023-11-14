@@ -4,7 +4,7 @@ import &StandardImport
 chainedTest ->
   registry = new PipelineRegistry
   class MyPipeline extends Pipeline
-    @registry registry
+    @pipelineRegistry registry
     @publicHandlers
       get: ({key}) -> "" Got #{key}?
 

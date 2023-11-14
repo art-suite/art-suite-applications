@@ -3,7 +3,6 @@ import &StandardImport, &Support
 fakeWeAreNotTheOneWhoTriggeredTheUpdate = -> session.data.artEryPusherSession = null
 
 class PromiseSubScriber extends BaseObject
-
   @getter
     :subscriber
     waitForEventPromise: ->

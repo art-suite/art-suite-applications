@@ -1,10 +1,9 @@
-import &StandardImport
-
+import &StandardImport, &PipelineWithRegistry
 
 test "aliases don't currently add actual alises in pipelines", ->
 
   class MyPipeline extends Pipeline
-    @registry new PipelineRegistry
+    @pipelineRegistry new PipelineRegistry
     @aliases "MyPipelineAlias"
 
   assert.eq pipelines.myPipelineAlias, undefined
@@ -13,7 +12,7 @@ test "aliases don't currently add actual alises in pipelines", ->
 
 test "second aliases call replaces first", ->
   class MyPipeline extends Pipeline
-    @registry new PipelineRegistry
+    @pipelineRegistry new PipelineRegistry
     @aliases "MyPipelineAlias"
     @aliases "FooLand"
 
@@ -24,11 +23,11 @@ test "second aliases call replaces first", ->
 test "aliases are not inherited", ->
   registry = new PipelineRegistry
   class MyPipeline extends Pipeline
-    @registry registry
+    @pipelineRegistry registry
     @aliases "MyPipelineAlias"
 
   class MySubPipeline extends MyPipeline
-    @registry registry
+    @pipelineRegistry registry
     @aliases "MySubPipelineAlias"
 
   assert.eq MyPipeline.getAliases(), myPipelineAlias: true
@@ -38,11 +37,11 @@ test "aliases are not inherited", ->
 test "two pipelines with different aliases are distinct", ->
   registry = new PipelineRegistry
   class MyPipeline extends Pipeline
-    @registry registry
+    @pipelineRegistry registry
     @aliases "MyPipelineAlias"
 
   class MyOtherPipeline extends Pipeline
-    @registry registry
+    @pipelineRegistry registry
     @aliases "MyOtherPipelineAlias"
 
   assert.eq MyPipeline.getAliases(), myPipelineAlias: true

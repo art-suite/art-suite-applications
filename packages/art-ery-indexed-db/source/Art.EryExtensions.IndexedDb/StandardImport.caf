@@ -1,1 +1,6 @@
-&ArtStandardLib.merge &ArtStandardLib, &ArtClassSystem, &ArtEry
+[]
+  &ArtStandardLib
+  &ArtClassSystem
+  &@ArtSuite/ArtPipelines
+  &@ArtSuite/KeyFieldsMixin
+  &@ArtSuite/AfterEventsFilter

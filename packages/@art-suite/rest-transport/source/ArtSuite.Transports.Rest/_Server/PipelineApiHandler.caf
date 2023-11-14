@@ -10,7 +10,7 @@ class PipelineApiHandler extends &ArtExpressServer.PromiseHandler
       pipelineRegistry: [required: ArtPipelines.PipelineRegistry] registry for all the pipelines that will be handled
       apiRoot:  [string] root URL path for the api
   constructor: (options = {}) ->
-    @_pipelineRegistry = options.pipelineRegistry ? pipelineRegistry
+    @_pipelineRegistry = options.pipelineRegistry
     @_apiRoot = options.apiRoot ? config.apiRoot
 
   @getter

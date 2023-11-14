@@ -1,7 +1,5 @@
 import &StandardImport, {} &SimplePipeline
 
-SimplePipeline.registry new PipelineRegistry session: {}
-
 &ArtConfig.configure()
 getEnv().ART_PIPELINES_ATTACH_RESPONSE_TO_ERRORS = true
 

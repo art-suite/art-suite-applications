@@ -1,4 +1,4 @@
-import &StandardImport
+import &StandardImport, &PipelineWithRegistry
 
 describe
   definedInFilterClass: ->

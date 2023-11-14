@@ -3,7 +3,7 @@ import &StandardImport, &RestServerLib
 class PipelineApiInfoHandler extends &ArtExpressServer.PromiseHandler
 
   constructor: (options = {}) ->
-    @_pipelineRegistry = options.pipelineRegistry ? pipelineRegistry
+    @_pipelineRegistry = options.pipelineRegistry
     @_apiRoot = options.apiRoot ? config.apiRoot
 
   @getter

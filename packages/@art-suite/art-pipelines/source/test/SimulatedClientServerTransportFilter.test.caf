@@ -1,4 +1,4 @@
-import &StandardImport, &getSimulatedTestingFromClientResources()
+import &StandardImport, &PipelineWithRegistryAtClient
 &ArtConfig.configure()
 
 class SimulatedClientServerTransportFilter extends Filter

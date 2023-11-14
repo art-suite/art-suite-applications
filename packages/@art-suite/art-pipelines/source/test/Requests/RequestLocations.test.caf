@@ -6,7 +6,7 @@ describe
   trueDefault: ->
     test "in tests, server is the default" ->
       {myPipeline} = class MyPipeline extends Pipeline
-        @registry new PipelineRegistry
+        @pipelineRegistry new PipelineRegistry
         @publicHandler get: (request) -> "#{request.location}-handler"
 
       myPipeline.get :bar session: {}
@@ -14,7 +14,7 @@ describe
 
   location_client: ->
     {myPipeline} = class MyPipeline extends Pipeline
-      @registry new PipelineRegistry location: :client
+      @pipelineRegistry new PipelineRegistry location: :client
       @filter name: :server-filter location: :server after: get: ({data}) -> "#{data}/server-filter"
       @filter name: :client-filter location: :client after: get: ({data}) -> "#{data}/client-filter"
 
@@ -31,7 +31,7 @@ describe
   clientAndServerHandlers: ->
     test "we can fake a client-side-only handler using a client-side only before-filter" ->
       {myPipeline} = class MyPipeline extends Pipeline
-        @registry new PipelineRegistry location: :client
+        @pipelineRegistry new PipelineRegistry location: :client
         @filter name: :client-filter-handler location: :client before: get: ({data}) -> "#{data}client-filter-handler"
         @filter name: :server-filter location: :server after: get: ({data}) -> "#{data}/server-filter"
         @filter name: :client-filter location: :client after: get: ({data}) -> "#{data}/client-filter"
@@ -47,7 +47,7 @@ describe
 
     test "now, what if the client-side handler fires off a server-side request - faking like it's a remote request?" ->
       {myPipeline} = class MyPipeline extends Pipeline
-        @registry new PipelineRegistry location: :client
+        @pipelineRegistry new PipelineRegistry location: :client
 
         @filter
           name: :server-filter
@@ -82,7 +82,7 @@ describe
 
     test "both-filter" ->
       {myPipeline} = class MyPipeline extends Pipeline
-        @registry new PipelineRegistry location: :client
+        @pipelineRegistry new PipelineRegistry location: :client
 
         @filter
           name: :both-filter

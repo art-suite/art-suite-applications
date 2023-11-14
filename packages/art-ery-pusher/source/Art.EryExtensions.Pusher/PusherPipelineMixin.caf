@@ -38,7 +38,7 @@ import &StandardImport, &Lib, &ArtCommunicationStatus
 
     switch type
     when :create :update
-      if sender == session.data.artEryPusherSession
+      if sender == @session.data.artEryPusherSession
         verboseLog _processPusherChangedEvent: "" saved 1 reload due to sender check! We are the ones who caused the event. (pipeline: #{@name}, key: #{key})
 
       else
