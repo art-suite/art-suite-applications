@@ -2,4 +2,4 @@ package: &@ArtSuite/StandardPackageBuilder.configure {}
   &package
   mocha: true
   coffeeScript: true
-  scripts: test-server: "" caf ./TestServer.caf
+  scripts: test-server: "" caf ./test/TestServer.caf

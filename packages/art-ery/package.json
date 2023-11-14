@@ -24,6 +24,10 @@
       "build/**/*.js",
       "!build/test/**/*.js"
     ],
+    "coveragePathIgnorePatterns": [
+      "/index.js$",
+      "/namespace.js$"
+    ],
     "testEnvironment": "node",
     "testPathIgnorePatterns": [
       "/node_modules/",
@@ -43,7 +47,7 @@
     "clean": "rm -rf build/*",
     "nn": "nn build/* test/tests",
     "test": "npm run nn\nmocha -u tdd",
-    "test-server": "caf ./TestServer.caf",
+    "test-server": "caf ./test/TestServer.caf",
     "watch": "npm-watch"
   },
   "version": "2.0.0",

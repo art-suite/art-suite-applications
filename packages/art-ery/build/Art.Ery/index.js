@@ -8,6 +8,5 @@
   Filters:        require('./Filters'),
   Globals:        require('./Globals'),
   Pipeline:       require('./Pipeline'),
-  RestClientLib:  require('./RestClientLib'),
   StandardImport: require('./StandardImport')
 });
