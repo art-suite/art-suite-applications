@@ -4,11 +4,9 @@ import &StandardImport, Server: &build/Server
 
 server = null
 
-restTransportClientFilter = new RestTransportClientFilter
-
 class MyPipeline extends Pipeline
   @registry pipelineRegistry
-  @filter restTransportClientFilter
+  @filter RestTransportClientFilter
   @publicHandler
     get:    (request) -> "" Hello #{if request.session.user then request.session.user else :world}.
     login:  (request) -> request.respondWithSession user: request.key

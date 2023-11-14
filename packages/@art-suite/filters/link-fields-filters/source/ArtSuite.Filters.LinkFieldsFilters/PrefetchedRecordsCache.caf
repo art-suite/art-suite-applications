@@ -1,18 +1,13 @@
-import &artClassSystem, &ArtStandardLib
+import &StandardImport
 
-class PrefetchedRecordsCache extends BaseClass
+class PrefetchedRecordsCache extends PipelineRegistryMixin BaseClass
 
-  @_prefetchedRecordsCaches = {}
-
-  @getPrefetchedRecordsCacheForPipeline = (pipeline) =>
-    @_prefetchedRecordsCaches[pipeline.registry.uniqueName] ?= new PrefetchedRecordsCache
-
-  @getPrefetchedRecord = (pipeline, key) =>
-    @getPrefetchedRecordsCacheForPipeline pipeline
+  @getPrefetchedRecord: (pipeline, key) =>
+    @getPipelineRegistryInstance pipeline
     .get pipeline.name, key
 
-  @addPrefetchedRecords = (pipeline, recordsByPipelineNameAndKey, expirationSeconds) =>
-    @getPrefetchedRecordsCacheForPipeline pipeline
+  @addPrefetchedRecords: (pipeline, recordsByPipelineNameAndKey, expirationSeconds) =>
+    @getPipelineRegistryInstance pipeline
     .addPrefetchedRecords recordsByPipelineNameAndKey, expirationSeconds
 
   constructor: ->
