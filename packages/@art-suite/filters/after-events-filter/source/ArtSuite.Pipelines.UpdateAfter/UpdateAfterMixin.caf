@@ -1,4 +1,4 @@
-import &ArtStandardLib, &@ArtSuite/ArtPipelines, &ArtCommunicationStatus, {} &AfterEventsFilter
+import &StandardImport, &AfterEventsRouter
 
 (superClass) -> class UpdateAfterMixin extends superClass
   @abstractClass()
@@ -79,7 +79,8 @@ import &ArtStandardLib, &@ArtSuite/ArtPipelines, &ArtCommunicationStatus, {} &Af
     # throw new Error "keyFields must be 'id'" unless @getKeyFieldsString() == "id"
     array requestTypeMap, requestType from eventMap
       array updateRequestPropsFunction, pipelineName from requestTypeMap
-        AfterEventsFilter.registerPipelineListener @, pipelineName, requestType
+        getAfterEventsRouter @getPipelineRegistry()
+        .registerPipelineListener @, pipelineName, requestType
         @_addUpdateAfterFunction pipelineName, requestType, updateRequestPropsFunction
 
   ## afterEvent
@@ -93,7 +94,8 @@ import &ArtStandardLib, &@ArtSuite/ArtPipelines, &ArtCommunicationStatus, {} &Af
   @afterEvent: (eventMap) ->
     array requestTypeMap, requestType from eventMap
       array afterEventFunction, pipelineName from requestTypeMap
-        AfterEventsFilter.registerPipelineListener @, pipelineName, requestType
+        getAfterEventsRouter @getPipelineRegistry()
+        .registerPipelineListener @, pipelineName, requestType
         @_addAfterEventFunction pipelineName, requestType, afterEventFunction
 
   # if getPropsFunction returns null, nothing happens

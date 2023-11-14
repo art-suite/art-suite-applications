@@ -10,14 +10,14 @@ test "does not define fields" ->
 
 test :AfterEventsFilter.on ->
   {myPipeline} = class MyPipeline extends Pipeline
-    @registry new PipelineRegistry location: :server, session: {}
     @filter AfterEventsFilter
     @publicRequestTypes :myRequest
     @handler
       myRequest: -> "hello"
 
   new Promise (resolve) ->
-    AfterEventsFilter.on :myPipeline :myRequest (response) ->
+    AfterEventsRouter.getAfterEventsRouter pipelineRegistry
+    .on :myPipeline :myRequest (response) ->
       assert.eq response.data, :hello
       resolve()
 
@@ -26,7 +26,6 @@ test :AfterEventsFilter.on ->
 test :AfterEventsFilter.registerPipelineListener ->
   new Promise (resolve) ->
     {myPipeline} = class MyPipeline extends Pipeline
-      @registry new PipelineRegistry location: :server, session: {}
       @filter AfterEventsFilter
       @publicHandler myRequest: -> :hello
 
@@ -34,6 +33,7 @@ test :AfterEventsFilter.registerPipelineListener ->
         assert.eq response.data, :hello
         resolve()
 
-    AfterEventsFilter.registerPipelineListener myPipeline, :myPipeline :myRequest
+    AfterEventsRouter.getAfterEventsRouter pipelineRegistry
+    .registerPipelineListener myPipeline, :myPipeline :myRequest
 
     myPipeline.myRequest {}
