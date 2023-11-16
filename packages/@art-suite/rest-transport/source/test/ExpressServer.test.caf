@@ -16,7 +16,7 @@ class MyPipeline extends Pipeline
 chainedTest "start server" ->
   server = Server.start {} pipelineRegistry, port: 0 verbose: true quiet: true
 
-.tapTest
+.thenTest
   "get before setting remoteServer is processed 'locally'" ->
     pipelines.myPipeline.get returnResponse: true
     .then (response) ->
@@ -30,10 +30,20 @@ chainedTest "start server" ->
 
   "make a get request" ->
     pipelines.myPipeline.get returnResponse: true
-    .then (response) ->
+    .tap (response) ->
       assert.eq response.data, "" Hello world.
       assert.exists response.remoteRequest.method
       assert.notInstanceOf response.remoteResponse, Request
+
+  "check returned session" (response) ->
+    assert.isString response.remoteResponse.session extract signature
+    assert.isPlainObject response.remoteResponse
+
+    assert.eq
+      response.remoteResponse
+      status:  :success
+      props:   data: "Hello world."
+      session: {} signature
 
   "make a login request" ->
     pipelines.myPipeline.login key: :Shane returnResponse: true

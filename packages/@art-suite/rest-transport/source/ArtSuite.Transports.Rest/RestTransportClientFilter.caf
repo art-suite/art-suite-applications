@@ -12,13 +12,9 @@ class RestTransportClientFilter extends Filter
       throw new Error "" Invalid remoteServer. It must start with http:// or https://. Got: #{} formattedInspect remoteServer
     remoteServer
 
-  getRemoteServer: (request) ->
-    getRestTransportClientConfig request
-    .remoteServer
-
   @before
     all: (request) ->
-      if remoteServer = @getRemoteServer request
+      if remoteServer = getRemoteServer request
         @validateRemoteServer remoteServer
         sendRemoteRequest request, {} remoteServer
 

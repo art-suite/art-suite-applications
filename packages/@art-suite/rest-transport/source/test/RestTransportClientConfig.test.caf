@@ -1,0 +1,17 @@
+import &StandardImport
+
+&ArtConfig.configure()
+
+{session, pipelines} = pipelineRegistry = new PipelineRegistry location: :client
+class SimplePipeline extends Pipeline
+  @registry pipelineRegistry
+
+test "getApiRoot()" ->
+  assert.eq
+    getApiRoot pipelineRegistry
+    :api
+  getRestTransportClientConfig pipelineRegistry
+  .apiRoot = :my-api/v2
+  assert.eq
+    getApiRoot pipelineRegistry
+    :my-api/v2

@@ -1,7 +1,6 @@
-import &StandardImport, &ArtRestClient
+import &StandardImport, &ArtRestClient, &RestTransportClientConfig
 
 {}
-  apiRoot = 'api'
   restMap = {}
     :get
     :delete
@@ -47,7 +46,7 @@ import &StandardImport, &ArtRestClient
     (remoteRequestData ?= {}).data    = data  if objectHasKeys data
 
     getRestClientParamsForArtEryRequest {}
-      restPath: getPipelineRestPath apiRoot, pipeline
+      restPath: getPipelineRestPath getApiRoot(request), pipeline
       server:
         switch remoteServer
         when true, ".", "/" then ""
