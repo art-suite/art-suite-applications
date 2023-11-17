@@ -1,4 +1,10 @@
-import &StandardImport, &ArtValidation, &PipelineWithRegistry
+import &StandardImport, &ArtValidation, &PipelineWithRegistry, &@ArtSuite/KeyFieldsMixin
+
+stripFunctions = (value) ->
+  switch
+  when isObject value then object v, k from value when !isFunction v with stripFunctions v
+  when isArray  value then array  v    from value when !isFunction v with stripFunctions v
+  else value
 
 describe
   basics: ->
@@ -70,9 +76,53 @@ describe
           normalizeFieldProps {} myPipeline.fields
           fieldType: :record
 
-##
+  extraFields: ->
+    test "singleton data" ->
+      {myPipeline} = class MyPipeline extends Pipeline
+        @requestTypes
+          getTime:
+            summary:      "" My summary
+            description:  "" Even more info.
+            response:   data: :number
+
+      assert.eqAfterStringifyingFunctions
+        result = myPipeline.normalizedRequestTypes
+        getTime:
+          summary:        "" My summary
+          description:    "" Even more info.
+          response: result.getTime.response # validated elsewhere
+
+
   filters: ->
     test "filters can define request-types" ->
+      class ExampleFilter extends Filter
+        @requestTypes
+          get:
+            request:    key:  true
+            response:   data: :record
+
+      pipelineRequestTypes = null
+      {myUser} = class MyUser extends KeyFieldsMixin Pipeline
+        @filter ExampleFilter
+        @fields id: :id
+        @requestType pipelineRequestTypes =
+          get: request: data: :date
+          response: data: :record # should not be overridden by the filter
+
+      assert.eq
+        myUser.normalizedFields
+        id:
+          fieldType: :id
+          dataType:  :string
+          required:  true
+          validate:  myUser.normalizedFields.id.validate
+
+      assert.eq
+        myUser.requestTypes
+        pipelineRequestTypes
+
+  examples: ->
+    test "crud" ->
       requestTypes = null
       class CrudFilter extends Filter
         @requestTypes requestTypes =
@@ -93,33 +143,95 @@ describe
             response:   data: :record
 
       pipelineRequestTypes = null
-      {myUser} = class MyUser extends Pipeline
+      {myUser} = class MyUser extends KeyFieldsMixin Pipeline
         @filter CrudFilter
-        @field
-          otherId:  :string
-          age:      :number
-
-        @requestType pipelineRequestTypes =
-          customRequestType: request: data: :string
-          get: request: {}, response: data: :record # should not be overridden by the filter
-
-          userBySimpleQuery:
-            request:    key:  :string
-            response:   data: array: :record
-
-          userByOtherId:
-            request:    key:  otherId: :string
-            response:   data: array: :record
-
-          userByMultiSearch:
-            request:
-              # keyFields:  :keyword :age
-              key:
-                keyword:  :string
-                :age
-
-            response:   data: array: :record
+        @fields
+          id:   :required :string
+          age:  :number
 
       assert.eq
-        myUser.requestTypes
-        merge requestTypes, pipelineRequestTypes
+        stripFunctions myUser.normalizedRequestTypes
+        get:
+          request:  key: dataType: :string, fieldType: :string, required: true
+          response: data:
+            fieldType: :record
+            dataType:  :object
+            fields:
+              id:  dataType: :string, fieldType: :string, required: true
+              age: dataType: :number, fieldType: :number
+
+        create:
+          request: data:
+            fieldType: :record
+            dataType:  :object
+            fields:
+              id:  dataType: :string, fieldType: :string, required: true
+              age: dataType: :number, fieldType: :number
+
+          response:
+            key: dataType: :string, fieldType: :string, required: true
+            data:
+              fieldType: :record
+              dataType:  :object
+              fields:
+                id:  dataType: :string, fieldType: :string, required: true
+                age: dataType: :number, fieldType: :number
+
+        update:
+          request:
+            key: dataType: :string, fieldType: :string, required: true
+            data:
+              fieldType: :record
+              dataType:  :object
+              fields:
+                id:  dataType: :string, fieldType: :string, required: true
+                age: dataType: :number, fieldType: :number
+
+          response: data:
+            fieldType: :record
+            dataType:  :object
+            fields:
+              id:  dataType: :string, fieldType: :string, required: true
+              age: dataType: :number, fieldType: :number
+
+        delete:
+          request:  key: dataType: :string, fieldType: :string, required: true
+          response: data:
+            fieldType: :record
+            dataType:  :object
+            fields:
+              id:  dataType: :string, fieldType: :string, required: true
+              age: dataType: :number, fieldType: :number
+
+    test "multi-field key" ->
+      {friend} = class Friend extends KeyFieldsMixin Pipeline
+        @keyFields :userAId :userBId
+        @requestTypes requestTypes =
+          get:
+            request:    key:  true
+            response:   data: :record
+
+        @fields
+          userAId: :id
+          userBId: :id
+          message: :string
+
+      assert.eq
+        stripFunctions friend.normalizedRequestTypes
+        get:
+          request: key:
+            dataType:  :object
+            fieldType: :object
+            fields:
+              userAId: required: true, fieldType: :id, dataType: :string
+              userBId: required: true, fieldType: :id, dataType: :string
+
+            order: [] :userAId, :userBId
+
+          response: data:
+            fieldType: :record
+            dataType:  :object
+            fields:
+              userAId: required: true,    fieldType: :id, dataType: :string
+              userBId: required: true,    fieldType: :id, dataType: :string
+              message: dataType: :string, fieldType: :string

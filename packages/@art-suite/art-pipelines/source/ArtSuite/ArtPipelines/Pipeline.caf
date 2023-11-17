@@ -218,43 +218,63 @@ class Pipeline extends &RequestHandler
 
   @_normalizeRequestResponseProps: (requestType, requestResponseProps, fields) -> if requestResponseProps
     requestResponseProps extract key, keyFields, data, props
+    # log {} requestType, requestResponseProps, fields
     if key == true
-      keyFields = @keyFields
-      key = object v, k from fields when k in keyFields
-      unless objectHasKeys key
-        throw new Error "" Error defining requestType '#{@name}.#{requestType}': One or more keyFields (#{formattedInspect keyFields}) are missing from the pipeline's fields definitions: #{Object.keys(@fields).join ', '}
-    else if key
-      if (keyArray = key) is Array
-        each v in keyArray into key = {}
-          if v is Object then mergeInto key, v
-          else if v is String
-            unless key[v] = def = @fields[v]
-              throw new Error "" Error defining requestType '#{@name}.#{requestType}': Key's field (#{v}) was not found in the pipeline's fields definitions: #{Object.keys(@fields).join ', '}
+      unless isFunction @getKeyFields
+        throw new Error "" Key field requested in requestType '#{@name}.#{requestType}', but class.getKeyFields is not defined. Suggestion: Use the KeyFieldsMixin.
+      keyFields = @getKeyFields()
+      # log {} keyFields
+      key = object keyField from keyFields
+        fields[keyField]
+        ? throw new Error "Error defining requestType '#{@name}.#{requestType}': Key field #{JSON.stringify keyField} has not been defined in fields."
 
-      if key is Object
-        keyCount = objectKeyCount key
-        if keyCount > 1 && keyFields?.length != keyCount
-          throw new Error "" Error defining requestType '#{@name}.#{requestType}': Key's definition (#{formattedInspect key}) must have a matching keyFields (#{formattedInspect keyFields}) for serialization purposes
+      normalized = normalizeFieldsProps key, fields
+      key = switch keyFields.length
+      when 0 then null
+      when 1 then
+        normalized.fields[keyFields[0]]
+      else merge
+        normalized
+        order: keyFields
+
+    # else if key
+    #   if (keyArray = key) is Array
+    #     each v in keyArray into key = {}
+    #       if v is Object then mergeInto key, v
+    #       else if v is String
+    #         log {} v
+    #         unless key[v] = def = @fields[v]
+    #           throw new Error "" Error defining requestType '#{@name}.#{requestType}': Key's field (#{v}) was not found in the pipeline's fields definitions: #{Object.keys(@fields).join ', '}
+
+    #   if key is Object
+    #     keyCount = objectKeyCount key
+    #     if keyCount > 1 && keyFields?.length != keyCount
+    #       throw new Error "" Error defining requestType '#{@name}.#{requestType}': Key's definition (#{formattedInspect key}) must have a matching keyFields (#{formattedInspect keyFields}) for serialization purposes
 
     merge {}
-      keyFields
-      key:    normalizeFieldsProps key, fields
+      key
       data:   normalizeFieldsProps data, fields
       props:  normalizeFieldsProps props, fields
 
   @classGetter
     normalizedRequestTypes: ->
-      @_normalizedRequestTypes ?= object {request, response}, k in @getRequestTypes()
-        merge
-          request:  if request then   @_normalizeRequestResponseProps k, request, @getFields()
-          response: if response then  @_normalizeRequestResponseProps k, response, @getFields()
+      @_normalizedRequestTypes ?= object {request, response, summary, description}, requestType in @getRequestTypes()
+        merge {}
+          summary, description
+          request:  if request then   @_normalizeRequestResponseProps requestType, request, @getFields()
+          response: if response then  @_normalizeRequestResponseProps requestType, response, @getFields()
+
+    normalizedPublicRequestTypes: ->
+      normalizedRequestTypes = @getNormalizedRequestTypes()
+      @_normalizedPublicRequestTypes ?= object props, key from @getPublicRequestTypes() with normalizedRequestTypes[key]
 
   @getter
     keyFields:        -> [] :id # use KeyFieldsMixin to add custom key fields
     name:             -> @class.pipelineName
     pipelineName:     -> @class.pipelineName
     recordName:       -> @class.recordName
-    normalizedRequestTypes: -> @class.normalizedRequestTypes
+    normalizedRequestTypes:       -> @class.normalizedRequestTypes
+    normalizedPublicRequestTypes: -> @class.normalizedPublicRequestTypes
     session:          -> @registry.session
     location:         -> @registry.location
     clientApiMethodList: -> @class.clientApiMethodList
@@ -613,15 +633,16 @@ class Pipeline extends &RequestHandler
     each __, name in @getPublicRequestTypes() with @_defineClientRequestMethod name
 
   @_initFilters: ->
-    requestTypes = @extendRequestTypes() # get requestTypes - and, since we are about to mutate it, this makes sure we have the version that will be mutated
     # Note, in all things, the pipeline's definitions have priority over the filter's definitions
-    each filter in @getFilters() when objectHasKeys filter.fields with @extendFields merge filter.fields, @getFields()
+    fields = @extendFields() # get a copy of the fields unique to this subclass so we can mutate it
+    each filter in @getFilters() when objectHasKeys filter.fields with mergeIntoUnless fields, filter.fields
 
     # requestTypes may depend on FieldTyeps, so run them second
-    each filter in @getFilters() when objectHasKeys filter.requestTypes with @extendRequestTypes filter.requestTypes
+    requestTypes = @extendRequestTypes() # get a copy of requestTypes unique to this class so we can mutate it
+    each filter in @getFilters() when objectHasKeys filter.requestTypes with mergeIntoUnless requestTypes, filter.requestTypes
 
-    each _, name in @getHandlers() when !requestTypes[name]
-      @extendRequestTypes [name]: {}
+    # create requestTypes for handlers, if not  already defined in requestTypes
+    each _, name in @getHandlers() when !requestTypes[name] with @extendRequestTypes [name]: {}
 
     each filter in @getFilters()
       each _, name in filter.before when name != :all && !requestTypes[name]
