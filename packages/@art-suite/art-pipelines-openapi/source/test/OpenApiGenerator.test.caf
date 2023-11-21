@@ -1,0 +1,91 @@
+import &StandardImport
+OpenAPISchemaValidator = &openapi-schema-validator.default
+openApiValidator = new OpenAPISchemaValidator version: 3
+validateOpenApi = (openApiDoc) ->
+  result = openApiValidator.validate openApiDoc
+  if result?.errors?.length > 0
+    log {} openApiDoc
+    throw new Error
+      """
+        OpenAPI Failed Validation:
+
+        #{} formattedInspect result
+
+  openApiDoc
+
+generateAndValidate = (registry) -> validateOpenApi generateOpenApi registry
+
+test "generateOpenApi" ->
+
+  {myPipeline} = class MyPipeline extends Pipeline
+    @registry new PipelineRegistry
+    @requestTypes
+      getTime:
+        summary: "" Get the time.
+        description:
+          """
+            # GetTime
+
+            A great way to get the time with excellent features:
+
+            - it returns the time
+            - it also sometimes returns the fun!
+
+        response: data:
+          time: :required :number
+          fun: :string
+    @publicRequestTypes :getTime
+
+  assert.eq objectKeyCount(myPipeline.publicRequestTypes), 1
+  assert.eq objectKeyCount(myPipeline.normalizedPublicRequestTypes), 1
+  assert.eq
+    generateAndValidate myPipeline.registry
+
+    openapi: :3.0.0
+    info:    title:                   "Sample API", version:   :1.0.0
+    paths:   "/api/myPipeline-getTime": post: {}
+      tags:      [] :myPipeline
+      myPipeline.requestTypes.getTime.summary
+      myPipeline.requestTypes.getTime.description
+      responses: 200:
+        description: "" Successful response
+        content:     application/json: schema:
+          type:       :object
+          properties: data:
+            required: [] :time
+            type: :object
+            properties:
+              time: type: :number
+              fun:  type: :string
+
+test "CRUD example" ->
+  class CrudFilter extends Filter
+    @requestTypes
+      get:
+        request:    key:  true
+        response:   data: :record
+
+      create:
+        request:    data: :record
+        response:   key:  true    data: :record
+
+      update:
+        request:    key:  true    data: :record
+        response:   data: :record
+
+      delete:
+        request:    key:  true
+        response:   data: :record
+
+  {user} = class User extends KeyFieldsMixin Pipeline
+    @registry new PipelineRegistry
+    @filter CrudFilter
+    @fields
+      id:   :string
+      name: :string
+      age:  :number
+
+    @publicRequestTypes :get :create :update :delete
+
+  assert.eq
+    generateAndValidate user.registry

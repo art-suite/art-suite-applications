@@ -1,0 +1,66 @@
+import &StandardImport, &@ArtSuite/RestTransport
+
+## TODO
+  Decision: for keys
+    all key-fields can be specifried as query-params
+    required key-fields can be passed pathed
+    One key (either are correct):
+      get/abc123
+      get?id:abc123
+
+    Two required key-fields (either are correct)
+      getByPostIdUserId/abc123/def456
+      getByPostIdUserId?postId=abc123&userId=def456
+
+    One required, one optional key-field:
+      get/abc123?optionalKey=dfg45
+
+normalizedFieldTypeToOpenApiType = (arg) ->
+  {dataType, fields} = arg
+  switch dataType
+  when :integer :number :string :boolean
+    type: dataType
+  when :object
+    requiredFields = []
+    result =
+      type: :object
+      properties: object field, name in fields
+        if field.required then requiredFields.push name
+        log recurse: normalizedFieldTypeToOpenApiType: {} fields, field
+        normalizedFieldTypeToOpenApiType field
+
+    if requiredFields.length > 0 then result.required = requiredFields
+    result
+
+  else
+    log.error {} dataType, fields, arg
+    throw new Error "unsupported dataType: #{formattedInspect dataType}"
+
+class OpenApiGenerator extends BaseClass
+  @generateOpenApi: (pipelineRegistry) ->
+    apiRoot = :api
+    openapi: :3.0.0
+    info:
+      title: ""Sample API
+      version: :1.0.0
+    paths:
+      each pipeline in pipelineRegistry.pipelines into out = {}
+        each props, type from log :getNormalizedPublicRequestTypes pipeline.getNormalizedPublicRequestTypes() into out
+          {method, url} = getRestClientParamsForArtEryRequest {}
+            server: ""
+            type
+            pipeline.restPath
+            restPath: getPipelineRestPath apiRoot, pipeline
+
+          (out[url]?={})[method] = merge {}
+            summary: props.summary ? type
+            props.description
+            tags: [] pipeline.name
+            responses:
+              200:
+                description: "" Successful response
+                content:
+                  application/json:
+                    schema: normalizedFieldTypeToOpenApiType log type,
+                      dataType: :object
+                      fields: props.response
