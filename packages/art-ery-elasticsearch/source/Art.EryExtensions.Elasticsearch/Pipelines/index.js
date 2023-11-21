@@ -9,4 +9,3 @@
   ElasticsearchPipelineBase:     require('./ElasticsearchPipelineBase'),
   MirroredElasticsearchPipeline: require('./MirroredElasticsearchPipeline')
 });
-require('./Caf-WIP');

@@ -5,4 +5,3 @@ module.exports = require('../namespace').addNamespace(
   'Pipelines',
   class Pipelines extends Neptune.PackageNamespace {}
 );
-require('./Caf-WIP/namespace');

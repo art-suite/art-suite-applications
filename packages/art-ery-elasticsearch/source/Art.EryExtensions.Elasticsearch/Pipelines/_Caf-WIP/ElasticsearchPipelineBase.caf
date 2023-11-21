@@ -1,4 +1,4 @@
-import &ArtStandardLib, &ArtClassSystem, &ArtEry, &ElasticsearchConfig, &AwsAws
+import &ArtStandardLib, &ArtClassSystem, &ArtEry, &ElasticsearchConfig, &ArtAws
 
 class ElasticsearchPipelineBase extends Pipeline
   @abstractClass()
