@@ -35,8 +35,9 @@
     "build-clean": "# BUILD CLEAN START\n#   - building into: build-temp\n#\nrm -rf ./__build-old__\ncd source\nfind . -name '*.js' -o -name '*.css' | cpio -vpdm ../build-temp\ncd ..\ncoffee -m --output build-temp --compile source &\nCOFFEE_PID=$!\ncaf -m -c source -o build-temp --require coffee-script/register&\nCAF_PID=$!\nwait $COFFEE_PID || exit 1\nwait $CAF_PID || exit 1\nnpm run nn\n\nnn build-temp/*\n\n# BUILD CLEAN FINIALIZING\n#  - replace old build in:   build\n#  - with new build from:    build-temp\n#\nmv build __build-old__\nmv build-temp build\nrm -rf ./__build-old__",
     "clean": "rm -rf build/*",
     "nn": "nn build/* test/tests",
-    "start-test-server": "docker run docker.elastic.co/elasticsearch/elasticsearch:7.17.15 -d",
+    "stop-test-server": "docker-compose down",
     "test": "npm run nn\nmocha -u tdd",
+    "test-server": "docker-compose up -d",
     "watch": "npm-watch"
   },
   "version": "0.13.10",

@@ -48,15 +48,22 @@ defineModule module, class ElasticsearchGlobal extends require './ElasticsearchP
       request.subrequest request.pipeline, "indexExists"
       .then (exists) =>
         if !exists
+          log initialize: [@getIndexUrl(), @class.getElasticsearchMappings()]
           @normalizeJsonRestClientResponse request,
             @restClient.putJson @getIndexUrl(), @class.getElasticsearchMappings()
+          .tap (success) =>
+            log {success}
+          .catch (error) =>
+            log {error}
+            if error.status == "clientFailure" then error.status == "failure"
+            throw error
         else
           status: "alreadyInitialized"
 
     getInitializeParams: (request) -> @class.getElasticsearchMappings()
 
     getIndicies: (request) ->
-      @restClient.getJson "/*"
+      @restClient.getJson "#{config.endpoint}/*"
 
     indexExists: (request) ->
       @restClient.getJson @getIndexUrl()
