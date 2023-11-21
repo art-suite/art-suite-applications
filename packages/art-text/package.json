@@ -1,11 +1,28 @@
 {
-  "author": "Shane Brinkman-Davis Delamore, Imikimi LLC\"",
+  "author": "Shane Brinkman-Davis Delamore, Imikimi LLC",
   "bugs": "https://github.com/art-suite/art-suite-applications/issues",
   "dependencies": {
-    "@art-suite/art-canvas": "^1.28.7",
-    "art-build-configurator": "^1.29.3"
+    "art-build-configurator": "^1.29.3",
+    "art-canvas": "git://github.com/imikimi/art-canvas.git"
   },
   "description": "Art.Text",
+  "devDependencies": {
+    "art-testbench": "^3.2.2",
+    "case-sensitive-paths-webpack-plugin": "^2.2.0",
+    "chai": "^4.2.0",
+    "coffee-loader": "^0.7.3",
+    "css-loader": "^6.2.0",
+    "json-loader": "^0.5.7",
+    "mocha": "^7.2.0",
+    "mock-fs": "^5.0.0",
+    "script-loader": "^0.7.2",
+    "style-loader": "^3.2.1",
+    "webpack": "^5.35.1",
+    "webpack-cli": "^4",
+    "webpack-dev-server": "^4.1.1",
+    "webpack-merge": "^5.7.3",
+    "webpack-node-externals": "^3.0.0"
+  },
   "homepage": "https://github.com/art-suite/art-suite-applications",
   "license": "ISC",
   "name": "art-text",
@@ -15,8 +32,8 @@
   },
   "scripts": {
     "build": "webpack --progress",
-    "start": "webpack serve --hot --inline --progress",
-    "test": "webpack serve --progress"
+    "start": "webpack serve --hot --inline --progress --env.devServer",
+    "test": "webpack serve  --progress --env.devServer"
   },
   "version": "1.2.13"
 }
