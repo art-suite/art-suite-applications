@@ -1,0 +1,7 @@
+test/
+start_elasticsearch_local_server.sh
+coverage/
+art.build.config.caf
+docker-compose.yml
+webpack.config.js
+*.tgz
