@@ -1,0 +1,17 @@
+import &StandardImport
+
+suite: ->
+  @timeout 10000
+
+  test :indexExists ->
+    pipelines.elasticsearchGlobal.indexExists originatedOnServer: true
+    .then assert.isBoolean
+
+  # test :getIndicies ->
+  #   pipelines.elasticsearchGlobal.getIndicies originatedOnServer: true
+  #   .then (val) ->
+  #     assert.isPlainObject val
+  #     each v, k in val
+  #       assert.isPlainObject v.aliases
+  #       assert.isPlainObject v.settings
+  #       assert.isPlainObject v.mappings

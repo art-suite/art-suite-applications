@@ -1,0 +1,80 @@
+import &StandardImport
+
+suite: ->
+  post = postSearch = null
+  @timeout 10000
+
+  setup ->
+    &ArtEry._reset (pipeline) ->
+      pipeline.getName() != :elasticsearchGlobal
+
+    class Post extends UpdateAfterMixin KeyFieldsMixin Pipeline
+      @addDatabaseFilters
+        text: :trimmedString
+
+      constructor: ->
+        super
+        @data = {}
+
+      @handlers
+        get:    ({key})       -> @data[key]
+        create: ({data})      -> key = randomString(); @data[key] = merge data, id: key
+        update: ({key, data}) -> @data[key] = merge @data[key], data
+
+    class PostSearch extends MirroredElasticsearchPipeline
+      @sourcePipelineName "post"
+      @mapping
+        properties:
+          text:   type: :text,    analyzer: :english
+
+    {post, postSearch} = pipelines
+
+    pipelines.elasticsearchGlobal.deleteIndex returnNullIfMissing: true, data: force: true
+    .then -> pipelines.elasticsearchGlobal.initialize()
+
+  test :initialize ->
+
+  test :create ->
+    post.create
+      data:
+        text:   "" The best posting ever
+    .then ({id}) ->
+      timeout 1000
+      .then ->
+        postSearch.elasticsearch data:
+          query: match: text: :post
+
+      .then (result) ->
+        assert.eq result.hits.total, 1
+        assert.eq result.hits.hits[0]._id, id
+
+  test :update ->
+    post.create
+      data:
+        text:   "" The best posting ever
+    .then ({id}) ->
+      post.update key: id, data: text: "" Actually, this is the best posting ever.
+      .then -> timeout 1000
+      .then ->
+        postSearch.elasticsearch data:
+          query: match: text: :actually
+
+      .then (result) ->
+        assert.eq result.hits.total, 1
+        assert.eq result.hits.hits[0]._id, id
+
+  test :reindex ->
+    post.create
+      data:
+        text: "" So good, actually, that I need to index it twice.
+    .then (data) ->
+      {id} = data
+      postSearch.reindex key: id
+      .then -> timeout 1000
+      .then ->
+        postSearch.elasticsearch data:
+          query: match: text: :good
+
+      .then (result) ->
+        assert.eq result.hits.total, 1
+        assert.eq result.hits.hits[0]._id, id

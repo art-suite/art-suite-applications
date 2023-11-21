@@ -1,0 +1,6 @@
+&ArtStandardLib.merge
+  &ArtStandardLib
+  &ArtEry
+  &ArtCommunicationStatus
+  &ArtTestbench
+  &build

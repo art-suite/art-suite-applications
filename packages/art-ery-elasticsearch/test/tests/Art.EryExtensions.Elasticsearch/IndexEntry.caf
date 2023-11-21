@@ -1,0 +1,52 @@
+import &StandardImport
+
+suite: ->
+  @timeout 10000
+
+  userSearch = postSearch = null
+
+  setup ->
+    class UserSearch extends ElasticsearchPipeline
+      @mapping
+        properties:
+          email: type: :keyword
+          name:  type: :text
+          about: type: :text, analyzer: :english
+
+    {userSearch, postSearch} = pipelines
+
+    pipelines.elasticsearchGlobal.deleteIndex returnNullIfMissing: true, data: force: true
+    .then -> pipelines.elasticsearchGlobal.initialize()
+
+  test "indexExists, deleteIndex and initialize" ->
+    pipelines.elasticsearchGlobal.indexExists()
+    .then (exists) ->
+      assert.isBoolean exists
+      assert.ok exists
+
+  test "index then search", ->
+    userSearch.update key: :123, data: email: :shanebdavis@imikimi.com, name: "Shane Delamore", about: "I like to make fun things."
+    .then -> timeout 1000 # it takes > 500ms for the new entry to show up in the search...
+    .then -> userSearch.elasticsearch data: query: match: about: "thing"
+    .then (out) -> assert.eq out.hits.total, 1
+
+  test "update-create then update-update then search" ->
+    userSearch.update key: :123, data: email: :shanebdavis@imikimi.com, name: "Shane Delamore", about: "I like to make fun things."
+    .then -> timeout 1000 # it takes > 500ms for the new entry to show up in the search...
+    .then -> userSearch.elasticsearch data: query: match: about: :thing
+    .then (out) -> assert.eq out.hits.total, 1
+    .then -> userSearch.update key: :123, data: email: :shanebdavis@gmail.com
+
+    .then -> timeout 1000 # it takes > 500ms for the new entry to show up in the search...
+    .then -> userSearch.elasticsearch data: query: match: about: :thing
+    .then (out) ->
+      assert.eq out.hits.total, 1
+      assert.eq
+        email: "shanebdavis@gmail.com"
+        name: "Shane Delamore"
+        about: "I like to make fun things."
+        out.hits.hits[0]._source
+
+  test "delete non-existant record", ->
+    assert.rejects userSearch.delete key: randomString(), data: email: :shanebdavis@imikimi.com, name: "Shane Delamore", about: "I like to make fun things."
+    .then ({status}) -> assert.eq status, missing
