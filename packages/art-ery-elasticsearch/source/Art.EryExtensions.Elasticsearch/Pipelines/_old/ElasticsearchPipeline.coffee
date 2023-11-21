@@ -8,7 +8,6 @@
   merge
   isFunction
 } = require 'art-standard-lib'
-{DeclarableMixin} = require 'art-class-system'
 {missing, clientFailure} = require 'art-communication-status'
 {Pipeline, pipelines} = require 'art-ery'
 

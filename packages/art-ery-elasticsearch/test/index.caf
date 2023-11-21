@@ -1,4 +1,4 @@
-require '../index.coffee'
+&build
 &ArtTestbench/Testing
 .init
   synchronous: true

@@ -1,2 +1,2 @@
-require('../register');
-require('./index.caf');
+require("caffeine-script/register");
+require("./index.caf");

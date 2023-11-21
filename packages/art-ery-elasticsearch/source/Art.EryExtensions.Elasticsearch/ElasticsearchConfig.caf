@@ -1,0 +1,6 @@
+import &ArtStandardLib, &ArtConfig
+
+class ElasticsearchConfig extends Configurable
+  @defaults
+    index:    :ArtEryElasticsearch
+    endpoint: :http://localhost:9200

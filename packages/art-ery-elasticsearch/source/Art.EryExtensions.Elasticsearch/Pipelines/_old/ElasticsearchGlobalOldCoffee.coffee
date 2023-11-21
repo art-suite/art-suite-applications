@@ -7,7 +7,6 @@
   objectWithout
   mergeInto
 } = require 'art-standard-lib'
-{DeclarableMixin} = require 'art-class-system'
 {Pipeline, pipelines} = require 'art-ery'
 
 {config} = require "../ElasticsearchConfig"

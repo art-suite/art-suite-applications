@@ -1,6 +1,7 @@
-&ArtStandardLib.merge
+[]
   &ArtStandardLib
+  &ArtClassSystem
   &ArtEry
+  &ArtAws
   &ArtCommunicationStatus
-  &ArtTestbench
-  &build
+  &ElasticsearchConfig

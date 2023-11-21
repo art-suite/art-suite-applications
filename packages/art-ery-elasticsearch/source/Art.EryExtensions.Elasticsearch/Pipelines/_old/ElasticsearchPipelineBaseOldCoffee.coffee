@@ -8,13 +8,12 @@
   objectWithout
   snakeCase
 } = require 'art-standard-lib'
-{DeclarableMixin} = require 'art-class-system'
 {Pipeline, pipelines} = require 'art-ery'
 
 {config} = require "../ElasticsearchConfig"
 {Aws4RestClient} = require 'art-aws'
 
-defineModule module, class ElasticsearchPipelineBase extends DeclarableMixin Pipeline
+defineModule module, class ElasticsearchPipelineBase extends Pipeline
   @abstractClass()
   @getter
     restClient:           -> new Aws4RestClient merge config, service: 'es'

@@ -1,7 +1,9 @@
 package: &@ArtSuite/StandardPackageBuilder.configure {}
   &package
   mocha: true
-  coffee: true
+  coffeeScript: true
+  scripts:
+    start-test-server: "" docker run docker.elastic.co/elasticsearch/elasticsearch:7.17.15 -d
 
 target:
   ###
