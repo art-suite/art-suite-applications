@@ -45,8 +45,8 @@
   },
   "scripts": {
     "build": "webpack --progress",
-    "start": "webpack serve --hot --inline --progress",
-    "test": "webpack serve --progress"
+    "start": "webpack serve --hot --inline --progress --env.devServer",
+    "test": "webpack serve  --progress --env.devServer"
   },
   "version": "2.0.7"
 }

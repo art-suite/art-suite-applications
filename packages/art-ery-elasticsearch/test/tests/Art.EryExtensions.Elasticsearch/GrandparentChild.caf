@@ -36,8 +36,8 @@ suite: ->
 
     {userSearch, postSearch, feedSearch} = pipelines
 
-    pipelines.elasticsearchGlobal.deleteIndex returnNullIfMissing: true, data: force: true
-    .then -> pipelines.elasticsearchGlobal.initialize()
+    pipelines.elasticsearchGlobal.deleteIndex returnNullIfMissing: true originatedOnServer: true data: force: true
+    .then -> pipelines.elasticsearchGlobal.initialize originatedOnServer: true
 
   test "initializing", ->
 

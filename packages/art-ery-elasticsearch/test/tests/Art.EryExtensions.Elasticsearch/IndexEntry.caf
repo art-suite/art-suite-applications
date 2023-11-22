@@ -15,8 +15,8 @@ suite: ->
 
     {userSearch, postSearch} = pipelines
 
-    pipelines.elasticsearchGlobal.deleteIndex returnNullIfMissing: true, data: force: true
-    .then -> pipelines.elasticsearchGlobal.initialize()
+    pipelines.elasticsearchGlobal.deleteIndex originatedOnServer: true returnNullIfMissing: true, data: force: true
+    .then -> pipelines.elasticsearchGlobal.initialize originatedOnServer: true
 
   test "indexExists, deleteIndex and initialize" ->
     pipelines.elasticsearchGlobal.indexExists()

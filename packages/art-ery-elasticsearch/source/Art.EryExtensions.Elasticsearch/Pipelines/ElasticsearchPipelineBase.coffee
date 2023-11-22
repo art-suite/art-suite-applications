@@ -18,13 +18,14 @@ defineModule module, class ElasticsearchPipelineBase extends Pipeline
   @getter
     restClient:           -> new Aws4RestClient merge config, service: 'es'
     elasticsearchIndex:   -> @_elasticsearchIndex ||= snakeCase config.index
-    indexUrl:     (index) -> "/#{index || @getElasticsearchIndex()}"
+    indexUrl:     (index) -> "#{config.endpoint}/#{index || @getElasticsearchIndex()}"
 
   normalizeJsonRestClientResponse: (request, p) ->
     p.catch (e) => @normalizeJsonRestClientError request, e
 
   normalizeJsonRestClientError: (request, error) ->
     if error.status
+      if error.status == "clientFailure" then error.status = "failure"
       request.toResponse error.status, data: error.data
     else
       throw error

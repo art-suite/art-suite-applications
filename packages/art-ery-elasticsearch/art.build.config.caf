@@ -3,7 +3,9 @@ package: &@ArtSuite/StandardPackageBuilder.configure {}
   mocha: true
   coffeeScript: true
   scripts:
-    start-test-server: "" docker run docker.elastic.co/elasticsearch/elasticsearch:7.17.15 -d
+    test-server: "" docker-compose up -d
+    start-test-server: "" npm run test-server
+    stop-test-server: "" docker-compose down
 
 target:
   ###
