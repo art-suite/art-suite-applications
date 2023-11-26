@@ -89,21 +89,16 @@ class LinkFieldsFilter extends ValidationFilter
 
     .then -> linkedData
 
-
-  booleanProps = :link :required :include :autoCreate
   @normalizeLinkFields: (linkFields) ->
     each fieldProps, fieldName from linkFields into lf = {}
-      {link, include, required, autoCreate} = normalizeFieldProps fieldProps
+      {link, include, required, autoCreate} = normalized = normalizeFieldProps fieldProps
 
       if link
-        lf[fieldName] = props =
+        lf[fieldName] = merge
+          normalized
           pipelineName: if isString link then link else fieldName
           idFieldName:  fieldName + :Id
-
-        props.autoCreate = true if autoCreate
-        props.include =    true if include
-        props.required =   true if required
-
+          link:         true
 
   # returns a new request
   preprocessRequest: (request) ->

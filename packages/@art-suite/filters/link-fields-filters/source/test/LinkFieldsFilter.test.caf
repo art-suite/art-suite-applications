@@ -19,8 +19,8 @@ describe
           post: link: :post
 
       assert.eq trimFields(MyPipeline.getFields()),
-        userId:  dataType: :string fieldType: :trimmedString pipelineName: :user required: true maxLength: 1024
-        postId:  dataType: :string fieldType: :trimmedString pipelineName: :post maxLength: 1024
+        userId:  dataType: :string fieldType: :trimmedString pipelineName: :user link: true required: true maxLength: 1024
+        postId:  dataType: :string fieldType: :trimmedString pipelineName: :post link: true maxLength: 1024
 
     test "linked objects get converted to ids for writing", ->
       class MyPipeline extends SimplePipeline
@@ -37,7 +37,7 @@ describe
 
       class Post extends SimplePipeline
         @filter new LinkFieldsFilter fields:
-          media: link: autoCreate: required: true
+          media: :link :autoCreate :required
 
       pipelines.post.create
         data: media: {} url = :bar.com/foo
