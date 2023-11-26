@@ -4,15 +4,15 @@ responseValidator = requestValidator = null
 
 createValidators = () ->
   responseValidator ?= new Validator
-    request:  [] :required instanceof: Request
+    request:  required: true instanceof: Request
     status:   :required :communicationStatus
     session:  :object
     props:    :object
 
   requestValidator ?= new Validator
     # pipeline:           required: instanceof: ArtPipelines.Pipeline
-    type:               required: fieldType: :string
-    session:            required: fieldType: :object
+    type:               :required :string
+    session:            :required :object
     parentRequest:      instanceof: Request
     originatedOnServer: :boolean
     props:              :object

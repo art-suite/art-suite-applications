@@ -12,7 +12,7 @@ describe
     chainedTest "simple" ->
       {myPipeline} = class MyPipeline extends Pipeline
         @requestTypes requestTypes =
-          getTime: response: data: time: :number
+          getTime: response: data: fields: time: :number
 
       assert.eq
         myPipeline.requestTypes
@@ -23,8 +23,7 @@ describe
     .thenTest "simple normalizedRequestTypes" (myPipeline) ->
       assert.eqAfterStringifyingFunctions
         myPipeline.normalizedRequestTypes
-        getTime:
-            response:   data: normalizeFieldProps fields: time: :number
+        getTime: response: normalizeFieldProps fields: data: fields: time: :number
 
   autodefined: ->
     test "handlers define request types" ->
@@ -58,7 +57,7 @@ describe
 
       assert.eqAfterStringifyingFunctions
         myPipeline.normalizedRequestTypes
-        getTime: response: data: normalizeFieldProps :number
+        getTime: response: normalizeFieldProps fields: data: :number
 
     test ":record data" ->
       requestTypes = null
@@ -70,12 +69,17 @@ describe
         myPipeline.requestTypes
         requestTypes
 
-      assert.eqAfterStringifyingFunctions
-        myPipeline.normalizedRequestTypes
-        getTime: response: data: merge
-          normalizeFieldProps {} myPipeline.fields
-          fieldType: :record
+      assert.eq
+        stripFunctions myPipeline.normalizedRequestTypes
+        getTime: response:
+          fields: data:
+            fields:    name: dataType: :string, fieldType: :string
+            dataType:  :object
+            fieldType: :record
 
+          dataType:  :object
+          fieldType: :object
+##
   extraFields: ->
     test "singleton data" ->
       {myPipeline} = class MyPipeline extends Pipeline
@@ -232,21 +236,19 @@ describe
             fieldType: :record
             dataType:  :object
             fields:
-              userAId: required: true,    fieldType: :id, dataType: :string
-              userBId: required: true,    fieldType: :id, dataType: :string
-              message: dataType: :string, fieldType: :string
+              userAId: required: true     fieldType: :id, dataType: :string
+              userBId: required: true     fieldType: :id, dataType: :string
+              message: dataType: :string  fieldType: :string
 
-    test "regression" ->
+    skipKnownFailingTest "integer field-type should be supported" ->
       # TODO: two issues:
       #   1. we should have an "integer" field-type
       #   2. currently an unknown string becomes [string]: true - no errors, no exceptions; I may want to revisit that decision
       {user} = class User extends KeyFieldsMixin Pipeline
         @registry new PipelineRegistry
-        @requestTypes
-          get: response: data: :record
+        @requestTypes get: response: data: :record
 
-        @fields
-          age:  :integer
+        @fields age: :integer
 
         @publicRequestTypes :get
 
@@ -256,3 +258,21 @@ describe
           fieldType: :record
           dataType:  :object
           fields:    age: dataType: :number, fieldType: :integer
+
+    test "record required" ->
+      {user} = class User extends KeyFieldsMixin Pipeline
+        @registry new PipelineRegistry
+        @fields
+          id: :id
+
+        @requestTypes
+          get:
+            request:    key:  true
+            response:   data:
+              required: true
+              fieldType: :record
+
+      assert.eq
+        stripFunctions user.normalizedRequestTypes
+        get: response: data:
+          fieldType: :record

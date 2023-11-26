@@ -1,4 +1,4 @@
-import &StandardImport, &ArtValidation, &Config, {}
+import &StandardImport, &Config, {}
   &Filter
   &Session
   &Request
@@ -251,10 +251,9 @@ class Pipeline extends &RequestHandler
     #     if keyCount > 1 && keyFields?.length != keyCount
     #       throw new Error "" Error defining requestType '#{@name}.#{requestType}': Key's definition (#{formattedInspect key}) must have a matching keyFields (#{formattedInspect keyFields}) for serialization purposes
 
-    merge {}
-      key
-      data:   normalizeFieldsProps data, fields
-      props:  normalizeFieldsProps props, fields
+    normalizeFieldProps
+      {} fields: merge {} key, data, props
+      customFieldTypes: record: {} fields
 
   @classGetter
     normalizedRequestTypes: ->
