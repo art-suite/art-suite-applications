@@ -17,6 +17,23 @@ generateAndValidate = (registry) -> validateOpenApi generateOpenApi registry
 
 describe
   basics: ->
+    test "simplest" ->
+
+      {myPipeline} = class MyPipeline extends Pipeline
+        @registry new PipelineRegistry
+        @publicHandler
+          get: -> 123
+
+      assert.eq
+        generateAndValidate myPipeline.registry
+        openapi: :3.0.0
+        info:    title:           "Sample API", version: :1.0.0
+        paths:   "/api/myPipeline": get:
+          operationId: :myPipeline.get
+          summary:     "" get myPipeline
+          tags:        [] :myPipeline
+          responses:   200: description: "Successful response"
+
     test "generateOpenApi" ->
 
       {myPipeline} = class MyPipeline extends Pipeline
@@ -84,7 +101,7 @@ describe
         info:    title:     "Sample API", version: :1.0.0
         paths:   "/api/user": get:
           operationId:  :user.get
-          summary:      "pipeline: :user, requestType: :get"
+          summary:      "" get user
           tags:         [] :user
           parameters:   [] in: :path, name: :id, required: true, schema: type: :string
           responses: 200:
@@ -125,7 +142,7 @@ describe
         info:    title:     "Sample API", version: :1.0.0
         paths:   "/api/user": post:
           operationId: :user.create
-          summary:     "pipeline: :user, requestType: :create"
+          summary:     "" create user
           tags:    [] :user
           requestBody:
             required: true
@@ -163,10 +180,6 @@ describe
             request:    key:  true    data: :required :record
             response:   data: :required :record
 
-          # delete:
-          #   request:    key:  true
-          #   response:   data: :required :record
-
         @fields
           id:   :required :string
           name: :string
@@ -180,7 +193,7 @@ describe
         info:    title:     "Sample API", version: :1.0.0
         paths:   "/api/user": put:
           operationId: :user.update
-          summary:     "pipeline: :user, requestType: :update"
+          summary:     "" update user
           tags:        [] :user
           parameters:  [] in: :path, name: :id, required: true, schema: type: :string
           requestBody:
@@ -229,7 +242,7 @@ describe
         info:    title:     "Sample API", version: :1.0.0
         paths:   "/api/user": delete:
           operationId: :user.delete
-          summary:     "" pipeline: :user, requestType: :delete
+          summary:     "" delete user
           tags:        [] :user
           parameters:  [] in: :path, name: :id, required: true, schema: type: :string
 

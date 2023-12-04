@@ -1,3 +1,5 @@
 package: &@ArtSuite/StandardPackageBuilder.configure {}
   &package
-  scripts: jest: "jest --reporters=jest-fixed-default-reporter/SummaryReporter"
+  scripts:
+    jest: "jest --reporters=jest-fixed-default-reporter/SummaryReporter"
+    demo: "" caf source/demo/server

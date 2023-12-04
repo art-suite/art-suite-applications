@@ -21,6 +21,15 @@ class City extends KeyFieldsMixin Pipeline
     get:
       request:    key:  true
       response:   data: :required :record
+    create:
+      request:    data: :required :record
+      response:   key:  true    data: :required :record
+    update:
+      request:    key:  true    data: :required :record
+      response:   data: :required :record
+    delete:
+      request:    key:  true
+      response:   data: :required :record
 
   @publicHandler
     get:    ({key}) -> @_records[key]

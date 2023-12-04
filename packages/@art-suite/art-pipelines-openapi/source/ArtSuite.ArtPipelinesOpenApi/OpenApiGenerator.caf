@@ -82,6 +82,7 @@ class OpenApiGenerator extends BaseClass
       paths:
         each pipeline in pipelineRegistry.pipelines into out = {}
           each props, type from pipeline.normalizedPublicRequestTypes into out
+            # log {} props, type
             unless props
               log.warn  log "" OpenApiGenerator no public requestType definition for action-type: #{type}
             else
@@ -102,7 +103,7 @@ class OpenApiGenerator extends BaseClass
               else request
               (out[url]?={})[method] = merge {}
                 operationId: "#{pipeline.name}.#{type}"
-                summary: summary ? formattedInspect pipeline: pipeline.name, requestType: type
+                summary: summary ? "" #{type} #{pipeline.name}
                 description
                 tags: [] pipeline.name
                 parameters: if key? then [] {}
@@ -122,9 +123,9 @@ class OpenApiGenerator extends BaseClass
                         "" #{type}: request:
 
                 responses:
-                  200:
+                  200: merge
                     description: "" Successful response
-                    content:
+                    content: if objectHasKeys response?.fields
                       application/json:
                         schema: normalizedFieldTypeToOpenApiType
                           response
