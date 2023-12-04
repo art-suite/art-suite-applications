@@ -3,6 +3,7 @@ server = null
 
 chainedTest "start server" ->
   server = start
+    port: 0
     quiet: true
     verbose: true # quiet trumps verbose, but verbose still does the work, so we can test those lines
     allowAllCors: true
