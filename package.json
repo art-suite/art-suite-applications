@@ -109,6 +109,7 @@
   },
   "scripts": {
     "sync": "art-monorepo sync",
-    "test": "art-monorepo test"
+    "test": "art-monorepo test",
+    "versions": "art-monorepo versions"
   }
 }
