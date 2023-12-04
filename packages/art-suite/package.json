@@ -12,7 +12,7 @@
     "art-events": "^2.0.0",
     "art-react": "^1.35.7",
     "art-text": "^1.2.13",
-    "art-validation": "^1.11",
+    "art-validation": "^2.1.2",
     "art-xbd": "^1.1.6"
   },
   "description": "All the Art.* Packages you need for writing Apps in one require.",

@@ -3,7 +3,7 @@
   "bugs": "https://github.com/art-suite/art-suite-applications/issues",
   "dependencies": {
     "@art-suite/art-canvas": "^1.28.7",
-    "@art-suite/art-foundation": "^2.0.0",
+    "@art-suite/art-foundation": "^3.0.0",
     "art-atomic": "^1.28.4",
     "art-build-configurator": "^1.29.3",
     "art-events": "^2.0.0",

@@ -2,7 +2,7 @@
   "bugs": "https://github.com/art-suite/art-suite-applications/issues",
   "dependencies": {
     "art-standard-lib": "^1.70.6",
-    "art-validation": "^1.11"
+    "art-validation": "^2.1.2"
   },
   "homepage": "https://github.com/art-suite/art-suite-applications",
   "jest": {
