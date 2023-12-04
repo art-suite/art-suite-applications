@@ -19,6 +19,7 @@
     "@art-suite/key-fields-mixin": "file:packages/@art-suite/key-fields-mixin",
     "@art-suite/link-fields-filters": "file:packages/@art-suite/filters/link-fields-filters",
     "@art-suite/monorepo": "^1.7.4",
+    "@art-suite/pipelines": "file:unpublished/@art-suite/pipelines",
     "@art-suite/pointer-actions-mixin": "file:packages/@art-suite/pointer-actions-mixin",
     "@art-suite/rest-transport": "file:packages/@art-suite/rest-transport",
     "@art-suite/standard-package-builder": "^1.1.5",

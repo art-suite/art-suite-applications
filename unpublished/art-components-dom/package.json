@@ -18,7 +18,9 @@
     "style-loader": "^3.2.1",
     "webpack": "^5.35.1",
     "webpack-cli": "^5.1.4",
+    "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^4.1.1",
+    "webpack-merge": "^5.7.3",
     "webpack-node-externals": "^3.0.0"
   },
   "homepage": "https://github.com/art-suite/art-suite-applications",
@@ -30,7 +32,7 @@
   },
   "scripts": {
     "build": "webpack --progress",
-    "start": "webpack-dev-server --hot --inline --progress --env.devServer",
-    "test": "webpack-dev-server  --progress --env.devServer"
+    "start": "webpack serve --hot --inline --progress --env.devServer",
+    "test": "webpack serve  --progress --env.devServer"
   }
 }

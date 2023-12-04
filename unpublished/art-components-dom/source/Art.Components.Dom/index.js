@@ -2,7 +2,8 @@
 // file: Art.Components.Dom/index.js
 
 (module.exports = require('./namespace'))
-
+.includeInNamespace(require('./Dom'))
 .addModules({
-  StandardImport: require('./StandardImport')
+  DomVirtualElement: require('./DomVirtualElement'),
+  StandardImport:    require('./StandardImport')
 });
