@@ -15,76 +15,236 @@ validateOpenApi = (openApiDoc) ->
 
 generateAndValidate = (registry) -> validateOpenApi generateOpenApi registry
 
-test "generateOpenApi" ->
+describe
+  basics: ->
+    test "generateOpenApi" ->
 
-  {myPipeline} = class MyPipeline extends Pipeline
-    @registry new PipelineRegistry
-    @requestTypes
-      getTime:
-        summary: "" Get the time.
-        description:
-          """
-            # GetTime
+      {myPipeline} = class MyPipeline extends Pipeline
+        @registry new PipelineRegistry
+        @requestTypes
+          getTime:
+            summary: "" Get the time.
+            description:
+              """
+                # GetTime
 
-            A great way to get the time with excellent features:
+                A great way to get the time with excellent features:
 
-            - it returns the time
-            - it also sometimes returns the fun!
+                - it returns the time
+                - it also sometimes returns the fun!
 
-        response: data:
-          time: :required :number
-          fun: :string
-    @publicRequestTypes :getTime
+            response: data: fields:
+              time: :required :number
+              fun: :string
+        @publicRequestTypes :getTime
 
-  assert.eq objectKeyCount(myPipeline.publicRequestTypes), 1
-  assert.eq objectKeyCount(myPipeline.normalizedPublicRequestTypes), 1
-  assert.eq
-    generateAndValidate myPipeline.registry
+      assert.eq objectKeyCount(myPipeline.publicRequestTypes), 1
+      assert.eq objectKeyCount(myPipeline.normalizedPublicRequestTypes), 1
+      assert.eq
+        generateAndValidate myPipeline.registry
 
-    openapi: :3.0.0
-    info:    title:                   "Sample API", version:   :1.0.0
-    paths:   "/api/myPipeline-getTime": post: {}
-      tags:      [] :myPipeline
-      myPipeline.requestTypes.getTime.summary
-      myPipeline.requestTypes.getTime.description
-      responses: 200:
-        description: "" Successful response
-        content:     application/json: schema:
-          type:       :object
-          properties: data:
-            required: [] :time
-            type: :object
-            properties:
-              time: type: :number
-              fun:  type: :string
+        openapi: :3.0.0
+        info:    title:                   "Sample API", version:   :1.0.0
+        paths:   "/api/myPipeline-getTime": post: {}
+          tags:      [] :myPipeline
+          myPipeline.requestTypes.getTime.summary
+          myPipeline.requestTypes.getTime.description
+          operationId: :myPipeline.getTime
+          responses: 200:
+            description: "" Successful response
+            content:     application/json: schema:
+              type:       :object
+              properties: data:
+                required: [] :time
+                type: :object
+                properties:
+                  time: type: :number
+                  fun:  type: :string
 
-test "CRUD example" ->
+  CRUD: ->
+    test "CRUD:get example" ->
 
-  {user} = class User extends KeyFieldsMixin Pipeline
-    @registry new PipelineRegistry
-    @requestTypes
-      get:
-        request:    key:  true
-        response:   data: :required :record
+      {user} = class User extends KeyFieldsMixin Pipeline
+        @registry new PipelineRegistry
+        @requestTypes
+          get:
+            request:    key:  true
+            response:   data: :required :record
 
-      # create:
-      #   request:    data: :required :record
-      #   response:   key:  true    data: :required :record
+        @fields
+          id:   :required :string
+          name: :string
+          age:  :number
 
-      # update:
-      #   request:    key:  true    data: :required :record
-      #   response:   data: :required :record
+        @publicRequestTypes :get # :create :update :delete
 
-      # delete:
-      #   request:    key:  true
-      #   response:   data: :required :record
+      assert.eq
+        generateAndValidate user.registry
+        openapi: :3.0.0
+        info:    title:     "Sample API", version: :1.0.0
+        paths:   "/api/user": get:
+          operationId:  :user.get
+          summary:      "pipeline: :user, requestType: :get"
+          tags:         [] :user
+          parameters:   [] in: :path, name: :id, required: true, schema: type: :string
+          responses: 200:
+            description: "Successful response"
+            content:     application/json: schema:
+              type:       :object
+              properties: data: $ref: :#/components/schemas/user
+              required:   [] :data
 
-    @fields
-      id:   :required :string
-      name: :string
-      age:  :number
+        components: schemas: user:
+          type: :object
+          properties:
+            id:   type: :string
+            name: type: :string
+            age:  type: :number
 
-    @publicRequestTypes :get # :create :update :delete
+          required: [] :id
 
-  assert.eq
-    generateAndValidate user.registry
+    test "CRUD:create example" ->
+
+      {user} = class User extends KeyFieldsMixin Pipeline
+        @registry new PipelineRegistry
+        @requestTypes
+          create:
+            request:    data: :required :record
+            response:   key:  true    data: :required :record
+
+        @fields
+          id:   :required :string
+          name: :string
+          age:  :number
+
+        @publicRequestTypes :create
+
+      assert.eq
+        generateAndValidate user.registry
+        openapi: :3.0.0
+        info:    title:     "Sample API", version: :1.0.0
+        paths:   "/api/user": post:
+          operationId: :user.create
+          summary:     "pipeline: :user, requestType: :create"
+          tags:    [] :user
+          requestBody:
+            required: true
+            content:  application/json: schema:
+              type:       :object
+              properties: data: $ref: :#/components/schemas/user
+              required:   [] :data
+
+          responses: 200:
+            description: "Successful response"
+            content:     application/json: schema:
+              type: :object
+              properties:
+                key:  type: :string
+                data: $ref: :#/components/schemas/user
+
+              required: [] :key, :data
+
+        components: schemas: user:
+          type: :object
+          properties:
+            id:   type: :string
+            name: type: :string
+            age:  type: :number
+
+          required: [] :id
+
+
+    test "CRUD:update example" ->
+
+      {user} = class User extends KeyFieldsMixin Pipeline
+        @registry new PipelineRegistry
+        @requestTypes
+          update:
+            request:    key:  true    data: :required :record
+            response:   data: :required :record
+
+          # delete:
+          #   request:    key:  true
+          #   response:   data: :required :record
+
+        @fields
+          id:   :required :string
+          name: :string
+          age:  :number
+
+        @publicRequestTypes :update # :delete
+
+      assert.eq
+        generateAndValidate user.registry
+        openapi: :3.0.0
+        info:    title:     "Sample API", version: :1.0.0
+        paths:   "/api/user": put:
+          operationId: :user.update
+          summary:     "pipeline: :user, requestType: :update"
+          tags:        [] :user
+          parameters:  [] in: :path, name: :id, required: true, schema: type: :string
+          requestBody:
+            required: true
+            content:  application/json: schema:
+              type:       :object
+              properties: data: $ref: :#/components/schemas/user
+              required:   [] :data
+
+          responses: 200:
+            description: "Successful response"
+            content:     application/json: schema:
+              type:       :object
+              properties: data: $ref: :#/components/schemas/user
+              required:   [] :data
+
+        components: schemas: user:
+          type: :object
+          properties:
+            id:   type: :string
+            name: type: :string
+            age:  type: :number
+
+          required: [] :id
+
+
+    test "CRUD:delete example" ->
+
+      {user} = class User extends KeyFieldsMixin Pipeline
+        @registry new PipelineRegistry
+        @requestTypes
+          delete:
+            request:    key:  true
+            response:   data: :required :record
+
+        @fields
+          id:   :required :string
+          name: :string
+          age:  :number
+
+        @publicRequestTypes :delete
+
+      assert.eq
+        generateAndValidate user.registry
+        openapi: :3.0.0
+        info:    title:     "Sample API", version: :1.0.0
+        paths:   "/api/user": delete:
+          operationId: :user.delete
+          summary:     "" pipeline: :user, requestType: :delete
+          tags:        [] :user
+          parameters:  [] in: :path, name: :id, required: true, schema: type: :string
+
+          responses: 200:
+            description: "Successful response"
+            content:     application/json: schema:
+              type:       :object
+              properties: data: $ref: :#/components/schemas/user
+              required:   [] :data
+
+        components: schemas: user:
+          type: :object
+          properties:
+            id:   type: :string
+            name: type: :string
+            age:  type: :number
+
+          required: [] :id

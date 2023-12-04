@@ -1,5 +1,17 @@
 import &StandardImport, &@ArtSuite/RestTransport, &ArtValidation
 
+stripStack = (error) ->
+  error.stack =
+    error.stack.replace
+      ///g
+        (^|\n).*
+        (
+        node_modules/
+        )
+        .*
+      "\n"
+  error
+
 ## TODO
   Decision: for keys
     all key-fields can be specifried as query-params
@@ -15,19 +27,20 @@ import &StandardImport, &@ArtSuite/RestTransport, &ArtValidation
     One required, one optional key-field:
       get/abc123?optionalKey=dfg45
 
-normalizedFieldTypeToOpenApiType = (arg, pipeline, customFieldTypes) ->
-  {dataType, fields, fieldType} = arg
+normalizedFieldTypeToOpenApiTypeR = (fieldTypeProps, pipeline, customFieldTypes, path) ->
+  {dataType, fields, fieldType} = fieldTypeProps
   if present(fieldType) && !FieldTypes[beforeFieldType = fieldType]
     if fieldType == :record then fieldType = pipeline.name
 
-    normalized = normalizedFieldTypeToOpenApiType
-        merge arg, fieldType: :object
+    normalized = normalizedFieldTypeToOpenApiTypeR
+        merge fieldTypeProps, fieldType: :object
         pipeline
         customFieldTypes
+        "" #{path}: customFieldtype[#{fieldType}]
 
     if before = customFieldTypes[fieldType]
       unless eq customFieldTypes[fieldType], after = normalized
-        throw new Error "" Custom field-type #{beforeFieldType} redefined. #{} formattedInspect {} before, after
+        throw new Error "" Custom field-type #{beforeFieldType} redefined. #{} formattedInspect {} before, after, path
     else
       customFieldTypes[fieldType] = normalized
 
@@ -42,14 +55,20 @@ normalizedFieldTypeToOpenApiType = (arg, pipeline, customFieldTypes) ->
         type: :object
         properties: object field, name in fields
           if field.required then requiredFields.push name
-          normalizedFieldTypeToOpenApiType field, pipeline, customFieldTypes
+          normalizedFieldTypeToOpenApiTypeR field, pipeline, customFieldTypes, "" #{path}: #{name}
 
       if requiredFields.length > 0 then result.required = requiredFields
       result
 
     else
-      log.error {} dataType, fields, arg
-      throw new Error "unsupported dataType: #{formattedInspect dataType}"
+      log.error normalizedFieldTypeToOpenApiTypeR_recursiveParameters: {} dataType, fields, fieldTypeProps
+      throw new Error "unsupported dataType: #{formattedInspect dataType}. Path: #{path}"
+
+normalizedFieldTypeToOpenApiType = (fieldTypeProps, pipeline, customFieldTypes, path) ->
+  try
+    normalizedFieldTypeToOpenApiTypeR fieldTypeProps, pipeline, customFieldTypes, path
+  catch error
+    throw stripStack error
 
 class OpenApiGenerator extends BaseClass
   @generateOpenApi: (pipelineRegistry) ->
@@ -62,26 +81,56 @@ class OpenApiGenerator extends BaseClass
         version: :1.0.0
       paths:
         each pipeline in pipelineRegistry.pipelines into out = {}
-          each props, type from log :getNormalizedPublicRequestTypes pipeline.getNormalizedPublicRequestTypes() into out
-            {method, url} = getRestClientParamsForArtEryRequest {}
-              server: ""
-              type
-              pipeline.restPath
-              restPath: getPipelineRestPath apiRoot, pipeline
+          each props, type from pipeline.normalizedPublicRequestTypes into out
+            unless props
+              log.warn  log "" OpenApiGenerator no public requestType definition for action-type: #{type}
+            else
+              {method, url} = getRestClientParamsForArtEryRequest {}
+                server: ""
+                type
+                pipeline.restPath
+                restPath: getPipelineRestPath apiRoot, pipeline
 
-            (out[url]?={})[method] = merge {}
-              summary: props.summary ? type
-              props.description
-              tags: [] pipeline.name
-              responses:
-                200:
-                  description: "" Successful response
+              props extract
+                summary
+                description
+                request extract? fields.key
+                response
+
+              requestWithoutKey = if request then if key
+                merge request, fields: objectWithout request.fields, :key
+              else request
+              (out[url]?={})[method] = merge {}
+                operationId: "#{pipeline.name}.#{type}"
+                summary: summary ? formattedInspect pipeline: pipeline.name, requestType: type
+                description
+                tags: [] pipeline.name
+                parameters: if key? then [] {}
+                  in:       :path
+                  name:     :id
+                  key.required
+                  schema: normalizedFieldTypeToOpenApiType key
+
+                requestBody: if objectHasKeys requestWithoutKey?.fields
+                  required: true
                   content:
                     application/json:
                       schema: normalizedFieldTypeToOpenApiType
-                        dataType: :object
-                        fields: props.response
+                        requestWithoutKey
                         pipeline
                         customFieldTypes
+                        "" #{type}: request:
+
+                responses:
+                  200:
+                    description: "" Successful response
+                    content:
+                      application/json:
+                        schema: normalizedFieldTypeToOpenApiType
+                          response
+                          pipeline
+                          customFieldTypes
+                          "" #{type}: response:
+
       components: if objectHasKeys customFieldTypes
         schemas: customFieldTypes
