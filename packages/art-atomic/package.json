@@ -9,7 +9,7 @@
   "devDependencies": {
     "art-build-configurator": "^1.29.3",
     "art-testbench": "^3.2.2",
-    "jest": "^27.0.6"
+    "jest": "^29.7.0"
   },
   "homepage": "https://github.com/art-suite/art-suite-applications",
   "jest": {
