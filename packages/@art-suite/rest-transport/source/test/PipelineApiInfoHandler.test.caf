@@ -8,9 +8,11 @@ class SimplePipeline extends Pipeline
   @publicHandler get: (request) ->
 
 test "PipelineApiInfoHandler" ->
-  new PipelineApiInfoHandler {} pipelineRegistry
-  .handleApiRequest()
+  handler = new PipelineApiInfoHandler {} pipelineRegistry
+
+
+  Promise.then -> handler.handleApiRequest url: handler.specPath
   .then (result) ->
-    assert.eq
+    assert.selectedEq
+      openapi: :3.0.0
       result
-      simplePipeline: get: GET: :/api/simplePipeline

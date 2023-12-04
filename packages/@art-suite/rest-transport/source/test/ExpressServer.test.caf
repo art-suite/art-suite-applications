@@ -1,4 +1,4 @@
-import &StandardImport, Server: &build/Server
+import &StandardImport, {} &build/Server
 
 {pipelines} = pipelineRegistry = new PipelineRegistry location: :client
 

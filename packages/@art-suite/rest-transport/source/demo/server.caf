@@ -1,0 +1,31 @@
+import
+  &ArtStandardLib, &@ArtSuite/ArtPipelines, &build, &@ArtSuite/KeyFieldsMixin
+  &@ArtSuite/DatabaseFilters
+  {} &build/Server
+&ArtConfig.configure()
+
+pipelineRegistry = new PipelineRegistry
+
+class City extends KeyFieldsMixin Pipeline
+  @registry pipelineRegistry
+  @filter createDatabaseFilters
+    linkFilterVersion: 2
+    fields:
+      name: :string
+      location: fields: x: :number y: :number
+
+  constructor: ->
+    @_records = {}
+
+  @requestTypes
+    get:
+      request:    key:  true
+      response:   data: :required :record
+
+  @publicHandler
+    get:    ({key}) -> @_records[key]
+    create: ({data, key}) -> @_records[key] = data
+    update: ({data, key}) -> if @_records[key] then @_records[key] = merge @_records[key], data
+    delete: ({key}) -> if ret = @_records[key] then delete @_records[key]; ret
+
+server = Server.start {} pipelineRegistry, verbose: true

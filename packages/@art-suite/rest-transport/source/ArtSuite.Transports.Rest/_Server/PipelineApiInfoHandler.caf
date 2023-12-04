@@ -1,4 +1,4 @@
-import &StandardImport, &RestServerLib
+import &StandardImport, &RestServerLib, &@ArtSuite/ArtPipelinesOpenapi
 
 class PipelineApiInfoHandler extends &ArtExpressServer.PromiseHandler
 
@@ -12,8 +12,40 @@ class PipelineApiInfoHandler extends &ArtExpressServer.PromiseHandler
     pipelines: -> @pipelineRegistry.pipelines
 
   @getter
-    handleUrlRegex: -> @_exactDefaultHandlerRegex ?= /// ^ \/ #{@_apiRoot} \/? $
+    rootPath: -> "" /#{@_apiRoot}
+    specPath: -> "" #{@rootPath}/openapi.json
+    handleUrlRegex: -> @_exactDefaultHandlerRegex ?= /// ^ (#{@rootPath} | #{@specPath}) \/? $
 
   handleApiRequest: (request, requestData) ->
-    reports = object pipeline from @pipelines with apiReport pipeline, {} @apiRoot, publicOnly: true
-    Promise.resolve object report from reports when 0 < objectKeyCount report
+    if request.url.match @specPath
+      # reports = object pipeline from @pipelines with apiReport pipeline, {} @apiRoot, publicOnly: true
+      # object report from reports when 0 < objectKeyCount report
+      generateOpenApi @pipelineRegistry
+
+    else
+      """
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="utf-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <meta
+            name="description"
+            content="SwaggerUI"
+          />
+          <title>SwaggerUI</title>
+          <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@4.5.0/swagger-ui.css" />
+        </head>
+        <body>
+        <div id="swagger-ui"></div>
+        <script src="https://unpkg.com/swagger-ui-dist@4.5.0/swagger-ui-bundle.js" crossorigin></script>
+        <script>
+          window.onload = () => {
+            window.ui = SwaggerUIBundle({
+              url: '#{@specPath}',
+              dom_id: '#swagger-ui',
+            });
+          };
+        </script>
+        </body>
+        </html>
