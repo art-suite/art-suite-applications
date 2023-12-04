@@ -59,33 +59,32 @@ test "generateOpenApi" ->
               fun:  type: :string
 
 test "CRUD example" ->
-  class CrudFilter extends Filter
-    @requestTypes
-      get:
-        request:    key:  true
-        response:   data: :record
-
-      create:
-        request:    data: :record
-        response:   key:  true    data: :record
-
-      update:
-        request:    key:  true    data: :record
-        response:   data: :record
-
-      delete:
-        request:    key:  true
-        response:   data: :record
 
   {user} = class User extends KeyFieldsMixin Pipeline
     @registry new PipelineRegistry
-    @filter CrudFilter
+    @requestTypes
+      get:
+        request:    key:  true
+        response:   data: :required :record
+
+      # create:
+      #   request:    data: :required :record
+      #   response:   key:  true    data: :required :record
+
+      # update:
+      #   request:    key:  true    data: :required :record
+      #   response:   data: :required :record
+
+      # delete:
+      #   request:    key:  true
+      #   response:   data: :required :record
+
     @fields
-      id:   :string
+      id:   :required :string
       name: :string
       age:  :number
 
-    @publicRequestTypes :get :create :update :delete
+    @publicRequestTypes :get # :create :update :delete
 
   assert.eq
     generateAndValidate user.registry

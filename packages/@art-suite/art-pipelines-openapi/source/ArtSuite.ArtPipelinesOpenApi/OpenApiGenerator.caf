@@ -1,4 +1,4 @@
-import &StandardImport, &@ArtSuite/RestTransport
+import &StandardImport, &@ArtSuite/RestTransport, &ArtValidation
 
 ## TODO
   Decision: for keys
@@ -15,52 +15,73 @@ import &StandardImport, &@ArtSuite/RestTransport
     One required, one optional key-field:
       get/abc123?optionalKey=dfg45
 
-normalizedFieldTypeToOpenApiType = (arg) ->
-  {dataType, fields} = arg
-  switch dataType
-  when :integer :number :string :boolean
-    type: dataType
-  when :object
-    requiredFields = []
-    result =
-      type: :object
-      properties: object field, name in fields
-        if field.required then requiredFields.push name
-        log recurse: normalizedFieldTypeToOpenApiType: {} fields, field
-        normalizedFieldTypeToOpenApiType field
+normalizedFieldTypeToOpenApiType = (arg, pipeline, customFieldTypes) ->
+  {dataType, fields, fieldType} = arg
+  if present(fieldType) && !FieldTypes[beforeFieldType = fieldType]
+    if fieldType == :record then fieldType = pipeline.name
 
-    if requiredFields.length > 0 then result.required = requiredFields
-    result
+    normalized = normalizedFieldTypeToOpenApiType
+        merge arg, fieldType: :object
+        pipeline
+        customFieldTypes
 
+    if before = customFieldTypes[fieldType]
+      unless eq customFieldTypes[fieldType], after = normalized
+        throw new Error "" Custom field-type #{beforeFieldType} redefined. #{} formattedInspect {} before, after
+    else
+      customFieldTypes[fieldType] = normalized
+
+    $ref: "" #/components/schemas/#{} fieldType
   else
-    log.error {} dataType, fields, arg
-    throw new Error "unsupported dataType: #{formattedInspect dataType}"
+    switch dataType
+    when :integer :number :string :boolean
+      type: dataType
+    when :object
+      requiredFields = []
+      result =
+        type: :object
+        properties: object field, name in fields
+          if field.required then requiredFields.push name
+          normalizedFieldTypeToOpenApiType field, pipeline, customFieldTypes
+
+      if requiredFields.length > 0 then result.required = requiredFields
+      result
+
+    else
+      log.error {} dataType, fields, arg
+      throw new Error "unsupported dataType: #{formattedInspect dataType}"
 
 class OpenApiGenerator extends BaseClass
   @generateOpenApi: (pipelineRegistry) ->
+    customFieldTypes = {}
     apiRoot = :api
-    openapi: :3.0.0
-    info:
-      title: ""Sample API
-      version: :1.0.0
-    paths:
-      each pipeline in pipelineRegistry.pipelines into out = {}
-        each props, type from log :getNormalizedPublicRequestTypes pipeline.getNormalizedPublicRequestTypes() into out
-          {method, url} = getRestClientParamsForArtEryRequest {}
-            server: ""
-            type
-            pipeline.restPath
-            restPath: getPipelineRestPath apiRoot, pipeline
+    merge
+      openapi: :3.0.0
+      info:
+        title: ""Sample API
+        version: :1.0.0
+      paths:
+        each pipeline in pipelineRegistry.pipelines into out = {}
+          each props, type from log :getNormalizedPublicRequestTypes pipeline.getNormalizedPublicRequestTypes() into out
+            {method, url} = getRestClientParamsForArtEryRequest {}
+              server: ""
+              type
+              pipeline.restPath
+              restPath: getPipelineRestPath apiRoot, pipeline
 
-          (out[url]?={})[method] = merge {}
-            summary: props.summary ? type
-            props.description
-            tags: [] pipeline.name
-            responses:
-              200:
-                description: "" Successful response
-                content:
-                  application/json:
-                    schema: normalizedFieldTypeToOpenApiType log type,
-                      dataType: :object
-                      fields: props.response
+            (out[url]?={})[method] = merge {}
+              summary: props.summary ? type
+              props.description
+              tags: [] pipeline.name
+              responses:
+                200:
+                  description: "" Successful response
+                  content:
+                    application/json:
+                      schema: normalizedFieldTypeToOpenApiType
+                        dataType: :object
+                        fields: props.response
+                        pipeline
+                        customFieldTypes
+      components: if objectHasKeys customFieldTypes
+        schemas: customFieldTypes
