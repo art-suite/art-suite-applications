@@ -11,8 +11,8 @@ class City extends KeyFieldsMixin Pipeline
   @filter createDatabaseFilters
     linkFilterVersion: 2
     fields:
-      name: :string
-      location: fields: x: :number y: :number
+      name: :present :string
+      location: fields: x: :required :number y: :required :number
 
   constructor: ->
     @_records = {}
@@ -36,5 +36,38 @@ class City extends KeyFieldsMixin Pipeline
     create: ({data, key}) -> @_records[key] = data
     update: ({data, key}) -> if @_records[key] then @_records[key] = merge @_records[key], data
     delete: ({key}) -> if ret = @_records[key] then delete @_records[key]; ret
+
+class Auth extends KeyFieldsMixin Pipeline
+  @registry pipelineRegistry
+
+  constructor: ->
+    @_users = {}
+
+  @requestTypes
+    login:  request: data: fields: username: :present :trimmedString password: :present :trimmedString
+    signUp: request: data: fields: username: :present :trimmedString password: :present :trimmedString
+    whoami: response: data: :string
+
+  @publicHandler
+    login: (request) ->
+      request.data extract? username, password
+      if @_users[username] == password
+        request.success
+          data: :OK
+          session: {} username
+
+      else request.clientFailureNotAuthorized "" Wrong username or password.
+
+    signUp: (request) ->
+      request.data extract? username, password
+      if @_users[username]
+        request.clientFailure "" Username already exists.
+      else
+        @_users[username] = password
+        request.success
+          data: :OK
+          session: {} username
+
+    whoami: ({session}) -> session?.username
 
 server = Server.start {} pipelineRegistry, verbose: true
