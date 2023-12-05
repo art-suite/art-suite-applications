@@ -5,17 +5,12 @@ class RestTransportClientFilter extends Filter
   @group :handler
 
   constructor: (options = {}) ->
-    @remoteServer = options.remoteServer
-
-  validateRemoteServer: (remoteServer) ->
-    unless /^https?:\/\//.test remoteServer
-      throw new Error "" Invalid remoteServer. It must start with http:// or https://. Got: #{} formattedInspect remoteServer
-    remoteServer
+    @useLegacySessionTransport = options.useLegacySessionTransport
 
   @before
     all: (request) ->
-      if remoteServer = getRemoteServer request
-        @validateRemoteServer remoteServer
-        sendRemoteRequest request, {} remoteServer
+      remoteRequestOptions = getRestTransportClientConfig request
+      if remoteRequestOptions extract remoteServer
+        sendRemoteRequest request, remoteRequestOptions
 
       else request

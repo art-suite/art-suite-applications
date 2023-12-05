@@ -16,14 +16,23 @@ import &StandardImport, &ArtRestClient, &RestTransportClientConfig
       (?:\/([^?]+))?       # optional key
       (?=\?|$)
 
-  getRestClientParamsForArtEryRequest = ({session, server, restPath, type, key, data}) ->
+  getStandardHttpMethod = (type, session, useLegacySessionTransport) ->
+    if method = restMap[type]
+      if useLegacySessionTransport && method == :get && objectHasKeys session
+        # old session-transport is sent as payload, but in-browser, "get" can't have
+        # a payload, so if there is a session, we can't use the "get" method
+        return null
+    method
+
+  getRestClientParamsForArtEryRequest = ({session, server, restPath, type, key, data, useLegacySessionTransport}) ->
     urlKeyClause = if present key then "/#{key}" else ''
     server ?= ''
     hasSessionData = objectHasKeys session
 
-    {}
+    merge {}
+      headers: if !useLegacySessionTransport && session?.signature then authorization: "" Bearer #{} session.signature
       url:
-        if (method = restMap[type]) && (method != :get || !hasSessionData)
+        if method = getStandardHttpMethod type, session, useLegacySessionTransport
           "" #{server}#{restPath}#{urlKeyClause}
         else
           method = :post
@@ -35,13 +44,13 @@ import &StandardImport, &ArtRestClient, &RestTransportClientConfig
   getRemoteRequestProps = (request, options) ->
     request extract session, data, props, pipeline, type, key
 
-    options extract? remoteServer
+    options extract remoteServer, useLegacySessionTransport
 
     props = object v,k from props when v != undefined && k != :key && k != :data
     data  = object v   from data  when v != undefined
 
     remoteRequestData = null
-    (remoteRequestData ?= {}).session = session.signature if session.signature
+    (remoteRequestData ?= {}).session = session.signature if useLegacySessionTransport && session.signature
     (remoteRequestData ?= {}).props   = props if objectHasKeys props
     (remoteRequestData ?= {}).data    = data  if objectHasKeys data
 
@@ -49,17 +58,23 @@ import &StandardImport, &ArtRestClient, &RestTransportClientConfig
       restPath: getPipelineRestPath getApiRoot(request), pipeline
       server:
         switch remoteServer
-        when true, ".", "/" then ""
+        when true, ".", "/" then '' # use the same URL as the current 'page' - this will only apply within an actual browser
         else remoteServer
       type
       key
       session
       data:           remoteRequestData
+      useLegacySessionTransport
 
-  sendRemoteRequest: (request, sendRequestMethod = restJsonRequest) ->
-    if !sendRequestMethod? || isPlainObject sendRequestMethod
-      options = sendRequestMethod
-      sendRequestMethod = restJsonRequest
+  ## sendRemoteRequest
+    IN:
+      request: ArtEryPipelines Request (required)
+      options: plain object (required)
+        remoteServer:       string - required unless sendRequestMethod is provided
+        useLegacySessionTransport: boolean
+        sendRequestMethod:  custom method for sending the request; same signature as &ArtRestClient.restJsonRequest
+  sendRemoteRequest: (request, options) ->
+    sendRequestMethod = options.sendRequestMethod ? restJsonRequest
 
     sendRequestMethod remoteRequest = getRemoteRequestProps request, options
     .catch (error) ->

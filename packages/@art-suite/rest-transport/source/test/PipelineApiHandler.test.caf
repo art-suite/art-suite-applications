@@ -10,7 +10,7 @@ class SimplePipeline extends Pipeline
     get: (request) -> received: {} request.remoteRequest, request.props, request.session
     login: (request) -> request.respondWithSession user: :alice
 
-chainedTest "simplePipeline.get", ->
+chainedTest "simplePipeline.get without session", ->
   pipelines.simplePipeline.get()
   .then (result) ->
     assert.eq

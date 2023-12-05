@@ -7,6 +7,6 @@ class RestClientSimulatedTransportFilter extends Filter
   @group :handler
 
   @before all: (request) ->
-    sendRemoteRequest request, (remoteRequest) ->
+    sendRemoteRequest request, sendRequestMethod: (remoteRequest) ->
       new PipelineApiHandler {} request.pipelineRegistry
       .handleApiRequest remoteRequest, remoteRequest.data

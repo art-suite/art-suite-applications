@@ -32,7 +32,7 @@ chainedTest "start server" ->
     pipelines.myPipeline.get returnResponse: true
     .tap (response) ->
       assert.eq response.data, "" Hello world.
-      assert.exists response.remoteRequest.method
+      assert.eq response.remoteRequest.method, :get
       assert.notInstanceOf response.remoteResponse, Request
 
   "check returned session" (response) ->
@@ -52,8 +52,28 @@ chainedTest "start server" ->
       assert.eq response.session.user, :Shane
 
   "make a get request with session" ->
-    pipelines.myPipeline.get()
-    .then (result) -> assert.eq result, "" Hello Shane.
+    pipelines.myPipeline.get returnResponse: true
+    .then (response) ->
+      assert.eq response.remoteRequest.method, :get
+      assert.eq response.data, "" Hello Shane.
+
+  "set useLegacySessionTransport" ->
+    getRestTransportClientConfig pipelineRegistry
+    .useLegacySessionTransport = true
+
+  "make a legacy get-request with session" ->
+    pipelines.myPipeline.get returnResponse: true
+    .then (response) ->
+      assert.eq response.remoteRequest.method, :post # has to use post, since it has a payload (the session)
+      assert.eq response.data, "" Hello Shane.
+
+  "reset session" -> pipelineRegistry.session.reset()
+
+  "make a legacy get-request without session" ->
+    pipelines.myPipeline.get returnResponse: true
+    .then (response) ->
+      assert.eq response.remoteRequest.method, :get # can use get, since it has no payload
+      assert.eq response.data, "" Hello world.
 
 test "shut down the server" ->
   server.stop()

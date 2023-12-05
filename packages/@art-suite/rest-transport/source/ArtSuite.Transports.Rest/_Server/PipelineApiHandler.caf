@@ -33,8 +33,10 @@ class PipelineApiHandler extends &ArtExpressServer.PromiseHandler
     requestData ?= {}
     if found = @_findPipelineForRequest request
       {pipeline, type, key} = found
+      if bearerHeader = request.headers?.authorization
+        [_, bearerSession] = bearerHeader.split ' '
 
-      verifySession requestData.session
+      verifySession bearerSession ? requestData.session
       .catch -> null
       .then (session) ->
         pipeline._processRequest createRequestFromRemoteRequestProps {}

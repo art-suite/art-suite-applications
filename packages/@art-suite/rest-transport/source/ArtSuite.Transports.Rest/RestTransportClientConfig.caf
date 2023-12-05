@@ -1,11 +1,21 @@
 import &StandardImport
 
 class RestTransportClientConfig extends PipelineRegistryMixin BaseClass
+  # Class Methos
   @getRestTransportClientConfig: (pipelineOrRegistry) => @getPipelineRegistryInstance pipelineOrRegistry
-  @getter inspectedObjects: -> RestTransportClientConfig: {} @remoteServer, @apiRoot, @pipelineRegistry
-  constructor: -> @_apiRoot = :api
-
-  @property :remoteServer :apiRoot
-
   @getRemoteServer: (request) => @getRestTransportClientConfig(request).remoteServer
   @getApiRoot: (request) => @getRestTransportClientConfig(request).apiRoot
+
+  # Instance methods - one instance per pipeline-registry
+  @getter inspectedObjects: -> RestTransportClientConfig: merge {} @remoteServer, @apiRoot, @pipelineRegistry, @useLegacySessionTransport
+  constructor: -> @_apiRoot = :api
+
+  # valid get/set properties:
+  @property :remoteServer :apiRoot :useLegacySessionTransport
+  @setter remoteServer: (@_remoteServer) -> @validateRemoteServer @_remoteServer
+
+  validateRemoteServer: (remoteServer) ->
+    unless /^https?:\/\//.test remoteServer
+      throw new Error "" Invalid remoteServer. It must start with http:// or https://. Got: #{} formattedInspect remoteServer
+    remoteServer
+
