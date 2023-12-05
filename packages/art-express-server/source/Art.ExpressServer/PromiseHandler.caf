@@ -80,7 +80,6 @@ class PromiseHandler extends &LoggingMixin BaseClass
         status:       serverFailure
 
       .then (plainResponse) ->
-
         if plainResponse
           {headers, data, status, statusCode} = plainResponse
           unless data? || status? || statusCode?
@@ -103,6 +102,7 @@ class PromiseHandler extends &LoggingMixin BaseClass
         if (statusCode/100 | 0) == 3
           response.redirect statusCode, data
         else
+          response.status statusCode
           @_encodeOutput request, response, headers, responseData
 
   @getter middleware: ->
@@ -192,5 +192,10 @@ class PromiseHandler extends &LoggingMixin BaseClass
     .then (parsedData) ->
       @handleApiRequest request, parsedData
 
-    .then (data) ->
-      if data then {data} else status: missing
+    .then
+      (data) ->
+        if data then {data} else status: missing
+      (error) ->
+        status: error.status ? :serverFailure
+        data: error.responseData ? if present error.message then {} error.messsage
+        # see: ArtStandardLib::RequestError
