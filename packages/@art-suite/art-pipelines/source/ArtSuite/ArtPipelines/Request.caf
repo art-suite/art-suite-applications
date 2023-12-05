@@ -807,7 +807,7 @@ class Request extends BaseObject
         responseProps
 
       when isString responseProps
-        @toResponse status, {} creationStack, data: message: responseProps
+        @toResponse status, {} creationStack, props: message: responseProps
 
       when isPlainObject responseProps
         new Request merge @propsForResponse, {creationStack}, responseProps, {} status, request: @_request ? @
@@ -824,7 +824,7 @@ class Request extends BaseObject
     log.error
       @
       {} responseProps
-      data: message:
+      props: message:
         if responseProps instanceof Error
               "" Internal Error: ArtPipelines.Request#toResponse received Error instance: #{formattedInspect responseProps}
         else  "" Internal Error: ArtPipelines.Request#toResponse received unsupported type
