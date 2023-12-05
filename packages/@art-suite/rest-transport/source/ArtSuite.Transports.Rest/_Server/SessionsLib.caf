@@ -2,9 +2,11 @@ import &StandardImport, {} &PromiseJsonWebToken
 
 shouldReturnNewSignedSession = (oldSession, newSession) ->
   {iat} = oldSession if oldSession
-  !iat                          # the last session wasn't signed
-  || 1 < iatAgeInDays iat       # OR the session is more than 1 day old
-  || !eq oldSession, newSession # OR the session changed
+  (oldSession != newSession) &&
+    !eq # OR the session meaningfully changed
+      objectWithout oldSession, :iat, :exp
+      objectWithout newSession, :iat, :exp
+  || iat? && 1 < iatAgeInDays iat       # OR the session is more than 1 day old
 
 merge &RestClientLib, {}
   verifySession: (session) ->
