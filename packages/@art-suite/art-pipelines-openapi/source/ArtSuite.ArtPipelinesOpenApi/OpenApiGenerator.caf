@@ -29,19 +29,16 @@ stripStack = (error) ->
 
 normalizedFieldTypeToOpenApiTypeR = (fieldTypeProps, pipeline, customFieldTypes, path) ->
   {dataType, fields, fieldType} = fieldTypeProps
-  if present(fieldType) && !FieldTypes[beforeFieldType = fieldType]
+  if customFieldTypes[fieldType] || (present(fieldType) && !FieldTypes[beforeFieldType = fieldType])
     if fieldType == :record then fieldType = pipeline.name
 
-    normalized = normalizedFieldTypeToOpenApiTypeR
-        merge fieldTypeProps, fieldType: :object
-        pipeline
-        customFieldTypes
-        "" #{path}: customFieldtype[#{fieldType}]
+    unless customFieldTypes[fieldType]
+      normalized = normalizedFieldTypeToOpenApiTypeR
+          merge fieldTypeProps, fieldType: :object
+          pipeline
+          customFieldTypes
+          "" #{path}: customFieldtype[#{fieldType}]
 
-    if before = customFieldTypes[fieldType]
-      unless eq customFieldTypes[fieldType], after = normalized
-        throw new Error "" Custom field-type #{beforeFieldType} redefined. #{} formattedInspect {} before, after, path
-    else
       customFieldTypes[fieldType] = normalized
 
     $ref: "" #/components/schemas/#{} fieldType
@@ -61,7 +58,7 @@ normalizedFieldTypeToOpenApiTypeR = (fieldTypeProps, pipeline, customFieldTypes,
       result
 
     else
-      log.error normalizedFieldTypeToOpenApiTypeR_recursiveParameters: {} dataType, fields, fieldTypeProps
+      log.error normalizedFieldTypeToOpenApiTypeR_recursiveParameters: {} dataType, fields, fieldTypeProps, customFieldTypes, path
       throw new Error "unsupported dataType: #{formattedInspect dataType}. Path: #{path}"
 
 normalizedFieldTypeToOpenApiType = (fieldTypeProps, pipeline, customFieldTypes, path) ->
@@ -72,7 +69,13 @@ normalizedFieldTypeToOpenApiType = (fieldTypeProps, pipeline, customFieldTypes, 
 
 class OpenApiGenerator extends BaseClass
   @generateOpenApi: (pipelineRegistry) ->
-    customFieldTypes = {}
+    customFieldTypes =
+      session: normalizedFieldTypeToOpenApiTypeR
+        normalizeFieldProps fields: signature: :string
+        null
+        {}
+        :session
+
     apiRoot = :api
     merge
       openapi: :3.0.0
@@ -104,13 +107,14 @@ class OpenApiGenerator extends BaseClass
               (out[url]?={})[method] = merge {}
                 operationId: "#{pipeline.name}.#{type}"
                 summary: summary ? "" #{type} #{pipeline.name}
+                security: [] bearerAuth: []
                 description
                 tags: [] pipeline.name
                 parameters: if key? then [] {}
                   in:       :path
                   name:     :id
                   key.required
-                  schema: normalizedFieldTypeToOpenApiType key
+                  schema: normalizedFieldTypeToOpenApiType key, null, customFieldTypes
 
                 requestBody: if objectHasKeys requestWithoutKey?.fields
                   required: true
@@ -125,13 +129,25 @@ class OpenApiGenerator extends BaseClass
                 responses:
                   200: merge
                     description: "" Successful response
-                    content: if objectHasKeys response?.fields
+                    content: # if objectHasKeys response?.fields
                       application/json:
                         schema: normalizedFieldTypeToOpenApiType
-                          response
+                          merge
+                            response
+                            normalizeFieldProps fieldType: :object
+                            fields: merge
+                              response?.fields
+                              session:
+                                dataType: :object
+                                fieldType: :session
                           pipeline
                           customFieldTypes
                           "" #{type}: response:
 
-      components: if objectHasKeys customFieldTypes
-        schemas: customFieldTypes
+      components: merge
+        schemas: if objectHasKeys customFieldTypes then customFieldTypes
+        securitySchemes:
+          bearerAuth:
+            type:         :http
+            scheme:       :bearer
+            bearerFormat: :JWT

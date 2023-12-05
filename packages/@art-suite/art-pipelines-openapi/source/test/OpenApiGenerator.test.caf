@@ -15,6 +15,23 @@ validateOpenApi = (openApiDoc) ->
 
 generateAndValidate = (registry) -> validateOpenApi generateOpenApi registry
 
+addStandardBits = (openApiSpec) ->
+  merge
+    openApiSpec
+    components: merge
+      openApiSpec.components
+      schemas: merge openApiSpec.components?.schemas,
+        session: type: :object, properties: signature: type: :string
+      securitySchemes: bearerAuth: type: :http, scheme: :bearer, bearerFormat: :JWT
+
+    paths: object methods in openApiSpec.paths
+      object props in methods
+        deepMerge props,
+          security: [] bearerAuth: []
+          responses: 200: content: application/json: schema:
+            type: :object
+            properties: session: $ref: :#/components/schemas/session
+
 describe
   basics: ->
     test "simplest" ->
@@ -26,13 +43,14 @@ describe
 
       assert.eq
         generateAndValidate myPipeline.registry
-        openapi: :3.0.0
-        info:    title:           "Sample API", version: :1.0.0
-        paths:   "/api/myPipeline": get:
-          operationId: :myPipeline.get
-          summary:     "" get myPipeline
-          tags:        [] :myPipeline
-          responses:   200: description: "Successful response"
+        addStandardBits
+          openapi: :3.0.0
+          info:    title:           "Sample API", version: :1.0.0
+          paths:   "/api/myPipeline": get:
+            operationId: :myPipeline.get
+            summary:     "" get myPipeline
+            tags:        [] :myPipeline
+            responses:   200: description: "Successful response"
 
     test "generateOpenApi" ->
 
@@ -59,26 +77,36 @@ describe
       assert.eq objectKeyCount(myPipeline.normalizedPublicRequestTypes), 1
       assert.eq
         generateAndValidate myPipeline.registry
-
-        openapi: :3.0.0
-        info:    title:                   "Sample API", version:   :1.0.0
-        paths:   "/api/myPipeline-getTime": post: {}
-          tags:      [] :myPipeline
-          myPipeline.requestTypes.getTime.summary
-          myPipeline.requestTypes.getTime.description
-          operationId: :myPipeline.getTime
-          responses: 200:
-            description: "" Successful response
-            content:     application/json: schema:
-              type:       :object
-              properties: data:
-                required: [] :time
-                type: :object
-                properties:
-                  time: type: :number
-                  fun:  type: :string
+        addStandardBits
+          openapi: :3.0.0
+          info:    title:                   "Sample API", version:   :1.0.0
+          paths:   "/api/myPipeline-getTime": post: {}
+            tags:      [] :myPipeline
+            myPipeline.requestTypes.getTime.summary
+            myPipeline.requestTypes.getTime.description
+            operationId: :myPipeline.getTime
+            responses: 200:
+              description: "" Successful response
+              content:     application/json: schema:
+                type:       :object
+                properties: data:
+                  required: [] :time
+                  type: :object
+                  properties:
+                    time: type: :number
+                    fun:  type: :string
 
   CRUD: ->
+
+    components = {} schemas: user:
+      type: :object
+      properties:
+        id:   type: :string
+        name: type: :string
+        age:  type: :number
+
+      required: [] :id
+
     test "CRUD:get example" ->
 
       {user} = class User extends KeyFieldsMixin Pipeline
@@ -97,28 +125,21 @@ describe
 
       assert.eq
         generateAndValidate user.registry
-        openapi: :3.0.0
-        info:    title:     "Sample API", version: :1.0.0
-        paths:   "/api/user": get:
-          operationId:  :user.get
-          summary:      "" get user
-          tags:         [] :user
-          parameters:   [] in: :path, name: :id, required: true, schema: type: :string
-          responses: 200:
-            description: "Successful response"
-            content:     application/json: schema:
-              type:       :object
-              properties: data: $ref: :#/components/schemas/user
-              required:   [] :data
-
-        components: schemas: user:
-          type: :object
-          properties:
-            id:   type: :string
-            name: type: :string
-            age:  type: :number
-
-          required: [] :id
+        addStandardBits {}
+          components
+          openapi: :3.0.0
+          info:    title:     "Sample API", version: :1.0.0
+          paths:   "/api/user": get: {}
+            operationId:  :user.get
+            summary:      "" get user
+            tags:         [] :user
+            parameters:   [] in: :path, name: :id, required: true, schema: type: :string
+            responses: 200:
+              description: "Successful response"
+              content:     application/json: schema:
+                type:       :object
+                properties: data: $ref: :#/components/schemas/user
+                required:   [] :data
 
     test "CRUD:create example" ->
 
@@ -138,41 +159,33 @@ describe
 
       assert.eq
         generateAndValidate user.registry
-        openapi: :3.0.0
-        info:    title:     "Sample API", version: :1.0.0
-        paths:   "/api/user": post:
-          operationId: :user.create
-          summary:     "" create user
-          tags:    [] :user
-          requestBody:
-            required: true
-            content:  application/json: schema:
-              type:       :object
-              properties: data: $ref: :#/components/schemas/user
-              required:   [] :data
+        addStandardBits {}
+          components
+          openapi: :3.0.0
+          info:    title:     "Sample API", version: :1.0.0
+          paths:   "/api/user": post: {}
+            operationId: :user.create
+            summary:     "" create user
+            tags:    [] :user
+            requestBody:
+              required: true
+              content:  application/json: schema:
+                type:       :object
+                properties: data: $ref: :#/components/schemas/user
+                required:   [] :data
 
-          responses: 200:
-            description: "Successful response"
-            content:     application/json: schema:
-              type: :object
-              properties:
-                key:  type: :string
-                data: $ref: :#/components/schemas/user
+            responses: 200:
+              description: "Successful response"
+              content:     application/json: schema:
+                type: :object
+                properties:
+                  key:  type: :string
+                  data: $ref: :#/components/schemas/user
 
-              required: [] :key, :data
-
-        components: schemas: user:
-          type: :object
-          properties:
-            id:   type: :string
-            name: type: :string
-            age:  type: :number
-
-          required: [] :id
+                required: [] :key, :data
 
 
     test "CRUD:update example" ->
-
       {user} = class User extends KeyFieldsMixin Pipeline
         @registry new PipelineRegistry
         @requestTypes
@@ -189,36 +202,28 @@ describe
 
       assert.eq
         generateAndValidate user.registry
-        openapi: :3.0.0
-        info:    title:     "Sample API", version: :1.0.0
-        paths:   "/api/user": put:
-          operationId: :user.update
-          summary:     "" update user
-          tags:        [] :user
-          parameters:  [] in: :path, name: :id, required: true, schema: type: :string
-          requestBody:
-            required: true
-            content:  application/json: schema:
-              type:       :object
-              properties: data: $ref: :#/components/schemas/user
-              required:   [] :data
+        addStandardBits {}
+          components
+          openapi: :3.0.0
+          info:    title:     "Sample API", version: :1.0.0
+          paths:   "/api/user": put: {}
+            operationId: :user.update
+            summary:     "" update user
+            tags:        [] :user
+            parameters:  [] in: :path, name: :id, required: true, schema: type: :string
+            requestBody:
+              required: true
+              content:  application/json: schema:
+                type:       :object
+                properties: data: $ref: :#/components/schemas/user
+                required:   [] :data
 
-          responses: 200:
-            description: "Successful response"
-            content:     application/json: schema:
-              type:       :object
-              properties: data: $ref: :#/components/schemas/user
-              required:   [] :data
-
-        components: schemas: user:
-          type: :object
-          properties:
-            id:   type: :string
-            name: type: :string
-            age:  type: :number
-
-          required: [] :id
-
+            responses: 200:
+              description: "Successful response"
+              content:     application/json: schema:
+                type:       :object
+                properties: data: $ref: :#/components/schemas/user
+                required:   [] :data
 
     test "CRUD:delete example" ->
 
@@ -238,26 +243,19 @@ describe
 
       assert.eq
         generateAndValidate user.registry
-        openapi: :3.0.0
-        info:    title:     "Sample API", version: :1.0.0
-        paths:   "/api/user": delete:
-          operationId: :user.delete
-          summary:     "" delete user
-          tags:        [] :user
-          parameters:  [] in: :path, name: :id, required: true, schema: type: :string
+        addStandardBits {}
+          components
+          openapi: :3.0.0
+          info:    title:     "Sample API", version: :1.0.0
+          paths:   "/api/user": delete: {}
+            operationId: :user.delete
+            summary:     "" delete user
+            tags:        [] :user
+            parameters:  [] in: :path, name: :id, required: true, schema: type: :string
 
-          responses: 200:
-            description: "Successful response"
-            content:     application/json: schema:
-              type:       :object
-              properties: data: $ref: :#/components/schemas/user
-              required:   [] :data
-
-        components: schemas: user:
-          type: :object
-          properties:
-            id:   type: :string
-            name: type: :string
-            age:  type: :number
-
-          required: [] :id
+            responses: 200:
+              description: "Successful response"
+              content:     application/json: schema:
+                type:       :object
+                properties: data: $ref: :#/components/schemas/user
+                required:   [] :data
