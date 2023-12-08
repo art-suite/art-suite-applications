@@ -31,7 +31,7 @@ class City extends KeyFieldsMixin Pipeline
       request:    key:  true
       response:   data: :required :record
 
-  @publicHandler
+  @publicHandlers
     get:    ({key}) -> @_records[key]
     create: ({data, key}) -> @_records[key] = data
     update: ({data, key}) -> if @_records[key] then @_records[key] = merge @_records[key], data
@@ -48,7 +48,7 @@ class Auth extends KeyFieldsMixin Pipeline
     signUp: request: data: fields: username: :present :trimmedString password: :present :trimmedString
     whoami: response: data: :string
 
-  @publicHandler
+  @publicHandlers
     login: (request) ->
       request.data extract? username, password
       if @_users[username] == password
