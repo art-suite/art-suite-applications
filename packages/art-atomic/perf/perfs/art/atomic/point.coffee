@@ -1,9 +1,9 @@
 {log, inspect} = require 'art-standard-lib'
 Atomic = require 'art-atomic'
 
-{matrix, Matrix, point, Point, rect, Rectangle, color, Color} = Atomic
-testColor = color 1, 0, 0
-testColorFromHTMLString = color "#f00"
+{matrix, Matrix, point, Point, rect, Rectangle, rgbColor, Color} = Atomic
+testColor = rgbColor 1, 0, 0
+testColorFromHTMLString = rgbColor "#f00"
 
 suite "Art.Atomic.Point", ->
   benchmark "point()", ->

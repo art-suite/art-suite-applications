@@ -1,56 +1,55 @@
 ###
-
-With the exception of the setter methods, this is a pure-functional class.
+  With the exception of the setter methods, this is a pure-functional class.
 ###
 
 ##############################################
 # Float32Array Experiment Notes
 ##############################################
 ###
-Experiment: Instead of storing the matrix as 6 members, use a Float32Array:
+  Experiment: Instead of storing the matrix as 6 members, use a Float32Array:
 
-  Bonus: if we order the 6 elements correctly, we can just pass the Float32Array directly to Webgl uniformMatrix3fv
-  Result:
-    FF is about 2x as fast with this implementation, but Chrome is about 10x slower (see below)
-    Sticking with Members implementation for now.
+    Bonus: if we order the 6 elements correctly, we can just pass the Float32Array directly to Webgl uniformMatrix3fv
+    Result:
+      FF is about 2x as fast with this implementation, but Chrome is about 10x slower (see below)
+      Sticking with Members implementation for now.
 
-On my Macbook pro Retina (2.6 GHz Intel Core i7)
+  On my Macbook pro Retina (2.6 GHz Intel Core i7)
 
-Chrome 29.0.1547.57 (members)
-  Matrix.translate 14,716,649/s
-  matrix().translate 8,052,404/s
-  transform point 3,922,725/s
-  invert 12,733,472/s
-  mul 16,146,097/s
+  Chrome 29.0.1547.57 (members)
+    Matrix.translate 14,716,649/s
+    matrix().translate 8,052,404/s
+    transform point 3,922,725/s
+    invert 12,733,472/s
+    mul 16,146,097/s
 
-Chrome 29.0.1547.57 (float32Array)
-  Matrix.translate 926,402/s
-  matrix().translate 463,791/s
-  transform point 3,684,177/s
-  invert 978,248/s
-  mul 992,078/s
+  Chrome 29.0.1547.57 (float32Array)
+    Matrix.translate 926,402/s
+    matrix().translate 463,791/s
+    transform point 3,684,177/s
+    invert 978,248/s
+    mul 992,078/s
 
-FF 23.0.1 (members)
-  Matrix.translate 1,281,078/s
-  matrix().translate 534,542/s
-  transform point 768,224/s
-  invert 1,374,788/s
-  mul 1,413,206/s
+  FF 23.0.1 (members)
+    Matrix.translate 1,281,078/s
+    matrix().translate 534,542/s
+    transform point 768,224/s
+    invert 1,374,788/s
+    mul 1,413,206/s
 
-FF 23.0.1 (float32Array)
-  Matrix.translate 2,126,281/s
-  matrix().translate 1,013,548/s
-  transform point 832,604/s
-  invert 2,524,903/s
-  mul 2,669,331/s
+  FF 23.0.1 (float32Array)
+    Matrix.translate 2,126,281/s
+    matrix().translate 1,013,548/s
+    transform point 832,604/s
+    invert 2,524,903/s
+    mul 2,669,331/s
 
-NOTE! the order of the fields in the float32array for Webgl uniformMatrix3fv should be:
-  @values[0] = @sx
-  @values[1] = @shy
-  @values[2] = @tx
-  @values[3] = @shx
-  @values[4] = @sy
-  @values[5] = @ty
+  NOTE! the order of the fields in the float32array for Webgl uniformMatrix3fv should be:
+    @values[0] = @sx
+    @values[1] = @shy
+    @values[2] = @tx
+    @values[3] = @shx
+    @values[4] = @sy
+    @values[5] = @ty
 ###
 
 AtomicBase = require "./Base"
@@ -127,15 +126,15 @@ defineModule module, class Matrix extends AtomicBase
       new Matrix cr, cr, -sr, sr, 0, 0
 
   ###
-  Matrix.multitouch
-    Solves:
-      Given two points, moved in space
-      Generate a transformation matrix m
-      where:
-        a2 == m.transform a1
-        and
-        b2 == m.transform b1
-        and m.exactScale.aspectRatio == 1
+    Matrix.multitouch
+      Solves:
+        Given two points, moved in space
+        Generate a transformation matrix m
+        where:
+          a2 == m.transform a1
+          and
+          b2 == m.transform b1
+          and m.exactScale.aspectRatio == 1
   ###
   @multitouch: (a1, a2, b1, b2) ->
 
@@ -317,10 +316,10 @@ defineModule module, class Matrix extends AtomicBase
       # log "withLocationXY new Matrix"
       new Matrix @sx, @sy, @shx, @shy, x, y
 
-  ###
-  IN:
-    amount: point or number
-    into: t/f
+  ### translate
+    IN:
+      amount: point or number
+      into: t/f
   ###
   translate: (amount, into) ->
     if isNumber amount
@@ -348,7 +347,7 @@ defineModule module, class Matrix extends AtomicBase
 
   # s can be a point or number
   scale: (a, into) ->
-    throw new Error "Matrix.scale no longer accepts two numbers. Use translateXY" if isNumber into
+    throw new Error "Matrix.scale no longer accepts two numbers. Use scaleXY" if isNumber into
     if isNumber a
       x = y = a
     else
@@ -444,9 +443,9 @@ defineModule module, class Matrix extends AtomicBase
 
   @transform1D: transform1D = (x, y, sx, shx, tx) -> x * sx + y * shx + tx
 
-  ###
-  IN: a: Point or any object where .x and .y are numbers
-  IN: a: x (number; required), b: y (number, default: x)
+  ### transform
+    IN: a: Point or any object where .x and .y are numbers
+    IN: a: x (number; required), b: y (number, default: x)
   ###
   transform: (a, b) ->
     if isNumber a

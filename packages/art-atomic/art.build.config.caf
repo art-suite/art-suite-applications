@@ -14,10 +14,14 @@ package: (abcPackage) ->
 
       build-clean:  "" rm -rf source/*; npm run build
       watch:        "" npm-watch
+      start:
+        """
+          nn -s --watch&
+          cafSourceMaps=true webpack serve --hot --progress --open&
+          wait
 
 webpack:
   common: {}
   targets:
     index: {}
-    test: target: "web"
     perf: target: "web"
