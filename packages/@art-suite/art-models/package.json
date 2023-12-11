@@ -30,7 +30,7 @@
     "test": "npm run nn\njest",
     "watch": "npm-watch"
   },
-  "version": "0.1.4",
+  "version": "0.1.5",
   "sourceDir": "source",
   "targetDir": "build",
   "watch": {
