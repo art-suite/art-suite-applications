@@ -56,11 +56,11 @@ defineModule module, class ElasticsearchPipeline extends require './Elasticsearc
             age:    type: "integer"
 
   ###
-  @declarable
-    parentField:        validate: isString
-    routingField:       validate: isString
-    elasticsearchType:  validate: isString # default: snakeCase class.getName()
-    mapping:      extendable: {}
+  @extendableProperty
+    parentField:        ""
+    routingField:       ""
+    elasticsearchType:  ""
+    mapping:            {}
 
   ###################
   @getter

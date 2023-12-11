@@ -40,7 +40,7 @@
     "test-server": "docker-compose up -d",
     "watch": "npm-watch"
   },
-  "version": "0.13.13",
+  "version": "0.13.14",
   "watch": {
     "build": {
       "extensions": [

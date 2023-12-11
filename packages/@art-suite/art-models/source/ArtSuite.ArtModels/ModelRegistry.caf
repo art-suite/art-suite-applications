@@ -19,8 +19,8 @@ class ModelRegistry extends BaseObject
     IN: model (instance / singleton)
     OUT: model
   register: ({singleton: model}) ->
-    @_registerAliases model
-    @_registerModel model.modelName, model
+    @_addAliasesToRegistry model
+    @_addModelToRegistry model.modelName, model
     @_modelRegistered model
 
   ## onModelReigstered
@@ -36,7 +36,7 @@ class ModelRegistry extends BaseObject
   ##########################
     PRIVATE
   ##########################
-  _registerModel: (name, model) ->
+  _addModelToRegistry: (name, model) ->
     if @models[name]
       throw new Error
         """
@@ -44,13 +44,13 @@ class ModelRegistry extends BaseObject
           #{} formattedInspect {} name, model, previouslyRegisteredModel: @models[name]
 
     @models[name] = model
-    model.modelRegistered()
     model
 
-  _registerAliases: (model) ->
-    each alias in model.class._aliases with @_registerModel alias, model
+  _addAliasesToRegistry: (model) ->
+    each alias in model.class._aliases with @_addModelToRegistry alias, model
 
   _modelRegistered: (model) ->
+    model.modelRegistered()
     @_modelRegistrationPromiseResolvers[model.modelName]? model
     model
 

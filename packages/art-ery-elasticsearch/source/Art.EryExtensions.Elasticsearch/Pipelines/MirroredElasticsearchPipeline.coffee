@@ -32,7 +32,7 @@ defineModule module, ->
     #####################
     # Declarable API
     #####################
-    @declarable   sourcePipelineName: validate: isString
+    @extendableProperty   sourcePipelineName: ""
     @classGetter  sourcePipeline: -> pipelines[@getSourcePipelineName()]
     @getter       sourcePipeline: -> pipelines[@getSourcePipelineName()]
 
