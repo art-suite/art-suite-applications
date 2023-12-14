@@ -1,0 +1,99 @@
+import &ArtStandardLib, &ArtRestClient
+
+class Mailgun
+
+  ###
+    IN:
+      options:
+        useAltDomain: if config.altDomain is set, use it instead of domain.
+        fromName: if 'from' is not set,
+
+        # PLUS the mailgun-js send-options
+        # SEE: https://www.npmjs.com/package/mailgun-js
+        # EXAMPLE:
+        from:     'Excited User <me@samples.mailgun.org>'
+        to:       'serobnic@mail.ru'
+        subject:  'Hello'
+        text:     'Testing some Mailgun awesomeness!'
+
+  @configured: -> !!&Config.mailgunJs
+
+  @sendEmail: (options) ->
+    {verbose, fromName, useAltDomain, domain, mailgunJs} = preprocessOptions options
+
+    options.from ?= "" feedback@#{domain}
+    options.from =  "#{fromName} <#{options.from}>" if fromName
+
+    if verbose
+      log Mailgun.sendEmail: {}
+        options: merge options,
+          text: options.text?.length
+          html: options.html?.length
+        domain
+
+    Promise.then ->
+      if mailgunJs
+        Promise.then -> mailgunJs.messages().send options
+        .tap (emailResult) -> log Mailgun.sendEmail: success: {options, domain, emailResult} if verbose
+        .tapCatch (error)  -> log Mailgun.sendEmail: failure: {options, domain, error}       if verbose
+
+      else
+        {}
+          message:  "Mailgun not setup. Mail not actually sent. (required config: Art.Mailgun.apiKey and .domain)"
+          options
+          domain
+          &Config.config
+
+  @validateEmail: (address, mailbox_verification = true) =>
+    getJson @createUrl :/address/private/validate {} address, mailbox_verification
+
+  # USING: https://www.npmjs.com/package/mailgun-js#generic-requests
+  # AND:  https://documentation.mailgun.com/en/latest/api-events.html#events
+
+  isSignedRegexp = ///i //api:
+  @signUrl: (url) ->
+    if isSignedRegexp.test url
+      url
+    else
+      [proto, rest] = url.split "//"
+      "" #{proto}//api:#{&Config.config.apiKey}@#{rest}
+
+  @createUrl: (relativeUrl, query) ->
+    appendQuery
+      urlJoin "https://api:#{&Config.config.apiKey}@api.mailgun.net/v3", relativeUrl
+      query
+
+  ###
+    IN:
+      begin
+      end
+      ascending
+      limit
+      query: any OTHER fields you want to match on
+
+  @getEvents: (options) =>
+    {mailgunJs, domain, query, begin, end, ascending, limit} = preprocessOptions options
+    begin = toSeconds begin if begin
+    end = toSeconds end if end
+    pageLimit = min limit, 300
+
+    allEvents = []
+    loadEvents = (url) ->
+      getJson @signUrl url
+      .then ({items, paging}) ->
+        allEvents = allEvents.concat items
+        if items.length == pageLimit && paging.next && allEvents.length < limit
+          log Mailgun.getEvents: {limit, loadedSoFar = allEvents.length}
+          loadEvents paging.next
+
+    loadEvents @createUrl "/#{domain}/events", merge query, {begin, end, ascending, limit: pageLimit}
+    .then -> allEvents
+
+  preprocessOptions = (options) ->
+    {useAltDomain} = options if options
+    {verbose, mailgunJs, altMailgunJs} = &Config
+    {domain, altDomain} = &Config.config
+    if useAltDomain
+      merge options, {} verbose, domain: altDomain, mailgunJs: altMailgunJs
+    else
+      merge options, {} verbose, domain, mailgunJs
