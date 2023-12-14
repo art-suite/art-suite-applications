@@ -1,7 +1,7 @@
 {
   "bugs": "https://github.com/art-suite/art-suite-applications/issues",
   "dependencies": {
-    "@art-suite/art-pipelines": "^0.2.1",
+    "@art-suite/art-pipelines": "^0.2.2",
     "art-validation": "^2.1.2"
   },
   "homepage": "https://github.com/art-suite/art-suite-applications",

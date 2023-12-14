@@ -1,7 +1,7 @@
 {
   "bugs": "https://github.com/art-suite/art-suite-applications/issues",
   "dependencies": {
-    "@art-suite/art-pipelines": "^0.2.1"
+    "@art-suite/art-pipelines": "^0.2.2"
   },
   "devDependencies": {
     "openapi-schema-validator": "^12.1.3"

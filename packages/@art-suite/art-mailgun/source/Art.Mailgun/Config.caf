@@ -1,0 +1,24 @@
+import &ArtStandardLib
+
+defineModule module, class Config extends &ArtConfig.Configurable
+  @defaults
+    altDomain:  null
+    domain:     null
+    apiKey:     null
+
+    ###
+      altDomain:  "my2.domain.com"
+        Useful if you are migrating your mail slowely from one domain to another
+        To use, make sure altDomain is set in config, then, When calling sendEmail, pass:
+          useAltDomain: true
+
+      domain:   "my.domain.com"
+      apiKey:   "blah"
+
+  @configured: ->
+    super
+    {apiKey, domain, altDomain} = @config
+    if domain && apiKey
+      @mailgunJs = &MailgunJs {} apiKey, domain
+      if altDomain
+        @altMailgunJs = &MailgunJs {} apiKey, domain: altDomain

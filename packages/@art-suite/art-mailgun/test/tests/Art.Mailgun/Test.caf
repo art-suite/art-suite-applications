@@ -1,0 +1,4 @@
+import &StandardImport
+suite: ->
+  test 'Mailgun.sendEmail is a function' ->
+    assert.isFunction Neptune.Art.Mailgun.sendEmail
