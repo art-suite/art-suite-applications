@@ -1,11 +1,9 @@
 # Art.Mailgun
 
-Wrapper for mailgun-js
-
-> Initialized by Art.Build.Configurator
+Wrapper for mailgun-js.
 
 ### Install
 
 ```coffeescript
-npm install art-mailgun
+npm install @art-suite/art-mailgun
 ```
