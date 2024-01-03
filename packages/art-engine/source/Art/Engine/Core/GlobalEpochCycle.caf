@@ -84,11 +84,11 @@ class GlobalEpochCycle extends Epoch
   ############################
   includeReact: (epoch) ->
     @subEpochs.react = epoch
-    .queueNextEpoch = => @queueNextEpoch()
+    .queueNextEpoch = -> @queueNextEpoch()
 
   includeFlux:  (epoch) ->
     @subEpochs.flux = epoch
-    .queueNextEpoch = => @queueNextEpoch()
+    .queueNextEpoch = -> @queueNextEpoch()
 
   detachCanvasElement: (toRemoveCe) ->
     @activeCanvasElements = arrayWithout @activeCanvasElements, toRemoveCe

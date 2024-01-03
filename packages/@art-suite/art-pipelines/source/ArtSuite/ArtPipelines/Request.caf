@@ -10,7 +10,7 @@ createValidators = () ->
     props:    :object
 
   requestValidator ?= new Validator
-    # pipeline:           required: instanceof: ArtPipelines.Pipeline
+    # pipeline:           :required instanceof: ArtPipelines.Pipeline
     type:               :required :string
     session:            :required :object
     parentRequest:      instanceof: Request

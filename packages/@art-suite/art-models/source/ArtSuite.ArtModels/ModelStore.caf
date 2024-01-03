@@ -14,8 +14,8 @@ class ModelStore extends EpochClass
     @_entriesByModelName = {}
     @_addedEntries = []
 
+  @classGetter singleton: -> throw new Error "DEPRECATED: Use `modelRegistry.modelStore`."
   @getter
-    singleton: -> throw new Error "DEPRECATED: Use `modelRegistry.modelStore`."
     :modelRegistry
     :length
     models: -> @modelRegistry.models
