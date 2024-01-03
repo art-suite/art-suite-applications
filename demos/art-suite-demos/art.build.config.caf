@@ -2,11 +2,12 @@ import &ArtStandardLib
 
 webpack:
   common:
-    mode: "development"
+    mode:     :development
+    devtool:  :source-map
+
   targets:
     Demos: {}
     HelloWorld: {}
-    HelloWorldForIE11: {}
 
 package: -> merge
   &package

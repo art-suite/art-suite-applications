@@ -62,7 +62,7 @@ class ModelComponent extends ArtModelSubscriptionsMixin Component
     subscription.propsToModel = switch
       when isFunction model then model
       when isString modelName = model
-        unless model = ArtModelRegistry.models[model]
+        unless model = ModelRegistry.singleton.models[model]
           throw new Error "#{@getName()}::subscriptions() model '#{modelName}' not registered (#{@getNamespacePath()})"
         -> model
       else

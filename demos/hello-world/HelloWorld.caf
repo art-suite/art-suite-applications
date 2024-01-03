@@ -4,5 +4,5 @@ initArtSuiteApp MainComponent: class MyHelloWorldComponent extends Component
 
   render: ->
     CanvasElement
-      draw: #eef
-      TextElement padding: 10 text: "" Hello, world!
+      draw: #ffe
+      TextElement padding: 10 text: "" Hello world.

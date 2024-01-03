@@ -2,4 +2,5 @@
   &DemoPalette
   &DemoTextStyles
   &ArtAppKit
+  &@ArtSuite/PointerActionsMixin
   {} &DemoPalette, &DemoTextStyles

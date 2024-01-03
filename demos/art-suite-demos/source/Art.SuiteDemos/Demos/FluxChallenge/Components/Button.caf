@@ -8,7 +8,7 @@ class Button extends PointerActionsMixin Component
       animators:    :opacity :draw
       draw:
         radius:     1
-        color:      getButtonBackgoundColor {} enabled, @pointerIsDown, @hover
+        color:      getButtonBackgoundColor {} @enabled, @pointerIsDown, @hover
         outline:    buttonOutlineStyle
 
       if @props.action

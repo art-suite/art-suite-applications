@@ -8,6 +8,4 @@ webpack:
 
   # each target's individual properties
   targets:
-    Demos: {}
     HelloWorld: {}
-    FullScreenHelloWorld: {}

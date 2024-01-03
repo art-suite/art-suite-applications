@@ -3,12 +3,9 @@
   "bugs": "https://github.com/art-suite/art-suite-applications/issues",
   "dependencies": {
     "art-build-configurator": "^1.29.3",
-    "art-color-extractor": "^1.6.3",
-    "art-suite": "^2.0.7",
-    "quantize": "^1.0.2",
-    "tracking": "^1.1.3"
+    "art-suite": "^2.0.7"
   },
-  "description": "See what ArtSuite can do.",
+  "description": "Art.Engine.Demos",
   "devDependencies": {
     "art-testbench": "^3.2.13",
     "case-sensitive-paths-webpack-plugin": "^2.2.0",
@@ -28,13 +25,15 @@
   },
   "homepage": "https://github.com/art-suite/art-suite-applications",
   "license": "ISC",
-  "name": "art-suite-demos",
+  "name": "art-engine-demos",
   "repository": {
     "type": "git",
     "url": "https://github.com/art-suite/art-suite-applications.git"
   },
   "scripts": {
-    "start": "nn -s --watch&\ncafSourceMaps=true webpack serve --hot --progress --open&\nwait"
+    "build": "webpack --progress",
+    "start": "cafSourceMaps=true webpack serve --hot --progress --static ./",
+    "test": "webpack serve  --progress --env.devServer"
   },
-  "version": "0.20.2"
+  "version": "1.1.4"
 }
