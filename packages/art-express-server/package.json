@@ -3,9 +3,9 @@
   "bugs": "https://github.com/art-suite/art-suite-applications/issues",
   "dependencies": {
     "art-build-configurator": "^1.29.3",
+    "art-communication-status": "^1.5.13",
     "compression": "^1.7.2",
     "express": "^4.17.1",
-    "jsonwebtoken": "^9.0.2",
     "throng": "^5.0.0"
   },
   "description": "Extensible, Promise-based HTTP Server based on Express",
@@ -44,7 +44,7 @@
     "test": "npm run nn\njest",
     "watch": "npm-watch"
   },
-  "version": "1.5.1",
+  "version": "1.5.2",
   "watch": {
     "build": {
       "extensions": [
