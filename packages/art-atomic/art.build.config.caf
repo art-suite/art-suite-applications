@@ -1,27 +1,3 @@
-import &ArtStandardLib
-target: node: true
-package: (abcPackage) ->
-  sourceDir = :source-source
-  merge &package,
-    scripts: merge &package.scripts,
-      test: "jest"
-      build:
-        """
-          coffee --output source --compile --map #{sourceDir} &
-          caf -c #{sourceDir} -o source --map &
-          wait
-          nn -sq
-
-      build-clean:  "" rm -rf source/*; npm run build
-      watch:        "" npm-watch
-      start:
-        """
-          nn -s --watch&
-          cafSourceMaps=true webpack serve --hot --progress --open&
-          wait
-
-webpack:
-  common: {}
-  targets:
-    index: {}
-    perf: target: "web"
+package: &@ArtSuite/StandardPackageBuilder.configure {}
+  &package
+  coffeeScript: true

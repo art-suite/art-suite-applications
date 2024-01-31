@@ -3,7 +3,7 @@
   "file": "index.js",
   "sourceRoot": "..",
   "sources": [
-    "source-source/index.coffee"
+    "source/index.coffee"
   ],
   "names": [],
   "mappings": ";AAAA;EAAA,MAAM,CAAC,OAAP,GAAiB,OAAA,CAAQ,cAAR;AAAjB"
