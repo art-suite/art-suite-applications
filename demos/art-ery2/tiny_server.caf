@@ -1,0 +1,16 @@
+&caffeine-script/register
+import
+  &ArtStandardLib
+  &@ArtSuite/ArtPipelines
+  Server: require :@art-suite/rest-transport/Server
+
+&ArtConfig.configure()
+
+pipelineRegistry = new PipelineRegistry
+
+class Status extends Pipeline
+  @registry pipelineRegistry
+  @requestTypes status: response: data: :string
+  @publicHandlers status: -> :up
+
+Server.start {} pipelineRegistry, verbose: true

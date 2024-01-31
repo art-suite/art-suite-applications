@@ -1,0 +1,50 @@
+import
+  &ArtStandardLib
+  &@ArtSuite/ArtPipelines
+  &@ArtSuite/KeyFieldsMixin
+  &@ArtSuite/DatabaseFilters
+  &@ArtSuite/RestTransport
+  require :@art-suite/rest-transport/server
+
+&ArtConfig.configure()
+
+pipelineRegistry = new PipelineRegistry
+
+crudRequestTypes =
+  get:
+    request:    key:  true
+    response:   data: :required :record
+  create:
+    request:    data: :required :record
+    response:   key:  true    data: :required :record
+  update:
+    request:    key:  true    data: :required :record
+    response:   data: :required :record
+  delete:
+    request:    key:  true
+    response:   data: :required :record
+
+class TinyMemoryDb extends KeyFieldsMixin Pipeline
+  @abstractClass()
+
+  constructor: -> @_records = {}
+
+  @requestTypes crudRequestTypes
+
+  @publicHandlers
+    get:    ({key}) -> @_records[key]
+    create: ({data, key}) -> @_records[key] = data
+    update: ({data, key}) -> if @_records[key] then @_records[key] = merge @_records[key], data
+    delete: ({key}) -> if ret = @_records[key] then delete @_records[key]; ret
+
+class City extends TinyMemoryDb
+  @registry pipelineRegistry
+  @filter createDatabaseFilters
+    linkFilterVersion: 2
+    fields:
+      name: :present :string
+      location: fields:
+        x: :required :number
+        y: :required :number
+
+server = Server.start {} pipelineRegistry, verbose: true

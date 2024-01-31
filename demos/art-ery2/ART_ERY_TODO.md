@@ -1,0 +1,10 @@
+- CaffeineScript: fix `&ArtSuite/RestTransport/Server` e.g. `require :@art-suite/rest-transport/Server`
+  - or, for now, break up the repo into:
+    - art-ery-rest-transport
+    - art-ery-rest-transport-server
+- Deploy to npm:
+  - rename EVERYTHING with an art-ery prefix!
+    - rest-transport
+    - key-fields-mixin
+    - filters/\*
+      - e.g. art-ery-filter-after-events
