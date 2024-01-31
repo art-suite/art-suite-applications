@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "Color.more.test.js",
+  "sourceRoot": "../..",
+  "sources": [
+    "source-source/jest/Color.more.test.caf"
+  ],
+  "names": [],
+  "mappings": "AAAA;;AAAA,uGAAO,qEAEP,gBAAQ,CACN,kBACE,KAAK,iBACH,UACE,SAAS,SACT,SAAS,gBACA,aAEb,KAAK,yBACH,UACE,SAAS,SACT,SAAS,gBACA,YAEX,UACE,SAAS,mBAET,SAAS,uBACO"
+}

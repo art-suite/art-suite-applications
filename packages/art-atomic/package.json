@@ -22,7 +22,7 @@
     "url": "https://github.com/art-suite/art-suite-applications.git"
   },
   "scripts": {
-    "build": "coffee --output source --compile --map source-source &\ncaf -p -c source-source -o source --map &\nwait\nnn -sq",
+    "build": "coffee --output source --compile --map source-source &\ncaf -c source-source -o source --map &\nwait\nnn -sq",
     "build-clean": "rm -rf source/*; npm run build",
     "start": "nn -s --watch&\ncafSourceMaps=true webpack serve --hot --progress --open&\nwait",
     "test": "jest",
