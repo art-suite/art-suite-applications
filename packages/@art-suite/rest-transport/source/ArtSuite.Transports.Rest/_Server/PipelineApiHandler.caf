@@ -65,15 +65,21 @@ class PipelineApiHandler extends &ArtExpressServer.PromiseHandler
                 subrequestCount: #{response.subrequestCount}, recordsReturned: #{if response.data then if isArray response.data then response.data.length else 1 else 0}
 
           if isSuccess response.status
+            # log handleApiRequest: pipelineResponse: response
             Promise.resolve prepareSignedSessionForResponse session, merge response.props, {} session: response.responseSession
-            .then (data) -> {} response.status, data
+            # .then (props) ->
+            #   # log prepareSignedSessionForResponse_result: props
+            #   merge
+            #     {} response.status
+            #     data: props
 
           else
-            {status, props: data} = response.responseForRemoteRequest
-            throw new RequestError {} status, data
+            {status, props} = response
+            throw new RequestError {} status, data: props
 
     else
       Promise.resolve null # missing
+    .tap (response) -> log handleApiRequest_finalResponse: response
 
   getRequestLogHeader: (request, response) ->
     "" #{@logHeader} #{request.method}:#{request.url} (#{encodeHttpStatus response.status}, #{(currentSecond() - response.startTime) * 1000 | 0}ms)

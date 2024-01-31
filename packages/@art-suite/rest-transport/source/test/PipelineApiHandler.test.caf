@@ -7,18 +7,25 @@ class SimplePipeline extends Pipeline
   @registry pipelineRegistry
   @filter &RestClientSimulatedTransportFilter
   @publicHandler
-    get: (request) -> received: {} request.remoteRequest, request.props, request.session
+    get: (request) ->
+      testHandlerRemoteRequest:   request.remoteRequest
+      testHandlerRequestProps:    request.props
+      testHandlerRequestSession:  request.session
+
     login: (request) -> request.respondWithSession user: :alice
 
 chainedTest "simplePipeline.get without session", ->
-  pipelines.simplePipeline.get()
-  .then (result) ->
+  pipelines.simplePipeline.get returnResponseObject: true
+  .then (response) ->
     assert.eq
-      result
-      received:
-          props:   {}
-          session: {}
-          remoteRequest: url: :/api/simplePipeline, method: :get, data: null
+      response.data
+      testHandlerRequestProps:   {}
+      testHandlerRequestSession: {}
+      testHandlerRemoteRequest:  url: :/api/simplePipeline, method: :get, data: null
+
+    assert.eq
+      response.remoteResponse
+      data: response.data
 
 .thenTest "simplePipeline.get with session", ->
   assert.notPresent signatureBefore = session.data.signature
@@ -26,8 +33,7 @@ chainedTest "simplePipeline.get without session", ->
   .then (result) ->
     assert.eq
       result.remoteResponse
-      status: :success
-      data: session: {}
+      session: {}
         user: :alice
         session.data.signature
 

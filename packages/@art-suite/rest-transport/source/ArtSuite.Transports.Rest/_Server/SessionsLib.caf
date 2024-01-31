@@ -38,12 +38,16 @@ merge &RestClientLib, {}
       *) Use an ArtEry filter to do this. I'll probably write one and include it in ArtEry.Filters soon.
         BUT it won't be tied to a specific backend; you'll still have to do that part yourself.
 
-  prepareSignedSessionForResponse: (oldSession, responseData) =>
-    if shouldReturnNewSignedSession oldSession, newSession = responseData.session || oldSession
+  prepareSignedSessionForResponse: (oldSession, restResponseData) =>
+    # log prepareSignedSessionForResponse: {} oldSession, restResponseData
+    if shouldReturnNewSignedSession oldSession, newSession = restResponseData.session || oldSession
       signSession newSession
-      .then (signature) -> merge responseData, session: merge newSession, {signature}
+      .then (signature) ->
+        # log prepareSignedSessionForResponse_yes: signature
+        merge restResponseData, session: merge newSession, {signature}
     else
-      objectWithout responseData, :session
+      # log prepareSignedSessionForResponse_no: restResponseData
+      objectWithout restResponseData, :session
 
   signSession = (session) ->
     PromiseJsonWebToken.sign
