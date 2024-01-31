@@ -29,6 +29,12 @@ class PipelineApiHandler extends &ArtExpressServer.PromiseHandler
         session
         data
         props
+    OUT:
+      status: string
+      data: # HTTP response payload data; which might look like
+        data: {...}     # application returned payload data
+        session: {...}  # session data
+        xxx: yyy        # other possible props.*
   handleApiRequest: (request, requestData) ->
     requestData ?= {}
     if found = @_findPipelineForRequest request
@@ -59,7 +65,8 @@ class PipelineApiHandler extends &ArtExpressServer.PromiseHandler
                 subrequestCount: #{response.subrequestCount}, recordsReturned: #{if response.data then if isArray response.data then response.data.length else 1 else 0}
 
           if isSuccess response.status
-            prepareSignedSessionForResponse session, merge response.props, session: response.responseSession
+            Promise.resolve prepareSignedSessionForResponse session, merge response.props, {} session: response.responseSession
+            .then (data) -> {} response.status, data
 
           else
             {status, props: data} = response.responseForRemoteRequest

@@ -35,21 +35,15 @@ chainedTest "start server" ->
       assert.eq response.remoteRequest.method, :get
       assert.notInstanceOf response.remoteResponse, Request
 
-  "check returned session" (response) ->
-    assert.isString response.remoteResponse.session extract signature
-    assert.isPlainObject response.remoteResponse
-
-    assert.eq
-      response.remoteResponse
-      status:  :success
-      props:   data: "Hello world."
-      session: {} signature
+  "no returned session yet" (response) ->
+    assert.doesNotExist response.remoteResponse.session
 
   "make a login request" ->
     pipelines.myPipeline.login key: :Shane returnResponse: true
     .then (response) ->
       assert.eq response.props, {}
       assert.eq response.session.user, :Shane
+      assert.eq response.pipelineRegistry.session.data.user, :Shane
 
   "make a get request with session" ->
     pipelines.myPipeline.get returnResponse: true

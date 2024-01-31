@@ -6,68 +6,96 @@ import
 
 pipelineRegistry = new PipelineRegistry
 
-class City extends KeyFieldsMixin Pipeline
+crudRequestTypes =
+  get:
+    request:    key:  true
+    response:   data: :required :record
+  create:
+    request:    data: :required :record
+    response:   key:  true    data: :required :record
+  update:
+    request:    key:  true    data: :required :record
+    response:   data: :required :record
+  delete:
+    request:    key:  true
+    response:   data: :required :record
+
+# class City extends KeyFieldsMixin Pipeline
+#   @registry pipelineRegistry
+#   @filter createDatabaseFilters
+#     linkFilterVersion: 2
+#     fields:
+#       name: :present :string
+#       location: fields: x: :required :number y: :required :number
+
+#   constructor: ->
+#     @_records = {}
+
+#   @requestTypes crudRequestTypes
+
+#   @publicHandlers
+#     get:    ({key}) -> @_records[key]
+#     create: ({data, key}) -> @_records[key] = data
+#     update: ({data, key}) -> if @_records[key] then @_records[key] = merge @_records[key], data
+#     delete: ({key}) -> if ret = @_records[key] then delete @_records[key]; ret
+
+# class Auth extends KeyFieldsMixin Pipeline
+#   @registry pipelineRegistry
+
+#   constructor: ->
+#     @_users = {}
+
+#   @requestTypes
+#     login:  request: data: fields: username: :present :trimmedString password: :present :trimmedString
+#     signUp: request: data: fields: username: :present :trimmedString password: :present :trimmedString
+#     whoami: response: data: :string
+
+#   @publicHandlers
+#     login: (request) ->
+#       request.data extract? username, password
+#       if @_users[username] == password
+#         request.success
+#           data: :OK
+#           session: {} username
+
+#       else request.clientFailureNotAuthorized "" Wrong username or password.
+
+#     signUp: (request) ->
+#       request.data extract? username, password
+#       if @_users[username]
+#         request.clientFailure "" Username already exists.
+#       else
+#         @_users[username] = password
+#         request.success
+#           data: :OK
+#           session: {} username
+
+#     whoami: ({session}) -> session?.username
+
+class Skill extends KeyFieldsMixin Pipeline
   @registry pipelineRegistry
   @filter createDatabaseFilters
     linkFilterVersion: 2
     fields:
-      name: :present :string
-      location: fields: x: :required :number y: :required :number
+      scope: :link
+      class: :link
+  @requestTypes crudRequestTypes
+  @publicRequestTypes :get :create :update :delete
 
-  constructor: ->
-    @_records = {}
-
-  @requestTypes
-    get:
-      request:    key:  true
-      response:   data: :required :record
-    create:
-      request:    data: :required :record
-      response:   key:  true    data: :required :record
-    update:
-      request:    key:  true    data: :required :record
-      response:   data: :required :record
-    delete:
-      request:    key:  true
-      response:   data: :required :record
-
-  @publicHandlers
-    get:    ({key}) -> @_records[key]
-    create: ({data, key}) -> @_records[key] = data
-    update: ({data, key}) -> if @_records[key] then @_records[key] = merge @_records[key], data
-    delete: ({key}) -> if ret = @_records[key] then delete @_records[key]; ret
-
-class Auth extends KeyFieldsMixin Pipeline
+class MediaInference extends KeyFieldsMixin Pipeline
   @registry pipelineRegistry
+  @filter createDatabaseFilters
+    linkFilterVersion: 2
+    fields:
+      media_id:   :string
+      model_id:   :string
+      class_id:   :string
+      bbox_x1:    :integer
+      bbox_y1:    :integer
+      bbox_x2:    :integer
+      bbox_y2:    :integer
+  @requestTypes crudRequestTypes
+  @publicRequestTypes :get :create :update :delete
 
-  constructor: ->
-    @_users = {}
-
-  @requestTypes
-    login:  request: data: fields: username: :present :trimmedString password: :present :trimmedString
-    signUp: request: data: fields: username: :present :trimmedString password: :present :trimmedString
-    whoami: response: data: :string
-
-  @publicHandlers
-    login: (request) ->
-      request.data extract? username, password
-      if @_users[username] == password
-        request.success
-          data: :OK
-          session: {} username
-
-      else request.clientFailureNotAuthorized "" Wrong username or password.
-
-    signUp: (request) ->
-      request.data extract? username, password
-      if @_users[username]
-        request.clientFailure "" Username already exists.
-      else
-        @_users[username] = password
-        request.success
-          data: :OK
-          session: {} username
-
-    whoami: ({session}) -> session?.username
 
 server = Server.start {} pipelineRegistry, verbose: true

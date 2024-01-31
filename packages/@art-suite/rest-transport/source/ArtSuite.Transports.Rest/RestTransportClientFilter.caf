@@ -12,5 +12,8 @@ class RestTransportClientFilter extends Filter
       remoteRequestOptions = getRestTransportClientConfig request
       if remoteRequestOptions extract remoteServer
         sendRemoteRequest request, remoteRequestOptions
+        .tap (response) ->
+          if response extract session, remoteResponse
+            request.pipelineRegistry.session.data = session
 
       else request

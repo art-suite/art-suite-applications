@@ -21,13 +21,13 @@ chainedTest "simplePipeline.get without session", ->
           remoteRequest: url: :/api/simplePipeline, method: :get, data: null
 
 .thenTest "simplePipeline.get with session", ->
-  assert.present signatureBefore = session.data.signature
+  assert.notPresent signatureBefore = session.data.signature
   pipelines.simplePipeline.login returnResponseObject: true
   .then (result) ->
     assert.eq
       result.remoteResponse
       status: :success
-      session: {}
+      data: session: {}
         user: :alice
         session.data.signature
 

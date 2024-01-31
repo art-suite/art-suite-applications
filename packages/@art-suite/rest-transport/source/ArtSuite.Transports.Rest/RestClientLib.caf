@@ -86,4 +86,9 @@ import &StandardImport, &ArtRestClient, &RestTransportClientConfig
     .then (remoteResponse) ->
       remoteResponse ?= status: missing
       request.addFilterLog "#{remoteRequest.method.toLocaleUpperCase()} #{remoteRequest.url}", :remoteRequest
-      request.toResponse remoteResponse.status, merge remoteResponse, {remoteRequest, remoteResponse}
+      props = if remoteResponse.data extract session
+        objectWithout remoteResponse.data, :session
+      else
+        remoteResponse.data
+
+      request.toResponse remoteResponse.status, {} remoteResponse.status, props, session, remoteRequest, remoteResponse

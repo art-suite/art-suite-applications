@@ -16,3 +16,16 @@
 
       fields:
       parentGoal: link: :goal
+
+-REST
+
+- Change PUT to PATCH; that's really what we are doing.
+
+  - https://medium.com/@kamaleshs48/difference-between-put-post-and-patch-35ed362e05e9
+  - we could add optional support for "replace" which would route to PUT in REST.
+
+- OpenAPI
+
+  - Make queries work for OpenAPI - e.g. they should return (data: array: :record), but it doesn't work
+  - CRUD UPDATE need to let all fields be optional, even if they are otherwise required.
+    - Currently the OpenAPI implementation uses the same, shared schema as CREATE
