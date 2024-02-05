@@ -25,7 +25,7 @@
   },
   "homepage": "https://github.com/art-suite/art-suite-applications",
   "license": "ISC",
-  "name": "art-engine-demos",
+  "name": "hello-world-demo",
   "repository": {
     "type": "git",
     "url": "https://github.com/art-suite/art-suite-applications.git"

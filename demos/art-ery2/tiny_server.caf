@@ -2,7 +2,6 @@
 import
   &ArtStandardLib
   &@ArtSuite/ArtPipelines
-  Server: require :@art-suite/rest-transport/Server
 
 &ArtConfig.configure()
 
@@ -13,4 +12,5 @@ class Status extends Pipeline
   @requestTypes status: response: data: :string
   @publicHandlers status: -> :up
 
-Server.start {} pipelineRegistry, verbose: true
+require :@art-suite/rest-transport/Server
+.start {} pipelineRegistry, verbose: true
