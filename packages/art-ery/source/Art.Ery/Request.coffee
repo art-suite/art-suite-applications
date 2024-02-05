@@ -17,9 +17,9 @@ ArtEry = require './namespace'
 _validator = null
 requestConstructorValidator = ->
   _validator ||= new Validator
-    pipeline:           required: instanceof: ArtEry.Pipeline
-    type:               required: fieldType: "string"
-    session:            required: fieldType: "object"
+    pipeline:           required: true, instanceof: ArtEry.Pipeline
+    type:               required: true, fieldType: "string"
+    session:            required: true, fieldType: "object"
     parentRequest:      instanceof: ArtEry.Request
     originatedOnServer: "boolean"
     props:              "object"

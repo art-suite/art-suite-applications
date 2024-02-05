@@ -40,7 +40,7 @@ suite:
         @filter createDatabaseFilters
           linkFilterVersion: 2
           fields:
-            user: required: link: "user"
+            user:     required: true, link: "user"
             message: "present trimmedString"
 
       MyPipeline.singleton.create

@@ -28,7 +28,7 @@
   "scripts": {
     "test": "nn -s;mocha -u tdd",
     "test-server": "caf ./TestServer.caf",
-    "testInBrowser": "webpack server --progress "
+    "testInBrowser": "webpack server --progress"
   },
   "version": "1.119.0"
 }

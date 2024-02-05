@@ -23,7 +23,7 @@ Request = require './Request'
 namespace = require './namespace'
 
 responseValidator = new Validator
-  request:  w "required", instanceof: Request
+  request:  required: true, instanceof: Request
   status:   w "required communicationStatus"
   session:  "object"
   props:    "object"
