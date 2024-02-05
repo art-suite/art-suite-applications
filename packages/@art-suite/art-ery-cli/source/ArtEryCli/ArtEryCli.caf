@@ -1,0 +1,29 @@
+import &ArtStandardLib
+###
+  IN: options:
+    load: [required] ->
+      OUT: merged with Options
+      EFFECT: all your pipelines, if any, area loaded
+
+    package: your package.json file
+      Example: package: require './package.json'
+
+    Config, environmentName
+      see Art.Suite.Node.Init
+
+    createTables STUFF - what will that be?
+
+  configuration:
+    Config.current = merge
+      Config[environmentName]
+      eval process.env.artSuiteApp || "null"
+
+start: ({package: _package, description, load}) ->
+  Promise.then load ? ->
+  .then ->
+    &@ArtSuite/Cli
+    .start {}
+      description
+      commands: merge
+        &Commands.modules
+        version: -> _package.version

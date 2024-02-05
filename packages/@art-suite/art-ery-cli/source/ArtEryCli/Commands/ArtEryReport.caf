@@ -1,0 +1,10 @@
+&ToolLib.createPipelineCommand
+  action: (pipeline, {pipelines}) ->
+    pipelines:
+      object pipeline from unless pipeline then pipelines else [pipeline.pipelineName]: pipeline
+        pipeline.getPipelineReport()
+
+    ## TODO - we should make this generic across all filters
+      Idea: iterate over all pipelines and discover all filters used who's class has an
+      inspect method of some sort; then output it here.
+    afterEventsFilter: &ArtEry.Filters.AfterEventsFilter.handlers

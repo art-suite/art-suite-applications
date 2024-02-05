@@ -1,0 +1,3 @@
+&ToolLib.createPipelineCommand
+  description: "Status summary for pipeline(s). Status details: use --describeTableSchema"
+  action: (pipeline) -> &ArtAws.DynamoDb.singleton.getTableStatus pipeline.createTableParams

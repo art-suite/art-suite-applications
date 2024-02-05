@@ -1,0 +1,16 @@
+# Example Pipelines
+import &ArtEry
+
+class User extends Pipeline
+  @addDatabaseFilters
+    fields:
+      name: :string
+      email: :string
+
+# Start the CLI
+&@ArtSuite/ArtEryCli.start {}
+  description:  "" This is an example of how to build a custom tool for your app.
+  load: ->
+    console.log "" Add your own loading code. Optionally return a Promise if you want the CLI to wait for async loading tasks.
+
+  &package

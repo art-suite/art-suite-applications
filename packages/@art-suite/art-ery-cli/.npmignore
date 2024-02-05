@@ -1,0 +1,5 @@
+coverage/
+node_modules/
+**/test/
+art.build.config.caf
+*.tgz
