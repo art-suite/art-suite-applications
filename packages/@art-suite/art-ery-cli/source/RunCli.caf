@@ -1,0 +1,22 @@
+import &ArtStandardLib, &glob, {} &path
+realRequire = eval :require
+
+
+loadFromUserProject = (basename) ->
+  configFilepath = path.join process.cwd(), basename
+  [configFilepath] = globSync configFilepath + "*"
+  if configFilepath?
+    realRequire configFilepath
+
+loadFromUserProject :configure
+pipelines = loadFromUserProject :pipelines
+
+unless packageJson = loadFromUserProject :package.json
+  console.error "" Not run in a package.
+  console.log "" Please run from a folder containing a package.json
+  process.exit 1
+
+&@ArtSuite/ArtEryCli.start {}
+  description:  "" ArtEryCli for #{} packageJson.name
+  package: packageJson
+  preprocessOptions: (options) -> merge options, {} pipelines

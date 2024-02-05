@@ -1,0 +1,4 @@
+#!/usr/bin/env node
+
+require('caffeine-script/register');
+require('./toolExample.caf');

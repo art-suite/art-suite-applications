@@ -1,0 +1,65 @@
+import &ArtStandardLib
+commands =
+  createIndexes: true
+  deleteIndexes: true
+
+options: merge
+  &ToolLib.standardPiplineOptions
+  createIndexes:  "" use this to create indexes
+  deleteIndexes:  "" use this to delete indexes
+  confirm:        "" use this as final confirmation
+decription:       "" create or delete DynamoDb global indexes. This command is read-only UNLESS --confirm is specified. Use diff-table-schema first to see if changes are needed.
+run: ({pipeline: pipelineName, createIndexes, deleteIndexes, confirm, pipelines}) ->
+
+  unless pipeline = pipelines[pipelineName]
+    if pipelineName?
+          "" Pipeline '#{pipelineName}' not found.
+    else  "" Please specify a pipeline.
+
+  else unless createIndexes or deleteIndexes
+    &ArtAws.DynamoDb.singleton.getTableChanges pipeline.createTableParams
+    .then ({GlobalSecondaryIndexes}) ->
+      if GlobalSecondaryIndexes
+        {added, removed} = GlobalSecondaryIndexes
+        message: "Please select an option."
+        actionTaken: :none
+        option: merge
+          if 0 < objectKeyCount added
+            "--pipeline #{pipelineName} --createIndexes": creates: added
+          if 0 < objectKeyCount removed
+            "--pipeline #{pipelineName} --deleteIndexes": deletes: removed
+      else {}
+        message: "There are no indexes that need updating."
+        pipeline.createTableParams
+
+  else unless confirm
+    &ArtAws.DynamoDb.singleton.getTableChanges pipeline.createTableParams
+    .then ({GlobalSecondaryIndexes}) ->
+      {added, removed} = GlobalSecondaryIndexes
+      switch
+      when createIndexes
+        if 0 < objectKeyCount added
+          message: "Please confirm schema modification. Use: '--pipeline #{pipelineName} --createIndexes --confirm'"
+          actionTaken: :none
+          creates: added
+
+        else
+          log.warn "" no indexes to add
+      when deleteIndexes
+        if 0 < objectKeyCount removed
+          message: "Please confirm schema modification. Use: '--pipeline #{pipelineName} --deleteIndexes --confirm'"
+          actionTaken: :none
+          creates: removed
+
+        else
+          log.warn "" no indexes to delete
+
+  else
+    switch
+    when createIndexes then &ArtAws.DynamoDb.singleton.createNewGlobalSecondaryIndexes pipeline.createTableParams
+    when deleteIndexes then &ArtAws.DynamoDb.singleton.deleteOldGlobalSecondaryIndexes pipeline.createTableParams
+    .then (actionTaken) -> merge {}
+      pipeline: pipeline.pipelineName
+      createIndexes
+      deleteIndexes
+      actionTaken

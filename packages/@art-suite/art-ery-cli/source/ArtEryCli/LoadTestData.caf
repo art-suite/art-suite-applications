@@ -1,0 +1,43 @@
+params: "[pipelineName]"
+action: (options) ->
+  {args:[requestedPipelineName], getPlainTestData} = options
+  (require './CreateTables').action options
+  .then ->
+    import &ArtStandardLib, &ArtEry
+
+    requestedPipelineName = null unless isString(requestedPipelineName) && present requestedPipelineName
+
+    {UuidFilter} = Filters
+    UuidFilter.alwaysForceNewIds = false
+
+    promises = array pipeline, pipelineName from pipelines when !requestedPipelineName || requestedPipelineName == pipelineName
+      records = getPlainTestData(pipelineName) || []
+      log "loading #{pipelineName} (#{records.length} records)..." if records.length > 0
+
+      recordLoadPromises = if serial = true
+        # serial
+        serializer = new Promise.Serializer
+        array record, i form records
+          serializer.then ->
+            log "loading #{pipeline.getName()}: #{i+1}/#{records.length}"
+            pipeline.create originatedOnServer: true, data: record
+
+      else
+        array record from records
+          pipeline.create originatedOnServer: true, data: record
+          .catch (error) -> createRejected: {error, record}
+
+      Promise.all recordLoadPromises
+      .then (list) ->
+        rejectList = array a from list when a?.createRejected with a.createRejected
+        merge
+          pipeline:         pipelineName
+          recordsLoaded:    list.length
+          if rejectList.length > 0
+            rejects:        rejectList
+            recordsLoaded:  list.length - rejectList.length
+            failures:       rejectList.length
+
+    Promise.all promises
+    .then (results) ->
+      tablesLoaded: results
