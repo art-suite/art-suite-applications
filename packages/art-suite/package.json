@@ -9,10 +9,10 @@
     "art-canvas": "git://github.com/imikimi/art-canvas.git",
     "art-engine": "^4.5.0",
     "art-ery": "^1.119.0",
-    "art-events": "^1.3.10",
+    "art-events": "^2.0.0",
     "art-react": "^1.35.7",
     "art-text": "^1.2.13",
-    "art-validation": "^1.9.6",
+    "art-validation": "^2.1.3",
     "art-xbd": "^1.1.6"
   },
   "description": "All the Art.* Packages you need for writing Apps in one require.",
