@@ -7,7 +7,7 @@ subscriptionFormPatterns =
 subscriptionValidator = new Validator
   stateField: :present :string
   key:        {}
-  model:      required: validate: (v) ->
+  model:      required: true, validate: (v) ->
     v is Function
     || v is String
 
