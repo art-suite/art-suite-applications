@@ -51,7 +51,7 @@
     "testInBrowser": "webpack server --progress",
     "watch": "npm-watch"
   },
-  "version": "1.119.2",
+  "version": "1.119.3",
   "watch": {
     "build": {
       "extensions": [

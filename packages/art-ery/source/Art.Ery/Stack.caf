@@ -1,4 +1,4 @@
-import &ArtStandardLib
+import &ArtStandardLib, &Env
 
 # // at Object.array (/Users/shanebdavis/dev/experiments/genui-peopleperf/node_modules/caffeine-script-runtime/source/Iteration2.js:161:23)
 
@@ -25,14 +25,16 @@ repathStackTrace = if isNode
 else
   (line) -> line
 
+isFalseEnv = (v) -> v == false || v == 'false'
+
 {}
   getCleanStackTraceWarning = ->
-    unless getEnv().ARYERY_CLEAN_STACK_TRACE == false
-      "" NOTE: cleanStackTrace applied. Disable with: getEnv().ARYERY_CLEAN_STACK_TRACE=false
+    if getStackTraceCleaningEnabled()
+      "" NOTE: cleanStackTrace applied. Disable with: ARYERY_CLEAN_STACK_TRACE=false
     else ''
 
   cleanStackTrace = (stack, keepFirstLine, quiet) ->
-    return stack if getEnv().ARYERY_CLEAN_STACK_TRACE == false
+    return stack unless getStackTraceCleaningEnabled()
     if (error = stack) instanceof Error
       error.stack = cleanStackTrace error.stack, keepFirstLine, quiet
       error

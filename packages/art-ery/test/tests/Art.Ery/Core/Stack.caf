@@ -1,7 +1,8 @@
-import &StandardImport, &source.Stack
+import &StandardImport, &build.Stack, &build.Env
 
 suite: ->
   test "cleanStackTrace" ->
+    assert.true getStackTraceCleaningEnabled()
     assert.eq
       cleanStackTrace
         """
@@ -11,4 +12,4 @@ suite: ->
       """
         \_ at source/index.js:1:5
           at Object.array (source/index.js:1:5)
-        NOTE: cleanStackTrace applied. Disable with: getEnv().ARYERY_CLEAN_STACK_TRACE=false
+        NOTE: cleanStackTrace applied. Disable with: ARYERY_CLEAN_STACK_TRACE=false
