@@ -37,7 +37,10 @@ module.exports = suite:
 
       createWithPostCreate class Post extends SimplePipeline
         @filter new LinkFieldsFilter fields: fields =
-          media: link: autoCreate: required: true
+          media:
+            link: true
+            autoCreate: true
+            required: true
 
       pipelines.post.create
         data: media: url: url = "bar.com/foo"

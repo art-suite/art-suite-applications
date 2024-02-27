@@ -94,7 +94,7 @@ defineModule module, class Pipeline extends require './RequestHandler'
     else if isFunction filter         then filter @
     else if filter instanceof Filter  then filter
     else if isPlainObject filter      then new Filter filter
-    else throw "invalid filter: #{inspect filter} #{filter instanceof Filter}"
+    else throw "invalid filter: #{formattedInspect filter} (is instanceof Filter: #{filter instanceof Filter})"
 
   @getAliases: -> @_aliases || {}
 

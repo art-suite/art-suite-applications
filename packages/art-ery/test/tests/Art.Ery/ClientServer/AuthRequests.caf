@@ -6,7 +6,7 @@ suite:
       test "without username", ->
         assert.rejects pipelines.auth.authenticate()
         .then ({info:{response}}) ->
-          assert.eq response.status, clientFailure
+          assert.clientFailure response.status
           assert.eq response.data, message: "username not present"
 
       test "without password", ->
