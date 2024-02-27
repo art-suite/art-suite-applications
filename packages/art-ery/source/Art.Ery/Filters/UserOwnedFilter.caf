@@ -116,7 +116,7 @@ defineModule module, class UserOwnedFilter extends &Filter
       return _vivifyUserId request if request.originatedOnServer
       switch request.type
       when :create
-        request.requireServerOriginOr request.session.userId?, "" create without authenticated user
+        request.requireServerOriginOr request.session.userId?, "" UserOwnedFilter: create without authenticated user (i.e. valid session.userId)
         .then -> @_requireAllDataFieldsAllowed request, @userCreatableFields
         .then -> request.require !request.key?, "" request.key not expected for create
         .then -> _vivifyUserId request
@@ -125,14 +125,14 @@ defineModule module, class UserOwnedFilter extends &Filter
       when :update
 
         @_requireAllDataFieldsAllowed request, @userUpdatableFields, updatingFields = request.pipeline.getFieldsRequestWillModify request
-        .then -> request.requireServerOriginOr request.session.userId?
+        .then -> request.requireServerOriginOr request.session.userId?, "" UserOwnedFilter: update without authenticated user (i.e. valid session.userId)
         .then -> request.cachedGet request.pipelineName, request.key
         .then (existingRecord) ->
           @_requireUserIdDidntChange request, existingRecord
           .then -> @requireUserCanUpdate request, existingRecord, updatingFields
 
       when :delete
-        request.requireServerOriginOr request.session.userId?
+        request.requireServerOriginOr request.session.userId?, "" UserOwnedFilter: delete without authenticated user (i.e. valid session.userId)
         .then -> request.cachedGet request.pipelineName, request.key
         .then (existingRecord) -> @requireUserCanDelete request, existingRecord
 
