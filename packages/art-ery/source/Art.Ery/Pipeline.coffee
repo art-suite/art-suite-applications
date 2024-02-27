@@ -140,6 +140,7 @@ defineModule module, class Pipeline extends require './RequestHandler'
   ###########################
 
   @extendableProperty
+    alwaysOriginatedOnServer: false
     queries: {}
     filters: []
     handlers: {}
@@ -392,6 +393,8 @@ defineModule module, class Pipeline extends require './RequestHandler'
   createRequest: (type, options) ->
     log.warn "DEPRICATED - options must be an object now" unless isPlainObject options
     options = key: options if isString options
+
+    options.originatedOnServer = true if @getAlwaysOriginatedOnServer()
 
     if getDetailedRequestTracingEnabled()
       stack = (new Error).stack

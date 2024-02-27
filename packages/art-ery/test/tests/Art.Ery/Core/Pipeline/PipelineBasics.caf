@@ -8,3 +8,37 @@ suite:
       assert.eq :user2    user.propsToKey userId: :user2
       assert.eq :user3    user.propsToKey(user: {id: :user3}, userId: :user4), "" whole object has precidence
       assert.eq undefined user.propsToKey {}
+
+  alwaysOriginatedOnServer: ->
+
+    test "non-public request baseline throws" ->
+      {user} = class User extends Pipeline
+        @handler update: (request) -> :ok
+
+      assert.rejects user.update()
+
+    test "requireServerOrigin baseline throws" ->
+      {user} = class User extends Pipeline
+        @publicRequestTypes :update
+        @handler update: (request) ->
+          request.requireServerOrigin "should fail"
+          .then -> :ok
+
+      assert.rejects user.update()
+
+    test "non-public request baseline OK if alwaysOriginatedOnServer" ->
+      {user} = class User extends Pipeline
+        @alwaysOriginatedOnServer true
+        @handler update: (request) -> :ok
+
+      user.update().then (result) -> assert.eq result, :ok
+
+    test "requireServerOrigin baseline throws OK if alwaysOriginatedOnServer" ->
+      {user} = class User extends Pipeline
+        @alwaysOriginatedOnServer true
+        @publicRequestTypes :update
+        @handler update: (request) ->
+          request.requireServerOrigin "should pass"
+          .then -> :ok
+
+      user.update().then (result) -> assert.eq result, :ok
