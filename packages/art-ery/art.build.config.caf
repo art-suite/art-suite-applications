@@ -1,8 +1,8 @@
-import &ArtStandardLib
-
-package: ->
-  merge &package,
-    scripts:
-      test-server:    "" caf ./TestServer.caf
-      test:           "" nn -s;mocha -u tdd
-      testInBrowser:  "" webpack server --progress
+package: &@ArtSuite/StandardPackageBuilder.configure {}
+  &package
+  mocha: true
+  coffeeScript: true
+  scripts:
+    test-server:    "" caf ./TestServer.caf
+    test:           "" nn -s;mocha -u tdd
+    testInBrowser:  "" webpack server --progress
