@@ -8,7 +8,7 @@
     "art-build-configurator": "^1.29.3",
     "art-canvas": "git://github.com/imikimi/art-canvas.git",
     "art-engine": "^4.5.0",
-    "art-ery": "^1.119.0",
+    "art-ery": "^1.119.2",
     "art-events": "^2.0.0",
     "art-react": "^1.35.7",
     "art-text": "^1.2.13",
