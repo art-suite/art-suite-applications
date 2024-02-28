@@ -8,7 +8,7 @@
     "art-browser-tools": "^1.2.14",
     "art-build-configurator": "^1.29.3",
     "art-engine": "^4.5.0",
-    "art-ery": "^2.0.0",
+    "art-ery": "^2.0.0-beta.0",
     "art-events": "^2.0.0",
     "art-react": "^1.35.7",
     "art-text": "^1.2.13",

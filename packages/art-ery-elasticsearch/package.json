@@ -6,7 +6,7 @@
     "art-build-configurator": "^1.29.3",
     "art-class-system": "^1.11.13",
     "art-communication-status": "^1.5.13",
-    "art-ery": "^2.0.0",
+    "art-ery": "^2.0.0-beta.0",
     "art-standard-lib": "^1.70.6"
   },
   "description": "Elasticsearch for ArtEry",
