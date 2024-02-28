@@ -43,7 +43,7 @@ describe
           :server-clientFailure-myFilter2-after
           :server-clientFailure-completed
 
-        assert.match response.data.message, "you lose!"
+        assert.match response.responseProps.message, "you lose!"
         assert.doesNotExist error.props.response.errorProps.source
 
     test "serverFailure Promise.reject", ->
@@ -118,7 +118,7 @@ describe
 
         assert.doesNotExist response.handledBy
         assert.eq response.failedIn.name, :myFilter2
-        assert.eq response.data.message, "you lose!"
+        assert.eq response.responseProps.message, "you lose!"
 
     test "internal error", ->
       filterLog = []
