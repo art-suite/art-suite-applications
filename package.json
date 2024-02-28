@@ -23,7 +23,7 @@
     "@art-suite/monorepo": "^1.7.5",
     "@art-suite/pointer-actions-mixin": "file:packages/@art-suite/pointer-actions-mixin",
     "@art-suite/rest-transport": "file:packages/@art-suite/rest-transport",
-    "@art-suite/standard-package-builder": "^1.1.5",
+    "@art-suite/standard-package-builder": "^1.2.1",
     "@art-suite/state-fields-lib": "file:packages/@art-suite/state-fields-lib",
     "@art-suite/timestamp-filter": "file:packages/@art-suite/filters/timestamp-filter",
     "@art-suite/unique-id-filter": "file:packages/@art-suite/filters/unique-id-filter",

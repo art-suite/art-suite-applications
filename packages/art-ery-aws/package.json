@@ -7,7 +7,7 @@
   },
   "description": "ArtEry for AWS Lambda + DynamoDB",
   "devDependencies": {
-    "@art-suite/standard-package-builder": "^1.1.5",
+    "@art-suite/standard-package-builder": "^1.2.1",
     "art-build-configurator": "^1.29.3"
   },
   "homepage": "https://github.com/art-suite/art-suite-applications",
