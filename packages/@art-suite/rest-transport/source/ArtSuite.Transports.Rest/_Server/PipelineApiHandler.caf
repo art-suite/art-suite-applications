@@ -79,7 +79,6 @@ class PipelineApiHandler extends &ArtExpressServer.PromiseHandler
 
     else
       Promise.resolve null # missing
-    .tap (response) -> log handleApiRequest_finalResponse: response
 
   getRequestLogHeader: (request, response) ->
     "" #{@logHeader} #{request.method}:#{request.url} (#{encodeHttpStatus response.status}, #{(currentSecond() - response.startTime) * 1000 | 0}ms)
