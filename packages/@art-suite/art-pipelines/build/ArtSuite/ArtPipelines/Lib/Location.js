@@ -1,4 +1,0 @@
-"use strict"
-let Caf = require('caffeine-script-runtime');
-Caf.defMod(module, () => {return Caf.importInvoke(["Error", "formattedInspect", "isBrowser"], [global, require('art-standard-lib')], (Error, formattedInspect, isBrowser) => {let validLocations, validLocationsRegexp, filterLocations; return {validLocations: validLocations = ["client", "server"], validLocationsRegexp: validLocationsRegexp = /^client|server$/, validateLocation: function(location) {if (!validLocationsRegexp.test(location)) {throw new Error(`Invalid location: ${Caf.toString(formattedInspect(location))}. Valid locations: ${Caf.toString(validLocations.join(", "))}`);}; return location;}, getDefaultLocation: function() {return isBrowser ? "client" : "server";}, filterLocations: filterLocations = {server: true, client: true, both: true}};});});
-//# sourceMappingURL=Location.js.map
