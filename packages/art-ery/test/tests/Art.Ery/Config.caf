@@ -1,7 +1,0 @@
-import &StandardImport
-
-suite: ->
-  test "config.tableNamePrefix", ->
-    config.tableNamePrefix = "AwesomeApp."
-    pipeline = new class MyPipeline extends Pipeline
-    assert.eq pipeline.tableName, "AwesomeApp.myPipeline"

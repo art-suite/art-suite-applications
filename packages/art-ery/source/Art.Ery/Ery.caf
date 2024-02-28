@@ -1,20 +1,4 @@
-import &StandardImport, &@ArtSuite/ArtPipelines, &Config, &Globals
-
-compactFlatten []
+&ArtStandardLib.compactFlatten []
   &Filters
-  &@ArtSuite/AfterEventsFilter
-
   &@ArtSuite/KeyFieldsMixin
-  &Globals
-  {}
-    Filter, PipelineRegistry, RequestHandler, Request, Session
-
-    config
-
-    sendInitializeRequestToAllPipelines: (registry = pipelineRegistry)->
-      Promise.all array pipeline in registry.pipelines
-        pipeline.initialize? originatedOnServer: true
-
-    getArtEryRemoteServer: (registry = pipelineRegistry) ->
-      getRestTransportClientConfig registry
-      .remoteServer
+  &@ArtSuite/ArtPipelines

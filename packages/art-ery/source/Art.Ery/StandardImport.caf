@@ -4,4 +4,4 @@
   &ArtCommunicationStatus
   &ArtValidation
   &@ArtSuite/ArtPipelines
-  &@ArtSuite/RestTransport
+  &@ArtSuite/ArtEryRestTransport

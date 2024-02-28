@@ -1,7 +1,0 @@
-{}
-  pipelineRegistry = new &build.PipelineRegistry location: :client
-  pipelineRegistry.pipelines
-  pipelineRegistry.session
-  Pipeline: class Pipeline extends &build.Pipeline
-    @abstractClass()
-    @registry pipelineRegistry

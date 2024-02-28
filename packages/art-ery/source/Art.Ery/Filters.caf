@@ -1,11 +1,9 @@
 []
-  # for testing
-  _resetFilters: -> &@ArtSuite/AfterEventsFilter._reset()
   &@ArtSuite/AfterEventsFilter
   &@ArtSuite/DataUpdatesFilter
-  &@ArtSuite/UserOwnedFilter
   &@ArtSuite/LinkFieldsFilters
-  &@ArtSuite/ValidationFilter
+  &@ArtSuite/LinkFieldsFilters.PrefetchedRecordsCache
   &@ArtSuite/TimestampFilter
   &@ArtSuite/UniqueIdFilter
-  &@ArtSuite/LinkFieldsFilters.PrefetchedRecordsCache
+  &@ArtSuite/UserOwnedFilter
+  &@ArtSuite/ValidationFilter

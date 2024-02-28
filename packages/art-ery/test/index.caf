@@ -1,7 +1,0 @@
-import &ArtStandardLib
-
-&build
-
-&ArtTestbench/Testing
-.init
-  defineTests: -> &Tests
