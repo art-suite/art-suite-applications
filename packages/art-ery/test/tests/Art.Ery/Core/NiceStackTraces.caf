@@ -78,8 +78,8 @@ suite: ->
     class MyRtUser3 extends Pipeline
 
     {myRt3} = class MyRt3 extends Pipeline
-        @handlers
-          get: -> 123
+      @handlers
+        get: -> 123
 
     myRt3.get()
 

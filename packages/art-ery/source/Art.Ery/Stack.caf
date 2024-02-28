@@ -28,11 +28,6 @@ else
 isFalseEnv = (v) -> v == false || v == 'false'
 
 {}
-  getCleanStackTraceWarning = ->
-    if getStackTraceCleaningEnabled()
-      "" NOTE: cleanStackTrace applied. Disable with: ARYERY_CLEAN_STACK_TRACE=false
-    else ''
-
   cleanStackTrace = (stack, keepFirstLine, quiet) ->
     return stack unless getStackTraceCleaningEnabled()
     if (error = stack) instanceof Error

@@ -394,7 +394,8 @@ defineModule module, class Pipeline extends require './RequestHandler'
     log.warn "DEPRICATED - options must be an object now" unless isPlainObject options
     options = key: options if isString options
 
-    options.originatedOnServer = true if @getAlwaysOriginatedOnServer()
+    if @getAlwaysOriginatedOnServer() && !options.originatedOnServer
+      options = merge options, originatedOnServer: true
 
     if getDetailedRequestTracingEnabled()
       stack = (new Error).stack
