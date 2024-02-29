@@ -1,10 +1,4 @@
-import
-  &ArtStandardLib
-  &@ArtSuite/ArtPipelines
-  &@ArtSuite/KeyFieldsMixin
-  &@ArtSuite/DatabaseFilters
-  &@ArtSuite/RestTransport
-  require :@art-suite/rest-transport/server
+import &ArtStandardLib, &ArtEry
 
 &ArtConfig.configure()
 
@@ -47,4 +41,4 @@ class City extends TinyMemoryDb
         x: :required :number
         y: :required :number
 
-server = Server.start {} pipelineRegistry, verbose: true
+&ArtEry/Server.start {} pipelineRegistry, verbose: true

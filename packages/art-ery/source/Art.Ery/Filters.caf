@@ -1,9 +1,0 @@
-[]
-  &@ArtSuite/AfterEventsFilter
-  &@ArtSuite/DataUpdatesFilter
-  &@ArtSuite/LinkFieldsFilters
-  &@ArtSuite/LinkFieldsFilters.PrefetchedRecordsCache
-  &@ArtSuite/TimestampFilter
-  &@ArtSuite/UniqueIdFilter
-  &@ArtSuite/UserOwnedFilter
-  &@ArtSuite/ValidationFilter

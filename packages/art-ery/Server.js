@@ -1,2 +1,1 @@
-// module.exports = require("./build/Art.Ery/_Server");
-module.exports = require("@art-suite/rest-transport/Server");
+module.exports = require("@art-suite/art-ery-rest-transport/Server");

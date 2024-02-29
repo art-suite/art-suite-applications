@@ -1,7 +1,4 @@
-&caffeine-script/register
-import
-  &ArtStandardLib
-  &@ArtSuite/ArtPipelines
+import &ArtStandardLib, &ArtEry
 
 &ArtConfig.configure()
 
@@ -9,8 +6,7 @@ pipelineRegistry = new PipelineRegistry
 
 class Status extends Pipeline
   @registry pipelineRegistry
-  @requestTypes status: response: data: :string
-  @publicHandlers status: -> :up
+  @requestTypes get: response: data: :string
+  @publicHandlers get: -> :up
 
-require :@art-suite/rest-transport/Server
-.start {} pipelineRegistry, verbose: true
+&ArtEry/Server.start {} pipelineRegistry, verbose: true
