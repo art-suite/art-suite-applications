@@ -1,15 +1,24 @@
 # ArtEry - Client Development > Cloud Deployment
 
-ArtEry conceptually allows you to develop, test and debug applications 100% as client-code, but with the security and performance of cloud-code. When you deploy to production, it's trivial to control which code goes in the Client, Server or Both.
+> [ArtEry2 is coming!](https://github.com/art-suite/art-suite-applications/tree/art-ery2) Improved JavaScript usability. TypeScript support. Support for multiple pipeline groups both clientside and serverside allowing defining and using multiple APIs all within the ArtEry system. ArtEry2 also has numerous simplifications resulting from breaking functionality out into many smaller, single-purpose packages.
 
-* developing, testing and maintaining server-side code is 10x harder than client-side code
-* so... don't write a single line of server-side code
+ArtEry is a full-stack solution for managing database-backed data. It allows you to develop, test and deploy applications using a single codebase that runs on both client and server. For the relatively small effort of defining your database "pipelines" (i.e. models) using a streamlined runtime-declarative system, you get the following "for free" - no additoinal code or configuration needed:
 
-## Why ArtEry?
+1. An API server with OpenAPI docs (GraphQL possibly coming in the future)
+1. Database schema generation and migrations (using your favorate ORM as a plugin - DynanoDb supported now; Prisma coming soon)
+1. JavaScript clients for seamless integration with front-end frameworks like ReactJS with all client-side data management taken care of for you
 
-The basic idea of ArtEry is to develop your entire app in one runtime, client-side. Then, for production, ArtEry manages deploying some of your code to the cloud and some to the client-app. ArtEry gives you full control over what code runs cloud-side, client-side or both.
+## Server-Side Developer
 
-Benefits:
+ArtEry allows server-side code to be written 100% declaratively through database Pipelines & Filters. No servers, routers or other infrastructure code needs to be written. ArtEry is an excellent way to express your database business logic.
+
+## Full-Stack Developer
+
+ArtEry conceptually allows you to develop, test and debug applications 100% as client-side-code, but with the security and performance of cloud-code. When you deploy to production, it's trivial to control which code goes in the Client, Server or Both. The key thing is you can develop with the whole stack in one runtime. This means errors and tracing all happen in one place. You can see full stack-traces across your entire application within your browser's console.
+
+In an masterstoke of uniformity, the ArtEry JavaScript API for manipulating your data via your Pipelines is *identical* clientside and serverside.
+
+## Benefits
 
 * Fastest possible development (testing, debugging, build cycle)
 * Security
