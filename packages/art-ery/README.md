@@ -68,9 +68,11 @@ Some code should run both on the cloud and client. Specifically, validation shou
 
 ## Example
 
+This is a complete example.
+
 ```coffeescript
-# language: CaffeineScript
-import &ArtEry
+# filename: Post.caf
+import &ArtStandardLib, &ArtEry
 
 # simple in-memory CRUD data-store
 class Post extends Pipeline
@@ -80,12 +82,14 @@ class Post extends Pipeline
   # crud-api
   @handlers
     get:    ({key})       -> @data[key]
-    create: ({data})      -> @data[key] = merge data, id: key = randomString()
+    create: ({data})      -> key = randomString(); @data[key] = merge data, id: key
     update: ({key, data}) -> @data[key] = merge @data[key], data
     delete: ({key})       -> delete @data[key]
 
+  @publicRequestTypes :get :create :update :delete
+
   # text-trimming filter
-  @before
+  @filter before:
     update: trimText = (request) -> request.withMergedData text: request.data.text?.trim()
     create: trimText
 ```
@@ -93,8 +97,11 @@ class Post extends Pipeline
 Use:
 
 ```coffeescript
-pipelines.post.create data: text: "Hello world!"
-.then ({id})   -> pipelines.post.get id
+{post} = &Post
+&ArtConfig.configure()
+
+post.create data: text: "   Hello world!    "
+.then ({id})   -> post.get id
 .then ({text}) -> console.log text  # Hello world!
 ```
 
