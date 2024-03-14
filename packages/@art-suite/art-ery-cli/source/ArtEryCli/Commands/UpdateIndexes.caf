@@ -9,12 +9,13 @@ commands =
     createIndexes:  "" use this to create indexes
     deleteIndexes:  "" use this to delete indexes
     confirm:        "" use this as final confirmation
+    verbose:        "" show extras
 
   decription:       "" create or delete DynamoDb global indexes. This command is read-only UNLESS --confirm is specified. Use diff-table-schema first to see if changes are needed.
-  action: (pipeline, {createIndexes, deleteIndexes, confirm}) ->
+  action: (pipeline, {createIndexes, deleteIndexes, confirm, verbose}) ->
     pipelineName = pipeline.name
 
-    unless pipeline is &ArtEryAws.DynamoDbPipeline
+    unless pipeline instanceof &ArtEryAws.DynamoDbPipeline
       message: "" Skipping - not a DynamoDbPipeline
     else unless createIndexes or deleteIndexes
       &ArtAws.DynamoDb.singleton.getTableChanges pipeline.createTableParams
@@ -28,9 +29,9 @@ commands =
               "--pipeline #{pipelineName} --createIndexes": creates: added
             if 0 < objectKeyCount removed
               "--pipeline #{pipelineName} --deleteIndexes": deletes: removed
-        else {}
+        else merge
           message: "There are no indexes that need updating."
-          pipeline.createTableParams
+          createTableParams: verbose && pipeline.createTableParams
 
     else unless confirm
       &ArtAws.DynamoDb.singleton.getTableChanges pipeline.createTableParams
