@@ -14,7 +14,9 @@ commands =
   action: (pipeline, {createIndexes, deleteIndexes, confirm}) ->
     pipelineName = pipeline.name
 
-    unless createIndexes or deleteIndexes
+    unless pipeline is &ArtEryAws.DynamoDbPipeline
+      message: "" Skipping - not a DynamoDbPipeline
+    else unless createIndexes or deleteIndexes
       &ArtAws.DynamoDb.singleton.getTableChanges pipeline.createTableParams
       .then ({GlobalSecondaryIndexes}) ->
         if GlobalSecondaryIndexes
