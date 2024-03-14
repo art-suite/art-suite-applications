@@ -1,13 +1,20 @@
 import &ArtStandardLib
 {}
   standardPiplineOptions =
-    options: pipeline: " the name of the pipeline"
+    options: pipeline: " the name of the pipeline. If not specified, will run on all pipelines."
 
   createPipelineCommand: (props) ->
     merge
       props
       standardPiplineOptions
+      options: merge
+        standardPiplineOptions.options
+        props.options
+
       run: (options) ->
         options extract pipeline, pipelines
-        throw new Error "Pipeline #{pipeline} not found. Valid pipelines: #{Object.keys(pipelines).join ', '}" unless pipelines[pipeline]
-        props.action pipelines[pipeline], options
+        if pipeline
+          props.action pipelines[pipeline], options
+        else
+          Promise.deepAll object pipeline from pipelines
+            props.action pipeline, options

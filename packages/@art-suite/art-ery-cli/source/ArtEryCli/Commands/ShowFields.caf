@@ -1,6 +1,6 @@
-options: pipeline: "" art-ery pipeline name
-run: ({pipeline, pipelines}) ->
-  {fields, normalizedFields} = pipelines[pipeline]
-  fields: fields
-  normalizedFields: normalizedFields
+&ToolLib.createPipelineCommand
+  action: (pipeline) ->
+    {fields, normalizedFields} = pipeline
+    fields: fields
+    normalizedFields: normalizedFields
 

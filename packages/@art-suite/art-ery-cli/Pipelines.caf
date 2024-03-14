@@ -1,0 +1,6 @@
+import &ArtEry
+
+class MyPipeline extends Pipeline
+  @handler get: -> :hi
+
+pipelines
