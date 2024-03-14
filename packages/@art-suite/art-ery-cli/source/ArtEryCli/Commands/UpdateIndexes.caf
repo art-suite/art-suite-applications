@@ -14,7 +14,12 @@ run: ({pipeline: pipelineName, createIndexes, deleteIndexes, confirm, pipelines}
   unless pipeline = pipelines[pipelineName]
     if pipelineName?
           "" Pipeline '#{pipelineName}' not found.
-    else  "" Please specify a pipeline.
+    else
+      if createIndexes || deleteIndexes || confirm
+        "" Please specify a pipeline to make changes.
+      else
+        object pipeline in pipelines
+          &ArtAws.DynamoDb.singleton.getTableChanges pipeline.createTableParams
 
   else unless createIndexes or deleteIndexes
     &ArtAws.DynamoDb.singleton.getTableChanges pipeline.createTableParams
