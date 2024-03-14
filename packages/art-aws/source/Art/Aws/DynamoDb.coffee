@@ -149,6 +149,10 @@ module.exports = class DynamoDb extends BaseClass
         @getTableStatus createTableParams
       ]).then ([{GlobalSecondaryIndexes}, {TableStatus}]) =>
         {added} = GlobalSecondaryIndexes if GlobalSecondaryIndexes
+        if added.length > 1
+          log "Can only add one index at a time per table. Only Updating: #{added[0]}"
+          added = [added[0]]
+
         return info: "no new GlobalSecondaryIndexes" unless 0 < objectKeyCount added
         return info: "Can't modify indexes until TableStatus is ACTIVE" if TableStatus != "ACTIVE"
         {GlobalSecondaryIndexes, TableName, AttributeDefinitions} = CreateTable.translateParams createTableParams
@@ -180,6 +184,9 @@ module.exports = class DynamoDb extends BaseClass
         @getTableStatus createTableParams
       ]).then ([{GlobalSecondaryIndexes}, {TableStatus}]) =>
         {removed} = GlobalSecondaryIndexes if GlobalSecondaryIndexes
+        if removed.length > 1
+          log "Can only remove one index at a time per table. Only Updating: #{removed[0]}"
+          removed = [removed[0]]
         return info: "no old GlobalSecondaryIndexes" unless 0 < objectKeyCount removed
         return info: "Can't modify indexes until TableStatus is ACTIVE" if TableStatus != "ACTIVE"
 

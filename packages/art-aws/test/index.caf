@@ -7,7 +7,7 @@
   when errors occur.
 
 &ArtAws/Server
-&source/Art/Aws
+&build/Art/Aws
 &ArtTestbench/Testing
 .init
   artConfig: Art: Aws:

@@ -1,4 +1,0 @@
-"use strict"
-let Caf = require('caffeine-script-runtime');
-Caf.defMod(module, () => {return Caf.importInvoke(["lowerCamelCase"], [global, require('../StandardImport')], (lowerCamelCase) => {let Common; return Common = Caf.defClass(class Common extends Object {}, function(Common, classSuper, instanceSuper) {this.apiConstantsMap = {string: "S", number: "N", binary: "B", bothImages: "NEW_AND_OLD_IMAGES"}; Caf.each2(["ALL", "ALL_ATTRIBUTES", "ALL_NEW", "ALL_OLD", "ALL_PROJECTED_ATTRIBUTES", "COUNT", "HASH", "INCLUDE", "INDEXES", "KEYS_ONLY", "NEW_AND_OLD_IMAGES", "NEW_IMAGE", "NONE", "OLD_IMAGE", "RANGE", "S", "N", "B", "SPECIFIC_ATTRIBUTES", "TOTAL", "UPDATED_NEW", "UPDATED_OLD"], (dynamoDbConstant) => this.apiConstantsMap[lowerCamelCase(dynamoDbConstant)] = dynamoDbConstant);});});});
-//# sourceMappingURL=Common.js.map

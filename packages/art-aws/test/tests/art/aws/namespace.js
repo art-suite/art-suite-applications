@@ -3,6 +3,7 @@
 
 module.exports = require('../namespace').addNamespace(
   'Aws',
-  class Aws extends Neptune.PackageNamespace {}
+  (class Aws extends Neptune.PackageNamespace {})
+  ._configureNamespace(require('../../../../package.json'))
 );
 require('./StreamlinedDynamoDbApi/namespace');
