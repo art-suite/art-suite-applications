@@ -188,6 +188,14 @@ module.exports = class DynamoDb extends BaseClass
         @getTableStatus createTableParams
       ]).then ([{GlobalSecondaryIndexes}, {TableStatus}]) =>
         {removed} = GlobalSecondaryIndexes if GlobalSecondaryIndexes
+        if objectKeyCount(removed) > 1
+          onlyOneKey = Object.keys(removed)[0]
+          log
+            message: "Can only remove one index at a time per table."
+            allIndexesNeedingRemoved: removed
+            onlyRemoving: onlyOneKey
+          removed = "#{onlyOneKey}": removed[onlyOneKey]
+
         return info: "no old GlobalSecondaryIndexes" unless 0 < objectKeyCount removed
         return info: "Can't modify indexes until TableStatus is ACTIVE" if TableStatus != "ACTIVE"
 
