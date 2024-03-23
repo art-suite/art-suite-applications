@@ -2,11 +2,11 @@
   "author": "Shane Brinkman-Davis Delamore, Imikimi LLC",
   "bugs": "https://github.com/art-suite/art-suite-applications/issues",
   "dependencies": {
-    "art-aws": "^1.29.9",
+    "art-aws": "^1.29.10",
     "art-build-configurator": "^1.29.3",
     "art-class-system": "^1.11.13",
     "art-communication-status": "^1.5.13",
-    "art-ery": "^1.119.2",
+    "art-ery": "^1.120.1",
     "art-standard-lib": "^1.70.6"
   },
   "description": "Elasticsearch for ArtEry",
