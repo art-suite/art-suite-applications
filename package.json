@@ -12,7 +12,7 @@
     "@art-suite/art-models": "file:packages/@art-suite/art-models",
     "@art-suite/cli": "^1.6.0",
     "@art-suite/instance-function-binding-mixin": "^1.0.0",
-    "@art-suite/monorepo": "^1.7.5",
+    "@art-suite/monorepo": "^1.7.12",
     "@art-suite/pipelines": "file:unpublished/@art-suite/pipelines",
     "@art-suite/pointer-actions-mixin": "file:packages/@art-suite/pointer-actions-mixin",
     "@art-suite/standard-package-builder": "^1.0.0",
