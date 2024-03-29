@@ -36,7 +36,7 @@ suite:
         data:
           userId:   aliceId
           text:     "hi"
-      .then (rejectsWith) -> assert.match rejectsWith.message, /missing.*eventAt/
+      .then (rejectsWith) -> assert.match rejectsWith.message, /missing.*eventAt|eventAt.*missing/
 
 
     .thenTest "create then get", ->
