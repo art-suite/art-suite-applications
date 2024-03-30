@@ -66,6 +66,21 @@ suite:
           1 2 3
           array {eventAt} in messages with eventAt
 
+
+    .tapTest "byUserIdEventAt key: null -> clientFailure" ->
+      assert.clientFailure myAppMessage.byUserIdEventAt null
+
+    .tapTest "byUserIdEventAt with key but where: gt: null -> clientFailure" ->
+      assert.clientFailure myAppMessage.byUserIdEventAt aliceId, props: where: eventAt: gt: null
+
+    .tapTest "byUserIdEventAt with key but where: null -> clientFailure" ->
+      assert.clientFailure myAppMessage.byUserIdEventAt aliceId, props: where: eventAt: null
+
+    .tapTest "byUserIdEventAt limit: 1" ->
+      myAppMessage.byUserIdEventAt aliceId, props: limit: 1
+      .then (messages) ->
+        assert.eq messages.length, 1
+
     .tapTest :byUserIdEventAtDesc ->
       myAppMessage.byUserIdEventAtDesc aliceId
       .then (messages) ->

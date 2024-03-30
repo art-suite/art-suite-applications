@@ -276,7 +276,7 @@ suite:
           assert.eq
             query.options.keyFields
             [] :userId
-            conext: {} queryName, query
+            context: {} queryName, query
 
     .thenTest
       "create", ->

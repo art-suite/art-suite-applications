@@ -13,6 +13,7 @@
   isArray
   upperCamelCase
 } = require 'art-standard-lib'
+{createDoDynamoQuery} = require "./Queries"
 
 {networkFailure} = require 'art-communication-status'
 
@@ -355,14 +356,16 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
     IN:
       REQUIRED: key: hashKeyValue <string>
       OPTIONAL:
-        props: where: [sortKey]: # with exactly one of the following:
-          eq:           sortValue
-          lt:           sortValue
-          lte:          sortValue
-          gt:           sortValue
-          gte:          sortValue
-          between:      [sortValueA, sortValueB]  # returns values >= sortValueA and <= sortValueB
-          beginsWith:   string-prefix
+        props:
+          limit: number > 0
+          where: [sortKey]: # with exactly one of the following:
+            eq:           sortValue
+            lt:           sortValue
+            lte:          sortValue
+            gt:           sortValue
+            gte:          sortValue
+            between:      [sortValueA, sortValueB]  # returns values >= sortValueA and <= sortValueB
+            beginsWith:   string-prefix
 
   ###
   @_getAutoDefinedQueries: (indexes) ->
@@ -378,31 +381,7 @@ defineModule module, class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMi
 
           indexName = if indexKey != @getKeyFieldsString()
             queryModelName
-          doDynamoQuery = (request, descending) ->
-            params = where: "#{hashKey}": request.key
-            params.index = indexName if indexName?
-            params.descending = true if descending
-
-            if sortKeyWhere = request.props.where?[sortKey]
-              if isPlainObject sortKeyWhere
-                {eq, lt, lte, gt, gte, between, beginsWith} = sortKeyWhere
-                params.where[sortKey] = merge {eq, lt, lte, gt, gte, between, beginsWith}
-              else
-                params.where[sortKey] = eq: sortKeyWhere
-
-            if select = request.props.select
-              if isArray select
-                select = compactFlatten(select).join ' '
-              unless isString select
-                return request.clientFailure "select must be a string or array of strings"
-
-              params.select = select
-
-            request.pipeline.queryDynamoDbWithRequest request, params
-            .then ({items}) -> items
-            .tapCatch (error) ->
-              log DynamoDbPipeline_query: {error, params, request}
-
+          doDynamoQuery = createDoDynamoQuery {hashKey, sortKey, indexName, fields: @getFields()}
           queries[queryModelName] =
             query:            (request) -> doDynamoQuery request
             dataToKeyString:  (data)    -> data[hashKey]

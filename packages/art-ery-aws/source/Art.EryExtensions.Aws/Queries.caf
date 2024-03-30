@@ -1,0 +1,88 @@
+import &ArtStandardLib
+
+# very close to making this actually work - just need a UNION / OR validation for where[sortKey]
+# import &ArtValidation, &ArtCommunicationStatus
+# createValidator = ({fields, hashKey, sortKey}) ->
+#   sortFieldValidator = merge fields[sortKey], required: false
+#   new Validator
+#     key: merge fields[hashKey], required: true
+#     select:
+#       validate: (select) ->
+#         isString select
+#         || isArray(select) && select.length >= 1 && !find v in-array select when !isString v
+
+#     limit:
+#       :number
+#       postValidate: (limit) -> limit >= 1
+
+#     where:
+#       minLength: 1 # NEW: objects can have count checks
+#       maxLength:    2
+#       # exclusive: true
+#       fields: [sortKey]: fields: # need a "union" type validator with "fields" OR sortFieldValidator
+#         eq:           sortFieldValidator
+#         lt:           sortFieldValidator
+#         lte:          sortFieldValidator
+#         gt:           sortFieldValidator
+#         gte:          sortFieldValidator
+#         beginsWith:   sortFieldValidator
+#         between:
+#           array:      sortFieldValidator
+#           length:     2
+#           postValidate: ([a, b]) -> a <= b
+
+createDoDynamoQuery: ({indexName, hashKey, sortKey})->
+  validator = null
+  (request, descending) ->
+    # validator ?= createValidator {} request.pipeline.fields, hashKey, sortKey
+    # try validator.validate request.props
+    # catch error
+    #   log {} error.message, error.info
+    #   error.info?.status = clientFailure
+    #   error.status = clientFailure
+    #   throw error
+
+    request extract key, props extract select, where, limit
+    if !key?
+      return request.clientFailure "key is required (#{formattedInspect {} key})"
+
+    params = where: [hashKey]: key
+    params.index = indexName if indexName?
+    params.descending = true if descending
+    if undefined != limit
+      if !isNumber(limit) || limit < 1
+        return request.clientFailure "limit must be a positive number"
+      params.limit = limit | 0
+
+    if undefined != sortKeyWhere = where?[sortKey]
+      if isPlainObject sortKeyWhere
+        sortKeyWhere extract eq, lt, lte, gt, gte, between, beginsWith
+
+        clientFailures = null
+        each v, k from whereClause = merge {} eq, lt, lte, gt, gte, between, beginsWith
+          unless present v
+            clientFailures = compactFlattenAll clientFailures, "" #{k}: value (#{formattedInspect v}) not present
+
+        if clientFailures
+          return request.clientFailure "Invalid where clause: #{clientFailures.join(', ')}"
+
+        params.where[sortKey] = whereClause
+
+      else if present sortKeyWhere
+        params.where[sortKey] = eq: sortKeyWhere
+      else
+        return request.clientFailure "Invalid where: #{formattedInspect {} sortKeyWhere})"
+
+    if select
+      if isArray select
+        select = compactFlatten(select).join ' '
+
+      unless isString select
+        return request.clientFailure "select must be a string or array of strings"
+
+      params.select = select
+
+    request.pipeline.queryDynamoDbWithRequest request, params
+    .then ({items}) -> items
+    .tapCatch (error) ->
+      log DynamoDbPipeline_query: {error, params, request}
