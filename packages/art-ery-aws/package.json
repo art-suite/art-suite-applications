@@ -9,7 +9,8 @@
   "description": "ArtEry for AWS Lambda + DynamoDB",
   "devDependencies": {
     "@art-suite/standard-package-builder": "^1.2.3",
-    "art-build-configurator": "^1.29.3"
+    "art-build-configurator": "^1.29.3",
+    "dynamodb-admin": "^4.6.1"
   },
   "homepage": "https://github.com/art-suite/art-suite-applications",
   "jest": {
@@ -39,6 +40,8 @@
     "build-clean": "# BUILD CLEAN START\n#   - building into: build-temp\n#\nrm -rf ./__build-old__\nrsync -av --include='*.js' --include='*.css' --exclude='*' ./source/ ./build/\ncoffee -m --output build-temp --compile source &\nCOFFEE_PID=$!\ncaf -m -c source -o build-temp --require coffee-script/register&\nCAF_PID=$!\nwait $COFFEE_PID || exit 1\nwait $CAF_PID || exit 1\nnpm run nn\n\nnn build-temp/*\n\n# BUILD CLEAN FINIALIZING\n#  - replace old build in:   build\n#  - with new build from:    build-temp\n#\nmv build __build-old__\nmv build-temp build\nrm -rf ./__build-old__",
     "build-watch": "nodemon -e js,ts,jsx,tsx,caf,coffee,json -i \"build/**\" -x npm run build",
     "clean": "rm -rf build/*",
+    "dynamodb": "docker run -p 8081:8000 amazon/dynamodb-local",
+    "dynamodb-admin": "DYNAMO_ENDPOINT=http://localhost:8081 AWS_REGION=us-east-1 AWS_ACCESS_KEY_ID=blah-dev AWS_SECRET_ACCESS_KEY=blahblah-dev dynamodb-admin -H localhost -p 8001",
     "nn": "nn build/* test/tests",
     "test": "mocha -u tdd",
     "test-watch": "nodemon -e js,ts,jsx,tsx,caf,coffee,json -x npm run test"
