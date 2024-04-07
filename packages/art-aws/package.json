@@ -11,6 +11,7 @@
   "devDependencies": {
     "art-testbench": "^3.2.2",
     "mocha": "^7.2.0",
+    "dynamodb-admin": "^4.6.1",
     "mock-fs": "^5.0.0"
   },
   "homepage": "https://github.com/art-suite/art-suite-applications",
@@ -47,7 +48,7 @@
     "test": "mocha -u tdd",
     "test-watch": "nodemon -e js,ts,jsx,tsx,caf,coffee,json -x npm run test"
   },
-  "version": "1.29.13",
+  "version": "1.29.14",
   "watch": {
     "build": {
       "extensions": [
