@@ -12,7 +12,7 @@
     "art-events": "^2.0.0",
     "art-react": "^1.35.7",
     "art-text": "^1.2.13",
-    "art-validation": "^2.1.3",
+    "art-validation": "^2.5.0",
     "art-xbd": "^1.1.6"
   },
   "description": "All the Art.* Packages you need for writing Apps in one require.",
@@ -29,7 +29,7 @@
     "style-loader": "^3.2.1",
     "webpack": "^5.35.1",
     "webpack-cli": "^5.1.4",
-    "webpack-dev-server": "^4.1.1",
+    "webpack-dev-server": "^5.0.4",
     "webpack-merge": "^5.7.3",
     "webpack-node-externals": "^3.0.0"
   },

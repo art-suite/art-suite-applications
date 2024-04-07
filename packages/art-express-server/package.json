@@ -5,7 +5,7 @@
     "art-build-configurator": "^1.29.3",
     "compression": "^1.7.2",
     "express": "^4.17.1",
-    "jsonwebtoken": "^8.5.1",
+    "jsonwebtoken": "^9.0.2",
     "throng": "^5.0.0"
   },
   "description": "Extensible, Promise-based HTTP Server based on Express",
