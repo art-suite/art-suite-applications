@@ -1,4 +1,7 @@
 package: &@ArtSuite/StandardPackageBuilder.configure {}
   &package
+  scripts:
+    "dynamodb": "docker run -p 8081:8000 amazon/dynamodb-local"
+    "dynamodb-admin": "DYNAMO_ENDPOINT=http://localhost:8081 AWS_REGION=us-east-1 AWS_ACCESS_KEY_ID=blah-dev AWS_SECRET_ACCESS_KEY=blahblah-dev dynamodb-admin -H localhost -p 8001"
   coffeeScript: true
   mocha: true

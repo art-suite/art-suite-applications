@@ -1,10 +1,6 @@
 ###
   For testing, be sure to start both:
-    - corsproxy
-    - start_dynamo_db_local_server.coffee
-
-  Corsproxy is needed because dynamoDb-local has a bug that causes it to not return CORS headers
-  when errors occur.
+    - npm run dynamodb
 
 &ArtAws/Server
 &build/Art/Aws
