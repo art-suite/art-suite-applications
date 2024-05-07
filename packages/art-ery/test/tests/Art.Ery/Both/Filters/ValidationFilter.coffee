@@ -54,7 +54,11 @@ module.exports = suite:
           foo: FieldTypes.trimmedString
 
       assert.rejects MyPipeline.singleton.create data: foo: 123
-      .then ({info: {response}}) -> assert.eq response.data.errors, foo: "invalid"
+      .then (error) ->
+        log {error}
+        {info: {response}} = error
+        log DEBUG: response.data
+        assert.eq response.data.errors, foo: "invalid"
 
     test "validate - valid with preprocessing", ->
       createWithPostCreate class MyPipeline extends SimplePipeline

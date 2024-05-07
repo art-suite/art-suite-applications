@@ -214,38 +214,48 @@ module.exports = class Response extends require './RequestResponseBase'
     else Promise.reject @_getRejectionError()
 
   _getRejectionError: ->
-    @_preparedRejectionError ||=
-      new RequestError {
-        message:
-          compactFlatten([
-            @responseData?.message ? @responseProps?.message ? @errorProps?.exception?.message
-            ""
-            "request: #{@pipeline}.#{@type}"
-            formattedInspect {
-              @status
-              @session
-              props: @requestProps
-            }
+    if !@_preparedRejectionError
+      @_preparedRejectionError =
+        new RequestError {
+          message:
+            compactFlatten([
+              @responseData?.message ? @responseProps?.message ? @errorProps?.exception?.message
+              ""
+              "request: #{@pipeline}.#{@type}"
+              formattedInspect {
+                @status
+                @session
+                props: @requestProps
+              }
+            ]).join "\n"
+            # + "\n"
+
+          @type
+          @status
+          @requestData
+          @responseData
+          sourceLib:  "ArtEry"
+          stack: compactFlatten([
+            if exception = @errorProps?.exception
+                "Exception stack:\n#{cleanStackTrace exception.stack, false, true}\n"
+
+            (for {time, request, context, name, stack, filterLog}, i in @requestTrace by -1
+              "#{request}: #{if filterLog? then (name for {name} in filterLog when name != "created").join " -> " else "#{context} #{name}"}
+                (request-depth: #{i + 1}, start-time: #{time*1000|0}ms)
+                #{if stack then "\n#{cleanStackTrace stack, null, true}\n" else ''}
+                "
+            ).join "\n"
+            getDetailedRequestTracingExplanation()
+            getCleanStackTraceWarning()
           ]).join "\n"
-          # + "\n"
+        }
 
-        @type
-        @status
-        @requestData
-        @responseData
-        sourceLib:  "ArtEry"
-        response:   @
-        stack: compactFlatten([
-          if exception = @errorProps?.exception
-              "Exception stack:\n#{cleanStackTrace exception.stack, false, true}\n"
+      # JEST has some error with serializing objects on errors, even with a custom toJSON.
+      #   the problem appears to be related to serializing via an Object.keys conversion rather than using toJSON
+      #   I looked closely at jest-circus, which is JESTS runner, but I don't think it's cuasing it. When it bundels up
+      #   the errors, it doesn't do the serializing
+      # Anyway, this seems to work for attaching the response without making it a listable prop
+      # We NEED response on the error object for certain error handling
+      Object.defineProperty @_preparedRejectionError.info,  "response", value: @, writable: false
 
-          (for {time, request, context, name, stack, filterLog}, i in @requestTrace by -1
-            "#{request}: #{if filterLog? then (name for {name} in filterLog when name != "created").join " -> " else "#{context} #{name}"}
-              (request-depth: #{i + 1}, start-time: #{time*1000|0}ms)
-              #{if stack then "\n#{cleanStackTrace stack, null, true}\n" else ''}
-              "
-          ).join "\n"
-          getDetailedRequestTracingExplanation()
-          getCleanStackTraceWarning()
-        ]).join "\n"
-      }
+    @_preparedRejectionError
