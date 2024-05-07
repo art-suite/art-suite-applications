@@ -426,7 +426,7 @@ class Request extends BaseObject
     (@requestCache[pipelineName] ?= {})[type] ?= {}
 
   cachedSubrequest: (pipelineName, requestType, keyOrRequestProps, d) ->
-    throw new Error "DEPRICATED: 4-param cachedSubrequest" if d != undefined
+    throw new Error "DEPRECATED: 4-param cachedSubrequest" if d != undefined
     @_cachedSubrequest pipelineName, requestType, requestType, keyOrRequestProps
 
   _cachedSubrequest: (pipelineName, cacheType, requestType, keyOrRequestProps) ->

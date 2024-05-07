@@ -664,7 +664,7 @@ class Pipeline extends &RequestHandler
     SEE RequestHandler API
   handleRequest: (request) ->
     if request.isResponse
-      throw new Error "HARD DEPRICATED"
+      throw new Error "HARD DEPRECATED"
 
     if request.location == :client
       @processClientToServerRequest request
@@ -798,7 +798,7 @@ class Pipeline extends &RequestHandler
     else throw new Error "override toKeyString or dataToKeyString for non-string-keys like: #{formattedInspect key}"
 
   ###################
-    propsToKey (primarilly used by ArtPipelineModels)
+    propsToKey (primarily used by ArtPipelineModels)
       NOTE: KeyFieldsMixin overrides this
   @getter
     propsToKey: -> @_propsToKey ?= do ->
@@ -814,7 +814,7 @@ class Pipeline extends &RequestHandler
 
   ## getFieldsRequestWillModify (override as needed)
     called by UserOwnedFilter.before.update for correct authorization validation
-    overriden by Art.Ery.Aws.DynamoDb to support "add" and "setDefault" for a correct modifications-list
+    overridden by Art.Ery.Aws.DynamoDb to support "add" and "setDefault" for a correct modifications-list
 
     IN: request
     OUT: object with all fields the request will mutate
