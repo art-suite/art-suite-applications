@@ -122,11 +122,11 @@ class PromiseHandler extends &LoggingMixin BaseClass
   # PRIVATE
   ###################
   _encodeJson: (responseHeaders, responseData) ->
-    responseHeaders[:Content-Type] = "" application/json; charset=UTF-8
+    responseHeaders[:content-type] = "" application/json; charset=UTF-8
     JSON.stringify responseData
 
   _encodeHtml: (responseHeaders, responseData) ->
-    responseHeaders[:Content-Type] = "" text/html; charset=UTF-8
+    responseHeaders[:content-type] = "" text/html; charset=UTF-8
     if isString responseData
       responseData
     else
@@ -143,7 +143,8 @@ class PromiseHandler extends &LoggingMixin BaseClass
         </body></html>
 
   _encodePlain: (responseHeaders, responseData) ->
-    responseHeaders[:Content-Type] = "" text/plain; charset=UTF-8
+    responseHeaders = object v, k from responseHeaders with-key lowerCase k
+    responseHeaders[:content-type] ?= "" text/plain; charset=UTF-8
     if isString responseData
       responseData
     else
