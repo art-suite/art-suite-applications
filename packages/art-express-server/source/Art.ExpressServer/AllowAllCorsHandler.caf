@@ -5,7 +5,7 @@ import &ArtStandardLib, &ArtCommunicationStatus
   This is ONLY safe because we don't use cookies, ever:
     Our session information is passed as normal data, and is stored in localStorage.
 
-  For more thoughts on moiving beyond the tradgedy that is CORS:
+  For more thoughts on moving beyond the tragedy that is CORS:
   SEE: http://www.essenceandartifact.com/2017/01/why-cors-why.html
 
 method = null # CaffeineScript bug-hack

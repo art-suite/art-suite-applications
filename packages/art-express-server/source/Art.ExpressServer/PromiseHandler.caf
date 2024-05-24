@@ -7,6 +7,8 @@ class PromiseHandler extends &LoggingMixin BaseClass
     new @ options
     .middleware
 
+ @normalizeHeaders: normalizeHeaders = (headers) ->
+    object v, k from headers with-key upperCamelCase k, "-"
   constructor: (@options = {}) ->
     @logVerbose :initialized # : {@options}
     @_commonResponseHeaders = @options.commonResponseHeaders
@@ -142,19 +144,24 @@ class PromiseHandler extends &LoggingMixin BaseClass
         </body></html>
 
   _encodePlain: (responseHeaders, responseData) ->
-    responseHeaders[:Content-Type] = "" text/plain; charset=UTF-8
+    responseHeaders[:Content-Type] ?= "" text/plain; charset=UTF-8
     if isString responseData
       responseData
     else
       formattedInspect responseData
 
   _encodeOutput: (request, response, responseHeaders = {}, responseData) ->
+    responseHeaders = normalizeHeaders responseHeaders
     {accept = 'text/html'} = request.headers
 
-    encodedData = responseData && switch
-    when /json/.test accept then @_encodeJson  responseHeaders, responseData
-    when /html/.test accept then @_encodeHtml  responseHeaders, responseData
-    else                         @_encodePlain responseHeaders, responseData
+    encodedData = if responseData
+      if responseHeaders[:Content-Type]
+        @_encodePlain responseHeaders, responseData
+      else
+        switch
+        when /json/.test accept then @_encodeJson  responseHeaders, responseData
+        when /html/.test accept then @_encodeHtml  responseHeaders, responseData
+        else                         @_encodePlain responseHeaders, responseData
 
     each v, k from headers = merge @_commonResponseHeaders, responseHeaders
       response.setHeader k, v
@@ -197,5 +204,5 @@ class PromiseHandler extends &LoggingMixin BaseClass
         if data then {data} else status: missing
       (error) ->
         status: error.status ? :serverFailure
-        data: error.responseData ? if present error.message then {} error.messsage
+        data: error.responseData ? if present error.message then {} error.message
         # see: ArtStandardLib::RequestError
