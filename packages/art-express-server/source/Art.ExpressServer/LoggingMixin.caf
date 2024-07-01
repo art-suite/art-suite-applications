@@ -22,7 +22,7 @@ import &ArtStandardLib
   @getter
     verbose: -> @_verbose || @options?.verbose
     quiet:   -> @_quiet || @options?.quiet
-    logTime:    -> dateFormat :UTC:yyyy-mm-dd_HH-MM-ss
+    logTime:    -> formatDate :UTC:yyyy-mm-dd_HH-MM-ss
     logHeader:  ->
       compactFlatten []
         @logTime
