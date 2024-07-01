@@ -1,4 +1,0 @@
-"use strict"
-let Caf = require('caffeine-script-runtime');
-Caf.defMod(module, () => {require('art-config').configure(); return [require('art-standard-lib'), require('art-class-system'), require('art-testbench'), require('art-communication-status'), require('@art-suite/art-pipelines'), require('@art-suite/art-models'), require('../../build'), {newRegistries: function() {let pipelineRegistry, modelRegistry, defineModelsForAllPipelines; return {pipelineRegistry: pipelineRegistry = new (require('@art-suite/art-pipelines').PipelineRegistry)({location: "client"}), pipelines: pipelineRegistry.pipelines, modelRegistry: modelRegistry = new (require('@art-suite/art-models').ModelRegistry), models: modelRegistry.models, defineModelsForAllPipelines: defineModelsForAllPipelines = () => require('../../build').defineModelsForAllPipelines(pipelineRegistry, modelRegistry)};}}];});
-//# sourceMappingURL=StandardImport.js.map
