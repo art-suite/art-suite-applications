@@ -21,7 +21,7 @@
     "@art-suite/instance-function-binding-mixin": "^1.0.0",
     "@art-suite/key-fields-mixin": "file:packages/@art-suite/key-fields-mixin",
     "@art-suite/link-fields-filters": "file:packages/@art-suite/filters/link-fields-filters",
-    "@art-suite/monorepo": "^1.7.5",
+    "@art-suite/monorepo": "^1.7.12",
     "@art-suite/pointer-actions-mixin": "file:packages/@art-suite/pointer-actions-mixin",
     "@art-suite/standard-package-builder": "^1.2.1",
     "@art-suite/state-fields-lib": "file:packages/@art-suite/state-fields-lib",
