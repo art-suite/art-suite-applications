@@ -2,22 +2,27 @@ import &ArtStandardLib
 
 (superClass) -> class LoggingMixin extends superClass
 
+  _log: (args...) -> log args... unless @quiet
+  _logError: (args...) -> log.error args... unless @quiet
+  _logWithOptions: (args...) -> log.withOptions args... unless @quiet
+
   log: (toLog) ->
     if toLog is String
-      log "#{@logHeader}: #{toLog}"
+      @_log "#{@logHeader}: #{toLog}"
     else
-      log.withOptions {color: true}, @preprocessLog toLog
+      @_logWithOptions {color: true}, @preprocessLog toLog
 
-  logError:   (toLog) -> log.error @preprocessLog toLog
+  logError:   (toLog) -> @_logError @preprocessLog toLog
   logVerbose: (toLog) -> @log toLog if @verbose
 
   preprocessLog: (toLog) -> "#{@logHeader}": toLog
 
-  @setter "verbose"
+  @setter :verbose :quiet
 
   @getter
-    logTime:    -> dateFormat :UTC:yyyy-mm-dd_HH-MM-ss
-    verbose:    -> @_verbose || @options?.verbose
+    verbose: -> @_verbose || @options?.verbose
+    quiet:   -> @_quiet || @options?.quiet
+    logTime:    -> formatDate :UTC:yyyy-mm-dd_HH-MM-ss
     logHeader:  ->
       compactFlatten []
         @logTime
