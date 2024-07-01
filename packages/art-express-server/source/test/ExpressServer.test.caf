@@ -1,0 +1,33 @@
+import &StandardImport
+server = null
+
+chainedTest "start server" ->
+  server = start
+    port: 0
+    quiet: true
+    verbose: true # quiet trumps verbose, but verbose still does the work, so we can test those lines
+    allowAllCors: true
+    handlers:
+      class HelloWorldHandler extends PromiseHandler
+        @handleUrlRegex /// ^/?$
+
+        handleHtmlRequest: (request, requestData) -> "Hello world."
+
+      class FakeApiHandler extends PromiseHandler
+        @handleUrlRegex /// ^/api/echo
+
+        handleApiRequest: (request, requestData) -> Promise.then -> echo: requestData
+
+.tapTest
+  "HTTP get from TestServer.caf" ({hostAndPort}) ->
+    &ArtRestClient.get "http://#{hostAndPort}"
+    .then (v) -> assert.eq v, "Hello world."
+
+  "HTTP get API TestServer.caf" ({hostAndPort}) ->
+    &ArtRestClient.getJson "http://#{hostAndPort}/api/echo", data: numbers: 1 2 3
+    .then (v) -> assert.eq v, echo: numbers: 1 2 3
+
+  "OPTIONS" ({hostAndPort}) ->
+    &ArtRestClient.restRequest verb: :options  url: "http://#{hostAndPort}"
+
+test "shut down the server" -> server.stop()

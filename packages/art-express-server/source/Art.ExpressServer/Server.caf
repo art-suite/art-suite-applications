@@ -3,6 +3,16 @@ import &ArtStandardLib, &ArtCommunicationStatus
 
 memoryCheckCycleMs = 10000
 
+timeAgeString = (actualAge, testAge) ->
+  testAge ?= actualAge
+
+  if testAge <= 60 # 1 minute
+    "#{(actualAge).toFixed 2}s"
+  else if testAge <= 60 * 60 # 1 hour
+    "#{(actualAge / 60).toFixed 2}m"
+  else
+    "#{(actualAge / (60 * 60)).toFixed 2}h"
+
 class Server extends &LoggingMixin &ArtClassSystem.BaseClass
 
   @defaults:
@@ -10,8 +20,34 @@ class Server extends &LoggingMixin &ArtClassSystem.BaseClass
     server: :http://localhost
 
   @start: (manyOptions...) ->
-    new Server
-    .start manyOptions...
+    new Server manyOptions...
+    .start()
+
+  constructor: (manyOptions...) ->
+    {WEB_CONCURRENCY, PORT, ART_EXPRESS_SERVER_VERBOSE} = getEnv()
+    @options = @_allowAllCors merge
+        Server.defaults
+        numWorkers:   WEB_CONCURRENCY || 1
+        port:         PORT
+        verbose:      ART_EXPRESS_SERVER_VERBOSE? && ART_EXPRESS_SERVER_VERBOSE != false && ART_EXPRESS_SERVER_VERBOSE != "false"
+        manyOptions...
+
+    @_numWorkers = @options.numWorkers | 0 if @options?.numWorkers?
+
+  @getter
+    uptime: -> currentSecond() - @startTime
+    uptimeString: -> timeAgeString @uptime
+    :numWorkers
+    :startTime
+    :requestCount
+    :server
+    :app
+    hostAndPort: -> "#{@host}:#{@port}"
+    host: ->
+      address = @server.address()
+      if address.address == '::' then 'localhost' else address.address
+
+    port: -> @server.address().port
 
   ##
     ENV: SEE README.MD
@@ -54,29 +90,28 @@ class Server extends &LoggingMixin &ArtClassSystem.BaseClass
 
         SEE: http://www.essenceandartifact.com/2017/01/why-cors-why.html
   start: (manyOptions...) ->
-    {WEB_CONCURRENCY, PORT, ART_EXPRESS_SERVER_VERBOSE} = getEnv()
+    @logVerbose start: {} @options
 
-    @verbose = true if ART_EXPRESS_SERVER_VERBOSE?
-
-    {numWorkers} = @options = @_allowAllCors merge
-        Server.defaults
-        numWorkers:   WEB_CONCURRENCY || 1
-        port:         PORT
-        manyOptions...
-
-    numWorkers = numWorkers | 0 if numWorkers?
-
-    if numWorkers > 1
+    if @numWorkers > 1
       &throng
-        workers: numWorkers
+        workers: @numWorkers
         master: ->
           @logEnvironment()
-          @log start: throng: workers: numWorkers
+          @log start: throng: workers: @numWorkers
 
         start: fastBind @_startOneServer, @
+
     else
       @logEnvironment()
       @_startOneServer()
+
+    @
+
+  stop: ->
+    if @numWorkers > 1
+      throw new Error "cant stop throng"
+    else
+      @server.close()
 
   logEnvironment: ->
     @logVerbose start: {}
@@ -96,7 +131,6 @@ class Server extends &LoggingMixin &ArtClassSystem.BaseClass
 
       Neptune: Neptune.getVersions()
 
-
   ##################
   # PRIVATE
   ##################
@@ -111,17 +145,8 @@ class Server extends &LoggingMixin &ArtClassSystem.BaseClass
         handlers: compactFlatten []
           &AllowAllCorsHandler
           options.handlers
+
     else options
-
-  timeAgeString = (actualAge, testAge) ->
-    testAge ?= actualAge
-
-    if testAge <= 60 # 1 minute
-      "#{(actualAge).toFixed 2}s"
-    else if testAge <= 60 * 60 # 1 hour
-      "#{(actualAge / 60).toFixed 2}m"
-    else
-      "#{(actualAge / (60 * 60)).toFixed 2}h"
 
   _initMonitors: (server) ->
     {ART_EXPRESS_SERVER_MAX_AGE_SECONDS, ART_EXPRESS_SERVER_MAX_SIZE_MB} = getEnv()
@@ -153,43 +178,34 @@ class Server extends &LoggingMixin &ArtClassSystem.BaseClass
         else @logVerbose "ART_EXPRESS_SERVER_MAX_SIZE_MB=#{ART_EXPRESS_SERVER_MAX_SIZE_MB} -> tested OK! MemoryUsage(#{rssMegabytes}MB) <= #{ART_EXPRESS_SERVER_MAX_SIZE_MB}MB (uptime: #{@uptimeString}, #{@requestCount} requests)".green
         timeout memoryCheckCycleMs, checkMemory
 
-
-
-  @getter
-    uptime: -> currentSecond() - @startTime
-    uptimeString: -> timeAgeString @uptime
-
   _startOneServer: (@workerId) ->
-    @startTime = currentSecond()
+    @options extract
+      static as staticOptions
+      initWorker, port, posthandlers, handlers
+      postmiddleware, middleware, commonResponseHeaders
 
-    {static: staticOptions, initWorker, port, posthandlers, handlers, postmiddleware, middleware, commonResponseHeaders} = @options
+    @_startTime = currentSecond()
+    @_requestCount = 0
 
-    @app = &express()
+    @_app = &express()
 
     initWorker? @
 
-    @requestCount = 0
-
     if commonResponseHeaders && objectHasKeys commonResponseHeaders
       @app.use (request, response, next) ->
-        each v, k from commonResponseHeaders
-          response.setHeader k, v
+        each v, k from commonResponseHeaders with response.setHeader k, v
         next()
 
-    @app.use (_a, _b, next) -> @requestCount++; next()
-
+    @app.use (_a, _b, next) -> @_requestCount++; next()
     @app.use &compression()
 
     if middleware is Object
-      each callback, path in compactFlatten [middleware]
-        @app.use path, callback
+      each callback, path in compactFlatten [middleware] with @app.use path, callback
 
     else if middleware?
-      each mw in compactFlatten [middleware]
-        @app.use mw
+      each mw in compactFlatten [middleware] with @app.use mw
 
-    each handler in compactFlatten [handlers]
-      @app.use handler.getMiddleware @options
+    each handler in compactFlatten [handlers] with @app.use handler.getMiddleware @options
 
     if staticOptions
       @app.use &express.static staticOptions.root, merge
@@ -198,17 +214,12 @@ class Server extends &LoggingMixin &ArtClassSystem.BaseClass
           switch &path.extname(path).toLowerCase()
             when :.js then response.setHeader "Content-Type", "application/javascript; charset=UTF-8"
 
-          each v, k from staticOptions.headers
-            response.setHeader k, v
+          each v, k from staticOptions.headers with response.setHeader k, v
+
         staticOptions
 
-    each handler in compactFlatten [posthandlers]
-      @app.use handler.getMiddleware @options
+    each handler in compactFlatten [posthandlers]   with @app.use handler.getMiddleware @options
+    each mw      in compactFlatten [postmiddleware] with @app.use mw
 
-    each mw in compactFlatten [postmiddleware]
-      @app.use mw
-
-    server = @app.listen port | 0, =>
-      @log "" listening on: http://localhost:#{port}
-
-    @_initMonitors server
+    @_server = @app.listen port ? 0, -> @log "" listening on: http://#{@hostAndPort}
+    @_initMonitors @_server
