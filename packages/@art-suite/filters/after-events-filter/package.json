@@ -3,7 +3,7 @@
   "dependencies": {
     "@art-suite/art-pipelines": "^0.2.2",
     "art-communication-status": "^1.5.13",
-    "art-standard-lib": "^1.70.6"
+    "art-standard-lib": "^1.73.2"
   },
   "homepage": "https://github.com/art-suite/art-suite-applications",
   "jest": {

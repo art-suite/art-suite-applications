@@ -3,17 +3,17 @@
   "bugs": "https://github.com/art-suite/art-suite-applications/issues",
   "dependencies": {
     "art-config": "^2.0.3",
-    "art-express-server": "^1.6.0",
+    "art-express-server": "^1.6.2",
     "art-html-factory": "^2.1.11",
-    "art-standard-lib": "^1.70.6",
+    "art-standard-lib": "^1.73.2",
     "image-size": "^1.0.0",
     "neptune-namespaces-runtime": "^3.2.9"
   },
   "description": "Art.Suite.Server",
   "devDependencies": {
-    "@art-suite/standard-package-builder": "^1.2.1",
-    "art-build-configurator": "^1.29.3",
-    "art-testbench": "^3.2.13",
+    "@art-suite/standard-package-builder": "^1.2.3",
+    "art-build-configurator": "^1.30.3",
+    "art-testbench": "^3.2.14",
     "mocha": "^7.2.0",
     "neptune-namespaces": "^4.2.9"
   },

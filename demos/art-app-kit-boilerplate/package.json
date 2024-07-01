@@ -6,7 +6,7 @@
     "neptune-namespaces-runtime": "^3.2.9"
   },
   "devDependencies": {
-    "art-build-configurator": "^1.29.3"
+    "art-build-configurator": "^1.30.3"
   },
   "homepage": "https://github.com/art-suite/art-suite-applications",
   "license": "ISC",

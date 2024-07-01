@@ -5,12 +5,12 @@
     "webfontloader": "^1.6.28"
   },
   "devDependencies": {
-    "art-build-configurator": "^1.29.3",
-    "art-testbench": "^3.2.13",
+    "art-build-configurator": "^1.30.3",
+    "art-testbench": "^3.2.14",
     "case-sensitive-paths-webpack-plugin": "^2.2.0",
     "chai": "^4.2.0",
     "coffee-loader": "^0.7.3",
-    "css-loader": "^6.2.0",
+    "css-loader": "^6.11.0",
     "json-loader": "^0.5.7",
     "mocha": "^7.2.0",
     "mock-fs": "^5.0.0",

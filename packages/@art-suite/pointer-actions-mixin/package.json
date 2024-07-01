@@ -2,13 +2,13 @@
   "bugs": "https://github.com/art-suite/art-suite-applications/issues",
   "dependencies": {
     "art-atomic": "^1.28.4",
-    "art-browser-tools": "^1.2.14",
-    "art-standard-lib": "^1.70.6",
+    "art-browser-tools": "^1.2.16",
+    "art-standard-lib": "^1.73.2",
     "neptune-namespaces-runtime": "^3.2.9"
   },
   "description": "A mixin for your Components (ArtReact) to make it super easy to handle high-level pointer event patterns like Hover, ButtonDown and Dragging",
   "devDependencies": {
-    "art-build-configurator": "^1.29.3",
+    "art-build-configurator": "^1.30.3",
     "neptune-namespaces": "^4.2.9"
   },
   "homepage": "https://github.com/art-suite/art-suite-applications",

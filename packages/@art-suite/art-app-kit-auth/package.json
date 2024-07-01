@@ -6,8 +6,8 @@
   },
   "description": "Art.App.Kit.Auth",
   "devDependencies": {
-    "art-build-configurator": "^1.29.3",
-    "art-testbench": "^3.2.13",
+    "art-build-configurator": "^1.30.3",
+    "art-testbench": "^3.2.14",
     "crypto-browserify": "^3.12.0",
     "mocha": "^7.2.0",
     "source-map-loader": "^4.0.1",

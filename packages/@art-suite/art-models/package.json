@@ -5,9 +5,10 @@
     "art-class-system": "^1.11.13",
     "art-communication-status": "^1.5.13",
     "art-epoched-state": "^1.2.12",
-    "art-standard-lib": "^1.70.6",
+    "art-standard-lib": "^1.73.2",
     "neptune-namespaces-runtime": "^3.2.9"
   },
+  "description": "Global client-side UX state; less code; less complexity; accelerated productivity.",
   "homepage": "https://github.com/art-suite/art-suite-applications",
   "jest": {
     "collectCoverageFrom": [
@@ -23,7 +24,6 @@
   },
   "license": "ISC",
   "name": "@art-suite/art-models",
-  "description": "Global client-side UX state; less code; less complexity; accelerated productivity.",
   "repository": {
     "type": "git",
     "url": "https://github.com/art-suite/art-suite-applications.git"

@@ -2,14 +2,14 @@
   "author": "Shane Brinkman-Davis Delamore, Imikimi LLC",
   "bugs": "https://github.com/art-suite/art-suite-applications/issues",
   "dependencies": {
-    "art-build-configurator": "^1.29.3",
+    "art-build-configurator": "^1.30.3",
     "art-rest-client": "^1.10.0",
     "aws-sdk": "^2.809.0",
     "aws4": "^1.6.0"
   },
   "description": "Streamlined APIs for AWS SDK with Promises and Art.Foundation",
   "devDependencies": {
-    "art-testbench": "^3.2.13",
+    "art-testbench": "^3.2.14",
     "mocha": "^7.2.0",
     "mock-fs": "^5.0.0"
   },
