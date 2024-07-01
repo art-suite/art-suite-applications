@@ -7,8 +7,9 @@ class PromiseHandler extends &LoggingMixin BaseClass
     new @ options
     .middleware
 
- @normalizeHeaders: normalizeHeaders = (headers) ->
+  @normalizeHeaders: normalizeHeaders = (headers) ->
     object v, k from headers with-key upperCamelCase k, "-"
+
   constructor: (@options = {}) ->
     @logVerbose :initialized # : {@options}
     @_commonResponseHeaders = @options.commonResponseHeaders
