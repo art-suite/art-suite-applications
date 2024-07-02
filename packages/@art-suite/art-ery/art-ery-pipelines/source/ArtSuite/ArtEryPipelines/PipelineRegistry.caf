@@ -15,7 +15,7 @@ class PipelineRegistry extends BaseObject
 
     if session || @location == :client
       throw new Error "session option must only be the session data" if session && !isPlainObject session
-      @_session = new Session session, "ArtPipelines-#{@name}-Session", @
+      @_session = new Session session, "ArtEryPipelines-#{@name}-Session", @
 
   _registryRegistry: ->
     registryNumber = pipelineRegistries.length

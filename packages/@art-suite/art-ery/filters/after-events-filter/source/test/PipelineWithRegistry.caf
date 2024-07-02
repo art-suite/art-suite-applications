@@ -1,7 +1,7 @@
 
-class Pipeline extends &@ArtSuite/ArtPipelines.Pipeline
+class Pipeline extends &@ArtSuite/ArtEryPipelines.Pipeline
   @abstractClass()
-  @pipelineRegistry new &@ArtSuite/ArtPipelines.PipelineRegistry session: {}
+  @pipelineRegistry new &@ArtSuite/ArtEryPipelines.PipelineRegistry session: {}
 
 {}
   Pipeline

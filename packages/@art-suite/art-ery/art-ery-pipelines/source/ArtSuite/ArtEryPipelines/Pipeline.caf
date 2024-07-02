@@ -6,7 +6,7 @@ import &StandardImport, &Config, {}
 ##
   TODO: (July2019)
     Factor out all ArtModels-related stuff
-      ArtPipelines should be independent of ArtModels or any other client-side state-management-system.
+      ArtEryPipelines should be independent of ArtModels or any other client-side state-management-system.
 
       Remaining:
         query:    Another declaration passed directly to ArtModels
@@ -546,7 +546,7 @@ class Pipeline extends &RequestHandler
         Previous Solution Wasn't 100%:
 
           We fetched the old record's data from the singlton ArtModel. Since
-          ArtPipelines are now ArtModel agnostic, that's no longer an option. Even if it was,
+          ArtEryPipelines are now ArtModel agnostic, that's no longer an option. Even if it was,
           it wasn't foolproof. We may not have a local singleton instance and yet still need
           to update one or more queries.
 
@@ -557,9 +557,9 @@ class Pipeline extends &RequestHandler
 
         1. Maintain a full list of all records we have in use locally,
           regardless if they are in queries or the singleton model
-          CON: this breaks the ArtPipelines-doesn't-know-about-ArtModels isolation
+          CON: this breaks the ArtEryPipelines-doesn't-know-about-ArtModels isolation
           PRO: less DB access; less data over the wire
-          (I wish we had WEAK references in JavaScript! Then ArtPipelines could keep
+          (I wish we had WEAK references in JavaScript! Then ArtEryPipelines could keep
           a WEAK reference to every query result)
 
         1.5: HRM - we have similar option that could work: Send a :update event to
@@ -573,7 +573,7 @@ class Pipeline extends &RequestHandler
           query-fields.
           Ex: response.props.oldData = partialRecord with just the replaced values
           PRO: this is a general solution with wider uses
-          PRO: this keeps ArtPipelines agnostic to ArtModels
+          PRO: this keeps ArtEryPipelines agnostic to ArtModels
           PRO: this does solve the server-side ArtEryPusher
           CON: each data-update DB action also needs to read the old values back.
             I think this is freeish in DynamoDB, but other DBs don't do this.

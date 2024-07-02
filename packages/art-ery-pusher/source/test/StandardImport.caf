@@ -1,7 +1,7 @@
 []
   &ArtStandardLib
   &ArtClassSystem
-  &@ArtSuite/ArtPipelines
+  &@ArtSuite/ArtEryPipelines
   &ArtCommunicationStatus
   &@ArtSuite/KeyFieldsMixin
   &build

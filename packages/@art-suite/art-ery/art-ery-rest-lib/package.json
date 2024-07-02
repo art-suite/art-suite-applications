@@ -1,12 +1,7 @@
 {
   "bugs": "https://github.com/art-suite/art-suite-applications/issues",
   "dependencies": {
-    "@art-suite/art-foundation": "^3.0.1",
-    "art-class-system": "^1.11.13",
-    "art-communication-status": "^1.5.13",
-    "art-config": "^2.0.3",
-    "art-events": "^2.0.0",
-    "art-standard-lib": "^1.73.2",
+    "@art-suite/art-ery-pipelines": "^0.2.3",
     "art-validation": "^2.7.1"
   },
   "homepage": "https://github.com/art-suite/art-suite-applications",
@@ -28,7 +23,7 @@
   },
   "license": "ISC",
   "main": "./build",
-  "name": "@art-suite/art-pipelines",
+  "name": "@art-suite/art-ery-rest-lib",
   "repository": {
     "type": "git",
     "url": "https://github.com/art-suite/art-suite-applications.git"
@@ -38,12 +33,13 @@
     "build-clean": "# BUILD CLEAN START\n#   - building into: build-temp\n#\nrm -rf ./__build-old__\nrsync -av --include='*.js' --include='*.css' --exclude='*' ./source/ ./build/\ncaf -m -c source -o build-temp\nnpm run nn\n\nnn build-temp/*\n\n# BUILD CLEAN FINIALIZING\n#  - replace old build in:   build\n#  - with new build from:    build-temp\n#\nmv build __build-old__\nmv build-temp build\nrm -rf ./__build-old__",
     "build-watch": "nodemon -e js,ts,jsx,tsx,caf,coffee,json -i \"build/**\" -x npm run build",
     "clean": "rm -rf build/*",
+    "demo": "caf source/demo/server",
     "jest": "jest --reporters=jest-fixed-default-reporter/SummaryReporter",
     "nn": "nn build/* ",
     "test": "jest",
     "test-watch": "jest --watch"
   },
-  "version": "0.2.3",
+  "version": "0.4.1",
   "watch": {
     "build": {
       "extensions": [

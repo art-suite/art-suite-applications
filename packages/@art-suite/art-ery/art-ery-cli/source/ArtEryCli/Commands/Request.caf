@@ -1,6 +1,6 @@
 import &ArtStandardLib
 options: merge
-  &ToolLib.standardPiplineOptions
+  &ToolLib.standardPipelineOptions
   request: "" art-ery request type. Example: --request get
   options: "" request options. Usually you'll want to pass in 'key', 'props' and/or 'data'. Example: --options "js:{data: {name: 'sally'}}"
 params: "[pipeline] [request] [options]"

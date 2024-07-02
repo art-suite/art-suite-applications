@@ -1,4 +1,4 @@
-import &ArtStandardLib, &ArtValidation, &@ArtSuite/ArtPipelines
+import &ArtStandardLib, &ArtValidation, &@ArtSuite/ArtEryPipelines
 
 TimestampFilter: class TimestampFilter extends Filter
 

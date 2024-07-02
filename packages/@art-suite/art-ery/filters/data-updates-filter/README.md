@@ -24,7 +24,7 @@ class User extends BasePipeline # <-- automatically has DataUpdatesFilter
 
 ```javascript
 // JavaScript
-const { Pipeline } = require("@art-suite/art-pipelines");
+const { Pipeline } = require("@art-suite/art-ery-pipelines");
 const { DataUpdatesFilter } = require("@art-suite/data-updates-filter");
 
 class BasePipeline extends Pipeline {}

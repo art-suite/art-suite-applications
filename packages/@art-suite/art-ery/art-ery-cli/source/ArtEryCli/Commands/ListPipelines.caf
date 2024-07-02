@@ -1,1 +1,4 @@
-run: ({pipelines}) -> pipelines
+&ToolLib.createPipelineCommand
+  action: (pipeline, {pipelines}) ->
+    console.log "pipelines"
+    pipelines

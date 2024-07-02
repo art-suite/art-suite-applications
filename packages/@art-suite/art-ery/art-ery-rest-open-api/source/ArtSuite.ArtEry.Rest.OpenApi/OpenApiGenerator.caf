@@ -1,4 +1,4 @@
-import &StandardImport, &@ArtSuite/ArtEryRestTransport, &ArtValidation
+import &StandardImport, &ArtValidation
 
 stripStack = (error) ->
   error.stack =

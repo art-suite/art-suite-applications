@@ -1,5 +1,5 @@
 import
-  &ArtStandardLib, &@ArtSuite/ArtPipelines, &build, &@ArtSuite/KeyFieldsMixin
+  &ArtStandardLib, &@ArtSuite/ArtEryPipelines, &build, &@ArtSuite/KeyFieldsMixin
   &@ArtSuite/DatabaseFilters
   {} &Server
 &ArtConfig.configure()

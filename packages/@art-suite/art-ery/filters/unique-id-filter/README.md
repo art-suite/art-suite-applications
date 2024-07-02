@@ -17,7 +17,7 @@ class User extends BasePipeline # <-- automatically has UniqueIdFilter
 
 ```javascript
 // JavaScript
-const { Pipeline } = require("@art-suite/art-pipelines");
+const { Pipeline } = require("@art-suite/art-ery-pipelines");
 const { UniqueIdFilter } = require("@art-suite/unique-id-filter");
 
 class BasePipeline extends Pipeline {}

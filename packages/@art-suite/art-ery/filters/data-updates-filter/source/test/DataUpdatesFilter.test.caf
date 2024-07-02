@@ -238,7 +238,7 @@ describe
                 key: newKey
                 data: name: createNewUserName
 
-    # TODO: 2023 - query-updates are 100% handled in ArtEryFluxModel - they have nothing to do with ArtPipelines/ArtEry per se
+    # TODO: 2023 - query-updates are 100% handled in ArtEryFluxModel - they have nothing to do with ArtEryPipelines/ArtEry per se
     #  SO, we need to test these scenarios directly on ArtEryFluxModles - i.e. do dataUpdates on a single record update the query-models?
     queryUpdates: ->
       beforeEach -> testSetup()

@@ -17,7 +17,7 @@ class User extends BasePipeline # <-- automatically has UserOwnedFilter
 
 ```javascript
 // JavaScript
-const { Pipeline } = require("@art-suite/art-pipelines");
+const { Pipeline } = require("@art-suite/art-ery-pipelines");
 const { UserOwnedFilter } = require("@art-suite/user-owned-filter");
 
 class BasePipeline extends Pipeline {}

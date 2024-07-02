@@ -3,5 +3,5 @@
   &ArtClassSystem
   &ArtCommunicationStatus
   &ArtValidation
-  &@ArtSuite/ArtPipelines
+  &@ArtSuite/ArtEryPipelines
   &@ArtSuite/ValidationFilter

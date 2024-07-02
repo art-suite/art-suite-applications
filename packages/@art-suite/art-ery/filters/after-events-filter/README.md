@@ -17,7 +17,7 @@ class User extends BasePipeline # <-- automatically has AfterEventsFilter
 
 ```javascript
 // JavaScript
-const { Pipeline } = require("@art-suite/art-pipelines");
+const { Pipeline } = require("@art-suite/art-ery-pipelines");
 const { AfterEventsFilter } = require("@art-suite/after-events-filter");
 
 class BasePipeline extends Pipeline {}

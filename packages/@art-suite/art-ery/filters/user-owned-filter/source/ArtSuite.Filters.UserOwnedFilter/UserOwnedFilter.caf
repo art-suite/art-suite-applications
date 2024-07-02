@@ -1,4 +1,4 @@
-import &ArtStandardLib, &@ArtSuite/ArtPipelines
+import &ArtStandardLib, &@ArtSuite/ArtEryPipelines
 
 ## UserOwnedFilter
   Handles Authroization for records which have a specific owner specified by the 'userId' field.

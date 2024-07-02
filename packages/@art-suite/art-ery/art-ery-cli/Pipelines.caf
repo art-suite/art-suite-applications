@@ -1,0 +1,8 @@
+import &ArtEry
+
+class ExampleUser extends Pipeline
+  @addDatabaseFilters
+    fields:
+      name: :string
+      email: :string
+

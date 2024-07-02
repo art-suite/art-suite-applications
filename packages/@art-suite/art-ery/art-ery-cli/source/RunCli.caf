@@ -6,6 +6,7 @@ loadFromUserProject = (basename) ->
   configFilepath = path.join process.cwd(), basename
   [configFilepath] = globSync configFilepath + "*"
   if configFilepath?
+    log loading: configFilepath
     realRequire configFilepath
 
 loadFromUserProject :configure
@@ -15,6 +16,9 @@ unless packageJson = loadFromUserProject :package.json
   console.error "" Not run in a package.
   console.log "" Please run from a folder containing a package.json
   process.exit 1
+
+
+log {} pipelines
 
 &@ArtSuite/ArtEryCli.start {}
   description:  "" ArtEryCli for #{} packageJson.name

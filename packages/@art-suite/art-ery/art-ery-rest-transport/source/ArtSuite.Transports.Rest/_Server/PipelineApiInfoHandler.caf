@@ -1,4 +1,4 @@
-import &StandardImport, &RestServerLib, &@ArtSuite/ArtPipelinesOpenapi
+import &StandardImport, &RestServerLib, &@ArtSuite/ArtEryRestOpenApi
 
 class PipelineApiInfoHandler extends &ArtExpressServer.PromiseHandler
 

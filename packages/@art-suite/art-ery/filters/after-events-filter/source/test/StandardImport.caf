@@ -2,7 +2,7 @@
   &ArtStandardLib
   &ArtClassSystem
   &ArtCommunicationStatus
-  &@ArtSuite/ArtPipelines
+  &@ArtSuite/ArtEryPipelines
   &@ArtSuite/KeyFieldsMixin
   &build
   &ArtTestbench

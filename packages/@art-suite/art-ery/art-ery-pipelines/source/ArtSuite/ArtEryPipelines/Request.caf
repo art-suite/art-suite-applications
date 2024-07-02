@@ -10,7 +10,7 @@ createValidators = () ->
     props:    :object
 
   requestValidator ?= new Validator
-    # pipeline:           :required instanceof: ArtPipelines.Pipeline
+    # pipeline:           :required instanceof: ArtEryPipelines.Pipeline
     type:               :required :string
     session:            :required :object
     parentRequest:      instanceof: Request
@@ -403,7 +403,7 @@ class Request extends BaseObject
     @subrequest pipelineName, type, requestOptions
     .then (result) ->
       if config.verbose
-        log ArtPipelines: Request: nonblockingSubrequest: {}
+        log ArtEryPipelines: Request: nonblockingSubrequest: {}
           status: :success
           pipelineName
           type
@@ -412,7 +412,7 @@ class Request extends BaseObject
           result
 
     .catch (error) ->
-      log ArtPipelines: Request: nonblockingSubrequest: {}
+      log ArtEryPipelines: Request: nonblockingSubrequest: {}
         status: :failure
         pipelineName
         type
@@ -767,7 +767,7 @@ class Request extends BaseObject
   failure:                              (responseProps) -> @toResponse failure,                     responseProps
   # NOTE: there is no serverFailure method because you should always use just 'failure'.
   # This is because you may be running on the client or the server. If running on the client, it isn't a serverFailure.
-  # If status == "failure", the ArtPipelines HTTP server will convert that status to serverFailure automatically.
+  # If status == "failure", the ArtEryPipelines HTTP server will convert that status to serverFailure automatically.
 
   rejectWithMissing:                    (responseProps) -> @toResponse missing,                     responseProps, true
   rejectWithClientFailure:              (responseProps) -> @toResponse clientFailure,               responseProps, true
@@ -826,8 +826,8 @@ class Request extends BaseObject
       {} responseProps
       props: message:
         if responseProps instanceof Error
-              "" Internal Error: ArtPipelines.Request#toResponse received Error instance: #{formattedInspect responseProps}
-        else  "" Internal Error: ArtPipelines.Request#toResponse received unsupported type
+              "" Internal Error: ArtEryPipelines.Request#toResponse received Error instance: #{formattedInspect responseProps}
+        else  "" Internal Error: ArtEryPipelines.Request#toResponse received unsupported type
 
   ## toPromise()
     IN: options:
@@ -856,7 +856,7 @@ class Request extends BaseObject
       promise.catch (errorWithInfo) ->
         {response} = errorWithInfo.info
   toPromise: (options) ->
-    throw new Error "ArtPipelines.Request: toPromise can only be called on Response objects." unless @isResponse
+    throw new Error "ArtEryPipelines.Request: toPromise can only be called on Response objects." unless @isResponse
     options extract? returnNullIfMissing, returnResponse, returnResponseObject
     @ extract data, isSuccessful, isMissing
 
@@ -891,7 +891,7 @@ class Request extends BaseObject
         @status
         @requestProps
         @responseProps
-        sourceLib:  :ArtPipelines
+        sourceLib:  :ArtEryPipelines
         # response: @
 
         stack: if true

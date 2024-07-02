@@ -17,7 +17,7 @@ class User extends BasePipeline # <-- automatically has ValidationFilter
 
 ```javascript
 // JavaScript
-const { Pipeline } = require("@art-suite/art-pipelines");
+const { Pipeline } = require("@art-suite/art-ery-pipelines");
 const { ValidationFilter } = require("@art-suite/validation-filter");
 
 class BasePipeline extends Pipeline {}

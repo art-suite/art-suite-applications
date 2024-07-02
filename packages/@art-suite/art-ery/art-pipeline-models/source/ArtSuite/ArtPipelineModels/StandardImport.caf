@@ -2,5 +2,5 @@
   &ArtStandardLib
   &ArtCommunicationStatus
   &@ArtSuite/ArtModels
-  &@ArtSuite/ArtPipelines
+  &@ArtSuite/ArtEryPipelines
   &@ArtSuite/KeyFieldsMixin

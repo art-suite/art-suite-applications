@@ -1,4 +1,4 @@
-import &ArtStandardLib, &ArtValidation, &@ArtSuite/ArtPipelines, &RestClientLib, &RestTransportClientConfig
+import &ArtStandardLib, &ArtValidation, &@ArtSuite/ArtEryPipelines, &RestClientLib, &RestTransportClientConfig
 
 class RestTransportClientFilter extends Filter
   @location :client

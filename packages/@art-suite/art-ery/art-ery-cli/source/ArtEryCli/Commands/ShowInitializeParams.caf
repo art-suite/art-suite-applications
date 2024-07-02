@@ -1,7 +1,7 @@
 import &ArtStandardLib
 
 &ToolLib.createPipelineCommand
-  action: (pipeline) ->
+  action: (pipeline, {pipelines}) ->
     pipeline?.getInitializeParams originatedOnServer: true
     ? Promise.deepAll merge object pipeline in pipelines with-key pipeline.pipelineName
       pipeline.getInitializeParams? originatedOnServer: true

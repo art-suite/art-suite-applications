@@ -1,4 +1,4 @@
-import &ArtStandardLib, &@ArtSuite/ArtPipelines
+import &ArtStandardLib, &@ArtSuite/ArtEryPipelines
 
 DataUpdatesFilter: class DataUpdatesFilter extends Filter
 

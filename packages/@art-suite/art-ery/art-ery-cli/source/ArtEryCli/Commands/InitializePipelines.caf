@@ -1,6 +1,6 @@
 import &ArtStandardLib, &ToolLib
 
-options: standardPiplineOptions
+options: standardPipelineOptions
 description:   "" invoke 'initialize' on every pipeline (creates tables)
 run: ({pipeline: pipelineName, pipelines}) ->
   errors = []

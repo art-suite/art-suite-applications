@@ -4,7 +4,7 @@ commands =
   deleteIndexes: true
 
 options: merge
-  &ToolLib.standardPiplineOptions
+  &ToolLib.standardPipelineOptions
   createIndexes:  "" use this to create indexes
   deleteIndexes:  "" use this to delete indexes
   confirm:        "" use this as final confirmation

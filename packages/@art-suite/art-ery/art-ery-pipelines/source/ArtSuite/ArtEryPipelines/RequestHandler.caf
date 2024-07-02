@@ -37,13 +37,13 @@ class RequestHandler extends BaseObject
       resultPromise
       .tap (result) ->
         if result != request && neq request.summary, result.summary
-          content = "ArtPipelines-applyHandler-Verbose #{request.requestString} - #{dashCase context} #{@getLogName @type}":
+          content = "ArtEryPipelines-applyHandler-Verbose #{request.requestString} - #{dashCase context} #{@getLogName @type}":
             before: request.summary
             after:  result.summary
 
           if result.isError && !request.isError then log.error content else log content
 
-        else log "ArtPipelines-applyHandler-Verbose #{request.requestString} - #{dashCase context} #{@getLogName @type}": "no-change"
+        else log "ArtEryPipelines-applyHandler-Verbose #{request.requestString} - #{dashCase context} #{@getLogName @type}": "no-change"
 
     else resultPromise
 

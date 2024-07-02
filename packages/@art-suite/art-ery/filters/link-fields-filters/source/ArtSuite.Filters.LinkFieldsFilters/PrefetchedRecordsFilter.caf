@@ -1,4 +1,4 @@
-import &ArtStandardLib, &@ArtSuite/ArtPipelines, &PrefetchedRecordsCache
+import &ArtStandardLib, &@ArtSuite/ArtEryPipelines, &PrefetchedRecordsCache
 
 class PrefetchedRecordsFilter extends Filter
   @location :client

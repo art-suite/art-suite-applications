@@ -4,7 +4,7 @@ removeFromCleanStackTraceRegExp =
   ///
     ^ \s+ at \s+ processImmediate
     | Art.Ery/(Pipeline|Request|Filter\b)
-    | source/ArtSuite/ArtPipelines
+    | source/ArtSuite/ArtEryPipelines
     | <anonymous>
     | node:internal
     | node_modules/.*

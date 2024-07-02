@@ -98,7 +98,7 @@ describe
           foo: FieldTypes.trimmedString
 
       assert.rejects MyPipeline.singleton.create data: foo: 123
-      .then ({info: {response}}) -> assert.eq response.data.errors, foo: :invalid
+      .then ({info: {response}}) -> assert.eq response.data.errors, foo: "not a valid string (!isString)"
 
     test "validate - valid with preprocessing" ->
       class MyPipeline extends SimplePipeline

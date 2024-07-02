@@ -5,13 +5,13 @@
   &ArtClassSystem
   &ArtTestbench
   &ArtCommunicationStatus
-  &@ArtSuite/ArtPipelines
+  &@ArtSuite/ArtEryPipelines
   &@ArtSuite/ArtModels
   &build
 
   newRegistries: ->
     {}
-      pipelineRegistry = new &@ArtSuite/ArtPipelines.PipelineRegistry location: :client
+      pipelineRegistry = new &@ArtSuite/ArtEryPipelines.PipelineRegistry location: :client
       pipelineRegistry.pipelines
       modelRegistry = new &@ArtSuite/ArtModels.ModelRegistry
       modelRegistry.models

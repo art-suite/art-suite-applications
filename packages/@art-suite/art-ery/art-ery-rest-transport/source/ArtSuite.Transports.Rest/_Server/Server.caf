@@ -4,7 +4,7 @@ import &StandardImport
   IN: options:
     all ArtExpressServer's start() options
     PLUS:
-      pipelineRegistry: ArtPipelines.pipelineRegistry
+      pipelineRegistry: ArtEryPipelines.pipelineRegistry
         The registry for all the pipelines this server will be providing an API-transport for.
 start: (options = {}) ->
   options extract pipelineRegistry, handlers
