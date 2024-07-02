@@ -1,0 +1,1 @@
+// Placeholder so CaffeineScript can &require this module. TODO: Improve CaffeineScript to understand the "main" property in package.json.
