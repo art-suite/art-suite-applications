@@ -8,7 +8,7 @@ shouldReturnNewSignedSession = (oldSession, newSession) ->
       objectWithout newSession, :iat, :exp
   || iat? && 1 < iatAgeInDays iat       # OR the session is more than 1 day old
 
-merge &RestClientLib, {}
+{}
   verifySession: (session) ->
     ##
       IN: plainObjectsRequest:

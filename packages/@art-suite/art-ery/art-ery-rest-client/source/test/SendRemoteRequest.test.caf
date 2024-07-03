@@ -1,0 +1,52 @@
+import &StandardImport # , &build/ArtSuite-Transports-Rest/Server
+
+&ArtConfig.configure()
+
+class RestClientSimulatedTransportFilter extends Filter
+  @location :client
+
+  @group :handler
+
+  @before all: (request) ->
+    sendRemoteRequest request, sendRequestMethod: (remoteRequest) -> Promise.resolve remoteRequest
+
+{session, pipelines} = pipelineRegistry = new PipelineRegistry location: :client
+
+class SimplePipeline extends Pipeline
+  @registry pipelineRegistry
+  @filter RestClientSimulatedTransportFilter
+  @publicHandler
+    get: (request) ->
+    create: (request) ->
+    update: (request) ->
+    delete: (request) ->
+    login: (request) ->
+
+test "simplePipeline.get", ->
+  pipelines.simplePipeline.get returnResponseObject: true
+  .then (response) ->
+    assert.eq
+      response.props
+      url: :/api/simplePipeline, method: :get, data: null
+
+    assert.eq
+      response.remoteResponse
+      url: :/api/simplePipeline, method: :get, data: null
+
+test "simplePipeline.create ", ->
+  pipelines.simplePipeline.create returnResponseObject: true, props:
+    a: :b
+    data: name: :Frank
+
+  .then (response) -> assert.eq response.props, url: :/api/simplePipeline, method: :post, data:
+    props: a:    :b
+    data:  name: :Frank
+
+
+test "simplePipeline.update ", ->
+  pipelines.simplePipeline.create :myKeyAbc, returnResponseObject: true, data: name: :George
+  .then (response) -> assert.eq response.props, url: :/api/simplePipeline/myKeyAbc, method: :post, data: data: name: :George
+
+test "simplePipeline.delete ", ->
+  pipelines.simplePipeline.delete :myKeyAbc, returnResponseObject: true
+  .then (response) -> assert.eq response.props, url: :/api/simplePipeline/myKeyAbc, method: :delete, data: null

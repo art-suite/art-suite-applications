@@ -35,11 +35,11 @@ class PipelineApiHandler extends &ArtExpressServer.PromiseHandler
         data: {...}     # application returned payload data
         session: {...}  # session data
         xxx: yyy        # other possible props.*
-  handleApiRequest: (request, requestData) ->
+  handleApiRequest: (remoteRequest, requestData) ->
     requestData ?= {}
-    if found = @_findPipelineForRequest request
+    if found = @_findPipelineForRequest remoteRequest
       {pipeline, type, key} = found
-      if bearerHeader = request.headers?.authorization
+      if bearerHeader = remoteRequest.headers?.authorization
         [_, bearerSession] = bearerHeader.split ' '
 
       verifySession bearerSession ? requestData.session
@@ -48,7 +48,7 @@ class PipelineApiHandler extends &ArtExpressServer.PromiseHandler
         pipeline._processRequest createRequestFromRemoteRequestProps {}
           pipeline, type, key, requestData
           session: session || {}
-          remoteRequest: request
+          remoteRequest: remoteRequest
 
         .then (response) ->
           if response.isServerFailure
@@ -56,22 +56,16 @@ class PipelineApiHandler extends &ArtExpressServer.PromiseHandler
             .catch (error) ->
               log.withOptions
                 isError: true unquoted: true
-                """ #{@getRequestLogHeader request, response}: #{} error.stack
+                """ #{@getRequestLogHeader remoteRequest, response}: #{} error.stack
 
           else if config.server.verbose
             log
               ""
-                #{@getRequestLogHeader request, response}:
+                #{@getRequestLogHeader remoteRequest, response}:
                 subrequestCount: #{response.subrequestCount}, recordsReturned: #{if response.data then if isArray response.data then response.data.length else 1 else 0}
 
           if isSuccess response.status
-            # log handleApiRequest: pipelineResponse: response
             Promise.resolve prepareSignedSessionForResponse session, merge response.props, {} session: response.responseSession
-            # .then (props) ->
-            #   # log prepareSignedSessionForResponse_result: props
-            #   merge
-            #     {} response.status
-            #     data: props
 
           else
             {status, props} = response
@@ -80,8 +74,8 @@ class PipelineApiHandler extends &ArtExpressServer.PromiseHandler
     else
       Promise.resolve null # missing
 
-  getRequestLogHeader: (request, response) ->
-    "" #{@logHeader} #{request.method}:#{request.url} (#{encodeHttpStatus response.status}, #{(currentSecond() - response.startTime) * 1000 | 0}ms)
+  getRequestLogHeader: (remoteRequest, response) ->
+    "" #{@logHeader} #{remoteRequest.method}:#{remoteRequest.url} (#{encodeHttpStatus response.status}, #{(currentSecond() - response.startTime) * 1000 | 0}ms)
 
   ######################
   # PRIVATE

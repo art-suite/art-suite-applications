@@ -1,4 +1,4 @@
-import &StandardImport, {} &build/Server
+import &StandardImport
 
 {pipelines} = pipelineRegistry = new PipelineRegistry location: :client
 
@@ -14,7 +14,7 @@ class MyPipeline extends Pipeline
 &ArtConfig.configure()
 
 chainedTest "start server" ->
-  server = Server.start {} pipelineRegistry, port: 0 verbose: true quiet: true
+  server = startArtEryRestServer {} pipelineRegistry, port: 0 verbose: true quiet: true
 
 .thenTest
   "get before setting remoteServer is processed 'locally'" ->

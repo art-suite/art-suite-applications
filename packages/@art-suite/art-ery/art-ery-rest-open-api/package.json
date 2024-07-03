@@ -2,7 +2,7 @@
   "bugs": "https://github.com/art-suite/art-suite-applications/issues",
   "dependencies": {
     "@art-suite/art-ery-pipelines": "^0.2.3",
-    "@art-suite/art-ery-rest-lib": "^0.4.1"
+    "@art-suite/art-ery-rest-client": "^0.4.1"
   },
   "devDependencies": {
     "openapi-schema-validator": "^12.1.3"

@@ -1,3 +1,0 @@
-[]
-  &RestTransportClientConfig
-  {getRestClientParamsForArtEryRequest, getPipelineRestPath} = &RestClientLib

@@ -3,5 +3,6 @@
   &ArtClassSystem
   &@ArtSuite/ArtEryPipelines
   &ArtValidation
-  &build
   &ArtTestbench
+  &@ArtSuite/ArtEryRestClient
+  &build

@@ -1,4 +1,4 @@
-import &StandardImport, &build/ArtSuite-Transports-Rest/Server
+import &StandardImport
 
 &ArtConfig.configure()
 
@@ -9,7 +9,6 @@ class SimplePipeline extends Pipeline
 
 test "PipelineApiInfoHandler" ->
   handler = new PipelineApiInfoHandler {} pipelineRegistry
-
 
   Promise.then -> handler.handleApiRequest url: handler.specPath
   .then (result) ->
