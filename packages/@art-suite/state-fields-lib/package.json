@@ -1,4 +1,5 @@
 {
+  "author": "Shane Brinkman-Davis Delamore",
   "bugs": "https://github.com/art-suite/art-suite-applications/issues",
   "dependencies": {
     "art-class-system": "^1.11.13",

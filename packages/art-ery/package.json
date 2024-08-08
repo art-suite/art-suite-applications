@@ -1,5 +1,5 @@
 {
-  "author": "Shane Brinkman-Davis Delamore, Imikimi LLC",
+  "author": "Shane Brinkman-Davis Delamore",
   "bugs": "https://github.com/art-suite/art-suite-applications/issues",
   "dependencies": {
     "@art-suite/key-fields-mixin": "^1.0.5",

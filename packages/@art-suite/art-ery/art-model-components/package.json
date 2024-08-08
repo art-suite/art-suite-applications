@@ -1,4 +1,5 @@
 {
+  "author": "Shane Brinkman-Davis Delamore",
   "bugs": "https://github.com/art-suite/art-suite-applications/issues",
   "dependencies": {
     "@art-suite/art-models": "^0.2.0",
@@ -18,8 +19,8 @@
     ],
     "verbose": true
   },
-  "main": "./build",
   "license": "ISC",
+  "main": "./build",
   "name": "@art-suite/art-model-components",
   "repository": {
     "type": "git",
