@@ -1,7 +1,7 @@
 import &StandardImport, &PipelineWithRegistry
 
 test "basic Pipeline" ->
-  {user} = class User extends Pipeline
+  {user} = class User extends KeyFieldsMixin UpdateAfterMixin Pipeline
     @handler get: -> name: :Shane
 
   user.get()

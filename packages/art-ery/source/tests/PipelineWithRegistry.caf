@@ -1,5 +1,3 @@
-&ArtConfig.configure()
-
 class Pipeline extends &build.Pipeline
   @abstractClass()
   @pipelineRegistry new &build.PipelineRegistry session: {}

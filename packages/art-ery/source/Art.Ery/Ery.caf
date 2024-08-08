@@ -3,3 +3,8 @@
   &@ArtSuite/KeyFieldsMixin
   &@ArtSuite/DatabaseFilters
   &@ArtSuite/ArtEryRestTransport
+
+  &@ArtSuite/AfterEventsFilter
+  &@ArtSuite/DatabaseFilters
+
+  {} &Config.config

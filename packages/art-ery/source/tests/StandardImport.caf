@@ -1,5 +1,10 @@
 import &ArtStandardLib
-&ArtStandardLib.merge
+out = []
   &ArtStandardLib
   &ArtTestbench
   &build
+
+&ArtConfig.configure artConfig:
+  Art: Ery: tableNamePrefix: "art-ery-test."
+
+out
