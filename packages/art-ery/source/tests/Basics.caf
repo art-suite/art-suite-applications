@@ -1,0 +1,8 @@
+import &StandardImport, &PipelineWithRegistry
+
+test "basic Pipeline" ->
+  {user} = class User extends Pipeline
+    @handler get: -> name: :Shane
+
+  user.get()
+  .then (user) -> assert.eq :Shane user.name

@@ -1,5 +1,4 @@
 &ArtStandardLib.compactFlatten []
-  &@ArtSuite/DatabaseFilters
   &@ArtSuite/ArtEryPipelines
   &@ArtSuite/KeyFieldsMixin
   &@ArtSuite/DatabaseFilters

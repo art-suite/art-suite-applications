@@ -1,0 +1,5 @@
+import &ArtStandardLib
+&ArtStandardLib.merge
+  &ArtStandardLib
+  &ArtTestbench
+  &build
