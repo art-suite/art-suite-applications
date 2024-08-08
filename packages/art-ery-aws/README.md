@@ -9,7 +9,7 @@ import &ArtEryAws
 
 class Channel extends DynamoDbPipeline
 
-  @addDatabaseFilters
+  @filter createDatabaseFilters
     title: "trimmedString"
 ```
 
@@ -25,7 +25,7 @@ class Participant extends DynamoDbPipeline
   @globalIndexes participantsByUserId: "userId/createdAt"
   @localIndexes  participantsByPostId: "postId/createdAt"
 
-  @addDatabaseFilters
+  @filter createDatabaseFilters
     user: "link"
     post: "link"
 ```

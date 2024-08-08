@@ -1,0 +1,46 @@
+import &StandardImport, &TestLib
+
+chainedTest "setup", setupWithMyTable
+.thenTestMerged
+  "create then get", ({myTable}) ->
+    myTable.create
+      data:
+        name: "John"
+        email: "foo@bar.com"
+
+    .then (data) ->
+      assert.isString data.id
+      assert.isNumber data.createdAt
+      assert.isNumber data.updatedAt
+      {} data
+
+  "get" ({myTable, data}) ->
+    myTable.get key: data.id
+    .then (getData) ->
+      assert.eq getData, data
+
+  "update", ({myTable, data}) ->
+    myTable.update key: data.id, data: rank: 123
+    .then (data) -> assert.eq data.rank, 123
+
+  "delete", ({myTable}) ->
+    createData = null
+
+    myTable.create
+      data:
+        name: "John"
+        email: "foo@bar.com"
+        rank: 123
+        attributes: ["adventurous", "charming"]
+
+    .then (_createData) ->
+      createData = _createData
+      myTable.delete key: createData.id
+
+    .then ->
+      assert.rejects myTable.get key: createData.id
+
+    .then (expectedError)->
+      {response} = expectedError.info
+      assert.eq response.status, missing
+      "triggered catch"

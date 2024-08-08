@@ -1,0 +1,38 @@
+import &StandardImport
+
+myTable = MyTable = null
+registry = null
+pipelines = null
+
+setupWithMyTable = ->
+  deleteTestTables()
+  .then ->
+    {pipelines} = registry = new PipelineRegistry location: :client
+    {myTable} = class MyTable extends DynamoDbPipeline
+      @registry registry
+      @publicRequestTypes :get :create :update :delete :getAll :batchGet
+
+      @filter createDatabaseFilters
+        linkFilterVersion: 2
+        fields:
+          name:       "required string"
+          email:      "required email"
+          rank:       :number
+          attributes: :array
+
+    myTable._vivifyTable()
+
+chainedTest "setup", setupWithMyTable
+.thenTest "create then get", ->
+  myTable.create
+    data:
+      name: "John"
+      email: "foo@bar.com"
+
+  .then (data) ->
+    assert.isString data.id
+    assert.isNumber data.createdAt
+    assert.isNumber data.updatedAt
+    myTable.get key: data
+    .then (getData) ->
+      assert.eq getData, data

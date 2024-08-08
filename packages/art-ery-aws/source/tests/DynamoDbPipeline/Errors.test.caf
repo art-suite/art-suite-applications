@@ -1,0 +1,11 @@
+import &StandardImport, &TestLib
+
+chainedTest "setup", setupWithMyTable
+.thenTestMerged
+  "Service Unavailable errors return valid response with status networkFailure" ({myTable}) ->
+    assert.rejects myTable.throwServiceUnavailable props: numFailures: 3
+    .then ({status}) -> assert.eq status, networkFailure
+
+  "Service Unavailable errors are retried a limited number of times" ({myTable}) ->
+    myTable.throwServiceUnavailable props: numFailures: 2
+    .then (rest) -> assert.eq rest, successfulOnAttempt: 3

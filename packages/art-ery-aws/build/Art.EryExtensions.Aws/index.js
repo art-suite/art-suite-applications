@@ -5,6 +5,8 @@
 
 .addModules({
   DynamoDbPipeline: require('./DynamoDbPipeline'),
+  Env:              require('./Env'),
+  Logging:          require('./Logging'),
   SqsPipeline:      require('./SqsPipeline'),
   StandardImport:   require('./StandardImport')
 });

@@ -1,0 +1,5 @@
+import &ArtStandardLib, &Env
+
+logInfo: (args...) ->
+  switch LOG_LEVEL
+  when null, undefined, "info", "debug" then log.warn args...

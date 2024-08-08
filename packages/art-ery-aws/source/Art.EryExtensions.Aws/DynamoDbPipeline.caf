@@ -1,15 +1,22 @@
 import &StandardImport
 
-class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMixin Pipeline
+# TODO - use the PipelineRegistryMixin to create a class that lets us bind database related config: e.g. tableNamePrefix
+# Then you can make a custom prefix per registry.
+# And we need this for testing with JEST - since they all run in parallel; they are clobbering each other
+class DatabasePipeline extends Pipeline
+  @abstractClass()
+
+  getPrefixedTableName: (tableName) => "#{&ArtEry.config.tableNamePrefix}#{tableName}"
+
+  @getter
+    tableName: -> @_tableName ?= @getPrefixedTableName @name
+
+class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMixin DatabasePipeline
   @abstractClass()
 
   ###########################################
   # Class API
   ###########################################
-
-  @createTablesForAllRegisteredPipelines: ->
-    Promise.all array pipeline, name in pipelines when isFunction pipeline.createTable
-      pipeline.createTable()
 
   @classGetter
     dynamoDb: -> DynamoDb.singleton
@@ -43,13 +50,14 @@ class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMixin Pipeline
       @_vivifyTable()
       .then ->  "" OK: table exists and is reachable
       .catch -> "" ERROR: could not connect to the table
+
     dynamoDb: -> DynamoDb.singleton
 
   ###########################################
   # Helpers - not sure these should be public at all
   ###########################################
   queryDynamoDb:  (params) ->
-    log.warn "" DEPRICATED: queryDynamoDb; use queryDynamoDbWithRequest
+    logInfo "" DEPRECATED: queryDynamoDb; use queryDynamoDbWithRequest
     @_retryIfServiceUnavailable null, -> @dynamoDb.query merge params, table: @tableName
 
   queryDynamoDbWithRequest:  (request, params) ->
@@ -91,17 +99,8 @@ class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMixin Pipeline
   # Handlers
   ###########################################
   @handlers
-
-    # to-depricate??? use initialize
-    createTable: ->
-      @_vivifyTable()
-      .then -> message: "success"
-
-    initialize: (request)->
-      @_vivifyTable()
-      .then -> message: "success"
-
-    getInitializeParams: -> @createTableParams
+    initialize:           -> @_vivifyTable().then -> message: :success
+    getInitializeParams:  -> @createTableParams
 
     ################################
     # Direct DynamoDb requests
@@ -125,8 +124,7 @@ class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMixin Pipeline
           data:   items
           props:  {lastEvaluatedKey}
 
-    getAll: (request) ->
-      request.subrequest request.pipeline, "scan", returnResponse: true, props: request.props
+    getAll: (request) -> request.pipeline.scan request, returnResponse: true, props: request.props
 
     batchGet: (request) ->
       {keys, select} = request.props
@@ -256,7 +254,7 @@ class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMixin Pipeline
       OUT: promise.then (response) -> response.data == key(s)
     deleteIfExists: (request) ->
       {key, data} = request
-      request.subrequest @pipelineName, "delete", {key, data, returnNullIfMissing: true}
+      request.pipeline.delete request, {key, data, returnNullIfMissing: true}
       .then (result) ->
         result ? request.success data: request.requestDataWithKey
 
@@ -291,10 +289,10 @@ class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMixin Pipeline
       .then -> request.rejectIf @getKeyFieldsString() == 'id', "createOk not available on tables with auto-generated-ids"
       .then ->
         {key, data, add, setDefault} = request.props
-        request.subrequest @pipelineName, "update", returnNullIfMissing: true, props: {key, data, add, setDefault}
+        request.pipeline.update request, returnNullIfMissing: true, props: {key, data, add, setDefault}
         .then (result) =>
           keyFields = if isPlainObject(key) then key else if isString(key) && @toKeyObject then @toKeyObject key
-          result ? request.subrequest @pipelineName, "create", {key, data: merge keyFields, setDefault, data, add}
+          result ? request.pipeline.create request, {key, data: merge keyFields, setDefault, data, add}
 
   getFieldsRequestWillModify: (request) ->
     merge request.props.setDefault, request.props.add, request.data
@@ -407,7 +405,7 @@ class DynamoDbPipeline extends KeyFieldsMixin UpdateAfterMixin Pipeline
       @tablesByNameForVivification
     .then (tablesByName) ->
         unless tablesByName[@tableName]
-          log.warn "" #{@getClassName()}#_vivifyTable() dynamoDb table does not exist: #{@tableName}, creating...
+          logInfo "" #{@getClassName()}#_vivifyTable() dynamoDb table does not exist: #{@tableName}, creating...
           @_createTable()
 
   @classGetter
