@@ -1,0 +1,23 @@
+import &ArtStandardLib, &build.Logging
+
+out = []
+  &ArtStandardLib
+  &ArtTestbench
+  &ArtCommunicationStatus
+  &ArtEry
+  &build
+  &build.Logging
+
+  deleteTestTables: ->
+    dynamoDb = new &ArtAws.DynamoDb
+    .listTables()
+    .then ({TableNames}) ->
+      Promise.all array table in TableNames
+
+        if /art-ery-aws-test/.test table
+          logInfo deleteTable: table
+          dynamoDb.deleteTable TableName: table
+
+&Configure
+
+out

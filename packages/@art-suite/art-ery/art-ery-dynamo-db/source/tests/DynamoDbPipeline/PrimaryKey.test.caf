@@ -1,0 +1,97 @@
+import &StandardImport, &TestLib
+
+describe
+  basics: ->
+    chainedTest "setup", setupBasic
+    .thenTestMerged
+      "no primaryKey defines no queries" ({registry}) ->
+        {thing} = class Thing extends DynamoDbPipeline
+          @registry registry
+        assert.eq {}, thing.queries
+
+      "primaryKey :userId defines no queries" ({registry}) ->
+        {thing} = class Thing extends DynamoDbPipeline
+          @registry registry
+          @primaryKey :userId
+        assert.eq {}, thing.queries
+
+      "primaryKey :userId/postId defines correct queries" ({registry}) ->
+        {thing} = class Thing extends DynamoDbPipeline
+          @registry registry
+          @primaryKey :userId/postId
+        assert.eq
+          :byUserId, :byUserIdDesc
+          Object.keys thing.queries
+          .sort()
+
+  "compound primaryKey": ->
+    myManyToManyTable = null
+    chainedTest ->
+      setupBasic()
+      .then ({pipelines, registry})->
+        {myManyToManyTable} = class MyManyToManyTable extends DynamoDbPipeline
+          @registry registry
+          @primaryKey :userId/postId
+          @publicRequestTypes :create :get :update :getAll :byUserId
+          @filter createDatabaseFilters
+            linkFilterVersion: 2
+            fields:
+              user: "required link"
+              post: "required link"
+              rank: :number
+
+        assert.doesNotExist
+          myManyToManyTable.fields.id
+          "" There should be no id field when the primaryKey is a compound key (e.g. userId/postId)
+
+        myManyToManyTable._vivifyTable()
+        .then -> {} myManyToManyTable, pipelines, registry
+
+    .thenTestMerged
+      "primaryKey defines the correct queries" ({myManyToManyTable})->
+        assert.eq
+          Object.keys myManyToManyTable.queries
+          .sort()
+          :byUserId :byUserIdDesc
+
+      "primaryKey queries have correct keyFields" ({myManyToManyTable})->
+        each query, queryName in myManyToManyTable.queries
+          assert.eq
+            query.options.keyFields
+            [] :userId
+            conext: {} queryName, query
+
+      "create", ({myManyToManyTable})->
+        myManyToManyTable.create
+          data:
+            rank: 123
+            userId: randomString()
+            postId: randomString()
+
+        .then (data) -> {} data
+
+      :get ({myManyToManyTable, data}) ->
+        log {} data
+        assert.doesNotExist data.id
+        myManyToManyTable.get key: data
+        .then ({rank}) -> assert.eq rank, 123
+
+      :update ({myManyToManyTable, data}) ->
+        myManyToManyTable.update key: data, data: merge data, rank: 456
+
+      :getAfterUpdate ({myManyToManyTable, data}) ->
+        myManyToManyTable.get key: data
+        .then ({rank}) -> assert.eq rank, 456
+
+      :byUserId ({myManyToManyTable, data}) ->
+        myManyToManyTable.byUserId key: data.userId
+        .then ([{rank}]) -> assert.eq rank, 456
+
+      "create fails with missing required field", ({myManyToManyTable})->
+        assert.rejects myManyToManyTable.create
+          data:
+            rank:   123
+            userId: randomString()
+
+        .then (expectedError) ->
+          assert.eq expectedError.info.response.status, clientFailure

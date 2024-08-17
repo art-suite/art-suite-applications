@@ -1,0 +1,12 @@
+import &@ArtSuite/ArtEryPipelines
+registry = new PipelineRegistry
+
+class MyPipeline extends Pipeline
+  @registry registry
+
+  @handlers
+    hello: (request) -> "Hello #{request.data?.name || 'World'}"
+
+&ArtConfig.configure()
+
+registry.pipelines

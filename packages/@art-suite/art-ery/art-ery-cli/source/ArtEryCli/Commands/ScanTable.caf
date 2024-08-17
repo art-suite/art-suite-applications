@@ -1,2 +1,4 @@
-&ToolLib.createPipelineCommand (pipeline) ->
-  &ArtAws.DynamoDb.singleton.scan table: pipeline.tableName
+&ToolLib.createPipelineCommand
+  pipelineRequired: true
+  description: "" DynamoDB: scan table
+  action: (pipeline) -> &ArtAws.DynamoDb.singleton.scan table: pipeline.tableName

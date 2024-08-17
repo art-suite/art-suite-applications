@@ -1,0 +1,43 @@
+package: &@ArtSuite/StandardPackageBuilder.configure {}
+  &package
+  scripts:
+    dynamodb:       "" docker run -p 8081:8000 amazon/dynamodb-local
+    dynamodb-start: "" docker run -d -p 8081:8000 amazon/dynamodb-local
+    dynamodb-stop:  "" docker stop $(docker ps -q --filter ancestor=amazon/dynamodb-local)
+
+    start-dev:
+      """
+        cleanup() {
+          echo "Stopping Docker container..."
+          npm run dynamodb-stop
+          echo "Container stopped."
+        }
+        trap cleanup SIGINT SIGTERM
+
+        npm run dynamodb-start
+        if [ $? -ne 0 ]; then
+            echo "Failed to start Docker container. Exiting..."
+            exit 1
+        fi
+
+        # wait for the first build so dynamodb has a chance to start
+        npm run build
+        sleep 1
+
+        # uncomment for real app development
+        # art-ery-cli initialize-pipelines
+
+        # rebuild on changes
+        npm run build-watch&
+
+        # dynamodb-admin is a web UI for DynamoDB
+        npm run dynamodb-admin&
+        nodemon ./server&
+
+        sleep 5
+        echo "DynamoDb:       http://localhost:8081"
+        echo "DynamoDb admin: http://localhost:8001"
+        echo "App Server:     http://localhost:3000"
+        wait
+
+    test-server: "" npm run dynamodb

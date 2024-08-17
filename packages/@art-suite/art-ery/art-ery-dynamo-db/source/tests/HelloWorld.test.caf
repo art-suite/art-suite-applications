@@ -1,0 +1,32 @@
+import &StandardImport
+
+chainedTest "setup" ->
+  deleteTestTables()
+  .then ->
+    {myTable} = class MyTable extends DynamoDbPipeline
+      @registry new PipelineRegistry location: :client
+      @publicRequestTypes :get
+
+      @filter createDatabaseFilters
+        linkFilterVersion: 2
+        fields:
+          name:       :required :string
+          email:      :required :email
+          rank:       :number
+          attributes: :array
+
+.thenTestMerged
+  "initialize table", ({myTable}) -> myTable.initialize()
+  "create then get", ({myTable}) ->
+    myTable.create
+      data:
+        name:   :John
+        email:  :foo@bar.com
+
+    .then (data) ->
+      assert.isString data.id
+      assert.isNumber data.createdAt
+      assert.isNumber data.updatedAt
+      myTable.get key: data
+      .then (getData) ->
+        assert.eq getData, data

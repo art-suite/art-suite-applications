@@ -1,6 +1,5 @@
-options: pipeline: "" art-ery pipeline name
-run: ({pipeline, pipelines}) ->
-  {fields, normalizedFields} = pipelines[pipeline]
-  fields: fields
-  normalizedFields: normalizedFields
+&ToolLib.createPipelineCommand
+  pipelineRequired: true
+  description: "DynamoDb: show fields for a specific pipeline"
+  action: (pipeline) -> {fields, normalizedFields} = pipeline
 

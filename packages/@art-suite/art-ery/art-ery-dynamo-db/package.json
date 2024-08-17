@@ -1,0 +1,63 @@
+{
+  "author": "Shane Brinkman-Davis Delamore",
+  "bugs": "https://github.com/art-suite/art-suite-applications/issues",
+  "dependencies": {
+    "art-aws": "^1.29.9",
+    "art-ery": "^2.0.0-beta.0"
+  },
+  "description": "ArtEry for AWS Lambda + DynamoDB",
+  "devDependencies": {
+    "@art-suite/chained-test": "^1.6.0",
+    "@art-suite/standard-package-builder": "^1.2.3",
+    "art-build-configurator": "^1.30.3"
+  },
+  "homepage": "https://github.com/art-suite/art-suite-applications",
+  "jest": {
+    "collectCoverageFrom": [
+      "build/**/*.js",
+      "!build/test/**/*.js"
+    ],
+    "coveragePathIgnorePatterns": [
+      "/index.js$",
+      "/namespace.js$"
+    ],
+    "testEnvironment": "node",
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "<rootDir>/test"
+    ],
+    "verbose": true
+  },
+  "license": "ISC",
+  "name": "@art-suite/art-ery-dynamo-db",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/art-suite/art-suite-applications.git"
+  },
+  "scripts": {
+    "build": "rsync -av  --exclude='*.caf' ./source/ ./build/\ncaf -m -c source -o build\nnpm run nn",
+    "build-clean": "# BUILD CLEAN START\n#   - building into: build-temp\n#\nrm -rf ./__build-old__\nrsync -av  --exclude='*.caf' ./source/ ./build-temp/\ncaf -m -c source -o build-temp\nnpm run nn\n\nnn build-temp/*\n\n# BUILD CLEAN FINIALIZING\n#  - replace old build in:   build\n#  - with new build from:    build-temp\n#\nmv build __build-old__\nmv build-temp build\nrm -rf ./__build-old__",
+    "build-watch": "nodemon -e js,ts,jsx,tsx,caf,coffee,json -i \"build/**\" -x npm run build",
+    "clean": "rm -rf build/*",
+    "dynamodb": "docker run -p 8081:8000 amazon/dynamodb-local",
+    "dynamodb-start": "docker run -d -p 8081:8000 amazon/dynamodb-local",
+    "dynamodb-stop": "docker stop $(docker ps -q --filter ancestor=amazon/dynamodb-local)",
+    "nn": "nn build/* ",
+    "start-dev": "cleanup() {\n  echo \"Stopping Docker container...\"\n  npm run dynamodb-stop\n  echo \"Container stopped.\"\n}\ntrap cleanup SIGINT SIGTERM\n\nnpm run dynamodb-start\nif [ $? -ne 0 ]; then\n    echo \"Failed to start Docker container. Exiting...\"\n    exit 1\nfi\n\n# wait for the first build so dynamodb has a chance to start\nnpm run build\nsleep 1\n\n# uncomment for real app development\n# art-ery-cli initialize-pipelines\n\n# rebuild on changes\nnpm run build-watch&\n\n# dynamodb-admin is a web UI for DynamoDB\nnpm run dynamodb-admin&\nnodemon ./server&\n\nsleep 5\necho \"DynamoDb:       http://localhost:8081\"\necho \"DynamoDb admin: http://localhost:8001\"\necho \"App Server:     http://localhost:3000\"\nwait",
+    "test": "jest",
+    "test-server": "npm run dynamodb",
+    "test-watch": "jest --watch"
+  },
+  "version": "^2.0.0-beta.0",
+  "watch": {
+    "build": {
+      "extensions": [
+        "caf"
+      ],
+      "patterns": [
+        "source"
+      ],
+      "quiet": false
+    }
+  }
+}

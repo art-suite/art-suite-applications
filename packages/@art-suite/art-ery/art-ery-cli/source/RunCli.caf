@@ -1,26 +1,60 @@
 import &ArtStandardLib, &glob, {} &path
 realRequire = eval :require
 
-
-loadFromUserProject = (basename) ->
+getConfigFile = (basename) ->
   configFilepath = path.join process.cwd(), basename
   [configFilepath] = globSync configFilepath + "*"
-  if configFilepath?
+  configFilepath
+
+loadFromUserProject = (basename) ->
+  if configFilepath = getConfigFile basename
     log loading: configFilepath
     realRequire configFilepath
 
 loadFromUserProject :configure
-pipelines = loadFromUserProject :pipelines
 
 unless packageJson = loadFromUserProject :package.json
   console.error "" Not run in a package.
   console.log "" Please run from a folder containing a package.json
   process.exit 1
 
+unless pipelines = loadFromUserProject :pipelines
+  console.error
+    """
+      No 'pipelines' file found.
 
-log {} pipelines
+      Be sure to create a 'pipelines.caf' or `pipelines.js` file in the root of your project (case doesn't matter). It should configure, load and export your pipelines as the default export (e.g. `modules.export = pipelines`)."
+  process.exit 1
 
-&@ArtSuite/ArtEryCli.start {}
+pipelineFileName = getConfigFile "pipelines"
+
+unless isPlainObject(pipelines) && objectKeyCount(pipelines) > 0
+  console.error
+    if isPlainObject(pipelines) && objectKeyCount(pipelines) == 0
+      """ No pipelines found in: #{pipelineFileName}
+    else
+      """
+        Invalid pipelines exported from: #{pipelineFileName}
+
+        Exported: #{} formattedInspect {} pipelines
+        \n
+
+      + if /\.js$/.test pipelineFileName
+        """
+          Example:
+            // #{pipelineFileName}
+            // import your ArtEryPipelines registry instance, and export it as the default export:
+            module.exports = registry.pipelines;
+      else
+        """
+          Example:
+            # #{pipelineFileName}
+            # import your ArtEry registry instance, and export it as the default export:
+            registry.pipelines
+
+  process.exit 1
+
+&@ArtSuite/ArtEryCli.start
   description:  "" ArtEryCli for #{} packageJson.name
   package: packageJson
   preprocessOptions: (options) -> merge options, {} pipelines

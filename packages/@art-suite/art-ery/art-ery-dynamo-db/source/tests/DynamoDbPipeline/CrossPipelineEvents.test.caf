@@ -1,0 +1,173 @@
+import &StandardImport, &TestLib
+
+sharedAfterEventTests = (setupUserWith) ->
+
+  chainedTest -> setupBasic().then ({pipelines, registry, session}) ->
+    User = null
+    class User extends DynamoDbPipeline
+      @registry registry
+      @publicRequestTypes :get :create :update :delete
+      @filter createDatabaseFilters
+        linkFilterVersion: 2
+        fields:
+          name:               "" required trimmedstring
+          postCount:          :number
+          lastPostCreatedAt:  :timestamp
+          text:               :trimmedstring
+
+    setupUserWith User, {} pipelines, registry, session
+
+    class Post extends DynamoDbPipeline
+      @registry registry
+      @publicRequestTypes :get :create :update :delete
+      @filter createDatabaseFilters
+        linkFilterVersion: 2
+        userOwned:
+          publicFields: true
+          userCreatableFields:
+            ""
+              name
+              text
+              postCount
+              lastPostCreatedAt
+
+          userUpdatableFields:
+            ""
+              name
+              text
+              postCount
+              lastPostCreatedAt
+
+        fields:
+          text:       "trimmedstring"
+          createdAt:  "timestamp"
+
+    Promise.all []
+      pipelines.user._vivifyTable()
+      pipelines.post._vivifyTable()
+    .then ->
+      afterEventsRouter = AfterEventsRouter.getAfterEventsRouter registry
+      # User and AfterEventsFilter properly setup
+      assert.eq afterEventsRouter._handlers.post.create.length, 1
+      assert.eq afterEventsRouter._handlers.post.create[0], User
+
+      {}
+        pipelines, registry, registry.session
+
+  .tapTest
+    "User and AfterEventsFilter properly setup", ->
+      # tests are in setup, since we want to run them EACH TIME - the second time can fail
+      # LEAVE THIS 'empty' TEST HERE - so we can JUST run the setup-tests
+
+    "create user and two posts", ({pipelines, session}) ->
+      userId = post = null
+      pipelines.user.create
+        data: name: "Bill"
+      .then (user) ->
+        {name, postCount, lastPostCreatedAt, id: userId} = user
+        session.data = {userId}
+        assert.doesNotExist lastPostCreatedAt
+        assert.doesNotExist postCount
+        assert.eq name, "Bill"
+        assert.eq name, "Bill"
+        assert.isString userId
+      .then -> pipelines.post.create data: userId: userId, text: "hi"
+      .then (_post) -> post = _post; pipelines.user.get key: userId
+      .then (user) ->
+        {postCount, lastPostCreatedAt} = user
+        assert.eq lastPostCreatedAt, post.createdAt
+        assert.eq postCount, 1
+
+      .then -> pipelines.post.create data: userId: userId, text: "hi"
+      .then (_post) -> post = _post; pipelines.user.get key: userId
+      .then (user) ->
+        {postCount, lastPostCreatedAt} = user
+        assert.eq lastPostCreatedAt, post.createdAt
+        assert.eq postCount, 2
+
+describe
+  afterEvent: ->
+    sharedAfterEventTests (User, {pipelines}) ->
+      User.afterEvent
+        create: post: afterEventFunction = (response) ->
+          Promise.then ->
+            {userId, createdAt} = response.data
+            assert.eq "post", response.pipelineName
+            pipelines.user.update response, props:
+              key:  userId
+              data: lastPostCreatedAt: createdAt
+              add:  postCount: 1
+
+      assert.eq User.getAfterEventFunctions(), post: create: [afterEventFunction]
+
+  updateAfter:
+    full: ->
+      sharedAfterEventTests (User) ->
+        User.updateAfter
+          create: post: postCreateUpdateFunction = (response) ->
+            Promise.then ->
+              {userId, createdAt} = response.data
+              assert.eq "post", response.pipelineName
+              key: userId
+              data: lastPostCreatedAt: createdAt
+              add: postCount: 1
+
+        # User and AfterEventsFilter properly setup
+        assert.eq User.getUpdatePropsFunctions(), post: create: [postCreateUpdateFunction]
+
+    _mergeUpdateProps: ->
+      User = null
+      chainedTest -> setupBasic().then ({pipelines, registry}) ->
+
+        class User extends DynamoDbPipeline
+          @registry registry
+          @filter createDatabaseFilters
+            linkFilterVersion: 2
+            fields:
+              name:               "" required trimmedstring
+              postCount:          :number
+              lastPostCreatedAt:  :timestamp
+              text:               :trimmedstring
+        {} User
+
+      .thenTestMerged
+        "basic", ({User}) ->
+          assert.eq
+            foo: key: "foo", set: bar: 123
+            User._mergeUpdateProps
+              [] key: "foo", set: bar: 123
+              :user
+
+        "distinct actions for same key", ({User}) ->
+          assert.eq
+            foo:
+              key:        "foo"
+              set:        bar: 123
+              setDefault: baz: 456
+            User._mergeUpdateProps
+              []
+                key: "foo", set: bar: 123
+                key: "foo", setDefault: baz: 456
+              :user
+
+        "two keys with overlapping actions", ({User}) ->
+          assert.eq
+            foo: key: "foo", set: name: "alice"
+            bar: key: "bar", set: name: "bill"
+            User._mergeUpdateProps
+              []
+                key: "foo", set: name: "alice"
+                key: "bar", set: name: "bill"
+              :user
+
+        "array of updates", ({User}) ->
+          assert.eq
+            foo: key: "foo", set: name: "alice", address: "123 Street"
+            bar: key: "bar", set: name: "bill"
+            User._mergeUpdateProps
+              []
+                []
+                  key: "foo", set: name: "alice"
+                  key: "bar", set: name: "bill"
+                key: "foo", set: address: "123 Street"
+              :user

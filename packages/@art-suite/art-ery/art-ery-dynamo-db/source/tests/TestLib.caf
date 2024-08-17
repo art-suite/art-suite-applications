@@ -1,0 +1,58 @@
+import &StandardImport
+
+{}
+  setupBasic = ->
+    deleteTestTables()
+    .then -> {}
+      registry = new PipelineRegistry location: :client
+      registry.pipelines
+
+  setupWithMyTable: ->
+    setupBasic()
+    .then ({pipelines, registry})->
+      {myTable} = class MyTable extends DynamoDbPipeline
+        @registry registry
+        @publicRequestTypes :get :create :update :delete :getAll :batchGet
+        @filter createDatabaseFilters
+          linkFilterVersion: 2
+          fields:
+            name:       "required string"
+            email:      "required email"
+            rank:       :number
+            attributes: :array
+
+        @publicHandlers
+          throwServiceUnavailable: (request)->
+            {numFailures} = request.props
+            attemptCount = 0
+            @_artEryToDynamoDbRequest
+              request
+              then: (params) =>
+                attemptCount++
+                if numFailures >= attemptCount
+                  # 4 means it'll fail all retries on the first call, but
+                  # will succeed in the second
+                  throw new Error "Service Unavailable"
+                successfulOnAttempt: attemptCount
+
+      {myCompoundKeyTable} = class MyCompoundKeyTable extends DynamoDbPipeline
+        @registry registry
+        @keyFields "userId/postId"
+        @filter createDatabaseFilters
+          linkFilterVersion: 2
+          fields:
+            user:   "link"
+            post:   "link"
+
+      Promise.all []
+        myCompoundKeyTable._vivifyTable()
+        myTable._vivifyTable()
+
+      .then ->
+        {}
+          myTable
+          MyTable
+          myCompoundKeyTable
+          MyCompoundKeyTable
+          registry
+          pipelines

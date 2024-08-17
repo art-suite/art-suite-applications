@@ -1,2 +1,2 @@
-description:   "" get list of tables from DynamoDb
+description:   "" DynamoDB: get list of tables from DynamoDb
 run: -> &ArtAws.DynamoDb.singleton.listTables()

@@ -1,0 +1,10 @@
+import &StandardImport, &TestLib
+
+chainedTest "setup", setupWithMyTable
+.tapTest
+  "describeTable", ({myTable}) ->
+    myTable.dynamoDb.describeTable TableName: myTable.tableName
+    .then ({Table}) ->
+      assert.eq Table.AttributeDefinitions, []
+        AttributeName: :id
+        AttributeType: :S

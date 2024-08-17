@@ -1,5 +1,5 @@
 description: "Get JSON for current artConfig"
-run: ({quite}) ->
+run: ({quiet}) ->
   console.log "ArtConfig.getArtConfigSave() JSON:".grey unless quiet
 
   json = JSON.stringify artConfigSave = &ArtConfig.getArtConfigSave()

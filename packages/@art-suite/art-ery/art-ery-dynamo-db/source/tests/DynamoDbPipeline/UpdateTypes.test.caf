@@ -1,0 +1,70 @@
+import &StandardImport, &TestLib
+
+# TODO - test the conditional and atomic updates
+## TODO - in addition to "add", test the following props options:
+  remove: ...           # ??? remove attributes
+  add:                  {key: value to add} -> dynamodb ADD action
+  setDefault:           {key: value} -> set attribute if not present
+  conditionExpression:  dynamodb update-if condition expression
+  returnValues:         art.aws.dynamodb return value selector type
+
+chainedTest "setup", setupWithMyTable
+.thenTestMerged
+  "create test record", ({myTable}) ->
+    myTable.create
+      data:
+        name: "John"
+        email: "foo@bar.com"
+        rank: 123
+        attributes: ["adventurous", "charming"]
+    .then (record) -> {} record
+
+  "using keys", ({myTable, record}) ->
+    myTable.update
+      key: record.id
+      data: rank: 456
+
+    .then (updatedData)->
+      myTable.get key: record.id
+      .then (data)->
+        assert.eq data, merge record, updatedData
+        record: updatedData
+
+  "non-existent record fails with status: missing", ({myTable}) ->
+    assert.rejects myTable.update
+      key: randomString()
+      data: rank: 123
+
+    .then (rejectsWith) ->
+      assert.eq rejectsWith.info.response.status, missing
+
+  "with createOk rejected without originatedOnServer", ({myTable}) ->
+    assert.clientFailureNotAuthorized myTable.update
+      props:
+        createOk: true
+        key: randomString()
+        data: rank: 123
+
+  "non-existent record works with createOk and originatedOnServer", ({myTable, myCompoundKeyTable}) ->
+    myCompoundKeyTable.update
+      returnResponseObject: true
+      originatedOnServer: true
+      location: :server
+      props:
+        createOk: true
+        key: userId: :123 postId: :abc
+
+    .then (response) ->
+      assert.eq response.status, success
+
+  "update with atomic add" ({myTable, record}) ->
+    myTable.update
+      originatedOnServer: true
+      location: :server
+      props:
+        key: record.id
+        add: rank: 1
+
+    .then (updatedData)->
+      assert.eq record.rank + 1, updatedData.rank
+      record: updatedData

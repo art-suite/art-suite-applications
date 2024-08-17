@@ -1,0 +1,3 @@
+&ToolLib.createPipelineCommand
+  description: "" List all pipeline names
+  action: (pipeline, {pipelines}) -> Object.keys pipelines

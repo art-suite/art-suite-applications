@@ -1,4 +1,3 @@
 &ToolLib.createPipelineCommand
-  action: (pipeline, {pipelines}) ->
-    console.log "pipelines"
-    pipelines
+  description: "" List all pipelines with details
+  action: (pipeline, {pipelines}) -> {} pipelines

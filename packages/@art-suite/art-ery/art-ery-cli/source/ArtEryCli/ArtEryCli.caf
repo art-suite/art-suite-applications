@@ -18,12 +18,13 @@ import &ArtStandardLib
       Config[environmentName]
       eval process.env.artSuiteApp || "null"
 
-start: ({package: _package, description, load}) ->
+start: ({package: _package, description, preprocessOptions, load}) ->
   Promise.then load ? ->
   .then ->
     &@ArtSuite/Cli
     .start {}
       description
+      preprocessOptions
       commands: merge
         &Commands.modules
         version: -> _package.version
