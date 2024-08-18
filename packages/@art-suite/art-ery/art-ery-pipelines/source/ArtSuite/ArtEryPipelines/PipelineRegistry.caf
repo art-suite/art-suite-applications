@@ -10,14 +10,14 @@ class PipelineRegistry extends BaseObject
 
     @_name = name ? @class.name
     @_pipelines = {}
-    @_registryRegistry()
+    @_registerInPipelineRegistries()
     @_location = validateLocation location
 
     if session || @location == :client
       throw new Error "session option must only be the session data" if session && !isPlainObject session
       @_session = new Session session, "ArtEryPipelines-#{@name}-Session", @
 
-  _registryRegistry: ->
+  _registerInPipelineRegistries: ->
     registryNumber = pipelineRegistries.length
     @_uniqueName = "#{@name}#{registryNumber}"
     pipelineRegistries[registryNumber] = @

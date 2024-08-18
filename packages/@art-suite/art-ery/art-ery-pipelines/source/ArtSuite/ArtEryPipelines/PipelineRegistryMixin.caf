@@ -2,7 +2,7 @@ import &ArtStandardLib
 
 (superClass) -> class PipelineRegistryMixin extends superClass
   @extendableProperty pipelineRegistryInstances: {}
-  ## getRegisryInstance
+  ## getRegistryInstance
     IN:
       pipeline, request, pipelineRegistry or anything with a pipelineRegistry property/getter that returns a valid pipelineRegistry
       constructorPropsOrPropsFunction: optional, props to pass to new instances
@@ -11,6 +11,7 @@ import &ArtStandardLib
     pipelineRegistry extract uniqueName
     if @getPipelineRegistryInstances()[uniqueName]
       @getPipelineRegistryInstances()[uniqueName]
+
     else
       props = if isFunction constructorPropsOrPropsFunction
         constructorPropsOrPropsFunction()

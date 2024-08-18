@@ -17,7 +17,7 @@ class Channel extends DynamoDbPipeline
 
 This uses all of the declaration features of DynamoDbPipeline. This is also a good example for how to do a many-to-many DynamoDb model.
 
-```coffeescript
+```coffee
 import &ArtEryAws
 
 class Participant extends DynamoDbPipeline

@@ -5,7 +5,7 @@ chainedTest "setup" ->
   .then ->
     {myTable} = class MyTable extends DynamoDbPipeline
       @registry new PipelineRegistry location: :client
-      @publicRequestTypes :get
+      @publicRequestTypes :get :create
 
       @filter createDatabaseFilters
         linkFilterVersion: 2
@@ -16,7 +16,7 @@ chainedTest "setup" ->
           attributes: :array
 
 .thenTestMerged
-  "initialize table", ({myTable}) -> myTable.initialize()
+  "initialize table", ({myTable}) -> myTable.initialize originatedOnServer: true, location: :server
   "create then get", ({myTable}) ->
     myTable.create
       data:
