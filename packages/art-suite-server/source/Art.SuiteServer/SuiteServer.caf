@@ -59,10 +59,10 @@ class Server
       throw new Error "options.app required"
 
     unless noServer then logPromiseErrors
-      :Art.Suite.Server
+      :Art.SuiteServer
       Promise
       .then -> &ArtConfig.configure deepMerge options,
-        artConfig: Art.Suite.Server: {} app, metadata, appUrlRegexp, head
+        artConfig: Art.SuiteServer: {} app, metadata, appUrlRegexp, head
 
       .then loadPipelines
       .then -> &ArtEry.sendInitializeRequestToAllPipelines() if isTest
@@ -77,4 +77,4 @@ class Server
           options
 
       .tapCatch (e) ->
-        log "Error starting Art.Suite.Server server", e
+        log "Error starting Art.SuiteServer server", e

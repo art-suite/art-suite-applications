@@ -9,7 +9,7 @@
     "image-size": "^1.0.0",
     "neptune-namespaces-runtime": "^3.2.9"
   },
-  "description": "Art.Suite.Server",
+  "description": "Art.SuiteServer",
   "devDependencies": {
     "@art-suite/standard-package-builder": "^1.0.0",
     "art-build-configurator": "^1.29.3",

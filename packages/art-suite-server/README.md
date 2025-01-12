@@ -1,10 +1,10 @@
-# Art.Suite.Server
+# Art.SuiteServer
 
 ArtSuite Server is backed by NodeJS Express. By default, it provides:
 
-* public webpage hosting at `/public`
-* `art-ery` REST-API hosting at `/api`
-* `art-suite-app` hosting at `/`
+- public webpage hosting at `/public`
+- `art-ery` REST-API hosting at `/api`
+- `art-suite-app` hosting at `/`
 
 ### Install
 

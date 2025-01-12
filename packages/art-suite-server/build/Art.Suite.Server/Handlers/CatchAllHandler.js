@@ -1,4 +1,0 @@
-"use strict"
-let Caf = require('caffeine-script-runtime');
-Caf.defMod(module, () => {return Caf.importInvoke(["PromiseHandler", "Html", "config", "Body", "P", "Br", "A"], [global, require('../StandardImport')], (PromiseHandler, Html, config, Body, P, Br, A) => {let CatchAllHandler; return CatchAllHandler = Caf.defClass(class CatchAllHandler extends PromiseHandler {}, function(CatchAllHandler, classSuper, instanceSuper) {this.handleUrlRegex(/.*/); this.prototype.handleHtmlRequest = function(request, requestData) {return {statusCode: 404, headers: {"cache-control": 3600}, data: "<!DOCTYPE html>" + Html({title: `${Caf.toString(config.app)} Page Not Found`}, Body(P({style: {"text-align": "center"}}, "We're sorry, but we couldn't find the page you requested.", Br(), A("return home", {href: "/"}))))};};});});});
-//# sourceMappingURL=CatchAllHandler.js.map
