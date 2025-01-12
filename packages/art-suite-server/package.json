@@ -44,7 +44,7 @@
     "test": "npm run nn\nmocha -u tdd",
     "watch": "npm-watch"
   },
-  "version": "0.3.3",
+  "version": "0.3.6",
   "watch": {
     "build": {
       "extensions": [
