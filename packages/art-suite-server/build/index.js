@@ -1,4 +1,4 @@
 "use strict"
 let Caf = require('caffeine-script-runtime');
-Caf.defMod(module, () => {return require('./Art.Suite.Server');});
+Caf.defMod(module, () => {return require('./Art.SuiteServer');});
 //# sourceMappingURL=index.js.map
