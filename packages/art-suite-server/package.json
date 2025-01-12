@@ -3,7 +3,7 @@
   "bugs": "https://github.com/art-suite/art-suite-applications/issues",
   "dependencies": {
     "art-config": "^2.0.3",
-    "art-express-server": "^1.2.2",
+    "art-express-server": "^1.6.2",
     "art-html-factory": "^2.1.11",
     "art-standard-lib": "^1.70.6",
     "image-size": "^1.0.0",

@@ -4,7 +4,7 @@
   "dependencies": {
     "art-build-configurator": "^1.29.3",
     "art-events": "^2.0.0",
-    "art-express-server": "^1.2.2",
+    "art-express-server": "^1.6.2",
     "compress": "^0.99.0",
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",

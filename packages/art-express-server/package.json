@@ -10,7 +10,7 @@
   },
   "description": "Extensible, Promise-based HTTP Server based on Express",
   "devDependencies": {
-    "art-rest-client": "^1.10.0"
+    "art-rest-client": "^1.8.11"
   },
   "homepage": "https://github.com/art-suite/art-suite-applications",
   "jest": {
